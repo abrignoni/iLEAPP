@@ -154,6 +154,18 @@ jobs:
             python packaging/build.py smoke
           fi
 
+      # Windows ships the single-file executable as its portable download; see release.yml.
+      # Nothing here is signed: signing is release.yml's, with SignPath.
+      - name: Phase 1, the single-file executable (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python packaging/build.py exe --onefile
+
+      - name: Smoke test the single-file executable (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python packaging/build.py smoke --onefile
+
       - name: Phase 2, the installer (Windows)
         if: runner.os == 'Windows'
         shell: bash
@@ -177,7 +189,8 @@ jobs:
           python packaging/build.py installer
           ls -l dist/iLEAPP-*.AppImage
 
-      # Windows and Linux ship the one-folder build as well as their installer.
+      # Windows and Linux ship the one-folder build as well as their installer, and Windows
+      # the single-file executable too.
       - name: Upload the build (Windows, Linux)
         if: runner.os != 'macOS'
         uses: actions/upload-artifact@v7
@@ -185,6 +198,7 @@ jobs:
           name: ileapp-${{ matrix.name }}-test
           path: |
             dist/iLEAPP/
+            dist/ileapp.exe
             dist/iLEAPP-Setup-*.exe
             dist/iLEAPP-*.AppImage
           retention-days: 14

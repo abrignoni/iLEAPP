@@ -14,9 +14,15 @@ name: Release
 # .app is codesigned between phase 1 and phase 2, smoke-tested again as signed, then the
 # .dmg is signed, notarised and stapled. A tag refuses to publish an unsigned Mac build;
 # a workflow_dispatch rehearsal without the secrets still builds, unsigned.
-# The Windows executable and installer are not signed: that belongs between the phases
-# too, through packaging/build.py's --sign-tool for Inno Setup, and needs credentials of
-# its own.
+#
+# Windows ships two downloads: an installer around the one-folder build, and the program
+# as a single file for running without installing. Both executables are signed by
+# SignPath when SIGNPATH_API_TOKEN is set: they go up in one signing request between
+# phase 1 and phase 2, come back signed, are verified and smoke-tested again, and only
+# then does Inno Setup build the installer around the signed folder; the installer is
+# signed in a second request. SignPath's test certificate is for rehearsals, so a tag
+# signs only under the release-signing policy and is otherwise built unsigned, as before.
+# The artifact configurations SignPath applies are kept in packaging/signpath/.
 
 on:
   push:
@@ -66,10 +72,22 @@ jobs:
             platform: linux
     name: build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
-    # A step's `if` cannot read `secrets`, so whether macOS can be signed is decided here.
+    # Room for two SignPath requests on Windows, each of which can wait for an approval.
+    timeout-minutes: 90
+    # SignPath downloads what a Windows leg uploaded for signing, from this run, with the
+    # job's own token, and needs actions: read for that.
+    permissions:
+      contents: read
+      actions: read
+    # SIGNPATH_API_TOKEN is kept in this environment, whose deployment rule admits only the
+    # refs that may sign (main and v* tags), so a workflow on another branch cannot use it.
+    environment: release
+    # A step's `if` cannot read `secrets`, so whether a platform can be signed is decided
+    # here.
     env:
       MACOS_SIGN: ${{ secrets.MACOS_CERT_P12 != '' && 'yes' || '' }}
+      SIGNPATH_TOKEN_SET: ${{ secrets.SIGNPATH_API_TOKEN != '' && 'yes' || '' }}
+      SIGNPATH_POLICY: ${{ vars.SIGNPATH_SIGNING_POLICY }}
     steps:
       # A tag must not ship an unsigned Mac build by accident: Gatekeeper refuses its first
       # launch, and an examiner is left clearing a warning on a forensic tool. Checked
@@ -81,6 +99,22 @@ jobs:
         run: |
           echo "::error::MACOS_CERT_P12 is not set; a tagged release must be signed and notarised on macOS"
           exit 1
+
+      # Decided once, for every Windows step after it. A binary signed with SignPath's test
+      # certificate is trusted by no Windows, so a tag is never signed with it: under any
+      # policy but release-signing a tag builds unsigned, as releases did before signing
+      # was wired, and says so. A rehearsal signs under whichever policy is set.
+      - name: Windows, decide whether to sign
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          if [ "$SIGNPATH_TOKEN_SET" != "yes" ]; then
+            echo "::notice::SIGNPATH_API_TOKEN is not set; the Windows build is not signed"
+          elif [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$SIGNPATH_POLICY" != "release-signing" ]; then
+            echo "::warning::signing policy '$SIGNPATH_POLICY' is not release-signing, and a tag is never signed with a test certificate; this release is unsigned on Windows"
+          else
+            echo "WINDOWS_SIGN=yes" >> "$GITHUB_ENV"
+          fi
 
       - name: Checkout code
         uses: actions/checkout@v7
@@ -163,6 +197,103 @@ jobs:
             python packaging/build.py smoke
           fi
 
+      # Windows also ships the program as a single file, the portable download, with no
+      # _internal folder beside it for a user to wonder about. It unpacks itself to %TEMP%
+      # on every start, which is why the installer keeps the folder build: that starts at
+      # once, and runs where AppLocker or WDAC forbid executing from %TEMP%.
+      # dist/ileapp.exe and dist/iLEAPP/ are different names, even on Windows, so this
+      # build leaves the folder build alone.
+      - name: Phase 1, the single-file executable (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python packaging/build.py exe --onefile
+
+      - name: Smoke test the single-file executable (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python packaging/build.py smoke --onefile
+
+      # Between the phases, as on macOS: the installer packages dist/iLEAPP/, so its
+      # executable has to be signed before Inno Setup runs. Both executables go to SignPath
+      # in one request, staged under the paths packaging/signpath/executables.xml names,
+      # so release-signing asks for one approval for the two.
+      - name: Windows, stage the executables for signing
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        shell: bash
+        run: |
+          mkdir -p signing/unsigned-executables/folder signing/unsigned-executables/portable
+          cp dist/iLEAPP/ileapp.exe signing/unsigned-executables/folder/
+          cp dist/ileapp.exe signing/unsigned-executables/portable/
+
+      # SignPath signs only what a workflow stored as an artifact of its run: that is how it
+      # checks the binary was built here, from this repository, on GitHub's runners.
+      - name: Windows, upload the executables for SignPath
+        id: unsigned-executables
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        uses: actions/upload-artifact@v7
+        with:
+          name: unsigned-executables-${{ matrix.name }}
+          path: signing/unsigned-executables/
+          retention-days: 1
+          if-no-files-found: error
+
+      # Pinned to a commit rather than a tag: this step holds the signing token, and a tag
+      # can be moved to other code.
+      - name: Windows, sign the executables (SignPath)
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092  # v3.0
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY }}
+          artifact-configuration-slug: executables
+          github-artifact-id: ${{ steps.unsigned-executables.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 1200
+          output-artifact-directory: signing/signed-executables
+
+      - name: Windows, put the signed executables in place
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        shell: bash
+        run: |
+          cp signing/signed-executables/folder/ileapp.exe dist/iLEAPP/ileapp.exe
+          cp signing/signed-executables/portable/ileapp.exe dist/ileapp.exe
+
+      # A test-signed binary chains to SignPath's test certificate, which no Windows
+      # trusts, and `verify` would fail it. This runner, and nothing else, is told to trust
+      # it, so `verify` still checks a whole chain during rehearsals.
+      # SIGNPATH_TEST_CERT_B64 is the root of that chain (the test certificate itself
+      # when it is self-signed), public, as a base64-encoded .cer.
+      - name: Windows, trust the SignPath test certificate (test-signing only)
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes' && env.SIGNPATH_POLICY == 'test-signing'
+        shell: pwsh
+        env:
+          TEST_CERT: ${{ vars.SIGNPATH_TEST_CERT_B64 }}
+        run: |
+          if (-not $env:TEST_CERT) {
+            Write-Error 'SIGNPATH_TEST_CERT_B64 is not set; the test-signed executables cannot be verified'
+            exit 1
+          }
+          $cer = Join-Path $env:RUNNER_TEMP 'signpath-test.cer'
+          [IO.File]::WriteAllBytes($cer, [Convert]::FromBase64String($env:TEST_CERT))
+          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\LocalMachine\Root |
+            Format-List Subject, Thumbprint, NotAfter
+
+      # Signing appends to the executable, and the single file finds its own archive by
+      # reading back from its end, so both are run again as signed before anything ships.
+      - name: Windows, verify and smoke test the signed executables
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        shell: bash
+        env:
+          SUBJECT: ${{ vars.SIGNPATH_CERT_SUBJECT }}
+        run: |
+          args=()
+          if [ -n "$SUBJECT" ]; then args=(--subject "$SUBJECT"); fi
+          python packaging/build.py verify dist/iLEAPP/ileapp.exe dist/ileapp.exe "${args[@]}"
+          python packaging/build.py smoke
+          python packaging/build.py smoke --onefile
+
       # A throwaway keychain holding only the Developer ID certificate, deleted by the
       # last macOS step whatever happens.
       - name: macOS, import the Developer ID certificate
@@ -225,6 +356,52 @@ jobs:
           choco install innosetup --no-progress -y
           python packaging/build.py installer
 
+      # The installer is signed once Inno Setup has made it, in a second request, under a
+      # fixed name for packaging/signpath/installer.xml. Its uninstaller stays unsigned:
+      # Inno Setup signs that only while compiling, through a sign tool on this machine,
+      # and SignPath signs only what a workflow uploaded.
+      - name: Windows, stage the installer for signing
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        shell: bash
+        run: |
+          mkdir -p signing/unsigned-installer
+          cp "dist/iLEAPP-Setup-$VERSION.exe" signing/unsigned-installer/setup.exe
+
+      - name: Windows, upload the installer for SignPath
+        id: unsigned-installer
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        uses: actions/upload-artifact@v7
+        with:
+          name: unsigned-installer-${{ matrix.name }}
+          path: signing/unsigned-installer/
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Windows, sign the installer (SignPath)
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092  # v3.0
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 1200
+          output-artifact-directory: signing/signed-installer
+
+      - name: Windows, put the signed installer in place and verify it
+        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
+        shell: bash
+        env:
+          SUBJECT: ${{ vars.SIGNPATH_CERT_SUBJECT }}
+        run: |
+          cp signing/signed-installer/setup.exe "dist/iLEAPP-Setup-$VERSION.exe"
+          args=()
+          if [ -n "$SUBJECT" ]; then args=(--subject "$SUBJECT"); fi
+          python packaging/build.py verify "dist/iLEAPP-Setup-$VERSION.exe" "${args[@]}"
+
       - name: Phase 2, the disk image (macOS) or the AppImage (Linux)
         if: runner.os != 'Windows'
         shell: bash
@@ -267,8 +444,8 @@ jobs:
           rm -f "$RUNNER_TEMP/notary.p8" "$RUNNER_TEMP/cert.p12"
 
       # Release assets are single files: an installer or disk image per platform, and on
-      # Windows the one-folder build archived as a portable zip. Linux ships the AppImage
-      # alone. The names carry the platform and the architecture, because a reader cannot
+      # Windows the single-file executable as the portable download. Linux ships the
+      # AppImage alone. The names carry the platform and the architecture, because a reader cannot
       # tell from "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. They are gathered
       # in release-assets/, not assets/ as in GLEAPP: iLEAPP's assets/ holds the window's
       # images, and a rehearsal published them with the release and listed them in
@@ -281,7 +458,7 @@ jobs:
           STEM="iLEAPP-$VERSION-${{ matrix.platform }}-$ARCH"
           case "$RUNNER_OS" in
             Windows)
-              powershell -NoProfile -Command "Compress-Archive -Path 'dist/iLEAPP/*' -DestinationPath 'release-assets/$STEM-portable.zip'"
+              mv dist/ileapp.exe "release-assets/$STEM-portable.exe"
               mv "dist/iLEAPP-Setup-$VERSION.exe" "release-assets/$STEM-setup.exe"
               ;;
             macOS)

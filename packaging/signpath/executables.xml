@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SignPath artifact configuration "executables", pasted into the iLEAPP project in SignPath
+  under that slug. Kept here so a change to it is reviewed like any other change; SignPath
+  uses its own copy, so edit both.
+
+  release.yml uploads both Windows executables as one GitHub artifact, which GitHub zips:
+  folder/ileapp.exe is the one-folder build the installer packages, portable/ileapp.exe the
+  single-file download. One request signs both, so release-signing needs one approval for
+  them per architecture. bin/unifiedlog_iterator.exe is not in it: that is Mandiant's
+  binary, and our signature would vouch for code we did not build.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="folder/ileapp.exe">
+      <authenticode-sign/>
+    </pe-file>
+    <pe-file path="portable/ileapp.exe">
+      <authenticode-sign/>
+    </pe-file>
+  </zip-file>
+</artifact-configuration>
