@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.61"
+QNXPROBE_VERSION = "1.62"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -942,10 +942,11 @@ def parse_mbr(fh):
     # A FAT, exFAT, NTFS or BitLocker boot sector also ends in 0x55AA, and its
     # boot code sits where MBR partition entries would be, so it parses as four
     # nonsense partitions. Its own type string at bytes 3..11 (exFAT, NTFS,
-    # BitLocker's "-FVE-FS-") or 82..90 (FAT32) says it is a volume, not a
+    # BitLocker's "-FVE-FS-"), 82..90 (FAT32) or 54..62 (FAT16, FAT12) says it is a volume, not a
     # partition table.
     if (mbr[3:11] in (b"EXFAT   ", b"NTFS    ", BDE_SIGNATURE)
-            or mbr[82:90] == b"FAT32   " or mbr[54:62] == b"FAT16   "):
+            or mbr[82:90] in (b"FAT32   ", b"TFAT32  ")
+            or mbr[54:62] in (b"FAT16   ", b"FAT12   ", b"TFAT16  ")):
         return None
     # A QNX4 boot block can also end in 0x55AA (the dinit boot sector does).
     # The QNX4 superblock is the NEXT sector: its first entry is the root
@@ -2189,11 +2190,13 @@ class F2fsWalker:
 
 
 # ---------------------------------------------------------------------------
-# FAT32 and exFAT.
+# FAT32, FAT16, FAT12 and exFAT.
 #
 # FAT is the file system of removable media and of many embedded devices, so a
-# vehicle image can carry one beside its QNX and ext volumes. Both are read
-# here directly, no mounting.
+# vehicle image can carry one beside its QNX and ext volumes. All of them are
+# read here directly, no mounting. Fat16Walker, after Fat32Walker, says what
+# FAT16 does differently and how Windows CE's transaction-safe FAT is read,
+# and Fat12Walker what FAT12 adds to that.
 #
 # Field offsets are from Microsoft's own specifications: the FAT32 BPB from the
 # "Microsoft Extensible Firmware Initiative FAT32 File System Specification"
@@ -2204,7 +2207,7 @@ class F2fsWalker:
 # ---------------------------------------------------------------------------
 
 class FatDeletedFile:
-    """One deleted FAT32 or exFAT directory entry that still describes a file.
+    """One deleted FAT32, FAT16, FAT12 or exFAT directory entry that still describes a file.
 
     ``recoverable`` says whether the content can be read back: the entry keeps
     its first cluster and size, so the data is readable while those clusters
@@ -2236,10 +2239,42 @@ class FatDeletedFile:
                 f"cluster={self.first_cluster}, {state}{extra})")
 
 
+# Per FAT width: bytes in a table entry, its struct format, the bits that hold
+# the cluster number, the lowest end-of-chain value, and the array typecode.
+# FAT32 keeps the top four bits of an entry reserved; FAT16 uses all sixteen.
+# A FAT12 entry is a byte and a half, so it has no width, format or typecode
+# here: _fat12_entry() reads one.
+_FAT_ENTRY = {
+    32: (4, "<I", 0x0FFFFFFF, 0x0FFFFFF8, "I"),
+    16: (2, "<H", 0xFFFF, 0xFFF8, "H"),
+    12: (None, None, 0x0FFF, 0x0FF8, None),
+}
+
+
+def _fat12_entry(pair, odd):
+    """A FAT12 table entry from the two bytes it lies in, or None when they are
+    not both there.
+
+    Microsoft's FAT specification: entry n starts at byte n + n // 2 of the
+    table, the 16 bits there are read little-endian, and an odd n takes the
+    high twelve of them while an even n takes the low twelve.
+    """
+    if len(pair) < 2:
+        return None
+    word = pair[0] | (pair[1] << 8)
+    return (word >> 4) if odd else (word & 0x0FFF)
+
+# Windows CE's transaction-safe FAT writes its own name where FAT writes
+# "FAT16   " or "FAT32   ". The structures are FAT's.
+TFAT_TYPE_STRINGS = (b"TFAT16  ", b"TFAT32  ")
+
+
 class Fat32Walker:
     """List and read files from a FAT32 volume. inode() takes a (cluster, size,
     is_dir) tuple, so the shared collect()/extract_to_zip() work unchanged; the
     root is that tuple for the root cluster."""
+
+    FAT_BITS = 32
 
     def __init__(self, fh, base):
         self.fh = fh
@@ -2249,31 +2284,51 @@ class Fat32Walker:
         self.spc = bpb[13]
         self.reserved = struct.unpack_from("<H", bpb, 14)[0]
         self.nfats = bpb[16]
-        self.spf = struct.unpack_from("<I", bpb, 36)[0]
+        if self.FAT_BITS == 32:
+            self.spf = struct.unpack_from("<I", bpb, 36)[0]
+            self.root_entries = 0
+        else:
+            # FAT16 sizes its table in BPB_FATSz16 and keeps the root directory
+            # as BPB_RootEntCnt entries in a fixed run between the tables and
+            # cluster 2, not in a cluster chain.
+            self.spf = struct.unpack_from("<H", bpb, 22)[0]
+            self.root_entries = struct.unpack_from("<H", bpb, 17)[0]
         # BPB_TotSec16 is zero on FAT32 and the count lives in BPB_TotSec32, but
         # read both: a volume small enough to use the 16-bit field is still a
         # legal FAT32, and free_extents needs the count to size the cluster area.
         self.total_sectors = (struct.unpack_from("<H", bpb, 19)[0]
                               or struct.unpack_from("<I", bpb, 32)[0])
-        self.root_clus = struct.unpack_from("<I", bpb, 44)[0]
+        # Cluster 0 is never a file's cluster, so on FAT16 it stands for the
+        # fixed root directory in the root node.
+        self.root_clus = struct.unpack_from("<I", bpb, 44)[0] if self.FAT_BITS == 32 else 0
         self.fat_start = base + self.reserved * self.bps
-        self.data_start = self.fat_start + self.nfats * self.spf * self.bps
+        self.root_dir_start = self.fat_start + self.nfats * self.spf * self.bps
+        root_sectors = ((self.root_entries * 32 + self.bps - 1) // self.bps
+                        if self.root_entries and self.bps else 0)
+        self.root_dir_bytes = root_sectors * self.bps
+        self.data_start = self.root_dir_start + self.root_dir_bytes
         self.cluster_bytes = self.spc * self.bps
         self.root = (self.root_clus, 0, True)
 
     def _fat_next(self, clus):
-        off = self.fat_start + clus * 4
-        raw = read_at(self.fh, off, 4)
-        if len(raw) < 4:
+        width, fmt, mask, _eoc, _code = _FAT_ENTRY[self.FAT_BITS]
+        if width is None:                            # FAT12: a byte and a half
+            val = _fat12_entry(read_at(self.fh, self.fat_start + clus + clus // 2, 2),
+                               clus & 1)
+            return mask if val is None else val      # None: past the end of the image
+        off = self.fat_start + clus * width
+        raw = read_at(self.fh, off, width)
+        if len(raw) < width:
             # Past the end of the image, which is what the first segment of a
             # split acquisition looks like. That is the end of the chain, not a
             # reason to raise: the volume is truncated, not unreadable.
-            return 0x0FFFFFFF
-        return struct.unpack_from("<I", raw, 0)[0] & 0x0FFFFFFF
+            return mask
+        return struct.unpack_from(fmt, raw, 0)[0] & mask
 
     def _chain(self, clus):
+        eoc = _FAT_ENTRY[self.FAT_BITS][3]
         seen = set()
-        while 0x2 <= clus < 0x0FFFFFF8 and clus not in seen:
+        while 0x2 <= clus < eoc and clus not in seen:
             seen.add(clus)
             yield clus
             clus = self._fat_next(clus)
@@ -2282,6 +2337,10 @@ class Fat32Walker:
         return self.data_start + (clus - 2) * self.cluster_bytes
 
     def _read_chain(self, clus, size=None):
+        if clus == 0 and self.FAT_BITS != 32:
+            # the FAT16 root directory: its fixed run, whole
+            raw = read_at(self.fh, self.root_dir_start, self.root_dir_bytes)
+            return raw[:size] if size is not None else raw
         out = bytearray()
         for c in self._chain(clus):
             out += read_at(self.fh, self._cluster_off(c), self.cluster_bytes)
@@ -2304,39 +2363,56 @@ class Fat32Walker:
         to hold anything worth recovering.
 
         The table is read a megabyte at a time and unpacked as machine words,
-        because reading four bytes per cluster through the image would be one
+        because reading one entry per cluster through the image would be one
         seek per cluster.
         """
         cluster = self.cluster_bytes
         if not cluster or not self.total_sectors:
             return []
-        data_sectors = self.total_sectors - (self.reserved + self.nfats * self.spf)
+        width, _fmt, mask, _eoc, code = _FAT_ENTRY[self.FAT_BITS]
+        root_sectors = self.root_dir_bytes // self.bps if self.bps else 0
+        data_sectors = self.total_sectors - (self.reserved + self.nfats * self.spf
+                                             + root_sectors)
         count = data_sectors // self.spc if self.spc else 0
         if count <= 0:
             return []
         last = count + 2                             # entries 0 .. count + 1
 
-        runs, run_start, pos = [], None, 0
-        while pos < last:
-            want = min(FAT_SCAN_ENTRIES, last - pos)
-            raw = read_at(self.fh, self.fat_start + pos * 4, want * 4)
-            if len(raw) < want * 4:                  # a truncated image stops here
-                raw += b"\x00" * (want * 4 - len(raw))
-            words = array.array("I")
-            words.frombytes(raw)
-            if sys.byteorder != "little":
-                words.byteswap()
-            for i, val in enumerate(words):
-                num = pos + i
-                if num < 2:
-                    continue
-                if val & 0x0FFFFFFF:
-                    if run_start is not None:
-                        runs.append((run_start, num - run_start))
-                        run_start = None
-                elif run_start is None:
-                    run_start = num
-            pos += want
+        def entries():
+            """(cluster number, table entry) for 0 .. last - 1; an entry past
+            the end of a truncated image reads as zero."""
+            if width is None:
+                # FAT12: at most 4,084 clusters, so the table is read whole
+                table = read_at(self.fh, self.fat_start, last + last // 2 + 2)
+                for num in range(last):
+                    off = num + num // 2
+                    val = _fat12_entry(table[off:off + 2], num & 1)
+                    yield num, (val or 0)
+                return
+            pos = 0
+            while pos < last:
+                want = min(FAT_SCAN_ENTRIES, last - pos)
+                raw = read_at(self.fh, self.fat_start + pos * width, want * width)
+                if len(raw) < want * width:          # a truncated image stops here
+                    raw += b"\x00" * (want * width - len(raw))
+                words = array.array(code)
+                words.frombytes(raw)
+                if sys.byteorder != "little":
+                    words.byteswap()
+                for i, val in enumerate(words):
+                    yield pos + i, val & mask
+                pos += want
+
+        runs, run_start = [], None
+        for num, val in entries():
+            if num < 2:
+                continue
+            if val:
+                if run_start is not None:
+                    runs.append((run_start, num - run_start))
+                    run_start = None
+            elif run_start is None:
+                run_start = num
         if run_start is not None:
             runs.append((run_start, last - run_start))
 
@@ -2380,7 +2456,8 @@ class Fat32Walker:
             lfn = []
             hi = struct.unpack_from("<H", e, 20)[0]
             lo = struct.unpack_from("<H", e, 26)[0]
-            first = (hi << 16) | lo
+            # the high word is FAT32's; FAT16 has no such field at offset 20
+            first = ((hi << 16) | lo) if self.FAT_BITS == 32 else lo
             sz = struct.unpack_from("<I", e, 28)[0]
             is_sub = bool(attr & 0x10)
             if name in (".", ".."):
@@ -2419,7 +2496,8 @@ class Fat32Walker:
                 continue                            # a live entry; the walk lists it
             hi = struct.unpack_from("<H", e, 20)[0]
             lo = struct.unpack_from("<H", e, 26)[0]
-            first = (hi << 16) | lo
+            # the high word is FAT32's; FAT16 has no such field at offset 20
+            first = ((hi << 16) | lo) if self.FAT_BITS == 32 else lo
             sz = struct.unpack_from("<I", e, 28)[0]
             is_dir = bool(attr & 0x10)
             dead = [chars for was_deleted, chars in lfn if was_deleted]
@@ -2549,6 +2627,34 @@ class Fat32Walker:
             if have >= need:
                 return None
         return (have, need)
+
+
+class Fat16Walker(Fat32Walker):
+    """List and read files from a FAT16 volume, same interface as Fat32Walker.
+
+    The directory entries, the long names and the deleted-entry rules are
+    FAT32's. Three things differ, all from Microsoft's FAT specification: a
+    table entry is 16 bits, the root directory is a fixed run of
+    BPB_RootEntCnt entries ahead of cluster 2 (the root node carries cluster 0
+    for it), and a directory entry has no high word for its first cluster.
+
+    A volume Windows CE formatted as transaction-safe FAT ("TFAT16  ") reads
+    the same way. Its files sit under a folder in the fixed root, named
+    ``__TFAT_HIDDEN_ROOT_DIR__`` on the volumes measured, and that folder is
+    listed as it is stored.
+    """
+
+    FAT_BITS = 16
+
+
+class Fat12Walker(Fat16Walker):
+    """List and read files from a FAT12 volume, same interface as Fat16Walker.
+
+    Everything is FAT16's but the table, whose entries are twelve bits packed
+    two to every three bytes (_fat12_entry).
+    """
+
+    FAT_BITS = 12
 
 
 def _dos_stamp(date, time_, tenths=0):
@@ -10870,7 +10976,7 @@ def _cached_walker(fh, base, size, kind, build):
 
 
 def print_tree(w, num, depth, maxdepth, budget, indent=0, pad=6):
-    # A walker that keeps readings rather than instants (FAT32, exFAT) is listed
+    # A walker that keeps readings rather than instants (FAT32, FAT16, FAT12, exFAT) is listed
     # through listdir_records(), so the reading is printed and not the 0 that
     # entry() returns for its mtime, which _fmt_time() shows as 1970-01-01.
     readings = hasattr(w, "listdir_records")
@@ -11616,6 +11722,10 @@ def walker_for(kind, fh, base, size=None):
         return ExtWalker(fh, base)
     if kind == "fat32":
         return Fat32Walker(fh, base)
+    if kind == "fat16":
+        return Fat16Walker(fh, base)
+    if kind == "fat12":
+        return Fat12Walker(fh, base)
     if kind == "exfat":
         return ExfatWalker(fh, base)
     if kind == "ntfs":
@@ -11851,13 +11961,88 @@ def identify_ntfs(fh, base):
     return "ntfs", lines
 
 
+def _fat_fixed_root_geometry(b):
+    """(bits, cluster count) for a FAT12 or FAT16 boot sector, or None when its
+    BPB is not one.
+
+    Microsoft's FAT specification types a volume by its count of clusters and
+    nothing else: fewer than 4,085 is FAT12 and 4,085 to 65,524 is FAT16. The
+    type string does not decide it. The fields that count is computed from
+    have to be usable first.
+    """
+    bps = struct.unpack_from("<H", b, 11)[0]
+    spc = b[13]
+    reserved = struct.unpack_from("<H", b, 14)[0]
+    nfats = b[16]
+    root_entries = struct.unpack_from("<H", b, 17)[0]
+    total = struct.unpack_from("<H", b, 19)[0] or struct.unpack_from("<I", b, 32)[0]
+    spf = struct.unpack_from("<H", b, 22)[0]
+    if bps not in (512, 1024, 2048, 4096) or spc not in (1, 2, 4, 8, 16, 32, 64, 128):
+        return None
+    if not reserved or not nfats or not root_entries or not spf:
+        return None
+    first_data = reserved + nfats * spf + (root_entries * 32 + bps - 1) // bps
+    if total <= first_data:
+        return None
+    clusters = (total - first_data) // spc
+    if not 1 <= clusters < 65525:
+        return None
+    return (12 if clusters < 4085 else 16), clusters
+
+
+def _tfat_lines(fh, base, b, bits):
+    """What to say about a transaction-safe FAT volume: its type string and
+    whether its two tables agree.
+
+    Microsoft's TFAT overview has FAT1 as the table current operations are
+    made in and FAT0 as the stable copy of the last known good table, with
+    FAT1 copied to FAT0 once a transaction completes. The walker reads FAT0,
+    so when the two differ the listing is the last committed state and the
+    difference is the work that was in progress.
+    """
+    name = (b[82:90] if bits == 32 else b[54:62]).decode("ascii", "replace").rstrip(" ")
+    lines = [f"type string  {name} (transaction-safe FAT, Windows CE)"]
+    bps = struct.unpack_from("<H", b, 11)[0]
+    reserved = struct.unpack_from("<H", b, 14)[0]
+    nfats = b[16]
+    spf = (struct.unpack_from("<I", b, 36)[0] if bits == 32
+           else struct.unpack_from("<H", b, 22)[0])
+    if nfats < 2 or not bps or not spf:
+        lines.append(f"FAT copies   {nfats}")
+        return lines
+    width = _FAT_ENTRY[bits][0]
+    length = spf * bps
+    first = read_at(fh, base + reserved * bps, length)
+    second = read_at(fh, base + reserved * bps + length, length)
+    if len(first) < length or len(second) < length:
+        lines.append(f"FAT copies   {nfats}, not compared: the image ends inside them")
+        return lines
+    if first == second:
+        lines.append(f"FAT copies   {nfats}, the first two identical")
+        return lines
+    if bits == 12:
+        differ = sum(1 for n in range(length * 2 // 3)
+                     if _fat12_entry(first[n + n // 2:n + n // 2 + 2], n & 1)
+                     != _fat12_entry(second[n + n // 2:n + n // 2 + 2], n & 1))
+    else:
+        differ = sum(1 for i in range(0, length, width)
+                     if first[i:i + width] != second[i:i + width])
+    lines.append(f"FAT copies   {nfats}, the first two differ in {differ:,} entries; "
+                 f"the first is read")
+    return lines
+
+
 def identify_fat(fh, base):
-    """Return (kind, lines) for a FAT32 or exFAT volume at base, else None.
+    """Return (kind, lines) for a FAT32, FAT16, FAT12 or exFAT volume at base, else None.
 
     exFAT names itself in bytes 3..11 of the boot sector. FAT32 is recognised
     by its "FAT32   " filesystem-type string at offset 82 together with a 0x55AA
     boot signature, rather than by the OEM name, which is set by whatever tool
-    wrote the volume.
+    wrote the volume. FAT16 and FAT12 are recognised by "FAT16   " or
+    "FAT12   " at offset 54, the same signature, and a usable BPB; which of
+    the two it is comes from the cluster count, as Microsoft's specification
+    has it, and not from the string. Windows CE's transaction-safe FAT writes
+    "TFAT32  " and "TFAT16  " in the same places and is read as the FAT it is.
     """
     b = read_at(fh, base, 512)
     if b[3:11] == BDE_SIGNATURE or (b[3:11] == BDE_TOGO_SIGNATURE and b[424:440] == BDE_GUID):
@@ -11875,16 +12060,41 @@ def identify_fat(fh, base):
             f"clusters     {clusters:,}",
             f"volume       {human(vol)}",
         ]
-    if b[82:90] == b"FAT32   ":
+    if b[82:90] in (b"FAT32   ", b"TFAT32  "):
         bps = struct.unpack_from("<H", b, 11)[0]
         spc = b[13]
         total = struct.unpack_from("<I", b, 32)[0] * bps
         label = b[71:82].decode("ascii", "replace").rstrip(" ")
-        return "fat32", [
+        lines = [
             f"label        {label or '(none)'}",
             f"bytes/sector {bps}   sectors/cluster {spc}",
             f"volume       {human(total)}",
         ]
+        if b[82:90] in TFAT_TYPE_STRINGS:
+            lines += _tfat_lines(fh, base, b, 32)
+        return "fat32", lines
+    if b[54:62] in (b"FAT16   ", b"FAT12   ", b"TFAT16  "):
+        geometry = _fat_fixed_root_geometry(b)
+        if geometry is None:
+            return None
+        bits, clusters = geometry
+        bps = struct.unpack_from("<H", b, 11)[0]
+        spc = b[13]
+        total = (struct.unpack_from("<H", b, 19)[0]
+                 or struct.unpack_from("<I", b, 32)[0]) * bps
+        label = b[43:54].decode("ascii", "replace").rstrip(" ")
+        lines = [
+            f"label        {label or '(none)'}",
+            f"bytes/sector {bps}   sectors/cluster {spc}",
+            f"clusters     {clusters:,}",
+            f"volume       {human(total)}",
+        ]
+        said = b[54:62].decode("ascii", "replace").rstrip(" ")
+        if said.lstrip("T") != f"FAT{bits}":
+            lines.append(f"type string  {said}; the cluster count makes it FAT{bits}")
+        if b[54:62] in TFAT_TYPE_STRINGS:
+            lines += _tfat_lines(fh, base, b, bits)
+        return f"fat{bits}", lines
     return None
 
 
@@ -14179,7 +14389,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                     except Exception as exc:
                         print(f"        could not extract: {exc}")
 
-                if kind in ("fat32", "exfat", "ntfs", "f2fs", "hfs+", "hfsx", "apfs",
+                if kind in ("fat32", "fat16", "fat12", "exfat", "ntfs", "f2fs", "hfs+", "hfsx", "apfs",
                             "etfs", "efs", "qnx4", "squashfs", "jffs2", "ubi",
                             "ubifs", "yaffs1", "yaffs2") + CFG_KINDS and wanted:
                     if do_list:
@@ -15096,6 +15306,202 @@ def _exfat_fixture_orphan_check(image_gz):
     ok = in_use > 0 and len(sets) == in_use and not cut and not orphans
     return ok, (f"{len(sets)} of {in_use} entry sets match the checksum the driver "
                 f"wrote, {orphans} orphan entries")
+
+
+def _fat16_fixture_checks(here):
+    """The FAT16 and FAT12 checks that need the three committed volumes, as
+    (passed, sentence) pairs, or None when the fixtures are not beside this file.
+
+    All three were written by macOS, and each listing was hashed from the
+    mounted volume, so the expected content comes from the driver that wrote it.
+    At build time The Sleuth Kit listed the same live and deleted files and
+    icat returned the same bytes for each. The TFAT16 volume has 2,048-byte
+    sectors, its files under a root folder named as Windows CE's
+    transaction-safe FAT names its redirected root, and the "TFAT16  " type
+    string: tools/make_fat16_fixtures.sh says exactly which bytes that script
+    set, and it is not a volume Windows CE wrote.
+    """
+    import gzip, io
+    import hashlib
+    plain = os.path.join(here, "fat16-fixture.img.gz")
+    tfat = os.path.join(here, "tfat16-fixture.img.gz")
+    twelve = os.path.join(here, "fat12-fixture.img.gz")
+    if not (os.path.isfile(plain) and os.path.isfile(tfat) and os.path.isfile(twelve)):
+        return None
+
+    def listing(fix):
+        want = {}
+        with open(fix[:-len(".img.gz")] + ".sha256", encoding="utf-8") as fh:
+            for line in fh:
+                if line.strip():
+                    want[line.rstrip("\n").split("  ", 1)[1]] = line.split("  ", 1)[0]
+        return want
+
+    def reads_right(walker, want):
+        """How many of the listed files the walker returns with the listed bytes."""
+        good = 0
+        try:
+            have = {path: (ino, sz) for path, ino, sz, _m in collect(walker, walker.root)}
+        except Exception:                            # pylint: disable=broad-except
+            return 0
+        for path, digest in want.items():
+            if path not in have:
+                continue
+            try:
+                data = b"".join(walker.read_file(*have[path]))
+            except Exception:                        # pylint: disable=broad-except
+                continue
+            if hashlib.sha256(data).hexdigest() == digest:
+                good += 1
+        return good
+
+    out = []
+    for label, fix in (("FAT16", plain), ("TFAT16", tfat), ("FAT12", twelve)):
+        lst = fix[:-len(".img.gz")] + ".sha256"
+        kind, got, want, miss, diff = _ext_fixture_check(fix, lst)
+        out.append((kind == ("fat12" if label == "FAT12" else "fat16")
+                    and got and got == want and not miss and not diff,
+                    f"every file of the {label} volume a driver wrote reads back as the "
+                    f"bytes it wrote ({kind}, {got} of {want}"
+                    + (f", {miss} missing" if miss else "")
+                    + (f", {diff} different" if diff else "") + ")"))
+    with gzip.open(plain, "rb") as gz:
+        raw = gz.read()
+    with gzip.open(tfat, "rb") as gz:
+        traw = gz.read()
+    with gzip.open(twelve, "rb") as gz:
+        raw12 = gz.read()
+
+    # The control: the same volume read with FAT32's entry width and root. If
+    # that listed the files too, the checks above would not show that the
+    # 16-bit table and the fixed root are what is being read.
+    want = {}
+    with open(plain[:-len(".img.gz")] + ".sha256", encoding="utf-8") as fh:
+        for line in fh:
+            if line.strip():
+                want[line.rstrip("\n").split("  ", 1)[1]] = line.split("  ", 1)[0]
+    try:
+        w32 = Fat32Walker(io.BytesIO(raw), 0)
+        seen32 = sum(1 for path, _i, _s, _m in collect(w32, w32.root) if path in want)
+    except Exception:                                # pylint: disable=broad-except
+        seen32 = 0
+    out.append((seen32 == 0,
+                f"and read as FAT32 the same volume lists none of them "
+                f"({seen32} of {len(want)})"))
+
+    # free space: the table's own count, and no live file inside a free run
+    w = Fat16Walker(io.BytesIO(raw), 0)
+    runs = w.free_extents()
+    count = (w.total_sectors - (w.reserved + w.nfats * w.spf)
+             - w.root_dir_bytes // w.bps) // w.spc
+    table = read_at(w.fh, w.fat_start, (count + 2) * 2)
+    zero = sum(1 for c in range(2, count + 2) if table[c * 2:c * 2 + 2] == b"\x00\x00")
+    inside = 0
+    for _path, node, mode, _sz, _mt, _rec in walk_all(w):
+        if mode & S_IFMT == S_IFDIR or not _sz:
+            continue
+        for c in w._chain(node[0]):                  # pylint: disable=protected-access
+            off = w._cluster_off(c)                  # pylint: disable=protected-access
+            if any(start <= off < start + length for start, length in runs):
+                inside += 1
+    free_bytes = sum(length for _start, length in runs)
+    out.append((bool(runs) and free_bytes == zero * w.cluster_bytes and not inside,
+                f"a FAT16 volume reads its free clusters out of its 16-bit table "
+                f"({human(free_bytes)} in {len(runs)} run(s), {zero:,} zero entries, "
+                f"{inside} live cluster(s) inside a free run)"))
+
+    # identification: what it says about the transaction-safe volume, what it
+    # refuses, and that neither boot sector is taken for a partition table
+    tfh = io.BytesIO(traw)
+    tid = identify_fat(tfh, 0)
+    tlines = tid[1] if tid else []
+    tw = Fat16Walker(tfh, 0)
+    out.append((bool(tid) and tid[0] == "fat16" and tw.bps == 2048
+                and any(l.startswith("type string  TFAT16") for l in tlines)
+                and any(l.startswith("FAT copies   2, the first two identical") for l in tlines),
+                f"a TFAT16 boot sector with 2,048-byte sectors is read as FAT16 and "
+                f"named for what it says it is ({'; '.join(tlines[-2:]) or 'not recognised'})"))
+    top = [name for name, child in tw.listdir(tw.root) if tw.entry(child)[0] & S_IFMT == S_IFDIR]
+    out.append(("__TFAT_HIDDEN_ROOT_DIR__" in top,
+                f"the folder a transaction-safe volume keeps its files under is listed "
+                f"as stored ({len(top)} folder(s) in the fixed root)"))
+    # a second table that disagrees is counted, and the first is still the one read
+    spoiled = bytearray(traw)
+    second = tw.fat_start + tw.spf * tw.bps
+    for c in (2000, 2001, 2002):
+        struct.pack_into("<H", spoiled, second + c * 2, 0xFFFF)
+    sid = identify_fat(io.BytesIO(bytes(spoiled)), 0)
+    slines = sid[1] if sid else []
+    try:
+        sw = Fat16Walker(io.BytesIO(bytes(spoiled)), 0)
+        same_listing = (sorted(p for p, _i, _s, _m in collect(sw, sw.root))
+                        == sorted(p for p, _i, _s, _m in collect(tw, tw.root)))
+    except Exception:                                # pylint: disable=broad-except
+        same_listing = False
+    out.append((any("differ in 3 entries" in l for l in slines) and same_listing,
+                f"when the two tables of a transaction-safe volume disagree the "
+                f"difference is counted and the first table is the one read "
+                f"({slines[-1] if slines else 'not recognised'})"))
+    # FAT12: the control is the same volume read with a 16-bit table. The root
+    # is where FAT16's is, so names are found, and a file of several clusters is
+    # then followed through the wrong entries.
+    want12 = listing(twelve)
+    as16 = reads_right(Fat16Walker(io.BytesIO(raw12), 0), want12)
+    out.append((0 < len(want12) and as16 < len(want12),
+                f"and read with a 16-bit table the FAT12 volume gives back fewer of them "
+                f"({as16} of {len(want12)})"))
+    # free space against a second reading of the table: three bytes, two entries
+    w12 = Fat12Walker(io.BytesIO(raw12), 0)
+    count12 = (w12.total_sectors - (w12.reserved + w12.nfats * w12.spf)
+               - w12.root_dir_bytes // w12.bps) // w12.spc
+    tab = read_at(w12.fh, w12.fat_start, w12.spf * w12.bps)
+    pairs = []
+    for i in range(0, len(tab) - 2, 3):
+        three = tab[i] | (tab[i + 1] << 8) | (tab[i + 2] << 16)
+        pairs += [three & 0xFFF, three >> 12]
+    zero12 = sum(1 for c in range(2, count12 + 2) if pairs[c] == 0)
+    free12 = sum(length for _start, length in w12.free_extents())
+    out.append((bool(zero12) and free12 == zero12 * w12.cluster_bytes,
+                f"a FAT12 volume reads its free clusters out of its 12-bit table "
+                f"({human(free12)}, {zero12:,} zero entries by a second unpacking)"))
+    # The cluster count types the volume and the string does not: the FAT12
+    # volume with "FAT16   " written over its type string is still FAT12, says
+    # so, and still reads.
+    mislabelled = bytearray(raw12)
+    mislabelled[54:62] = b"FAT16   "
+    mfh = io.BytesIO(bytes(mislabelled))
+    mid = identify_fat(mfh, 0)
+    mgood = reads_right(walker_for(mid[0], mfh, 0), want12) if mid else 0
+    out.append((bool(mid) and mid[0] == "fat12" and mgood == len(want12)
+                and any("the cluster count makes it FAT12" in l for l in mid[1]),
+                f"a volume that says FAT16 and has FAT12's cluster count is read as "
+                f"FAT12, and says both ({mgood} of {len(want12)} files)"))
+    # a BPB the count cannot be computed from is not claimed
+    odd = bytearray(raw[:512])
+    odd[13] = 3                                      # sectors per cluster: not a power of two
+    out.append((identify_fat(io.BytesIO(bytes(odd)), 0) is None,
+                "a boot sector that says FAT16 over a BPB that cannot be one is not claimed"))
+    out.append((parse_mbr(io.BytesIO(raw)) is None and parse_mbr(io.BytesIO(traw)) is None
+                and parse_mbr(io.BytesIO(raw12)) is None,
+                "a FAT16, TFAT16 or FAT12 boot sector is not read as a partition table"))
+    # TFAT32: FAT32's own structures under another type string
+    t32 = bytearray(512)
+    struct.pack_into("<H", t32, 11, 2048)
+    t32[13] = 1
+    struct.pack_into("<H", t32, 14, 32)
+    t32[16] = 2
+    struct.pack_into("<I", t32, 32, 4096)
+    struct.pack_into("<I", t32, 36, 2)
+    struct.pack_into("<I", t32, 44, 2)
+    t32[82:90] = b"TFAT32  "
+    t32[510:512] = b"\x55\xaa"
+    body = bytes(t32) + b"\x00" * (2048 * 40)
+    got32 = identify_fat(io.BytesIO(body), 0)
+    out.append((bool(got32) and got32[0] == "fat32"
+                and any(l.startswith("type string  TFAT32") for l in got32[1])
+                and parse_mbr(io.BytesIO(body)) is None,
+                "a TFAT32 boot sector is read as FAT32 and not as a partition table"))
+    return out
 
 
 def _fat_listing_check(image_gz, wcls):
@@ -19516,7 +19922,24 @@ def self_test():
             print("  [SKIP] the APFS fixture is not beside this script, so allocation() "
                   "was not checked on APFS")
 
+        try:
+            f16 = _fat16_fixture_checks(os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures"))
+        except Exception as exc:                     # pylint: disable=broad-except
+            f16 = [(False, f"the FAT16 checks raised {type(exc).__name__}: {exc}")]
+        if f16 is None:
+            print("  [SKIP] the FAT16 and FAT12 fixtures are not beside this script, so "
+                  "FAT16, TFAT16 and FAT12 were not read")
+        else:
+            for f16cond, f16text in f16:
+                if not f16cond:
+                    ok = False
+                print(f"  [{'PASS' if f16cond else 'FAIL'}] {f16text}")
+
         for label, stem, wcls in (("FAT32", "fat32-deleted", Fat32Walker),
+                                  ("FAT16", "fat16-fixture", Fat16Walker),
+                                  ("TFAT16", "tfat16-fixture", Fat16Walker),
+                                  ("FAT12", "fat12-fixture", Fat12Walker),
                                   ("exFAT", "exfat-deleted", ExfatWalker)):
             fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                "tests", "fixtures", stem + ".img.gz")
@@ -19557,6 +19980,9 @@ def self_test():
                   "set checksum was not held against a driver's")
 
         for label, stem, wcls in (("FAT32", "fat32-deleted", Fat32Walker),
+                                  ("FAT16", "fat16-fixture", Fat16Walker),
+                                  ("TFAT16", "tfat16-fixture", Fat16Walker),
+                                  ("FAT12", "fat12-fixture", Fat12Walker),
                                   ("exFAT", "exfat-deleted", ExfatWalker)):
             fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                "tests", "fixtures", stem + ".img.gz")
@@ -20568,6 +20994,7 @@ def self_test():
         for stem in ("ntfs-fixture", "ntfs-streams", "ntfs-windows", "apfs-fixture",
                      "hfsplus-fixture",
                      "ext4-sparse", "ext2-sparse", "fat32-deleted",
+                     "fat16-fixture", "tfat16-fixture", "fat12-fixture",
                      "exfat-deleted", "f2fs-fixture", "squashfs-gzip",
                      "jffs2-le-zlib", "ubi-nand-lzo", "yaffs2-history",
                      "yaffs1-history"):
@@ -21113,7 +21540,7 @@ getting the files out, without mounting:
 
 getting the free space out:
   --unallocated DIR writes, for every volume whose filesystem says what is free
-  (qnx6, F2FS, FAT32, exFAT, NTFS, HFS+ and APFS), the free runs one after
+  (qnx6, F2FS, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+ and APFS), the free runs one after
   another into <image>.<volume>.unallocated.bin, with a .tsv beside it mapping
   each run back to its offset in the image, and unallocated.json naming every
   volume looked at and what was done with it. A volume whose filesystem does
@@ -21127,7 +21554,7 @@ getting the free space out:
 
 listing contents:
   --list walks each filesystem it identified and prints the tree. It handles
-  qnx6, QNX4, ext2/3/4, FAT32, exFAT, NTFS, HFS+, APFS, the QNX flash
+  qnx6, QNX4, ext2/3/4, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+, APFS, the QNX flash
   filesystems ETFS and EFS, and QNX IFS boot images, follows qnx6 long filenames
   and ext4 extent trees, and reads only. --depth sets how far down it goes and
   --list-max caps the number of entries per filesystem so a large volume cannot
@@ -21422,7 +21849,7 @@ if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser(
         prog="qnxprobe.py",
-        description="Read QNX6, QNX4, ETFS, EFS, ext2/3/4, F2FS, FAT32, exFAT, NTFS, HFS+ and "
+        description="Read QNX6, QNX4, ETFS, EFS, ext2/3/4, F2FS, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+ and "
                     "APFS filesystems, the Linux flash filesystems SquashFS, JFFS2, "
                     "UBI/UBIFS and YAFFS1/YAFFS2, QNX IFS boot images, and the U-Boot "
                     "environment and Belkin libnvram stores a flash chip carries, out of "
@@ -21443,7 +21870,7 @@ if __name__ == "__main__":
                          "the detector reports both ways, then delete them")
     ap.add_argument("--list", action="store_true",
                     help="walk each filesystem found and list its contents "
-                         "(qnx6, qnx4, ext2/3/4, FAT32, exFAT, NTFS, HFS+, APFS, ETFS and EFS)")
+                         "(qnx6, qnx4, ext2/3/4, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+, APFS, ETFS and EFS)")
     ap.add_argument("--depth", type=int, default=2, metavar="N",
                     help="how deep to walk with --list (default: 2)")
     ap.add_argument("--list-max", type=int, default=400, metavar="N",
@@ -21454,7 +21881,7 @@ if __name__ == "__main__":
                          "administrator rights, same on macOS, Windows and Linux")
     ap.add_argument("--unallocated", metavar="DIR",
                     help="write the free space of every volume whose filesystem "
-                         "reports it (qnx6, F2FS, FAT32, exFAT, NTFS, HFS+, APFS) into "
+                         "reports it (qnx6, F2FS, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+, APFS) into "
                          "DIR: one .bin per volume, a .tsv mapping it back to the "
                          "image, and unallocated.json. DIR must be new or empty")
     ap.add_argument("--exclude", metavar="TEXT", action="append",

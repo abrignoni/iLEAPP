@@ -12,7 +12,7 @@ difference disk read through the disks under it) and reads it in place: no mount
 no administrator rights, and no copy of the image or of its files anywhere but the
 files an artifact asks for. Logical evidence, an EnCase `.L01` or an FTK Imager
 `.ad1`, is read as the files it holds (see below). Its NTFS,
-FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
+FAT32, FAT16, FAT12, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
 UBI/UBIFS, YAFFS and QNX IFS volumes are searched directly, on disks of 512-byte
 or 4096-byte sectors: a GPT whose header sits at byte 4096, as on a UFS LUN image
 or a 4Kn drive, has its partitions counted in 4096-byte sectors. An image with no
@@ -162,7 +162,7 @@ an error.
 
 A volume's free space is a member too, but one only a pattern that asks for it can
 reach. For every volume whose filesystem reports what is free (the reader's
-`free_extents()`: qnx6, F2FS, FAT32, exFAT, NTFS, HFS+ and APFS) the member list
+`free_extents()`: qnx6, F2FS, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+ and APFS) the member list
 gains one name, kept apart from the files in `free_list`:
 
     <volume>/$Unallocated/<image name>.<volume>.unallocated.bin
@@ -271,7 +271,7 @@ clash.
 ## Times
 
 NTFS, ext, HFS+ and APFS store instants, and those reach the staged copy's
-mtime and the `FileInfo` the run records. FAT32 and exFAT store a wall-clock
+mtime and the `FileInfo` the run records. FAT32, FAT16, FAT12 and exFAT store a wall-clock
 reading with no zone; the reader hands those back as text. The staged copy's
 mtime is set from that reading in the machine's local zone, exactly as the zip
 seeker sets it from a member's DOS stamp, and the `FileInfo` records no instant
@@ -281,7 +281,7 @@ for it, so no report field carries a zone the evidence never had.
 
 - It reads live files, a volume's free space for a pattern that asks for it (see
   Free space above) and the deleted files of a flash filesystem for a pattern that
-  names `$Deleted`. Deleted records the reader can recover on NTFS, FAT32 and exFAT
+  names `$Deleted`. Deleted records the reader can recover on NTFS, FAT and exFAT
   are not staged, nor are the entries an AD1 lists as deleted.
 - It does not re-root a bare partition image. A raw image of an Android
   `userdata` partition has `data/`, `media/` and `system/` at its root rather
@@ -299,7 +299,7 @@ for it, so no report field carries a zone the evidence never had.
   `Not staged` with the size recorded and the bytes stored. A file overlay-compressed
   with LZX (`compact /exe:lzx`) is not decoded and is not staged either; the three
   XPRESS forms are. Before qnxprobe 1.56 both kinds were staged as zeros.
-- It does not stage a FAT32 or exFAT file whose cluster chain ends before its
+- It does not stage a FAT or exFAT file whose cluster chain ends before its
   recorded size. The directory entry records the size and the allocation table
   records the clusters, and a volume can hold the two in disagreement. The run log
   says `Not staged` with the size recorded, the clusters the chain holds and the
