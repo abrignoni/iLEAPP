@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "module_name": "appleMusicSearch",
+    "artifact_name": "Apple Music Recently Searched",
+    "function_name": "appleMusicRecentlySearched",
+    "case_number": "dexter_ios18",
+    "number_of_columns": 12,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 440,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleMusicSearch/testdata.appleMusicSearch.appleMusicRecentlySearched.dexter_ios18.zip",
+    "start_time": "2026-10-10T20:18:37.338730+00:00",
+    "end_time": "2026-10-10T20:18:37.382204+00:00",
+    "run_time_seconds": 0.0015211105346679688,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T20:18:37.377073",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Date Added",
+    "Date Added Number",
+    "Source",
+    "Position",
+    "Kind",
+    "Model Class",
+    "Store Adam ID",
+    "Global Playlist ID",
+    "Device Library Persistent ID",
+    "Person ID",
+    "Database ID",
+    "Other Identifiers"
+  ],
+  "data": [
+    [
+      1756583746,
+      "778276546.728093",
+      "Apple.Music",
+      1,
+      "artists",
+      "MPModelArtist",
+      "1446365464",
+      "",
+      "7326251345083609531",
+      "18802127097",
+      "CFAF01FF-95FA-4A20-ACF4-F94AD04D4607",
+      "MPIdentifierSetCodingKeySources=['MusicKit_RecentlySearchedCodable', '+', 'MusicKit_CustomCodable']"
+    ],
+    [
+      1749911604,
+      "771604404.011735",
+      "Apple.Music",
+      2,
+      "playlists",
+      "MPModelPlaylist",
+      "",
+      "pl.87bb5b36a9bd49db8c975607452bfa2b",
+      "",
+      "18802127097",
+      "",
+      "MPIdentifierSetCodingKeySources=['MusicKit_RecentlySearchedCodable', '+', 'MusicKit_CustomCodable']"
+    ]
+  ]
+}

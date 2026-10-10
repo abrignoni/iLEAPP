@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "module_name": "appleMusicSearch",
+    "artifact_name": "Apple Music Recently Searched",
+    "function_name": "appleMusicRecentlySearched",
+    "case_number": "hickman_ios13",
+    "number_of_columns": 12,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleMusicSearch/testdata.appleMusicSearch.appleMusicRecentlySearched.hickman_ios13.zip",
+    "start_time": "2026-10-10T20:18:37.423894+00:00",
+    "end_time": "2026-10-10T20:18:37.466173+00:00",
+    "run_time_seconds": 0.0003082752227783203,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T20:18:37.462712",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Date Added",
+    "Date Added Number",
+    "Source",
+    "Position",
+    "Kind",
+    "Model Class",
+    "Store Adam ID",
+    "Global Playlist ID",
+    "Device Library Persistent ID",
+    "Person ID",
+    "Database ID",
+    "Other Identifiers"
+  ],
+  "data": []
+}
