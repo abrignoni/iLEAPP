@@ -4,34 +4,65 @@ __artifacts_v2__ = {
         "name": "Emoji Recents and Usage",
         "description": "One row per emoji named in the recents list or the usage history of "
                        "com.apple.EmojiPreferences.plist, with its position in the recents list "
-                       "and the use sequence numbers recorded for it, as stored.",
+                       "and the count, lowest and highest of the use sequence numbers recorded "
+                       "for it, as stored.",
         "author": "@ayobamiseun, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "User Activity",
-        "notes": "The file holds no timestamps. EMFRecentsKey is a list of emoji strings and "
-                 "Recents Rank is the 1-based position in it. EMFUsageHistoryKey maps an emoji to "
-                 "a list of integers and EMFRecentSequenceNumberKey holds one integer; on the one "
-                 "instance examined, written by macOS 26, the integers across all lists were "
-                 "distinct, ran from 0 to one below the sequence number, and each list was "
-                 "ascending, so Uses Recorded is the length of the list and First and Last Use "
-                 "Sequence are its ends, reported as stored. What a sequence number counts, and "
-                 "whether the history is capped, is not established. The key names are those "
-                 "the EmojiFoundation framework carries; the iOS file was not examined here, and "
-                 "the artifact was exercised on the macOS instance and on constructed data only. "
-                 "An iOS instance exists on every recorded path listing "
-                 "(admin/data/filepath-lists) at private/var/mobile/Library/Preferences/. "
-                 "Suggested in issue #1876.",
+        "notes": "None of the 23 sample_data files holds a timestamp value. EMFRecentsKey is a "
+                 "list of emoji strings and "
+                 "Recents Rank is the 1-based position in it, as stored. The list is not ordered "
+                 "by Last Use Sequence: on 9 of the 17 sample_data images that hold a recents "
+                 "list the list order differs from the order of Last Use Sequence, highest "
+                 "first, and on 6 of those 9 rank 1 is not the emoji with the "
+                 "highest sequence number, so rank 1 is not established as the most recently "
+                 "used emoji. EMFUsageHistoryKey maps an emoji to a list of integers and "
+                 "EMFRecentSequenceNumberKey holds one integer; on those 17 images (iOS 12.4 to "
+                 "26.2.1) the integers across all lists were distinct, ran from 0 to one below "
+                 "the sequence number, and each list was ascending, so Uses Recorded is the "
+                 "length of the list and First and Last Use Sequence are its lowest and highest "
+                 "values, reported as stored. What a sequence number counts, and whether the "
+                 "history is capped, is not established. The recents list held 30 entries on the "
+                 "two images whose usage history names more emoji than the list does (abe_ios16, "
+                 "otto_ios17) and fewer than 30 on the other 15; an emoji in the history and not "
+                 "in the list has an empty Recents Rank. On the 6 images recorded with 0 rows "
+                 "the file is present and holds neither key. Suggested in issue #1876.",
         "paths": ('*/mobile/Library/Preferences/com.apple.EmojiPreferences.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "smile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 48 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 14 rows",
+            "fsfull002_ios17": "iOS 17.1 | 9 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 3 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 12 rows",
+            "iphone11_ios17": "iOS 17.3 | 7 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 1 rows",
+            "otto_ios17": "iOS 17.5.1 | 59 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 4 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | 10 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 11 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+        },
     },
     "emojiPreferenceKeys": {
         "name": "Emoji Preferences",
         "description": "The keys of com.apple.EmojiPreferences.plist other than the recents list "
                        "and usage history, flattened to one row per stored value with its key "
-                       "path, as stored.",
+                       "path, rendered as text.",
         "author": "@ayobamiseun, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
@@ -39,17 +70,46 @@ __artifacts_v2__ = {
         "category": "User Activity",
         "notes": "The recents list and usage history are reported by Emoji Recents and Usage and "
                  "left out here. Nested dictionaries are flattened as parent.key and lists as "
-                 "parent[index], so a skin tone choice under EMFSkinToneBaseKey or a sticker id "
-                 "under com.apple.stickers.recency.order is one row each. Other key names the "
-                 "EmojiFoundation framework carries (EMFSkinToneBaseKey, "
-                 "EMFDidDisplaySkinToneHelpKey, EMFPreviouslyUsedCategoryKey, "
-                 "EMFViewedInCategoryKey, EMFTypingNamesKey, EMFEmojiUsageKey) are reported when "
-                 "present; what each records is not established. The iOS file was not examined "
-                 "here; the artifact was exercised on a macOS 26 instance written by the same "
-                 "framework and on constructed data only. Suggested in issue #1876.",
+                 "parent[index], so each emoji under EMFSkinToneBaseKeyPreferences is one row. "
+                 "A top-level key whose own name contains dots "
+                 "(com.apple.stickerkit.onboarding.shown) is shown whole and is not a nested "
+                 "path. Values are rendered as text: booleans as True or False, binary data as "
+                 "hex. On the 23 sample_data images the key paths reported were "
+                 "DidMigrateToEMF (23 images) and com.apple.stickerkit.onboarding.shown (1) at "
+                 "the top level, and under EMFDefaultsKey (present on all 23, empty on 2): "
+                 "EMFRecentSequenceNumberKey (21), "
+                 "EMFPreviouslyUsedCategoryKey (13), EMFViewedInCategoryKey (13), "
+                 "EMFSkinToneBaseKeyPreferences (11), EMFDidDisplaySkinToneHelpKey (8) and "
+                 "EMFTypingNamesKey (2). Any other key in the file is reported the same way. "
+                 "What each key records is not established. Suggested in issue #1876.",
         "paths": ('*/mobile/Library/Preferences/com.apple.EmojiPreferences.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "smile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | 5 rows",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+            "abe_ios16": "iOS 16.5 | 28 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 10 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 4 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 9 rows",
+            "iphone11_ios17": "iOS 17.3 | 8 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 15 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 11 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 9 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "iphone12_ios18": "iOS 18.7 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 rows",
+            "falken_ios26": "iOS 26.2.1 | 8 rows",
+            "hc_ios26": "iOS 26.5.2 | 1 rows",
+        },
     },
 }
 
@@ -96,7 +156,7 @@ def emojiRecents(context):
     """ See artifact description """
     source_path = get_file_path(context.get_files_found(), 'com.apple.EmojiPreferences.plist')
     data_headers = ('Recents Rank', 'Emoji', 'Uses Recorded', 'First Use Sequence',
-                    'Last Use Sequence', 'Source File')
+                    'Last Use Sequence')
     data_list = []
     if not source_path:
         return data_headers, data_list, ''
@@ -106,7 +166,6 @@ def emojiRecents(context):
     history = _usage_history(defaults)
     if not recents and not history:
         logfunc(f'{source_path} holds no {_RECENTS_KEY} list or {_USAGE_HISTORY_KEY} dictionary')
-    source_file = context.get_relative_path(source_path)
 
     ranks = {}
     for position, emoji in enumerate(recents, start=1):
@@ -120,7 +179,6 @@ def emojiRecents(context):
             len(uses) if emoji in history else '',
             min(uses) if uses else '',
             max(uses) if uses else '',
-            source_file,
         ))
     return data_headers, data_list, source_path
 
@@ -129,7 +187,7 @@ def emojiRecents(context):
 def emojiPreferenceKeys(context):
     """ See artifact description """
     source_path = get_file_path(context.get_files_found(), 'com.apple.EmojiPreferences.plist')
-    data_headers = ('Key', 'Value (as stored)', 'Source File')
+    data_headers = ('Key', 'Value')
     data_list = []
     if not source_path:
         return data_headers, data_list, ''
@@ -144,8 +202,5 @@ def emojiPreferenceKeys(context):
             value = {k: v for k, v in value.items() if k not in (_RECENTS_KEY, _USAGE_HISTORY_KEY)}
         remaining[key] = value
 
-    rows = []
-    _flatten(remaining, '', rows)
-    source_file = context.get_relative_path(source_path)
-    data_list = [(key, value, source_file) for key, value in rows]
+    _flatten(remaining, '', data_list)
     return data_headers, data_list, source_path

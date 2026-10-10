@@ -54,22 +54,22 @@ class EmojiPreferencesTests(unittest.TestCase):
     def test_recents_and_usage_are_joined_per_emoji(self):
         headers, rows, source = module.emojiRecents.__wrapped__(Context)
 
-        self.assertEqual(headers[:5], ('Recents Rank', 'Emoji', 'Uses Recorded',
-                                       'First Use Sequence', 'Last Use Sequence'))
+        self.assertEqual(headers, ('Recents Rank', 'Emoji', 'Uses Recorded',
+                                   'First Use Sequence', 'Last Use Sequence'))
         self.assertEqual(source, self.staged)
-        self.assertEqual([row[:5] for row in rows], [
+        self.assertEqual(rows, [
             (1, '😀', 3, 0, 5),
             (2, '👍', 1, 1, 1),
             (3, '🎉', '', '', ''),      # recent with no usage history
             ('', '🔥', 2, 2, 4),        # usage history without a recents position
         ])
-        self.assertEqual({row[5] for row in rows}, {RELATIVE})
 
     def test_the_other_keys_are_flattened_and_the_joined_ones_left_out(self):
-        _, rows, source = module.emojiPreferenceKeys.__wrapped__(Context)
+        headers, rows, source = module.emojiPreferenceKeys.__wrapped__(Context)
 
+        self.assertEqual(headers, ('Key', 'Value'))
         self.assertEqual(source, self.staged)
-        self.assertEqual([row[:2] for row in rows], [
+        self.assertEqual(rows, [
             ('EMFDefaultsKey.EMFDidDisplaySkinToneHelpKey', 'True'),
             ('EMFDefaultsKey.EMFRecentSequenceNumberKey', '6'),
             ('EMFDefaultsKey.EMFSkinToneBaseKey.👍', '👍🏽'),
@@ -77,7 +77,6 @@ class EmojiPreferencesTests(unittest.TestCase):
             ('com.apple.stickers.recency.order[0]', 'sticker-a'),
             ('com.apple.stickers.recency.order[1]', 'sticker-b'),
         ])
-        self.assertEqual({row[2] for row in rows}, {RELATIVE})
 
     def test_a_file_without_the_defaults_dictionary_reports_nothing_but_its_keys(self):
         with open(self.staged, 'wb') as f:
@@ -87,7 +86,7 @@ class EmojiPreferencesTests(unittest.TestCase):
         _, keys, _ = module.emojiPreferenceKeys.__wrapped__(Context)
 
         self.assertEqual(recents, [])
-        self.assertEqual([row[:2] for row in keys], [('Other', 'x')])
+        self.assertEqual(keys, [('Other', 'x')])
 
     def test_a_file_list_without_the_plist_reports_no_rows(self):
         other = os.path.join(self.tmpdir, 'data', 'private/var/mobile/Library/Preferences/other.plist')
