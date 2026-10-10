@@ -66,3 +66,8 @@ and compare it with the line in `SHA256SUMS.txt`, which is lower case.
 
 The build is made on Ubuntu 22.04, so it needs glibc 2.35 or newer and will not start on
 an older distribution.
+
+## Code signing policy
+
+The [code signing policy](https://github.com/abrignoni/iLEAPP#code-signing-policy) covers
+Windows signing, team roles and privacy.
