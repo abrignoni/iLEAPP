@@ -290,6 +290,10 @@ repository by GitHub Actions, on GitHub-hosted runners
 what that workflow built. The macOS disk images are signed separately, with an Apple
 Developer ID, and notarised by Apple.
 
+SignPath signs `ileapp.exe`, the single-file program in the portable zip. Third-party files
+packed inside it, such as Mandiant's Unified Log parser (`unifiedlog_iterator.exe`), are
+not signed on their own.
+
 ### Team roles
 
 - Committers and reviewers: [@abrignoni](https://github.com/abrignoni),
