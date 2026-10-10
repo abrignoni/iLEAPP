@@ -278,6 +278,15 @@ def decrypt_itunes_backup(directory, passcode):
     return (protection_classes, unwrapped_manifest_key), "Decryption successful"
 
 
+def _without_cbc_padding(decrypted_contents):
+    """Return decrypted contents without their PKCS#7 padding, or None when it is not valid."""
+    unpadder = PKCS7(algorithms.AES.block_size).unpadder()
+    try:
+        return unpadder.update(decrypted_contents) + unpadder.finalize()
+    except ValueError:
+        return None
+
+
 def _backup_file_plaintext(decrypted_contents, manifest_size, relative_path):
     """Return a decrypted backup file without its CBC padding.
 
@@ -287,13 +296,12 @@ def _backup_file_plaintext(decrypted_contents, manifest_size, relative_path):
     matches its own length; cutting it to Size drops pages or leaves the
     padding block on the end. Size is only used when the padding is not valid.
     """
-    unpadder = PKCS7(algorithms.AES.block_size).unpadder()
-    try:
-        return unpadder.update(decrypted_contents) + unpadder.finalize()
-    except ValueError:
+    plaintext = _without_cbc_padding(decrypted_contents)
+    if plaintext is None:
         logfunc(f'No valid padding at the end of {relative_path}, '
                 f'writing the {manifest_size} bytes its Manifest.db record gives')
         return decrypted_contents[0:manifest_size]
+    return plaintext
 
 
 def _probe_volume_case_insensitive(folder):
@@ -643,8 +651,13 @@ class FileSeekerItunes(FileSeekerBase):
                     decryptor = cipher.decryptor()
                     decrypted_manifest_contents = decryptor.update(manifest_contents.read()) + decryptor.finalize()
                     manifest_path = os.path.join(data_folder, "Manifest.db")
+                    # Manifest.db is stored padded like the files it lists
+                    unpadded_manifest_contents = _without_cbc_padding(decrypted_manifest_contents)
+                    if unpadded_manifest_contents is None:
+                        logfunc('No valid padding at the end of Manifest.db, writing it as decrypted')
+                        unpadded_manifest_contents = decrypted_manifest_contents
                     with open(manifest_path, "wb") as new_manifest_contents:
-                        new_manifest_contents.write(decrypted_manifest_contents)
+                        new_manifest_contents.write(unpadded_manifest_contents)
 
             self.build_files_list_from_manifest_db(manifest_path)
         elif backup_type == "mbdb":

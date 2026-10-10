@@ -9,6 +9,10 @@ stored length with its PKCS#7 padding removed and never equalled Size. A smaller
 cut pages off the end and SQLite refused the file; a larger Size left the 16 byte
 padding block on the end.
 
+The decrypted Manifest.db the seeker stages carried the same 16 byte padding block on
+both backups (stored 6,758,416 and 9,273,360 bytes, header 6,758,400 and 9,273,344).
+SQLite read it either way.
+
 These tests build an encrypted backup with a constructed keybag and read files back
 through the seeker.
 """
@@ -99,6 +103,7 @@ class EncryptedBackupFileLengthTests(unittest.TestCase):
                            + aes_key_wrap(self.class_key, self.manifest_key),
         }))
         self.records = []
+        self.manifest_contents = b''
 
     def _database(self):
         """A SQLite database of several pages, as bytes."""
@@ -122,7 +127,7 @@ class EncryptedBackupFileLengthTests(unittest.TestCase):
         self.records.append((file_id, 'HomeDomain', relative_path, 1,
                              _file_record(aes_key_wrap(self.class_key, file_key), manifest_size)))
 
-    def _stage(self, pattern):
+    def _seeker(self, pad_manifest=True):
         manifest = self.tmp / 'Manifest.plain.db'
         db = sqlite3.connect(manifest)
         db.execute('CREATE TABLE Files (fileID TEXT PRIMARY KEY, domain TEXT, '
@@ -130,14 +135,17 @@ class EncryptedBackupFileLengthTests(unittest.TestCase):
         db.executemany('INSERT INTO Files VALUES (?, ?, ?, ?, ?)', self.records)
         db.commit()
         db.close()
+        self.manifest_contents = manifest.read_bytes()
         (self.backup / 'Manifest.db').write_bytes(
-            _encrypt(self.manifest_key, manifest.read_bytes()))
+            _encrypt(self.manifest_key, self.manifest_contents, pad_manifest))
         manifest.unlink()
 
         keys, message = decrypt_itunes_backup(str(self.backup), PASSCODE)
         self.assertEqual(message, 'Decryption successful')
-        seeker = FileSeekerItunes(str(self.backup), str(self.data_folder), 'db', keys)
-        found = seeker.search(pattern)
+        return FileSeekerItunes(str(self.backup), str(self.data_folder), 'db', keys)
+
+    def _stage(self, pattern):
+        found = self._seeker().search(pattern)
         self.assertEqual(len(found), 1)
         return pathlib.Path(found[0])
 
@@ -173,6 +181,18 @@ class EncryptedBackupFileLengthTests(unittest.TestCase):
         contents = b'a' * 20 + b'\x00' * 12
         self._add_file('Library/Unpadded/raw.bin', contents, 20, pad=False)
         self.assertEqual(self._stage('*/raw.bin').read_bytes(), b'a' * 20)
+
+    def test_manifest_is_staged_without_its_padding(self):
+        self._add_file('Library/Exact/odd.bin', b'seven b', 7)
+        self._seeker()
+        self.assertEqual((self.data_folder / 'Manifest.db').read_bytes(), self.manifest_contents)
+
+    def test_manifest_with_no_valid_padding_is_staged_as_decrypted(self):
+        self._add_file('Library/Exact/odd.bin', b'seven b', 7)
+        seeker = self._seeker(pad_manifest=False)
+        self.assertEqual((self.data_folder / 'Manifest.db').read_bytes(), self.manifest_contents)
+        self.assertEqual(len(seeker.search('*/odd.bin')), 1)
+
 
 
 if __name__ == '__main__':
