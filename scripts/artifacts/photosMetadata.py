@@ -12,8 +12,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Photos",
         "notes": 'Supported schemas: iOS 12-14 queries; on iOS 14 and later the iOS 14 query is run, '
-                 'with columns the database lacks read as empty. The matching query is selected '
-                 'automatically. A row is one combination of asset, detected face and album, so an '
+                 'with columns the database lacks read as empty. The query is selected from '
+                 'the iOS version read for the input; when none has been read, nothing is queried. A row is one combination of asset, detected face and album, so an '
                  'asset with several faces or in several albums has several rows. Faces and persons '
                  'are joined through ZDETECTEDFACE.ZASSET and ZDETECTEDFACE.ZPERSON where the table '
                  'has those columns, and through ZDETECTEDFACE.ZASSETFORFACE and '
@@ -824,6 +824,9 @@ def photosMetadata(context):
     seeker = context.get_seeker()
     report_folder = context.get_report_folder()
     ios_version = iOS.get_version()
+    if not ios_version:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return _HEADERS_IOS14, data_list, context.get_relative_path(source_file)
 
     if version.parse(ios_version) >= version.parse("14"):
         headers, query, postal_idx, thumb_idx = _HEADERS_IOS14, _QUERY_IOS14, 61, None

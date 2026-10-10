@@ -17,7 +17,7 @@ __artifacts_v2__ = {
                  "line after its prefix. Both capitalization forms of Install successful for "
                  "are matched, and Delta, Parallel and ParallelWithArchives patch attempts "
                  "are included. Nothing is reported when the image's iOS version reads as "
-                 "earlier than 17. Apps - Historical Combined reads the same logs without these "
+                 "earlier than 17 or when no iOS version has been read. Apps - Historical Combined reads the same logs without these "
                  "limits.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
                  "the time zone is not established, so the timestamps are reported as text. Nothing is reported when the image's iOS version reads as earlier "
-                 "than 17.",
+                 "than 17 or when no iOS version has been read.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh",
@@ -78,7 +78,7 @@ import re
 
 from packaging import version
 
-from scripts.ilapfuncs import artifact_processor, iOS
+from scripts.ilapfuncs import artifact_processor, iOS, logfunc
 
 _MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -125,11 +125,20 @@ def _line_splitting(line):
     return timestamp, notice.strip()
 
 
+def _ios_17_or_later():
+    """False below iOS 17, and when no iOS version has been read yet."""
+    ios_version = iOS.get_version()
+    if not ios_version:
+        logfunc("No iOS version had been read when this artifact ran, mobile installation logs were not read")
+        return False
+    return version.parse(ios_version) >= version.parse("17")
+
+
 def _parse(context):
     """Return (rows, source) where rows are (timestamp_no_zone, type, notice, source_rel); iOS 17+ only."""
     rows = []
     sources = []
-    if version.parse(iOS.get_version()) < version.parse("17"):
+    if not _ios_17_or_later():
         return rows, ''
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -154,7 +163,7 @@ def _parse(context):
 
 def _add_rows(context, add_row):
     """Add (timestamp_no_zone, type, notice, source_rel) rows; iOS 17+ only."""
-    if version.parse(iOS.get_version()) < version.parse("17"):
+    if not _ios_17_or_later():
         return
     for file_found in context.get_files_found():
         file_found = str(file_found)
