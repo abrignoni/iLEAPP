@@ -1,0 +1,91 @@
+{
+  "dexter_ios18": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-10T16:18:14.614272",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-10T16:18:14.605506",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "appleMusicRecentlySearched": {
+        "search_patterns": [
+          "*/mobile/Library/Preferences/com.apple.Music.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "appleMusicRecentSearchTerms": {
+        "search_patterns": [
+          "*/mobile/Library/Preferences/com.apple.Music.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "dexter_ios18",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "18.3.2",
+      "device_model": "iPhone 16",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  },
+  "hickman_ios13": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "13-3-1.tar",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-10T16:18:22.666307",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-10T16:18:22.657648",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "appleMusicRecentlySearched": {
+        "search_patterns": [
+          "*/mobile/Library/Preferences/com.apple.Music.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "appleMusicRecentSearchTerms": {
+        "search_patterns": [
+          "*/mobile/Library/Preferences/com.apple.Music.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "hickman_ios13",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "13.3.1"
+    }
+  }
+}
