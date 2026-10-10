@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "module_name": "appleWatchMailRegistry",
+    "artifact_name": "Apple Watch Mail Accounts",
+    "function_name": "appleWatchMailAccounts",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 9,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 179,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWatchMailRegistry/testdata.appleWatchMailRegistry.appleWatchMailAccounts.josh_ios17_ffs.zip",
+    "start_time": "2026-10-10T21:24:24.958039+00:00",
+    "end_time": "2026-10-10T21:24:25.002085+00:00",
+    "run_time_seconds": 0.0007669925689697266,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T21:24:24.997905",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Display Name",
+    "Email Addresses",
+    "Username",
+    "Account ID",
+    "Local ID",
+    "Type Identifier",
+    "Source Type",
+    "Should Archive",
+    "Device Registry ID"
+  ],
+  "data": [
+    [
+      "Gmail",
+      "thisisdfir@gmail.com",
+      "thisisdfir@gmail.com",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "com.apple.account.Google",
+      "0",
+      "1",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ]
+  ]
+}
