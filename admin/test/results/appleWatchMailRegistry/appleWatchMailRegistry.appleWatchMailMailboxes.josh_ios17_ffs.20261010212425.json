@@ -1,0 +1,125 @@
+{
+  "metadata": {
+    "module_name": "appleWatchMailRegistry",
+    "artifact_name": "Apple Watch Mail Mailboxes",
+    "function_name": "appleWatchMailMailboxes",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 9,
+    "number_of_rows": 8,
+    "total_data_size_bytes": 1651,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWatchMailRegistry/testdata.appleWatchMailRegistry.appleWatchMailMailboxes.josh_ios17_ffs.zip",
+    "start_time": "2026-10-10T21:24:25.002769+00:00",
+    "end_time": "2026-10-10T21:24:25.046425+00:00",
+    "run_time_seconds": 0.0008199214935302734,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T21:24:25.042156",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Custom Name",
+    "URL",
+    "Type",
+    "Filter Type",
+    "Sync Active",
+    "Sync Enabled",
+    "Mailbox ID",
+    "Account ID",
+    "Device Registry ID"
+  ],
+  "data": [
+    [
+      "Gmail",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/INBOX",
+      "1",
+      "15",
+      "1",
+      "1",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/INBOX",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "[Gmail]",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D",
+      "9",
+      "0",
+      "0",
+      "0",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "All Mail",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CAllMail",
+      "3",
+      "0",
+      "0",
+      "0",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CAllMail",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "Important",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CImportant",
+      "9",
+      "0",
+      "0",
+      "0",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CImportant",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "Sent Mail",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CSent",
+      "2",
+      "0",
+      "0",
+      "0",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CSent",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "Spam",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CSpam",
+      "5",
+      "0",
+      "0",
+      "0",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CSpam",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "Starred",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CStarred",
+      "9",
+      "0",
+      "0",
+      "0",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CStarred",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "Trash",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CTrash",
+      "4",
+      "0",
+      "0",
+      "0",
+      "imap://F8672D64-8B2E-4914-98DC-131AFEB25853/%5BGmail%5D/%5CTrash",
+      "F8672D64-8B2E-4914-98DC-131AFEB25853",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ]
+  ]
+}
