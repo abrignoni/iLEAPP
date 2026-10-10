@@ -21,10 +21,16 @@ terminal, it is the command line. On macOS the command line is inside the app:
 ```
 
 **For tools that run iLEAPP themselves.** The options, output and exit codes of `ileapp`
-are those of earlier releases, but the downloads changed shape: there is no `ileappGUI`
-any more, since `ileapp` without arguments opens the window. On Windows and macOS,
-`ileapp` needs the folder it came in, so run it from there rather than copying the
-executable elsewhere on its own; on Linux the AppImage is the whole program.
+are those of earlier releases, but there is no `ileappGUI` any more, since `ileapp`
+without arguments opens the window. On Windows the portable zip holds the whole program
+as one file, `ileapp.exe`, which can be put wherever the tool expects it. The installed
+`ileapp.exe`, and the one inside the macOS app, need the folder they came in; on Linux
+the AppImage is the whole program.
+
+**The portable `ileapp.exe` on Windows** unpacks itself to a temporary folder each time it
+starts, so it takes a few seconds longer to start than the installed program, and it does
+not run where a policy (AppLocker, WDAC) forbids running programs from the temporary
+folder. Use the installer there.
 
 ## First launch
 

@@ -68,6 +68,19 @@ before phase 2, or the installer ships an unsigned executable inside a signed wr
 ad hoc; a Developer ID signature replaces that one. `verify` is the last step before
 anything is uploaded.
 
+On Windows, `release.yml` signs with SignPath through its GitHub action, not with
+`--sign-tool`: SignPath signs only what a workflow stored as an artifact of its own run,
+which is how it checks the binary was built from this repository on GitHub's runners, so
+nothing on the build machine can sign. Both executables, `dist/iLEAPP/ileapp.exe` and the
+single-file `dist/ileapp.exe`, go in one request between the phases, staged as
+`folder/ileapp.exe` and `portable/ileapp.exe`; the installer goes in a second request
+after phase 2, as `setup.exe`. The artifact configurations SignPath applies to them,
+`executables` and `installer`, are kept in `packaging/signpath/` and must be edited there
+and in SignPath together. Inno Setup's uninstaller stays unsigned, since Inno signs it only
+while compiling. `bin/unifiedlog_iterator.exe` is never signed: it is Mandiant's binary.
+Signing appends to the executable and the single file finds its archive by reading from
+its end, so both are smoke-tested again once signed.
+
 ## What the driver guarantees
 
 The version is read from `scripts/version_info.py` as text and passed to the spec (the
@@ -104,8 +117,14 @@ Measured on 2026-09-27, macOS arm64, Python 3.14.7, PyInstaller 6.22.3: phase 1 
 
 ## What is and is not wired up
 
-Windows (x64 and ARM64): the folder build and an Inno Setup installer, which on ARM64
-installs only on ARM64. macOS (Apple silicon and Intel): `.app` and `.dmg`. The `.dmg` is
+Windows (x64 and ARM64): the folder build, an Inno Setup installer around it, which on
+ARM64 installs only on ARM64, and a `--onefile` build, zipped alone as the portable
+download so it keeps the name `ileapp.exe` that the docs and calling tools use. The
+installer keeps the folder build because the single file unpacks itself to `%TEMP%` on
+every start: slower to start, and blocked where AppLocker or WDAC forbid running programs
+from `%TEMP%`. The portable zip used to hold the folder build, whose `_internal`
+directory confused users; the releases before 2026-09-28 were single files too.
+macOS (Apple silicon and Intel): `.app` and `.dmg`. The `.dmg` is
 laid out by dmgbuild from `packaging/dmg_settings.py`: the app and an Applications link
 either side of the arrow on `packaging/dmg_background.png`. The settings place the icons
 for that 960x540 image, so a new background keeps its size and its arrow where it is.
@@ -136,9 +155,37 @@ appended to the notes. macOS is signed with a Developer ID, smoke-tested again a
 `MACOS_NOTARY_KEY`, `MACOS_NOTARY_KEY_ID` and `MACOS_NOTARY_ISSUER_ID` secrets are set.
 A tag refuses to publish without them, and the macOS legs check that first, before
 building; a dispatched rehearsal builds unsigned. The footer tells users the disk images
-are notarised, which holds only because of that refusal. Windows signing is not wired.
+are notarised, which holds only because of that refusal.
+
+Windows is signed by SignPath when the `SIGNPATH_API_TOKEN` repository secret is set. The
+job carries `actions: read` so SignPath can download the uploaded artifact, and the SignPath
+GitHub App (github.com/apps/signpath) must be installed on the repository: SignPath's
+documentation calls it optional, but without it every request fails with "Failed to
+retrieve GitHub App token" (2026-10-10). Only the owner of this personal-account
+repository can install it. Repository
+variables: `SIGNPATH_ORGANIZATION_ID`, `SIGNPATH_PROJECT_SLUG`, `SIGNPATH_SIGNING_POLICY`
+(`test-signing` or `release-signing`), `SIGNPATH_CERT_SUBJECT` (optional, passed to
+`verify --subject`) and, under `test-signing`, `SIGNPATH_TEST_CERT_B64`, the root of the
+test certificate's chain as a base64 `.cer`, which only the runner is told to trust so
+`verify` still checks a chain. A test-signed binary is trusted by no Windows, so a tag
+signs only under `release-signing`; under any other policy, or without the token, a tag
+builds unsigned and says so in a warning, as releases did before signing was wired. A
+rehearsal signs under whichever policy is set. When `release-signing` is in place, change
+the footer's "not signed yet" paragraph, and make a tag refuse an unsigned Windows build
+the way macOS does, since the footer will then promise a signature.
+
+A repository secret is usable by a workflow on any branch of this repository, though
+never by a pull request from a fork. Before `release-signing`, SignPath should require a
+manual approval of each request, which shows the branch and commit it came from. The
+owner can go further: rulesets requiring a pull request on `main` and restricting who
+creates `v*` tags, and a `release` environment admitting only those refs, holding the
+token, with `environment: release` on the build job. Neither `main` nor the tags were
+protected on 2026-10-10, so the environment alone would not stop an account with write
+access, and only the owner can create environments and rulesets on this
+personal-account repository.
 
 These names replaced the per-program downloads (`ileappGUI-v*-Windows_x86_64.zip` and the
 like), which leapps.org and the README linked to. Tools such as Autopsy run `ileapp` from a
-release, and the footer tells them what changed for them: on Windows and macOS the
-executable needs its folder, and `ileappGUI` is gone. Keep that note while those names are new.
+release, and the footer tells them what changed for them: the Windows portable zip
+holds one file again, the installed and macOS executables need their folder, and `ileappGUI`
+is gone. Keep that note while those names are new.

@@ -25,13 +25,13 @@ Download a pre-built release — no Python installation required.
 Each download holds one program, `ileapp`. `SHA256SUMS.txt` in each release lets you check a download.
 
 **GUI** — open iLEAPP the usual way: from the Start menu after installing on Windows, by
-double-clicking `ileapp.exe` in the portable folder, iLEAPP in Applications on macOS, or
+double-clicking `ileapp.exe` from the portable zip, iLEAPP in Applications on macOS, or
 the AppImage on Linux. Started without arguments, it opens the window; select your input
 type, source path, output folder, and modules to process.
 
 **CLI** — give `ileapp` arguments in a terminal and it runs as a command line instead. The
-output folder must already exist. On Windows, keep `ileapp.exe` in its folder with the
-files beside it.
+output folder must already exist. On Windows, use the portable `ileapp.exe`, or the
+installed `ileapp.exe`, which stays in its folder with the files beside it.
 
 ```
 ileapp.exe -t zip -i C:\path\to\extraction.zip -o C:\path\to\output\
