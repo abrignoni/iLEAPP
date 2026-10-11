@@ -14,7 +14,7 @@ __artifacts_v2__ = {
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-10',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',

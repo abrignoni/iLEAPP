@@ -8,7 +8,7 @@ __artifacts_v2__ = {
                        'row is one asset, detected face and album combination, not one asset.',
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Photos",
         "notes": 'Supported schemas: iOS 12-14 queries; on iOS 14 and later the iOS 14 query is run, '

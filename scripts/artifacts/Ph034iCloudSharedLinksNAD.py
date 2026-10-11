@@ -4,7 +4,7 @@ __artifacts_v2__ = {
 'description': 'Share and participant records from PhotoData/Photos.sqlite with stored ZSHARE.ZSCOPETYPE 2. A share with multiple participants appears on multiple rows; no asset data is parsed. Queries support iOS 14 through 25, with unsupported versions returning no rows. Enum fields report raw stored values. Registered real samples have returned no qualifying rows.',
 'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-05',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',

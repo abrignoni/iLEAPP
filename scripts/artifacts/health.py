@@ -137,7 +137,7 @@ __artifacts_v2__ = {
                        "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Codex",
         "creation_date": "2023-03-06",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Health",
         "notes": "One row per heart rate sample and distinct stored numeric context value (data type 5). On "

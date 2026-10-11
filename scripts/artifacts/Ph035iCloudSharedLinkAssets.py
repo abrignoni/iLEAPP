@@ -4,7 +4,7 @@ __artifacts_v2__ = {
 'description': 'Assets from PhotoData/Photos.sqlite with stored ZASSET.ZSAVEDASSETTYPE 8, joined to share and participant records through ZASSET.ZMOMENTSHARE. Multiple participants can produce multiple rows per asset; missing share or participant records remain blank. Queries support iOS 14 through 25, with unsupported versions returning no rows. Enum fields report raw stored values. Registered real samples have returned no qualifying rows.',
 'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-05',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
