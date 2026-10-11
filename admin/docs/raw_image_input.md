@@ -307,11 +307,11 @@ for it, so no report field carries a zone the evidence never had.
   returned fewer bytes than the size. The file is not staged in either case.
 - It does not offer file slack, the bytes a file's cluster chain holds past the file's
   recorded size. An artifact sees each file at its size, so text that survives only in
-  slack is not reached. This was measured in VLEAPP (VLEAPP #359) and has not been
+  slack is not reached. This was measured in VLEAPP (VLEAPP #360) and has not been
   measured in this tool: on eight Ford SYNC Gen1 partition images, six artifacts that
-  also read the partition image as bytes gave 2,349 rows from the acquisition folders
-  and 2,293 from raw input, and 43 of the 56 rows raw input did not give sat only in
-  the slack of a listed file.
+  also read the partition image as bytes gave 2,336 rows from the acquisition folders
+  and 2,293 from raw input, and all 43 rows raw input did not give sat only in the
+  slack of a listed file.
 - A sparse file is staged at its recorded size with its holes written as zeros, so
   the copy can occupy more than the file did in the image: an emulator disk recording
   6.4 GB and storing 108 MB stages as 6.4 GB. `qnxprobe.allocation(walker, node)` gives
