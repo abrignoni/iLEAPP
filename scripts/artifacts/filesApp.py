@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "description": "Rows of the app_libraries table in the CloudDocs client.db",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Files App",
         "notes": "Application Bundle ID is app_library_name. Below iOS 18, Number of files is "

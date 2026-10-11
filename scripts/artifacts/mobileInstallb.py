@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "reboot), on images whose iOS version is 17 or later",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "description": "Reboot events from mobile_installation.log (iOS 17+)",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "

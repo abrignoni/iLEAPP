@@ -4,7 +4,7 @@ __artifacts_v2__ = {
 'description': 'Reports ZASSET rows selected by version-specific Shared Photo Library predicates in PhotoData/Photos.sqlite, with joined share and participant fields. On iOS 16 and 17, rows require the joined participant ZISCURRENTUSER value to equal 0. On iOS 18 through 26, rows require ZASSET.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE to equal 1 and no participant-current-user predicate is applied. Joined rows may repeat assets. These predicates and stored identifiers do not by themselves establish ownership or who created, added, or contributed an asset. Other versions return no rows. Original query research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.',
 'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-07',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
