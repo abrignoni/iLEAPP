@@ -149,7 +149,7 @@ def webkit_operating_dates(context):
             try:
                 if all(isinstance(value, int) and not isinstance(value, bool)
                        for value in (year, month, day)):
-                    converted = date(year, month + 1, day)
+                    converted = date(year, month + 1, day).isoformat()
             except ValueError:
                 pass
             result.add_row((converted, year, month, day,

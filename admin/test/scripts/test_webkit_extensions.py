@@ -7,7 +7,7 @@ import plistlib
 import sqlite3
 import struct
 import sys
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -159,7 +159,7 @@ def test_operating_dates_use_zero_based_months_and_keep_invalid_rows(tmp_path):
                        [(2024, 0, 1), (2024, 11, 31), (2024, 1, 29), (2023, 1, 29), (2024, -1, 1)])
     rows = _run(tmp_path, [path], statistics, 'webkit_operating_dates')
     assert [row['Operating Date'] for row in rows] == [
-        date(2024, 1, 1), date(2024, 12, 31), date(2024, 2, 29), None, None]
+        '2024-01-01', '2024-12-31', '2024-02-29', None, None]
     assert rows[-1]['Date Status'] == 'Invalid stored date'
     assert json.loads(rows[-1]['Stored Values'])['month'] == -1
 
