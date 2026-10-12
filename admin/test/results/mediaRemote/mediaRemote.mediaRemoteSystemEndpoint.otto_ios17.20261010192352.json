@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "module_name": "mediaRemote",
+    "artifact_name": "Media Remote System Endpoint",
+    "function_name": "mediaRemoteSystemEndpoint",
+    "case_number": "otto_ios17",
+    "number_of_columns": 12,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 412,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/mediaRemote/testdata.mediaRemote.mediaRemoteSystemEndpoint.otto_ios17.zip",
+    "start_time": "2026-10-10T19:23:52.321963+00:00",
+    "end_time": "2026-10-10T19:23:52.378477+00:00",
+    "run_time_seconds": 0.00045299530029296875,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T19:23:52.374260",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Date",
+    "Date Plus Time Since",
+    "Entry",
+    "Type",
+    "Event",
+    "Event Description",
+    "Event Reason",
+    "Selection Reason",
+    "Change Type",
+    "Change Type Description",
+    "Time Since",
+    "Other Keys"
+  ],
+  "data": [
+    [
+      1720382181,
+      1725034297,
+      "Proactive",
+      "1",
+      "5",
+      "Playback",
+      "Playback changed for origin-iPhone-1280262988/client-com.apple.Music-519 (Music)/player-Music",
+      "UserSelected",
+      "0",
+      "Immediate",
+      "4652115.720064044",
+      "supportsIdleReset=False"
+    ],
+    [
+      1720382181,
+      1725034297,
+      "UserSelected",
+      "0",
+      "5",
+      "Playback",
+      "Playback changed for origin-iPhone-1280262988/client-com.apple.Music-519 (Music)/player-Music",
+      "doesn't participate in idle reset",
+      "0",
+      "Immediate",
+      "4652115.720117092",
+      "supportsIdleReset=False"
+    ]
+  ]
+}

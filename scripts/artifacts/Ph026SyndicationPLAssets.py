@@ -6,7 +6,7 @@ __artifacts_v2__ = {
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-05',
+'last_update_date': '2026-10-10',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.',
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-05',
+'last_update_date': '2026-10-10',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.',
@@ -80,6 +80,9 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version from PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -729,6 +732,9 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version from Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path

@@ -19,7 +19,7 @@ __artifacts_v2__ = {
 " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
 " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
@@ -111,6 +111,9 @@ def Ph096_1iOS16RefforAssetAnalysisPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("17")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -3960,6 +3963,9 @@ def Ph096_2iOS16RefforAssetAnalysisSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("17")):
         logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path

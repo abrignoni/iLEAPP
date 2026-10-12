@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "Acquisition that contains PhotoData-Photos.sqlite",
         "category": "Photos.sqlite",
         "notes": "",
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite",
         "category": "Photos.sqlite",
         "notes": "",
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-02-05",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "Acquisition that contains Library GenPlay Photos.sqlite",
         "category": "Photos.sqlite",
         "notes": "",
@@ -145,6 +145,9 @@ def Ph098_1iOS18RefforAssetAnalysisPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("17.8")) or (version.parse(iosversion) >= version.parse("19")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -4208,6 +4211,9 @@ def Ph098_2iOS18RefforAssetAnalysisSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("17.8")) or (version.parse(iosversion) >= version.parse("19")):
         logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path
@@ -8276,6 +8282,9 @@ def Ph098_3iOS18RefforAssetAnalysisGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("17.8")) or (version.parse(iosversion) >= version.parse("19")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path

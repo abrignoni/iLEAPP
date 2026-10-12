@@ -36,7 +36,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import scripts.raw_image as raw_image  # pylint: disable=wrong-import-position
 from scripts.raw_image import (  # pylint: disable=wrong-import-position
     RAW_IMAGE_FILESYSTEMS, RAW_IMAGE_SUFFIXES, FileSeekerRaw, names_a_stream,
-    names_an_image_folder, split_image_sibling)
+    names_an_image_folder, names_deleted, names_free_space, split_image_sibling)
 from scripts.vendor import ewfprobe, qnxprobe  # pylint: disable=wrong-import-position
 
 FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
@@ -715,6 +715,149 @@ class RawImageSeekerTest(unittest.TestCase):
         with open(found[0], 'rb') as handle:
             self.assertEqual(handle.read(), b'the hidden stream\n')
 
+    # A volume's free space is a member only a pattern that asks for it can reach.
+    # The expected bytes are read from the image file directly, at the offsets the
+    # staged map gives, and the expected total is the fixture's free cluster count.
+
+    def _free_space(self, image):
+        seeker = self._seeker(image)
+        listed = list(seeker.name_list)
+        staged = seeker.search('*.unallocated.bin')
+        return seeker, listed, staged
+
+    def test_free_space_is_staged_for_a_pattern_that_asks_for_it(self):
+        for image in (self.ntfs, self.fat32, self.exfat, self.apfs):
+            with self.subTest(image=os.path.basename(image)):
+                seeker, listed, staged = self._free_space(image)
+                self.assertEqual(len(staged), 1)
+                self.assertEqual(seeker.name_list, listed)
+                name = os.path.basename(image)
+                self.assertEqual(
+                    seeker.file_infos[staged[0]].source_path,
+                    f'lba0/$Unallocated/{name}.lba0.unallocated.bin')
+                with open(image, 'rb') as handle:
+                    disk = handle.read()
+                with open(staged[0], 'rb') as handle:
+                    free = handle.read()
+                with open(staged[0][:-4] + '.tsv', encoding='utf-8') as handle:
+                    rows = [line.split('\t') for line in handle.read().splitlines()[1:]]
+                self.assertTrue(rows)
+                covered = 0
+                for in_file, in_image, length in ((int(a), int(b), int(c))
+                                                  for a, b, c in rows):
+                    self.assertEqual(in_file, covered)
+                    self.assertEqual(free[in_file:in_file + length],
+                                     disk[in_image:in_image + length])
+                    covered += length
+                self.assertEqual(covered, len(free))
+
+    def test_fat32_free_space_is_the_fixture_s_free_clusters(self):
+        # fat32-deleted.img: 512-byte sectors, one sector per cluster, and the FAT
+        # read here by hand, not through the reader under test
+        with open(self.fat32, 'rb') as handle:
+            disk = handle.read()
+        sector, per_cluster, reserved = struct.unpack_from('<HBH', disk, 11)
+        fats = disk[16]
+        fat_sectors = struct.unpack_from('<I', disk, 36)[0]
+        total = struct.unpack_from('<I', disk, 32)[0]
+        clusters = (total - reserved - fats * fat_sectors) // per_cluster
+        fat = disk[reserved * sector:(reserved + fat_sectors) * sector]
+        free = sum(1 for n in range(2, clusters + 2)
+                   if struct.unpack_from('<I', fat, 4 * n)[0] & 0x0FFFFFFF == 0)
+        _seeker, _listed, staged = self._free_space(self.fat32)
+        self.assertEqual(os.path.getsize(staged[0]), free * per_cluster * sector)
+
+    def test_a_pattern_that_does_not_ask_is_never_handed_free_space(self):
+        seeker = self._seeker(self.fat32)
+        for pattern in ('*', '*.bin', '*/$Unallocated/*', '*unallocated*'):
+            with self.subTest(pattern=pattern):
+                self.assertFalse(
+                    [path for path in seeker.search(pattern) if 'unallocated' in path])
+        self.assertFalse(os.path.isdir(os.path.join(seeker.data_folder, 'lba0',
+                                                    '$Unallocated')))
+
+    def test_free_space_is_staged_once(self):
+        seeker = self._seeker(self.fat32)
+        first = seeker.search('*.unallocated.bin')
+        stamp = os.path.getmtime(first[0])
+        self.assertEqual(seeker.search('*.unallocated.bin', force=True), first)
+        self.assertEqual(os.path.getmtime(first[0]), stamp)
+
+    def test_what_names_free_space(self):
+        self.assertTrue(names_free_space('*.unallocated.bin'))
+        self.assertTrue(names_free_space('*/$Unallocated/*.UNALLOCATED.BIN'))
+        self.assertFalse(names_free_space('*'))
+        self.assertFalse(names_free_space('*.bin'))
+        self.assertFalse(names_free_space('*/x.unallocated.bin/*'))
+
+    def test_the_run_log_says_free_space_can_be_asked_for(self):
+        log = _Recorder()
+        with mock.patch.object(raw_image, 'logfunc', log):
+            seeker = FileSeekerRaw(self.fat32, tempfile.mkdtemp(dir=self.work))
+            self.addCleanup(seeker.cleanup)
+        self.assertTrue(any('free space' in line for line in log.lines))
+
+    # ---- deleted files a reader can recover ----------------------------------------
+
+    def _with_deleted(self, entries):
+        """A seeker over the FAT32 fixture with one more volume, whose reader
+        recovers `entries`. No fixture here is a flash filesystem, so the reader
+        is a stand-in with the two methods the seeker asks for."""
+        seeker = FileSeekerRaw(self.fat32, tempfile.mkdtemp(dir=self.work))
+        self.addCleanup(seeker.cleanup)
+        seeker.volumes.append({'name': 'flash0', 'walker': _FakeFlashWalker(entries)})
+        return seeker
+
+    def test_deleted_files_are_staged_for_a_pattern_that_names_the_folder(self):
+        entries = [
+            _FakeDeleted('gps.dat', 'var/sysinfo', b'first version', mtime=1700000000),
+            _FakeDeleted('gps.dat', None, b'second version'),
+            _FakeDeleted('', None, b'no name'),
+            _FakeDeleted('lost.dat', 'var', b'', recoverable=False),
+            _FakeDeleted('raises.dat', 'var', None),
+        ]
+        log = _Recorder()
+        with mock.patch.object(raw_image, 'logfunc', log):
+            seeker = self._with_deleted(entries)
+            staged = seeker.search('*/$Deleted/*')
+        by_member = {seeker.file_infos[path].source_path: path for path in staged}
+        self.assertEqual(sorted(by_member), [
+            'flash0/$Deleted/$NoFolder/$NoName.deleted-000002',
+            'flash0/$Deleted/$NoFolder/gps.dat.deleted-000001',
+            'flash0/$Deleted/var/sysinfo/gps.dat.deleted-000000'])
+        first = by_member['flash0/$Deleted/var/sysinfo/gps.dat.deleted-000000']
+        with open(first, 'rb') as handle:
+            self.assertEqual(handle.read(), b'first version')
+        self.assertEqual(seeker.file_infos[first].modification_date, 1700000000)
+        with open(by_member['flash0/$Deleted/$NoFolder/gps.dat.deleted-000001'], 'rb') as handle:
+            self.assertEqual(handle.read(), b'second version')
+        # the one the reader calls unreadable is counted, the one it fails on is named
+        self.assertTrue(any('4 files outside the live tree can be read, 1 are named and cannot' in line
+                            for line in log.lines), log.lines)
+        self.assertTrue(any('Not staged' in line and 'raises.dat' in line
+                            for line in log.lines), log.lines)
+        self.assertFalse(any(name.startswith('raises.dat')
+                             for _root, _dirs, names in os.walk(seeker.data_folder)
+                             for name in names))
+
+    def test_a_pattern_that_does_not_name_the_folder_never_reaches_a_deleted_file(self):
+        seeker = self._with_deleted([_FakeDeleted('gps.dat', 'var', b'x')])
+        for pattern in ('*', '*gps.dat*', '*/var/*', '*.deleted-*'):
+            for path in seeker.search(pattern):
+                self.assertNotIn('$Deleted', seeker.file_infos[path].source_path, pattern)
+        # and the reader was never asked
+        self.assertIsNone(seeker.deleted_list)
+        self.assertEqual(seeker.volumes[-1]['walker'].asked, 0)
+        self.assertEqual(len(seeker.search('*/$Deleted/*gps.dat*')), 1)
+        seeker.search('*/$Deleted/*')
+        self.assertEqual(seeker.volumes[-1]['walker'].asked, 1)
+
+    def test_what_names_deleted(self):
+        for pattern in ('*/$Deleted/*', '*/$Deleted/*/gps.dat*', '$Deleted/x', '*\\$Deleted\\*'):
+            self.assertTrue(names_deleted(pattern), pattern)
+        for pattern in ('*', '*Deleted*', '*/x$Deleted/*', '*/$Deleted.bak/*', '*.deleted-*'):
+            self.assertFalse(names_deleted(pattern), pattern)
+
     def test_what_names_a_stream(self):
         for pattern in ('*:Zone.Identifier', '*/$Extend/$UsnJrnl:$J', '*/:rootstream', '*:*',
                         '*\\x.exe:Zone.Identifier'):
@@ -1217,7 +1360,8 @@ class RawImageSeekerTest(unittest.TestCase):
         walkers = {'QNX6': qnxprobe.Qnx6Walker, 'QNX4': qnxprobe.Qnx4Walker,
                    'ETFS': qnxprobe.EtfsWalker, 'EFS': qnxprobe.EfsWalker,
                    'ext2/3/4': qnxprobe.ExtWalker, 'F2FS': qnxprobe.F2fsWalker,
-                   'FAT32': qnxprobe.Fat32Walker,
+                   'FAT32': qnxprobe.Fat32Walker, 'FAT16': qnxprobe.Fat16Walker,
+                   'FAT12': qnxprobe.Fat12Walker,
                    'exFAT': qnxprobe.ExfatWalker, 'NTFS': qnxprobe.NtfsWalker,
                    'HFS+': qnxprobe.HfsPlusWalker, 'APFS': qnxprobe.ApfsWalker,
                    'SquashFS': qnxprobe.SquashfsWalker, 'JFFS2': qnxprobe.Jffs2Walker,
@@ -1301,6 +1445,31 @@ try:
     _HAS_TK = True
 except ImportError:
     _HAS_TK = False
+
+
+class _FakeDeleted:
+    """What a flash reader's recover_deleted() yields, as far as the seeker reads it."""
+
+    def __init__(self, name, parent_path, data, mtime=None, recoverable=True):
+        self.name, self.parent_path, self.data = name, parent_path, data
+        self.mtime, self.recoverable = mtime, recoverable
+
+
+class _FakeFlashWalker:
+    """A reader with the two methods the seeker asks a flash filesystem for."""
+
+    def __init__(self, entries):
+        self.entries, self.asked = entries, 0
+
+    def recover_deleted(self):
+        self.asked += 1
+        yield from self.entries
+
+    @staticmethod
+    def read_deleted(entry):
+        if entry.data is None:
+            raise ValueError('the extent chain no longer resolves')
+        yield entry.data
 
 
 class _FakeLogicalEntry:

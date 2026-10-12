@@ -10,7 +10,7 @@ __artifacts_v2__ = {
 ' table Z_PK value.',
 'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-07',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
 ' table Z_PK value.',
 'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-07',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
 ' table Z_PK value.',
 'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-07',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -116,6 +116,9 @@ def Ph017_1GenAIDetectedPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -271,6 +274,9 @@ def Ph017_2GenAIDetectedSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
@@ -425,6 +431,9 @@ def Ph017_3GenAIDetectedGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path

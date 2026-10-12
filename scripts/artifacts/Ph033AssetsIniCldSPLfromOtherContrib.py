@@ -4,7 +4,7 @@ __artifacts_v2__ = {
 'description': 'Reports ZASSET rows selected by version-specific Shared Photo Library predicates in PhotoData/Photos.sqlite, with joined share and participant fields. On iOS 16 and 17, rows require the joined participant ZISCURRENTUSER value to equal 0. On iOS 18 through 26, rows require ZASSET.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE to equal 1 and no participant-current-user predicate is applied. Joined rows may repeat assets. These predicates and stored identifiers do not by themselves establish ownership or who created, added, or contributed an asset. Other versions return no rows. Original query research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.',
 'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-07',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -51,6 +51,9 @@ def Ph033iCldSPLAssetsfromothercontribPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
