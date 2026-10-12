@@ -1,0 +1,45 @@
+{
+  "case1": {
+    "description": "Magnet Virtual Summit 2023 public iOS CTF subset. Version 16 SafariViewService resources with store salt and container ownership metadata; original cache paths are present to verify exclusion.",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "ctf_additive_subset.zip",
+      "os": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "timestamp": "2026-10-12T10:27:20.312067",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-12T10:27:20.310768",
+        "message": "File not yet committed to git"
+      },
+      "note": "Input is a selected artifact subset, not the complete filesystem image. Artifact bytes are unchanged. ZIP member filesystem timestamps reflect subset acquisition; these parsers use stored artifact timestamps."
+    },
+    "artifacts": {
+      "webkit_additional_cache_records": {
+        "search_patterns": [
+          "*/NetworkCache/Version*/salt",
+          "*/NetworkCache/Version*/Records/*/Resource/*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist"
+        ],
+        "file_count": 37,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "16.1.1",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "16.1.1",
+      "description": "Byte-preserved selected artifacts from the public Magnet Virtual Summit 2023 iOS CTF image.",
+      "source_url": "https://storage.googleapis.com/mvs-2023/00008101-0010541A1130001E_files_full-001.zip"
+    }
+  }
+}
