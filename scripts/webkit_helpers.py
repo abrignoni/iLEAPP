@@ -8,14 +8,6 @@ from pathlib import Path
 from xml.parsers.expat import ExpatError
 
 
-OWNER_PATHS = (
-    '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
-    '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist',
-    '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
-    '*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist',
-    '*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist',
-)
-
 OWNER_HEADERS = (
     'Application / Service', 'Identifier', 'Container GUID', 'Container Type',
     'Web Data Store', 'Owner Metadata Source',
@@ -48,7 +40,7 @@ def web_data_store(path):
     path = str(path).replace('\\', '/')
     if '/SystemData/com.apple.SafariViewService/' in path:
         return 'SafariViewService'
-    return 'WebKit'
+    return ''
 
 
 def _read_plist(path):

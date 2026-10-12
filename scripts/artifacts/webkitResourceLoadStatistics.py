@@ -7,49 +7,116 @@ from datetime import date
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
 from scripts.webkit_helpers import (
-    OWNER_HEADERS, OWNER_PATHS, WebKitOwnerResolver, evidence_path, unix_timestamp,
+    OWNER_HEADERS, WebKitOwnerResolver, evidence_path, unix_timestamp,
 )
 
-
-_PATHS = (
-    '*/ResourceLoadStatistics/observations.db*',
-    '*/WebKit/*observations.db*',
-) + OWNER_PATHS
-_NOTES = (
-    'These are WebKit tracking-prevention statistics, not a complete browsing history. '
-    'A domain may be observed as a subresource. Interaction flags do not establish a '
-    'particular link click. Zero, negative and invalid time values remain in Stored Values '
-    'and are not rendered as dates. Database reads include acquired WAL files. '
-    'Shared-group identifiers and plugin identifiers are reported as stored; no host app '
-    'is inferred. Source: https://github.com/WebKit/WebKit/blob/main/Source/WebKit/'
-    'NetworkProcess/Classifier/ResourceLoadStatisticsStore.cpp'
-)
 
 __artifacts_v2__ = {
     'webkit_observed_domains': {
         'name': 'WebKit - Observed Domains',
         'description': 'Observed domain statistics from each acquired observations.db.',
-        'author': '', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
-        'requirements': 'none', 'category': 'Browser', 'notes': _NOTES,
-        'paths': _PATHS, 'output_types': 'standard', 'artifact_icon': 'world',
+        'author': '@ForensikITGmbH', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
+        'requirements': 'none', 'category': 'Browser',
+        'notes': 'These are WebKit tracking-prevention statistics, not a complete browsing history. '
+                 'A domain may be observed as a subresource. Interaction flags do not establish a '
+                 'particular link click. Zero, negative and invalid time values remain in Stored Values '
+                 'and are not rendered as dates. Database reads include acquired WAL files. '
+                 'Shared-group identifiers and plugin identifiers are reported as stored; no host app '
+                 'is inferred. '
+                 'Most Recent Web Push Interaction held no value on any of the 1,753 rows in '
+                 'the four tested images with data; the stored value was 0 on every row. '
+                 'The iOS 12.4 image held no observations.db. One ResourceLoadStatistics '
+                 'folder in that image held full_browsing_session_resourceLog.plist, which '
+                 'is not read. '
+                 'Source: https://github.com/WebKit/WebKit/blob/'
+                 '47b1bf884eb5adb28e9f3316c4930f5367bac470/Source/WebKit/'
+                 'NetworkProcess/Classifier/ResourceLoadStatisticsStore.cpp',
+        'paths': (
+            '*/ResourceLoadStatistics/observations.db*',
+            '*/WebKit/*observations.db*',
+            '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist',
+        ),
+        'output_types': 'standard', 'artifact_icon': 'world',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 145 rows',
+            'iphone11_ios17': 'iOS 17.3 | 368 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 867 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 373 rows',
+        },
     },
     'webkit_operating_dates': {
         'name': 'WebKit - Operating Dates',
         'description': 'Calendar dates retained by the WebKit statistics store.',
-        'author': '', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
+        'author': '@ForensikITGmbH', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
         'requirements': 'none', 'category': 'Browser',
-        'notes': _NOTES + ' OperatingDates.month is zero-based. Dates are date-only '
-                 'values, without a time or timezone, and do not prove foreground app use.',
-        'paths': _PATHS, 'output_types': ['html', 'tsv', 'lava'],
+        'notes': 'These are WebKit tracking-prevention statistics, not a complete browsing history. '
+                 'A domain may be observed as a subresource. Interaction flags do not establish a '
+                 'particular link click. Zero, negative and invalid time values remain in Stored Values '
+                 'and are not rendered as dates. Database reads include acquired WAL files. '
+                 'Shared-group identifiers and plugin identifiers are reported as stored; no host app '
+                 'is inferred. Source: https://github.com/WebKit/WebKit/blob/'
+                 '47b1bf884eb5adb28e9f3316c4930f5367bac470/Source/WebKit/'
+                 'NetworkProcess/Classifier/ResourceLoadStatisticsStore.cpp'
+                 ' OperatingDates.month is zero-based: stored months ran 0 to 11 in the '
+                 'tested images. Dates are date-only values with no time. WebKit '
+                 'derives them from the UTC wall clock (OperatingDate::fromWallTime), so a '
+                 'date near local midnight can differ from the local date on the device. '
+                 'They do not prove foreground app use.',
+        'paths': (
+            '*/ResourceLoadStatistics/observations.db*',
+            '*/WebKit/*observations.db*',
+            '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist',
+        ),
+        'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'calendar',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 36 rows',
+            'iphone11_ios17': 'iOS 17.3 | 212 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 218 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 81 rows',
+        },
     },
     'webkit_domain_relationships': {
         'name': 'WebKit - Domain Relationships',
         'description': 'Domain references in statistics tables, resolved using declared '
                        'foreign keys to ObservedDomains while retaining original fields.',
-        'author': '', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
-        'requirements': 'none', 'category': 'Browser', 'notes': _NOTES,
-        'paths': _PATHS, 'output_types': 'standard', 'artifact_icon': 'arrows-exchange',
+        'author': '@ForensikITGmbH', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
+        'requirements': 'none', 'category': 'Browser',
+        'notes': 'These are WebKit tracking-prevention statistics, not a complete browsing history. '
+                 'A domain may be observed as a subresource. Interaction flags do not establish a '
+                 'particular link click. Zero, negative and invalid time values remain in Stored Values '
+                 'and are not rendered as dates. Database reads include acquired WAL files. '
+                 'Shared-group identifiers and plugin identifiers are reported as stored; no host app '
+                 'is inferred. Source: https://github.com/WebKit/WebKit/blob/'
+                 '47b1bf884eb5adb28e9f3316c4930f5367bac470/Source/WebKit/'
+                 'NetworkProcess/Classifier/ResourceLoadStatisticsStore.cpp',
+        'paths': (
+            '*/ResourceLoadStatistics/observations.db*',
+            '*/WebKit/*observations.db*',
+            '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist',
+        ),
+        'output_types': 'standard', 'artifact_icon': 'arrows-exchange',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 306 rows',
+            'iphone11_ios17': 'iOS 17.3 | 593 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 2819 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 655 rows',
+        },
     },
 }
 
@@ -104,7 +171,7 @@ def webkit_observed_domains(context):
         ('Most Recent Web Push Interaction', 'datetime'), 'Domain', 'Domain ID',
         'Had User Interaction', 'Is Prevalent', 'Is Very Prevalent', 'Grandfathered',
         'Data Records Removed', 'First Party Accesses Due To User Interaction',
-        'First Party Accesses Due To Storage Access API', 'Scheduled For Data Removal',
+        'First Party Accesses Due To Storage Access API', 'Scheduled For All-But-Cookie Data Removal',
     ) + OWNER_HEADERS + ('Stored Values', 'Source File')
     result = context.create_artifact_result(headers=headers)
     sources = set()

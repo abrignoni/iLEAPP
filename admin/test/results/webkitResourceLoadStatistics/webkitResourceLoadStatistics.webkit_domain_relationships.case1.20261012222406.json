@@ -6,19 +6,19 @@
     "case_number": "case1",
     "number_of_columns": 15,
     "number_of_rows": 306,
-    "total_data_size_bytes": 185016,
+    "total_data_size_bytes": 183258,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/webkitResourceLoadStatistics/testdata.webkitResourceLoadStatistics.webkit_domain_relationships.case1.zip",
-    "start_time": "2026-10-12T08:29:19.094062+00:00",
-    "end_time": "2026-10-12T08:29:19.121039+00:00",
-    "run_time_seconds": 0.010937929153442383,
+    "start_time": "2026-10-12T22:24:06.000540+00:00",
+    "end_time": "2026-10-12T22:24:06.070337+00:00",
+    "run_time_seconds": 0.015419244766235352,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-12T08:29:19.096481",
-      "message": "File not yet committed to git"
+      "hash": "3cba957da2bc007e332b92433ca7ce7148906583",
+      "author_name": "Forensik.IT GmbH",
+      "author_email": "336857309+ForensikITGmbH@users.noreply.github.com",
+      "date": "2026-10-12T10:39:07+02:00",
+      "message": "Add files via upload"
     }
   },
   "headers": [
@@ -51,7 +51,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659965.835483, \"subFrameDomainID\": 1, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -68,7 +68,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663348.37197, \"subFrameDomainID\": 2, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -85,7 +85,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662311.272618, \"subFrameDomainID\": 5, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -102,7 +102,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659966.144184, \"subFrameDomainID\": 16, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -119,7 +119,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343861.056196, \"subFrameDomainID\": 18, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -136,7 +136,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236263.059701, \"subFrameDomainID\": 19, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -153,7 +153,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659914.104139, \"subFrameDomainID\": 44, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -170,7 +170,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236261.42693, \"subFrameDomainID\": 45, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -187,7 +187,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343861.789906, \"subFrameDomainID\": 46, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -204,7 +204,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662311.152896, \"subFrameDomainID\": 56, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -221,7 +221,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659913.509313, \"subFrameDomainID\": 57, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -238,7 +238,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662367.840735, \"subFrameDomainID\": 78, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -255,7 +255,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.336623, \"subresourceDomainID\": 1, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -272,7 +272,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.019492, \"subresourceDomainID\": 1, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -289,7 +289,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662389.790289, \"subresourceDomainID\": 1, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -306,7 +306,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663388.142449, \"subresourceDomainID\": 1, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -323,7 +323,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663351.559514, \"subresourceDomainID\": 2, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -340,7 +340,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.025453, \"subresourceDomainID\": 2, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -357,7 +357,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663351.556921, \"subresourceDomainID\": 3, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -374,7 +374,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663351.558517, \"subresourceDomainID\": 4, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -391,7 +391,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663351.558816, \"subresourceDomainID\": 5, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -408,7 +408,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.341526, \"subresourceDomainID\": 5, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -425,7 +425,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.02905, \"subresourceDomainID\": 5, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -442,7 +442,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662389.791099, \"subresourceDomainID\": 5, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -459,7 +459,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663388.141731, \"subresourceDomainID\": 5, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -476,7 +476,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663356.859615, \"subresourceDomainID\": 6, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -493,7 +493,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236270.162315, \"subresourceDomainID\": 6, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -510,7 +510,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659928.700174, \"subresourceDomainID\": 6, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -527,7 +527,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663351.559817, \"subresourceDomainID\": 7, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -544,7 +544,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663351.56078, \"subresourceDomainID\": 8, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -561,7 +561,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659975.529442, \"subresourceDomainID\": 9, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -578,7 +578,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672091409.044102, \"subresourceDomainID\": 11, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -595,7 +595,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236265.06678, \"subresourceDomainID\": 11, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -612,7 +612,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659918.58936, \"subresourceDomainID\": 11, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -629,7 +629,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672091414.592426, \"subresourceDomainID\": 12, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -646,7 +646,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672091409.045153, \"subresourceDomainID\": 13, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -663,7 +663,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.33913, \"subresourceDomainID\": 13, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -680,7 +680,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.025049, \"subresourceDomainID\": 13, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -697,7 +697,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.122337, \"subresourceDomainID\": 13, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -714,7 +714,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672091409.045653, \"subresourceDomainID\": 14, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -731,7 +731,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672091419.593451, \"subresourceDomainID\": 15, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -748,7 +748,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343871.413276, \"subresourceDomainID\": 15, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -765,7 +765,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.026667, \"subresourceDomainID\": 15, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -782,7 +782,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662389.789431, \"subresourceDomainID\": 15, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -799,7 +799,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672091414.59354, \"subresourceDomainID\": 16, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -816,7 +816,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.342297, \"subresourceDomainID\": 16, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -833,7 +833,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.030054, \"subresourceDomainID\": 16, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -850,7 +850,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662389.787694, \"subresourceDomainID\": 16, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -867,7 +867,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672663388.140892, \"subresourceDomainID\": 16, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -884,7 +884,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.336414, \"subresourceDomainID\": 18, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -901,7 +901,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.337685, \"subresourceDomainID\": 19, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -918,7 +918,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.3352, \"subresourceDomainID\": 20, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -935,7 +935,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.335408, \"subresourceDomainID\": 21, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -952,7 +952,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.33582, \"subresourceDomainID\": 22, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -969,7 +969,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.336019, \"subresourceDomainID\": 23, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -986,7 +986,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.336229, \"subresourceDomainID\": 24, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1003,7 +1003,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.336809, \"subresourceDomainID\": 25, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1020,7 +1020,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.33704, \"subresourceDomainID\": 26, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1037,7 +1037,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.337255, \"subresourceDomainID\": 27, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1054,7 +1054,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.021512, \"subresourceDomainID\": 27, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1071,7 +1071,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.337496, \"subresourceDomainID\": 28, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1088,7 +1088,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.021912, \"subresourceDomainID\": 28, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1105,7 +1105,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.337894, \"subresourceDomainID\": 29, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1122,7 +1122,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.338318, \"subresourceDomainID\": 30, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1139,7 +1139,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.338517, \"subresourceDomainID\": 31, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1156,7 +1156,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.022328, \"subresourceDomainID\": 31, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1173,7 +1173,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.338757, \"subresourceDomainID\": 32, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1190,7 +1190,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236259.774267, \"subresourceDomainID\": 33, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1207,7 +1207,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.019081, \"subresourceDomainID\": 33, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1224,7 +1224,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.338944, \"subresourceDomainID\": 34, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1241,7 +1241,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.339327, \"subresourceDomainID\": 35, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1258,7 +1258,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.339952, \"subresourceDomainID\": 36, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1275,7 +1275,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.340207, \"subresourceDomainID\": 37, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1292,7 +1292,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.027565, \"subresourceDomainID\": 37, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1309,7 +1309,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.340429, \"subresourceDomainID\": 38, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1326,7 +1326,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659915.151449, \"subresourceDomainID\": 38, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1343,7 +1343,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.340668, \"subresourceDomainID\": 39, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1360,7 +1360,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.340871, \"subresourceDomainID\": 40, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1377,7 +1377,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.028169, \"subresourceDomainID\": 40, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1394,7 +1394,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.341092, \"subresourceDomainID\": 41, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1411,7 +1411,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.125736, \"subresourceDomainID\": 41, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1428,7 +1428,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.341293, \"subresourceDomainID\": 42, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1445,7 +1445,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236259.777015, \"subresourceDomainID\": 43, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1462,7 +1462,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.027863, \"subresourceDomainID\": 43, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1479,7 +1479,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.342085, \"subresourceDomainID\": 44, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1496,7 +1496,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.029592, \"subresourceDomainID\": 44, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1513,7 +1513,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.334901, \"subresourceDomainID\": 46, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1530,7 +1530,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.335622, \"subresourceDomainID\": 47, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1547,7 +1547,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.018667, \"subresourceDomainID\": 47, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1564,7 +1564,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236265.076281, \"subresourceDomainID\": 48, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1581,7 +1581,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.338094, \"subresourceDomainID\": 49, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1598,7 +1598,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672343865.339538, \"subresourceDomainID\": 50, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1615,7 +1615,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.122781, \"subresourceDomainID\": 50, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1632,7 +1632,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659856.321474, \"subresourceDomainID\": 52, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1649,7 +1649,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.023851, \"subresourceDomainID\": 53, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1666,7 +1666,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659856.32393, \"subresourceDomainID\": 54, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1683,7 +1683,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659862.414351, \"subresourceDomainID\": 55, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1700,7 +1700,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.026101, \"subresourceDomainID\": 56, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1717,7 +1717,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.029834, \"subresourceDomainID\": 57, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1734,7 +1734,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.017094, \"subresourceDomainID\": 58, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1751,7 +1751,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659915.143817, \"subresourceDomainID\": 59, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1768,7 +1768,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.117424, \"subresourceDomainID\": 59, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1785,7 +1785,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659928.700466, \"subresourceDomainID\": 60, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1802,7 +1802,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659934.776103, \"subresourceDomainID\": 60, \"topFrameDomainID\": 57}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1819,7 +1819,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.019921, \"subresourceDomainID\": 61, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1836,7 +1836,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.020367, \"subresourceDomainID\": 62, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1853,7 +1853,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.020753, \"subresourceDomainID\": 63, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1870,7 +1870,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.021125, \"subresourceDomainID\": 64, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1887,7 +1887,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.022719, \"subresourceDomainID\": 65, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1904,7 +1904,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.120599, \"subresourceDomainID\": 65, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1921,7 +1921,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.023124, \"subresourceDomainID\": 66, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1938,7 +1938,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.023488, \"subresourceDomainID\": 67, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1955,7 +1955,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.024253, \"subresourceDomainID\": 68, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1972,7 +1972,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.024652, \"subresourceDomainID\": 69, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1989,7 +1989,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.025765, \"subresourceDomainID\": 70, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2006,7 +2006,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.026948, \"subresourceDomainID\": 71, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2023,7 +2023,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.125076, \"subresourceDomainID\": 71, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2040,7 +2040,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.027263, \"subresourceDomainID\": 72, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2057,7 +2057,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.028458, \"subresourceDomainID\": 73, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2074,7 +2074,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.028771, \"subresourceDomainID\": 74, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2091,7 +2091,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.029363, \"subresourceDomainID\": 75, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2108,7 +2108,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662316.026385, \"subresourceDomainID\": 76, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2125,7 +2125,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.124678, \"subresourceDomainID\": 78, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2142,7 +2142,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.11508, \"subresourceDomainID\": 79, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2159,7 +2159,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.115961, \"subresourceDomainID\": 80, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2176,7 +2176,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.116745, \"subresourceDomainID\": 81, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2193,7 +2193,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.118748, \"subresourceDomainID\": 82, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2210,7 +2210,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.119193, \"subresourceDomainID\": 83, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2227,7 +2227,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.119708, \"subresourceDomainID\": 84, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2244,7 +2244,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.12015, \"subresourceDomainID\": 85, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2261,7 +2261,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.121025, \"subresourceDomainID\": 86, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2278,7 +2278,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.121464, \"subresourceDomainID\": 87, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2295,7 +2295,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.121896, \"subresourceDomainID\": 88, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2312,7 +2312,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.124277, \"subresourceDomainID\": 89, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2329,7 +2329,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.125411, \"subresourceDomainID\": 90, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2346,7 +2346,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672914069.322016, \"subresourceDomainID\": 92, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2363,7 +2363,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672914069.322352, \"subresourceDomainID\": 13, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2380,7 +2380,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672914069.322568, \"subresourceDomainID\": 93, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2397,7 +2397,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672914069.322827, \"subresourceDomainID\": 15, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2414,7 +2414,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672914069.323092, \"subresourceDomainID\": 94, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2431,7 +2431,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 1, \"subresourceDomainID\": 16}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2448,7 +2448,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 19, \"subresourceDomainID\": 45}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2465,7 +2465,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 45, \"subresourceDomainID\": 19}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2482,7 +2482,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 16, \"subresourceDomainID\": 5}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2499,7 +2499,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 5, \"subresourceDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2516,7 +2516,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 70, \"subresourceDomainID\": 74}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2533,7 +2533,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 83, \"subresourceDomainID\": 78}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2550,7 +2550,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659975.527944, \"subresourceDomainID\": 1, \"toDomainID\": 16}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2567,7 +2567,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659975.526219, \"subresourceDomainID\": 5, \"toDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2584,7 +2584,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659966.437452, \"subresourceDomainID\": 16, \"toDomainID\": 5}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2601,7 +2601,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236261.427077, \"subresourceDomainID\": 19, \"toDomainID\": 45}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2618,7 +2618,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672236263.060175, \"subresourceDomainID\": 45, \"toDomainID\": 19}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2635,7 +2635,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672659915.150016, \"subresourceDomainID\": 70, \"toDomainID\": 74}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2652,7 +2652,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672662372.11931, \"subresourceDomainID\": 83, \"toDomainID\": 78}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2669,7 +2669,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 2, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2686,7 +2686,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 5, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2703,7 +2703,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 15, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2720,7 +2720,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 13, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2737,7 +2737,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 6, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2754,7 +2754,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 12, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2771,7 +2771,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 39, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2788,7 +2788,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 31, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2805,7 +2805,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 34, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2822,7 +2822,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 27, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2839,7 +2839,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 42, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2856,7 +2856,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 5, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2873,7 +2873,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 41, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2890,7 +2890,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 15, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2907,7 +2907,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 13, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2924,7 +2924,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 30, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2941,7 +2941,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 44, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2958,7 +2958,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 26, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2975,7 +2975,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 36, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2992,7 +2992,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 35, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3009,7 +3009,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 18, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3026,7 +3026,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 40, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3043,7 +3043,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 28, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3060,7 +3060,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 32, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3077,7 +3077,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 22, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3094,7 +3094,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 19, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3111,7 +3111,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 20, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3128,7 +3128,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 24, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3145,7 +3145,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 47, \"topFrameDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3162,7 +3162,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 27, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3179,7 +3179,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 53, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3196,7 +3196,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 52, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3213,7 +3213,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 55, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3230,7 +3230,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 66, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3247,7 +3247,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 31, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3264,7 +3264,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 58, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3281,7 +3281,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 68, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3298,7 +3298,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 72, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3315,7 +3315,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 15, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3332,7 +3332,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 13, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3349,7 +3349,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 44, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3366,7 +3366,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 71, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3383,7 +3383,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 69, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3400,7 +3400,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 47, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3417,7 +3417,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 40, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3434,7 +3434,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 28, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3451,7 +3451,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 64, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3468,7 +3468,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 63, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3485,7 +3485,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 61, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3502,7 +3502,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 73, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3519,7 +3519,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 75, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3536,7 +3536,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 2, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3553,7 +3553,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 76, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3570,7 +3570,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 9, \"topFrameDomainID\": 51}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3587,7 +3587,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 5, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3604,7 +3604,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 41, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3621,7 +3621,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 15, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3638,7 +3638,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 13, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3655,7 +3655,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 81, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3672,7 +3672,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 79, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3689,7 +3689,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 86, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3706,7 +3706,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 82, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3723,7 +3723,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 87, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3740,7 +3740,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 89, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3757,7 +3757,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 85, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3774,7 +3774,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 71, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3791,7 +3791,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 80, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3808,7 +3808,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 88, \"topFrameDomainID\": 77}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3825,7 +3825,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 15, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3842,7 +3842,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 13, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3859,7 +3859,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 93, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3876,7 +3876,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 92, \"topFrameDomainID\": 91}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3893,7 +3893,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 1, \"targetDomainID\": 9}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3910,7 +3910,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 9, \"targetDomainID\": 10}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3927,7 +3927,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 10, \"targetDomainID\": 5}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3944,7 +3944,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 5, \"targetDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3961,7 +3961,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 9, \"targetDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3978,7 +3978,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 1, \"toDomainID\": 9}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3995,7 +3995,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 9, \"toDomainID\": 10}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4012,7 +4012,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 10, \"toDomainID\": 5}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4029,7 +4029,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 5, \"toDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4046,7 +4046,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 9, \"toDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4063,7 +4063,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 1, \"toDomainID\": 9}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4080,7 +4080,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 9, \"toDomainID\": 10}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4097,7 +4097,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 10, \"toDomainID\": 5}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4114,7 +4114,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 5, \"toDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4131,7 +4131,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 9, \"toDomainID\": 17}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4148,7 +4148,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671814470.472634, \"subresourceDomainID\": 1, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4165,7 +4165,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671814530.763312, \"subresourceDomainID\": 3, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4182,7 +4182,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671814515.638136, \"subresourceDomainID\": 4, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4199,7 +4199,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1670816655.207024, \"subresourceDomainID\": 5, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4216,7 +4216,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671814515.638762, \"subresourceDomainID\": 6, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4233,7 +4233,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1670816655.207813, \"subresourceDomainID\": 7, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4250,7 +4250,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671814470.472232, \"subresourceDomainID\": 8, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4267,7 +4267,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671814470.472442, \"subresourceDomainID\": 9, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4284,7 +4284,7 @@
       "com.google.Vespa",
       "DF72F391-8818-4CE5-9192-A1A100180A89",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672344819.287957, \"subresourceDomainID\": 3, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4301,7 +4301,7 @@
       "com.google.Vespa",
       "DF72F391-8818-4CE5-9192-A1A100180A89",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1673041274.784031, \"subresourceDomainID\": 2, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4318,7 +4318,7 @@
       "com.google.Vespa",
       "DF72F391-8818-4CE5-9192-A1A100180A89",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 2, \"topFrameDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4335,7 +4335,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672660148.100908, \"subFrameDomainID\": 1, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4352,7 +4352,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830851.65681, \"subFrameDomainID\": 2, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4369,7 +4369,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830849.731858, \"subFrameDomainID\": 12, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4386,7 +4386,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830851.614259, \"subresourceDomainID\": 2, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4403,7 +4403,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672660151.109451, \"subresourceDomainID\": 3, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4420,7 +4420,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830813.111966, \"subresourceDomainID\": 4, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4437,7 +4437,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830807.879521, \"subresourceDomainID\": 5, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4454,7 +4454,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830824.992043, \"subresourceDomainID\": 7, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4471,7 +4471,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830813.109103, \"subresourceDomainID\": 8, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4488,7 +4488,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830818.534026, \"subresourceDomainID\": 9, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4505,7 +4505,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830824.991342, \"subresourceDomainID\": 10, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4522,7 +4522,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830813.111246, \"subresourceDomainID\": 11, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4539,7 +4539,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830851.615128, \"subresourceDomainID\": 12, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4556,7 +4556,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830857.671867, \"subresourceDomainID\": 13, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4573,7 +4573,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830830.674614, \"subresourceDomainID\": 14, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4590,7 +4590,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830813.112945, \"subresourceDomainID\": 15, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4607,7 +4607,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830824.99225, \"subresourceDomainID\": 16, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4624,7 +4624,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830824.992706, \"subresourceDomainID\": 17, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4641,7 +4641,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1672660151.109959, \"subresourceDomainID\": 18, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4658,7 +4658,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 12, \"subresourceDomainID\": 10}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4675,7 +4675,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 12, \"subresourceDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4692,7 +4692,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 2, \"subresourceDomainID\": 12}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4709,7 +4709,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830851.614532, \"subresourceDomainID\": 2, \"toDomainID\": 12}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4726,7 +4726,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830818.535004, \"subresourceDomainID\": 12, \"toDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4743,7 +4743,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"lastUpdated\": 1671830818.535004, \"subresourceDomainID\": 12, \"toDomainID\": 10}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4760,7 +4760,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 3, \"topFrameDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4777,7 +4777,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 7, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4794,7 +4794,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 13, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4811,7 +4811,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 8, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4828,7 +4828,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 14, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4845,7 +4845,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 11, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4862,7 +4862,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 9, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4879,7 +4879,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"subresourceDomainID\": 10, \"topFrameDomainID\": 6}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4896,7 +4896,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 2, \"targetDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4913,7 +4913,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 1, \"targetDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4930,7 +4930,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"fromDomainID\": 19, \"targetDomainID\": 20}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4947,7 +4947,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 2, \"toDomainID\": 1}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4964,7 +4964,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 1, \"toDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4981,7 +4981,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 19, \"toDomainID\": 20}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -4998,7 +4998,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 1, \"toDomainID\": 2}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -5015,7 +5015,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"sourceDomainID\": 19, \"toDomainID\": 20}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"

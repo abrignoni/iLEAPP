@@ -6,19 +6,19 @@
     "case_number": "case1",
     "number_of_columns": 21,
     "number_of_rows": 145,
-    "total_data_size_bytes": 119339,
+    "total_data_size_bytes": 118511,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/webkitResourceLoadStatistics/testdata.webkitResourceLoadStatistics.webkit_observed_domains.case1.zip",
-    "start_time": "2026-10-12T08:29:19.039109+00:00",
-    "end_time": "2026-10-12T08:29:19.068177+00:00",
-    "run_time_seconds": 0.00994110107421875,
+    "start_time": "2026-10-12T22:24:05.863545+00:00",
+    "end_time": "2026-10-12T22:24:05.932034+00:00",
+    "run_time_seconds": 0.014307022094726562,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-12T08:29:19.042008",
-      "message": "File not yet committed to git"
+      "hash": "3cba957da2bc007e332b92433ca7ce7148906583",
+      "author_name": "Forensik.IT GmbH",
+      "author_email": "336857309+ForensikITGmbH@users.noreply.github.com",
+      "date": "2026-10-12T10:39:07+02:00",
+      "message": "Add files via upload"
     }
   },
   "headers": [
@@ -34,7 +34,7 @@
     "Data Records Removed",
     "First Party Accesses Due To User Interaction",
     "First Party Accesses Due To Storage Access API",
-    "Scheduled For Data Removal",
+    "Scheduled For All-But-Cookie Data Removal",
     "Application / Service",
     "Identifier",
     "Container GUID",
@@ -63,7 +63,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 1, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 1, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663385.0, \"mostRecentUserInteractionTime\": 1672663380.164491, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"google.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -86,7 +86,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 3, \"domainID\": 2, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663350.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"youtube.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -109,7 +109,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 3, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663345.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"jnn-pa.googleapis.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -132,7 +132,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 4, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663345.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"ytimg.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -155,7 +155,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 1, \"domainID\": 5, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 1, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663385.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"doubleclick.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -178,7 +178,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 6, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663350.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"gstatic.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -201,7 +201,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 7, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663345.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"googleusercontent.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -224,7 +224,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 8, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663345.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"ampproject.org\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -247,7 +247,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 1, \"domainID\": 9, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 1, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672659970.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"googleadservices.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -270,7 +270,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 10, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 1, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"dartsearch.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -293,7 +293,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 11, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672659915.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"fonts.googleapis.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -316,7 +316,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 12, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672091410.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"storage.googleapis.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -339,7 +339,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 13, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 1, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672914065.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"googletagmanager.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -362,7 +362,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 14, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672091405.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"translate.googleapis.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -385,7 +385,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 15, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 1, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672914065.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"google-analytics.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -408,7 +408,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 1, \"domainID\": 16, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 1, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672663385.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"google.de\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -431,7 +431,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 17, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": 1672343860.270354, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"financebuzz.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -454,7 +454,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 18, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"pushy.ai\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -477,7 +477,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 19, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"snapchat.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -500,7 +500,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 20, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"taboola.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -523,7 +523,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 21, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"quora.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -546,7 +546,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 22, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"sentry-cdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -569,7 +569,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 23, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"a2z.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -592,7 +592,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 24, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"yimg.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -615,7 +615,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 25, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"alexametrics.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -638,7 +638,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 26, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"nextdoor.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -661,7 +661,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 27, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"cookielaw.org\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -684,7 +684,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 28, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"redditstatic.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -707,7 +707,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 29, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"execute-api.us-east-1.amazonaws.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -730,7 +730,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 30, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"launchpotato.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -753,7 +753,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 31, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"ads-twitter.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -776,7 +776,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 32, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"sc-static.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -799,7 +799,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 33, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"t.co\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -822,7 +822,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 34, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"bing.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -845,7 +845,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 35, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"pinimg.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -868,7 +868,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 36, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"omappapi.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -891,7 +891,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 37, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"reddit.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -914,7 +914,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 38, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672659910.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"onetrust.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -937,7 +937,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 39, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"adnxs.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -960,7 +960,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 40, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"quantserve.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -983,7 +983,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 41, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662370.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"facebook.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1006,7 +1006,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 42, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"d31qbv1cthcecs.cloudfront.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1029,7 +1029,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 43, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"twitter.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1052,7 +1052,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 44, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"liadm.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1075,7 +1075,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 45, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672236260.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"tapad.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1098,7 +1098,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 46, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"pinterest.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1121,7 +1121,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 47, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"quantcount.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1144,7 +1144,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 48, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672236260.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"sentry.io\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1167,7 +1167,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 49, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672343860.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"yahoo.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1190,7 +1190,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 50, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662370.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"facebook.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1213,7 +1213,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 51, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": 1672662311.015323, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"slack.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1236,7 +1236,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 52, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672659850.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"wistia.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1259,7 +1259,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 53, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"slack-edge.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1282,7 +1282,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 54, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672659850.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"jquery.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1305,7 +1305,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 55, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672659855.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"wistia.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1328,7 +1328,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 56, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"d34u8crftukxnk.cloudfront.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1351,7 +1351,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 57, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"driftt.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1374,7 +1374,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 58, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"conductor.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1397,7 +1397,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 59, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"oribi.io\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1420,7 +1420,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 60, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672659925.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"drift.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1443,7 +1443,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 61, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"techtarget.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1466,7 +1466,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 62, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"us-central1-adaptive-growth.cloudfunctions.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1489,7 +1489,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 63, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"spiceworks.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1512,7 +1512,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 64, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"schemaapp.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1535,7 +1535,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 65, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"linkedin.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1558,7 +1558,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 66, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"adroll.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1581,7 +1581,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 67, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"rlcdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1604,7 +1604,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 68, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"contentsquare.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1627,7 +1627,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 69, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"pdst.fm\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1650,7 +1650,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 70, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"bidr.io\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1673,7 +1673,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 71, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"licdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1696,7 +1696,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 72, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"demandbase.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1719,7 +1719,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 73, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"yahoo.co.jp\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1742,7 +1742,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 74, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"company-target.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1765,7 +1765,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 75, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"yjtag.jp\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1788,7 +1788,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 76, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662310.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"pardot.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1811,7 +1811,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 77, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662555.0, \"mostRecentUserInteractionTime\": 1672662559.109299, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"ionos.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1834,7 +1834,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 78, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"demdex.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1857,7 +1857,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 79, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hs-banner.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1880,7 +1880,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 80, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"uicdn.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1903,7 +1903,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 81, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hs-analytics.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1926,7 +1926,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 82, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hsadspixel.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1949,7 +1949,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 83, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"everesttech.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1972,7 +1972,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 84, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hubapi.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -1995,7 +1995,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 85, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"ionos.de\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2018,7 +2018,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 86, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hs-scripts.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2041,7 +2041,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 87, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hsleadflows.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2064,7 +2064,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 88, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"unpkg.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2087,7 +2087,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 89, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hubspot.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2110,7 +2110,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 90, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672662365.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"hsforms.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2133,7 +2133,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 91, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672914065.0, \"mostRecentUserInteractionTime\": 1672914068.152383, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"rustafied.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2156,7 +2156,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 92, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672914065.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"typekit.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2179,7 +2179,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 93, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672914060.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"squarespace.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2202,7 +2202,7 @@
       "com.google.chrome.ios",
       "0B468A6F-8837-4A85-BF4D-1EF523683946",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 94, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672914060.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"squarespace-cdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2225,7 +2225,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 1, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"liteshopads.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2248,7 +2248,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 2, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"tiktokv.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2271,7 +2271,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 3, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"tik-tokapi.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2294,7 +2294,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 4, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"tiktok-apis.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2317,7 +2317,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 5, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"byteoversea.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2340,7 +2340,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 6, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"musical.ly\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2363,7 +2363,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 7, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"qfyf1toi.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2386,7 +2386,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 8, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"mzfvozqybf.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2409,7 +2409,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 9, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"tiktok.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2432,7 +2432,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 10, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"xzcs3zlph.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2455,7 +2455,7 @@
       "com.zhiliaoapp.musically",
       "4F9E5274-DDB7-422E-8629-234C84D24F4E",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 11, \"grandfathered\": 1, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"ttapis.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/4F9E5274-DDB7-422E-8629-234C84D24F4E/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2478,7 +2478,7 @@
       "com.duolingo.DuolingoMobile",
       "89A6AE48-C46D-4405-A187-C7FF439873F3",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/89A6AE48-C46D-4405-A187-C7FF439873F3/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 1, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672748065.0, \"mostRecentUserInteractionTime\": 1672748068.353084, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"doubleclick.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/89A6AE48-C46D-4405-A187-C7FF439873F3/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2501,7 +2501,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 1, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671814465.0, \"mostRecentUserInteractionTime\": 1672914410.504199, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"doubleclick.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2524,7 +2524,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 2, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671814530.0, \"mostRecentUserInteractionTime\": 1671814530.85453, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"ssacdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2547,7 +2547,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 3, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671814525.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"isprog.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2570,7 +2570,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 4, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671814510.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"liftoff-creatives.io\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2593,7 +2593,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 5, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1670816650.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"mchncdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2616,7 +2616,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 6, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671814510.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"liftoff.io\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2639,7 +2639,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 7, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1670816650.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"mchnad.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2662,7 +2662,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 8, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671814465.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"kochava.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2685,7 +2685,7 @@
       "com.yikyak.2",
       "C589AF4D-8A41-4667-BBDA-F5CC564AB268",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 9, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671814465.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"inhousedsp.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/C589AF4D-8A41-4667-BBDA-F5CC564AB268/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2708,7 +2708,7 @@
       "com.google.Vespa",
       "DF72F391-8818-4CE5-9192-A1A100180A89",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 1, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1673041285.0, \"mostRecentUserInteractionTime\": 1673041287.301665, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"google.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2731,7 +2731,7 @@
       "com.google.Vespa",
       "DF72F391-8818-4CE5-9192-A1A100180A89",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 2, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1673041265.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"gstatic.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2754,7 +2754,7 @@
       "com.google.Vespa",
       "DF72F391-8818-4CE5-9192-A1A100180A89",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 3, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672344815.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"cloudshell.dev\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/DF72F391-8818-4CE5-9192-A1A100180A89/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2777,7 +2777,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 1, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672660145.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"youtube.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2800,7 +2800,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 2, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672660150.0, \"mostRecentUserInteractionTime\": 1672660150.284155, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"google.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2823,7 +2823,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 3, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672660145.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"gstatic.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2846,7 +2846,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 4, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830810.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"go-mpulse.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2869,7 +2869,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 5, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830805.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"techlab-cdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2892,7 +2892,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 1, \"domainID\": 6, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830845.0, \"mostRecentUserInteractionTime\": 1671830846.582348, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"lufthansa.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2915,7 +2915,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 7, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830820.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"tiqcdn.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2938,7 +2938,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 8, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830810.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"exactag.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2961,7 +2961,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 9, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830810.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"monetate.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -2984,7 +2984,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 10, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830820.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"tealiumiq.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3007,7 +3007,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 11, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830810.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"googletagmanager.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3030,7 +3030,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 12, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830845.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"doubleclick.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3053,7 +3053,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 13, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830855.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"decibelinsight.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3076,7 +3076,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 14, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830825.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"google-analytics.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3099,7 +3099,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 15, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830810.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"usabilla.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3122,7 +3122,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 16, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830820.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"googlesyndication.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3145,7 +3145,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 17, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1671830820.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"d6tizftlrpuof.cloudfront.net\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3168,7 +3168,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 18, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 1672660145.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"googleusercontent.com\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3191,7 +3191,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 19, \"grandfathered\": 0, \"hadUserInteraction\": 1, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": 1673042018.143241, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"mstdn.party\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"
@@ -3214,7 +3214,7 @@
       "com.apple.mobilesafari",
       "E9C94D39-5066-4556-8EB9-2DFE28104A2A",
       "Data/Application",
-      "WebKit",
+      "",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/.com.apple.mobile_container_manager.metadata.plist",
       "{\"dataRecordsRemoved\": 0, \"domainID\": 20, \"grandfathered\": 0, \"hadUserInteraction\": 0, \"isPrevalent\": 0, \"isScheduledForAllButCookieDataRemoval\": 0, \"isVeryPrevalent\": 0, \"lastSeen\": 0.0, \"mostRecentUserInteractionTime\": -1.0, \"mostRecentWebPushInteractionTime\": 0.0, \"registrableDomain\": \"joinmastodon.org\", \"timesAccessedAsFirstPartyDueToStorageAccessAPI\": 0, \"timesAccessedAsFirstPartyDueToUserInteraction\": 0}",
       "private/var/mobile/Containers/Data/Application/E9C94D39-5066-4556-8EB9-2DFE28104A2A/Library/WebKit/WebsiteData/ResourceLoadStatistics/observations.db"

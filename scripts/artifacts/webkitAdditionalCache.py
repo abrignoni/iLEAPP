@@ -13,7 +13,7 @@ from scripts.ilapfuncs import (
     artifact_processor, check_in_embedded_media, check_in_media, logfunc,
 )
 from scripts.webkit_helpers import (
-    OWNER_HEADERS, OWNER_PATHS, WebKitOwnerResolver, evidence_path, unix_timestamp,
+    OWNER_HEADERS, WebKitOwnerResolver, evidence_path, unix_timestamp,
 )
 
 
@@ -22,49 +22,78 @@ __artifacts_v2__ = {
         'name': 'WebKit - Additional Cache Records',
         'description': 'Resource URLs and HTTP response metadata from additional WebKit '
                        'NetworkCache stores, including SafariViewService.',
-        'author': '',
+        'author': '@ForensikITGmbH',
         'creation_date': '2026-10-12', 'last_update_date': '2026-10-12',
         'requirements': 'none', 'category': 'Browser',
         'notes': 'Complements the original webkit.py artifact without changing it. Records '
                  'under Library/Caches/WebKit/NetworkCache are left to that artifact. '
                  'Builds on NetworkCache research by @JamesHabben. '
-                 'The resource decoder supports storage version 16. Other versions are '
-                 'listed with an unsupported-version status. A cache entry is evidence '
+                 'The resource decoder reads storage versions 16 and 17. Version 17 was '
+                 'decoded with the version 16 layout on two iOS 18 images. The header '
+                 'hash matched on all 11,866 records and Parse Status read Decoded '
+                 'fields on every record. The WebKit commit that raised the version changed how the '
+                 'key hash is computed and how certificate information is encoded; the '
+                 'positions of the decoded fields were the same in the tested data. '
+                 'Other versions, including version 18 set in WebKit '
+                 'source on 2026-08-28, are listed with an unsupported-version status '
+                 'and no decoded fields; no version 18 sample was tested. '
+                 'A cache entry is evidence '
                  'of a cached resource, not a user navigation or link click. Timestamp '
                  'is the stored cache-entry time in Unix seconds. Raw time, byte range '
-                 'and partial-decoding status are retained. Header hashes are checked '
+                 'and partial-decoding status are retained. Byte Range held no value on '
+                 'any of the 12,158 rows in the four tested images with data. '
+                 'Header hashes are checked '
                  'when the corresponding store salt is acquired; persistence checksums '
                  'are not verified. Research mode exposes additional encoded fields. '
-                 'Sources: https://github.com/WebKit/WebKit/blob/main/Source/WebKit/'
-                 'NetworkProcess/cache/NetworkCacheStorage.cpp ; '
-                 'https://github.com/WebKit/WebKit/blob/main/Source/WebKit/'
-                 'NetworkProcess/cache/NetworkCacheEntry.cpp',
+                 'Sources, WebKit at a storage version 17 commit: '
+                 'https://github.com/WebKit/WebKit/blob/'
+                 'cffd5ed032c478c1dee5311a89b91e64909e8b90/Source/WebKit/'
+                 'NetworkProcess/cache/NetworkCacheStorage.cpp#L739 ; '
+                 'https://github.com/WebKit/WebKit/blob/'
+                 'cffd5ed032c478c1dee5311a89b91e64909e8b90/Source/WebKit/'
+                 'NetworkProcess/cache/NetworkCacheEntry.cpp#L87 ; version 17 change: '
+                 'https://github.com/WebKit/WebKit/commit/'
+                 '484500b2c078b29f80e12b8130c3f95ca698e2d3',
         'paths': (
             '*/NetworkCache/Version*/salt',
             '*/NetworkCache/Version*/Records/*/Resource/*',
-        ) + OWNER_PATHS,
+            '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist',
+            '*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist',
+        ),
         'output_types': 'standard', 'research_mode': False, 'artifact_icon': 'archive',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 20 rows | storage version 16',
+            'iphone11_ios17': 'iOS 17.3 | 272 rows | storage version 16',
+            'dexter_ios18': 'iOS 18.3.2 | 11862 rows | storage version 17',
+            'hc_ios18_7': 'iOS 18.7.8 | 4 rows | storage version 17',
+        },
     },
 }
 
 _VERSION_ROOT = re.compile(r'^(.*[/\\]NetworkCache[/\\]Version[^/\\]+)(?:[/\\]|$)')
+_SUPPORTED_VERSIONS = (16, 17)
 _MAX_STRING_BYTES = 16 * 1024 * 1024
 _MAX_IMAGE_BYTES = 64 * 1024 * 1024
 
 RESEARCH_HEADERS = (
+    ('Timestamp', 'datetime'), 'Raw Timestamp',
     'Application GUID', 'Records GUID', 'File', 'Salt', 'Header', 'Partition',
     'Partition Flag', 'Type', 'Type Flag', 'URI', 'URI Flag',
-    'Filename', 'Foldername', ('Timestamp', 'datetime'), 'Meta SHA1', 'Meta Size',
-    'Body SHA1', 'Body Size', 'Is Body Inline', 'Unknown Hash', 'Start of Meta',
+    'Filename', 'Foldername', 'Meta SHA1', 'Meta Size',
+    'Body SHA1', 'Body Size', 'Is Body Inline', 'Metadata Checksum', 'Start of Meta',
     'Meta URI', 'Meta URI Flag', 'Content Type',
-    'Content Type Flag', 'Body Size 2', 'Encoding Type', 'Encoding Type Flag',
-    'Encoding Pad', 'Encoding Pad Flag', 'HTTP Type', 'HTTP Type Flag',
+    'Content Type Flag', 'Expected Content Length', 'Encoding Type', 'Encoding Type Flag',
+    'HTTP Status Text', 'HTTP Status Text Flag', 'HTTP Version', 'HTTP Version Flag',
     'HTTP Header Count', 'HTTP Headers', 'Has Cookie', 'Response Code', 'Other Trailing Data',
     'Full File Path', ('Thumbnail', 'media'),
 )
 
 _EXTRA_HEADERS = (
-    'Byte Range', 'Raw Timestamp', 'Header Hash Status', 'Parse Status', 'Cached Body File',
+    'Byte Range', 'Header Hash Status', 'Parse Status', 'Cached Body File',
 ) + OWNER_HEADERS
 
 
@@ -142,8 +171,8 @@ def _response_fields(metadata, values):
     values['Start of Meta'] = reader.read(1).hex()
     for name in ('Meta URI', 'Content Type'):
         values[name], values[name + ' Flag'] = reader.string()
-    values['Body Size 2'] = reader.unpack('<q')
-    for name in ('Encoding Type', 'Encoding Pad', 'HTTP Type'):
+    values['Expected Content Length'] = reader.unpack('<q')
+    for name in ('Encoding Type', 'HTTP Status Text', 'HTTP Version'):
         values[name], values[name + ' Flag'] = reader.string()
     count = reader.unpack('<Q')
     values['HTTP Header Count'] = count
@@ -173,7 +202,7 @@ def _parse_record(path, salt):
             reader = _Reader(handle, size)
             version = reader.unpack('<I')
             values['Header'] = version
-            if version != 16:
+            if version not in _SUPPORTED_VERSIONS:
                 values['Parse Status'] = f'Unsupported cache version {version}'
                 return values, None
             for name in ('Partition', 'Type', 'URI', 'Byte Range'):
@@ -195,7 +224,7 @@ def _parse_record(path, salt):
             if inline not in (0, 1):
                 raise CacheDecodeError('Invalid inline-body flag')
             values['Is Body Inline'] = 'Yes' if inline else 'No'
-            values['Unknown Hash'] = reader.read(20).hex()
+            values['Metadata Checksum'] = reader.read(20).hex()
             if metadata_size > _MAX_STRING_BYTES:
                 raise CacheDecodeError('Response metadata exceeds decoding limit')
             metadata = reader.read(metadata_size)
@@ -245,7 +274,8 @@ def webkit_additional_cache_records(context):
     resolver = WebKitOwnerResolver(context, files)
     research = context.get_artifact_info().get('research_mode', False)
     headers = RESEARCH_HEADERS if research else (
-        'Application GUID', 'Records GUID', 'File', 'Salt', 'URI', ('Timestamp', 'datetime'),
+        ('Timestamp', 'datetime'), 'Raw Timestamp',
+        'Application GUID', 'Records GUID', 'File', 'Salt', 'URI',
         'Content Type', 'Body Size', 'Is Body Inline', 'HTTP Headers', 'Response Code',
         'Full File Path', ('Thumbnail', 'media'),
     )

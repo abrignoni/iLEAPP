@@ -1,4 +1,5 @@
 """Regression tests for WebKit statistics, cache decoding and owner attribution."""
+# pylint: disable=protected-access
 
 import hashlib
 import io
@@ -74,7 +75,8 @@ def _string(value, wide=False):
     return struct.pack('<I', units) + bytes([0 if wide else 1]) + data
 
 
-def _cache_bytes(salt, uri='https://example.org/image.png', byte_range=None, headers=None):
+def _cache_bytes(salt, uri='https://example.org/image.png', byte_range=None, headers=None,
+                 version=16):
     headers = headers or {'Content-Type': 'image/png'}
     body = b'body'
     response = b'\0' + _string(uri) + _string('image/png') + struct.pack('<q', len(body))
@@ -82,7 +84,7 @@ def _cache_bytes(salt, uri='https://example.org/image.png', byte_range=None, hea
     response += struct.pack('<Q', len(headers))
     response += b''.join(_string(key) + _string(value) for key, value in headers.items())
     response += struct.pack('<H', 206) + b'\0' * 40
-    record = struct.pack('<I', 16)
+    record = struct.pack('<I', version)
     record += _string('example.org') + _string('Resource') + _string(uri) + _string(byte_range)
     record += b'K' * 20 + b'P' * 20 + struct.pack('<d', 1700000000.125)
     record += hashlib.sha1(salt + response).digest() + struct.pack('<Q', len(response))
@@ -249,7 +251,7 @@ def test_cache_salts_are_scoped_to_store_and_do_not_leak_between_runs(tmp_path, 
     assert len(rows) == 2
     assert {row['Salt'] for row in rows} == {'3132333435363738', '3837363534333231'}
     assert all(row['Header Hash Status'] == 'Verified' for row in rows)
-    assert {row['Web Data Store'] for row in rows} == {'WebKit', 'SafariViewService'}
+    assert {row['Web Data Store'] for row in rows} == {'', 'SafariViewService'}
     row, = _run(tmp_path, [service], webkit, 'webkit_additional_cache_records')
     assert row['Salt'] == ''
     assert row['Header Hash Status'] == 'Salt not acquired'
@@ -266,17 +268,28 @@ def test_more_than_one_hundred_response_headers_are_read(tmp_path):
 
 def test_corruption_and_unknown_versions_have_explicit_status(tmp_path):
     path = tmp_path / 'record'
-    path.write_bytes(struct.pack('<I', 17))
+    path.write_bytes(struct.pack('<I', 18))
     values, offset = webkit._parse_record(path, b'')
-    assert values['Parse Status'] == 'Unsupported cache version 17'
+    assert values['Parse Status'] == 'Unsupported cache version 18'
     assert offset is None
     path.write_bytes(struct.pack('<I', 16) + struct.pack('<I', 0x7fffffff))
     values, _ = webkit._parse_record(path, b'')
     assert values['Parse Status'].startswith('Partial:')
 
 
+def test_version_17_records_are_decoded_with_the_version_16_layout(tmp_path):
+    path = tmp_path / 'record'
+    path.write_bytes(_cache_bytes(b'12345678', version=17))
+    values, offset = webkit._parse_record(path, b'12345678')
+    assert values['Header'] == 17
+    assert values['URI'] == 'https://example.org/image.png'
+    assert values['Header Hash Status'] == 'Verified'
+    assert values['Parse Status'].startswith('Decoded fields')
+    assert path.read_bytes()[offset:] == b'body'
+
+
 def test_response_hash_mismatch_is_reported(tmp_path):
-    path, salt = _cache_file(tmp_path, 'APP', b'12345678')
+    path, _ = _cache_file(tmp_path, 'APP', b'12345678')
     values, _ = webkit._parse_record(path, b'87654321')
     assert values['Header Hash Status'] == 'Mismatch'
 
