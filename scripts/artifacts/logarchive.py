@@ -183,9 +183,9 @@ __artifacts_v2__ = {
     "logarchive_wifi_status": {
         "name": "logarchive wifi status",
         "description": "WiFi Status",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni & @Hexordia",
         "creation_date": "2025-05-28",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-13",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "2026-08-01: added wifid WFMacRandomisation entries (per-network MAC "
@@ -198,7 +198,8 @@ __artifacts_v2__ = {
                  "(WiFiNetworkCopyPasswordWithTimeout), '{AUTOJOIN, ASSOC*} Attempting "
                  "auto join association of <SSID>' with the network name in the clear, "
                  "'Link went down', and per-network 'Total connection time' entries "
-                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode).",
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode). "
+                 "Adds autojoin and joined events filtering on '%Auto join association succeeded%' and '%WiFiLQAMgrSetCurrentNetwork: Joined%' respectively.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "wifi",
@@ -1542,6 +1543,50 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 | 23 rows",
         },
     },
+    "logarchive_weather": {
+        "name": "logarchive weather",
+        "description": "Unified log entries from WeatherWidget, ForecastWeatherWidget, and WeatherService categories "
+                       "under the com.apple.weather subsystem. "
+                       "NOTE: Newer iOS versions may encode the location information where older iOS versions show in plain text.",
+        "author": "@Hexordia & @stark4n6",
+        "creation_date": "2026-10-13",
+        "last_update_date": "2026-10-13",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Queries unified log records for Apple Weather framework and widget synchronization "
+                 "activity across four conditions: (1) categories 'WeatherService' or "
+                 "'ForecastWeatherWidget' containing 'About to fetch', marking outgoing weather data "
+                 "fetch requests; (2) category 'ForecastWeatherWidget' containing 'Data operation "
+                 "succeeded', recording successful completion of forecast background data refreshes; "
+                 "(3) category 'WeatherService' matching 'Successfully built' or 'Got response for fetch of', "
+                 "capturing raw network responses and assembled weather forecast payloads; and (4) "
+                 "category 'WeatherWidget' containing 'successfully built', marking interface and "
+                 "widget rendering updates.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "cloud-pin",
+        "sample_data": {
+        },
+    },
+    "logarchive_family_hotspot": {
+        "name": "logarchive family hotspot",
+        "description": "Unified log entries for Family Hotspot state "
+                       "under the com.apple.sharing subsystem. This includes names and ",
+        "author": "@Hexordia & @stark4n6",
+        "creation_date": "2026-10-13",
+        "last_update_date": "2026-10-13",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Queries unified log records under the com.apple.sharing specific to Family Hotspot State. "
+                 "It filters on event_message for '%Family Hotspot State:%' showing names of family members "
+                 "associated and eligible to share the hotspot. It also shows the state of each (automatic or "
+                 "ask for approval).",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "access-point",
+        "sample_data": {
+        },
+    },
 }
 
 import os
@@ -1842,6 +1887,7 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Device unlocked%'
         OR event_message LIKE '%Device lock status%'
         OR event_message LIKE '%Biometric match complete%'
+        OR (subsystem LIKE 'com.apple.SpringBoard' AND event_message LIKE '%UILocked:%')
         OR event_message LIKE '%SBIconView touches began with event:%'
         OR event_message LIKE '%Setting process visibility%'
         OR event_message LIKE '%WiFi state changed:%'
@@ -1868,6 +1914,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%to list of known networks%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
+        OR event_message LIKE '%Auto join association succeeded%'
+        OR event_message LIKE '%WiFiLQAMgrSetCurrentNetwork: Joined%'
         OR event_message LIKE '%ATXModeDrivingFeaturizer: Driving mode%'
         OR event_message LIKE '%ATXModeCorrelatedAppsDataSource: user%'
         -- The observed locationd form is 'VEHICULAR: vehicularStartTime' with a
@@ -2179,6 +2227,13 @@ def logarchive_artifacts(context):
         OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
         -- logarchive_wake_source
         OR (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
+        -- logarchive_weather
+        OR (category IN ('WeatherService', 'ForecastWeatherWidget') AND event_message LIKE '%About to fetch%')
+        OR (category LIKE 'ForecastWeatherWidget' AND event_message LIKE '%Data operation succeeded%')
+        OR (category LIKE 'WeatherService' AND (event_message LIKE '%Successfully built%' OR event_message LIKE '%Got response for fetch of%'))
+        OR (category LIKE 'WeatherWidget' AND event_message LIKE ('%successfully built%'))
+        -- logarchive_family_hotspot
+        OR event_message LIKE '%Family Hotspot State%'
     )
     '''
 
@@ -2333,7 +2388,7 @@ def logarchive_lock_status(context):
         OR event_message LIKE '%Device unlocked%'
         OR event_message LIKE '%Device lock status%'
         OR event_message LIKE '%Biometric match complete%'
-
+        OR (subsystem LIKE 'com.apple.SpringBoard' AND event_message LIKE '%UILocked:%')
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
@@ -2374,6 +2429,8 @@ def logarchive_wifi_status(context):
         OR event_message LIKE '%to list of known networks%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
+        OR event_message LIKE '%Auto join association succeeded%'
+        OR event_message LIKE '%WiFiLQAMgrSetCurrentNetwork: Joined%'
         -- Per-network MAC randomisation records and hand-picked joins; see the
         -- artifact notes for sourcing.
         OR event_message LIKE '%WFMacRandomisation%'
@@ -2995,4 +3052,19 @@ def logarchive_device_id(context):
 def logarchive_wake_source(context):
     return _artifacts_table_records(context, '''
         (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
+    ''')
+
+@artifact_processor
+def logarchive_weather(context):
+    return _artifacts_table_records(context, '''
+        (category IN ('WeatherService', 'ForecastWeatherWidget') AND event_message LIKE '%About to fetch%')
+        OR (category LIKE 'ForecastWeatherWidget' AND event_message LIKE '%Data operation succeeded%')
+        OR (category LIKE 'WeatherService' AND (event_message LIKE '%Successfully built%' OR event_message LIKE '%Got response for fetch of%'))
+        OR (category LIKE 'WeatherWidget' AND event_message LIKE ('%successfully built%'))
+    ''')
+    
+@artifact_processor
+def logarchive_family_hotspot(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Family Hotspot State%'
     ''')
