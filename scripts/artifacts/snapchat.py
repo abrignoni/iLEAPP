@@ -41,9 +41,9 @@ __artifacts_v2__ = {
                  "including those with no file on disk. Local Media ID is the MEDIA_ID decoded from the "
                  "message's local_message_references archive; it is blank when that field is NULL, malformed, "
                  "or the key is absent.\n"
-                 "Created On Device. This is the stored created_on_device field rendered as YES or NO. "
-                 "NO also covers NULL because the report uses the existing boolean display convention; it "
-                 "is not, by itself, proof that a media file was recorded by the phone's camera.\n"
+                 "Created On Device. This is the stored created_on_device field rendered as YES or NO; "
+                 "NULL or an absent column is left blank because the status is unavailable. It is not, "
+                 "by itself, proof that a media file was recorded by the phone's camera.\n"
                  "Message Direction compares sender_id against the local account id from user_id in the "
                  "app's Documents/user.plist, else the single distinct sender of rows where "
                  "local_message_content_id is set (the schema comments describe that column as nullable "
@@ -1054,6 +1054,10 @@ def _yes_no(value):
     return 'YES' if value else 'NO'
 
 
+def _yes_no_or_blank(value):
+    return '' if value is None else _yes_no(value)
+
+
 def _log_wal_extent(files_found):
     '''Log how much write-ahead log this artifact leaves unparsed, per image.
 
@@ -1177,7 +1181,7 @@ def _message_rows(rows, friends, participants, local_user_id, provenance, media)
         data_list.append((
             _ms_to_utc(created), _ms_to_utc(read),
             direction, _friend_name(friends, sender_id), text, references or '', local_media_id,
-            _yes_no(created_on_device), origin,
+            _yes_no_or_blank(created_on_device), origin,
             _friend_name(friends, sender_id, 1), sender_id,
             participants.get(conversation_id, ('', ''))[1], content_type,
             state, _yes_no(saved), _yes_no(viewed), media_count, quoted_id,
