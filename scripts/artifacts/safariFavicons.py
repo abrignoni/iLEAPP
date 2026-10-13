@@ -1,15 +1,17 @@
 __artifacts_v2__ = {
     "safariFavicons": {
         "name": "Safari Browser - Favicons",
-        "description": "Favicon cache entries (page URL, icon URL, dimensions) from the first Favicons.db found under an app container's Library/Image Cache/Favicons",
+        "description": "Favicon cache entries (page URL, icon URL, dimensions) from each Favicons.db found under an app container's Library/Image Cache/Favicons",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": (
-            "Only the first Favicons.db found is read. The path pattern matches any app "
-            "container; on every image in sample_data the container was com.apple.mobilesafari. "
+            "Every Favicons.db the path pattern matches is read, and Source Path names the file "
+            "each row came from. The path pattern matches any app container, so a row is not "
+            "limited to Safari by the pattern; on every image in sample_data the container was "
+            "com.apple.mobilesafari. "
             "Timestamp is read as seconds since 2001-01-01 unless the value is above 978307200, "
             "when it is read as Unix seconds."
         ),
@@ -42,16 +44,12 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 @artifact_processor
 def safariFavicons(context):
     data_headers = (('Timestamp', 'datetime'), 'Page URL', 'Icon URL', 'Width', 'Height',
-                    'Generated Representations?')
+                    'Generated Representations?', 'Source Path')
     data_list = []
 
-    source_path = ''
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('Favicons.db'):
-            source_path = file_found
-            break
-    if not source_path:
+    source_paths = sorted({str(file_found) for file_found in context.get_files_found()
+                           if str(file_found).endswith('Favicons.db')})
+    if not source_paths:
         return data_headers, data_list, ''
 
     # "timestamp" is Apple absolute (Cocoa) time on iOS <= 18. Untested
@@ -74,7 +72,10 @@ def safariFavicons(context):
     FROM icon_info
     LEFT JOIN page_url ON icon_info.uuid = page_url.uuid
     '''
-    for row in get_sqlite_db_records(source_path, query):
-        data_list.append(tuple(row))
+    for source_path in source_paths:
+        relative_path = context.get_relative_path(source_path)
+        for row in get_sqlite_db_records(source_path, query):
+            data_list.append(tuple(row) + (relative_path,))
 
-    return data_headers, data_list, context.get_relative_path(source_path)
+    sources = '\n'.join(context.get_relative_path(path) for path in source_paths)
+    return data_headers, data_list, sources

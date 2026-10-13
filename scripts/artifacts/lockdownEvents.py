@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Passcode-change callbacks, upgrade detections, and lockdownd startup records",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "System Activity",
         "notes": (
@@ -13,10 +13,12 @@ __artifacts_v2__ = {
             "One row on iphone11_ios17 and dexter_ios18 carries a reading the former "
             "parser dates 1969-12-31. A lockdownd startup record shows that the daemon started; "
             "it is not, by itself, proof that the device booted. Event selection is based on "
-            "research by Ian Whiffin, 'KnowledgeC (and Friends)'. The Upgrade detected by "
-            "lockdownd event is any line containing roll_keys: Detected upgrade; the cited "
-            "research reads the form Detected upgrade from (NULL) as setup after a wipe, and this "
-            "parser does not separate the two. Reference: "
+            "research by Ian Whiffin, 'KnowledgeC (and Friends)'. A line containing roll_keys: "
+            "Detected upgrade is labelled Upgrade detected by lockdownd, except that a line "
+            "containing Detected upgrade from (NULL) is labelled Upgrade detected by lockdownd, "
+            "from (NULL). The cited research reads the from (NULL) form as setup after a wipe; "
+            "that reading was not tested here, and no line of that form was counted on the "
+            "listed images. Reference: "
             "https://doubleblak.com/blogPost.php?k=knowledgec"
         ),
         "paths": ("*/private/var/logs/lockdownd.log", "*/private/var/logs/lockdownd.log.*"),
@@ -42,8 +44,11 @@ _LINE_RE = re.compile(
     r"^(?P<timestamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\.\d+)"
     r"\s+pid=(?P<pid>\d+)\s+(?P<message>.*)$"
 )
+# Order matters: the first marker found in the message decides the label, so the
+# narrower from (NULL) form is tested before the general upgrade marker.
 _EVENT_MARKERS = (
     ("password_changed_callback", "Device passcode changed"),
+    ("Detected upgrade from (NULL)", "Upgrade detected by lockdownd, from (NULL)"),
     ("roll_keys: Detected upgrade", "Upgrade detected by lockdownd"),
     ("main: Starting Up", "Lockdownd startup"),
 )

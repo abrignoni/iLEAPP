@@ -5,22 +5,24 @@ __artifacts_v2__ = {
                        "classifies the encryption scheme of each note, as stored.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Notes",
         "notes": "The main Notes artifact reports that a note is locked but not how it is locked. "
-                 "This surfaces ZPASSWORDHINT and classifies the per-note crypto: a 24-byte "
-                 "wrapped key with a PBKDF2 iteration count is the scheme described in the cited "
-                 "research (PBKDF2-SHA256 -> AES Key Wrap -> AES-GCM) and is recoverable with the "
-                 "note password per the cited research; hashcat lists mode 16200 as 'Apple Secure "
+                 "This surfaces ZPASSWORDHINT and labels each row from the stored length of "
+                 "ZCRYPTOWRAPPEDKEY alone; the iteration count is reported and not used. A 24-byte "
+                 "wrapped key matches the scheme described in the cited "
+                 "research (PBKDF2-SHA256 -> AES Key Wrap -> AES-GCM), which the research reports "
+                 "as recoverable with the note password; hashcat lists mode 16200 as 'Apple Secure "
                  "Notes' (https://hashcat.net/wiki/doku.php?id=example_hashes). A 16-byte wrapped "
-                 "key is a different scheme, seen in tested samples on iOS 16 and later, that the "
-                 "cited research does not cover. In tested samples 24 byte keys were found on iOS "
+                 "key is a layout the cited research does not cover, so its row reads 'Not covered "
+                 "by the cited research'; that is a statement about the research, not that the "
+                 "note cannot be recovered. In tested samples 24 byte keys were found on iOS "
                  "13.3.1, 15 and 17.5.1 and 16 byte keys on iOS 16.5, 17.3, 18.3.2, 18.7 and "
                  "18.7.8, so the key length does not follow the iOS version alone; what decides it "
                  "is not established here. A row with a hint and no wrapped key is labelled "
-                 "'Password group definition (no per-note key)'; that label is this artifact's "
-                 "reading and is not sourced. The note body stays encrypted and this artifact does "
+                 "'Hint stored, no wrapped key'; what such a row is in the Notes data model is "
+                 "not established here. The note body stays encrypted and this artifact does "
                  "not attempt to decrypt it. Note Title is the title column as stored (ZTITLE1, "
                  "ZTITLE2 or ZTITLE, the first one the database has); the cited research found "
                  "ZTITLE1 left unencrypted on a locked note. A non-empty Note Title was reported "
@@ -33,21 +35,21 @@ __artifacts_v2__ = {
         "artifact_icon": "lock",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
-            "hickman_ios13": "iOS 13.3.1 | 2 rows (classic)",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows (24-byte keys)",
             "hickman_ios14": "iOS 14.3 | 4 rows (no crypto columns)",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
-            "hickman_ios15": "iOS 15 | 5 rows (classic)",
-            "abe_ios16": "iOS 16.5 | 2 rows (revised)",
+            "hickman_ios15": "iOS 15 | 5 rows (24-byte keys)",
+            "abe_ios16": "iOS 16.5 | 2 rows (16-byte keys)",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 7 rows (revised)",
-            "otto_ios17": "iOS 17.5.1 | 5 rows (classic)",
+            "iphone11_ios17": "iOS 17.3 | 7 rows (16-byte keys)",
+            "otto_ios17": "iOS 17.5.1 | 5 rows (24-byte keys)",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "dexter_ios18": "iOS 18.3.2 | 2 rows (revised)",
-            "iphone12_ios18": "iOS 18.7 | 19 rows (revised)",
-            "hc_ios18_7": "iOS 18.7.8 | 9 rows (revised)",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows (16-byte keys)",
+            "iphone12_ios18": "iOS 18.7 | 19 rows (16-byte keys)",
+            "hc_ios18_7": "iOS 18.7.8 | 9 rows (16-byte keys)",
         }
     }
 }
@@ -87,16 +89,16 @@ def _classify(wrapped_len):
     than used to classify, since only the length is load-bearing.
     """
     if wrapped_len == CLASSIC_WRAPPED_LEN:
-        return ('Classic (PBKDF2-SHA256 + AES Key Wrap)',
-                'Recoverable with the note password')
+        return ('24-byte wrapped key (PBKDF2-SHA256 + AES Key Wrap per the cited research)',
+                'Recoverable with the note password per the cited research')
     if wrapped_len == REVISED_WRAPPED_LEN:
-        return ('Revised (iOS 16+), 16-byte wrapped key',
-                'Not recoverable with the published method')
+        return ('16-byte wrapped key (layout not covered by the cited research)',
+                'Not covered by the cited research')
     if wrapped_len:
         return (f'Unrecognized ({wrapped_len}-byte wrapped key)', 'Unknown')
-    # A locked note always carries a wrapped key; a hint with no key is the
-    # password-group definition row rather than an encrypted note.
-    return ('Password group definition (no per-note key)', 'n/a')
+    # A hint with no wrapped key. What that row is has not been sourced, so it
+    # is named by what is stored.
+    return ('Hint stored, no wrapped key', 'n/a')
 
 
 @artifact_processor

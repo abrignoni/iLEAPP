@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "the database passphrase held in the keychain.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-22",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "SimpleX",
         "notes": "SimpleX Chat keeps its data in a SQLCipher-encrypted database, "
@@ -17,8 +17,10 @@ __artifacts_v2__ = {
                  "The database is decrypted to a temporary copy on disk using the SQLCipher 4 "
                  "defaults (page size 4096, 256000 PBKDF2-HMAC-SHA512 iterations, SHA512 HMAC), "
                  "which authenticated every page on the tested sample. One row per row in "
-                 "chat_items. Sent is the item_ts text, read as UTC. What item_ts marks on a "
-                 "received row is not established. Direction is Sent when item_sent is 1 and "
+                 "chat_items. Item Timestamp is the item_ts text, read as UTC, on sent and "
+                 "received rows alike. What item_ts marks on a received row is not established. "
+                 "Chat ID is group: and the group_id, or contact: and the contact_id, and blank on "
+                 "a row that stores neither. Direction is Sent when item_sent is 1 and "
                  "Received for any other value. Message is the item_text the app stored for "
                  "display. Chat is the contact's local alias where one is stored and otherwise the "
                  "contact's profile display name for a direct chat, or the group's profile display "
@@ -33,8 +35,8 @@ __artifacts_v2__ = {
                  "97b472fd9c43dfdf0f765d18f33794a96458e909/blog/"
                  "20230925-simplex-chat-v5-3-desktop-app-local-file-encryption-directory-service.md#L83); "
                  "this artifact does not decrypt them, so a Media cell can hold a file that does "
-                 "not open. Message Status is item_status as stored. Deleted shows Yes where "
-                 "item_deleted holds a non-zero value and is blank otherwise. "
+                 "not open. Message Status is item_status as stored. Deleted (as stored) is "
+                 "item_deleted as stored, and blank where it is NULL. "
                  "Field mapping was done against a private sample; no sample data is recorded for "
                  "it.",
         "paths": ('*/AppGroup/*/simplex_v1_chat.db*',
@@ -47,7 +49,7 @@ __artifacts_v2__ = {
             "conversation": {
                 "conversationDiscriminatorColumn": "Chat ID",
                 "conversationLabelColumn": "Chat",
-                "timeColumn": "Sent",
+                "timeColumn": "Item Timestamp",
                 "directionColumn": "Direction",
                 "directionSentValue": "Sent",
                 "senderColumn": "Sender",
@@ -236,7 +238,7 @@ def _files_by_item(plain_db):
 @artifact_processor
 def simplexMessages(context):
     data_headers = (
-        ('Sent', 'datetime'),
+        ('Item Timestamp', 'datetime'),
         'Direction',
         'Sender',
         'Chat',
@@ -244,7 +246,7 @@ def simplexMessages(context):
         ('Media', 'media'),
         'Chat ID',
         'Message Status',
-        'Deleted',
+        'Deleted (as stored)',
         'Source File',
     )
     data_list = []
@@ -270,9 +272,12 @@ def simplexMessages(context):
             if group_id is not None:
                 chat = group_names.get(group_id, '')
                 chat_id = f'group:{group_id}'
-            else:
+            elif contact_id is not None:
                 chat = contact_names.get(contact_id, '')
                 chat_id = f'contact:{contact_id}'
+            else:
+                chat = ''
+                chat_id = ''
 
             if row['item_sent'] == 1:
                 direction = 'Sent'
@@ -305,7 +310,7 @@ def simplexMessages(context):
                 media,
                 chat_id,
                 row['item_status'] or '',
-                'Yes' if row['item_deleted'] else '',
+                row['item_deleted'] if row['item_deleted'] is not None else '',
                 context.get_relative_path(db_path),
             ))
             rows += 1

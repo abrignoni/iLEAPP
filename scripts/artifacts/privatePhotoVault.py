@@ -34,19 +34,22 @@ __artifacts_v2__ = {
                        "the album and the file names it stored them under.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Private Photo Vault",
         "notes": "One row per row of ZMEDIAITEM in Library/Application "
                  "Support/PPVCoreData.sqlite, joined to ZALBUM for the album title. Created, Last "
                  "Modified and Trashed are Core Data times, seconds since 2001, reported in UTC. "
                  "The row names the files the app stored under Library/PPV_Pics, a full size file "
-                 "and a thumbnail, and a medium file name where the row holds one. The full size "
-                 "file name and the thumbnail name are looked for in that folder inside the same "
-                 "app container (the medium file name is reported and is not looked for), and all "
+                 "and a thumbnail, and a medium file name where the row holds one. Each of the "
+                 "three names is looked for in that folder inside the same "
+                 "app container, and all "
                  "four rows across the two images that carry the store resolved both their full "
                  "size file and their thumbnail, so the byte sizes reported are of the files "
-                 "themselves. No picture is shown, because the stored files are encrypted. The "
+                 "themselves. The medium file lookup was added on 2026-10-09; how many rows "
+                 "hold a medium file name, and how many of those resolved, is not recorded "
+                 "here. Medium File Present is blank when the row holds no medium file name. "
+                 "No picture is shown, because the stored files are encrypted. The "
                  "files staged from that folder on the two images begin with the bytes 03 00 and "
                  "do not carry the signature of the format their names claim (the number of files "
                  "checked is not recorded here), which agrees with the Encrypted column "
@@ -68,16 +71,16 @@ __artifacts_v2__ = {
                        },
     },
     "photo_vault_ios_break_in_attempts": {
-        "name": "Private Photo Vault - Break In Attempts",
+        "name": "Private Photo Vault - Trespass Records",
         "description": "Rows of the Private Photo Vault app's trespass table, with the login type, "
                        "coordinates and photo file each names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Private Photo Vault",
         "notes": "One row per row of ZTRESSPASSRECORD in Library/Application "
-                 "Support/PPVCoreData.sqlite. The table's columns are a date, a login type, a "
+                 "Support/PPVCoreData.sqlite. The artifact is named for the table. The table's columns are a date, a login type, a "
                  "device name, a latitude, a longitude and two file names; what event causes the "
                  "app to write a row is not established here, since the table was empty on every "
                  "tested image. It was empty on both images that carry the store, so this reader "
@@ -233,11 +236,13 @@ def photo_vault_ios_media(context):
                 'ZMEDIUMFILE, ZTHUMBFILE, ZALBUM, ZISENCRYPTED, ZISDOWNLOADED, '
                 'ZISTHUMBDOWNLOADED, ZUPLOADED, ZDIDDELETE, ZUDID'):
             present, size = _file_state(on_disk, container, _text(large))
+            medium_present, medium_size = _file_state(on_disk, container, _text(medium))
             thumb_present, thumb_size = _file_state(on_disk, container, _text(thumb))
             data_list.append((
                 _core_data_to_utc(created), _core_data_to_utc(modified),
                 _core_data_to_utc(trashed), albums.get(album, ''), _text(file_type),
-                _text(large), present, size, _text(medium), _text(thumb), thumb_present,
+                _text(large), present, size, _text(medium), medium_present, medium_size,
+                _text(thumb), thumb_present,
                 thumb_size, _flag(encrypted), _flag(downloaded), _flag(thumb_downloaded),
                 _flag(uploaded), _flag(deleted), _text(udid),
             ))
@@ -246,7 +251,8 @@ def photo_vault_ios_media(context):
     data_headers = (
         ('Created', 'datetime'), ('Last Modified', 'datetime'), ('Trashed', 'datetime'),
         'Album', 'File Type (as stored)', 'Full Size File', 'Full Size File Present',
-        'Full Size File Bytes', 'Medium File', 'Thumbnail File', 'Thumbnail Present',
+        'Full Size File Bytes', 'Medium File', 'Medium File Present', 'Medium File Bytes',
+        'Thumbnail File', 'Thumbnail Present',
         'Thumbnail Bytes', 'Encrypted', 'Downloaded', 'Thumbnail Downloaded', 'Uploaded',
         'Marked Deleted', 'Media UDID',
     )

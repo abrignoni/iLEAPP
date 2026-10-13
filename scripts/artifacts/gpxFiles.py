@@ -5,16 +5,18 @@ __artifacts_v2__ = {
                        "having written each one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Locations",
-        "notes": "One row per GPX file matched under an app's Documents folder. A file that is not "
-                 "complete XML is still listed with the counts read before the error, which is "
-                 "recorded in the run log; Container App is filled only for a file directly inside "
-                 "Documents. GPX is an open XML format published by Topografix and the values here "
+        "notes": "One row per GPX file matched under an app's Documents folder, at any depth. A "
+                 "file that is not complete XML is still listed with the counts read before the "
+                 "error; Read Error then holds the parser's message, which is also recorded in "
+                 "the run log, and is blank for a file read to its end. GPX is an open XML format "
+                 "published by Topografix and the values here "
                  "are read from its own elements: Creator is the file's creator attribute, Track "
                  "Points and Waypoints count the trkpt and wpt elements the file contains, and "
-                 "Track Segments is the highest trkseg index seen on a point. Creator is the "
+                 "Track Segments counts the trkseg elements the file opens, including one that "
+                 "holds no point. Creator is the "
                  "attribute that names the tool the "
                  "file records as its writer: on the tested images twelve files named Open GPX "
                  "Tracker for iOS and two named other tools, a web route planner and a desktop "
@@ -26,17 +28,22 @@ __artifacts_v2__ = {
                  "one this reader cannot parse, is left blank and is not counted toward First "
                  "Point Time or Last Point Time; the GPX 1.1 schema documents times as UTC but "
                  "does not require the designator. Container App is the app whose data container "
-                 "held the file, read from that container's own metadata plist, because a "
-                 "Documents folder belongs to one app. A file whose name begins with recovery- "
+                 "held the file, read from the metadata plist of the nearest folder above the "
+                 "file that holds one, because a Documents folder belongs to one app; it is blank "
+                 "when no such plist was matched. A file whose name begins with recovery- "
                  "carried the Open GPX Tracker creator on the tested images; why the app writes "
                  "such a file is not established here. Four of them sat on the iOS 16.5 image and "
                  "two of those had a file of the same name without the prefix beside them: one "
                  "matched its twin on point count and time span, and the other held 37,487 points "
                  "against its twin's 236, so on that image one recovery file held far more points "
                  "than the file of the same name without the prefix. The other two had no "
-                 "counterpart at all. Track Name is the first name element read after a trk "
-                 "element opens, and one name is kept per file, so a file holding several tracks "
-                 "shows the first one's name. Most tested files had none: none of the eight files "
+                 "counterpart at all. Track Name is the name element that is a direct child of a "
+                 "trk element; a name inside a track point or another child element is not used. "
+                 "One name is kept per file, the first one that is not empty, so a file holding "
+                 "several tracks shows one track's name. The Read Error column, the "
+                 "direct-child rule for Track Name, the segment count and the subfolder lookup "
+                 "for Container App were exercised on constructed files, not on the tested "
+                 "images. Most tested files had none: none of the eight files "
                  "on the iOS 16.5 image carried one and two of "
                  "the six on the iOS 17.5.1 image did.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/*.gpx',
@@ -54,7 +61,7 @@ __artifacts_v2__ = {
                        "time each one carries.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Locations",
         "notes": "One row per trkpt element across the GPX files in an app's Documents folder. "
@@ -67,7 +74,12 @@ __artifacts_v2__ = {
                  "missing a time still reports its coordinates. Segment is the index of the trkseg "
                  "element that holds the point; a change in segment number marks a boundary the "
                  "writer placed inside the file, and the reason a writer started a new segment is "
-                 "not recorded in the file. A point read from a file whose Creator names another "
+                 "not recorded in the file. Track Name is the name element that is a direct child of the "
+                 "trk element holding the point, so points of a second track in one file carry "
+                 "that track's own name or none; that case was exercised on a constructed file, "
+                 "not on the tested images. A file that is not complete XML contributes the "
+                 "points read before the error, which is recorded in the run log and in the Read "
+                 "Error column of GPX Files. A point read from a file whose Creator names another "
                  "tool comes from a file that records a writer other than an app on this device, "
                  "and the Creator column carries that attribute onto every row. This artifact is "
                  "large by nature: the fourteen files on the two tested images together hold "
@@ -92,7 +104,7 @@ __artifacts_v2__ = {
                        "waypoint carries them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Locations",
         "notes": "One row per wpt element across the GPX files in an app's Documents folder. A "
@@ -164,9 +176,20 @@ def _container_apps(files_found):
 
 
 def _container_app(gpx_path, apps):
-    '''Bundle id of the app whose container holds <container>/Documents/<name>.gpx.'''
-    container = os.path.dirname(os.path.dirname(str(gpx_path))).replace('\\', '/')
-    return apps.get(container, '')
+    '''Bundle id of the app whose container holds the file, at any depth under Documents.
+
+    The declared pattern also matches a file in a subfolder of Documents, so the search
+    walks up from the file to the nearest folder that holds a container metadata plist.
+    '''
+    folder = os.path.dirname(str(gpx_path)).replace('\\', '/')
+    while folder:
+        if folder in apps:
+            return apps[folder]
+        parent = os.path.dirname(folder)
+        if parent == folder:
+            break
+        folder = parent
+    return ''
 
 
 def _tag(element):
@@ -198,28 +221,34 @@ def _gpx_time(value):
 
 
 def _walk(path):
-    '''Yield ('creator'|'name'|'trkpt'|'wpt'|'trkseg', payload) while streaming a GPX file.
+    '''Yield (kind, payload) events while streaming a GPX file.
 
-    Streamed with iterparse and cleared as it goes, because a single file on the tested
-    images holds over 180,000 points.
+    Kinds: 'creator' (the gpx element's creator attribute), 'trk' (a track opens),
+    'name' (the name element that is a direct child of a trk), 'trkseg' (a segment opens),
+    'trkpt' and 'wpt' ((element, segment index)), and 'error' (the reason the read stopped
+    early). Streamed with iterparse and cleared as it goes, because a single file on the
+    tested images holds over 180,000 points.
     '''
     try:
         context = ElementTree.iterparse(path, events=('start', 'end'))
         segment = 0
-        in_track_name = False
+        stack = []
         for event, element in context:
             tag = _tag(element)
             if event == 'start':
+                stack.append(tag)
                 if tag == 'gpx':
                     yield 'creator', element.get('creator', '')
                 elif tag == 'trk':
-                    in_track_name = True
+                    yield 'trk', None
                 elif tag == 'trkseg':
                     segment += 1
+                    yield 'trkseg', segment
                 continue
-            if tag == 'name' and in_track_name:
+            if stack:
+                stack.pop()
+            if tag == 'name' and stack and stack[-1] == 'trk':
                 yield 'name', (element.text or '').strip()
-                in_track_name = False
             elif tag == 'trkpt':
                 yield 'trkpt', (element, segment)
                 element.clear()
@@ -230,8 +259,10 @@ def _walk(path):
                 element.clear()
     except ElementTree.ParseError as error:
         logfunc(f'GPX: {os.path.basename(path)} is not readable as XML: {error}')
+        yield 'error', f'XML parse error: {error}'
     except OSError as error:
         logfunc(f'GPX: could not open {os.path.basename(path)}: {error}')
+        yield 'error', f'Could not open: {error.strerror or type(error).__name__}'
 
 
 @artifact_processor
@@ -242,7 +273,7 @@ def gpx_files(context):
     apps = _container_apps(files_found)
 
     for source_path in sources:
-        creator = track_name = ''
+        creator = track_name = read_error = ''
         points = waypoints = segments = 0
         first = last = None
         for kind, payload in _walk(source_path):
@@ -250,9 +281,12 @@ def gpx_files(context):
                 creator = payload
             elif kind == 'name' and not track_name:
                 track_name = payload
+            elif kind == 'trkseg':
+                segments += 1
+            elif kind == 'error':
+                read_error = payload
             elif kind in ('trkpt', 'wpt'):
-                element, segment = payload
-                segments = max(segments, segment)
+                element, _segment = payload
                 if kind == 'trkpt':
                     points += 1
                 else:
@@ -264,7 +298,8 @@ def gpx_files(context):
         data_list.append((
             first or '', last or '', os.path.basename(source_path), creator, track_name,
             str(points), str(waypoints), str(segments),
-            _container_app(source_path, apps), context.get_relative_path(source_path),
+            _container_app(source_path, apps), read_error,
+            context.get_relative_path(source_path),
         ))
 
     data_list.sort(key=lambda row: str(row[0]), reverse=True)
@@ -272,7 +307,7 @@ def gpx_files(context):
     data_headers = (
         ('First Point Time', 'datetime'), ('Last Point Time', 'datetime'), 'File Name',
         'Creator', 'Track Name', 'Track Points', 'Waypoints', 'Track Segments',
-        'Container App', 'Source Path',
+        'Container App', 'Read Error', 'Source Path',
     )
     return data_headers, data_list, '\n'.join(sources)
 
@@ -291,6 +326,8 @@ def _point_rows(sources, apps, wanted, fields):
         for kind, payload in _walk(source_path):
             if kind == 'creator':
                 creator = payload
+            elif kind == 'trk':
+                track_name = ''
             elif kind == 'name' and not track_name:
                 track_name = payload
             elif kind == wanted:

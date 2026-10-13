@@ -3,22 +3,25 @@ __artifacts_v2__ = {
         "name": "Teleguard Messages",
         "description": "TeleGuard chat messages, with the shared media file where the extraction "
                        "holds it",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "Teleguard",
         "notes": "Timestamps are UTC (epoch milliseconds). Direction is derived by comparing the "
                  "row's sender with the local account's serverId from the service table; it is "
-                 "blank when either is missing. Only the first teleguard_database.db matched is "
-                 "read. Is Edited? held 0 on every message row of the tested extraction and is "
+                 "blank when either is missing. Every teleguard_database.db matched is read, "
+                 "one per app group container, and the located-at line lists each one. Is Edited? held 0 on every message row of the tested extraction and is "
                  "reported as stored, so an extraction where the flag is set will show it. Media "
                  "was empty on every row: each item is looked up by the server file id a message "
-                 "records in its metadata, by file name, among files under any app's "
-                 "Library/Caches/images directory; the match is not limited to TeleGuard's "
-                 "container. The tested extraction carried no such file for TeleGuard, so its "
-                 "media messages have no bytes to show and "
-                 "the run logs one unresolved lookup for each. Call events and membership events are "
+                 "records in its metadata, by file name, among the files of a "
+                 "Library/Caches/images directory. Only a container that also holds "
+                 "Library/Preferences/ch.swisscows.messenger.teleguardapp.plist is searched, "
+                 "so another app's image cache is never used; when no such container is "
+                 "matched the Media column stays empty. The tested extraction carried no "
+                 "such file for TeleGuard, so the media link has not been exercised on real "
+                 "data. Call events and membership events are "
                  "rows of this same table, of type CALL and SERVICE, and are also reported in full by "
                  "Teleguard Calls and Teleguard Chat Events.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',
+                  '*/Library/Preferences/ch.swisscows.messenger.teleguardapp.plist',
                   '*/Library/Caches/images/*'),
         "output_types": "standard", "artifact_icon": "message-circle",
         "sample_data": {
@@ -70,11 +73,15 @@ __artifacts_v2__ = {
     },
     "teleguardChannels": {
         "name": "Teleguard Channels",
-        "description": "Rows of the channels table of the TeleGuard database. Columns are "
-                       "labelled by position; the table held no rows on the tested extraction, "
-                       "so the labels have not been checked against data.",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Teleguard", "notes": "",
+        "description": "Rows of the channels table of the TeleGuard database, with "
+                       "the table's own column names as headers.",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Teleguard",
+        "notes": "Headers are the column names the channels table itself declares, in table "
+                 "order, and values are reported as stored. No meaning is assigned to a "
+                 "column here. Each teleguard_database.db matched is read. The table held no "
+                 "rows on the tested extraction, so this artifact has not been run against "
+                 "data.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "radio",
         "sample_data": {
@@ -85,7 +92,7 @@ __artifacts_v2__ = {
         "name": "Teleguard Calls",
         "description": "TeleGuard audio and video call events",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-21", "last_update_date": "2026-08-21", "requirements": "none",
+        "creation_date": "2026-08-21", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "Teleguard",
         "notes": "Call events are stored as rows of the messages table with type 'CALL', not in a "
                  "separate call log. Each row carries a JSON metadata object with the keys "
@@ -96,8 +103,9 @@ __artifacts_v2__ = {
                  "and outcome are reported as stored: on the call rows of the tested extraction "
                  "subtext was a display string holding either a minutes and seconds count in "
                  "words or a word for a call that did not connect, not a numeric duration. "
-                 "Connected is the isSuccessfull key shown as Yes or No; its meaning is not "
-                 "sourced here. No numeric duration column was found "
+                 "isSuccessfull (as stored) is the isSuccessfull key of that metadata, shown "
+                 "as true or false when it is a JSON boolean and as stored otherwise; its "
+                 "meaning is not sourced here. No numeric duration column was found "
                  "for these rows. The messages table's userTime column is not reported here "
                  "because it held exactly the same value as createDate on every call row, unlike the "
                  "text rows of the same table where the two differ. The database also carries an "
@@ -180,17 +188,22 @@ __artifacts_v2__ = {
         "name": "Teleguard App Settings",
         "description": "TeleGuard notification and cache settings",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-21", "last_update_date": "2026-08-21", "requirements": "none",
+        "creation_date": "2026-08-21", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "Teleguard",
         "notes": "Hide Push Content, Hide Push Author, Channel Notifications Enabled and Unread Count "
                  "are read from the app group's own preferences plist, "
                  "group.ch.swisscows.messenger.teleguardapp.plist. The two hide settings are "
                  "reported as stored; they are a statement "
                  "about the app's configuration, not about what any particular notification "
-                 "contained. Last Cache Clearing is the flutter.lastCacheClearing value of the "
-                 "first ch.swisscows.messenger.teleguardapp.plist matched, read as Unix "
-                 "milliseconds and shown on each row. What event it marks is not sourced here. No "
-                 "row is written when the app group plist is absent. Other keys of "
+                 "contained. Last Cache Clearing is the flutter.lastCacheClearing value of "
+                 "ch.swisscows.messenger.teleguardapp.plist, read as Unix milliseconds. What "
+                 "event it marks is not sourced here. That plist sits in the app's data "
+                 "container and the group plist in the app group container, and nothing read "
+                 "here records which data container belongs to which app group. When exactly "
+                 "one of each is matched they are reported on one row. Otherwise each plist "
+                 "gets its own row, with the columns the other file holds left blank, so a "
+                 "data container plist is reported when no group plist is matched. Preferences "
+                 "File names the file or files a row was read from. Other keys of "
                  "ch.swisscows.messenger.teleguardapp.plist are not reported.",
         "paths": ('*/Shared/AppGroup/*/Library/Preferences/group.ch.swisscows.messenger.teleguardapp.plist',
                   '*/Library/Preferences/ch.swisscows.messenger.teleguardapp.plist'),
@@ -208,7 +221,7 @@ import json
 import os
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, check_in_media,
-                               check_in_embedded_media, get_plist_file_content)
+                               check_in_embedded_media, get_plist_file_content, logfunc)
 
 APP_GROUP_MARKER = '/Shared/AppGroup/'
 
@@ -278,6 +291,39 @@ def _find_db(context):
     return ''
 
 
+def _all_dbs(context):
+    """Every teleguard_database.db matched, one per app group container."""
+    found = []
+    for paths in _group_containers(context).values():
+        db_path = _pick(paths, 'teleguard_database.db')
+        if db_path and db_path not in found:
+            found.append(db_path)
+    return found
+
+
+def _teleguard_cached_images(context):
+    """Cached image files, by name, from TeleGuard's own data container only.
+
+    The container is identified by the app's preferences plist; a
+    Library/Caches/images directory in any other container is ignored, and no
+    file is offered when the plist is not matched.
+    """
+    marker = '/Library/Preferences/ch.swisscows.messenger.teleguardapp.plist'
+    roots = set()
+    for file_found in context.get_files_found():
+        path = str(file_found).replace('\\', '/')
+        if path.endswith(marker):
+            roots.add(path[:-len(marker)])
+    images = {}
+    for file_found in context.get_files_found():
+        path = str(file_found).replace('\\', '/')
+        for root in roots:
+            prefix = root + '/Library/Caches/images/'
+            if path.startswith(prefix) and os.path.isfile(str(file_found)):
+                images.setdefault(path.rsplit('/', 1)[-1], str(file_found))
+    return images
+
+
 @artifact_processor
 def teleguardMessages(context):
     data_headers = (
@@ -295,17 +341,8 @@ def teleguardMessages(context):
         'Chat ID',
     )
     data_list = []
-    db_path = _find_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
-
-    # local account id lives in the service table ('user' row) of the same db
-    owner_id = ''
-    for (svc_data,) in get_sqlite_db_records(db_path, "SELECT data FROM service WHERE id = 'user'"):
-        try:
-            owner_id = (json.loads(svc_data) or {}).get('serverId', '')
-        except (json.JSONDecodeError, TypeError, ValueError):
-            owner_id = ''
+    sources = []
+    cached_images = _teleguard_cached_images(context)
 
     query = '''
     SELECT
@@ -314,37 +351,44 @@ def teleguardMessages(context):
         type, sender, receiver, content, metadata, status, isEdited, chatId
     FROM messages
     '''
-    for row in get_sqlite_db_records(db_path, query):
-        media_refs = []
-        if row[2] == 'MEDIA' and row[6]:
-            try:
-                files = (json.loads(row[6]) or {}).get('files') or {}
-            except (json.JSONDecodeError, TypeError, ValueError):
-                files = {}
-            for fname in files:
-                ref = check_in_media(fname)
-                if ref:
-                    media_refs.append(ref)
-        if owner_id and row[3]:
-            direction = 'Outgoing' if row[3] == owner_id else 'Incoming'
-        else:
-            direction = ''
-        data_list.append((
-            row[0],
-            row[1],
-            direction,
-            row[3],
-            row[5],
-            media_refs or '',
-            row[2],
-            row[4],
-            row[6],
-            row[7],
-            row[8],
-            row[9],
-        ))
+    for db_path in _all_dbs(context):
+        sources.append(db_path)
+        # local account id lives in the service table ('user' row) of the same db
+        owner_id = _owner_id(db_path)
+        for row in get_sqlite_db_records(db_path, query):
+            media_refs = []
+            if row[2] == 'MEDIA' and row[6]:
+                try:
+                    files = (json.loads(row[6]) or {}).get('files') or {}
+                except (json.JSONDecodeError, TypeError, ValueError, AttributeError):
+                    files = {}
+                for fname in files:
+                    image_path = cached_images.get(str(fname))
+                    if not image_path:
+                        continue
+                    ref = check_in_media(image_path)
+                    if ref:
+                        media_refs.append(ref)
+            if owner_id and row[3]:
+                direction = 'Outgoing' if row[3] == owner_id else 'Incoming'
+            else:
+                direction = ''
+            data_list.append((
+                row[0],
+                row[1],
+                direction,
+                row[3],
+                row[5],
+                media_refs or '',
+                row[2],
+                row[4],
+                row[6],
+                row[7],
+                row[8],
+                row[9],
+            ))
 
-    return data_headers, data_list, context.get_relative_path(db_path)
+    return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in sources)
 
 
 @artifact_processor
@@ -398,17 +442,31 @@ def teleguardContacts(context):
 
 @artifact_processor
 def teleguardChannels(context):
-    data_headers = ('ID', 'Alias', 'Description', 'Category', 'Color', 'Avatar ID',
-                    'Subscribers Count', 'Admin', 'Posts Count', 'Is Deleted', 'Language', 'Type')
+    # headers are the table's own column names, taken from the first database
+    # read; a database whose channels table declares other columns is logged and
+    # skipped so no value is ever placed under another column's name
+    data_headers = ()
     data_list = []
-    db_path = _find_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
+    sources = []
+    for db_path in _all_dbs(context):
+        cursor = get_sqlite_db_records(db_path, 'SELECT * FROM channels')
+        description = getattr(cursor, 'description', None)
+        if not description:
+            continue
+        columns = tuple(column[0] for column in description)
+        if not data_headers:
+            data_headers = columns
+        elif columns != data_headers:
+            logfunc(f'Teleguard Channels: {context.get_relative_path(db_path)} declares '
+                    'different channels columns and was not reported')
+            continue
+        sources.append(db_path)
+        for row in cursor:
+            data_list.append(tuple(row))
 
-    for row in get_sqlite_db_records(db_path, 'SELECT * FROM channels'):
-        data_list.append(tuple(row))
-
-    return data_headers, data_list, context.get_relative_path(db_path)
+    if not data_headers:
+        data_headers = ('channels table not read',)
+    return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in sources)
 
 
 @artifact_processor
@@ -417,7 +475,7 @@ def teleguardCalls(context):
         ('Timestamp', 'datetime'),
         'Direction',
         'Call Type',
-        'Connected',
+        'isSuccessfull (as stored)',
         'Duration or Result (as stored)',
         'Members (as stored)',
         'Event Label (as stored)',
@@ -451,12 +509,16 @@ def teleguardCalls(context):
                 direction = 'Outgoing' if row[1] == owner_id else 'Incoming'
             else:
                 direction = ''
-            connected = meta.get('isSuccessfull')
+            successful = meta.get('isSuccessfull')
+            if successful is None:
+                successful = ''
+            elif isinstance(successful, bool):
+                successful = 'true' if successful else 'false'
             data_list.append((
                 row[0],
                 direction,
                 meta.get('callType', ''),
-                '' if connected is None else ('Yes' if connected else 'No'),
+                successful,
                 meta.get('subtext', ''),
                 meta.get('membersText') or '',
                 row[3],
@@ -591,34 +653,52 @@ def teleguardAppSettings(context):
         'Hide Push Author',
         'Channel Notifications Enabled',
         'Unread Count',
+        'Preferences File',
     )
     data_list = []
     sources = []
 
     # the cache-clearing value lives in the app's own data container, which is a
     # different container from the app group holding the databases and group plist
-    last_clearing = ''
-    app_prefs_path = ''
+    app_paths = []
     for file_found in context.get_files_found():
-        if os.path.basename(str(file_found)) == 'ch.swisscows.messenger.teleguardapp.plist':
-            app_prefs_path = str(file_found)
-            plist = get_plist_file_content(app_prefs_path) or {}
-            last_clearing = _ms_to_utc(plist.get('flutter.lastCacheClearing'))
-            break
-
+        path = str(file_found)
+        if (os.path.basename(path) == 'ch.swisscows.messenger.teleguardapp.plist'
+                and path not in app_paths):
+            app_paths.append(path)
+    group_paths = []
     for paths in _group_containers(context).values():
         group_path = _pick(paths, 'group.ch.swisscows.messenger.teleguardapp.plist')
-        if not group_path:
-            continue
-        plist = get_plist_file_content(group_path) or {}
-        sources.append(group_path)
-        if app_prefs_path and app_prefs_path not in sources:
-            sources.append(app_prefs_path)
-        data_list.append((
-            last_clearing,
+        if group_path:
+            group_paths.append(group_path)
+
+    def _group_values(path):
+        plist = get_plist_file_content(path) or {}
+        return (
             plist.get('hidePushContent', ''),
             plist.get('hidePushAuthor', ''),
             plist.get('enableChannelsNotifications', ''),
             plist.get('unreadCount', ''),
-        ))
+        )
+
+    def _clearing(path):
+        plist = get_plist_file_content(path) or {}
+        return _ms_to_utc(plist.get('flutter.lastCacheClearing'))
+
+    if len(app_paths) == 1 and len(group_paths) == 1:
+        # one install: the two files are reported together
+        sources.extend((group_paths[0], app_paths[0]))
+        data_list.append(
+            (_clearing(app_paths[0]),) + _group_values(group_paths[0])
+            + ('\n'.join(context.get_relative_path(p) for p in sources),))
+    else:
+        # nothing read here ties a data container to an app group, so each file
+        # is reported on its own row
+        for path in group_paths:
+            sources.append(path)
+            data_list.append(('',) + _group_values(path) + (context.get_relative_path(path),))
+        for path in app_paths:
+            sources.append(path)
+            data_list.append(
+                (_clearing(path), '', '', '', '', context.get_relative_path(path)))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in sources)

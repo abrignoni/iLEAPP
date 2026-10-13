@@ -69,9 +69,9 @@ __artifacts_v2__ = {
     'whatsAppMessages': {
         'name': 'WhatsApp - Messages',
         'description': 'Extract WhatsApp messages',
-        'author': '@AlexisBrignoni',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2021-03-26',
-        'last_update_date': '2026-09-19',
+        'last_update_date': '2026-10-09',
         'requirements': '',
         'category': 'WhatsApp',
         'notes': "Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf "
@@ -89,13 +89,15 @@ __artifacts_v2__ = {
                  "present, the ContactsV2 address book is read once per run and the matching "
                  "contact's full name and phone number are shown beside the ID. Coordinates are "
                  "emitted only for rows whose ZMESSAGETYPE is 5; the ZMESSAGETYPE value mapping "
-                 "is not sourced. Sender Name is Local User where ZISFROMME is 1 and otherwise "
-                 "the chat's ZPARTNERNAME, the same value shown as Chat Name. In a group chat "
-                 "that is the name of the chat and not the member who sent the message, which "
-                 "this artifact does not resolve: on otto_ios17 Sender Name equals Chat Name on "
-                 "all 1,440 Incoming rows of its 11 group chats. From ID is the stored ZFROMJID. "
-                 "Direction is Outgoing where ZISFROMME is 1 and Incoming for every other value; "
-                 "on otto_ios17 and dexter_ios18 ZISFROMME held only 0 or 1.",
+                 "is not sourced. Local User or Chat Name is the literal Local User where "
+                 "ZISFROMME is 1 and otherwise the chat's ZPARTNERNAME, the same value shown as "
+                 "Chat Name. In a group chat that is the name of the chat and not the member "
+                 "who sent the message, which this artifact does not resolve: on otto_ios17 "
+                 "Local User or Chat Name equals Chat Name on all 1,440 Incoming rows of its "
+                 "11 group chats. From ID is the stored ZFROMJID, including NULL, and is the "
+                 "exported conversation sender column. No substitute name or local ownership "
+                 "is inferred. Direction is Outgoing where ZISFROMME is 1 and Incoming for "
+                 "every other value; on otto_ios17 and dexter_ios18 ZISFROMME held only 0 or 1.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -124,7 +126,7 @@ __artifacts_v2__ = {
                 'directionColumn': 'Direction',
                 'directionSentValue': 'Outgoing',
                 'timeColumn': 'Timestamp',
-                'senderColumn': 'Sender Name',
+                'senderColumn': 'From ID',
                 'mediaColumn': 'Attachment File'
             }
         },
@@ -457,11 +459,11 @@ def whatsAppMessages(context):
     data_headers = (
         ('Timestamp', 'datetime'),
         'Direction',
-        'Sender Name',
+        'From ID',
         'Chat Name',
         'Message',
         ('Attachment File', 'media'),
-        'From ID',
+        'Local User or Chat Name',
         'Receiver',
         'To ID',
         ('Thumb', 'media'),
@@ -514,11 +516,11 @@ def whatsAppMessages(context):
         data_list.append((
             message_date,
             direction,
-            sender,
+            record['ZFROMJID'],
             record['ZPARTNERNAME'],
             record['ZTEXT'],
             attach_file,
-            record['ZFROMJID'],
+            sender,
             receiver,
             record['ZTOJID'],
             thumb,

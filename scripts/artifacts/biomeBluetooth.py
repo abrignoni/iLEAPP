@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "get_biomeBluetooth": {
         "name": "Biome - Bluetooth",
         "description": "Parses Bluetooth device entries from biomes",
-        "author": "@JohnHyla",
+        "author": "@JohnHyla, @AlexisBrignoni, Codex",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-09-03",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Biome",
         "notes": "Use caution when interpreting this artifact. Lists of Bluetooth devices have been "
@@ -13,8 +13,10 @@ __artifacts_v2__ = {
                  "that time. Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
                  "Biome', https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html\n"
                  "Records are read from both the local and remote subfolders; the Sync Origin "
-                 "column reports which one a record came from, with the name of the folder under "
-                 "remote. Records under the remote folder sit in a subfolder named by an "
+                 "column classifies the evidence-relative stream folder, not the staging path: "
+                 "Local, Remote, or Remote (folder name). Unknown means the stream layout "
+                 "was not recognized unambiguously. These labels do not establish a device "
+                 "writer or account relationship. Records under the remote folder sit in a subfolder named by an "
                  "identifier. What device wrote them is not established here, so they should not "
                  "be read as events of this device. Files under a tombstone folder are skipped.",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*',
@@ -55,16 +57,31 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
 
-def _sync_origin(file_found):
-    """Local for the device's own stream, Remote (<device id>) for a copy synced from another
-    device on the same account; the id is the folder name Biome keeps under remote/."""
-    normalized = file_found.replace('\\', '/')
-    if '/remote/' in normalized:
-        trailer = normalized.split('/remote/', 1)[1]
-        if '/' in trailer:
-            return f"Remote ({trailer.split('/', 1)[0]})"
-        return 'Remote'
-    return 'Local'
+def _sync_origin(relative_path):
+    """Classify the stored Bluetooth stream folder without inferring its writer."""
+    if not isinstance(relative_path, str) or not relative_path:
+        return 'Unknown'
+    normalized = relative_path.replace('\\', '/')
+    if normalized.startswith('/') or (
+            len(normalized) >= 3 and normalized[0].isalpha()
+            and normalized[1:3] == ':/'):
+        return 'Unknown'
+    parts = normalized.split('/')
+    if any(part in ('.', '..') for part in parts):
+        return 'Unknown'
+    anchor = ['Biome', 'streams', 'restricted', 'Device.Wireless.Bluetooth']
+    positions = [index for index in range(len(parts) - len(anchor) + 1)
+                 if parts[index:index + len(anchor)] == anchor]
+    if len(positions) != 1:
+        return 'Unknown'
+    tail = parts[positions[0] + len(anchor):]
+    if len(tail) < 2 or any(not part for part in tail):
+        return 'Unknown'
+    if tail[0] == 'local':
+        return 'Local'
+    if tail[0] == 'remote':
+        return f'Remote ({tail[1]})' if len(tail) > 2 else 'Remote'
+    return 'Unknown'
 
 
 @artifact_processor
@@ -83,7 +100,7 @@ def get_biomeBluetooth(context):
         else:
             continue
 
-        origin = _sync_origin(file_found)
+        origin = _sync_origin(context.get_relative_path(file_found))
         source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1

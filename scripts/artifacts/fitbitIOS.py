@@ -1,30 +1,33 @@
 __artifacts_v2__ = {
     "fitbit_ios_locations": {
-        "name": "Fitbit - Exercise Locations",
+        "name": "Fitbit - Location Points",
         "description": "Parses the location points stored in the Fitbit iOS app's database, with "
                        "the coordinates, altitude, speed and accuracy of each and the exercise "
                        "session each is linked to where one is.",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-20",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Fitbit",
-        "notes": "One row per recorded point. Each point is joined to its session through the "
-                 "location group the record names, so a point linked to a session carries the name "
-                 "and start time of that session, and both are blank for a point that is not. The "
-                 "timestamp is stored as an eight byte value holding a big endian double of seconds "
-                 "since the 2001 Apple epoch, which is unusual enough to be worth stating: it is "
-                 "not a plain numeric column. That reading is corroborated independently, because "
-                 "the heart rate table in the same database stores its own times as ISO text, a "
-                 "different stored form, and its dates coincide with the span these points cover. "
-                 "All 9,419 points on the iOS 17.3 image (iphone11_ios17) decoded to one five day "
-                 "window. Interpolated (as stored) is the flag the record carries; its meaning is "
-                 "not established here, so the value is reported as stored and no point is treated "
-                 "differently because of it. Horizontal and vertical accuracy are the values the "
-                 "record carries. Field mapping was done against a private sample provided by "
-                 "Mattia; no sample data is recorded for it. Every copy of the database in the "
-                 "extraction is read rather than the first one found, so a device holding more than "
-                 "one app data container reports all of them.",
+        "notes": "One row per recorded point. Each point is joined to its session through the location "
+                 "group the record names, so a point linked to a session carries the name and start time "
+                 "of that session, and both are blank for a point that is not. The timestamp is stored as "
+                 "an eight byte value holding a big endian double of seconds since the 2001 Apple epoch, "
+                 "which is unusual enough to be worth stating: it is not a plain numeric column. That "
+                 "reading is corroborated independently, because the heart rate table in the same database "
+                 "stores its own times as ISO text, a different stored form, and its dates coincide with "
+                 "the span these points cover. All 9,419 points on the iOS 17.3 image (iphone11_ios17) "
+                 "decoded to one five day window. Interpolated (as stored) is the flag the record carries; "
+                 "its meaning is not established here, so the value is reported as stored and no point is "
+                 "treated differently because of it. Horizontal and vertical accuracy are the values the "
+                 "record carries. Field mapping was done against a private sample provided by Mattia; no "
+                 "sample data is recorded for it. Every copy of the database in the extraction is read "
+                 "rather than the first one found, so a device holding more than one app data container "
+                 "reports all of them. The Location Points name covers all returned location-table rows, "
+                 "including points with no matched session; it does not establish exercise participation. "
+                 "Original parser and field-mapping attribution: @AlexisBrignoni, @mattiaepi (Mattia "
+                 "Epifani), Claude. Historical sample counts and interpretation caveats above are "
+                 "retained; this naming update does not independently remeasure or verify them.",
         "paths": ('*/Documents/fitbit.sqlite*',),
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 9,419 rows",

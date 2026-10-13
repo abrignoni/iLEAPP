@@ -4,19 +4,20 @@ __artifacts_v2__ = {
     "photos_migration": {
         "name": "Migrations",
         "description": "Parses migration records from photos.sqlite database",
-        "author": "@JohnHyla",
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2023-08-01',
-        'last_update_date': '2025-10-07',
+        'last_update_date': '2026-10-07',
         "requirements": "none",
         "category": "OS Updates",
-        "notes": "Parses migration records found in the Photos.sqlite database. The query "
-                 "is adapted from Scott Koenig's migration history query "
-                 "(https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS14/Previous_Queries/iOS14_LPL_Phsql_MigrationHistory.txt). "
-                 "The Type labels this artifact prints for ZMIGRATIONTYPE differ from the "
-                 "labels in that file, and what each value means is not established here, so "
-                 "read the leading number as the stored value. Timestamp is ZMIGRATIONDATE "
-                 "read as Core Data seconds since 2001, in UTC. OS Version is looked up from "
-                 "the stored build string.",
+        'notes': ('Parses migration records found in the Photos.sqlite database. The query is adapted from Scott '
+                  "Koenig's migration history query "
+                  '(https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS14/Previous_Queries/iOS14_LPL_Phsql_MigrationHistory.txt).'
+                  " ZMIGRATIONTYPE (as stored) reports the query's migration-type value without the former OS update, "
+                  'reset or placeholder labels. What each value means is not established here. A database lacking the '
+                  'column projects SQL NULL, which this output does not distinguish from a stored SQL NULL. Timestamp '
+                  'is ZMIGRATIONDATE read as Core Data seconds since 2001, in UTC. OS Version is looked up from the '
+                  'stored build string. Original artifact contribution: @JohnHyla; migration query research: Scott '
+                  'Koenig.'),
         "paths": ('*/PhotoData/Photos.sqlite*',),
         "output_types": "standard",
         'artifact_icon': "chevrons-up",
@@ -56,13 +57,7 @@ def photos_migration(context):
           zMigrationHistory.Z_OPT AS 'zMigrationHistory-zOPT',
           zMigrationHistory.ZMIGRATIONDATE,
           zMigrationHistory.ZINDEX AS 'zMigrationHistory-Index',
-          CASE zMigrationHistory.ZMIGRATIONTYPE
-            WHEN 0 THEN '0 - StillTesting'
-            WHEN 1 THEN '1 - StillTesting'
-            WHEN 2 THEN '2 - OS Update'
-            WHEN 3 THEN '3 - OS History Start/Factory Reset'
-            ELSE 'Unknown-New-Value!: ' || zMigrationHistory.ZMIGRATIONTYPE || ''
-          END AS 'zMigrationHistory-Migration Type',
+          zMigrationHistory.ZMIGRATIONTYPE AS 'zMigrationHistory-Migration Type',
           zMigrationHistory.ZFORCEREBUILDREASON AS 'zMigrationHistory-Force Rebuild Reason',
           zMigrationHistory.ZSOURCEMODELVERSION AS 'zMigrationHistory-Source Model Version',
           zMigrationHistory.ZMODELVERSION AS 'zMigrationHistory-Model Version',
@@ -75,7 +70,7 @@ def photos_migration(context):
     """
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Migration Index', 'Type', 'Force Rebuild Reason',
+        ('Timestamp', 'datetime'), 'Migration Index', 'ZMIGRATIONTYPE (as stored)', 'Force Rebuild Reason',
         'Source Model Version', 'Model Version', 'OS Build', 'OS Version', 'Origin',
         'Store UUID')
 

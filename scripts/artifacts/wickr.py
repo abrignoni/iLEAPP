@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "timestamps, the stored type values and any attached file",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZWICKR_MESSAGE in wickrLocal.sqlite, the Core Data store in the Wickr "
@@ -28,7 +28,8 @@ __artifacts_v2__ = {
                  "app's logs carry two further type values, 4006 and 9000, which do not appear in "
                  "this table at all; see the Wickr - App Log Message Events artifact.\n"
                  "Timestamps are read as Cocoa Core Data epoch. Flag columns show Yes for a "
-                 "non-zero stored value and No otherwise, including where the value is null. Read "
+                 "non-zero stored value, No for a stored zero and are blank where the value is "
+                 "null. Read "
                  "Timestamp, Delivery Timestamp and Read Receipt Status are blank where the app "
                  "version has no such column. Where a conversation has no stored group id or a "
                  "sender has no stored hash, the cell shows Convo or User followed by the record "
@@ -52,31 +53,33 @@ __artifacts_v2__ = {
                        "identifier, the kind of conversation, the last message and sync "
                        "timestamps, the users linked to the conversation record and the users "
                        "linked to the secure room record",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": '2026-10-09',
         "requirements": "none",
         "category": "Wickr",
-        "notes": "Read from ZSECEX_CONVO in wickrLocal.sqlite. The Kind column is the Core Data "
-                 "entity name looked up from the Z_PRIMARYKEY table in the same file, which maps "
-                 "each Z_ENT number to an entity name such as Secex_Convo or Secex_Secure_Room. "
-                 "Entity numbers depend on the model version, so they are resolved from "
-                 "Z_PRIMARYKEY at run time rather than hardcoded. The two join tables that link "
-                 "these records to users are named after those same entity numbers, so they are "
-                 "located at run time by decoding their column names through Z_PRIMARYKEY rather "
-                 "than by name; the file-to-message join table is Z_13MSG on both images tested; "
-                 "Josh Hickman, 'Wickr. Alright. We'll Call It A Draw.', "
-                 "https://thebinaryhick.blog/2019/08/23/wickr-alright-well-call-it-a-draw/ "
-                 "(2019), shows the table as Z_11MSG. Member User ID Hashes lists the users in "
-                 "the join table for Secex_Convo and Secex_User, and Administrator User ID Hashes "
-                 "lists the users in the join table for Secex_Secure_Room and Secex_User, each as "
-                 "the user's stored ZUSERIDHASH value. The relationship names were not read from "
-                 "the model and no source names these users administrators, so that column header "
-                 "is this module's label. Last Timestamp, Last Sync Timestamp and Message Sync "
-                 "Timestamp are read as Unix seconds. Flag columns show Yes for a non-zero value "
-                 "and No otherwise, including where the value is null or the column does not "
-                 "exist in that app version. Conversation names and descriptions are stored as "
-                 "encrypted blobs and are not decoded.",
+        "notes": 'Read from ZSECEX_CONVO in wickrLocal.sqlite. The Kind column is the Core Data entity '
+                 'name looked up from the Z_PRIMARYKEY table in the same file, which maps each Z_ENT '
+                 'number to an entity name such as Secex_Convo or Secex_Secure_Room. Entity numbers depend'
+                 ' on the model version, so they are resolved from Z_PRIMARYKEY at run time rather than '
+                 'hardcoded. The two join tables that link these records to users are named after those '
+                 'same entity numbers, so they are located at run time by decoding their column names '
+                 'through Z_PRIMARYKEY rather than by name; the file-to-message join table is Z_13MSG on '
+                 "both images tested; Josh Hickman, 'Wickr. Alright. We'll Call It A Draw.', "
+                 'https://thebinaryhick.blog/2019/08/23/wickr-alright-well-call-it-a-draw/ (2019), shows '
+                 'the table as Z_11MSG. Member User ID Hashes lists the users in the join table for '
+                 "Secex_Convo and Secex_User. Secex_Secure_Room User Lookup Values lists the parser's "
+                 'current Secex_Secure_Room-to-Secex_User join lookup values, without assigning a role. '
+                 'The user lookup maps each user Z_PK to its ZUSERIDHASH value or an empty string when '
+                 'that value is falsey; a join user key absent from that lookup falls back to the key '
+                 'rendered as text. Values are joined with comma-space in the order returned by the '
+                 'current query, including repeated join occurrences. The relationship names were not read'
+                 ' from the model and no source establishes an administrator role for these linked rows. '
+                 'Last Timestamp, Last Sync Timestamp and Message Sync Timestamp are read as Unix seconds.'
+                 ' Flag columns show Yes for a non-zero value, No for a stored zero and are blank where '
+                 'the value is null or the column does not exist in that app version. Conversation names and '
+                 'descriptions are stored as encrypted blobs and are not decoded. Original contribution '
+                 'credited to Claude.',
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -93,7 +96,7 @@ __artifacts_v2__ = {
                        "last activity timestamp",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZSECEX_USER in wickrLocal.sqlite. ZUSERNAME, ZUSERALIAS, ZUSERID and "
@@ -101,8 +104,8 @@ __artifacts_v2__ = {
                  "and ZUSERALIASHASH columns are stored in the clear and are reported as stored. "
                  "The Source column is the stored ZSOURCE string, observed as 'ME' on the Wickr "
                  "Me image and 'PRO' on the AWS Wickr image. Flag columns show Yes for a non-zero "
-                 "stored value and No otherwise, including where the value is null or the column "
-                 "does not exist in that app version. Last Activity Time is read as Unix seconds.",
+                 "stored value, No for a stored zero and are blank where the value is null or the "
+                 "column does not exist in that app version. Last Activity Time is read as Unix seconds.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -147,7 +150,7 @@ __artifacts_v2__ = {
                        "values",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZSECEX_ACCOUNT in wickrLocal.sqlite. The account user name, keys and "
@@ -158,9 +161,9 @@ __artifacts_v2__ = {
                  "names ForensicsManager, AntiForencisOperation and "
                  "ManualForensicsSweepOperation; the correspondence is noted, but what the "
                  "feature does to stored data is not established here. Column availability "
-                 "differs between app versions. Flag columns show Yes for a non-zero stored value "
-                 "and No otherwise, including where the value is null or the column does not "
-                 "exist in that app version, so No is not by itself a stored setting. Network "
+                 "differs between app versions. Flag columns show Yes for a non-zero stored value, "
+                 "No for a stored zero and are blank where the value is null or the column does "
+                 "not exist in that app version. Network "
                  "Timestamp is the first ZTIMESTAMP value in ZWICKR_NETWORK read as Unix seconds; "
                  "what it marks is not established.",
         "paths": ('*/wickrLocal.sqlite*',),
@@ -172,19 +175,14 @@ __artifacts_v2__ = {
         },
     },
     "wickr_devices": {
-        "name": "Wickr - Devices",
-        "description": "Secex_App records from the Wickr local store, giving the stored "
-                       "ZAPPIDHASH value and the user record each one is linked to",
-        "author": "@AlexisBrignoni, Claude",
+        "name": 'Wickr - Secex_App Records',
+        "description": 'Rows selected from ZSECEX_APP with linked ZSECEX_USER values from wickrLocal.sqlite.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Wickr",
-        "notes": "Read from ZSECEX_APP in wickrLocal.sqlite, which the Z_PRIMARYKEY table in the "
-                 "same file names Secex_App. Rows are joined to ZSECEX_USER through ZUSER. "
-                 "ZAPPIDHASH is stored in the clear and is reported as stored; ZSAPPID, ZPUBS and "
-                 "ZPUBSIG are encrypted blobs and are not decoded. A row count above one for a "
-                 "given user reflects the number of these records present in this database.",
+        "notes": "Read from ZSECEX_APP in wickrLocal.sqlite. The previously examined model names this entity Secex_App in Z_PRIMARYKEY; Kind continues to use the current file's entity-name lookup or the parser's Z_ENT fallback. Rows are LEFT JOINed to ZSECEX_USER through a.ZUSER = u.Z_PK. ZAPPIDHASH is reported through the existing projection; ZSAPPID, ZPUBS and ZPUBSIG are not decoded. The record name does not establish a physical device or ownership. A matching user key can yield multiple joined rows when it is not unique; unmatched app rows are retained. The recorded sample counts of 49 and 2 are historical metadata, not revalidated by this naming correction. Original contribution credited to Claude.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
@@ -244,33 +242,13 @@ __artifacts_v2__ = {
     },
     "wickr_app_log": {
         "name": "Wickr - App Log Message Events",
-        "description": "Notification payload and Download Message lines recorded in the Wickr "
-                       "application logs, with the log timestamp, the message and conversation "
-                       "identifiers, the payload's userId value and the logged message type",
-        "author": '@AlexisBrignoni, Claude, Codex',
+        "description": "Notification payload and Download Message lines recorded in the Wickr application logs, with the log timestamp, the message and conversation identifiers, the payload's userId value as decoded from JSON and the logged message type",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": '2026-10-04',
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Wickr",
-        "notes": "Read from the plaintext application logs the app writes under its Logs "
-                 "directories. The parsed lines are the notification payloads logged as 'Payload: "
-                 "{\"messageId\"...}' and the 'Download Message with Type' lines, both of which "
-                 "carry identifiers in the clear. The events present are bounded by the log files "
-                 "held in the extraction. Log line timestamps are recorded by the app without a "
-                 "zone and are reported as written.\n"
-                 "On the tested image, where an identifier here also appears in ZWICKR_MESSAGE, "
-                 "the logged time and the database timestamp read as UTC agree to within a "
-                 "second. The number of identifiers compared was not recorded.\n"
-                 "Most of them do not appear there. On the tested image the logs name 69 distinct "
-                 "message identifiers and 48 of those have no row in ZWICKR_MESSAGE, so this "
-                 "artifact reports logged message events that have no row in the message store, "
-                 "together with the conversation, the payload's userId value (the column headed "
-                 "Sender User ID Hash) and the logged type for each. Those 48 include the only "
-                 "occurrences of type values 4006 and 9000 anywhere in the data. Why a logged "
-                 "message has no row is not established here. A log that covers a longer period "
-                 "than the store retains, removal of the rows, or a message type the app does not "
-                 "write to the table would each produce this, and the records do not distinguish "
-                 "them.",
+        "notes": 'Read from the plaintext application logs the app writes under its Logs directories. The parsed lines are the notification payloads logged as \'Payload: {"messageId"...}\' and the \'Download Message with Type\' lines, both of which carry identifiers in the clear. The events present are bounded by the log files held in the extraction. Log line timestamps are recorded by the app without a zone and are reported as written.\nOn the tested image, where an identifier here also appears in ZWICKR_MESSAGE, the logged time and the database timestamp read as UTC agree to within a second. The number of identifiers compared was not recorded.\nMost of them do not appear there. On the tested image the logs name 69 distinct message identifiers and 48 of those have no row in ZWICKR_MESSAGE, so this artifact reports logged message events that have no row in the message store, together with the conversation, the payload\'s userId value and the logged type for each. Those 48 include the only occurrences of type values 4006 and 9000 anywhere in the data. Why a logged message has no row is not established here. A log that covers a longer period than the store retains, removal of the rows, or a message type the app does not write to the table would each produce this, and the records do not distinguish them. Payload userId is the JSON-decoded field value; it is not compared with ZUSERIDHASH and does not establish a sender or owner. Missing userId yields an empty string; explicit JSON null remains None in native rows. Download Message lines keep an empty value. Per-row log filenames are not retained; successfully read log paths are returned together, including logs that emit no rows. The 69/48 and time-comparison observations above are previously recorded, not revalidated by this header correction. Original contribution credited to Claude.',
         "paths": ('*/Logs/com.wickr*.log', '*/Logs/com.mywickr*.log'),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -359,6 +337,14 @@ def _text(value):
     return '' if value is None else value
 
 
+def _flag(value):
+    """A stored flag as Yes or No. A null, or a column the app version does not
+    have, is left blank so it is not read as a stored No."""
+    if value is None:
+        return ''
+    return 'Yes' if value else 'No'
+
+
 def _message_type(value):
     """ZFULLTYPE is otherwise undocumented, so only the one value with support is
     labelled and the rest ship as the stored integer. See the artifact notes."""
@@ -430,10 +416,10 @@ def wickr_messages(context):
                 record[5] or (f'User {record[16]}' if record[16] else ''),
                 _message_type(record[6]),
                 record[7],
-                'Yes' if record[8] else 'No',
-                'Yes' if record[9] else 'No',
-                'Yes' if record[10] else 'No',
-                'Yes' if record[11] else 'No',
+                _flag(record[8]),
+                _flag(record[9]),
+                _flag(record[10]),
+                _flag(record[11]),
                 record[12],
                 _cocoa(record[13]),
                 ', '.join(f for f in files_by_message.get(record[0], []) if f),
@@ -494,13 +480,13 @@ def wickr_conversations(context):
                 record[2],
                 ', '.join(members.get(record[0], [])),
                 ', '.join(masters.get(record[0], [])),
-                'Yes' if record[6] else 'No',
-                'Yes' if record[7] else 'No',
-                'Yes' if record[8] else 'No',
+                _flag(record[6]),
+                _flag(record[7]),
+                _flag(record[8]),
                 _text(record[9]),
                 _text(record[10]),
-                'Yes' if record[11] else 'No',
-                'Yes' if record[12] else 'No',
+                _flag(record[11]),
+                _flag(record[12]),
                 _text(record[13]),
             ))
 
@@ -511,7 +497,7 @@ def wickr_conversations(context):
         'Kind',
         'Group ID',
         'Member User ID Hashes',
-        'Administrator User ID Hashes',
+        'Secex_Secure_Room User Lookup Values',
         'Is External',
         'Is Pinned',
         'Chat Blocked',
@@ -552,15 +538,15 @@ def wickr_users(context):
                 _text(record[2]),
                 _text(record[3]),
                 _text(record[4]),
-                'Yes' if record[5] else 'No',
-                'Yes' if record[6] else 'No',
-                'Yes' if record[7] else 'No',
-                'Yes' if record[8] else 'No',
-                'Yes' if record[9] else 'No',
-                'Yes' if record[10] else 'No',
-                'Yes' if record[11] else 'No',
-                'Yes' if record[12] else 'No',
-                'Yes' if record[13] else 'No',
+                _flag(record[5]),
+                _flag(record[6]),
+                _flag(record[7]),
+                _flag(record[8]),
+                _flag(record[9]),
+                _flag(record[10]),
+                _flag(record[11]),
+                _flag(record[12]),
+                _flag(record[13]),
                 _text(record[14]),
                 record[15],
             ))
@@ -661,17 +647,17 @@ def wickr_account(context):
                 record[0],
                 record[1],
                 record[2],
-                'Yes' if record[3] else 'No',
-                'Yes' if record[4] else 'No',
-                'Yes' if record[5] else 'No',
-                'Yes' if record[6] else 'No',
-                'Yes' if record[7] else 'No',
-                'Yes' if record[8] else 'No',
-                'Yes' if record[9] else 'No',
-                'Yes' if record[10] else 'No',
-                'Yes' if record[11] else 'No',
-                'Yes' if record[12] else 'No',
-                'Yes' if record[13] else 'No',
+                _flag(record[3]),
+                _flag(record[4]),
+                _flag(record[5]),
+                _flag(record[6]),
+                _flag(record[7]),
+                _flag(record[8]),
+                _flag(record[9]),
+                _flag(record[10]),
+                _flag(record[11]),
+                _flag(record[12]),
+                _flag(record[13]),
                 record[14],
                 record[15],
                 record[16],
@@ -870,7 +856,7 @@ def wickr_app_log(context):
         'Event',
         'Message ID',
         'Conversation Group ID',
-        'Sender User ID Hash',
+        'Payload userId (as decoded)',
         'Message Type (as stored)',
     )
     return data_headers, data_list, '\n'.join(source_paths)

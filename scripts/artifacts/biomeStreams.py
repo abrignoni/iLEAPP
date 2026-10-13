@@ -107,11 +107,15 @@ __artifacts_v2__ = {
                        "with their frequency.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Token is blank on records where field 1 does not decode as a submessage holding "
-                 "a text value; what those records hold was not established. Reference: Mattia "
+        "notes": "Token is the text in subfield 1 of field 1. Where field 1 is stored as bytes or "
+                 "a scalar, the module reads subfield 1 from those bytes when they parse as a "
+                 "submessage holding it, and otherwise reports the stored value as text. Where "
+                 "field 1 is a submessage with no text in subfield 1, the decoded submessage is "
+                 "printed as decoded. What records of the last two kinds hold was not "
+                 "established, and no tested image was checked for them. Reference: Mattia "
                  "Epifani, "
                  "'84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
@@ -266,6 +270,32 @@ def biomeScreenTimeAppUsage(context):
     return data_headers, data_list, _source_path(context)
 
 
+def _keyboard_token(token_field):
+    """Token text from field 1, keeping what is stored when the expected shape is absent.
+
+    The expected shape is a submessage whose subfield 1 is the token text. The
+    schema-less decoder can leave that submessage as bytes, and a record can
+    store something else in field 1; neither is dropped.
+    """
+    if token_field is None:
+        return ''
+    if isinstance(token_field, bytes):
+        try:
+            inner, _ = blackboxprotobuf.decode_message(token_field)
+        except _DECODE_ERRORS:
+            inner = None
+        if isinstance(inner, dict) and isinstance(inner.get('1'), bytes):
+            return _txt(inner['1'])
+        return _txt(token_field)
+    if isinstance(token_field, dict):
+        if isinstance(token_field.get('1'), (bytes, str)):
+            return _txt(token_field['1'])
+        return str(token_field) if token_field else ''
+    if isinstance(token_field, list):
+        return str(token_field)
+    return _txt(token_field)
+
+
 @artifact_processor
 def biomeKeyboardTokens(context):
     data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Token', 'Frequency', 'Filename', 'Offset')
@@ -274,7 +304,6 @@ def biomeKeyboardTokens(context):
         if message is None:
             data_list.append((ts, state, '', '', filename, offset))
             continue
-        token_field = message.get('1', {})
-        token = _txt(token_field.get('1')) if isinstance(token_field, dict) else ''
-        data_list.append((ts, state, token, _txt(message.get('3')), filename, offset))
+        data_list.append((ts, state, _keyboard_token(message.get('1')), _txt(message.get('3')),
+                          filename, offset))
     return data_headers, data_list, _source_path(context)

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "video row.",
         "author": "@charpy4n6",
         "creation_date": "2025-01-22",
-        "last_update_date": "2026-09-19",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Calculator#",
         "notes": "App identity is inferred from the FolderLockAdvanced.sqlite filename observed in testing; the path glob is not bundle-specific."
@@ -18,8 +18,9 @@ __artifacts_v2__ = {
                  " file name, and each of those files was extracted. No tested image held a video "
                  "row, so the video link has only been exercised on constructed data, and the "
                  "reading of Modified Date as seconds from 2001-01-01 UTC has not been checked "
-                 "against a real row. Only the first FolderLockAdvanced.sqlite in the extraction "
-                 "is read.",
+                 "against a real row. Every matched FolderLockAdvanced.sqlite is read, and Source "
+                 "File names the database a row came from. Reading more than one database has not been "
+                 "exercised on a tested image.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/FolderLockAdvanced.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/FolderLockAdvanced/Videos/*',),
         "output_types": "standard",
         "artifact_icon": "eye-off",
@@ -30,12 +31,15 @@ __artifacts_v2__ = {
 }
 
 import os
-from scripts.ilapfuncs import artifact_processor, check_in_media, get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, check_in_media, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def calculatorVault(context):
     files_found = context.get_files_found()
-    source_path = get_file_path(files_found, "FolderLockAdvanced.sqlite")
+    # Every matched database is read, each against the files of its own app container.
+    source_paths = list(dict.fromkeys(
+        str(found) for found in files_found
+        if os.path.basename(str(found)) == "FolderLockAdvanced.sqlite" and os.path.isfile(str(found))))
     data_list = []
 
     query = '''
@@ -64,38 +68,41 @@ def calculatorVault(context):
         'Video Name',
         ('Attachment', 'media'),
         'Duration',
-        'Video Size')
+        'Video Size',
+        'Source File')
 
-    # Each album records its folder relative to the app container (ZALBUM_PATH, for
-    # example Documents/FolderLockAdvanced/Videos/My Videos), so a video is looked up in
-    # the database's own container, in its album's folder, by its name. A file of the
-    # same name elsewhere is not this row's video.
-    container = os.path.normpath(os.path.dirname(os.path.dirname(source_path))) if source_path else ''
     extracted = {}
-    if container:
-        for file_found in files_found:
-            file_found = str(file_found)
-            if os.path.isfile(file_found):
-                extracted[os.path.normpath(file_found)] = file_found
+    for file_found in files_found:
+        file_found = str(file_found)
+        if os.path.isfile(file_found):
+            extracted[os.path.normpath(file_found)] = file_found
 
-    db_records = get_sqlite_db_records(source_path, query)
+    for source_path in source_paths:
+        # Each album records its folder relative to the app container (ZALBUM_PATH, for
+        # example Documents/FolderLockAdvanced/Videos/My Videos), so a video is looked up in
+        # the database's own container, in its album's folder, by its name. A file of the
+        # same name elsewhere is not this row's video.
+        container = os.path.normpath(os.path.dirname(os.path.dirname(source_path)))
 
-    for record in db_records:
-        modified_date = convert_cocoa_core_data_ts_to_utc(record[0])
-        attachment = ''
-        album_path, name = record[9], record[6]
-        if container and isinstance(album_path, str) and isinstance(name, str) and album_path and name:
-            candidate = os.path.normpath(os.path.join(container, album_path, name))
-            # A recorded path that climbs out of the container names another app's file.
-            try:
-                inside = os.path.commonpath([container, candidate]) == container
-            except ValueError:  # a different drive on Windows
-                inside = False
-            if inside and candidate in extracted:
-                stored = extracted[candidate]
-                attachment = check_in_media(stored, os.path.basename(stored)) or ''
-        data_list.append(
-            (modified_date, record[1], record[2], record[3], record[4],
-             record[5], record[6], attachment, record[7], record[8]))
+        db_records = get_sqlite_db_records(source_path, query)
 
-    return data_headers, data_list, source_path
+        for record in db_records:
+            modified_date = convert_cocoa_core_data_ts_to_utc(record[0])
+            attachment = ''
+            album_path, name = record[9], record[6]
+            if isinstance(album_path, str) and isinstance(name, str) and album_path and name:
+                candidate = os.path.normpath(os.path.join(container, album_path, name))
+                # A recorded path that climbs out of the container names another app's file.
+                try:
+                    inside = os.path.commonpath([container, candidate]) == container
+                except ValueError:  # a different drive on Windows
+                    inside = False
+                if inside and candidate in extracted:
+                    stored = extracted[candidate]
+                    attachment = check_in_media(stored, os.path.basename(stored)) or ''
+            data_list.append(
+                (modified_date, record[1], record[2], record[3], record[4],
+                 record[5], record[6], attachment, record[7], record[8],
+                 context.get_relative_path(source_path)))
+
+    return data_headers, data_list, '\n'.join(source_paths)

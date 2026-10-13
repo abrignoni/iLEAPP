@@ -97,24 +97,13 @@ __artifacts_v2__ = {
     },
     "netflix_continue_watching": {
         "name": "Netflix - Continue Watching",
-        "description": "Entries the Netflix app cached for its Continue Watching row, with the "
-                       "record's display string and the video identifier each entry points at",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "description": 'Cached PinotContinueWatchingEntityTreatment record entries, with the displayString field and referenced video identifier using the existing rendering',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-21",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Netflix",
-        "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment under "
-                 "Library/gqlData. The record's displayString is reported as stored under the "
-                 "heading Displayed Title; that the app displayed it is not established. These "
-                 "rows are cached records, so an entry records what the cache held rather than an "
-                 "individual playback event; the Netflix - Playback Bookmarks artifact carries the "
-                 "stored positions and their times. No timestamp is stored on the row itself. The "
-                 "same entry is cached by more than one section and more than one file, so rows "
-                 "identical across every reported field are collapsed to one and the Cache Entries "
-                 "Holding This Row column gives the number that held it. No sample_data is "
-                 "recorded for this artifact; the samples it was tested on are not named here, so "
-                 "figures in these notes cannot be tied to a corpus key.",
+        "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment under Library/gqlData. The record's displayString is reported as stored under the heading displayString (as stored); that the app displayed it is not established. These rows are cached records, so an entry records what the cache held rather than an individual playback event; the Netflix - Playback Bookmarks artifact carries the stored positions and their times. No timestamp is stored on the row itself. The same entry is cached by more than one section and more than one file, so rows identical across every reported field are collapsed to one and the Cache Entries Holding This Row column gives the number that held it. No sample_data is recorded for this artifact; the samples it was tested on are not named here, so figures in these notes cannot be tied to a corpus key. This header correction preserves the existing _blank rendering: missing or JSON null displayString becomes an empty string; other decoded native values are not changed. Existing grouping uses the first five native fields, excludes the source path, counts matching occurrences and keeps the first source path; native equality can group zero and False together. No per-occurrence or cross-container source association repair is included. Original artifact contribution/research attribution: @mattiaepi (Mattia Epifani), Claude. Historical sample statements above remain recorded and were not revalidated by this header correction.",
         "paths": ('*/Library/gqlData/*gql*.db*',),
         "output_types": "standard",
         "artifact_icon": "player-play",
@@ -123,23 +112,19 @@ __artifacts_v2__ = {
         "name": "Netflix - Titles With An Interaction Signal",
         "description": "Titles the Netflix app cached for which the same extraction also holds a "
                        "stored playback position or a Continue Watching entry, with the kind of "
-                       "record named on each row. A third kind, cached stream data, is coded but "
-                       "is not reached, because the artifact's paths do not include "
-                       "Library/Caches/br/ch"
-                       ".",
+                       "record named on each row.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Netflix",
         "notes": "The GraphQL cache holds title records the app fetched; a cached title record is "
                  "not by itself evidence of a choice by a person, so the raw catalogue is not "
                  "reported. A title appears here only when the same extraction also carries a "
                  "stored playback position for it or a Continue Watching entry, and the "
-                 "Interaction Signal column names which. The code also tests for cached stream "
-                 "data under the video id, but the artifact's declared paths match only "
-                 "Library/gqlData, so that test is given no stream files and no row is reported on "
-                 "that basis. The artifact name and the column say 'interaction signal'; a record "
+                 "Interaction Signal column names which. Cached stream data under "
+                 "Library/Caches/br/ch is not read by this artifact and is not used as a basis "
+                 "for a row; the Netflix - Cached Stream Data artifact reports it. The artifact name and the column say 'interaction signal'; a record "
                  "of either kind is what the cache held and does not establish that a person "
                  "interacted with the title. The run log records how many cached title records "
                  "were read and how many carried a signal. Even with a signal, presence does not "
@@ -974,7 +959,7 @@ def netflix_continue_watching(context):
         data_list.append(row[:5] + (occurrences, row[5]))
 
     data_headers = (
-        'Displayed Title',
+        'displayString (as stored)',
         'Video ID',
         'Cached Title',
         'Entity Type (as stored)',
@@ -991,18 +976,11 @@ def netflix_titles(context):
 
     The GraphQL cache holds whatever the service composed onto a page, so the raw
     catalogue is mostly not evidence of user interest. Only titles carrying a stored
-    playback position, a Continue Watching entry, or cached stream data are reported.
+    playback position or a Continue Watching entry are reported.
     """
     data_list, rows = [], []
     source_paths = set()
     files_found = context.get_files_found()
-
-    cached = {p for p in _files(files_found, lambda x: '/Library/Caches/br/ch/' in x)}
-    with_media = set()
-    for path in cached:
-        segs = path.replace('\\', '/').split('/Library/Caches/br/ch/', 1)[1].split('/')
-        if segs:
-            with_media.add(segs[0])
 
     total_cached = 0
     for db_path in _gql_databases(files_found):
@@ -1026,8 +1004,6 @@ def netflix_titles(context):
                 signals.append('playback position')
             if video_id in continues:
                 signals.append('continue watching')
-            if video_id in with_media:
-                signals.append('cached stream data')
             if not signals:
                 continue
             rows.append((video_id, title, entity_type, ', '.join(signals),

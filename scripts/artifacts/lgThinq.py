@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "serial number, SSID and room recorded for each.",
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Product table of the app's Realm store using the vendored "
@@ -13,9 +13,11 @@ __artifacts_v2__ = {
                  "class_ProductModel on the product identifier and the room name joined from "
                  "class_Room. The store's file name carries the account and environment, so the "
                  "path pattern matches on the environment suffix and every candidate is then "
-                 "required to hold at least one class_Product row before it is read; a file with "
-                 "no such row is skipped without a log line (a file that cannot be read is "
-                 "logged), and none of the ThinQ artifacts report anything from a skipped file. "
+                 "required to hold a class_Product table before it is read. A file without that "
+                 "table is skipped and the run log names it, a file that cannot be read is "
+                 "logged, and none of the ThinQ artifacts report anything from a skipped file. "
+                 "A file that holds the table with no rows is still read by the other ThinQ "
+                 "artifacts, and the run log says so; no such file was available for testing. "
                  "Two further Realm files sat beside this one on the tested sample: "
                  "shared-prd-op-op.realm held only interface layout and feature JSON and the tv- "
                  "prefixed file held nothing but its schema version, so neither is reported. SSID "
@@ -40,7 +42,7 @@ __artifacts_v2__ = {
                        "each.",
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Room table of the app's Realm store. The created_at column "
@@ -62,7 +64,7 @@ __artifacts_v2__ = {
                        "createdAt and modifiedAt values stored for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_FavoritesItem table of the app's Realm store. Unlike the "
@@ -88,7 +90,7 @@ __artifacts_v2__ = {
                        "recorded for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_UserIdInfo table of the app's Realm store. Identifier Type "
@@ -109,7 +111,7 @@ __artifacts_v2__ = {
                        "service name, code, isService flag and joinDate value stored for each.",
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Service table of the app's Realm store. Join Date is stored "
@@ -129,7 +131,7 @@ import os
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.realm_parser import realm_rows
+from scripts.realm_parser import parse_realm_file, realm_rows
 
 _MARKER_CLASS = 'class_Product'
 
@@ -172,12 +174,17 @@ def _stores(files_found):
         if os.path.isdir(file_found) or not file_found.endswith('.realm'):
             continue
         try:
-            rows = list(realm_rows(file_found, _MARKER_CLASS))
+            marker = parse_realm_file(file_found).get('active', {}).get(_MARKER_CLASS)
         except Exception as error:  # pylint: disable=broad-exception-caught
             logfunc(f'LG ThinQ: could not read {os.path.basename(file_found)}: {error}')
             continue
-        if not rows:
+        if marker is None:
+            logfunc(f'LG ThinQ: {os.path.basename(file_found)} holds no {_MARKER_CLASS} '
+                    f'table; skipped')
             continue
+        if not marker.get('row_count'):
+            logfunc(f'LG ThinQ: {os.path.basename(file_found)} holds a {_MARKER_CLASS} '
+                    f'table with no rows; its other classes are still read')
         stores.append(file_found)
     return stores
 

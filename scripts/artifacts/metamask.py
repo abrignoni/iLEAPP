@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "address and the stored balance divided by 10^18. Not validated against a "
                        "registered image; what importTime marks and which network the balance "
                        "belongs to are not established",
-        "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "credit-card"
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                        "addresses, the stored value divided by 10^18, and the transaction hash. "
                        "Not validated against a registered image; the unit of Value depends on the "
                        "chain and is not checked",
-        "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "repeat"
@@ -63,6 +63,7 @@ def _load_metamask(context):
 
 
 def _hex_to_eth(hex_value):
+    """Stored hex amount divided by 10^18; the chain and token are not checked."""
     try:
         return int(str(hex_value), 16) / _WEI
     except (ValueError, TypeError):
@@ -72,7 +73,7 @@ def _hex_to_eth(hex_value):
 @artifact_processor
 def metamaskWallets(context):
     data_headers = (('Import Timestamp', 'datetime'), 'Wallet Name', 'Wallet Address',
-                    'Balance (In Network Currency)')
+                    'Balance (Stored Value / 10^18)')
     data_list = []
     background, _, source = _load_metamask(context)
     accounts = background.get('AccountTrackerController', {}).get('accounts', {})
@@ -99,7 +100,7 @@ def metamaskContacts(context):
 
 @artifact_processor
 def metamaskTransactions(context):
-    data_headers = (('Timestamp', 'datetime'), 'From Address', 'To Address', 'Value',
+    data_headers = (('Timestamp', 'datetime'), 'From Address', 'To Address', 'Value (Stored Value / 10^18)',
                     'Transaction Hash')
     data_list = []
     background, _, source = _load_metamask(context)

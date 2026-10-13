@@ -132,6 +132,19 @@ jobs:
         shell: bash
         run: python packaging/build.py exe
 
+      - name: Verify filtering in the built executable
+        shell: bash
+        run: |
+          python admin/test/scripts/test_log_filter.py
+          python admin/test/scripts/test_logarchive_filtering.py
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            python admin/scripts/check_frozen_log_filter.py dist/iLEAPP/ileapp.exe
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            python admin/scripts/check_frozen_log_filter.py dist/iLEAPP.app/Contents/MacOS/ileapp
+          else
+            python admin/scripts/check_frozen_log_filter.py dist/iLEAPP/ileapp
+          fi
+
       - name: Smoke test the build
         shell: bash
         run: |
@@ -141,13 +154,18 @@ jobs:
             python packaging/build.py smoke
           fi
 
-      - name: Phase 2, the installer (Windows)
+      # Windows ships only the single-file executable, in its portable zip; see release.yml.
+      # The folder build above is still made here, for the frozen log filter check, and
+      # costs no signing. Nothing here is signed: signing is release.yml's, with SignPath.
+      - name: Phase 1, the single-file executable (Windows)
         if: runner.os == 'Windows'
         shell: bash
-        run: |
-          choco install innosetup --no-progress -y
-          python packaging/build.py installer
-          ls -l dist/iLEAPP-Setup-*.exe
+        run: python packaging/build.py exe --onefile
+
+      - name: Smoke test the single-file executable (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python packaging/build.py smoke --onefile
 
       - name: Phase 2, the disk image (macOS)
         if: runner.os == 'macOS'
@@ -164,7 +182,7 @@ jobs:
           python packaging/build.py installer
           ls -l dist/iLEAPP-*.AppImage
 
-      # Windows and Linux ship the one-folder build as well as their installer.
+      # The one-folder build, with Windows' single-file executable and Linux's AppImage.
       - name: Upload the build (Windows, Linux)
         if: runner.os != 'macOS'
         uses: actions/upload-artifact@v7
@@ -172,7 +190,7 @@ jobs:
           name: ileapp-${{ matrix.name }}-test
           path: |
             dist/iLEAPP/
-            dist/iLEAPP-Setup-*.exe
+            dist/ileapp.exe
             dist/iLEAPP-*.AppImage
           retention-days: 14
           if-no-files-found: error

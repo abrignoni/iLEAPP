@@ -2,13 +2,13 @@
 __artifacts_v2__ = {
     'tcc': {
         'name': 'Application Permissions',
-        'description': 'Rows of the access table of TCC.db, from the extraction and from sysdiagnose archives in it. The Bundle ID column is the client value as stored and the service name is shown without its kTCCService prefix',
-        'author': '@AlexisBrignoni - @KevinPagano3 - @johannplw',
+        'description': 'Rows of the access table of TCC.db, from the extraction and from sysdiagnose archives in it. The Client (as stored) column is the client value as stored and the service name is shown without its kTCCService prefix',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2020-12-15',
-        'last_update_date': '2026-09-30',
+        'last_update_date': '2026-10-07',
         'requirements': 'none',
         'category': 'App Permissions',
-        'notes': 'Access is the stored auth_value (0 shown as Not allowed, 2 as Allowed, 3 as Limited) or, on schemas without it, the allowed column (0 Not allowed, 1 Allowed). No source for these meanings is cited here; unrecognized values are reported as stored. Prompt Count is reported empty on schemas where the column is absent, and Last Modified is blank on schemas without a last_modified column.',
+        'notes': 'Access is the stored auth_value (0 shown as Not allowed, 2 as Allowed, 3 as Limited) or, on schemas without it, the allowed column (0 Not allowed, 1 Allowed). No source for these meanings is cited here; unrecognized values are reported as stored. Prompt Count is reported empty on schemas where the column is absent, and Last Modified is blank on schemas without a last_modified column. Client (as stored) reports the selected client value without classifying it as a bundle identifier or interpreting client_type. Original contribution and research credit: @KevinPagano3 and @johannplw.',
         'paths': (
             '*/mobile/Library/TCC/TCC.db*',
             '*/logs/Accessibility/TCC.db*',
@@ -168,7 +168,7 @@ def tcc(context):
 
     data_headers = (
         ('Last Modified Timestamp', 'datetime'),
-        'Bundle ID',
+        'Client (as stored)',
         'Service',
         'Access',
         'Prompt Count',

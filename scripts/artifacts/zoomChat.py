@@ -1,42 +1,46 @@
 __artifacts_v2__ = {
     "zoom_ios_chat_messages": {
         "name": "Zoom - Chat Messages",
-        "description": "Chat messages the Zoom app stored per conversation, with the direction "
-                       "each row records and the file attached where one is linked.",
-        "author": "@AlexisBrignoni, Claude",
+        'description': 'Chat messages stored in Zoom per-conversation tables, with sentByMe as stored, the existing '
+                       'parser direction interpretation and the linked file where resolved.',
+        'author': '@AlexisBrignoni, Codex',
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        'last_update_date': '2026-10-07',
         "requirements": "none",
         "category": "Zoom",
-        "notes": "One row per row of each per conversation message table in the account's own "
-                 "store that has all the columns the module reads (a table missing one is skipped "
-                 "and named in the run log). The store is "
-                 "Documents/data/<account>@xmpp.zoom.us/<account>@xmpp.zoom.us.asyn.db. The "
-                 "tables are named for the conversation, so they are found by their name pattern "
-                 "rather than listed: the one tested image that holds the store has three of them "
-                 "and only one carries rows, six of them. Timestamp is the row's millisecond time "
-                 "(messageTimestamp), reported in UTC, and where that is empty the row's "
-                 "timeStamp read as Unix seconds. The six fall inside fifteen minutes of one day "
-                 "in the period the image covers. Direction comes from the row's sent by me flag: "
-                 "1 is reported as Outgoing and any other stored value, including an empty one, "
-                 "as Incoming. It gives 3 outgoing and 3 incoming here, with the sender name on "
-                 "the row agreeing three and three. Two messages name a file, and both are "
-                 "attached: the file table in the same store names the message and gives a path "
-                 "for the copy, and a file with that path's file name was found in the account's "
-                 "own folder inside the same container. The match is on the file name, and one "
-                 "file is shown per message. The other four rows name no file. Message Type, "
-                 "Message State and Read are reported as stored. Conversation ID and Source Table "
-                 "hold one value each across the six rows because only one conversation table "
-                 "carries any, and Giphy ID is empty on every row, so none of the six names an "
-                 "entry of the giphy table. Tables in this store that nothing here reads are "
-                 "named so the omission is visible: the device tables, which hold a certificate, "
-                 "a key and a password for the account's device and from which no key material is "
-                 "reported; the configuration table, 52 rows of app settings; the notification "
-                 "store, 11 rows; the session table, whose three rows carry a last update time "
-                 "and a last message identifier on one and zeros on the other two; the buddy, "
-                 "thread time block and file download tables, which repeat identifiers reported "
-                 "elsewhere; and sixteen tables that were empty, among them the end to end "
-                 "encrypted message table for this conversation.",
+        'notes': "One row per row of each per conversation message table in the account's own store that has "
+                 'all the columns the module reads (a table missing one is skipped and named in the run log). '
+                 'The store is Documents/data/<account>@xmpp.zoom.us/<account>@xmpp.zoom.us.asyn.db. The '
+                 'tables are named for the conversation, so they are found by their name pattern rather than '
+                 'listed: the one tested image that holds the store has three of them and only one carries '
+                 "rows, six of them. Timestamp is the row's millisecond time (messageTimestamp), reported in "
+                 "UTC, and where that is empty the row's timeStamp read as Unix seconds. The six fall inside "
+                 'fifteen minutes of one day in the period the image covers. Direction Interpretation retains '
+                 "the existing parser rule: a sentByMe value for which Python str(value) equals the text '1' "
+                 'is displayed as Outgoing; every other value, including NULL and unknown values, is displayed'
+                 ' as Incoming. These labels are not verified meanings for all stored values. The historical '
+                 'tested image gave 3 outgoing and 3 incoming labels, with the sender names agreeing three and'
+                 ' three; that observation does not establish unknown-value meanings. Two messages name a '
+                 'file, and both are attached: the file table in the same store names the message and gives a '
+                 "path for the copy, and a file with that path's file name was found in the account's own "
+                 'folder inside the same container. The match is on the file name, and one file is shown per '
+                 'message. The other four rows name no file. Message Type, Message State and Read are reported'
+                 ' as stored. Conversation ID and Source Table hold one value each across the six rows because'
+                 ' only one conversation table carries any, and Giphy ID is empty on every row, so none of the'
+                 ' six names an entry of the giphy table. Tables in this store that nothing here reads are '
+                 'named so the omission is visible: the device tables, which hold a certificate, a key and a '
+                 "password for the account's device and from which no key material is reported; the "
+                 'configuration table, 52 rows of app settings; the notification store, 11 rows; the session '
+                 'table, whose three rows carry a last update time and a last message identifier on one and '
+                 'zeros on the other two; the buddy, thread time block and file download tables, which repeat '
+                 'identifiers reported elsewhere; and sixteen tables that were empty, among them the end to '
+                 'end encrypted message table for this conversation. sentByMe (As Stored) reports the selected'
+                 ' SQLite value directly, preserving NULL and its native storage class without string '
+                 'conversion or a default. Direction Interpretation is retained for compatibility and does not'
+                 ' establish the device account, ownership or message direction independently. Original parser'
+                 ' and historical research credit: @AlexisBrignoni, Claude. The direction-based conversation '
+                 'view is omitted because it would apply the unverified direction interpretation to '
+                 'sent/received rendering; table rows, media and exports remain available.',
         "paths": ('*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*.asyn.db*',
                   '*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*/*'),
         "output_types": "standard",
@@ -44,17 +48,6 @@ __artifacts_v2__ = {
         "sample_data": {
                            "hickman_ios13": "iOS 13.3.1 | Zoom | 6 rows",
                        },
-        "data_views": {
-            "conversation": {
-                "conversationDiscriminatorColumn": "Conversation ID",
-                "textColumn": "Message",
-                "directionColumn": "Direction",
-                "directionSentValue": "Outgoing",
-                "timeColumn": "Timestamp",
-                "senderColumn": "Sender Name",
-                "mediaColumn": "Attachment",
-            }
-        },
     },
     "zoom_ios_call_history": {
         "name": "Zoom - Call History",
@@ -84,28 +77,32 @@ __artifacts_v2__ = {
     },
     "zoom_ios_shared_files": {
         "name": "Zoom - Shared Files",
-        "description": "Files the Zoom app recorded as shared in a chat, with the owner, the size "
-                       "and the copy stored on the device where there is one.",
-        "author": "@AlexisBrignoni, Claude",
+        'description': 'Zoom file-table entries with sentByMe as stored, the existing parser direction '
+                       'interpretation and the linked local copy where resolved.',
+        'author': '@AlexisBrignoni, Codex',
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        'last_update_date': '2026-10-07',
         "requirements": "none",
         "category": "Zoom",
-        "notes": "One row per row of the file table in the account's own store, joined to the web "
-                 "file and file share tables on the identifier they share for the recorded size, "
-                 "the owner and the time the file was shared. Shared is a millisecond time, "
-                 "reported in UTC, taken from the share record and falling back to the web file "
-                 "record and then to the file row, which on the two rows here differ from each "
-                 "other by under half a second. Both rows on the one tested image that holds the "
-                 "store were found on the device and are attached. File Bytes equals Recorded "
-                 "Size (as stored) on both, which is the file on disk agreeing with what the "
-                 "store wrote down. Direction comes from the row's own sent by me flag, with 1 "
-                 "reported as Outgoing and any other value as Incoming, and gives one each way. "
-                 "The file is looked for by the file name of the path the store recorded, inside "
-                 "the account's own folder in the same container, so a file from another account "
-                 "or another app is not picked up. The match is on the file name alone inside "
-                 "that folder, so where two subfolders hold a file of the same name the first one "
-                 "found is attached.",
+        'notes': "One row per row of the file table in the account's own store, joined to the web file and "
+                 'file share tables on the identifier they share for the recorded size, the owner and the time'
+                 ' the file was shared. Shared is a millisecond time, reported in UTC, taken from the share '
+                 'record and falling back to the web file record and then to the file row, which on the two '
+                 'rows here differ from each other by under half a second. Both rows on the one tested image '
+                 'that holds the store were found on the device and are attached. File Bytes equals Recorded '
+                 'Size (as stored) on both, which is the file on disk agreeing with what the store wrote down.'
+                 ' Direction Interpretation retains the existing parser rule: a sentByMe value for which '
+                 "Python str(value) equals the text '1' is displayed as Outgoing and every other value as "
+                 'Incoming. The historical tested image gave one label each way. These labels are not verified'
+                 ' meanings for all stored values, including NULL and unknown values. The file is looked for '
+                 "by the file name of the path the store recorded, inside the account's own folder in the same"
+                 ' container, so a file from another account or another app is not picked up. The match is on '
+                 'the file name alone inside that folder, so where two subfolders hold a file of the same name'
+                 ' the first one found is attached. sentByMe (As Stored) reports the selected SQLite value '
+                 'directly, preserving NULL and its native storage class without string conversion or a '
+                 'default. Direction Interpretation is retained for compatibility and does not establish the '
+                 'device account, ownership or message direction independently. Original parser and historical'
+                 ' research credit: @AlexisBrignoni, Claude.',
         "paths": ('*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*.asyn.db*',
                   '*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*/*'),
         "output_types": "standard",
@@ -280,7 +277,7 @@ def zoom_ios_chat_messages(context):
                 media, present, size = _attach(index, container, account, local_path)
                 data_list.append((
                     _unix_ms_to_utc(stamp_ms) or _unix_to_utc(stamp),
-                    'Outgoing' if str(sent_by_me) == '1' else 'Incoming',
+                    'Outgoing' if str(sent_by_me) == '1' else 'Incoming', sent_by_me,
                     _text(sender), _text(body), media, name, present, size,
                     _text(buddy) or _text(group), _text(message_id), _text(msg_type),
                     _text(msg_state), _text(readed), _text(giphy), _text(thread), table,
@@ -289,7 +286,7 @@ def zoom_ios_chat_messages(context):
 
     data_list.sort(key=lambda row: str(row[0]), reverse=True)
     data_headers = (
-        ('Timestamp', 'datetime'), 'Direction', 'Sender Name', 'Message',
+        ('Timestamp', 'datetime'), 'Direction Interpretation', 'sentByMe (As Stored)', 'Sender Name', 'Message',
         ('Attachment', 'media'), 'Attachment Name', 'Attachment Present', 'Attachment Bytes',
         'Conversation ID', 'Message ID', 'Message Type (as stored)', 'Message State (as stored)',
         'Read (as stored)', 'Giphy ID', 'Thread ID', 'Source Table', 'Account',
@@ -354,7 +351,7 @@ def zoom_ios_shared_files(context):
                 _unix_ms_to_utc(share_time) or _unix_ms_to_utc(created)
                 or _unix_ms_to_utc(stamp),
                 _text(name) or web_name, media, present, on_disk, _text(size) or web_size,
-                'Outgoing' if str(sent_by_me) == '1' else 'Incoming',
+                'Outgoing' if str(sent_by_me) == '1' else 'Incoming', sent_by_me,
                 _text(owner) or web_owner, share_to, _text(ext), _text(message_id),
                 _text(web_id), _text(downloaded), _text(file_type), account,
             ))
@@ -362,7 +359,7 @@ def zoom_ios_shared_files(context):
     data_list.sort(key=lambda row: str(row[0]), reverse=True)
     data_headers = (
         ('Shared', 'datetime'), 'File Name', ('File', 'media'), 'File Present', 'File Bytes',
-        'Recorded Size (as stored)', 'Direction', 'Owner', 'Shared To', 'Extension',
+        'Recorded Size (as stored)', 'Direction Interpretation', 'sentByMe (As Stored)', 'Owner', 'Shared To', 'Extension',
         'Message ID', 'Web File ID', 'Downloaded (as stored)', 'File Type (as stored)',
         'Account',
     )

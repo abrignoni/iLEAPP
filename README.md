@@ -15,8 +15,8 @@ Download a pre-built release — no Python installation required.
 
 | Platform | Download |
 | -------- | -------- |
-| Windows (Intel/AMD) | `iLEAPP-*-windows-x64-setup.exe` (installer) or `iLEAPP-*-windows-x64-portable.zip` |
-| Windows (ARM) | `iLEAPP-*-windows-arm64-setup.exe` or `iLEAPP-*-windows-arm64-portable.zip` |
+| Windows (Intel/AMD) | `iLEAPP-*-windows-x64-portable.zip` |
+| Windows (ARM) | `iLEAPP-*-windows-arm64-portable.zip` |
 | macOS (Apple Silicon) | `iLEAPP-*-macos-arm64.dmg` |
 | macOS (Intel) | `iLEAPP-*-macos-x64.dmg` |
 | Linux (Intel/AMD) | `iLEAPP-*-linux-x64.AppImage` |
@@ -24,14 +24,12 @@ Download a pre-built release — no Python installation required.
 
 Each download holds one program, `ileapp`. `SHA256SUMS.txt` in each release lets you check a download.
 
-**GUI** — open iLEAPP the usual way: from the Start menu after installing on Windows, by
-double-clicking `ileapp.exe` in the portable folder, iLEAPP in Applications on macOS, or
-the AppImage on Linux. Started without arguments, it opens the window; select your input
+**GUI** — open iLEAPP the usual way: by double-clicking `ileapp.exe` from the zip on
+Windows, iLEAPP in Applications on macOS, or the AppImage on Linux. Started without arguments, it opens the window; select your input
 type, source path, output folder, and modules to process.
 
 **CLI** — give `ileapp` arguments in a terminal and it runs as a command line instead. The
-output folder must already exist. On Windows, keep `ileapp.exe` in its folder with the
-files beside it.
+output folder must already exist. On Windows, use `ileapp.exe` from the zip.
 
 ```
 ileapp.exe -t zip -i C:\path\to\extraction.zip -o C:\path\to\output\
@@ -228,7 +226,7 @@ a split set), or an acquisition and the segments or files beside it (EnCase/EWF
 `.E01`, SMART `.s01`, EWF2 `.Ex01`, AFF `.aff`, AFM `.afm`, any `.aff` in an AFD folder,
 AFF4 `.aff4`, an Apple `.dmg`, with any `.dmgpart` files beside it, `.sparseimage` or
 `.sparsebundle` folder, or a virtual machine disk, `.vhd`, `.vhdx`, `.vmdk` or `.qcow2`), in
-place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
+place: no mounting and no administrator rights. Its NTFS, FAT32, FAT16, FAT12, exFAT, ext2/3/4,
 F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS
 volumes are searched directly (and a U-Boot environment or Belkin NVRM store is read as one
 file), and
@@ -275,6 +273,46 @@ python packaging/build.py installer    # Windows: Inno Setup installer; macOS: .
 instead. The Windows installer needs [Inno Setup](https://jrsoftware.org/isdl.php); on
 Linux, `smoke` needs a display, which `xvfb-run` provides. `python packaging/build.py --help`
 has the rest.
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by
+[SignPath Foundation](https://signpath.org/).
+
+The Windows builds are not signed yet. iLEAPP is applying to SignPath Foundation's free code
+signing program for open source projects, and this policy applies to every Windows release
+signed under it.
+
+The Windows executables attached to
+[GitHub Releases](https://github.com/abrignoni/iLEAPP/releases) are built from this
+repository by GitHub Actions, on GitHub-hosted runners
+([`release.yml`](.github/workflows/release.yml)). Under this policy, SignPath signs only
+what that workflow built. The macOS disk images are signed separately, with an Apple
+Developer ID, and notarised by Apple.
+
+SignPath signs `ileapp.exe`, the single-file program in the portable zip. Third-party files
+packed inside it, such as Mandiant's Unified Log parser (`unifiedlog_iterator.exe`), are
+not signed on their own.
+
+### Team roles
+
+- Committers and reviewers: [@abrignoni](https://github.com/abrignoni),
+  [@JamesHabben](https://github.com/JamesHabben),
+  [@Johann-PLW](https://github.com/Johann-PLW), [@stark4n6](https://github.com/stark4n6)
+- Approvers: [@abrignoni](https://github.com/abrignoni),
+  [@Johann-PLW](https://github.com/Johann-PLW)
+
+Changes proposed by people who are not committers are reviewed by a committer before they
+are merged. Every release signing request is approved by an approver.
+
+### Privacy policy
+
+iLEAPP processes extractions locally, on the machine it runs on. This program will not
+transfer any information to other networked systems unless specifically requested by the
+user or the person installing or operating it.
+
+The same policy covers the other LEAPPs:
+[leapps.org/releases#code-signing-policy](https://leapps.org/releases#code-signing-policy).
 
 ## Acknowledgements
 

@@ -51,9 +51,26 @@ __artifacts_v2__ = {
     },
     "icloudSharedPersonInfo": {
         "name": "iCloud Shared Albums - Person Info",
-        "description": "Person records held in cloudSharedPersonInfos.plist of the iCloud shared album data (first email address of each record)",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "iCloud Shared Albums", "notes": "",
+        "description": "Person records held in cloudSharedPersonInfos.plist of the iCloud shared album data (first email address display and stored email fields)",
+        "author": "@abrignoni, @AlexisBrignoni, Codex", "creation_date": "2026-06-23", "last_update_date": "2026-10-06", "requirements": "none",
+        "category": "iCloud Shared Albums", "notes": "Email keeps the existing first-entry display: a truthy emails field supplies its "
+                 "first indexed value; otherwise the scalar email field is used. Emails Field "
+                 "and Email Field contain compact typed JSON of the corresponding plistlib-decoded "
+                 "fields, including key presence, value types, array order and repeated values. "
+                 "Integer and UID values use decimal text; real values use their parsed binary64 "
+                 "bits in big-endian hexadecimal; data uses base64; dates keep decoded components "
+                 "without assigning a timezone. Dictionaries use ordered typed key/value pairs. "
+                 "These fields preserve supported decoded values, not original plist bytes, XML "
+                 "spelling, binary object identities or duplicate dictionary keys already collapsed "
+                 "by decoding. Original source files remain the byte evidence. Existing malformed "
+                 "shape handling and first-entry selection are unchanged. Multiple files can "
+                 "contribute rows; the source union does not associate each row with its file. "
+                 "Stored addresses do not establish ownership or current validity. On ctf2020_ios12, "
+                 "Email, First Name and Last Name are empty on its one row because the "
+                 "corresponding keys are absent. On iphone11_ios17, 14 records have a "
+                 "one-string emails array and seven have only scalar email; none has both "
+                 "keys. Multiple-address arrays and other native types were exercised only "
+                 "on constructed XML or binary plists.",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "user",
         "sample_data": {
@@ -101,8 +118,12 @@ __artifacts_v2__ = {
     }
 }
 
+import base64
+from datetime import datetime
+import json
 import os
 import plistlib
+import struct
 
 from scripts.ilapfuncs import artifact_processor
 
@@ -152,9 +173,47 @@ def icloudSharedAlbumData(context):
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
 
 
+def _person_value_node(value):
+    """Encode a supported plistlib-decoded value without tag collisions."""
+    if value is None:
+        kind, encoded = 'null', None
+    elif isinstance(value, bool):
+        kind, encoded = 'bool', value
+    elif isinstance(value, str):
+        kind, encoded = 'string', value
+    elif isinstance(value, int):
+        kind, encoded = 'integer', str(value)
+    elif isinstance(value, float):
+        kind, encoded = 'real', struct.pack('>d', value).hex()
+    elif isinstance(value, bytes):
+        kind, encoded = 'data', base64.b64encode(value).decode('ascii')
+    elif isinstance(value, datetime):
+        kind, encoded = 'date', value.isoformat()
+    elif isinstance(value, plistlib.UID):
+        kind, encoded = 'uid', str(value.data)
+    elif isinstance(value, list):
+        kind, encoded = 'array', [_person_value_node(item) for item in value]
+    elif isinstance(value, dict):
+        kind = 'dictionary'
+        encoded = [[_person_value_node(key), _person_value_node(item)]
+                   for key, item in value.items()]
+    else:
+        raise TypeError(f'Unsupported person field value type: {type(value).__name__}')
+    return {'type': kind, 'value': encoded}
+
+
+def _person_field_json(info, key):
+    """Keep missing keys distinct from present null or empty decoded values."""
+    envelope = {'present': key in info}
+    if key in info:
+        envelope['value'] = _person_value_node(info[key])
+    return json.dumps(envelope, ensure_ascii=True, separators=(',', ':'), allow_nan=False)
+
+
 @artifact_processor
 def icloudSharedPersonInfo(context):
-    data_headers = ('Email', 'First Name', 'Last Name', 'Full Name', 'Identification')
+    data_headers = ('Email', 'First Name', 'Last Name', 'Full Name', 'Identification',
+                    'Emails Field (Typed JSON)', 'Email Field (Typed JSON)')
     data_list = []
     sources = []
     for file_found in context.get_files_found():
@@ -170,7 +229,8 @@ def icloudSharedPersonInfo(context):
             if info.get('emails'):
                 email = info['emails'][0]
             data_list.append((email, info.get('firstName', ''), info.get('lastName', ''),
-                              info.get('fullName', ''), identifier))
+                              info.get('fullName', ''), identifier,
+                              _person_field_json(info, 'emails'), _person_field_json(info, 'email')))
         sources.append(context.get_relative_path(file_found))
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
 

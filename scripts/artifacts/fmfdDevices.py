@@ -3,21 +3,21 @@ __artifacts_v2__ = {
         "name": "Find My - Devices",
         "description": "Parses the device list (name, two identifiers and four stored flags) from "
                        "the fmfd notbackedup preferences plist.",
-        "author": "@ghmihkel",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-04-01",
         "version": "1.0",
         "date": "2026-03-31",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Find My",
         "notes": "Located in the NotBackedUp preferences area. The device list is stored under "
-                 "kFMFDDevicesListKey inside the keyed archive held in kFMFDStoredDataKey. Device "
-                 "ID is the entry's idsDeviceId and Device FMF ID is its deviceId. Active?, This "
-                 "Device?, Companion Device? and Auto Me Capable? are the entry's isActiveDevice, "
-                 "isThisDevice, isCompanionDevice and isAutoMeCapable values, reported as stored; "
-                 "what each means is not established here. The artifact returned no rows on the six "
-                 "tested iOS 17 and iOS 18 images; whether the plist or the key is absent there was "
-                 "not recorded.",
+                 "kFMFDDevicesListKey inside the keyed archive held in kFMFDStoredDataKey. idsDeviceId (as "
+                 "stored) and deviceId (as stored) identify the entry keys without establishing their "
+                 "identifier semantics. Active?, This Device?, Companion Device? and Auto Me Capable? are "
+                 "the entry's isActiveDevice, isThisDevice, isCompanionDevice and isAutoMeCapable values, "
+                 "reported as stored; what each means is not established here. The artifact returned no "
+                 "rows on the six tested iOS 17 and iOS 18 images; whether the plist or the key is absent "
+                 "there was not recorded. Original parser contribution: @ghmihkel.",
         "paths": ('*/Library/Preferences/com.apple.icloud.fmfd.notbackedup.plist',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -104,12 +104,12 @@ def fmfd_notbackedup_devices(context):
     files_found = context.get_files_found()
     data_headers = (
         'Device Name',
-        'Device ID',
+        'idsDeviceId (as stored)',
         'Active?',
         'This Device?',
         'Companion Device?',
         'Auto Me Capable?',
-        'Device FMF ID',
+        'deviceId (as stored)',
     )
     data_list = []
     source_file = ''

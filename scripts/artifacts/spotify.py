@@ -64,26 +64,27 @@ __artifacts_v2__ = {
     "spotify_ios_saved_items": {
         "name": "Spotify - Saved and Offline Items",
         "description": "Entries the Spotify store holds for the account's saved "
-                       "collection and under its offlkeys keys, which the module "
-                       "labels from the key name.",
+                       "collection and under its offlkeys keys, each row labelled "
+                       "with the key prefix as stored.",
         "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": '2026-10-04',
+        "last_update_date": '2026-10-09',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per collection or offline key in the same LevelDB the "
-                 "recently played entries come from, newest record per key. Kind "
-                 "separates the two by key name: Saved to collection for keys that "
-                 "begin !col# and Marked to keep on device for keys that begin "
-                 "!xmeta#offlkeys#. On the tested images every Marked to keep on "
-                 "device row is a deletion. Whether that means a download was removed "
+                 "recently played entries come from, newest record per key. Key Prefix "
+                 "is the start of the key the row came from, as stored: !col# or "
+                 "!xmeta#offlkeys#. Reading the first as the saved collection and the "
+                 "second as offline items comes from the key names; no source for these "
+                 "keys is cited here. On the tested images every !xmeta#offlkeys# "
+                 "row is a deletion. Whether that means a download was removed "
                  "or the app rewrote its index was not established, and what these "
                  "keys record is not established either. On the tested images every "
-                 "Saved to collection row is live. Candidate Time Integer is the first integer in the "
+                 "!col# row is live. Candidate Time Integer is the first integer in the "
                  "collection record that falls in the range of Unix seconds from 2008 "
                  "to 2036, found by value and not by field number, reported as raw text. "
                  "What the app records in it is not established by a source. Candidate Time Integer is "
-                 "blank on the Marked to keep on device rows because the module reads "
+                 "blank on the !xmeta#offlkeys# rows because the module reads "
                  "no time from those records. Item "
                  "Type comes from the address: 93 tracks, 31 artists, and 4 rows whose "
                  "address names the collection itself rather than an item, two of which "
@@ -112,7 +113,7 @@ __artifacts_v2__ = {
                        "with the position, flags and times the file stores.",
         "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": '2026-10-04',
+        "last_update_date": '2026-10-09',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per Library/Application "
@@ -157,9 +158,10 @@ __artifacts_v2__ = {
                  "Track, Explicit Content Filtered, Playing and Paused are read only from "
                  "the JSON form of the file. On the three rows from the JSON form "
                  "(ctf2020_ios12, hickman_ios13, hickman_ios14) the file stores false for "
-                 "the first four and they read No. On the three rows from the protobuf form "
-                 "(hickman_ios15, iphone11_ios17, iphone12_ios18) all six read No because "
-                 "the module does not read them there; No on those rows does not mean the "
+                 "the first four and they read No. Each of the six is blank when the file "
+                 "does not store its key. On the three rows from the protobuf form "
+                 "(hickman_ios15, iphone11_ios17, iphone12_ios18) all six are blank because "
+                 "the module does not read them there; a blank does not mean the "
                  "setting was off or that nothing was playing. The same file also lists the "
                  "tracks "
                  "of the playlist that was loaded, up to ninety of them on one image. "
@@ -178,34 +180,40 @@ __artifacts_v2__ = {
     },
     "spotify_ios_play_history": {
         "name": "Spotify - Play History",
-        "description": "The list of tracks the Spotify app's saved player state carries "
-                       "as its own play history.",
-        "author": "@AlexisBrignoni, Claude",
+        "description": (
+            "Entries reported from the play_history.tracks list in Spotify's saved player state, "
+            "including each entry's uid value under its stored key name."
+        ),
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Spotify",
-        "notes": "One row per entry of the play history list inside "
-                 "context_player_state_restore, in the order the file lists them, which "
-                 "Position In List reports. 15 rows across 3 images. The list carries "
-                 "no time of its own, so State Saved repeats the time the file was "
-                 "written and is the same value on every row from one file. It bounds "
-                 "the entries rather than dating them: the list was written by then, "
-                 "and how long before is not recorded. The module reads this list only "
-                 "from the JSON form of the file. In the protobuf form it reads one "
-                 "track by shape, and whether that form also holds a history list was "
-                 "not established. On the three images running app version 8.8 or "
-                 "later the file is in the protobuf form, so those images report "
-                 "nothing here even though they carry "
-                 "the file. Account is the name of the per-user folder the file sits in "
-                 "and holds one value per image because each tested image had one "
-                 "signed in account. Item Type comes from the address, and one row is "
-                 "an advertisement rather than a track, which is what the app recorded "
-                 "in the list. Artist and Title are filled where the same container "
-                 "cached the lyrics for that track, which is 2 of 15 rows; the rest "
-                 "carry the address only. Play ID is the entry's uid value as stored "
-                 "and is blank on 1 row, the advertisement; what it identifies is not "
-                 "established.",
+        "notes": (
+            'One row per entry of the play history list inside context_player_state_restore, in '
+            'the order the file lists them, which Position In List reports. 15 rows across 3 '
+            'images. The list carries no time of its own, so State Saved repeats the time the '
+            'file was written and is the same value on every row from one file. It bounds the '
+            'entries rather than dating them: the list was written by then, and how long before '
+            'is not recorded. The module reads this list only from the JSON form of the file. In '
+            'the protobuf form it reads one track by shape, and whether that form also holds a '
+            'history list was not established. On the three images running app version 8.8 or '
+            'later the file is in the protobuf form, so those images report nothing here even '
+            'though they carry the file. Account is the name of the per-user folder the file '
+            'sits in and holds one value per image because each tested image had one signed in '
+            'account. Item Type comes from the address, and one row is an advertisement rather '
+            'than a track, which is what the app recorded in the list. Artist and Title are '
+            'filled where the same container cached the lyrics for that track, which is 2 of 15 '
+            "rows; the rest carry the address only. uid (as stored) is the entry's uid value as "
+            'currently rendered and is blank on 1 row, the advertisement; what it identifies is '
+            "not established. The uid field is passed through the parser's existing text "
+            'conversion: missing or null becomes empty, and other decoded JSON values become '
+            'Python text. This header does not establish a play identifier, identity, ownership '
+            'or uniqueness; no raw JSON field type or byte retention is added. All image counts '
+            'and observations above are historical and have not been revalidated by this header '
+            'correction. Combined rows do not retain a per-row source filename; source paths '
+            'remain aggregated as before. Original contribution credited to Claude.'
+        ),
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/Users/*',
                   '*/Containers/Data/Application/*/Library/Caches/genius/*'),
         "output_types": "standard",
@@ -225,7 +233,7 @@ __artifacts_v2__ = {
                        "title and the time each was cached.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per file in Library/Caches/genius whose name is a track "
@@ -244,10 +252,14 @@ __artifacts_v2__ = {
                  "this cache, with 9 entries spanning 2021-01-27 to 2021-02-13. The "
                  "folder is named for the lyrics provider rather than for Spotify. "
                  "The recently played and play history tables use an entry only for a "
-                 "store in the same container. This table reports every matching file "
-                 "under any app container's Library/Caches/genius folder and does not "
-                 "check that the container is Spotify's.",
-        "paths": ('*/Containers/Data/Application/*/Library/Caches/genius/*',),
+                 "store in the same container. This table reports a file only when "
+                 "the same app container also holds a Spotify per-user store folder "
+                 "(Library/Application Support/PersistentCache/Users/<account>-user). "
+                 "A matching file in a container without one is not reported and the "
+                 "run log gives the count; no tested image held such a file, so that "
+                 "check is in the code and was not exercised.",
+        "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/Users/*',
+                  '*/Containers/Data/Application/*/Library/Caches/genius/*'),
         "output_types": "standard",
         "artifact_icon": "file-text",
                          "sample_data": {
@@ -356,7 +368,7 @@ __artifacts_v2__ = {
     "spotify_ios_followed_artists": {
         "name": "Spotify - Followed Artists",
         "description": "Artists the subscription list the Spotify app cached names the "
-                       "account as following, with the time recorded against each.",
+                       "account as following, with the integer each entry carries.",
         "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
         "last_update_date": '2026-10-04',
@@ -451,6 +463,13 @@ def _core_data_to_utc(value):
 def _text(value):
     '''A stored value as text, with a stored null read as absent.'''
     return '' if value is None else str(value)
+
+
+def _flag(holder, key):
+    '''Yes or No for a flag the saved state stores, and '' when it does not store the key.'''
+    if not isinstance(holder, dict) or key not in holder or holder[key] is None:
+        return ''
+    return 'Yes' if holder[key] else 'No'
 
 
 def _varint(data, offset):
@@ -852,11 +871,11 @@ def spotify_ios_saved_items(context):
             if key.startswith(_COLLECTION) and b'.' not in key.split(b'#')[1]:
                 uri, stamp = _uri_and_time(value)
                 uri = uri or _uri_from_key(key)
-                kind = 'Saved to collection'
+                kind = _COLLECTION.decode()
             elif key.startswith(_OFFLINE):
                 match = re.search(rb'(spotify:[a-z]+:[0-9A-Za-z]+)', key)
                 uri = match.group(1).decode() if match else ''
-                stamp, kind = None, 'Marked to keep on device'
+                stamp, kind = None, _OFFLINE.decode()
             else:
                 continue
             if not uri:
@@ -871,7 +890,8 @@ def spotify_ios_saved_items(context):
             ))
 
     data_headers = (
-        'Candidate Time Integer (as stored)', 'Kind', 'Item Type', 'Item URI', 'Account', 'Record State')
+        'Candidate Time Integer (as stored)', 'Key Prefix (as stored)', 'Item Type', 'Item URI',
+        'Account', 'Record State')
     return data_headers, data_list, '\n'.join(sources)
 
 
@@ -902,12 +922,12 @@ def spotify_ios_player_state(context):
             _text(meta.get('context_uri') or origin.get('view_uri')),
             _text(playback.get('position')),
             _text(playback.get('duration') or meta.get('duration')),
-            'Yes' if active.get('is_playing') else 'No',
-            'Yes' if active.get('is_paused') else 'No',
-            'Yes' if options.get('shuffling_context') else 'No',
-            'Yes' if options.get('repeating_context') else 'No',
-            'Yes' if options.get('repeating_track') else 'No',
-            'Yes' if configuration.get('player.filter_explicit_content') else 'No',
+            _flag(active, 'is_playing'),
+            _flag(active, 'is_paused'),
+            _flag(options, 'shuffling_context'),
+            _flag(options, 'repeating_context'),
+            _flag(options, 'repeating_track'),
+            _flag(configuration, 'player.filter_explicit_content'),
             _text(origin.get('feature_identifier')),
             _text(origin.get('referrer_identifier')),
             _text(origin.get('feature_version')),
@@ -954,7 +974,7 @@ def spotify_ios_play_history(context):
 
     data_headers = (
         ('State Saved', 'datetime'), 'Position In List', 'Item Type', 'Artist', 'Title',
-        'Item URI', 'Play ID', 'Account')
+        'Item URI', 'uid (as stored)', 'Account')
     return data_headers, data_list, '\n'.join(sources)
 
 
@@ -964,7 +984,15 @@ def spotify_ios_lyrics_cache(context):
     files_found = context.get_files_found()
     data_list, sources = [], []
 
+    spotify_containers = {
+        _container(str(found).replace('\\', '/')) for found in files_found
+        if _account_of(str(found).replace('\\', '/'))}
+    spotify_containers.discard('')
+    skipped = 0
     for (_, track), entry in _lyrics(files_found).items():
+        if _container(entry['path'].replace('\\', '/')) not in spotify_containers:
+            skipped += 1
+            continue
         sources.append(entry['path'])
         data_list.append((
             _core_data_to_utc(entry['cached']),
@@ -973,6 +1001,10 @@ def spotify_ios_lyrics_cache(context):
             f'spotify:track:{track}',
             entry['song_id'],
         ))
+
+    if skipped:
+        logfunc(f'Spotify: {skipped} Caches/genius file(s) not reported, because their app '
+                'container holds no Spotify per-user store')
 
     data_headers = (
         ('Cached', 'datetime'), 'Artist', 'Title', 'Track URI', 'Lyrics Provider Song ID')

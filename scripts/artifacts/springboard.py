@@ -5,13 +5,14 @@ __artifacts_v2__ = {
         "description": "Home screen layout: apps, folders, widgets and the dock, per screen page",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in the order the plist "
                  "stores them; that this is the order on screen was not checked against a device. Only "
-                 "the first IconState.plist found is read. Entries that are not an app identifier, a "
-                 "folder or a sized widget entry are not reported. See 'iOS Home Screen Layout - "
+                 "the first IconState.plist found is read, and the run log gives the count of any "
+                 "others. Entries that are not an app identifier, a folder or a sized widget entry "
+                 "are not reported, and the run log gives their count. See 'iOS Home Screen Layout - "
                  "Visual' for a rendered image of each screen.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": ["html","lava","tsv"],
@@ -165,11 +166,12 @@ def _font(size):
 
 
 def _find_plist(context):
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('IconState.plist'):
-            return file_found
-    return ''
+    matched = [str(file_found) for file_found in context.get_files_found()
+               if str(file_found).endswith('IconState.plist')]
+    if len(matched) > 1:
+        logfunc(f'iOS Home Screen Layout: {len(matched) - 1} other IconState.plist file(s) '
+                'not read; only the first one found is read')
+    return matched[0] if matched else ''
 
 
 def _load(context):
@@ -338,9 +340,12 @@ def icons_screen(context):
     if not plist:
         return data_headers, data_list, source_path
 
+    unreported = 0
     for page_index, page in enumerate(plist.get('iconLists', [])):
         screen = f'Page {page_index}'
-        for item in _iter_items(page):
+        items = _iter_items(page)
+        unreported += max(0, len(page) - len(items))
+        for item in items:
             if item['kind'] == 'app':
                 data_list.append((screen, 'App', item['name'], '', ''))
             elif item['kind'] == 'folder':
@@ -354,6 +359,10 @@ def icons_screen(context):
 
     for bundle in plist.get('buttonBar', []):
         data_list.append(('Dock', 'App', bundle, '', ''))
+
+    if unreported:
+        logfunc(f'iOS Home Screen Layout: {unreported} entry(ies) not reported, being neither '
+                'an app identifier, a folder nor a sized widget entry')
 
     return data_headers, data_list, source_path
 

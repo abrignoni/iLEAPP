@@ -1,19 +1,26 @@
 __artifacts_v2__ = {
     "kikLocaladmin": {
-        "name": "Kik Local Account",
-        "description": "Kik user rows whose ZLASTNAME is not empty, one row per group link. The "
-                       "query's test on ZFIRSTNAME does not match a text first name, so a row "
-                       "with a first name only is not returned. On iphone11_ios17, hickman_ios13 "
-                       "and hickman_ios14 no user row had a first name without a last name, and "
-                       "the query returned 1 row on each, the one row whose ZFLAGS is 258. "
-                       "Published research identifies the account-holder row via ZKIKUSER.ZFLAGS "
-                       "= 258; this artifact does not filter on that flag.",
-        "author": "@AlexisBrignoni",
+        "name": "Kik Named User Records",
+        "description": "Kik user records whose stored first or last name is non-NULL and compares "
+                       "unequal to empty text, one row per joined group, administrator and "
+                       "extra-record combination. This selection does not verify names or identify "
+                       "the local account holder.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Kik",
-        "notes": "Reference: K. Ovens & G. Morison, 'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, 2016), https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf",
+        "notes": "Reference: K. Ovens & G. Morison, 'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, 2016), https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf "
+                 "The name-field comparison uses the stored SQLite values without trimming, "
+                 "casting or decoding them. Numeric zero and BLOB values, including a zero-length "
+                 "BLOB, compare unequal to empty TEXT and can qualify; that does not establish "
+                 "that they are human names. The query does not filter on ZFLAGS. Published "
+                 "research identifies the account-holder row via ZKIKUSER.ZFLAGS = 258, but this "
+                 "artifact does not establish that identity. Historical testing on iphone11_ios17, "
+                 "hickman_ios13 and hickman_ios14 found no first-name-only user and returned one "
+                 "row on each, whose ZFLAGS was 258. Only the first matching kik.sqlite main file "
+                 "is read. The existing LEFT JOINs preserve each member, administrator and extra-record "
+                 "combination, including repeated links; a row here is not a distinct-account count.",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -63,7 +70,8 @@ def kikLocaladmin(context):
         LEFT JOIN Z_9MEMBERS ON ZKIKUSER.Z_PK = Z_9MEMBERS.Z_9MEMBERS
         LEFT JOIN Z_9ADMINSINVERSE ON ZKIKUSER.Z_PK = Z_9ADMINSINVERSE.Z_9ADMINS
         LEFT JOIN ZKIKUSEREXTRA ON ZKIKUSER.Z_PK = ZKIKUSEREXTRA.ZUSER
-    WHERE ZKIKUSER.ZFIRSTNAME OR ZKIKUSER.ZLASTNAME <> ""
+    WHERE (ZKIKUSER.ZFIRSTNAME IS NOT NULL AND ZKIKUSER.ZFIRSTNAME <> '')
+       OR (ZKIKUSER.ZLASTNAME IS NOT NULL AND ZKIKUSER.ZLASTNAME <> '')
     ''')
 
     for row in cursor.fetchall():

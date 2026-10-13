@@ -9,22 +9,24 @@ __artifacts_v2__ = {
         "description": "Messages from the Zangi Messenger database, joined to its conversation, "
                        "group and contact tables, with direction, sender, chat name, text, "
                        "message type and the attachment file where one is found by name among the "
-                       "app's image, video, file and voice folders (by message id, by the stored "
+                       "image, video, file and voice folders of the app group folder that holds "
+                       "the database (by message id, by the stored "
                        "media path, or for documents by the message text); only voice "
                        "note and image rows fill Attachment File, other types fill Attachment "
                        "Link. Reads two database layouts: the older ZZANGIMESSAGE table and the "
                        "newer ZZMESSAGE family, whichever a database carries.",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-09",
         "requirements": "pathlib",
         "category": "Chats",
         "notes": "Message type labels are a reading of rows from app version 5.6.7 and are not "
                  "vendor-documented. Which of the eleven mapped codes the tested data held is not "
-                 "recorded here. On the newer layout a message type code with no mapping is "
-                 "reported as stored. On the older layout it is reported as Other/Unknown and the "
-                 "stored code is not shown. The module reads two database layouts and produces "
+                 "recorded here. On the newer layout the Message Type label for an unmapped code is "
+                 "cast to text. On the older layout it is Other/Unknown. ZTYPE (as stored) "
+                 "separately retains the native SQLite value on each joined row in both layouts; "
+                 "it does not establish what the code means. The module reads two database layouts and produces "
                  "the same columns from each. A row is one joined row: a message that matches "
                  "more than one group, contact, sender or media row is listed once per match. The "
                  "layouts are the older single ZZANGIMESSAGE table, and the newer layout where "
@@ -36,7 +38,10 @@ __artifacts_v2__ = {
                  "layout is read as a Cocoa/Core Data timestamp, and Direction is derived from "
                  "ZISRECEIVED (0 outgoing, 1 incoming); neither reading is sourced, and what in "
                  "that sample supports them is not recorded here. The same two readings are "
-                 "applied to the older layout.",
+                 "applied to the older layout. The attachment is matched by file name and is not "
+                 "a link the store records; only files under the app group folder that holds "
+                 "the database are considered, and where more than one file there carries the "
+                 "same name the first in path order is used.",
         "paths": (  
             '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/*/image/*/msgId*',
@@ -190,7 +195,8 @@ def zangi_messages(context):
                 NULLIF(zm.ZENCRYPTFILEREMOTEPATH, '')
             ) [Media Path],
             zm.ZFILEEXTENSION [Media Extension],
-            zm.ZMESSAGEINFO [Message Info]
+            zm.ZMESSAGEINFO [Message Info],
+            zm.ZTYPE [ZTYPE (as stored)]
         FROM ZZANGIMESSAGE zm
         LEFT JOIN ZCONVERSATION cnv         ON cnv.Z_PK = zm.ZCONVERSATION
         LEFT JOIN ZGROUP grp                ON grp.ZCONVERSATION = cnv.Z_PK
@@ -206,7 +212,7 @@ def zangi_messages(context):
     # Newer layout: message data moved to ZZMESSAGE, with the sender in a per-message
     # ZZMESSAGEUSER row and the attachment in a per-message ZZMESSAGEMEDIA row. Returns
     # the same columns in the same order as the legacy query so the row handling below is
-    # shared. Message type codes with no mapping are returned as stored.
+    # shared. Unmapped Message Type labels are cast to text; raw ZTYPE is separate.
     query_new = '''
         SELECT
             zm.ZMESSAGETIME [Message Timestamp],
@@ -260,7 +266,8 @@ def zangi_messages(context):
                 NULLIF(mm.ZMEDIAASSETSLIBRARYURL, '')
             ) [Media Path],
             mm.ZFILEEXTENSION [Media Extension],
-            zm.ZMESSAGEINFO [Message Info]
+            zm.ZMESSAGEINFO [Message Info],
+            zm.ZTYPE [ZTYPE (as stored)]
         FROM ZZMESSAGE zm
         LEFT JOIN ZCONVERSATION cnv         ON cnv.Z_PK = zm.ZCONVERSATION
         LEFT JOIN ZGROUP grp                ON grp.ZCONVERSATION = cnv.Z_PK
@@ -284,19 +291,29 @@ def zangi_messages(context):
         elif '/image/' in file_found or '/video/' in file_found or '/file/' in file_found or '/voice/' in file_found:
             media_files.append(file_found)
 
-    media_by_msg_id = {}
-    media_by_basename = {}
-    media_by_name_lower = {}
-    media_by_stem_lower = {}
-    for media_file in media_files:
-        basename = Path(media_file).name
-        media_by_basename.setdefault(basename, media_file)
-        media_by_name_lower.setdefault(basename.lower(), media_file)
-        media_by_stem_lower.setdefault(Path(basename).stem.lower(), media_file)
-        if basename.startswith('msgId'):
-            media_by_msg_id.setdefault(basename, media_file)
+    all_media_files = sorted(media_files)
 
-    def _find_media_file(message_id, media_path, message_type, message_text, media_extension):
+    def _index_media(group_dir):
+        """Index the media files under the app group folder holding a database."""
+        prefix = group_dir.replace('\\', '/').rstrip('/') + '/'
+        group_media = [m for m in all_media_files
+                       if m.replace('\\', '/').startswith(prefix)]
+        by_msg_id = {}
+        by_basename = {}
+        by_name_lower = {}
+        by_stem_lower = {}
+        for media_file in group_media:
+            basename = Path(media_file).name
+            by_basename.setdefault(basename, media_file)
+            by_name_lower.setdefault(basename.lower(), media_file)
+            by_stem_lower.setdefault(Path(basename).stem.lower(), media_file)
+            if basename.startswith('msgId'):
+                by_msg_id.setdefault(basename, media_file)
+        return group_media, by_msg_id, by_basename, by_name_lower, by_stem_lower
+
+    def _find_media_file(index, message_id, media_path, message_type, message_text, media_extension):
+        (media_files, media_by_msg_id, media_by_basename,
+         media_by_name_lower, media_by_stem_lower) = index
         media_path_str = (media_path or '').strip()
         found_path = ''
         # First try: find by message_id (file name)
@@ -338,6 +355,9 @@ def zangi_messages(context):
         else:
             continue
         db_records = get_sqlite_db_records(main_db, query)
+        # Attachments are looked up only under the app group folder that holds
+        # this database, so one group's file is not shown on another's message.
+        media_index = _index_media(str(Path(main_db).parent))
 
         for row in db_records:
             message_type = row[3]
@@ -347,6 +367,7 @@ def zangi_messages(context):
             media_extension = row[11]
 
             media_file_path = _find_media_file(
+                media_index,
                 message_id,
                 media_path,
                 message_type,
@@ -371,6 +392,7 @@ def zangi_messages(context):
                 attachment_file,
                 row[2],
                 row[3],
+                row[13],
                 row[4],
                 row[5],
                 row[8],
@@ -389,6 +411,7 @@ def zangi_messages(context):
         ('Attachment File', 'media'),
         'Conversation Type',
         'Message Type',
+        'ZTYPE (as stored)',
         'Message ID',
         'Conversation ID',
         'Sender Number',

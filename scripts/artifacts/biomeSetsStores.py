@@ -24,15 +24,17 @@ __artifacts_v2__ = {
     },
     "biomeSetsContacts": {
         "name": "Biome Sets - Contacts",
-        "description": "Contact name records from the Contacts.Contact Biome Set.db store.",
+        "description": "Records from the Contacts.Contact Biome Set.db store, with protobuf "
+                       "fields 1 and 3 reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
-                 "Field 1 is reported as Given Name and field 3 as Family Name; no source is cited "
-                 "here for those labels. "
+                 "Fields 1 and 3 of each record are text and are reported under their field "
+                 "numbers; no source was found that names them, so no given name or family "
+                 "name label is applied. "
                  "Unmapped protobuf fields are preserved in the Other Fields column."
                  " The Modified column comes from the store's instance table, or "
                  "metacontent_provenance.written_date on stores without one (observed on the "
@@ -48,16 +50,18 @@ __artifacts_v2__ = {
     },
     "biomeSetsFindMyDevices": {
         "name": "Biome Sets - FindMy Devices",
-        "description": "FindMy device records (a device name and two name strings stored with it, "
-                       "labelled here as the owner's given and family name) from the "
-                       "FindMy.Device Biome "
+        "description": "FindMy device records (a device name and two strings stored with it in "
+                       "field 2, reported as stored) from the FindMy.Device Biome "
                        "Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
+                 " Fields 2.1 and 2.2 are two strings nested in field 2 of each record; no "
+                 "source was found that names them, so they are reported under their field "
+                 "numbers and no owner name label is applied."
                  " The Modified column comes from the store's instance table, or "
                  "metacontent_provenance.written_date on stores without one (observed on the "
                  "hc_ios26 image).",
@@ -272,7 +276,8 @@ def biomeSetsInstalledApps(context):
 
 @artifact_processor
 def biomeSetsContacts(context):
-    data_headers = (('Modified', 'datetime'), 'Given Name', 'Family Name', 'Other Fields')
+    data_headers = (('Modified', 'datetime'), 'Field 1 (as stored)', 'Field 3 (as stored)',
+                    'Other Fields')
     data_list = []
     source_path = ''
     for file_found in context.get_files_found():
@@ -288,7 +293,7 @@ def biomeSetsContacts(context):
 
 @artifact_processor
 def biomeSetsFindMyDevices(context):
-    data_headers = (('Modified', 'datetime'), 'Device Name', 'Owner Given Name', 'Owner Family Name',
+    data_headers = (('Modified', 'datetime'), 'Device Name', 'Field 2.1 (as stored)', 'Field 2.2 (as stored)',
                     'Other Fields')
     data_list = []
     source_path = ''

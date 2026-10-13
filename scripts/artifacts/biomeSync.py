@@ -9,13 +9,13 @@ __artifacts_v2__ = {
         "description": "Device records from the DevicePeer table of Biome's sync.db, with platform, OS build and last sync time where recorded",
         "author": "@JohnHyla",
         'creation_date': '2023-03-22',
-        'last_update_date': '2026-09-26',
+        'last_update_date': '2026-10-09',
         "requirements": "none",
         "category": "Biome",
         "notes": (
             "Reads the DevicePeer table of Biome's sync.db, one row per device record. Local "
-            "Device is Yes where the me column is 1. On the 19 registered iOS images carrying the "
-            "database, Name held an empty string on all 38 rows, and Last Sync Timestamp was "
+            "Device is Yes where the me column is 1. On the 20 registered iOS images carrying the "
+            "database, Name held an empty string on all 40 rows, and Last Sync Timestamp was "
             "empty on the Local Device row of each image (last_sync_date is NULL there) and "
             "filled on every other row. Platform (as stored) is the integer in the platform "
             "column. Device Type is the name Apple's BMDevicePlatformToString returns for that "
@@ -44,8 +44,8 @@ __artifacts_v2__ = {
             "3 tested HomePod rows are listed in it as tvOS builds, a name not applied to a "
             "HomePod. OS Build is the build this table holds for the device, not necessarily the "
             "build installed at acquisition: on the Local Device row it matched the build the iOS "
-            "Information artifact reported for the image on 14 of the 19 tested images and "
-            "differed on 5, one of them the numeric row."),
+            "Information artifact reported for the image on 14 of the 20 tested images and "
+            "differed on 6, two of them rows where model is stored as a number."),
         "paths": ('*/Biome/sync/sync.db*'),
         "output_types": "standard",
         'artifact_icon': 'eye',
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "description": "Merge results Biome's sync service logged for stream records, with each record's owning device",
         "author": "@AlexisBrignoni, Claude",
         'creation_date': '2026-09-26',
-        'last_update_date': '2026-09-26',
+        'last_update_date': '2026-10-09',
         "requirements": "none",
         "category": "Biome",
         "notes": (
@@ -96,29 +96,32 @@ __artifacts_v2__ = {
             "Result (as stored): 1 DroppedDuplicate, 2 CausalityViolation, 3 Merged, read from "
             "the x86_64 slice of /usr/libexec/biomesyncd on macOS 26.6.2 (build 25G83). Other "
             "values leave Merge Result blank. That this function names the merge_result column is "
-            "inferred from that log line and from the data: on the 9 registered iOS images with "
-            "rows, all 533 rows with Owned by Local Device Yes were DroppedDuplicate with Event "
+            "inferred from that log line and from the data: on the 10 registered iOS images with "
+            "rows, all 572 rows with Owned by Local Device Yes were DroppedDuplicate with Event "
             "Created At empty, all 369 Merged rows were owned by another device and carried an "
             "Event Created At, and 230 more rows owned by another device were DroppedDuplicate. "
             "Owning Device ID is owning_site_identifier, which matched a DevicePeer row on all "
-            "1,132 rows. Owning Device Type and Owning Device OS Build come from that row as "
+            "1,171 rows. Owning Device Type and Owning Device OS Build come from that row as "
             "Biome - Device Syncs reports them, so Owning Device OS Build is blank where "
-            "DevicePeer stores model as a number (all 26 rows of one image). Relayed By Device ID "
+            "DevicePeer stores model as a number (all 39 and all 26 rows of two images). Relayed By Device ID "
             "is reported as stored: it equalled Owning Device ID on 349 rows and named no "
-            "DevicePeer device on the other 783. Session Transport (as stored) and Session Reason "
+            "DevicePeer device on the other 822. Session Transport (as stored) and Session Reason "
             "(as stored) come from the SyncSessionLog row with the same session id, which existed "
-            "for all 1,132 rows. biomesyncd was checked for names for either code, in its string "
+            "for all 1,171 rows. biomesyncd was checked for names for either code, in its string "
             "constants and its name tables, and holds none, so both are reported as stored. "
-            "Stream is the Biome stream name as stored: AppLaunch on 1,037 rows, NowPlaying on "
+            "Stream is the Biome stream name as stored: AppLaunch on 1,076 rows, NowPlaying on "
             "86, and two identifiers written as UUIDs on 9. Within one image the values were "
             "often uniform: Stream, Merge Result, Owning Device ID, Owning Device Type, Session "
-            "Transport (as stored) and Message ID each held one value on all rows of 7 of the 9 "
-            "images, Session Reason (as stored) on 8, Owning Device OS Build and Owned by Local "
-            "Device on 6, Relayed By Device ID on 5, and Synced At and Session ID on 3. Event "
-            "Created At was empty on all rows of 6 images, and Owned by Local Device and Owning "
-            "Device OS Build were each empty on all rows of 1 other image. DevicePeer and "
-            "SyncSessionLog held no repeated identifier on any tested image, so the joins added "
-            "no rows; neither table declares a unique constraint that guarantees this."),
+            "Transport (as stored), Message ID, Owning Device OS Build and Owned by Local Device "
+            "each held one value on all rows of 8 of the 10 images, Session Reason (as stored) "
+            "on 9, Relayed By Device ID on 5, and Synced At and Session ID on 3. Event "
+            "Created At was empty on all rows of 7 images, Owned by Local Device on all rows of "
+            "1 image and Owning Device OS Build on all rows of 2 others. These figures were "
+            "counted from this artifact's output on 2026-10-09. DevicePeer held no repeated "
+            "identifier on any of the 20 images. An earlier check found none in SyncSessionLog "
+            "on the images registered then and was not repeated for this count; neither table "
+            "declares a unique constraint that guarantees it, and a repeated identifier would "
+            "repeat rows here."),
         "paths": ('*/Biome/sync/sync.db*'),
         "output_types": "standard",
         'artifact_icon': 'refresh',
@@ -149,7 +152,7 @@ __artifacts_v2__ = {
         "description": "Sync messages Biome logged with peer devices, with the peer's platform and the session codes as stored",
         "author": "@AlexisBrignoni, Claude",
         'creation_date': '2026-09-26',
-        'last_update_date': '2026-09-26',
+        'last_update_date': '2026-10-09',
         "requirements": "none",
         "category": "Biome",
         "notes": (
@@ -160,15 +163,15 @@ __artifacts_v2__ = {
             "Syncs reports them, and are blank where no such row exists. "
             "Reachable (as stored), Reciprocal (as stored) and Atom Batch Bytes are the "
             "reachable, is_reciprocal and atom_batch_bytes columns as stored; their meaning "
-            "beyond the column names is not established. Reachable (as stored) held 1 on all 21 "
+            "beyond the column names is not established. Reachable (as stored) held 1 on all 22 "
             "rows. Session Transport (as stored) and Session Reason (as stored) come from the "
-            "SyncSessionLog row with the same session id, which existed for 16 of the 21 rows. "
+            "SyncSessionLog row with the same session id, which existed for 16 of the 22 rows. "
             "Session Transport (as stored) and Session Reason (as stored) are empty on the other "
-            "5, and on all rows of 3 images. Session Transport (as stored) held 2 on all 16 rows "
+            "6, and on all rows of 4 images. Session Transport (as stored) held 2 on all 16 rows "
             "where it was filled. biomesyncd holds no names for either code, so both are reported "
             "as stored. Within one image the rows came from one peer: Peer Device ID, Peer Device "
             "Type, Peer OS Build, Reachable (as stored) and Message ID held one value on all rows "
-            "of each of the 6 images."),
+            "of each of the 7 images."),
         "paths": ('*/Biome/sync/sync.db*'),
         "output_types": "standard",
         'artifact_icon': 'link',

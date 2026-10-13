@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct and group messages, attachments and shared locations from GroupMe',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-18',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': 'Deletion Status Recorded, System Deleted and Deletion Actor (as stored) '
@@ -26,9 +26,11 @@ __artifacts_v2__ = {
                  '14.3 image; on an iOS 15.3.1 image the archived object carries '
                  'isSystemDeleted with no deletionActor key. From Me is 1 when the row\'s sender id '
                  'equals the userId value in com.groupme.iphone-app.plist, 0 when it does not, and '
-                 'blank for system messages or when no userId was read from that file. Chat Type is '
-                 'Group when the linked chat row stores the type group and Direct Message '
-                 'otherwise, including when no chat row is linked.',
+                 'blank for system messages or when no userId was read from that file. Chat Type '
+                 '(as stored) is the ZCHATTYPE value of the linked ZGMCHAT row, reported as '
+                 'stored with no label applied; it is blank when no chat row is linked or the '
+                 'stored value is NULL. The meaning of values other than group is not '
+                 'established here.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -55,14 +57,15 @@ __artifacts_v2__ = {
     },
     'groupMeChats': {
         'name': 'GroupMe - Chats',
-        'description': 'Rows of the ZGMCHAT table of GroupMe.sqlite. Chat Type reads Group when '
-                       'the stored type is group and Direct Message for any other stored value',
+        'description': 'Rows of the ZGMCHAT table of GroupMe.sqlite, with the chat type as stored',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-18',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'GroupMe',
-        'notes': '',
+        'notes': 'Chat Type (as stored) is ZGMCHAT.ZCHATTYPE reported as stored, blank when the '
+                 'stored value is NULL. The meaning of values other than group is not '
+                 'established here.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -70,7 +73,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users-group',
         'sample_data': {
-            'iphone11_ios17': 'iOS 17.3 | 15 rows (13 direct message, 2 group)',
+            'iphone11_ios17': 'iOS 17.3 | 15 rows (2 with the stored type group, 13 with another stored type or none)',
             'hickman_ios15': 'iOS 15.3.1 | 12 rows',
             'hickman_ios14': 'iOS 14.3 | 1 row',
         },
@@ -278,7 +281,7 @@ def groupMeMessages(context):
             conversation,
             record['message'],
             record['chatId'],
-            'Group' if chat_type == 'group' else 'Direct Message',
+            chat_type if chat_type is not None else '',
             sender_id,
             record['attachmentType'],
             record['attachmentUrl'],
@@ -303,7 +306,7 @@ def groupMeMessages(context):
         'Conversation',
         'Message',
         'Chat ID',
-        'Chat Type',
+        'Chat Type (as stored)',
         'Sender ID',
         'Attachment Type',
         'Attachment',
@@ -360,7 +363,7 @@ def groupMeChats(context):
             convert_cocoa_core_data_ts_to_utc(record['ZLASTVIEWED']) if record['ZLASTVIEWED'] else '',
             record['chatName'],
             record['chatId'],
-            'Group' if record['chatType'] == 'group' else 'Direct Message',
+            record['chatType'] if record['chatType'] is not None else '',
             record['groupType'],
             record['groupDescription'],
             record['otherUserId'],
@@ -375,7 +378,8 @@ def groupMeChats(context):
 
     data_headers = (
         ('Created', 'datetime'), ('Last Message', 'datetime'), ('Last Viewed', 'datetime'),
-        'Chat Name', 'Chat ID', 'Chat Type', 'Group Type', 'Group Description',
+        'Chat Name', 'Chat ID', 'Chat Type (as stored)', 'Group Type',
+        'Group Description',
         'Other Party User ID', 'Creator ID', 'Message Count', 'Unread Count',
         'Muted', 'Hidden', 'Share URL', 'Avatar URL')
 

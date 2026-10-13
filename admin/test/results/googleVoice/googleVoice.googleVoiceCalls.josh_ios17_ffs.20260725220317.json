@@ -24,8 +24,8 @@
   "headers": [
     "Timestamp",
     "Direction",
-    "Other Party",
-    "Duration (Seconds)",
+    "senderPhoneNumber (as stored)",
+    "duration (as stored)",
     "Ring Group Name",
     "Ring Group Number",
     "Transferred From",

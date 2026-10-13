@@ -83,15 +83,20 @@ __artifacts_v2__ = {
         "description": "Media playing events extracted from knowledgeC database",
         "author": "@JohannPLW",
         "creation_date": "2023-10-31",
-        "last_update_date": "2023-10-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "KnowledgeC",
         "notes": "Playing State labels the stored value (0 Stop, 1 Play, 2 Pause, 3 Loading, 4 "
                  "Interruption); no source for those labels was found, and any other value is "
                  "reported as stored. Rows with an empty bundle id are not reported. Output "
-                 "Device is reported when the store has the AirPlay video column; it is the "
-                 "seventh object of the stored output device archive and may not be a device name "
-                 "on every row. The query follows Sarah Edwards, APOLLO, "
+                 "Device IDs is reported when the store has the AirPlay video column. It lists "
+                 "every value held in the arrays of the stored "
+                 "Z_DKNOWPLAYINGMETADATAKEY__OUTPUTDEVICEIDS archive, in archive order and "
+                 "separated by commas, and is blank when the archive cannot be read. On the one "
+                 "image inspected for the archive layout (iphone11_ios17) every archive held a "
+                 "dictionary of a dictionary of a one-string array; other layouts are not "
+                 "exercised. What the dictionary keys mean and whether a value is a device name "
+                 "or an address is not established. The query follows Sarah Edwards, APOLLO, "
                  "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_audio_media_nowplaying.txt. "
                  "An Ian Whiffin (doubleblak.com) post was also credited; its link no longer "
                  "resolves.",
@@ -496,7 +501,7 @@ def knowledgeC_MediaPlaying(context):
             data_headers = (
                 ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration',
                 'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', 'AirPlay Video',
-                'Output Device', ('Time Added', 'datetime'))
+                'Output Device IDs', ('Time Added', 'datetime'))
         else:
             is_airplay_video = ''
             data_headers = (
@@ -538,13 +543,7 @@ def knowledgeC_MediaPlaying(context):
             added_time = convert_ts_human_to_utc(row[-1])
 
             if does_airplayvideo_exist:
-                output_device = ''
-                output_device_ids = row[-2]
-                if isinstance(output_device_ids, bytes):
-                    output_device_bplist = plistlib.loads(output_device_ids)
-                    for key, val in output_device_bplist.items():
-                        if key == '$objects':
-                            output_device = val[6]
+                output_device = _output_device_ids(row[-2])
                 data_list.append((start_time, end_time, row[2], row[3], row[4], row[5],
                                 row[6], row[7], row[8], row[9], row[10], output_device,
                                 added_time))
@@ -553,6 +552,52 @@ def knowledgeC_MediaPlaying(context):
                                 row[6], row[7], row[8], row[9], added_time))
 
     return data_headers, data_list, db_file
+
+def _output_device_ids(blob):
+    """Values held in the arrays of an OUTPUTDEVICEIDS NSKeyedArchiver blob, joined by commas.
+
+    The archive is followed from $top through each object's NS.objects references, so the
+    result does not depend on where a value sits in the $objects list. Dictionary keys
+    (NS.keys) are not followed. Returns '' when the blob is not a readable archive.
+    """
+    if not isinstance(blob, bytes):
+        return ''
+    try:
+        archive = plistlib.loads(blob)
+    except (plistlib.InvalidFileException, ValueError, TypeError, OverflowError):
+        return ''
+    if not isinstance(archive, dict):
+        return ''
+    objects = archive.get('$objects')
+    top = archive.get('$top')
+    if not isinstance(objects, list) or not isinstance(top, dict):
+        return ''
+
+    found = []
+
+    def walk(node, active):
+        if isinstance(node, plistlib.UID):
+            index = node.data
+            if index in active or not 0 <= index < len(objects):
+                return
+            walk(objects[index], active | {index})
+        elif isinstance(node, dict):
+            members = node.get('NS.objects')
+            if isinstance(members, list):
+                for member in members:
+                    walk(member, active)
+        elif isinstance(node, list):
+            for member in node:
+                walk(member, active)
+        elif node is not None and node != '$null':
+            text = str(node)
+            if text not in found:
+                found.append(text)
+
+    for value in top.values():
+        walk(value, frozenset())
+    return ', '.join(found)
+
 
 @artifact_processor
 def knowledgeC_DoNotDisturb(context):

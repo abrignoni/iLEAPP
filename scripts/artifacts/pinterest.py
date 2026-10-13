@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses the account record in Documents/activeUser* files.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Pinterest",
         "notes": "Read from the activeUser file in the app's Documents directory, an "
@@ -20,13 +20,17 @@ __artifacts_v2__ = {
                  "extraction. The record's key set differs between app versions, so every "
                  "column is read by key with an empty value when the key is absent, and "
                  "absence of a key is not evidence the setting was off. The file name is not "
-                 "specific to Pinterest and no container check is applied to this artifact, "
-                 "so confirm the container holds Library/Preferences/pinterest.plist before "
-                 "attributing a row to Pinterest. Field mapping was done against private "
-                 "samples; no sample data is recorded for them.",
+                 "specific to Pinterest, so an activeUser file is read only when its container "
+                 "also holds Library/Preferences/pinterest.plist or "
+                 "Library/Preferences/com.pinterest.applicationhealthmonitor.plist. An "
+                 "activeUser file in any other container is skipped with a log line, so no "
+                 "rows is not evidence that no such file exists. The container check was "
+                 "added on 2026-10-09 and has not been run on a sample. Field mapping was "
+                 "done against private samples; no sample data is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Documents/activeUser*',
             '*/mobile/Containers/Data/Application/*/Library/Preferences/pinterest.plist',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/com.pinterest.applicationhealthmonitor.plist',
         ),
         "output_types": "standard",
         "artifact_icon": "user"
@@ -140,12 +144,13 @@ __artifacts_v2__ = {
         "description": "Parses and renders the PINRemoteImage disk cache of the Pinterest iOS app.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Pinterest",
         "notes": "In the tested samples each file in this cache was named for the URL it was "
-                 "fetched from, percent encoded, so the Source URL column is the decoded file "
-                 "name. The library names a file by an MD5 hash instead when the URL key is "
+                 "fetched from, percent encoded. The Cache File Name (decoded) column is the "
+                 "file name with the percent encoding removed, and Host is the host part of "
+                 "that name when it reads as a URL. The library names a file by an MD5 hash instead when the URL key is "
                  "longer than 200 characters, and adds a suffix for processed images "
                  "(https://github.com/pinterest/PINRemoteImage/blob/f16af5e8bbb7541e7faeb741e09bc548a663f2b4/Source/Classes/PINRemoteImageManager.m#L1558-L1591); "
                  "for such a file the column holds the decoded name as found, not a URL. "
@@ -396,6 +401,23 @@ def _containers(files_found):
     return roots
 
 
+def _preference_containers(files_found):
+    '''Container directories holding one of the two Pinterest preference files.
+
+    Documents/activeUser is left out here: it is the file the account artifact
+    reads, so it cannot also be the evidence that its container is Pinterest's.
+    '''
+    roots = set()
+    for path in _paths(files_found):
+        normalized = path.replace('\\', '/')
+        for marker in CONTAINER_MARKERS[:2]:
+            index = normalized.rfind('/' + marker)
+            if index > 0:
+                roots.add(normalized[:index])
+                break
+    return roots
+
+
 def _container_of(path, roots):
     '''The Pinterest container a path sits under, or '' when it is outside them.
 
@@ -582,8 +604,19 @@ def pinterestAccount(context):
     data_list = []
     source_path = ''
 
-    roots = _containers(files_found)
-    for account_id, (record, names) in sorted(_account_records(files_found, roots).items()):
+    roots = _preference_containers(files_found)
+    kept, skipped = [], 0
+    for path in _paths(files_found):
+        if not os.path.basename(path).startswith('activeUser') or not os.path.isfile(path):
+            continue
+        if _in_container(path, roots):
+            kept.append(path)
+        else:
+            skipped += 1
+    if skipped:
+        logfunc(f'Pinterest: skipped {skipped} activeUser file(s) in a container that holds '
+                f'no Pinterest preference file; the file name is not specific to Pinterest.')
+    for account_id, (record, names) in sorted(_account_records(kept, roots).items()):
         source_path = source_path or 'activeUser'
         data_list.append((
             _rfc2822(record.get('created_at')),
@@ -808,7 +841,7 @@ def pinterestCachedImages(context):
     files_found = context.get_files_found()
     data_headers = (
         ('Created', 'datetime'), ('Modified', 'datetime'), ('Image', 'media'),
-        'Source URL', 'Host', 'Image Type', 'File Size (bytes)', 'Source File')
+        'Cache File Name (decoded)', 'Host', 'Image Type', 'File Size (bytes)', 'Source File')
     data_list = []
     source_path = ''
 

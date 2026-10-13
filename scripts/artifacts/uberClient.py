@@ -2,18 +2,20 @@ __artifacts_v2__ = {
     "uber_account": {
         "name": "Uber - Account",
         "description": "Parses the Uber client file (name, phone, email, user id). City, client "
-                       "status time and the targetLocationSynced coordinates are added only when "
-                       "those sibling files have been copied out beside it; this artifact's own "
-                       "path pattern does not match them. What the coordinates record is not "
-                       "established.",
+                       "status time and the targetLocationSynced coordinates are read from the "
+                       "city, clientStatus and targetLocationSynced files beside it, where "
+                       "present. What the coordinates record is not established.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
         "paths": (
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/client',
+            '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/city',
+            '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/clientStatus',
+            '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/targetLocationSynced',
         ),
         "output_types": "all",
         "artifact_icon": "user",
@@ -139,16 +141,17 @@ __artifacts_v2__ = {
         "name": "Uber - Metadata LevelDB",
         "description": "Reads records keyed UBLocationNode.__DEFAULT_INDEX from the __METADATA "
                        "LevelDB store and reports the location plist they hold. The path pattern "
-                       "matches only the store's .ldb files, so records still in its .log file "
-                       "are not seen unless that file is copied out by other means. Neither "
-                       "registered corpus in sample_data produced a row.",
+                       "matches the files of the store folder, so the .ldb tables and the .log "
+                       "file are both read. The sample_data counts were recorded when only the "
+                       ".ldb files were matched, and neither registered corpus produced a row "
+                       "then.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
-        "paths": ('*/Library/Application Support/com.ubercab.UberClient/__METADATA/*.ldb',),
+        "paths": ('*/Library/Application Support/com.ubercab.UberClient/__METADATA/*',),
         "output_types": "all",
         "artifact_icon": "database",
         "sample_data": {
@@ -240,7 +243,7 @@ def format_location(location, values, item, key,
 
 @artifact_processor
 def uber_account(context):
-    source_path = get_file_path(context.get_files_found(), '*client')
+    source_path = get_file_path(context.get_files_found(), 'client')
 
     if not source_path:
         return (), [], ''
@@ -264,14 +267,21 @@ def uber_account(context):
     # 2. Process sibling files 'city', 'clientStatus', 'targetLocationSynced'
     base_dir = os.path.dirname(source_path)
 
-    json_data = _load_json_file(os.path.join(base_dir, 'city'))
+    def _sibling(name):
+        sibling_path = os.path.join(base_dir, name)
+        if not os.path.isfile(sibling_path):
+            return None
+        loaded = _load_json_file(sibling_path)
+        return loaded if isinstance(loaded, dict) else None
+
+    json_data = _sibling('city')
     if json_data:
         row[8] = json_data.get('cityId')
         row[9] = json_data.get('cityName')
         row[10] = json_data.get('currencyCode')
         row[11] = json_data.get('timezone')
 
-    json_data = _load_json_file(os.path.join(base_dir, 'clientStatus'))
+    json_data = _sibling('clientStatus')
     if json_data:
         meta = json_data.get('meta')
         if meta:
@@ -279,7 +289,7 @@ def uber_account(context):
             if ts_ms:
                 row[12] = convert_unix_ts_to_utc(ts_ms)
 
-    json_data = _load_json_file(os.path.join(base_dir, 'targetLocationSynced'))
+    json_data = _sibling('targetLocationSynced')
     if json_data:
         row[13] = json_data.get('latitude')
         row[14] = json_data.get('longitude')
@@ -525,8 +535,11 @@ def uber_metadata_leveldb(context):
 
     ldb_dirs = set()
     for f in files_found:
-        if '__METADATA' in str(f):
-            ldb_dirs.add(os.path.dirname(str(f)))
+        f = str(f)
+        if os.path.isdir(f):
+            continue
+        if os.path.basename(os.path.dirname(f)) == '__METADATA':
+            ldb_dirs.add(os.path.dirname(f))
 
     for ldb_path in ldb_dirs:
         try:

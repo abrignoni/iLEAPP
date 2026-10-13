@@ -5,13 +5,13 @@ __artifacts_v2__ = {
                        "and FSEventState sections of "
                        "*/mobile/Library/Preferences/com.apple.MobileBackup.plist, reported as "
                        "stored (dates as UTC text)",
-        "author": "Other Unknown contributors and Scott Koenig",
+        "author": "Other Unknown contributors and Scott Koenig, @AlexisBrignoni, Codex",
         "creation_date": "2024-06-11",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-10-06",
         "requirements": "Acquisition that contains com.apple.MobileBackup.plist",
         "category": "Mobile Backup Plist",
-        "notes": "Only a fixed list of keys from the four sections is read. The Key column does "
-                 "not name the section a key came from. Date values are written as UTC text, "
+        "notes": "Only a fixed list of keys from the four sections is read. The Key column "
+                 "names the stored key; Section identifies its selected parent block. Date values are written as UTC text, "
                  "binary values as hexadecimal and dictionary or list values as JSON text. Only "
                  "the first matching plist in the extraction is read. What each section records is "
                  "not sourced here.",
@@ -59,7 +59,7 @@ _SECTIONS = {
 
 @artifact_processor
 def mobilebackupplist(context):
-    data_headers = ('Key', 'Value')
+    data_headers = ('Key', 'Value', 'Section')
     data_list = []
 
     source_path = ''
@@ -90,6 +90,6 @@ def mobilebackupplist(context):
                     elif isinstance(value, (dict, list)):
                         # default=str handles nested datetimes/bytes that LAVA's json.dumps cannot.
                         value = json.dumps(value, default=str)
-                    data_list.append((key, value))
+                    data_list.append((key, value, section))
 
     return data_headers, data_list, context.get_relative_path(source_path)

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Interaction rows of interactionC.db with the sender contact each row links to. Direction is reported as stored. Recipient contacts are not listed; only the stored recipient count is reported.",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "InteractionC",
-        "notes": "",
+        "notes": "Every matched interactionC.db is read and each is listed in the source path. Direction (as stored) is the ZDIRECTION integer; the meaning of its values is not established here. An interaction with no linked sender contact is kept with the contact columns blank.",
         "paths": ('**/interactionC.db*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -34,10 +34,10 @@ __artifacts_v2__ = {
         "description": "Attachment interactions recorded in interactionC.db",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "InteractionC",
-        "notes": "",
+        "notes": "Every matched interactionC.db is read and each is listed in the source path.",
         "paths": ('**/interactionC.db*',),
         "output_types": "standard",
         "artifact_icon": "paperclip",
@@ -66,25 +66,39 @@ import sqlite3
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
 
 
-def _find_db(context):
+def _find_dbs(context):
+    """Every matched interactionC.db (sidecars excluded), in the order found."""
+    found = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        if file_found.endswith('.db'):
-            return file_found
-    return ''
+        if file_found.endswith('.db') and file_found not in found:
+            found.append(file_found)
+    return found
+
+
+def _read_all(context, query, label):
+    """Run the query on every matched database. Returns (rows, source path text)."""
+    data_list = []
+    sources = []
+    for db_path in _find_dbs(context):
+        sources.append(context.get_relative_path(db_path))
+        try:
+            rows = get_sqlite_db_records(db_path, query)
+        except sqlite3.Error as ex:
+            logfunc(f'Error reading InteractionC {label} from {sources[-1]}: {ex}')
+            continue
+        for row in rows:
+            data_list.append(tuple(row))
+    return data_list, '\n'.join(sources)
 
 
 @artifact_processor
 def interactionCContacts(context):
     data_headers = (
         ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Bundle ID', 'Display Name',
-        'Identifier', 'Direction', 'Is Response', 'Recipient Count',
+        'Identifier', 'Direction (as stored)', 'Is Response', 'Recipient Count',
         ('Zinteractions Creation Date', 'datetime'), ('Zcontacts Creation Date', 'datetime'),
         'Content URL')
-    data_list = []
-    source_path = _find_db(context)
-    if not source_path:
-        return data_headers, data_list, ''
 
     query = '''
     SELECT
@@ -102,16 +116,8 @@ def interactionCContacts(context):
     FROM zinteractions
     LEFT JOIN zcontacts ON zinteractions.zsender = zcontacts.z_pk
     '''
-    try:
-        rows = get_sqlite_db_records(source_path, query)
-    except sqlite3.Error as ex:
-        logfunc(f'Error reading InteractionC contacts: {ex}')
-        return data_headers, data_list, context.get_relative_path(source_path)
-
-    for row in rows:
-        data_list.append(tuple(row))
-
-    return data_headers, data_list, context.get_relative_path(source_path)
+    data_list, source_path = _read_all(context, query, 'contacts')
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -119,10 +125,6 @@ def interactionCAttachments(context):
     data_headers = (
         ('Creation Date', 'datetime'), 'Bundle ID', 'Target Bundle ID', 'ZUUID',
         'Content Text', 'Uniform Type ID', 'Content URL')
-    data_list = []
-    source_path = _find_db(context)
-    if not source_path:
-        return data_headers, data_list, ''
 
     query = '''
     SELECT
@@ -137,13 +139,5 @@ def interactionCAttachments(context):
     INNER JOIN z_1interactions ON zinteractions.z_pk = z_1interactions.z_3interactions
     INNER JOIN zattachment ON z_1interactions.z_1attachments = zattachment.z_pk
     '''
-    try:
-        rows = get_sqlite_db_records(source_path, query)
-    except sqlite3.Error as ex:
-        logfunc(f'Error reading InteractionC attachments: {ex}')
-        return data_headers, data_list, context.get_relative_path(source_path)
-
-    for row in rows:
-        data_list.append(tuple(row))
-
-    return data_headers, data_list, context.get_relative_path(source_path)
+    data_list, source_path = _read_all(context, query, 'attachments')
+    return data_headers, data_list, source_path

@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Key IDs and record layouts are those of the open-source Telegram-iOS "
@@ -23,7 +23,11 @@ __artifacts_v2__ = {
                  "here for the key 2 record or the accounts-metadata JSON layout; their "
                  "field names are reported as stored. "
                  "The update state timestamp is the `state.date` field of the account "
-                 "state record in t0.",
+                 "state record in t0. Access Challenge Data Keys lists the key names of "
+                 "the accessChallengeData object in the accounts-metadata atomic-state "
+                 "file. That object belongs to the file, not to one account, so the same "
+                 "value is repeated on every account row read from that file. What each "
+                 "key name means is not established here.",
         "paths": (
             '*/telegram-data/accounts-metadata/atomic-state',
             '*/telegram-data/account-*/postbox/db/db_sqlite*'
@@ -45,9 +49,9 @@ __artifacts_v2__ = {
             "saved contact; "
             "the Messages In Chat column is 0 and In Contact List is blank for such peers."
         ),
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Peer record field names (fn, ln, un, p, ph) follow the open-source "
@@ -55,8 +59,11 @@ __artifacts_v2__ = {
                  "from the Postbox ContactTable (table t16; "
                  "https://github.com/TelegramMessenger/Telegram-iOS/blob/"
                  "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/Postbox/Sources/"
-                 "Postbox.swift#L1926), keyed by peer id. If the table cannot be read the "
-                 "column is blank on every row. Avatar images are matched "
+                 "Postbox.swift#L1926), keyed by peer id. If a table read fails, membership "
+                 "may be incomplete: IDs already read can still show Yes, and other rows "
+                 "are blank. Up to ten failed reads are logged per invocation, followed by "
+                 "a summary. Original parser and research credit: @AlexisBrignoni. "
+                 "Avatar images are matched "
                  "from telegram-peer-photo-size files in postbox/media and from the "
                  "accounts-metadata Spotlight cache.",
         "paths": (
@@ -76,13 +83,13 @@ __artifacts_v2__ = {
         "name": "Telegram Chats",
         "description": (
             "Parses the Telegram chat list from the Postbox chat list table, reporting each "
-            "chat with the time of its most recent message, whether it is pinned, whether it "
-            "sits in the main list or the archive, the number of messages stored for it and "
-            "the unread count."
+            "entry with the time of its top message, whether it is pinned, the group it "
+            "sits in (main list, archive or the stored group id), the number of messages "
+            "stored for it, the unread count and the entry type."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-04",
-        "last_update_date": "2026-08-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Telegram",
         "notes": "The chat list is table t9, the Postbox ChatListTable (tableSpec(9) in "
@@ -91,9 +98,13 @@ __artifacts_v2__ = {
                  "peer id and an entry type "
                  "(https://github.com/TelegramMessenger/Telegram-iOS/blob/"
                  "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/Postbox/Sources/"
-                 "ChatListTable.swift#L145-L152). The entry type is not read here, so a "
-                 "hole entry (type 2) is listed like a chat. Group id 1 is the archive; "
-                 "every other group id is shown as Main. A "
+                 "ChatListTable.swift#L145-L152). The entry type is the last byte of the "
+                 "key: 1 is a message entry and 2 is a hole entry, per the "
+                 "ChatListEntryType enum in the same file (lines 43 to 46). Entry Type "
+                 "shows Message or Hole, and any other value as stored. A hole entry is "
+                 "kept as a row and is not a chat. Group id 0 is the root group in "
+                 "PeerGroup.swift and is shown as Main, group id 1 is shown as Archived, "
+                 "and any other group id is shown as the stored number. A "
                  "pinning value of 0 means the chat is not pinned. Unread counts come from "
                  "table t14, the MessageHistoryReadStateTable, whose id-based records carry "
                  "the count and a marked-unread flag. Names are resolved from the peer table "
@@ -150,32 +161,35 @@ __artifacts_v2__ = {
     "telegramPeerPresence": {
         "name": "Telegram Peer Presence",
         "description": (
-            "Parses the last-seen state Telegram cached for each peer, from table t20 of "
-            "each account's Postbox database. Reports the status the server last returned "
-            "for the peer, the time it applies to when the status carries one, the hidden "
-            "flag stored with a bucketed status, and the last activity time the client "
-            "recorded."
+            "Parses cached presence records from table t20 of each Telegram account's "
+            "Postbox database. Reports the current decoder's v and h values beside the "
+            "status interpretation and h truthiness, with Last Activity and Status Time."
         ),
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-05",
-        "last_update_date": "2026-08-05",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Table t20 is the Postbox PeerPresenceTable (tableSpec(20) in Postbox.swift). "
                  "The record is a TelegramUserPresence: 'v' selects the status, where 0 is "
                  "none, 1 is present with the time in 't', which the client fills with either "
                  "the time an online status expires or the time the peer was last online (the "
-                 "Status column shows value 1 as 'Online until' in both cases), 2 is "
+                 "Status Interpretation shows Stored Status 1 without choosing either meaning), 2 is "
                  "recently, 3 is last week and 4 is last month, and 'h' is the isHidden flag "
                  "those bucketed statuses carry, which the client sets from the server's "
                  "by_me bit. Telegram's API documentation says that bit means the peer's "
                  "exact status is available but is not shown to this account unless it has "
                  "Premium or lets that peer see its own exact last-seen time "
-                 "(core.telegram.org/constructor/userStatusRecently). The Hides Last Seen "
-                 "column holds this flag as stored. "
+                 "(core.telegram.org/constructor/userStatusRecently). Decoded v and Decoded h "
+                 "retain the current decoder results, not the original Postbox bytes. "
+                 "Missing and explicit null fields both show blank. h Truthiness keeps "
+                 "the existing Yes for truthy h and blank for falsy h. "
                  "'la' is the last activity value the client stored. The bucketed statuses "
                  "are reported as stored and are not an exact time; what causes the server to "
-                 "return a bucketed status rather than a time is not sourced here.",
+                 "return a bucketed status rather than a time is not sourced here. The other "
+                 "status labels remain existing interpretations; this change does not "
+                 "verify them for all app versions. Original parser and research credit: "
+                 "@AlexisBrignoni.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -267,17 +281,14 @@ __artifacts_v2__ = {
     "telegramSettings": {
         "name": "Telegram Settings",
         "description": (
-            "Parses Telegram application settings from the shared settings store "
-            "(accounts-metadata database, table t2) and each account's preferences "
-            "(Postbox database, table t35). Includes media auto-download, save-to-Photos, "
-            "app passcode, contact synchronization, notification, and privacy settings. "
-            "A setting shown as 'Not present in database' has no stored record in these "
-            "tables. The report text adds that the app default is in effect; no source "
-            "for that is cited here."
+            "Parses named Telegram settings from the shared accounts-metadata table t2 "
+            "and account Postbox table t35. Headline settings receive a placeholder when "
+            "no supported stored record is reported for the key. That placeholder does "
+            "not establish whether the app uses a default value."
         ),
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Setting key IDs are taken from the open-source Telegram-iOS client "
@@ -286,7 +297,11 @@ __artifacts_v2__ = {
                  "stored as ID + 1000). Values are reported as stored, using Telegram's "
                  "internal field names, and cut at 1,000 characters. Keys with no name "
                  "in this module are not reported. App passcode, media auto-download and "
-                 "save-to-Photos settings get a row even when no record is stored.",
+                 "save-to-Photos settings get a placeholder when no supported named record "
+                 "was reported for the key. This parser requires a four-byte key and a byte "
+                 "value with a mapped key ID; an existing record with an unsupported shape "
+                 "can also lead to a placeholder. Original parser and research credit: "
+                 "@AlexisBrignoni.",
         "paths": (
             '*/telegram-data/accounts-metadata/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/db/db_sqlite*'
@@ -452,7 +467,7 @@ def telegramAccounts(context):
         'Environment',
         'Master Datacenter',
         'Sort Order',
-        'App Passcode Lock',
+        'Access Challenge Data Keys',
     ]
     data_list = []
     source_paths = []
@@ -546,6 +561,25 @@ def telegramAccounts(context):
 
 # --- Telegram Contacts & Peers ----------------------------------------------
 
+def _contact_read_diagnostic(context, db_path, err):
+    """Bound the optional-table diagnostic without exposing SQLite error text."""
+    relative = context.get_relative_path(db_path)
+    if relative.startswith(('/', '\\')) or re.match(r'^[A-Za-z]:[/\\]', relative):
+        relative = 'relative-path-unavailable'
+    escaped = json.dumps(relative, ensure_ascii=True)
+    for character, replacement in (('<', '\\u003c'), ('>', '\\u003e'), ('&', '\\u0026')):
+        escaped = escaped.replace(character, replacement)
+    truncated = len(escaped) > 512
+    error_class = type(err).__name__
+    if error_class not in (
+            'Error', 'DatabaseError', 'DataError', 'IntegrityError', 'InterfaceError',
+            'InternalError', 'NotSupportedError', 'OperationalError', 'ProgrammingError'):
+        error_class = 'Error'
+    return (f'Telegram contacts: t16 read failed at {escaped[:512]} '
+            f'(path length={len(relative)}, truncated={truncated}; {error_class}); '
+            'membership may be incomplete.')
+
+
 @artifact_processor
 def telegramContacts(context):
     """ see artifact description """
@@ -599,6 +633,8 @@ def telegramContacts(context):
         if len(parts) >= 6:
             avatar_files.setdefault((_account_id_from_path(path), parts[5]), path)
 
+    contact_read_failures = 0
+    contact_read_examples = 0
     for account_id, db_path in _postbox_dbs(files_found):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
@@ -625,8 +661,11 @@ def telegramContacts(context):
                         contact_ids.add(struct.unpack('>q', key)[0])
                     elif isinstance(key, int):
                         contact_ids.add(key)
-            except sqlite3.Error:
-                pass
+            except sqlite3.Error as err:
+                contact_read_failures += 1
+                if contact_read_examples < 10:
+                    logfunc(_contact_read_diagnostic(context, db_path, err))
+                    contact_read_examples += 1
 
             cursor.execute('SELECT key, value FROM t2')
             for key, value in cursor.fetchall():
@@ -676,11 +715,22 @@ def telegramContacts(context):
         finally:
             db.close()
 
+    if contact_read_failures:
+        logfunc(f'Telegram contacts: t16 read failures={contact_read_failures}, '
+                f'shown={contact_read_examples}, '
+                f'suppressed={contact_read_failures - contact_read_examples}; '
+                'membership may be incomplete.')
     source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
     return data_headers, data_list, source_path
 
 
 # --- Telegram Chats ----------------------------------------------------------
+
+# PeerGroupId raw values: 0 is the root group (PeerGroup.swift); 1 is the archive.
+_CHAT_GROUP_NAMES = {0: 'Main', 1: 'Archived'}
+# ChatListEntryType raw values, ChatListTable.swift.
+_CHAT_ENTRY_TYPES = {1: 'Message', 2: 'Hole'}
+
 
 def _read_chat_list_key(key):
     """Unpack a ChatListTable key.
@@ -695,7 +745,8 @@ def _read_chat_list_key(key):
     pinning = struct.unpack('>H', key[4:6])[0]
     timestamp = struct.unpack('>i', key[6:10])[0]
     peer_id = struct.unpack('>q', key[15:23])[0]
-    return group_id, pinning, timestamp, peer_id
+    entry_type = struct.unpack('>b', key[23:24])[0] if len(key) >= 24 else ''
+    return group_id, pinning, timestamp, peer_id, entry_type
 
 
 def _read_read_states(db):
@@ -755,6 +806,7 @@ def telegramChats(context):
         'Messages Stored',
         'Unread Count',
         'Marked Unread',
+        'Entry Type',
     ]
     data_list = []
     source_paths = []
@@ -790,7 +842,7 @@ def telegramChats(context):
                 entry = _read_chat_list_key(key)
                 if entry is None:
                     continue
-                group_id, pinning, timestamp, peer_id = entry
+                group_id, pinning, timestamp, peer_id, entry_type = entry
                 unread, marked = read_states.get(peer_id, (0, False))
                 data_list.append((
                     datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
@@ -799,11 +851,12 @@ def telegramChats(context):
                     peer_id,
                     names.get(peer_id, ''),
                     types.get(peer_id, ''),
-                    'Archived' if group_id == 1 else 'Main',
+                    _CHAT_GROUP_NAMES.get(group_id, f'Group {group_id} (as stored)'),
                     'Yes' if pinning else '',
                     counts.get(peer_id, 0),
                     unread,
                     'Yes' if marked else '',
+                    _CHAT_ENTRY_TYPES.get(entry_type, entry_type),
                 ))
             source_paths.append(db_path)
         except sqlite3.Error as err:
@@ -886,7 +939,7 @@ def telegramDeviceContacts(context):
 
 # UserPresenceStatus, per SyncCore_TelegramUserPresence.swift.
 _PRESENCE_STATUS = {
-    0: 'None', 1: 'Online until', 2: 'Recently',
+    0: 'None', 1: 'Stored Status 1', 2: 'Recently',
     3: 'Within last week', 4: 'Within last month',
 }
 
@@ -918,12 +971,14 @@ def telegramPeerPresence(context):
     """ see artifact description """
     data_headers = [
         ('Last Activity', 'datetime'),
+        ('Status Time', 'datetime'),
         'Account ID',
         'Peer ID',
         'Peer',
-        'Status',
-        ('Status Time', 'datetime'),
-        'Hides Last Seen',
+        'Decoded v',
+        'Status Interpretation',
+        'Decoded h',
+        'h Truthiness',
     ]
     data_list = []
     source_paths = []
@@ -947,12 +1002,14 @@ def telegramPeerPresence(context):
                 data_list.append((
                     datetime.datetime.fromtimestamp(activity, tz=datetime.timezone.utc)
                     if isinstance(activity, int) and activity > 0 else '',
+                    datetime.datetime.fromtimestamp(status_time, tz=datetime.timezone.utc)
+                    if isinstance(status_time, int) and 0 < status_time < 2147483647 else '',
                     account_id,
                     peer_id,
                     names.get(peer_id, ''),
+                    variant,
                     _PRESENCE_STATUS.get(variant, f'Unrecognised ({variant})'),
-                    datetime.datetime.fromtimestamp(status_time, tz=datetime.timezone.utc)
-                    if isinstance(status_time, int) and 0 < status_time < 2147483647 else '',
+                    record.get('h'),
                     'Yes' if record.get('h') else '',
                 ))
             source_paths.append(db_path)
@@ -1256,8 +1313,8 @@ _ACCOUNT_APP_KEYS = {
     1021: 'Age verification state',
 }
 
-# Settings reported even when absent, because Telegram only writes them once
-# the user changes the app default.
+# Headline settings get a placeholder when no supported named record was reported
+# for the key.
 _HEADLINE_SHARED = {
     1001: 'App passcode settings',
     1002: 'Media auto-download settings',
@@ -1266,7 +1323,7 @@ _HEADLINE_ACCOUNT = {
     1020: 'Save to Photos settings',
 }
 
-_ABSENT_VALUE = 'Not present in database (app default in effect)'
+_ABSENT_VALUE = 'No supported stored record reported'
 _VALUE_LIMIT = 1000
 
 

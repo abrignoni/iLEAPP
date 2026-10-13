@@ -18,10 +18,13 @@ __artifacts_v2__ = {
         "description": "Rows of the ChannelInfo table of the Hikvision app's database.hik",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Hikvision",
-        "notes": "",
+        "notes": "nEnable (as stored) is the ChannelInfo.nEnable value reported as stored. What "
+                 "each value means is not established here; earlier versions of this artifact "
+                 "labelled 0 as Disabled and 1 as Enabled without a stated source and left any "
+                 "other value blank.",
         "paths": ('*/Documents/database.hik*',),
         "output_types": "standard",
         "artifact_icon": "video"
@@ -99,7 +102,7 @@ def _find(context, filename):
 
 @artifact_processor
 def hikvisionChannels(context):
-    data_headers = ('Device ID', 'Channel No.', 'Channel Name', 'Status')
+    data_headers = ('Device ID', 'Channel No.', 'Channel Name', 'nEnable (as stored)')
     data_list = []
     source_path = _find(context, 'database.hik')
     if not source_path:
@@ -110,7 +113,7 @@ def hikvisionChannels(context):
         nDeviceID,
         nChannelNo,
         chChannelName,
-        CASE nEnable WHEN '0' THEN 'Disabled' WHEN '1' THEN 'Enabled' END
+        nEnable
     FROM ChannelInfo
     '''
     try:

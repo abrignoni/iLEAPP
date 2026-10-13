@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -40,7 +40,19 @@ __artifacts_v2__ = {
             "TikTok-owned container; the exclusion of foreign and unattributable containers was "
             "exercised on constructed test data, not on a registered image. "
             "Reference: G. Horsman & L. Shou, 'Case Study: Forensic Analysis of TikTok on iOS', "
-            "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u"
+            "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u. "
+            "The image counts above are of full filesystem images. On the two encrypted iTunes "
+            "backups in sample_data (hickman_ios13_itunes_backup, hickman_ios14_itunes_backup), "
+            "which come from the same public image sets as hickman_ios13 and hickman_ios14, this artifact "
+            "returned the row counts those two images give (9 and 12) and no Direction was "
+            "blank. "
+            "The db.sqlite-backup file beside db.sqlite is matched and staged by the first "
+            "pattern and is not read. On those two backups it is under 2 KB and is not a SQLite "
+            "database: it begins with the bytes 00 64 42 6D 53 74, the magic that the repair "
+            "module of Tencent's WCDB library defines for the file it saves sqlite_master "
+            "information to (SQLITERK_SM_MAGIC, "
+            "deprecated/android/addons/repair/sqliterk_output.cpp at commit 17ebdcb). Its body "
+            "was not decoded, and the file was not examined on a full filesystem image."
         ),
         "paths": (
             "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",
@@ -71,6 +83,8 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 6 rows",
             "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 9 rows",
             "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 12 rows",
+            "hickman_ios13_itunes_backup": "iOS 13.3.1 | encrypted iTunes backup | 9 rows",
+            "hickman_ios14_itunes_backup": "iOS 14.3 | encrypted iTunes backup | 12 rows",
             "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
@@ -79,7 +93,7 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok contact data from AwemeIM.db",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-08-29",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -93,7 +107,11 @@ __artifacts_v2__ = {
             "containers owned by any other app, or whose owning app cannot be established, "
             "are skipped and logged. On the tested images every matched database is in a "
             "TikTok-owned container; the exclusion of foreign and unattributable containers "
-            "was exercised on constructed test data, not on a registered image."
+            "was exercised on constructed test data, not on a registered image. On the two "
+            "encrypted iTunes backups in sample_data (hickman_ios13_itunes_backup, "
+            "hickman_ios14_itunes_backup), which come from the same public image sets as hickman_ios13 and "
+            "hickman_ios14, this artifact returned the row counts those two images give "
+            "(3 and 4)."
         ),
         "paths": (
             "*AwemeIM.db*",
@@ -113,6 +131,8 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 54 rows",
             "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 3 rows",
             "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 4 rows",
+            "hickman_ios13_itunes_backup": "iOS 13.3.1 | encrypted iTunes backup | 3 rows",
+            "hickman_ios14_itunes_backup": "iOS 14.3 | encrypted iTunes backup | 4 rows",
             "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
@@ -123,16 +143,17 @@ __artifacts_v2__ = {
                        "own key names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "The record is an NSKeyedArchiver payload inside "
             "Library/Preferences/com.zhiliaoapp.musically.plist; its string, number and "
-            "boolean fields are reported one per row and empty values are skipped. On the "
-            "tested image it carried the account's user id, screen name, sec user id, "
-            "avatar URL, session key, and the phone number and email as the app stores "
-            "them, which is partially masked. The sibling "
+            "boolean fields are reported one per row and empty values are skipped. Of the "
+            "seven images in sample_data, the record carried userID, screenName and "
+            "secUserId on four, sessionKey on five, and avatarURL, mobile and email on "
+            "three each; all six stored mobile and email values held asterisks in place of "
+            "some characters. The sibling "
             "com.toutiao.account.userdefault.user.* scalar keys (login status, dticket, "
             "session ids) are included as rows. Other keys in the same plist "
             "(NHAccountManager*, AWEUserStorageCacheUserKey, kDYA*) are not parsed."
@@ -157,26 +178,32 @@ __artifacts_v2__ = {
                        "id the companion plist maps it to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "Files are named publish_video_local_<aid>.mp4. "
-            "The owning app of the container is not checked for this artifact, and the "
-            "plist mappings of every matched container are read together. "
+            "A file is reported only when the metadata plist of its container records "
+            "TikTok's bundle id (com.zhiliaoapp.musically) as the owning app, or when the "
+            "container folder is itself named with that bundle id; every file left out is "
+            "named in the run log with the reason. "
             "kAWEPublishLocalVideoCacheFile.plist in the same Documents folder maps each "
-            "aid to a video id and both are reported. The artifact name follows the paper "
+            "aid to a video id and both are reported; a file takes its video id only from "
+            "the plist of its own container. The artifact name follows the paper "
             "cited below, whose wording about this folder was not re-read for this note. "
             "On the tested image both files' aids also appear in the account's watch "
-            "history. File Modified is the modification time of the copy this tool staged "
-            "from the extraction, shown as UTC. Whether it equals the time recorded on "
-            "the device depends on the extraction format and was not checked here. "
+            "history. File Modified is the modification time this tool's file reader "
+            "recorded for the file when it read the extraction, shown as UTC, and is blank "
+            "when the reader recorded none. It is not the time of the staged copy. Whether "
+            "it equals the time recorded on the device depends on the extraction format "
+            "and was not checked here. "
             "Reference: Xiao Hu and Umit Karabiyik, 'Shopping while Watching: An Updated "
             "Forensic Analysis of TikTok on Android and iOS', ISNCC 2024, "
             "https://doi.org/10.1109/ISNCC62547.2024.10759027"
         ),
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoStorageFolder/*",
-                  "*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoCacheFile.plist"),
+                  "*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoCacheFile.plist",
+                  "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
         "artifact_icon": "video",
         "sample_data": {
@@ -291,7 +318,7 @@ __artifacts_v2__ = {
 
 import re
 from datetime import datetime, timezone
-from os.path import basename, dirname, getmtime, getsize, isfile, normcase, normpath
+from os.path import basename, dirname, getsize, isfile, normcase, normpath
 
 from scripts.ilapfuncs import (
     artifact_processor,
@@ -780,25 +807,39 @@ def tiktok_published_videos(context):
     data_list = []
     source_path = ""
 
+    # aid -> video id, kept per container so one container's mapping is never
+    # applied to another container's file
     video_ids = {}
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith("kAWEPublishLocalVideoCacheFile.plist"):
             mapping = get_plist_file_content(file_found)
             if isinstance(mapping, dict):
-                video_ids.update({str(k): str(v) for k, v in mapping.items()})
+                video_ids.setdefault(_application_container(file_found), {}).update(
+                    {str(k): str(v) for k, v in mapping.items()})
 
-    for file_found in files_found:
-        file_found = str(file_found)
+    videos = [str(file_found) for file_found in files_found
+              if basename(str(file_found)).startswith("publish_video_local_")
+              and isfile(str(file_found))]
+    seeker = context.get_seeker()
+    for file_found in _tiktok_owned(videos, _container_owners(files_found)):
         name = basename(file_found)
-        if not (name.startswith("publish_video_local_") and isfile(file_found)):
-            continue
         source_path = source_path or file_found
         aid = name.replace("publish_video_local_", "").rsplit(".", 1)[0]
         media_ref = check_in_media(file_found, name)
-        modified = datetime.fromtimestamp(getmtime(file_found), timezone.utc)
+        file_info = seeker.file_infos.get(file_found) if seeker else None
+        recorded = file_info.modification_date if file_info else None
+        try:
+            if isinstance(recorded, datetime):
+                modified = recorded
+            else:
+                modified = (datetime.fromtimestamp(recorded, timezone.utc)
+                            if recorded else "")
+        except (TypeError, ValueError, OSError, OverflowError):
+            modified = ""
+        container_ids = video_ids.get(_application_container(file_found), {})
         data_list.append((
-            modified, media_ref or "", aid, video_ids.get(aid, ""),
+            modified, media_ref or "", aid, container_ids.get(aid, ""),
             getsize(file_found), context.get_relative_path(file_found),
         ))
 

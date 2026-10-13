@@ -84,19 +84,14 @@ __artifacts_v2__ = {
         }
     },
     "waze_search_history": {
-        "name": "Waze - Search History",
-        "description": "Parses and extracts location entries from the PLACES table",
-        "author": "@djangofaiola",
+        "name": 'Waze - PLACES Table Entries',
+        "description": 'Reports supported rows selected from the PLACES table in the selected Waze user.db. The query applies no search-event filter; a row alone does not establish a search, navigation, visit, or user interaction.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-08-01",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Waze",
-        "notes": "Every row of the PLACES table in user.db is reported with no filter. The "
-                 "module's own documentation says the table includes searched and referenced "
-                 "places, so a row is not by itself a record of a search. Reference: Django "
-                 "Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
-                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
-                 "(in Italian).",
+        "notes": "Every row of the PLACES table in user.db is reported with no filter. The module's own documentation says the table includes searched and referenced places, so a row is not by itself a record of a search. Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html (in Italian). Original contribution and Waze research credited to Django Faiola (@djangofaiola). Artifact naming was neutralized to match the existing all-PLACES query; no native value, header, SQL, filter, date conversion, source selection, or row multiplicity was changed. Existing per-record error skips and database error handling are unchanged. Coordinate scaling, Residential Status labels, date meanings, source-state association and other Waze research remain outside this change. Historical sample_data entries are retained and are not fresh validation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "search",
@@ -138,13 +133,13 @@ __artifacts_v2__ = {
         "description": "Parses and extracts favorite locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Waze",
         "notes": "Type shows a label this module assigns to the stored type integer, which is "
                  "FAVORITES.type in user.db (0 Custom, 1 Home, 2 Work, 3 Events, 4 Saved POI); -1 "
-                 "is shown as N/A. Any other value is shown as stored, or as Unknown with the "
-                 "stored value in parentheses where the row is read from user.db. The labels "
+                 "is shown as N/A. Any other value is shown as stored by both readers (the cached "
+                 "data reader and the user.db reader). The labels "
                  "follow Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
                  "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
                  "(in Italian); no Waze source for them is cited.",
@@ -2039,7 +2034,7 @@ def _parse_favorite_user_db(source_path: str, context, data_list: list) -> None:
             WHEN 2 THEN 'Work'
             WHEN 3 THEN 'Events'
             WHEN 4 THEN 'Saved POI'
-            ELSE 'Unknown (' || IFNULL(f.type, 'N/A') || ')'	
+            ELSE CAST(f.type AS TEXT)
         END AS "entry_type",        
 	    F.name,
         P.name AS "place_name",

@@ -27,6 +27,8 @@ pillow_heif
 # CVEs. 5.29.6 is the minimum that clears CVE-2022-1941/2025-4565/2026-0994.
 protobuf==5.29.6
 pycryptodome
+# Compiled Unified Log prefilter. Native Windows ARM64 uses the SQLite fallback.
+pyahocorasick==2.3.1; platform_system != "Windows" or platform_machine == "AMD64"
 
 # pyliblzfse for Windows on x64. The markers pin the machine as well as the OS:
 # these wheels are win_amd64, and on Windows-on-ARM pip would otherwise try to

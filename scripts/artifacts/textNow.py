@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "each picture message points at where the app cached it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "TextNow",
         "notes": "One row per row of ZTMOINTERACTION that carries no call identifier, "
@@ -42,8 +42,10 @@ __artifacts_v2__ = {
                  "address with no extension, which matched on the tested images. "
                  "Current SDWebImage (SDDiskCacheFileNameForKey in "
                  "SDWebImage/Core/SDDiskCache.m at 8a1be70a, 2024) appends the "
-                 "address's path extension when it has one, and a file named that way "
-                 "would not be found here. The stored address is a link the app recorded, "
+                 "address's path extension when it has one, so when no file carries the "
+                 "bare MD5 name a file in the same container named with that MD5, a dot "
+                 "and an extension is used. That second form was not present on the "
+                 "tested images. The stored address is a link the app recorded, "
                  "not a match on size or time, and it resolved on 4 of the 4 rows that carry "
                  "thumbnail dimensions. The bytes are checked before anything is "
                  "rendered and only a file carrying an image signature is attached; "
@@ -188,12 +190,13 @@ __artifacts_v2__ = {
         "name": "TextNow - Account",
         "description": "The TextNow account the store belongs to, with the number "
                        "assigned to it and its service settings.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "TextNow",
-        "notes": "One row per ZTMOACCOUNTINFO row, which held a single row on each of "
+        "notes": "Original contribution credited to Claude. One row per ZTMOACCOUNTINFO row, "
+                 "which held a single row on each of "
                  "the 2 tested images that carry the store. TextNow Number is "
                  "ZPHONENUMBER as stored; it differs between the two images, so it is "
                  "not a fixed property of the account. Username, Email, Name, User ID "
@@ -207,10 +210,11 @@ __artifacts_v2__ = {
                  "also holds the account's SIP password. It is not printed here: SIP "
                  "Password Stored says only whether a value is present, which it was "
                  "on both rows. Account Status, Credits, TextNow Credit, Currency, "
-                 "Unlimited and Show Ads are reported as stored. Email Verified reads "
-                 "Yes when the stored value is 1 and No otherwise, including when the "
-                 "store has no value. Account "
-                 "Status reads ENABLED, Email Verified Yes, Credits 5 and TextNow "
+                 "Unlimited and Show Ads are reported as stored. Email Verified (as stored) "
+                 "retains ZEMAILVERIFIED without interpreting its values. A stored NULL "
+                 "and an absent column both return NULL through the existing optional-column "
+                 "query; they are not distinguished here. Account "
+                 "Status reads ENABLED, ZEMAILVERIFIED 1, Credits 5 and TextNow "
                  "Credit 10 on both rows, and Unlimited reads 1 on both, so none of "
                  "those columns varies across the tested images. Show Ads differs "
                  "between them. A release of the app that does not carry a column is "
@@ -331,7 +335,13 @@ def _cached_images(files_found):
         path = str(found)
         if os.path.isdir(path) or f'/{_IMAGE_CACHE}/' not in path.replace('\\', '/'):
             continue
-        entries[(_container(path), os.path.basename(path))] = path
+        name = os.path.basename(path)
+        entries[(_container(path), name)] = path
+        # SDWebImage can append '.<extension>' to the MD5 name; keep the part before
+        # the first dot as a second key, never replacing an exact name.
+        stem = name.split('.', 1)[0]
+        if stem != name and len(stem) == 32:
+            entries.setdefault((_container(path), stem + '.'), path)
     return entries
 
 
@@ -400,7 +410,8 @@ def _picture(images, container, url):
     '''
     if not url:
         return ''
-    path = images.get((container, hashlib.md5(url.encode('utf8')).hexdigest()))
+    digest = hashlib.md5(url.encode('utf8')).hexdigest()
+    path = images.get((container, digest)) or images.get((container, digest + '.'))
     if not path:
         return ''
     try:
@@ -615,7 +626,7 @@ def textnow_ios_account(context):
                 _text(email),
                 _name(first, last),
                 _text(status),
-                'Yes' if verified == 1 else 'No',
+                verified,
                 _text(user_id),
                 _text(user_id_hex),
                 _text(sip_user),
@@ -633,7 +644,7 @@ def textnow_ios_account(context):
         ('Record Updated', 'datetime'), ('Server Record Time', 'datetime'),
         ('Wallet Updated', 'datetime'), ('Ad Removal Expiry', 'datetime'), 'Username',
         ('TextNow Number', 'phonenumber'), 'Email', 'Name', 'Account Status',
-        'Email Verified', 'User ID', 'User ID (Hex)', 'SIP Username', 'SIP Host',
+        'Email Verified (as stored)', 'User ID', 'User ID (Hex)', 'SIP Username', 'SIP Host',
         'SIP Client IP', 'SIP Password Stored', 'Credits', 'TextNow Credit', 'Currency',
         'Unlimited (as stored)', 'Show Ads (as stored)')
     return data_headers, data_list, '\n'.join(sources)

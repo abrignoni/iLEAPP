@@ -41,17 +41,26 @@ __artifacts_v2__ = {
     },
     "sbb_purchased_tickets": {
         "name": "SBB Mobile - Purchased Tickets",
-        "description": "Parse purchased tickets from SbbMobile",
-        "author": "jonah.osterwalder@vd.ch",
+        "description": (
+            'Rows of PurchasedTickets in the selected SbbMobile.db, with refundState reported as stored and text '
+            "fields extracted from each ticket's HTML."
+        ),
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-03-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Travel",
         "notes": (
-            "The refundState value COMPLETE is shown as Refunded in the column headed is "
-            "Refunded, a reading for which no source was located; other values are reported as "
-            "stored. Purchase Time is the first value in the ticket HTML's ticketinformationen "
-            "block, taken by position."
+            (
+            'refundState is reported directly as stored; its values do not establish whether a ticket was '
+            'refunded. The previous COMPLETE-to-Refunded interpretation had no located source and is not '
+            'retained. Valid from and Valid until are reported without conversion; their stored representation, '
+            "epoch and unit are not established here. Purchase Time is the first value in the ticket HTML's "
+            'ticketinformationen block, taken by position; its event meaning is not independently verified. The '
+            'date-first projection changes the timeline key from Traveler to Valid from without a date '
+            'conversion. Only the first matching SbbMobile.db is selected by the existing helper. No tested iOS '
+            'image is recorded for this artifact. Original contribution credited to jonah.osterwalder@vd.ch.'
+        )
         ),
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SbbMobile.db*'),
         "output_types": "standard",
@@ -198,10 +207,7 @@ def sbb_purchased_tickets(context):
             traveler,
             validFrom,
             validUntil,
-            CASE
-                WHEN refundState = 'COMPLETE' THEN 'Refunded'
-                ELSE refundState
-            END AS refundState,
+            refundState AS refundState,
             paymentMethodType,
             displayInfo_ticketType,
             screenTicket_contentHtml
@@ -211,24 +217,25 @@ def sbb_purchased_tickets(context):
     db_records = get_sqlite_db_records(source_path, query)
 
     data_headers = (
-        "Traveler",
-        "Valid from",
-        "Valid until",
-        "is Refunded",
-        "Payment method",
-        "Ticket description",
-        "Purchase Time",
-        "Departure",
-        "Target",
-        "Zones",
-        )
+        'Valid from',
+        'Valid until',
+        'Purchase Time',
+        'Traveler',
+        'refundState (as stored)',
+        'Payment method',
+        'Ticket description',
+        'Departure',
+        'Target',
+        'Zones',
+    )
 
     for record in db_records:
         html = record[-1]
         parsed = parse_ticket_html(html)
 
         data_list.append(
-            record[:6] + (parsed["purchase_time"], parsed["departure"], parsed["target"], parsed["zones"])
+            (record[1], record[2], parsed["purchase_time"], record[0], record[3],
+             record[4], record[5], parsed["departure"], parsed["target"], parsed["zones"])
             )
 
     return data_headers, data_list, source_path

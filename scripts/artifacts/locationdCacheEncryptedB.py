@@ -67,9 +67,9 @@ __artifacts_v2__ = {
                        'cache, across the eight cell tables this parser reads (CellLocation, '
                        'LteCellLocation, NrCellLocation, ScdmaCellLocation, CdmaCellLocation and '
                        'the Local variants of three of them)',
-        'author': '@AlexisBrignoni',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ("As with the Wi-Fi table, a row pairs cell identifiers with coordinates as the "
@@ -93,8 +93,8 @@ __artifacts_v2__ = {
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 2060 rows, all LTE; case data not committed, see '
                               'the case note',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows across all nine tables',
-            'hc_ios18_7': '1090 rows, all LTE; the other eight tables were empty',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+            'hc_ios18_7': '1090 rows, all LTE',
             'hc_ios26': '450 rows, all LTE; schema unchanged',
         },
     },

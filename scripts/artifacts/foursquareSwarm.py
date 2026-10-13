@@ -32,12 +32,12 @@ __artifacts_v2__ = {
         }
     },
     "foursquare_swarm_contacts": {
-        "name": "Foursquare Swarm - Contacts",
+        "name": "Foursquare Swarm - User Records",
         "description": "Parses the user records, other than the account's own, held in the "
                        "Foursquare Swarm database, with the relationship stored for each",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
@@ -84,13 +84,15 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm check-in records, whichever user each "
                        "belongs to, with a derived type (Automatic when ZISAUTOMATIC is 1, Passive "
                        "when the row has a passive stop id or stores the type 'passive', N/A when "
-                       "ZISAUTOMATIC, the passive stop id and the stored type are null, Manual for "
-                       "any other row). On abe_ios16 (524 rows) and otto_ios17 (157 rows) each "
+                       "ZISAUTOMATIC, the passive stop id and the stored type are null, Manual when "
+                       "the stored type is 'checkin', and Other with the stored type for any "
+                       "other row). Check-in Status shows the research label followed by the "
+                       "stored number. On abe_ios16 (524 rows) and otto_ios17 (157 rows) each "
                        "Manual row stores the type 'checkin', and 72 and 4 rows belong to users "
                        "other than the account",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
@@ -159,7 +161,7 @@ __artifacts_v2__ = {
         }
     },
     "foursquare_swarm_venues_history": {
-        "name": "Foursquare Swarm - Venues History",
+        "name": "Foursquare Swarm - Venue Records",
         "description": "Parses the venue records held in the Foursquare Swarm database (ZFSVENUE), "
                        "with no filter, and the last visit time where one is stored. A venue row "
                        "alone does not show that the account went to the place. On abe_ios16, 1,689 "
@@ -169,7 +171,7 @@ __artifacts_v2__ = {
                        "of the venues are named by a check-in record.",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
@@ -347,13 +349,15 @@ __artifacts_v2__ = {
     "foursquare_swarm_location_history": {
         "name": "Foursquare Swarm - Location History",
         "description": "Parses the Foursquare Swarm location table (ZFSPLOCATION). Built from the "
-                       "database schema only: the table was empty on both tested images. Accuracy "
-                       "Context, Speed State and Sync Status are labels the module assigns to "
-                       "stored numbers and are not confirmed; they do not establish how a position "
-                       "was obtained or how the device was moving",
+                       "database schema only: the table was empty on both tested images. Only "
+                       "rows holding a latitude and a longitude are reported. Accuracy Band is "
+                       "a range the module derives from the stored horizontal accuracy. Speed "
+                       "State shows a label the module assigns, followed by the stored number; "
+                       "the labels are not confirmed and do not establish how the device was "
+                       "moving. ZSENT is reported as stored and its meaning is not established",
         "author": "@djangofaiola",
         "creation_date": "2026-04-20",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
@@ -373,12 +377,13 @@ __artifacts_v2__ = {
     "foursquare_swarm_plog": {
         "name": "Foursquare Swarm - Logs",
         "description": "Parses the Foursquare Swarm log table (ZFSPLOG). Built from the database "
-                       "schema only: the table was empty on both tested images. Log Level, App "
-                       "State and Accuracy Context are labels the module assigns to stored numbers "
-                       "and are not confirmed",
+                       "schema only: the table was empty on both tested images. Log Level and "
+                       "App State show a label the module assigns, followed by the stored "
+                       "number; the labels are not confirmed. Accuracy Band is a range the "
+                       "module derives from the stored horizontal accuracy",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
@@ -1189,7 +1194,8 @@ def _normalize_relationship(value: str | None) -> str:
 @artifact_processor
 def foursquare_swarm_contacts(context):
     """
-    Extracts Swarm contacts and friends from the foursquare.sqlite database.
+    Reports the ZFSUSER records, other than the account's own, from the
+    foursquare.sqlite database.
     """
 
     data_headers = (
@@ -1774,15 +1780,16 @@ def foursquare_swarm_checkins(context):
                 WHEN CI.ZISAUTOMATIC = 1 THEN 'Automatic'
                 WHEN CI.ZPASSIVESTOPID IS NOT NULL THEN 'Passive'
                 WHEN LOWER(CI.ZCHECKINTYPE) = 'passive' THEN 'Passive'
-                ELSE 'Manual'
+                WHEN LOWER(CI.ZCHECKINTYPE) = 'checkin' THEN 'Manual'
+                ELSE 'Other (stored type: ' || IFNULL(CI.ZCHECKINTYPE, 'none') || ')'
             END AS "checkin_type",
             CASE
                 WHEN CI.ZCHECKINSTATUS IS NULL THEN 'N/A'
                 WHEN CI.ZCHECKINSTATUS = '' THEN 'N/D'
-                WHEN CI.ZCHECKINSTATUS = 0 THEN 'Draft/Failed'
-                WHEN CI.ZCHECKINSTATUS = 1 THEN 'Sent/Synchronizing'
-                WHEN CI.ZCHECKINSTATUS = 2 THEN 'Confirmed/Published'
-                WHEN CI.ZCHECKINSTATUS = 3 THEN 'Deleted (Local)'
+                WHEN CI.ZCHECKINSTATUS = 0 THEN 'Draft/Failed (0)'
+                WHEN CI.ZCHECKINSTATUS = 1 THEN 'Sent/Synchronizing (1)'
+                WHEN CI.ZCHECKINSTATUS = 2 THEN 'Confirmed/Published (2)'
+                WHEN CI.ZCHECKINSTATUS = 3 THEN 'Deleted (Local) (3)'
                 ELSE 'Unknown (' || CI.ZCHECKINSTATUS || ')'
             END AS "checkin_status",
             CI.ZCHECKINRETRIES,
@@ -2193,8 +2200,9 @@ def foursquare_swarm_stickers(context):
 @artifact_processor
 def foursquare_swarm_venues_history(context):
     """
-    Extracts a history of visited venues with detailed metadata including
-    contact info, coordinates, statistics, and mayoralty status.
+    Reports the ZFSVENUE records with their metadata, including contact
+    info, coordinates, statistics, and mayoralty status. A venue row alone
+    does not show a visit.
     """
 
     data_headers = (
@@ -3484,8 +3492,8 @@ def foursquare_swarm_saved_lists(context):
 @artifact_processor
 def foursquare_swarm_location_history(context):
     """
-    Extracts passive location history (GPS breadcrumbs) from the
-    ZFSPLOCATION table, providing a granular movement trail.
+    Reports the rows of the ZFSPLOCATION table that hold a latitude and a
+    longitude.
     """
 
     data_headers = (
@@ -3493,9 +3501,9 @@ def foursquare_swarm_location_history(context):
         'Latitude',
         'Longitude',
         'Accuracy (meters)',
-        'Accuracy Context',
+        'Accuracy Band',
         'Speed State',
-        'Sync Status',
+        'ZSENT (As Stored)',
         'Location'
     )
 
@@ -3515,24 +3523,24 @@ def foursquare_swarm_location_history(context):
         CASE
             WHEN PL.ZHORIZONTALACCURACY IS NULL THEN 'N/A'
             WHEN CAST(PL.ZHORIZONTALACCURACY AS TEXT) = '' THEN 'N/D'
-            WHEN PL.ZHORIZONTALACCURACY < 0.0 THEN 'Invalid (No Fix/Negative)'
-            WHEN PL.ZHORIZONTALACCURACY = 0.0 THEN 'Invalid (Zero Accuracy)'
-            WHEN PL.ZHORIZONTALACCURACY <= 30.0 THEN 'High (GPS/Precise Wi-Fi)'
-            WHEN PL.ZHORIZONTALACCURACY <= 200.0 THEN 'Medium (Wi-Fi Network)'
-            WHEN PL.ZHORIZONTALACCURACY <= 1500.0 THEN 'Low (Cell Tower/Triangulation)'
-            ELSE 'Very Low (' || CAST(PL.ZHORIZONTALACCURACY AS TEXT) || 'm)'
+            WHEN PL.ZHORIZONTALACCURACY < 0.0 THEN 'Negative'
+            WHEN PL.ZHORIZONTALACCURACY = 0.0 THEN 'Zero'
+            WHEN PL.ZHORIZONTALACCURACY <= 30.0 THEN '30 m or less'
+            WHEN PL.ZHORIZONTALACCURACY <= 200.0 THEN 'Over 30 m to 200 m'
+            WHEN PL.ZHORIZONTALACCURACY <= 1500.0 THEN 'Over 200 m to 1500 m'
+            ELSE 'Over 1500 m'
         END AS "accuracy_context",
         CASE
             WHEN PL.ZSPEEDSTATE IS NULL THEN 'N/A'
             WHEN CAST(PL.ZSPEEDSTATE AS TEXT) = '' THEN 'N/D'
-            WHEN PL.ZSPEEDSTATE = 0 THEN 'Stationary'
-            WHEN PL.ZSPEEDSTATE = 1 THEN 'Walking'
-            WHEN PL.ZSPEEDSTATE = 2 THEN 'Automotive'
-            WHEN PL.ZSPEEDSTATE = 3 THEN 'Cycling'
-            WHEN PL.ZSPEEDSTATE = 4 THEN 'Running'
+            WHEN PL.ZSPEEDSTATE = 0 THEN 'Stationary (0)'
+            WHEN PL.ZSPEEDSTATE = 1 THEN 'Walking (1)'
+            WHEN PL.ZSPEEDSTATE = 2 THEN 'Automotive (2)'
+            WHEN PL.ZSPEEDSTATE = 3 THEN 'Cycling (3)'
+            WHEN PL.ZSPEEDSTATE = 4 THEN 'Running (4)'
             ELSE 'Unknown (' || CAST(PL.ZSPEEDSTATE AS TEXT) || ')'
         END AS "speed_state",
-        IIF(PL.ZSENT = 1, 'Synchronized', IIF(PL.ZSENT = 0, 'Local Only', NULL)) AS "sync_status"
+        PL.ZSENT AS "sync_status"
     FROM ZFSPLOCATION AS "PL"
     WHERE PL.ZLATITUDE IS NOT NULL AND PL.ZLONGITUDE IS NOT NULL
     ORDER BY PL.ZTIMESTAMP DESC
@@ -3588,7 +3596,7 @@ def foursquare_swarm_plog(context):
         'Latitude',
         'Longitude',
         'Accuracy (m)', 
-        'Accuracy Context',
+        'Accuracy Band',
         'Radius (m)',
         'Location'
     )
@@ -3607,17 +3615,17 @@ def foursquare_swarm_plog(context):
         CASE
             WHEN PL.ZLOGLEVEL IS NULL THEN 'N/A'
             WHEN CAST(PL.ZLOGLEVEL AS TEXT) = '' THEN 'N/D'
-            WHEN PL.ZLOGLEVEL = 1 THEN 'Error'
-            WHEN PL.ZLOGLEVEL = 2 THEN 'Warning'
-            WHEN PL.ZLOGLEVEL = 3 THEN 'Info'
-            WHEN PL.ZLOGLEVEL = 4 THEN 'Debug'
+            WHEN PL.ZLOGLEVEL = 1 THEN 'Error (1)'
+            WHEN PL.ZLOGLEVEL = 2 THEN 'Warning (2)'
+            WHEN PL.ZLOGLEVEL = 3 THEN 'Info (3)'
+            WHEN PL.ZLOGLEVEL = 4 THEN 'Debug (4)'
             ELSE 'Unknown (' || CAST(PL.ZLOGLEVEL AS TEXT) || ')'
         END AS "log_level",
         CASE
             WHEN PL.ZAPPSTATE IS NULL THEN 'N/A'
             WHEN CAST(PL.ZAPPSTATE AS TEXT) = '' THEN 'N/D'
-            WHEN PL.ZAPPSTATE = 0 THEN 'Background'
-            WHEN PL.ZAPPSTATE = 1 THEN 'Foreground'
+            WHEN PL.ZAPPSTATE = 0 THEN 'Background (0)'
+            WHEN PL.ZAPPSTATE = 1 THEN 'Foreground (1)'
             ELSE 'Unknown (' || CAST(PL.ZAPPSTATE AS TEXT) || ')'
         END AS "app_state",
         PL.ZLOGTITLE,
@@ -3629,12 +3637,12 @@ def foursquare_swarm_plog(context):
         CASE
             WHEN PL.ZHORIZONTALACCURACY IS NULL THEN 'N/A'
             WHEN CAST(PL.ZHORIZONTALACCURACY AS TEXT) = '' THEN 'N/D'
-            WHEN PL.ZHORIZONTALACCURACY < 0.0 THEN 'Invalid (No Fix/Negative)'
-            WHEN PL.ZHORIZONTALACCURACY = 0.0 THEN 'Invalid (Zero Accuracy)'
-            WHEN PL.ZHORIZONTALACCURACY <= 30.0 THEN 'High (GPS/Precise Wi-Fi)'
-            WHEN PL.ZHORIZONTALACCURACY <= 200.0 THEN 'Medium (Wi-Fi Network)'
-            WHEN PL.ZHORIZONTALACCURACY <= 1500.0 THEN 'Low (Cell Tower/Triangulation)'
-            ELSE 'Very Low (' || CAST(PL.ZHORIZONTALACCURACY AS TEXT) || 'm)'
+            WHEN PL.ZHORIZONTALACCURACY < 0.0 THEN 'Negative'
+            WHEN PL.ZHORIZONTALACCURACY = 0.0 THEN 'Zero'
+            WHEN PL.ZHORIZONTALACCURACY <= 30.0 THEN '30 m or less'
+            WHEN PL.ZHORIZONTALACCURACY <= 200.0 THEN 'Over 30 m to 200 m'
+            WHEN PL.ZHORIZONTALACCURACY <= 1500.0 THEN 'Over 200 m to 1500 m'
+            ELSE 'Over 1500 m'
         END AS "accuracy_context",
         PL.ZRADIUS
     FROM ZFSPLOG AS "PL"

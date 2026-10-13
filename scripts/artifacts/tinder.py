@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "Tinder2.sqlite, with the sender, the match and the media fields",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
         "notes": "Timestamps are Core Data (Cocoa) seconds and are converted to UTC. ZCREATED "
@@ -23,8 +23,10 @@ __artifacts_v2__ = {
                  "row carried it, so the person-to-person path of this artifact is implemented "
                  "and "
                  "not exercised by a corpus. A sample with real conversations would be welcome.\n"
-                 "ZTYPE and ZSUBTYPE are shown blank when the stored value is NULL, 0 or empty, "
-                 "and were blank on every tested row. "
+                 "ZTYPE and ZSUBTYPE are reported as stored and are blank only when the stored "
+                 "value is NULL or an empty string. They were shown blank on every tested row "
+                 "by the earlier version of this module, which also blanked a stored 0, so "
+                 "which of the three those rows hold was not re-measured. "
                  "Media columns are reported where present: ZMEDIAURL, ZPHOTOURL and "
                  "ZLOCALIMAGEURL are reported as stored; no media message existed in the tested "
                  "image, so what they hold is not established. This artifact renders no media. "
@@ -58,14 +60,15 @@ __artifacts_v2__ = {
                        "Tinder2.sqlite, joined to the matched person's ZUSER row",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
         "notes": "One row per ZMATCH entry. Timestamps are Core Data (Cocoa) seconds. The "
                  "boolean-shaped columns (ZISSUPERLIKEMATCH, ZISFASTMATCH, ZISBOOSTMATCH, "
                  "ZISEXPIRED, ZMATCHSEEN and the rest) are reported as stored; a blank in those "
-                 "columns is a NULL as stored. Subscription Tier and Message Draft are also blank "
-                 "when the stored value is 0 or empty.\nThe match whose ZMATCHID is the literal "
+                 "columns is a NULL as stored. Subscription Tier is reported as stored and is "
+                 "blank only for NULL or an empty string. Message Draft is also blank when the "
+                 "stored value is 0 or empty.\nThe match whose ZMATCHID is the literal "
                  "com.tinder.inbox.match does "
                  "not resolve to a person's ZUSER row; what it represents is not established "
                  "beyond the literal, and it was the only match in the tested "
@@ -86,7 +89,7 @@ __artifacts_v2__ = {
                        "Data store Tinder2.sqlite, joined to each profile's ZUSER row",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
         "notes": "Each row is a profile the app had stored as a recommendation, with that "
@@ -94,8 +97,8 @@ __artifacts_v2__ = {
                  "Presence of a row records that the app held the profile locally. It does not "
                  "establish that the profile was displayed to the user, that the user viewed "
                  "it, or that the user acted on it.\n"
-                 "ZRECTYPE is reported as stored; ZRECSOURCE and ZSUBSOURCE are reported as "
-                 "stored except that NULL, 0 and empty all show blank. Nothing in the "
+                 "ZRECTYPE, ZRECSOURCE and ZSUBSOURCE are reported as stored; a blank in "
+                 "those columns is a NULL or an empty string. Nothing in the "
                  "extraction maps their values. ZLIKED and ZSUPERLIKED come from the joined "
                  "ZUSER row and were NULL on every row in the tested image, so no swipe "
                  "decision is recoverable from it; a blank is an unset column, not a negative "
@@ -148,7 +151,7 @@ __artifacts_v2__ = {
                        "and matched to the profile photo URLs stored in Tinder2.sqlite",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
         "notes": "The cache file name is the cache key, percent-encoded; where the name decodes "
@@ -156,9 +159,9 @@ __artifacts_v2__ = {
                  "PINDiskCache.m encodes the '.', ':', '/' and '%' characters "
                  "(https://github.com/pinterest/PINCache/blob/00733305a8a808f1adb0e001428e494e10fe03ee/Source/PINDiskCache.m#L484); "
                  "which release of the library the app embeds is not established. This module "
-                 "decodes the first three back, so with that encoder a URL that itself holds a "
-                 "percent escape keeps %25 in the Source URL column and is not matched to the "
-                 "database. Where "
+                 "decodes those four back in one pass, so a URL that itself holds a percent "
+                 "escape gets its own percent sign back and no other escape is decoded. No "
+                 "cache name holding %25 was measured on the tested image. Where "
                  "the decoded URL also appears in the ZPHOTO or ZPROCESSEDPHOTO tables of "
                  "Tinder2.sqlite, the owning profile's name and user id are reported with it, "
                  "and the Source column says whether the row was matched to the database.\n"
@@ -199,6 +202,7 @@ __artifacts_v2__ = {
 import json
 import os
 import plistlib
+import re
 
 from scripts.ilapfuncs import artifact_processor, check_in_media, \
     convert_cocoa_core_data_ts_to_utc, convert_plist_date_to_utc, get_file_path, \
@@ -286,12 +290,22 @@ def _records(files_found, query):
     return source_path, list(get_sqlite_db_records(source_path, query))
 
 
+_CACHE_NAME_DECODED = {'%2E': '.', '%3A': ':', '%2F': '/', '%25': '%'}
+_CACHE_NAME_ESCAPE = re.compile(r'%(?:2E|3A|2F|25)', re.I)
+
+
+def _stored(value):
+    '''A column value as stored; only NULL becomes a blank cell.'''
+    return '' if value is None else value
+
+
 def _decode_cache_name(name):
-    '''The PINRemoteImage cache stores a file under its source URL with ':', '/' and
-    '.' percent-encoded. Decode those three back, leaving any other percent escape
-    from the URL itself untouched.'''
-    return (name.replace('%3A', ':').replace('%2F', '/').replace('%2E', '.')
-                .replace('%3a', ':').replace('%2f', '/').replace('%2e', '.'))
+    '''The PINRemoteImage cache stores a file under its source URL with '.', ':',
+    '/' and '%' percent-encoded (PINDiskCache.m). Decode those four back in a single
+    pass, so a '%25' becomes '%' and what follows it is not decoded a second time,
+    leaving any other percent escape from the URL itself untouched.'''
+    return _CACHE_NAME_ESCAPE.sub(
+        lambda match: _CACHE_NAME_DECODED[match.group(0).upper()], name)
 
 
 def _sniffed_extension(path):
@@ -352,8 +366,8 @@ def tinderMessages(context):
             record['SENDER_NAME'] or '',
             record['ZTEXT'] or '',
             record['MATCH_NAME'] or '',
-            record['ZTYPE'] or '',
-            record['ZSUBTYPE'] or '',
+            _stored(record['ZTYPE']),
+            _stored(record['ZSUBTYPE']),
             record['ZLIKED'],
             record['ZVIEWED'],
             record['ZISHIDDEN'],
@@ -427,7 +441,7 @@ def tinderMatches(context):
             record['ZMATCHSEEN'],
             record['ZVIEWED'],
             record['ZFOLLOWING'],
-            record['ZSUBSCRIPTIONTIER'] or '',
+            _stored(record['ZSUBSCRIPTIONTIER']),
             record['ZMESSAGEDRAFT'] or '',
             record['ZUSERID'] or '',
             record['ZMATCHID'] or '',
@@ -497,8 +511,8 @@ def tinderRecommendations(context):
             record['ZLIKED'],
             record['ZSUPERLIKED'],
             record['ZRECTYPE'],
-            record['ZRECSOURCE'] or '',
-            record['ZSUBSOURCE'] or '',
+            _stored(record['ZRECSOURCE']),
+            _stored(record['ZSUBSOURCE']),
             record['ZISNEW'],
             record['ZDIDREWIND'],
             record['ZSWIPENOTE'] or '',

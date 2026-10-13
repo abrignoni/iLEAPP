@@ -9,7 +9,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -25,9 +25,9 @@ __artifacts_v2__ = {
 ' latitude other than -180.0, so the listing of a southern hemisphere asset was shown on a'
 ' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
 ' stored latitude is not listed.'
-' The exported plist files are named from the asset file name and opened in append mode.'
-' Two assets with the same file name write to one file. What the decode then returns for the'
-" second asset was not tested. Value labels in this report are the module author's working"
+' The exported plist files are named from the asset file name and the asset row key (Z_PK), and'
+' each is written fresh, so two assets with the same file name export to separate files. No'
+" tested library was checked for assets sharing a file name. Value labels in this report are the module author's working"
 ' interpretations from testing. The module cites no source for them. Each label carries the stored'
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
 " value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -80,9 +80,9 @@ __artifacts_v2__ = {
 ' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
 ' stored latitude is not listed.'
 " Each row's shifted and reverse location plists are exported to the report folder and"
-' shown decoded. The exported plist files are named from the asset file name and opened in append'
-' mode. Two assets with the same file name write to one file. What the decode then returns for the'
-" second asset was not tested. Value labels in this report are the module author's working"
+' shown decoded. The exported plist files are named from the asset file name and the asset row key'
+' (Z_PK), and each is written fresh, so two assets with the same file name export to separate files.'
+" No tested library was checked for assets sharing a file name. Value labels in this report are the module author's working"
 ' interpretations from testing. The module cites no source for them. Each label carries the stored'
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
 " value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -130,9 +130,9 @@ __artifacts_v2__ = {
 ' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
 ' stored latitude is not listed.'
 " Each row's shifted and reverse location plists are exported to the report folder and shown"
-' decoded. The exported plist files are named from the asset file name and opened in append mode.'
-' Two assets with the same file name write to one file. What the decode then returns for the'
-" second asset was not tested. Value labels in this report are the module author's working"
+' decoded. The exported plist files are named from the asset file name and the asset row key (Z_PK),'
+' and each is written fresh, so two assets with the same file name export to separate files. No'
+" tested library was checked for assets sharing a file name. Value labels in this report are the module author's working"
 ' interpretations from testing. The module cites no source for them. Each label carries the stored'
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
 " value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
@@ -153,6 +153,15 @@ import nska_deserialize as nd
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
+def _export_name(filename, asset_pk):
+    """Name an exported plist after the asset file name and the asset row key.
+
+    The row key keeps two assets that share a file name, or an asset with no stored
+    file name, from writing to one file.
+    """
+    return f"{'' if filename is None else filename}-zPK{asset_pk}"
+
+
 @artifact_processor
 def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
     files_found = context.get_files_found()
@@ -167,6 +176,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -233,8 +245,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, "rb") as fp:
@@ -245,8 +257,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, "rb") as fp:
@@ -376,8 +388,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, 'rb') as f:
@@ -387,14 +399,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -404,9 +416,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             aaashiftedlocation_postal_address,
@@ -544,8 +556,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -555,14 +567,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[16] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[16])
 
                 with open(pathto, 'rb') as f:
@@ -572,9 +584,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12],
@@ -717,8 +729,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -728,14 +740,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -745,9 +757,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -892,8 +904,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -903,14 +915,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -920,9 +932,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -979,6 +991,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
@@ -1045,8 +1060,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, "rb") as fp:
@@ -1057,8 +1072,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, "rb") as fp:
@@ -1188,8 +1203,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, 'rb') as f:
@@ -1199,14 +1214,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -1216,9 +1231,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             aaashiftedlocation_postal_address,
@@ -1356,8 +1371,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -1367,14 +1382,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[16] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[16])
 
                 with open(pathto, 'rb') as f:
@@ -1384,9 +1399,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12],
@@ -1529,8 +1544,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -1540,14 +1555,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -1557,9 +1572,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -1704,8 +1719,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -1715,14 +1730,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -1732,9 +1747,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -1791,6 +1806,9 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -1897,8 +1915,8 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -1908,14 +1926,14 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -1925,9 +1943,9 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],

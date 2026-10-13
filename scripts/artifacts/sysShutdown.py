@@ -7,9 +7,9 @@ __artifacts_v2__ = {
                        "each process appeared under and marks paths under /private/var/db/ and "
                        "/private/var/tmp/, two directories Kaspersky's research names; a mark is "
                        "a lead to review, not a finding",
-        "author": "@KevinPagano3",
+        "author": "@KevinPagano3, @AlexisBrignoni, Codex",
         "creation_date": "2024-02-13",
-        "last_update_date": "2026-09-18",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": (
@@ -20,7 +20,8 @@ __artifacts_v2__ = {
             "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/"
             "). Legitimate software can also run from these paths, so a mark is a lead to review, "
             "not a finding. Timestamp is the epoch on the block's 'SIGTERM:' line; client lines "
-            "with no SIGTERM line after them are not reported. The log is read from every file the "
+            "with no SIGTERM line after them are retained with no Timestamp value. This does not "
+            "establish a reboot or a complete log. The log is read from every file the "
             "paths match: the live shutdown.log and "
             "the copy a packed sysdiagnose (sysdiagnose_*.tar.gz) holds under "
             "system_logs.logarchive/Extra, named shutdown.log or shutdown.0.log on test data. A row "
@@ -194,6 +195,12 @@ def _parse_shutdown_logs(context):
                 current_delay = None
                 delay_notices = 0
                 longest_delay = None
+        for pid, path, delay in entries:
+            process = (None, entry_num, pid, path, delay, _path_indicator(path))
+            if process not in seen_processes:
+                seen_processes.add(process)
+                processes.append(process + (rel,))
+            entry_num += 1
         sources.append(rel)
 
     return processes, reboots, ', '.join(dict.fromkeys(sources))

@@ -4,13 +4,16 @@ __artifacts_v2__ = {
         'description': 'Extracts messages and transaction details from Vipps.',
         'author': '@AlexisBrignoni',
         'creation_date': '2022-06-22',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Vipps',
         'notes': 'The telephone value is extracted from the feed model key using an '
-                 'observed key format. Name is the ZNAME of the first ZCONTACTMODEL row whose '
-                 'phone column contains that value as a substring, so it can be another '
-                 'contact\'s name. Where no row matches, Name is blank. Only feed items whose '
+                 'observed key format. Name lists the distinct ZNAME values of every ZCONTACTMODEL '
+                 'row whose phone column contains that value as a substring, separated by a '
+                 'semicolon, so a listed name can be another contact\'s and more than one name '
+                 'does not establish which contact the feed item belongs to. ZRAWPHONENUMBERS '
+                 'is searched first and ZPHONENUMBERS only when it gives no match. Where no row '
+                 'matches, Name is blank. Only feed items whose '
                  'model is CHAT are reported. No registered corpus is recorded for this artifact.',
         'paths': ('*/Vipps.sqlite*',),
         'output_types': 'standard',
@@ -41,9 +44,16 @@ def _get_contact_name(source_path, telephone, phone_columns):
         FROM ZCONTACTMODEL
         WHERE {phone_column} LIKE '%{escaped_telephone}%'
         '''
-        contact_rows = list( get_sqlite_db_records(source_path, query) )
-        if contact_rows:
-            return contact_rows[0][0]
+        names = []
+        for contact_row in get_sqlite_db_records(source_path, query) or []:
+            contact_name = contact_row[0]
+            if contact_name in (None, ''):
+                continue
+            contact_name = str(contact_name)
+            if contact_name not in names:
+                names.append(contact_name)
+        if names:
+            return '; '.join(names)
     return ''
 
 

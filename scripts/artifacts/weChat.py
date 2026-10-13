@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "weChatMessages": {
         "name": "WeChat - Messages",
         "description": "Chat messages from the WeChat (Weixin) iOS client, with the body as stored",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-09-22",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "WeChat",
         "notes": "On the two devices tested, messages were held in tables named Chat_ followed by "
@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                  "account's DB folder. Every such table in those databases is read. On the two "
                  "devices tested the message body was in the clear, so the Message column carries "
                  "the text as stored; a row whose type is not text carries the client's own "
-                 "payload for that type instead, also as stored. Sent is the CreateTime column "
+                 "payload for that type instead, also as stored. CreateTime is the stored column "
                  "read as Unix seconds in UTC; whether it marks sending, receipt or storage is "
                  "not established. Direction is the Des column and is reported as stored, because "
                  "no source for the mapping of its two values was established from the closed "
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
                  "name. The cells are also blank when no contact database was found for the "
                  "account folder. Field mapping was done against two private samples; no sample "
                  "data is recorded for them. The account id is the MD5 folder under Documents, "
-                 "and every account folder in the extraction is read.",
+                 "and every account folder in the extraction is read. Original contribution: @AlexisBrignoni, Claude.",
         "paths": ('*/Documents/*/DB/message_*.sqlite*',
                   '*/Documents/*/DB/MM.sqlite*',
                   '*/Documents/*/DB/WCDB_Contact.sqlite*'),
@@ -131,7 +131,7 @@ def _stores(context):
 @artifact_processor
 def weChatMessages(context):
     data_headers = (
-        ('Sent', 'datetime'),
+        ('CreateTime', 'datetime'),
         'Direction (as stored)',
         'Type (as stored)',
         'Message',

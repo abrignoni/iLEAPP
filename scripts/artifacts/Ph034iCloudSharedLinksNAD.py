@@ -4,7 +4,7 @@ __artifacts_v2__ = {
 'description': 'Share and participant records from PhotoData/Photos.sqlite with stored ZSHARE.ZSCOPETYPE 2. A share with multiple participants appears on multiple rows; no asset data is parsed. Queries support iOS 14 through 25, with unsupported versions returning no rows. Enum fields report raw stored values. Registered real samples have returned no qualifying rows.',
 'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-05',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -51,6 +51,9 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) < version.parse("14")) or (version.parse(iosversion) >= version.parse("26")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path

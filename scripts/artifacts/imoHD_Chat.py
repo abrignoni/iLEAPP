@@ -2,14 +2,16 @@ __artifacts_v2__ = {
     "imoHDChatMessages": {
         "name": "IMO HD Chat - Messages",
         "description": "IMO HD chat messages and attachments",
-        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-09-06", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "IMO HD Chat",
         "notes": "URLs are built by the parser from object IDs with a fixed prefix; they are not "
                  "stored in the data and were not checked against the service. On a row whose ZISSENT "
                  "is 1, Sender Name and Sender ID are the imo_account_alias and imo_account_uid values "
                  "of ZIMOKEYVAL, not values of the message row, and Sender Name reads 'Local User' "
-                 "when no alias is stored. Timestamp is ZTS read as Unix nanoseconds. Only the first "
-                 "IMODb2.sqlite found is read. Older stores have no ZCONTACT_ALIAS column on the "
+                 "when no alias is stored. Timestamp is ZTS read as Unix nanoseconds. Every "
+                 "IMODb2.sqlite the paths match is read, each with its own ZIMOKEYVAL values, and "
+                 "the source path lists each file read; reading more than one was not exercised on "
+                 "a tested image. Older stores have no ZCONTACT_ALIAS column on the "
                  "message table (the iOS 13.3.1 and 14.3 images), so on those the chat and sender names "
                  "fall back from the contact table's display name straight to the alias stored on the "
                  "message.",
@@ -38,7 +40,7 @@ __artifacts_v2__ = {
     "imoHDChatContacts": {
         "name": "IMO HD Chat - Contacts",
         "description": "IMO HD chat contacts",
-        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "IMO HD Chat", "notes": "The URL is built by the parser from ZICON_ID with a fixed "
                                             "prefix; it is not stored in the data and was not checked "
                                             "against the service.",
@@ -54,7 +56,7 @@ __artifacts_v2__ = {
     "imoHDChatKeyValues": {
         "name": "IMO HD Chat - Key Values",
         "description": "IMO HD account and application key/value records",
-        "author": "@stark4n6", "creation_date": "2026-08-11", "last_update_date": "2026-08-11", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-08-11", "last_update_date": "2026-10-09", "requirements": "none",
         "category": "IMO HD Chat", "notes": "Includes local account identifiers and other IMO key/value settings stored in ZIMOKEYVAL.",
         "paths": ('*/IMODb2.sqlite*',),
         "output_types": "standard", "artifact_icon": "key",
@@ -98,12 +100,10 @@ def _load_blob_plist(blob):
         return None
 
 
-def _find_db(context):
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('IMODb2.sqlite'):
-            return file_found
-    return ''
+def _find_dbs(context):
+    """Every IMODb2.sqlite main file the paths matched, once each, in path order."""
+    return sorted({str(file_found) for file_found in context.get_files_found()
+                   if str(file_found).endswith('IMODb2.sqlite')})
 
 
 def _format_blob_value(blob):
@@ -171,10 +171,15 @@ def imoHDChatMessages(context):
         'Constructed CDN URL (unverified)',
     )
     data_list = []
-    db_path = _find_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
     files = [str(f) for f in context.get_files_found()]
+    db_paths = _find_dbs(context)
+    for db_path in db_paths:
+        _message_rows(db_path, files, data_list)
+    return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in db_paths)
+
+
+def _message_rows(db_path, files, data_list):
+    """Append the message rows of one IMODb2.sqlite, with that store's own account values."""
     key_values = get_imo_hd_key_values(db_path)
     local_user_name = _get_key_value(key_values, 'imo_account_alias') or 'Local User'
     local_user_id = _get_key_value(key_values, 'imo_account_uid')
@@ -232,17 +237,13 @@ def imoHDChatMessages(context):
             attachment_url,
         ))
 
-    return data_headers, data_list, context.get_relative_path(db_path)
-
 
 @artifact_processor
 def imoHDChatContacts(context):
     data_headers = ('Contact Name', 'Contact Alias', ('Contact Phone', 'phonenumber'),
                     'Constructed Profile CDN URL (unverified)', 'User ID', 'Is Group')
     data_list = []
-    db_path = _find_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
+    db_paths = _find_dbs(context)
 
     query = '''
     SELECT
@@ -254,22 +255,22 @@ def imoHDChatContacts(context):
         CASE ZIS_GROUP WHEN 1 THEN 'Yes' WHEN 0 THEN 'No' ELSE '' END
     FROM ZIMOCONTACT
     '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
+    for db_path in db_paths:
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row))
 
-    return data_headers, data_list, context.get_relative_path(db_path)
+    return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in db_paths)
 
 
 @artifact_processor
 def imoHDChatKeyValues(context):
     data_headers = ('Key', 'String Value', 'Long Value', 'Date Value', 'Data Value')
     data_list = []
-    db_path = _find_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
+    db_paths = _find_dbs(context)
 
-    for item in get_imo_hd_key_values(db_path):
-        data_list.append((item.get('key'), item.get('string_value'), item.get('long_value'),
-                          item.get('date_value'), item.get('data_value')))
+    for db_path in db_paths:
+        for item in get_imo_hd_key_values(db_path):
+            data_list.append((item.get('key'), item.get('string_value'), item.get('long_value'),
+                              item.get('date_value'), item.get('data_value')))
 
-    return data_headers, data_list, context.get_relative_path(db_path)
+    return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in db_paths)

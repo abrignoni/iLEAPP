@@ -48,12 +48,15 @@ __artifacts_v2__ = {
     "logarchive_artifacts": {
         "name": "logarchive artifacts",
         "description": "Extract relevant entries from the logarchive table of LAVA db",
-        "author": "@AlexisBrignoni, @JohannPLW",
+        "author": "@AlexisBrignoni, Codex, @JohannPLW",
         "creation_date": "2025-05-19",
-        "last_update_date": "2025-05-21",
+        "last_update_date": "2026-10-09",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "Filters imported logs in bounded row ranges and reports progress, "
+                 "including ranges with no matching events. Selected rows stream into LAVA. "
+                 "A compiled multi-pattern prefilter accelerates comparisons when available; "
+                 "the original SQLite predicates determine which events are selected.",
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "database",
@@ -89,7 +92,8 @@ __artifacts_v2__ = {
         "last_update_date": "2025-05-25",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "The two tags are matched as message text in any process, with no process, "
+                 "subsystem or category condition.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "sun",
@@ -97,17 +101,36 @@ __artifacts_v2__ = {
     "logarchive_executed_apps": {
         "name": "logarchive executed apps",
         "description": "Unified log entries containing 'Allowing tap for icon view', 'Launching "
-                       "application' or 'transition source:'; what each form records is not "
-                       "sourced here",
-        "author": "@AlexisBrignoni",
+                       "application' or 'transition source:', and entries of the "
+                       "com.apple.UserNotifications subsystem containing 'Launch application'; what "
+                       "each form records is not sourced here",
+        "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2025-05-26",
-        "last_update_date": "2025-05-26",
+        "last_update_date": "2026-10-06",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "'Launch application' is matched only in the com.apple.UserNotifications subsystem. "
+                 "Those entries were on two of the five tested images: 7 rows on the iOS 12.4 image "
+                 "and 8 on the iOS 26.5.2 image, logged by SpringBoard in the AppLaunching category. "
+                 "9 of the 15 contain 'Launch application in foreground for notification response "
+                 "action' and 6 contain 'Launch application in background for notification "
+                 "response'; 3 of the iOS 26.5.2 rows hold <private> in place of the value that ends "
+                 "the others. The other three images held no such entry, and the clause adds no row "
+                 "that the three older terms already matched. Process Image Path was SpringBoard and "
+                 "Process ID held one value on the rows of each tested image. The iOS 12.4 image "
+                 "held only the UserNotifications entries, so Subsystem and Category each held "
+                 "one value there. Trace ID held no value on any row of the tested images: rows "
+                 "read from tracev3 data leave it empty.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "code",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 7 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 752 rows",
+            "dexter_ios18": "iOS 18.3.2 | 95 rows",
+            "iphone12_ios18": "iOS 18.7 | 1676 rows",
+            "hc_ios26": "iOS 26.5.2 | 442 rows",
+        },
     },
     "logarchive_tethering": {
         "name": "logarchive personal hotspot",
@@ -280,11 +303,12 @@ __artifacts_v2__ = {
         "name": "logarchive call events",
         "description": "Unified log entries recording telephony activity: call tracking "
                        "start and end from callservicesd, Phone app open requests with the "
-                       "originating process, Phone app tab changes, and keypad tone "
-                       "requests (actionID 1200-1209 map to keypad digits 0-9)",
-        "author": "@AlexisBrignoni",
+                       "originating process, Phone app tab changes, keypad tone "
+                       "requests (actionID 1200-1209 map to keypad digits 0-9), and incoming call "
+                       "entries in the ims log category",
+        "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-12",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
@@ -297,10 +321,39 @@ __artifacts_v2__ = {
                  "iOS 18.7. The number "
                  "payloads in these particular entries are redacted to <private>; the "
                  "dialed numbers artifact collects the CommCenter call.provider block that "
-                 "carries the number in the clear.",
+                 "carries the number in the clear. Entries in category ims are matched on three "
+                 "message texts, with no process or subsystem condition: 'Incoming call ... from "
+                 "...', 'Alerting user of incoming call' and 'Sending Incoming Call notification'. "
+                 "The search terms came from Hexordia research. On the 14 images in sample_data, iOS "
+                 "12.4 to 26.6, read from tracev3 data, they gave 11 rows on 4 images (iOS 16.5, "
+                 "17.2.1, 18.3.2 and 26.5.2): 5 'Incoming call ... from', 5 'Alerting user' and 1 "
+                 "'Sending Incoming Call notification', all from CommCenter in subsystem "
+                 "com.apple.ipTelephony. The 5 'Incoming call ... from' rows, on the iOS 16.5, "
+                 "17.2.1 and 26.5.2 images, each hold a value beginning with '+' after 'from' that "
+                 "is not redacted, so the redaction described above does not cover them. Across the "
+                 "14 images the same category held 411 entries reading 'Carrier incoming call "
+                 "validations is enabled/disabled for this registration', on 8 images; they are not "
+                 "collected, because their text names a registration setting and no call. A 'log "
+                 "show' JSON export was not tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "phone",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 430 rows; 0 ims",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 199 rows; 0 ims",
+            "jess_ios15": "iOS 15.0.2 | 14 rows; 0 ims",
+            "abe_ios16": "iOS 16.5 | 836 rows; 4 ims",
+            "felix23_ios16": "iOS 16.5 | 63 rows; 0 ims",
+            "fsfull002_ios17": "iOS 17.1 | 42 rows; 0 ims",
+            "hc_ios17_2": "iOS 17.2.1 | 242 rows; 4 ims",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 11 rows; 0 ims",
+            "dexter_ios18": "iOS 18.3.2 | 24 rows; 1 ims",
+            "iphone12_ios18": "iOS 18.7 | 570 rows; 0 ims",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; 0 ims",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 154 rows; 0 ims",
+            "hc_ios26": "iOS 26.5.2 | 108 rows; 2 ims",
+            "hc_ios26_sysdiag": "iOS 26.6 | 22 rows; 0 ims",
+        },
     },
     "logarchive_dialed_numbers": {
         "name": "logarchive dialed numbers",
@@ -704,6 +757,161 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "battery-charging",
     },
+    "logarchive_battery_center_sources": {
+        "name": "logarchive Battery Center power sources",
+        "description": "Unified log entries in which Battery Center listed a power source, the "
+                       "internal battery or a wireless accessory, with the name, type, transport, "
+                       "charge values and identifiers it logged",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-09",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive "
+                 "module must run in the same session. Row Number is the entry's row number in "
+                 "the logarchive table. Selects com.apple.BatteryCenter entries containing 'Found "
+                 "power source: {', whose message is a dictionary of 'key = value;' lines. Each "
+                 "column named for a key holds that key's value as logged, with the quotes and "
+                 "backslash escapes of a quoted value removed. Every other key goes to Other "
+                 "Values as 'key = value', a value that is itself a dictionary is kept there "
+                 "as one value (Trusted Battery Data, AdapterDetails), and so is any line that is not a "
+                 "key and value pair. The meaning and units of the values are not established "
+                 "here. Howard Oakley describes these entries on macOS in 'How macOS keeps an eye "
+                 "on UPS and wireless devices' "
+                 "(https://eclecticlight.co/2024/06/21/how-macos-keeps-an-eye-on-ups-and-wireless-devices/) "
+                 "and 'Check UPS, batteries and input devices using Unhidden' "
+                 "(https://eclecticlight.co/2024/07/08/check-ups-batteries-and-input-devices-using-unhidden/). "
+                 "His posts do not cover iOS, and the second reports the BatteryCenter framework "
+                 "as added in macOS Sonoma; the iOS 12.4 image tested here, whose rows are dated "
+                 "2020, already holds these entries. Tested on the 14 images in sample_data, iOS "
+                 "12.4 to 26.6, read from tracev3 data; a 'log show' JSON export was not tested. "
+                 "13 images gave 12,582 rows, 2,591 at most on one image. hc_ios18_7 held no "
+                 "com.apple.BatteryCenter entry among its 726,120 log entries, which is not "
+                 "evidence about its battery. Name held a value on every row. 12,251 rows "
+                 "describe the internal battery: Name InternalBattery-0, Transport Type Internal, "
+                 "Is Present 1. Max Capacity held 100 on all 12,582 rows. 331 rows, all on "
+                 "ai16_ios26_sysdiag (iOS 26.5.2), describe one Bluetooth accessory: Type "
+                 "'Accessory Source', Transport Type Bluetooth, Accessory Category Watch, Vendor "
+                 "ID 76 and an Accessory Identifier in the 8-4-4-4-12 form of a UUID, with Low "
+                 "Warn Level, Temperature and AdapterDetails in Other Values and no value for Is "
+                 "Present, Raw External Connected, Show Charging UI, Play Charging Chime, Cycle "
+                 "count or Is Finishing Charge. Accessory Identifier, Accessory Category and "
+                 "Vendor ID had no value on any other row, and no tested image held an entry for "
+                 "another kind of accessory, so only that form was exercised. Keys differ by "
+                 "release. Cycle count had no value on the five images from iOS 12.4 to 16.5 and "
+                 "a value on every internal battery row of the eight from iOS 17.1 up. Play "
+                 "Charging Chime had no value on the iOS 12.4 image. Is Finishing Charge had a "
+                 "value on exactly the 5,208 rows where Is Charging was 1, and Is Charged on "
+                 "1,797 rows of 10 images. The log cut 371 internal battery entries off at 1,031 "
+                 "bytes (all 331 on ai16_ios26_sysdiag and 40 of the 45 on dexter_ios18), before "
+                 "or inside the Type line. Type has no value on those rows, what was logged "
+                 "before the cut is still split, and on 71 of them the cut line is in Other "
+                 "Values as 'Type = ' with part of the value. No other entry reached that length. "
+                 "The same listing is logged by more than one process and by more than one "
+                 "controller object, so rows are not one per battery reading: hc_ios17_2 gave "
+                 "2,057 rows from 3 processes and 15 controller addresses. Rows came from "
+                 "SpringBoard (11,758), WidgetRenderer_Default (760), "
+                 "BatteriesAvocadoWidgetExtension (59) and BatteriesWidgetExtension (5). 5 rows "
+                 "on fsfull002_ios17 are dated 1970, the time the logarchive table holds for "
+                 "those entries. The other com.apple.BatteryCenter entries are not selected, and "
+                 "the 'Found device' entries are reported by the Battery Center devices artifact. "
+                 "The logarchive battery state artifact selects other entries: none of its 8,192 "
+                 "rows on these images is a com.apple.BatteryCenter entry.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 250 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 831 rows",
+            "jess_ios15": "iOS 15.0.2 | 1770 rows",
+            "abe_ios16": "iOS 16.5 | 613 rows",
+            "felix23_ios16": "iOS 16.5 | 1747 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1257 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 2057 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 128 rows",
+            "dexter_ios18": "iOS 18.3.2 | 45 rows",
+            "iphone12_ios18": "iOS 18.7 | 2591 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; no com.apple.BatteryCenter entry in the log",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 662 rows",
+            "hc_ios26": "iOS 26.5.2 | 449 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 182 rows",
+        },
+    },
+    "logarchive_battery_center_devices": {
+        "name": "logarchive Battery Center devices",
+        "description": "Unified log entries in which Battery Center listed a device with a "
+                       "battery: its name, vendor, charge percentage, charging and connection "
+                       "values, transport and identifiers as logged",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-09",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive "
+                 "module must run in the same session. Row Number is the entry's row number in "
+                 "the logarchive table. Selects com.apple.BatteryCenter entries containing 'Found "
+                 "device: <BCBatteryDevice:', whose message is a list of 'key = value' pairs "
+                 "separated by '; '. The message is split where '; ' is followed by a word and "
+                 "'='. Columns hold the values as logged, '(null)' included: Name (name), Group "
+                 "Name (groupName), Vendor (vendor), Model Number (modelNumber), Percent Charge "
+                 "(percentCharge), Charging (charging), Connected (connected), Internal "
+                 "(internal), Power Source State (the key is logged as poweredSoureState), "
+                 "Transport Type (transportType), Accessory Identifier (accessoryIdentifier), "
+                 "Accessory Category (accessoryCategory), Identifier (identifier) and Product "
+                 "Identifier (productIdentifier). Every other pair goes to Other Values, and a "
+                 "message of another shape is kept whole there. The meaning of the values is not "
+                 "established here. Howard Oakley describes Battery Center's log entries on macOS "
+                 "in 'How macOS keeps an eye on UPS and wireless devices' "
+                 "(https://eclecticlight.co/2024/06/21/how-macos-keeps-an-eye-on-ups-and-wireless-devices/) "
+                 "and 'Check UPS, batteries and input devices using Unhidden' "
+                 "(https://eclecticlight.co/2024/07/08/check-ups-batteries-and-input-devices-using-unhidden/). "
+                 "His posts do not cover iOS, and they show the power source dictionaries, "
+                 "reported by the Battery Center power sources artifact, and not this entry. "
+                 "Tested on the 14 images in sample_data, iOS 12.4 to 26.6, read from tracev3 "
+                 "data; a 'log show' JSON export was not tested. 13 images gave 12,580 rows, "
+                 "2,591 at most on one image. hc_ios18_7 held no com.apple.BatteryCenter entry "
+                 "among its 726,120 log entries, which is not evidence about its battery. Name "
+                 "held a value on every row, and no entry was cut short (the longest was 568 "
+                 "bytes). 12,249 rows have Internal YES, Group Name InternalBattery-0, Accessory "
+                 "Identifier (null) and Accessory Category Unknown. Their Name held one value per "
+                 "image; whether that is the name set on the device was not checked. 331 rows, "
+                 "all on ai16_ios26_sysdiag (iOS 26.5.2), have Internal NO, Transport Type "
+                 "Bluetooth, Accessory Category Watch and Name equal to Group Name, with the name "
+                 "and the UUID-form Accessory Identifier that the power sources artifact reports "
+                 "on its accessory rows. No tested image held an entry for another kind of "
+                 "accessory, so only that form was exercised. Vendor (Apple), Connected (YES) and "
+                 "Product Identifier (0) held one value on all 12,580 rows. Model Number held "
+                 "(null) on every row except the 250 of the iOS 12.4 image, whose entries have no "
+                 "modelNumber. Transport Type on the internal rows was Internal, except on the "
+                 "iOS 12.4 and 14.3 images, which logged 1 (1,081 rows). Identifier on every row "
+                 "equalled a Power Source ID among the same image's power source rows. Other "
+                 "Values held parts, matchIdentifier, lowBattery and powerSource on every row, "
+                 "lowPowerModeActive on the 11 images from iOS 15.0.2 up, batterySaverModeActive "
+                 "on the iOS 12.4 and 14.3 images, and paused on the three iOS 26 images. The "
+                 "same listing is logged by more than one process and by more than one controller "
+                 "object, so rows are not one per battery reading. hc_ios17_2 and hc_ios26 each "
+                 "gave one row fewer than the power sources artifact. 5 rows on fsfull002_ios17 "
+                 "are dated 1970, the time the logarchive table holds for those entries.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 250 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 831 rows",
+            "jess_ios15": "iOS 15.0.2 | 1770 rows",
+            "abe_ios16": "iOS 16.5 | 613 rows",
+            "felix23_ios16": "iOS 16.5 | 1747 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1257 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 2056 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 128 rows",
+            "dexter_ios18": "iOS 18.3.2 | 45 rows",
+            "iphone12_ios18": "iOS 18.7 | 2591 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; no com.apple.BatteryCenter entry in the log",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 662 rows",
+            "hc_ios26": "iOS 26.5.2 | 448 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 182 rows",
+        },
+    },
     "logarchive_ui_navigation": {
         "name": "logarchive interface navigation",
         "description": "Unified log entries recording interface navigation between apps: "
@@ -821,10 +1029,11 @@ __artifacts_v2__ = {
         "description": "Unified log entries matching AirDrop and share sheet message text: the "
                        "device's AirDrop ID, discoverability "
                        "scanning mode (Everyone/Contacts Only/Off), SharingDaemon state "
-                       "dumps, share sheet activation, and transfer entries",
-        "author": "@AlexisBrignoni",
+                       "dumps, share sheet activation, transfer entries, discoverable mode changes, and "
+                       "validation record hash entries",
+        "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-12",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented by Sarah Edwards "
@@ -836,10 +1045,44 @@ __artifacts_v2__ = {
                  "documented-only; no transfer occurred in the validation images' log "
                  "windows. The cited research reports that the AirDrop ID is not constant for the "
                  "life of the device and changes often; how long one ID stays in use is not "
-                 "established here.",
+                 "established here. Every term is matched as message text in any process, with no "
+                 "process, subsystem or category condition. 'Scanning mode' and 'startSending' are "
+                 "short strings, and whether components other than AirDrop and the share sheet log "
+                 "them was not measured, so read Process Image Path, Subsystem and Category on each "
+                 "row before attributing it. 'Discoverable mode changed from' and 'Hashes in validation "
+                 "record:' come from Hexordia research and are matched at the start of the message. On "
+                 "the 14 images in sample_data, iOS 12.4 to 26.6, read from tracev3 data, 'Discoverable "
+                 "mode changed from' gave 84 rows on 11 images, all from /usr/libexec/sharingd in "
+                 "subsystem com.apple.sharing, category AirDrop. The 76 rows on the eight images from "
+                 "iOS 12.4 to 17.3 name the old and new mode ((null), Off, Contacts Only or Everyone); "
+                 "the 8 rows on the iOS 18.3.2, 18.7 and 26.6 images read '<private> to <private>'. "
+                 "'Hashes in validation record:' is collected as documented-only: no entry on any of "
+                 "the 14 images contained that text, so what those entries hold was not measured here. "
+                 "Partial SHA-256 hash values in the receiver's sysdiagnose logarchive are described by "
+                 "Epstein, Klein and Feuerstein, 'Analysis of Sysdiagnose in iOS 15 to Identify the "
+                 "Sending Phone Number of AirDrop Data', Journal of Forensic Sciences, January 2022, "
+                 "as summarised in the 4n6 Ninja post "
+                 "(https://gforce4n6.blogspot.com/2022/03/airdropping-some-knowledge-using-rleapp.html). "
+                 "A 'log show' JSON export was not tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "share",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 94 rows; 5 discoverable mode, 0 validation record hashes",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 232 rows; 6 discoverable mode, 0 validation record hashes",
+            "jess_ios15": "iOS 15.0.2 | 66 rows; 3 discoverable mode, 0 validation record hashes",
+            "abe_ios16": "iOS 16.5 | 268 rows; 3 discoverable mode, 0 validation record hashes",
+            "felix23_ios16": "iOS 16.5 | 30 rows; 4 discoverable mode, 0 validation record hashes",
+            "fsfull002_ios17": "iOS 17.1 | 160 rows; 46 discoverable mode, 0 validation record hashes",
+            "hc_ios17_2": "iOS 17.2.1 | 275 rows; 8 discoverable mode, 0 validation record hashes",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 90 rows; 1 discoverable mode, 0 validation record hashes",
+            "dexter_ios18": "iOS 18.3.2 | 12 rows; 3 discoverable mode, 0 validation record hashes",
+            "iphone12_ios18": "iOS 18.7 | 17 rows; 3 discoverable mode, 0 validation record hashes",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; 0 discoverable mode, 0 validation record hashes",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 1 rows; 0 discoverable mode, 0 validation record hashes",
+            "hc_ios26": "iOS 26.5.2 | 46 rows; 0 discoverable mode, 0 validation record hashes",
+            "hc_ios26_sysdiag": "iOS 26.6 | 13 rows; 2 discoverable mode, 0 validation record hashes",
+        },
     },
     "logarchive_carplay_session": {
         "name": "logarchive CarPlay session",
@@ -853,8 +1096,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-02",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "NOT YET VALIDATED IN-HOUSE. Every pattern here except 'CarPlay Connection Event' "
-                 "comes from Tim Korver's "
+        "notes": "NOT YET VALIDATED IN-HOUSE. 'CarPlay Connection Event' is a term this module's "
+                 "general filter already carried; it is not in the cited research, no source for it "
+                 "is cited here and what an entry holding it records is not established. Every "
+                 "other pattern here comes from Tim Korver's "
                  "CarPlay handshake research "
                  "(https://thesisfriday.com/thesis-friday-20-project-stark-forensic-reconstruction-of-the-carplay-handshake/), "
                  "which documents the sequence on iOS 26.6 (build 23G71, iPhone 14) after "
@@ -1129,6 +1374,174 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
+    "logarchive_app_state": {
+        "name": "logarchive app install and state",
+        "description": "Unified log entries from installd in the com.apple.appinstallation "
+                       "TransactionLog category, and CommCenter ct.server entries beginning 'App "
+                       "state'; what each entry records about an app is reported as logged and is "
+                       "not sourced here",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-06",
+        "last_update_date": "2026-10-06",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms provided by Hexordia as part of private R&D work; what the entries "
+                 "mean is not sourced here, so they are reported as logged. Two filters feed this "
+                 "artifact. (1) Entries logged by /usr/libexec/installd in the TransactionLog "
+                 "category of the com.apple.appinstallation subsystem. On the five tested images "
+                 "each message ended with a phase and an action separated by ' : '. Phases seen: "
+                 "'Start', 'Success (End)' and 'Fail (End)'. Actions seen: 'Install (New)', "
+                 "'Install (Placeholder)', 'Install (Parallel Placeholder)', 'Install (Promote From "
+                 "Placeholder)', 'Install (Patch Update)', 'Uninstall (Application)', 'Uninstall "
+                 "(Parallel Placeholder)', 'Staged Update Placeholder' and 'Apply Staged Update'. "
+                 "The message begins with an identifier followed by four numbers; on the iOS "
+                 "17.2.1, 18.3.2, 18.7 and 26.5.2 images a slash and a second value follow the "
+                 "identifier, and on the iOS 12.4 image they do not. What the numbers and the "
+                 "second value are is not established. No installd message held <private> on a "
+                 "tested image. Other processes log in the same category (19 to 53 processes per "
+                 "tested image, 1,992 to 21,210 entries against 20 to 468 from installd); their "
+                 "entries are not reported here. (2) CommCenter entries in the ct.server category "
+                 "that begin 'App state'. They read 'App state[...] is suspended' or 'App "
+                 "state[...] is moving from <state> to <state>'. State names seen: kUnknown, "
+                 "kInBackgroundUnknownRestriction, kInBackgroundRestricted, "
+                 "kInForegroundUnknownRestriction, kInForegroundRestricted and kNoRestrictions. "
+                 "What each state means is not established. On the iOS 12.4 image the bracketed "
+                 "value was <private> on each of the 1,237 rows. On the other four images it was "
+                 "not redacted, and it was a name followed by a number in parentheses on 514 of "
+                 "515 rows; whether that name is a bundle or a process name, and what the number "
+                 "is, is not established. Only the direct tracev3 import was tested. A 'log show' "
+                 "JSON export was not, and the installd filter relies on the Process Image Path "
+                 "column holding the /usr/libexec/installd path. Trace ID held no value on any row "
+                 "of the tested images: rows read from tracev3 data leave it empty.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1449 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 155 rows",
+            "dexter_ios18": "iOS 18.3.2 | 133 rows",
+            "iphone12_ios18": "iOS 18.7 | 335 rows",
+            "hc_ios26": "iOS 26.5.2 | 590 rows",
+        },
+    },
+    "logarchive_device_id": {
+        "name": "Logarchive - Device Identifiers",
+        "description": "Unified log entries that carry device identifying details: the model, OS "
+                       "version and build that sharingd logs, and the name, device type, OS "
+                       "build and serial number of each peer that securityd lists in its account "
+                       "state, the examined device among them.",
+        "author": "@Hexordia, @stark4n6",
+        "creation_date": "2026-10-06",
+        "last_update_date": "2026-10-09",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Rows are unified log entries selected by three filters and reported whole; no "
+                 "value is parsed out of the message. Tested on seven images running iOS 12.4, "
+                 "16.5, 17.2.1, 17.3, 18.3.2, 18.7 and 26.5.2; the row counts are in "
+                 "sample_data. The sharingd filter (process /usr/libexec/sharingd, message "
+                 "containing 'Device Information:') matched on all seven. The line has the shape "
+                 "'Device Information: Production: <model name> (<model identifier>), iPhone OS "
+                 "<version> (<build>), <n>% (charging)', or '(not charging)'. It does not hold "
+                 "the device name: on the four images where securityd names the device's own "
+                 "peer, no sharingd row contained that name. 399 of the 411 sharingd rows are "
+                 "'SharingDaemon State' dumps that embed the line. A dump row carries no "
+                 "subsystem and no category, so on the iOS 26.5.2 image, where every row is a "
+                 "dump, Subsystem and Category held no value on any of the 46 rows. The line "
+                 "that sharingd logs on its own was readable on iOS 12.4, 17.2.1 and 17.3 and "
+                 "read 'Device Information: <private>' on every such row of iOS 18.3.2 and 18.7 "
+                 "(2 and 3 rows); iOS 16.5 and 26.5.2 held no such row. The same model and OS "
+                 "string repeats from row to row; only the iOS 26.5.2 image held two different "
+                 "version strings. The securityd filter (process /usr/libexec/securityd, "
+                 "category accountLogState, message containing 'name:') matched on iOS 12.4, "
+                 "16.5, 17.2.1 and 17.3 (8, 12, 18 and 2 rows) and on none of iOS 18.3.2, 18.7 "
+                 "and 26.5.2, where no entry in that category from any process contained "
+                 "'name:'. Each row is one peer record ('PI:') from securityd's Secure Object "
+                 "Sync account state: its fields include a name, a flag group, the device type, "
+                 "an OS build and a serial number. The rows cover every peer listed, not only "
+                 "the examined device: the iOS 16.5 image listed 6 peers, one of them a MacBook "
+                 "Pro, and each of the four images listed one peer of type Unknown. All 40 rows "
+                 "carried a serial value, and two peers can carry the same one: the four images "
+                 "listed 13 peers with 8 distinct serial values, counted per image. The first "
+                 "character of the flag group is 'M' on the examined device's own peer and 'm' "
+                 "on any other (Reference: Apple, Security, SOSPeerInfo.m, boolToChars(isMe, "
+                 "'M', 'm'), "
+                 "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/keychain/SecureObjectSync/SOSPeerInfo.m#L699 "
+                 "; the same call is in that file at each of the 40 published tags read, "
+                 "Security-58286.1.32 to Security-61439.140.12). Exactly one peer on each of the "
+                 "four images carried 'M'. A peer can appear on more than one row: the iOS 12.4 "
+                 "image held 2 peers on 8 rows. The terminusd filter (process "
+                 "/usr/libexec/terminusd, subsystem com.apple.networkrelay, message containing "
+                 "'Starting terminusd') matched no entry on any of the seven images, and no "
+                 "entry from any process contained 'Starting terminusd', so what those entries "
+                 "hold was not measured here. Only the iOS 17.3 image, a sysdiagnose, held "
+                 "terminusd entries at all (133). The three search terms came from Hexordia "
+                 "research. Process Image Path held one value, /usr/libexec/sharingd, on every "
+                 "row of iOS 18.3.2, 18.7 and 26.5.2, which have sharingd rows only, and Process "
+                 "ID held one value on all 11 rows of the iOS 18.3.2 image. Trace ID held no "
+                 "value on any row of the tested images: rows read from tracev3 data leave it "
+                 "empty, and only a 'log show' JSON export fills it.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 10 rows; 2 sharingd, 8 securityd, 0 terminusd",
+            "abe_ios16": "iOS 16.5 | 13 rows; 1 sharingd, 12 securityd, 0 terminusd",
+            "hc_ios17_2": "iOS 17.2.1 | 277 rows; 259 sharingd, 18 securityd, 0 terminusd",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 89 rows; 87 sharingd, 2 securityd, 0 terminusd",
+            "dexter_ios18": "iOS 18.3.2 | 11 rows; 11 sharingd, 0 terminusd",
+            "iphone12_ios18": "iOS 18.7 | 5 rows; 5 sharingd, 0 terminusd",
+            "hc_ios26": "iOS 26.5.2 | 46 rows; 46 sharingd, 0 terminusd",
+        },
+    },
+    "logarchive_wake_source": {
+        "name": "logarchive wake source",
+        "description": "Unified log entries from SpringBoard whose message begins 'wake source:' "
+                       "followed by a source name such as Notification, LiftToWake, Touch, "
+                       "ACPowerChange, LockButton or HomeButton",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-12",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive "
+                 "module must run in the same session. Selects entries whose subsystem contains "
+                 "com.apple.SpringBoard and whose message begins 'wake source:'. The search term "
+                 "came from Hexordia research. The name after the colon is reported as logged; "
+                 "what each name means, and whether an entry marks the screen turning on, is not "
+                 "established here. Tested on the 14 images in sample_data, iOS 12.4 to 26.6, read "
+                 "from tracev3 data; a 'log show' JSON export was not tested. 11 images gave 606 "
+                 "rows: Notification 220 rows on 8 images, LiftToWake 188 on 11, Touch 69 on 9, "
+                 "ACPowerChange 63 on 8, LockButton 58 on 9, HomeButton 7 on 2 (iOS 15.0.2 and "
+                 "16.5) and BumpToWake 1 on 1 (iOS 18.7). No other name was logged on these "
+                 "images, which does not show that none exists. The iOS 12.4 and 14.3 images held "
+                 "com.apple.SpringBoard entries in category DashBoard (150 and 464) and none "
+                 "beginning 'wake source:'; hc_ios18_7 held no entry in that category among its "
+                 "726,120 log entries. A zero is not evidence that the screen did not wake. "
+                 "Process Image Path (/System/Library/CoreServices/SpringBoard.app/SpringBoard), "
+                 "Subsystem (com.apple.SpringBoard) and Category (DashBoard) each held one value "
+                 "on all 606 rows. Process ID held one value on every row of nine images and two "
+                 "values on felix23_ios16 and hc_ios26_sysdiag. Trace ID held no value on any row: "
+                 "rows read from tracev3 data leave it empty.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "sunrise",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows; 150 com.apple.SpringBoard DashBoard entries, none beginning 'wake source:'",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 0 rows; 464 com.apple.SpringBoard DashBoard entries, none beginning 'wake source:'",
+            "jess_ios15": "iOS 15.0.2 | 111 rows",
+            "abe_ios16": "iOS 16.5 | 61 rows",
+            "felix23_ios16": "iOS 16.5 | 37 rows",
+            "fsfull002_ios17": "iOS 17.1 | 97 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 46 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 13 rows",
+            "dexter_ios18": "iOS 18.3.2 | 39 rows",
+            "iphone12_ios18": "iOS 18.7 | 76 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; no com.apple.SpringBoard DashBoard entry in the log",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 18 rows",
+            "hc_ios26": "iOS 26.5.2 | 85 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 23 rows",
+        },
+    },
 }
 
 import os
@@ -1136,7 +1549,8 @@ import re
 import shutil
 import ijson
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from contextlib import closing
 from scripts import unifiedlogs
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
     get_sqlite_db_records, logfunc, get_sysdiagnose_files
@@ -1397,12 +1811,12 @@ def logarchive(context):
 @artifact_processor
 def logarchive_artifacts(context):
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
-    data_list = []
+    results = context.create_artifact_result(headers=DATA_HEADERS, source_path=source_path)
 
     query = '''
     SELECT *
     FROM logarchive
-    WHERE event_message LIKE '%Take screenshot%'
+    WHERE (event_message LIKE '%Take screenshot%'
         OR event_message LIKE '%Time change: Clock shifted by%'
         OR event_message LIKE '%BoutDetector (stepBout): Identified potential walking bout%'
         OR event_message LIKE '%Has contact name and phone number%'
@@ -1507,8 +1921,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%A2DP LinkQualityReport%'
         OR event_message LIKE '%AudioQueueIsPlaying%'
         OR event_message LIKE '%VolumeIncrement%'
-        OR event_message LIKE '%rawVolumeIncreasePress%'
-        OR event_message LIKE '%rawVolumeDecreasePress%'
+        OR event_message LIKE '%VolumeIncreasePress%'
+        OR event_message LIKE '%VolumeDecreasePress%'
         OR event_message LIKE '%Volume active%'
         OR event_message LIKE '%PlaybackQueueInvalidation%'
         OR event_message LIKE '%volumeValueDidChange%'
@@ -1521,6 +1935,7 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
+        OR (event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%')
         OR event_message LIKE '%[Flashlight Controller]%'
         OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
         -- AVFoundation's logging macro renders as '<<<< AVFlashlight >>>> -[AVFlashlight
@@ -1530,6 +1945,7 @@ def logarchive_artifacts(context):
         -- prefix is not matched, so class methods ('+[') are picked up too.
         OR event_message LIKE '%<<<< AVFlashlight >>>>%'
         OR event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Tethering is now disabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
         -- logarchive_navigation. Collected by subsystem rather than by spoken
@@ -1553,6 +1969,10 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Received trusted open application request%'
         OR event_message LIKE '%Resuming to tab type%'
         OR event_message LIKE '%tab bar tab changed%'
+        OR (category LIKE 'ims'
+            AND (event_message LIKE '%Incoming call %from %'
+                 OR event_message LIKE '%Alerting user of incoming call%'
+                 OR event_message LIKE '%Sending Incoming Call notification%'))
         -- logarchive_dialed_numbers. The whole call.provider category is collected
         -- rather than a message pattern: the teardown block carries only kActionType
         -- and kUuid, with no distinctive text to anchor on. On the iOS 26.5.2 image
@@ -1635,6 +2055,10 @@ def logarchive_artifacts(context):
         -- logarchive_battery_state
         OR event_message LIKE '%Battery capacity change posted%'
         OR event_message LIKE '%battery info changed to%'
+        -- logarchive_battery_center_sources and logarchive_battery_center_devices
+        OR (subsystem = 'com.apple.BatteryCenter'
+            AND (event_message LIKE '%Found power source: {%'
+                 OR event_message LIKE '%Found device: <BCBatteryDevice:%'))
         -- logarchive_ui_navigation
         OR event_message LIKE '%Control Center launched%'
         OR event_message LIKE '%Control Center Visible%'
@@ -1682,6 +2106,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%New incoming transfer%'
         OR event_message LIKE '%alertLog: idx:%'
         OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+        OR event_message LIKE 'Discoverable mode changed from%'
+        OR event_message LIKE 'Hashes in validation record:%'
         -- logarchive_wifi_status additions (password retrieval, auto-join with
         -- SSID in the clear, link loss, session duration)
         OR event_message LIKE '%Copy password for Network%'
@@ -1744,13 +2170,21 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%bump_connection_count%'
         -- logarchive_touch addition (iOS 26)
         OR event_message LIKE '%Touch entered%'
+        -- logarchive_app_state
+        OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
+        OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        -- logarchive_device_id
+        OR (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
+        OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
+        OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
+        -- logarchive_wake_source
+        OR (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
+    )
     '''
 
-    data_list = list( get_sqlite_db_records(source_path, query) )
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
-                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
-
-    return data_headers, data_list, source_path
+    with closing(unifiedlogs.filtered_records(source_path, query)) as rows:
+        results.extend(rows)
+    return results
 
 @artifact_processor
 def logarchive_time_change(context):
@@ -1767,7 +2201,7 @@ def logarchive_time_change(context):
         OR event_message LIKE '%setting manual time%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1788,7 +2222,7 @@ def logarchive_flashlight(context):
     OR event_message LIKE '%<<<< AVFlashlight >>>>%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1805,9 +2239,10 @@ def logarchive_executed_apps(context):
     WHERE event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
+        OR (event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%')
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1824,7 +2259,7 @@ def logarchive_motionstate(context):
     WHERE event_message LIKE '%Motion State Transition:%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1839,11 +2274,12 @@ def logarchive_tethering(context):
     SELECT *
     FROM logarchive_artifacts
     WHERE event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Tethering is now disabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1875,7 +2311,7 @@ def logarchive_airplane_mode(context):
         OR event_message LIKE '%Setting airplane mode enabled%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1900,7 +2336,7 @@ def logarchive_lock_status(context):
 
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1950,7 +2386,7 @@ def logarchive_wifi_status(context):
         OR event_message LIKE '%Total connection time%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -1995,7 +2431,7 @@ def logarchive_bluetooth_status(context):
 
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2011,14 +2447,14 @@ def logarchive_audio_status(context):
     FROM logarchive_artifacts
     WHERE event_message LIKE '%AudioQueueIsPlaying%'
         OR event_message LIKE '%VolumeIncrement%'
-        OR event_message LIKE '%rawVolumeIncreasePress%'
-        OR event_message LIKE '%rawVolumeDecreasePress%'
+        OR event_message LIKE '%VolumeIncreasePress%'
+        OR event_message LIKE '%VolumeDecreasePress%'
         OR event_message LIKE '%Volume active%'
         OR event_message LIKE '%PlaybackQueueInvalidation%'
         OR event_message LIKE '%volumeValueDidChange%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2045,16 +2481,43 @@ def logarchive_navigation(context):
     """)
 
 
-def _artifacts_table_records(context, where_clause):
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def _report_time(value):
+    """The table's epoch seconds as a UTC datetime; anything else as stored."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        try:
+            return _EPOCH + timedelta(seconds=value)
+        except (OverflowError, ValueError):
+            return value
+    return value
+
+
+def _report_rows(records):
+    """Table rows with the leading timestamp column as a datetime.
+
+    The logarchive_artifacts table holds the timestamp as epoch seconds, which is what
+    the HTML report, the TSV export and the timeline would print. Handed a datetime they
+    print a date and time, and LAVA stores the same epoch seconds it did before.
+    """
+    return [(_report_time(record[0]),) + tuple(record[1:]) for record in records]
+
+
+def _artifacts_table_records(context, where_clause, report_time=True):
     """Rows from the logarchive_artifacts table matching where_clause.
 
     Shared by the artifacts added in the 2026-08-01 predicate survey. Each one is a
     filter over the table the logarchive_artifacts artifact materializes, exactly like
     the older artifacts above; the WHERE fragment is the only thing that varies.
+
+    report_time=False returns the rows as stored. The lava_only artifacts use it: they
+    write no report, so the conversion would only be undone on the way into LAVA.
     """
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     query = f'SELECT * FROM logarchive_artifacts WHERE {where_clause}'
-    data_list = list(get_sqlite_db_records(source_path, query))
+    records = get_sqlite_db_records(source_path, query)
+    data_list = _report_rows(records) if report_time else list(records)
     return DATA_HEADERS, data_list, source_path
 
 @artifact_processor
@@ -2067,6 +2530,10 @@ def logarchive_calls(context):
         OR event_message LIKE '%Received trusted open application request%'
         OR event_message LIKE '%Resuming to tab type%'
         OR event_message LIKE '%tab bar tab changed%'
+        OR (category LIKE 'ims'
+            AND (event_message LIKE '%Incoming call %from %'
+                 OR event_message LIKE '%Alerting user of incoming call%'
+                 OR event_message LIKE '%Sending Incoming Call notification%'))
         -- Keypad tones: actionID 1200-1209 map to keypad digits 0-9
         OR event_message LIKE '%Incoming Request : actionID 120%'
     ''')
@@ -2097,7 +2564,7 @@ def logarchive_typing(context):
         OR event_message LIKE '%Incoming Request : actionID 1104%'
         OR event_message LIKE '%Incoming Request : actionID 1155%'
         OR event_message LIKE '%Incoming Request : actionID 1156%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_faceid_presence(context):
@@ -2109,7 +2576,7 @@ def logarchive_faceid_presence(context):
         -- form is documented-only (see artifact notes)
         OR event_message LIKE '%kAppleBiometricFinger%'
         OR event_message LIKE '%Home Button Was Pressed%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_pocket_state(context):
@@ -2126,7 +2593,7 @@ def logarchive_touch(context):
         OR event_message LIKE '%received tapToWake%'
         OR event_message LIKE '%AttentionAwareness.Touch%'
         OR event_message LIKE '%Touch entered%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_usb_connections(context):
@@ -2229,6 +2696,157 @@ def logarchive_battery_state(context):
         OR event_message LIKE '%battery info changed to%'
     ''')
 
+
+# Battery Center writes each power source as an NSDictionary description ('key = value;' lines
+# between braces) and each device as '<BCBatteryDevice: 0x...; key = value; ...>'. The columns
+# are the keys seen on the tested iOS images; any other key goes to Other Values.
+
+_BC_PAIR = re.compile(r'^\s*("(?:[^"\\]|\\.)*"|[^\s=;"]+)\s*=\s*("(?:[^"\\]|\\.)*"|[^;"]*);\s*$')
+_BC_OPEN = re.compile(r'^("(?:[^"\\]|\\.)*"|[^\s=;"]+)\s*=\s*([{(])$')
+_BC_ESCAPE = re.compile(r'\\(U[0-9a-fA-F]{4}|.)', re.DOTALL)
+_BC_ESCAPED = {'n': '\n', 't': '\t', 'r': '\r'}
+_BC_DEVICE = re.compile(r'Found device: <BCBatteryDevice: 0x[0-9a-fA-F]+; (.*?);?\s*>\s*$', re.DOTALL)
+_BC_DEVICE_SPLIT = re.compile(r'; (?=\w+ ?=)')
+_BC_DEVICE_PAIR = re.compile(r'^(\w+) ?= ?(.*)$', re.DOTALL)
+
+_BC_SOURCE_KEYS = ('Name', 'Type', 'Transport Type', 'Power Source State', 'Current Capacity',
+                   'Max Capacity', 'Is Charging', 'Is Charged', 'Is Finishing Charge',
+                   'Is Present', 'Raw External Connected', 'Show Charging UI',
+                   'Play Charging Chime', 'Cycle count', 'Accessory Identifier',
+                   'Accessory Category', 'Vendor ID', 'Power Source ID')
+_BC_DEVICE_KEYS = ('name', 'groupName', 'vendor', 'modelNumber', 'percentCharge', 'charging',
+                   'connected', 'internal', 'poweredSoureState', 'transportType',
+                   'accessoryIdentifier', 'accessoryCategory', 'identifier', 'productIdentifier')
+
+
+def _bc_unquote(text):
+    """A value or key of an NSDictionary description without its quotes and escapes."""
+    text = text.strip()
+    if len(text) < 2 or text[0] != '"' or text[-1] != '"':
+        return text
+
+    def unescape(match):
+        token = match.group(1)
+        if token[0] == 'U' and len(token) == 5:
+            return chr(int(token[1:], 16))
+        return _BC_ESCAPED.get(token, token)
+    return _BC_ESCAPE.sub(unescape, text[1:-1])
+
+
+def _bc_source_pairs(message):
+    """(pairs, leftover) of a 'Found power source: {...}' entry; leftover is what did not parse.
+
+    A value that is itself a dictionary or a list spans several lines. It is kept as one
+    value, its lines as logged, so a key inside it is never read as a key of the power
+    source. The log cuts a long entry short, so the closing brace is not required: what was
+    logged before the cut is still split, and a line cut in half goes to leftover.
+    """
+    start = message.find('{')
+    if start < 0:
+        return [], message.strip()
+    pairs = []
+    leftover = []
+    key = None      # the key of the nested value being read, if any
+    opener = ''
+    depth = 0
+    lines = []
+    for line in message[start + 1:].splitlines():
+        text = line.strip()
+        if not text:
+            continue
+        if key is not None:
+            if text[-1] in '{(':
+                depth += 1
+            elif text.rstrip(';') in ('}', ')'):
+                if depth == 0:
+                    pairs.append((key, opener + ' '.join(lines) + text.rstrip(';')))
+                    key = None
+                    continue
+                depth -= 1
+            lines.append(text)
+            continue
+        if text == '}':
+            break
+        match = _BC_OPEN.match(text)
+        if match:
+            key, opener, depth, lines = _bc_unquote(match.group(1)), match.group(2), 0, []
+            continue
+        match = _BC_PAIR.match(line)
+        if match:
+            pairs.append((_bc_unquote(match.group(1)), _bc_unquote(match.group(2))))
+        else:
+            leftover.append(text)
+    if key is not None:
+        pairs.append((key, opener + ' '.join(lines)))
+    return pairs, ' '.join(leftover)
+
+
+def _bc_device_pairs(message):
+    """(pairs, leftover) of a 'Found device: <BCBatteryDevice: ...>' entry."""
+    match = _BC_DEVICE.search(message)
+    if not match:
+        return [], message.strip()
+    pairs = []
+    leftover = []
+    for piece in _BC_DEVICE_SPLIT.split(match.group(1)):
+        pair = _BC_DEVICE_PAIR.match(piece)
+        if pair:
+            pairs.append((pair.group(1), pair.group(2).strip()))
+        else:
+            leftover.append(piece.strip())
+    return pairs, '; '.join(leftover)
+
+
+def _bc_row(pairs, leftover, shown_keys):
+    """The shown keys' values in order, then every pair not shown and anything unparsed."""
+    shown = {}
+    other = []
+    for key, value in pairs:
+        if key in shown_keys and key not in shown:
+            shown[key] = value
+        else:
+            other.append(f'{key} = {value}')
+    if leftover:
+        other.append(leftover)
+    return tuple(shown.get(key, '') for key in shown_keys) + ('; '.join(other),)
+
+
+def _bc_entries(context, where_clause, pairs_of, shown_keys):
+    # As stored, so the rows can still be read by column name; the time is converted below.
+    _headers, records, source_path = _artifacts_table_records(context, where_clause,
+                                                              report_time=False)
+    data_list = []
+    for record in records:
+        pairs, leftover = pairs_of(record['event_message'] or '')
+        data_list.append((_report_time(record['timestamp']),) + _bc_row(pairs, leftover, shown_keys)
+                         + (record['process_image_path'], record['process_id'],
+                            record['row_number']))
+    return data_list, source_path
+
+
+@artifact_processor
+def logarchive_battery_center_sources(context):
+    data_list, source_path = _bc_entries(context, """
+        subsystem = 'com.apple.BatteryCenter' AND event_message LIKE '%Found power source: {%'
+    """, _bc_source_pairs, _BC_SOURCE_KEYS)
+    data_headers = (('Timestamp', 'datetime'),) + _BC_SOURCE_KEYS + (
+        'Other Values', 'Process Image Path', 'Process ID', 'Row Number')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def logarchive_battery_center_devices(context):
+    data_list, source_path = _bc_entries(context, """
+        subsystem = 'com.apple.BatteryCenter'
+        AND event_message LIKE '%Found device: <BCBatteryDevice:%'
+    """, _bc_device_pairs, _BC_DEVICE_KEYS)
+    data_headers = (('Timestamp', 'datetime'), 'Name', 'Group Name', 'Vendor', 'Model Number',
+                    'Percent Charge', 'Charging', 'Connected', 'Internal', 'Power Source State',
+                    'Transport Type', 'Accessory Identifier', 'Accessory Category', 'Identifier',
+                    'Product Identifier', 'Other Values', 'Process Image Path', 'Process ID',
+                    'Row Number')
+    return data_headers, data_list, source_path
+
 @artifact_processor
 def logarchive_ui_navigation(context):
     return _artifacts_table_records(context, '''
@@ -2289,6 +2907,8 @@ def logarchive_airdrop(context):
         OR event_message LIKE '%New incoming transfer%'
         OR event_message LIKE '%alertLog: idx:%'
         OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+        OR event_message LIKE 'Discoverable mode changed from%'
+        OR event_message LIKE 'Hashes in validation record:%'
     ''')
 
 @artifact_processor
@@ -2337,7 +2957,7 @@ def logarchive_orientation(context):
         event_message LIKE '%Received orientation%'
         OR event_message LIKE '%Gesture notification:%'
         OR event_message LIKE '%[TTW] Orientation changed%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_system_gestures(context):
@@ -2353,4 +2973,26 @@ def logarchive_usb_host(context):
         OR event_message LIKE '%launching clients due to connectType%'
         OR event_message LIKE '%usb_host_connected%'
         OR event_message LIKE '%bump_connection_count%'
+    ''')
+
+@artifact_processor
+def logarchive_app_state(context):
+    return _artifacts_table_records(context, '''
+        (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
+        OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+    ''')
+
+@artifact_processor
+def logarchive_device_id(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
+        OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
+        OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
+    ''')
+
+
+@artifact_processor
+def logarchive_wake_source(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
     ''')

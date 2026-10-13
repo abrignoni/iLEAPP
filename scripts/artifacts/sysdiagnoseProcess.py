@@ -2,13 +2,15 @@ __artifacts_v2__ = {
     "sysdiagnoseProcess": {
         "name": "Sysdiagnose Process",
         "description": "Parses ps.txt from Sysdiagnose logs to list running processes with PID, parent PID, user, command and other ps(1) fields.",
-        "author": "@mathisdesaulty",
+        "author": "@mathisdesaulty, @AlexisBrignoni, Codex",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "Parses ps.txt only. A line with fewer than 18 fields, or whose PID or parent PID "
-                 "is not a number, is skipped and not reported. ps_thread.txt is not read: its "
+                 "is not a number, is skipped and not reported. These two rejection guards log fixed "
+                 "diagnostics without row contents, commands or source paths; header and blank "
+                 "lines remain silent. ps_thread.txt is not read: its "
                  "columns sit in a different order "
                  "from ps.txt (its 4th column is %CPU, where the 4th of ps.txt holds the process "
                  "identifier), and on the three sysdiagnose captures tested it carried a header line "
@@ -39,9 +41,9 @@ __artifacts_v2__ = {
     "sysdiagnoseProcessTree": {
         "name": "Sysdiagnose Process - Tree",
         "description": "Rendered image of the process hierarchy (parent/child tree) from ps.txt",
-        "author": "@mathisdesaulty",
+        "author": "@mathisdesaulty, @AlexisBrignoni, Codex",
         "creation_date": "2026-09-18",
-        "last_update_date": "2026-09-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "A PNG is rendered per ps.txt capture as a visual reference of the process tree, one "
@@ -50,7 +52,9 @@ __artifacts_v2__ = {
                  "on the host running the report. The image is drawn on a fixed dark background and "
                  "does not follow the report's light or dark setting. A process whose parent PID is "
                  "not in ps.txt is drawn at the top level. 'Sysdiagnose Process' holds "
-                 "the same data in queryable form.",
+                 "the same data in queryable form. Rows with fewer than 18 fields or a non-integer "
+                 "PID or parent PID are skipped with fixed diagnostics without row contents, "
+                 "commands or source paths; header and blank lines remain silent.",
         "paths": (
             '*/ps.txt',
             '*/sysdiagnose_*.tar.gz'),
@@ -99,12 +103,14 @@ def _parse_ps_line(line):
     # Columns ps.txt: user,uid,prsna,pid,ppid,flags,%cpu,%mem,pri,ni,vsz,rss,wchan,tt,stat,start,time,command
     parts = line.split(maxsplit=17)
     if len(parts) < 18:
+        logfunc("Skipping ps.txt process row: fewer than 18 fields")
         return None
 
     try:
         pid = int(parts[3])
         ppid = int(parts[4])
     except ValueError:
+        logfunc("Skipping ps.txt process row: PID or parent PID is not an integer")
         return None
 
     return {

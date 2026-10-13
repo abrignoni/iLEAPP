@@ -49,18 +49,20 @@ __artifacts_v2__ = {
     },
     'truthSocialAccounts': {
         'name': 'Truth Social - Accounts',
-        'description': "Truth Social accounts cached by the chat database, including the account "
-                       "ID recorded as the chat owner",
-        'author': '@AlexisBrignoni',
+        'description': 'Cached ZMANAGEDACCOUNT rows and additional account IDs returned by the chat '
+                 'ZOWNEDBYACCOUNTID query',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-07',
         'requirements': 'none',
         'category': 'Truth Social',
-        'notes': "An account ID that appears only in the chat ZOWNEDBYACCOUNTID column and not "
-                 "in ZMANAGEDACCOUNT is reported from that column as stored; the Account Holder "
-                 "column is Yes on such a row and blank on every ZMANAGEDACCOUNT row. The label "
-                 "is this module's; that the id is the account signed in on the device is not "
-                 "established.",
+        'notes': "Owner-only Query Row is Yes on rows returned by this parser's SELECT DISTINCT "
+                 'ZOWNEDBYACCOUNTID query and blank on ZMANAGEDACCOUNT rows. The query requires a '
+                 'non-NULL chat value and applies NOT IN (SELECT ZSERVERID FROM ZMANAGEDACCOUNT); '
+                 'SQLite NULL, affinity and collation semantics apply. This marker identifies which '
+                 'query produced the row. A signed-in account, device user or account holder is not '
+                 'established by this marker. The existing Verified projection and all other fields are '
+                 'unchanged.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/chat/v1/*/ChatModel.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'user',
@@ -311,9 +313,8 @@ def truthSocialAccounts(context):
             record['avatarUrl'],
         ))
 
-    # The signed-in account was not present in ZMANAGEDACCOUNT in the examined
-    # database; it only appears as the owner of each chat thread, so surface it
-    # from there.
+    # Surface IDs returned by the separate ZOWNEDBYACCOUNTID query below.
+    # The row marker identifies this query, not a verified signed-in account.
     owner_query = '''
     SELECT DISTINCT
         c.ZOWNEDBYACCOUNTID AS accountId,
@@ -336,7 +337,7 @@ def truthSocialAccounts(context):
         ))
 
     data_headers = (
-        'Account ID', 'Handle', 'Display Name', 'Verified', 'Account Holder',
+        'Account ID', 'Handle', 'Display Name', 'Verified', 'Owner-only Query Row',
         'Event Count', 'Avatar URL')
 
     return data_headers, data_list, source_path

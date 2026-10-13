@@ -1195,6 +1195,7 @@ __artifacts_v2__ = {
 }
 
 import atexit
+from contextlib import closing
 import glob
 import gzip
 import os
@@ -1293,6 +1294,8 @@ def _materialize_gz(gz_path):
     The original file is only ever opened for reading.
     """
     cached = _GZ_CACHE.get(gz_path)
+    if gz_path in _GZ_CACHE and cached is None:
+        return None
     if cached and os.path.exists(cached):
         return cached
     out_name = f"{len(_GZ_CACHE):04d}_{os.path.basename(gz_path)[:-3]}"
@@ -1301,6 +1304,13 @@ def _materialize_gz(gz_path):
         with gzip.open(gz_path, "rb") as src, open(out_path, "wb") as dst:
             shutil.copyfileobj(src, dst)
     except (OSError, EOFError, gzip.BadGzipFile) as e:
+        if isinstance(e, (EOFError, gzip.BadGzipFile)):
+            # The archive itself is damaged, so another attempt reads the same bytes.
+            _GZ_CACHE[gz_path] = None
+        try:
+            os.remove(out_path)
+        except FileNotFoundError:
+            pass
         logfunc(f"Could not decompress {gz_path}: {e}")
         return None
     _GZ_CACHE[gz_path] = out_path
@@ -1387,14 +1397,15 @@ def _resolve_table(source_path, prefix):
     """
     if does_table_exist_in_db(source_path, prefix):
         return prefix
-    for row in get_sqlite_db_records(source_path, '''
+    with closing(get_sqlite_db_records(source_path, '''
             SELECT name FROM sqlite_master
             WHERE type = 'table'
             ORDER BY name
-        '''):
-        name = row[0]
-        if name.startswith(prefix + "_") and "_Array_" not in name:
-            return name
+        ''')) as records:
+        for row in records:
+            name = row[0]
+            if name.startswith(prefix + "_") and "_Array_" not in name:
+                return name
     return None
 
 
