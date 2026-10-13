@@ -9,7 +9,8 @@ __artifacts_v2__ = {
                        "message_content protobuf on rows where content_type is 1. WAL frames are not parsed, "
                        "so absence of a message here is not evidence it did not exist. Cached media that "
                        "cache_controller.db links to a message is shown in the Media column when its format is "
-                       "recognised.",
+                       "recognised. Local Media ID is decoded from the message's local_message_references "
+                       "archive when the MEDIA_ID value is present.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-09-19",
         "requirements": "blackboxprotobuf, nska_deserialize", "category": "Snapchat",
@@ -37,7 +38,12 @@ __artifacts_v2__ = {
                  "equals an entry's EXTERNAL_KEY. The file is shown when its bytes, read as stored, are "
                  "a recognised image, video or audio format; on the tested images 38 of the 39 non-empty "
                  "cached files were, with no decryption needed. Snapchat - Chat Media lists every entry, "
-                 "including those with no file on disk.\n"
+                 "including those with no file on disk. Local Media ID is the MEDIA_ID decoded from the "
+                 "message's local_message_references archive; it is blank when that field is NULL, malformed, "
+                 "or the key is absent.\n"
+                 "Created On Device. This is the stored created_on_device field rendered as YES or NO. "
+                 "NO also covers NULL because the report uses the existing boolean display convention; it "
+                 "is not, by itself, proof that a media file was recorded by the phone's camera.\n"
                  "Message Direction compares sender_id against the local account id from user_id in the "
                  "app's Documents/user.plist, else the single distinct sender of rows where "
                  "local_message_content_id is set (the schema comments describe that column as nullable "
@@ -1090,7 +1096,9 @@ def _log_wal_extent(files_found):
 
 
 _MESSAGE_COLUMNS = ('creation_timestamp', 'read_timestamp', 'sender_id', 'content_type',
-                    'message_content', 'message_state_type', 'is_saved', 'is_viewed_by_user',
+                    'message_content', 'local_message_references', 'created_on_device',
+                    'message_state_type',
+                    'is_saved', 'is_viewed_by_user',
                     'remote_media_count', 'quoted_server_message_id',
                     'client_conversation_id', 'client_message_id', 'server_message_id')
 
@@ -1102,11 +1110,11 @@ def _message_sql(source_path):
 
 # conversation_message key (client_conversation_id, client_message_id), as offsets into
 # _MESSAGE_COLUMNS.
-_MESSAGE_KEY = (10, 11)
+_MESSAGE_KEY = (12, 13)
 
 _MESSAGE_HEADERS = (('Creation Timestamp', 'datetime'), ('Read Timestamp', 'datetime'),
                     'Message Direction', 'Sender Username', 'Message Text',
-                    ('Media', 'media'), 'Record Origin',
+                    ('Media', 'media'), 'Local Media ID', 'Created On Device', 'Record Origin',
                     'Sender Display Name', 'Sender ID',
                     'Conversation Participants', 'Content Type (as stored)',
                     'Message State Type', 'Is Saved', 'Is Viewed By User',
@@ -1156,17 +1164,20 @@ def _message_rows(rows, friends, participants, local_user_id, provenance, media)
     origin, method, location = provenance
     data_list = []
     for row in rows:
-        (created, read, sender_id, content_type, blob, state, saved, viewed,
-         media_count, quoted_id, conversation_id, client_message_id, server_message_id) = row
+        (created, read, sender_id, content_type, blob, local_message_references,
+         created_on_device, state, saved, viewed, media_count, quoted_id, conversation_id,
+         client_message_id, server_message_id) = row
         text = _pb_text(_decode(blob), '4', '4', '2', '1') if content_type == 1 else ''
         if not local_user_id or not sender_id:
             direction = ''
         else:
             direction = 'Outgoing' if sender_id == local_user_id else 'Incoming'
         references = media(conversation_id, client_message_id, server_message_id)
+        local_media_id = _local_reference_media_id(local_message_references)
         data_list.append((
             _ms_to_utc(created), _ms_to_utc(read),
-            direction, _friend_name(friends, sender_id), text, references or '', origin,
+            direction, _friend_name(friends, sender_id), text, references or '', local_media_id,
+            _yes_no(created_on_device), origin,
             _friend_name(friends, sender_id, 1), sender_id,
             participants.get(conversation_id, ('', ''))[1], content_type,
             state, _yes_no(saved), _yes_no(viewed), media_count, quoted_id,
