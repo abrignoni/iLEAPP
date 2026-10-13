@@ -303,11 +303,12 @@ __artifacts_v2__ = {
         "name": "logarchive call events",
         "description": "Unified log entries recording telephony activity: call tracking "
                        "start and end from callservicesd, Phone app open requests with the "
-                       "originating process, Phone app tab changes, and keypad tone "
-                       "requests (actionID 1200-1209 map to keypad digits 0-9)",
-        "author": "@AlexisBrignoni",
+                       "originating process, Phone app tab changes, keypad tone "
+                       "requests (actionID 1200-1209 map to keypad digits 0-9), and incoming call "
+                       "entries in the ims log category",
+        "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-12",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
@@ -320,10 +321,39 @@ __artifacts_v2__ = {
                  "iOS 18.7. The number "
                  "payloads in these particular entries are redacted to <private>; the "
                  "dialed numbers artifact collects the CommCenter call.provider block that "
-                 "carries the number in the clear.",
+                 "carries the number in the clear. Entries in category ims are matched on three "
+                 "message texts, with no process or subsystem condition: 'Incoming call ... from "
+                 "...', 'Alerting user of incoming call' and 'Sending Incoming Call notification'. "
+                 "The search terms came from Hexordia research. On the 14 images in sample_data, iOS "
+                 "12.4 to 26.6, read from tracev3 data, they gave 11 rows on 4 images (iOS 16.5, "
+                 "17.2.1, 18.3.2 and 26.5.2): 5 'Incoming call ... from', 5 'Alerting user' and 1 "
+                 "'Sending Incoming Call notification', all from CommCenter in subsystem "
+                 "com.apple.ipTelephony. The 5 'Incoming call ... from' rows, on the iOS 16.5, "
+                 "17.2.1 and 26.5.2 images, each hold a value beginning with '+' after 'from' that "
+                 "is not redacted, so the redaction described above does not cover them. Across the "
+                 "14 images the same category held 411 entries reading 'Carrier incoming call "
+                 "validations is enabled/disabled for this registration', on 8 images; they are not "
+                 "collected, because their text names a registration setting and no call. A 'log "
+                 "show' JSON export was not tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "phone",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 430 rows; 0 ims",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 199 rows; 0 ims",
+            "jess_ios15": "iOS 15.0.2 | 14 rows; 0 ims",
+            "abe_ios16": "iOS 16.5 | 836 rows; 4 ims",
+            "felix23_ios16": "iOS 16.5 | 63 rows; 0 ims",
+            "fsfull002_ios17": "iOS 17.1 | 42 rows; 0 ims",
+            "hc_ios17_2": "iOS 17.2.1 | 242 rows; 4 ims",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 11 rows; 0 ims",
+            "dexter_ios18": "iOS 18.3.2 | 24 rows; 1 ims",
+            "iphone12_ios18": "iOS 18.7 | 570 rows; 0 ims",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; 0 ims",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 154 rows; 0 ims",
+            "hc_ios26": "iOS 26.5.2 | 108 rows; 2 ims",
+            "hc_ios26_sysdiag": "iOS 26.6 | 22 rows; 0 ims",
+        },
     },
     "logarchive_dialed_numbers": {
         "name": "logarchive dialed numbers",
@@ -999,10 +1029,11 @@ __artifacts_v2__ = {
         "description": "Unified log entries matching AirDrop and share sheet message text: the "
                        "device's AirDrop ID, discoverability "
                        "scanning mode (Everyone/Contacts Only/Off), SharingDaemon state "
-                       "dumps, share sheet activation, and transfer entries",
-        "author": "@AlexisBrignoni",
+                       "dumps, share sheet activation, transfer entries, discoverable mode changes, and "
+                       "validation record hash entries",
+        "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-12",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented by Sarah Edwards "
@@ -1018,10 +1049,40 @@ __artifacts_v2__ = {
                  "process, subsystem or category condition. 'Scanning mode' and 'startSending' are "
                  "short strings, and whether components other than AirDrop and the share sheet log "
                  "them was not measured, so read Process Image Path, Subsystem and Category on each "
-                 "row before attributing it.",
+                 "row before attributing it. 'Discoverable mode changed from' and 'Hashes in validation "
+                 "record:' come from Hexordia research and are matched at the start of the message. On "
+                 "the 14 images in sample_data, iOS 12.4 to 26.6, read from tracev3 data, 'Discoverable "
+                 "mode changed from' gave 84 rows on 11 images, all from /usr/libexec/sharingd in "
+                 "subsystem com.apple.sharing, category AirDrop. The 76 rows on the eight images from "
+                 "iOS 12.4 to 17.3 name the old and new mode ((null), Off, Contacts Only or Everyone); "
+                 "the 8 rows on the iOS 18.3.2, 18.7 and 26.6 images read '<private> to <private>'. "
+                 "'Hashes in validation record:' is collected as documented-only: no entry on any of "
+                 "the 14 images contained that text, so what those entries hold was not measured here. "
+                 "Partial SHA-256 hash values in the receiver's sysdiagnose logarchive are described by "
+                 "Epstein, Klein and Feuerstein, 'Analysis of Sysdiagnose in iOS 15 to Identify the "
+                 "Sending Phone Number of AirDrop Data', Journal of Forensic Sciences, January 2022, "
+                 "as summarised in the 4n6 Ninja post "
+                 "(https://gforce4n6.blogspot.com/2022/03/airdropping-some-knowledge-using-rleapp.html). "
+                 "A 'log show' JSON export was not tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "share",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 94 rows; 5 discoverable mode, 0 validation record hashes",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 232 rows; 6 discoverable mode, 0 validation record hashes",
+            "jess_ios15": "iOS 15.0.2 | 66 rows; 3 discoverable mode, 0 validation record hashes",
+            "abe_ios16": "iOS 16.5 | 268 rows; 3 discoverable mode, 0 validation record hashes",
+            "felix23_ios16": "iOS 16.5 | 30 rows; 4 discoverable mode, 0 validation record hashes",
+            "fsfull002_ios17": "iOS 17.1 | 160 rows; 46 discoverable mode, 0 validation record hashes",
+            "hc_ios17_2": "iOS 17.2.1 | 275 rows; 8 discoverable mode, 0 validation record hashes",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 90 rows; 1 discoverable mode, 0 validation record hashes",
+            "dexter_ios18": "iOS 18.3.2 | 12 rows; 3 discoverable mode, 0 validation record hashes",
+            "iphone12_ios18": "iOS 18.7 | 17 rows; 3 discoverable mode, 0 validation record hashes",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; 0 discoverable mode, 0 validation record hashes",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 1 rows; 0 discoverable mode, 0 validation record hashes",
+            "hc_ios26": "iOS 26.5.2 | 46 rows; 0 discoverable mode, 0 validation record hashes",
+            "hc_ios26_sysdiag": "iOS 26.6 | 13 rows; 2 discoverable mode, 0 validation record hashes",
+        },
     },
     "logarchive_carplay_session": {
         "name": "logarchive CarPlay session",
@@ -1430,6 +1491,55 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | 11 rows; 11 sharingd, 0 terminusd",
             "iphone12_ios18": "iOS 18.7 | 5 rows; 5 sharingd, 0 terminusd",
             "hc_ios26": "iOS 26.5.2 | 46 rows; 46 sharingd, 0 terminusd",
+        },
+    },
+    "logarchive_wake_source": {
+        "name": "logarchive wake source",
+        "description": "Unified log entries from SpringBoard whose message begins 'wake source:' "
+                       "followed by a source name such as Notification, LiftToWake, Touch, "
+                       "ACPowerChange, LockButton or HomeButton",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-12",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive "
+                 "module must run in the same session. Selects entries whose subsystem contains "
+                 "com.apple.SpringBoard and whose message begins 'wake source:'. The search term "
+                 "came from Hexordia research. The name after the colon is reported as logged; "
+                 "what each name means, and whether an entry marks the screen turning on, is not "
+                 "established here. Tested on the 14 images in sample_data, iOS 12.4 to 26.6, read "
+                 "from tracev3 data; a 'log show' JSON export was not tested. 11 images gave 606 "
+                 "rows: Notification 220 rows on 8 images, LiftToWake 188 on 11, Touch 69 on 9, "
+                 "ACPowerChange 63 on 8, LockButton 58 on 9, HomeButton 7 on 2 (iOS 15.0.2 and "
+                 "16.5) and BumpToWake 1 on 1 (iOS 18.7). No other name was logged on these "
+                 "images, which does not show that none exists. The iOS 12.4 and 14.3 images held "
+                 "com.apple.SpringBoard entries in category DashBoard (150 and 464) and none "
+                 "beginning 'wake source:'; hc_ios18_7 held no entry in that category among its "
+                 "726,120 log entries. A zero is not evidence that the screen did not wake. "
+                 "Process Image Path (/System/Library/CoreServices/SpringBoard.app/SpringBoard), "
+                 "Subsystem (com.apple.SpringBoard) and Category (DashBoard) each held one value "
+                 "on all 606 rows. Process ID held one value on every row of nine images and two "
+                 "values on felix23_ios16 and hc_ios26_sysdiag. Trace ID held no value on any row: "
+                 "rows read from tracev3 data leave it empty.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "sunrise",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows; 150 com.apple.SpringBoard DashBoard entries, none beginning 'wake source:'",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 0 rows; 464 com.apple.SpringBoard DashBoard entries, none beginning 'wake source:'",
+            "jess_ios15": "iOS 15.0.2 | 111 rows",
+            "abe_ios16": "iOS 16.5 | 61 rows",
+            "felix23_ios16": "iOS 16.5 | 37 rows",
+            "fsfull002_ios17": "iOS 17.1 | 97 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 46 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 13 rows",
+            "dexter_ios18": "iOS 18.3.2 | 39 rows",
+            "iphone12_ios18": "iOS 18.7 | 76 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; no com.apple.SpringBoard DashBoard entry in the log",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 18 rows",
+            "hc_ios26": "iOS 26.5.2 | 85 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 23 rows",
         },
     },
 }
@@ -1859,6 +1969,10 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Received trusted open application request%'
         OR event_message LIKE '%Resuming to tab type%'
         OR event_message LIKE '%tab bar tab changed%'
+        OR (category LIKE 'ims'
+            AND (event_message LIKE '%Incoming call %from %'
+                 OR event_message LIKE '%Alerting user of incoming call%'
+                 OR event_message LIKE '%Sending Incoming Call notification%'))
         -- logarchive_dialed_numbers. The whole call.provider category is collected
         -- rather than a message pattern: the teardown block carries only kActionType
         -- and kUuid, with no distinctive text to anchor on. On the iOS 26.5.2 image
@@ -1992,6 +2106,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%New incoming transfer%'
         OR event_message LIKE '%alertLog: idx:%'
         OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+        OR event_message LIKE 'Discoverable mode changed from%'
+        OR event_message LIKE 'Hashes in validation record:%'
         -- logarchive_wifi_status additions (password retrieval, auto-join with
         -- SSID in the clear, link loss, session duration)
         OR event_message LIKE '%Copy password for Network%'
@@ -2061,6 +2177,8 @@ def logarchive_artifacts(context):
         OR (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
         OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
         OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
+        -- logarchive_wake_source
+        OR (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
     )
     '''
 
@@ -2412,6 +2530,10 @@ def logarchive_calls(context):
         OR event_message LIKE '%Received trusted open application request%'
         OR event_message LIKE '%Resuming to tab type%'
         OR event_message LIKE '%tab bar tab changed%'
+        OR (category LIKE 'ims'
+            AND (event_message LIKE '%Incoming call %from %'
+                 OR event_message LIKE '%Alerting user of incoming call%'
+                 OR event_message LIKE '%Sending Incoming Call notification%'))
         -- Keypad tones: actionID 1200-1209 map to keypad digits 0-9
         OR event_message LIKE '%Incoming Request : actionID 120%'
     ''')
@@ -2785,6 +2907,8 @@ def logarchive_airdrop(context):
         OR event_message LIKE '%New incoming transfer%'
         OR event_message LIKE '%alertLog: idx:%'
         OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+        OR event_message LIKE 'Discoverable mode changed from%'
+        OR event_message LIKE 'Hashes in validation record:%'
     ''')
 
 @artifact_processor
@@ -2864,4 +2988,11 @@ def logarchive_device_id(context):
         (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
         OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
         OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
+    ''')
+
+
+@artifact_processor
+def logarchive_wake_source(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
     ''')
