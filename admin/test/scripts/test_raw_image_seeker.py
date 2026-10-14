@@ -627,6 +627,55 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertEqual(differ, [])
         self.assertEqual(len(seeker.stream_list), 28)
 
+    # ---- NTFS directory indexes --------------------------------------------------
+    #
+    # A directory whose file name index has grown into an $INDEX_ALLOCATION attribute
+    # gives it as ``<directory>:$I30``. It is not a stream: only a pattern that ends
+    # ``:$I30`` reaches it, so ``*:*`` above still stages exactly the 28 streams.
+
+    def test_directory_indexes_are_staged_only_for_a_pattern_that_ends_in_their_name(self):
+        seeker = self._seeker(self.ntfs)
+        self.assertEqual(len(seeker.index_list), 5)
+        self.assertTrue(all(name.endswith(':$I30') for name in seeker.index_list))
+        self.assertIn('lba0/:$I30', seeker.index_list)
+        self.assertIn('lba0/many:$I30', seeker.index_list)
+        self.assertTrue(set(seeker.index_list).isdisjoint(seeker.name_list))
+        self.assertTrue(set(seeker.index_list).isdisjoint(seeker.stream_list))
+        for pattern in ('*', '*:*', '*/many*', '*:$I3*'):
+            sources = [seeker.file_infos[path].source_path for path in seeker.search(pattern)]
+            self.assertEqual([s for s in sources if s.endswith(':$I30')], [], pattern)
+        staged = seeker.search('*:$I30')
+        self.assertEqual(sorted(seeker.file_infos[path].source_path for path in staged),
+                         sorted(seeker.index_list))
+        for path in staged:
+            self.assertNotIn(':', os.path.basename(path))
+            with open(path, 'rb') as handle:
+                data = handle.read()
+            self.assertTrue(data and len(data) % 4096 == 0, path)
+            self.assertEqual({data[offset:offset + 4] for offset in range(0, len(data), 4096)}, {b'INDX'})
+        one = seeker.search('*/many:$I30')
+        self.assertEqual([seeker.file_infos[path].source_path for path in one], ['lba0/many:$I30'])
+        self.assertEqual(os.path.getsize(one[0]), 94208)
+        self.assertIn('5 directories can give their index, to a pattern that asks for it (*:$I30)',
+                      self.log.text())
+
+    def test_a_stream_named_like_an_index_is_still_reached(self):
+        # A pattern that ends ':$I30' is handed the indexes besides the streams it names.
+        seeker = self._seeker(self.streams)
+        self.assertEqual(seeker.index_list, ['lba0/:$I30'])
+        real = next(name for name in seeker.stream_list if name.endswith(':rootstream'))
+        seeker.stream_list.append('lba0/odd:$I30')
+        seeker._entries['lba0/odd:$I30'] = seeker._entries[real]      # pylint: disable=protected-access
+        found = sorted(seeker.file_infos[path].source_path for path in seeker.search('*:$I30'))
+        self.assertEqual(found, ['lba0/:$I30', 'lba0/odd:$I30'])
+
+    def test_a_reader_without_directory_indexes_lists_none(self):
+        with mock.patch.object(raw_image.qnxprobe.NtfsWalker, 'directory_index', None):
+            seeker = self._seeker(self.ntfs)
+        self.assertEqual(seeker.index_list, [])
+        self.assertEqual(seeker.search('*:$I30'), [])
+        self.assertNotIn('can give their index', self.log.text())
+
     def test_a_pattern_that_names_no_stream_is_never_handed_one(self):
         seeker = self._seeker(self.streams)
         everything = seeker.search('*')

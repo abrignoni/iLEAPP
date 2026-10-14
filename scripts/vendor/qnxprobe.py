@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.62"
+QNXPROBE_VERSION = "1.63"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -4011,6 +4011,26 @@ class NtfsWalker:
             joined.runs.extend(a.runs)
         return joined
 
+    def _index_allocation(self, num):
+        """The $INDEX_ALLOCATION attribute of a directory's file name index ($I30),
+        with the runs of every piece joined as _data_attr() joins a $DATA's, or
+        None when the record has none: a directory whose index still fits in its
+        $INDEX_ROOT, and every file."""
+        parts = [a for a in self._record(num)
+                 if a.type == NTFS_INDEX_ALLOCATION and a.name == "$I30" and not a.resident]
+        if not parts:
+            return None
+        parts.sort(key=lambda a: a.start_vcn)
+        head = parts[0]
+        joined = _NtfsAttr(NTFS_INDEX_ALLOCATION, "$I30", head.flags, False)
+        joined.comp_unit = head.comp_unit
+        joined.alloc_size = max(a.alloc_size for a in parts)
+        joined.data_size = max(a.data_size for a in parts)
+        joined.init_size = max(a.init_size for a in parts)
+        for a in parts:
+            joined.runs.extend(a.runs)
+        return joined
+
     def _cluster_in_use(self, lcn):
         """True when this cluster is marked allocated in $Bitmap. The bitmap is
         read once and kept: a deleted-file sweep asks about many clusters."""
@@ -4625,6 +4645,28 @@ class NtfsWalker:
                 out.append((a.name, ref, got[2]))
         return out
 
+    def directory_index(self, num):
+        """[("$I30", NtfsStreamRef, size)] for a directory whose file name index
+        has grown into an $INDEX_ALLOCATION attribute, and [] for any other
+        record. The NtfsStreamRef is the node read_file(), entry() and stamps()
+        take, as for a stream, and ``size`` is what read_file() returns.
+
+        The index is not an alternate data stream and streams() does not list
+        it: a caller asks for it here. What is read is the attribute as the
+        volume stores it, one index block after another (``idx_size`` bytes
+        each, starting "INDX"), with the update sequence array of each block
+        not applied. That is the form in which the space past a block's last
+        entry still holds entries NTFS has since removed, which is what a caller
+        reads this for; listdir() is what lists the directory.
+
+        A record that holds a $DATA stream named $I30 gives [], since that name
+        then reads as the stream."""
+        if isinstance(num, NtfsStreamRef) or self._data_attr(num, "$I30") is not None:
+            return []
+        ref = NtfsStreamRef(num, "$I30")
+        got = self._stream(ref)
+        return [] if got is None else [("$I30", ref, got[2])]
+
     def front_hole(self, ref):
         """The bytes of hole read_file() skips at the front of this stream, 0
         when it starts with stored data, None when there is no such stream or
@@ -4640,6 +4682,8 @@ class NtfsWalker:
         if not ref.name:
             return None                         # the unnamed stream is the file itself
         data = self._data_attr(ref.record, ref.name)
+        if data is None and ref.name == "$I30":
+            data = self._index_allocation(ref.record)      # see directory_index()
         if data is None:
             return None
         if data.resident:
@@ -15025,6 +15069,71 @@ def _ntfs_streams_check(image_gz, listing, break_it=None):
     return matched, len(want), missing, extra, different, failures
 
 
+def _ntfs_directory_index_check(image_gz, break_it=None):
+    """Read every directory's $I30 index allocation through directory_index()
+    and check it is the index: whole blocks that start "INDX" and, once fixed
+    up, hold with the directory's $INDEX_ROOT exactly the entries listdir()
+    gives. ``break_it`` takes the walker and returns one with the call broken,
+    for the control that proves the check can fail.
+
+    Returns (directories with an index allocation, directories, failures).
+    """
+    import gzip, io
+    with gzip.open(image_gz, "rb") as gz:
+        img = io.BytesIO(gz.read())
+    w = NtfsWalker(img, 0)
+    if break_it is not None:
+        w = break_it(w)
+    failures, dirs, held = [], 0, 0
+    stack, seen = [(w.root, "")], set()
+    while stack:
+        node, path = stack.pop()
+        if node in seen:
+            continue
+        seen.add(node)
+        dirs += 1
+        listed = w.listdir(node)
+        for name, child in listed:
+            ent = w.entry(child)
+            if ent and ent[0] & S_IFMT == S_IFDIR:
+                stack.append((child, f"{path}/{name}"))
+            elif w.directory_index(child):
+                failures.append(f"{path}/{name}: a file gave a directory index")
+        if any(name == "$I30" for name, _ref, _size in w.streams(node)):
+            failures.append(f"{path or '/'}: streams() lists the index")
+        got = w.directory_index(node)
+        if not got:
+            continue
+        held += 1
+        (name, ref, size), = got
+        data = b"".join(w.read_file(ref, size))
+        if name != "$I30" or len(data) != size or not size or size % w.idx_size:
+            failures.append(f"{path or '/'}: {len(data)} bytes read of {size}, in blocks "
+                            f"of {w.idx_size}")
+            continue
+        out, got_names = [], set()
+        for a in w._record(node):                    # pylint: disable=protected-access
+            if a.type == NTFS_INDEX_ROOT and a.name == "$I30" and len(a.value) >= 0x20:
+                w._index_entries(a.value, 0x10, out, got_names)   # pylint: disable=protected-access
+        for off in range(0, size, w.idx_size):
+            raw = data[off:off + w.idx_size]
+            if raw[:4] != NTFS_INDX:
+                failures.append(f"{path or '/'}: the block at {off} does not start INDX")
+                continue
+            block = _ntfs_fixup(raw, w.bps, NTFS_INDX)
+            if block and len(block) >= 0x28:
+                w._index_entries(block, 0x18, out, got_names)     # pylint: disable=protected-access
+        if sorted(out) != sorted(listed):
+            failures.append(f"{path or '/'}: the blocks hold {len(out)} entries, listdir() "
+                            f"gives {len(listed)}")
+        ent = w.entry(ref)
+        if not ent or ent[1] != size:
+            failures.append(f"{path or '/'}: entry() gives {ent and ent[1]}, not {size}")
+        if w.stamps(ref) != w.stamps(node):
+            failures.append(f"{path or '/'}: stamps() is not its directory's")
+    return held, dirs, failures
+
+
 def _ntfs_times_check(image_gz):
     """Compare the instants the walker reads for live and deleted NTFS files
     against what The Sleuth Kit's istat printed for the same records.
@@ -19701,6 +19810,41 @@ def self_test():
                 return None if data is None else (data, 0, data.data_size)
             w._stream = _stream                      # pylint: disable=protected-access
             return w
+
+        # A directory's $I30 index allocation, read through directory_index(): the
+        # same fixture as the walk above, five of whose nine directories have
+        # grown one, then the same check with the call finding none.
+        idx_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "tests", "fixtures", "ntfs-fixture.img.gz")
+
+        def _no_index_allocation(w):
+            """The walker, finding no $INDEX_ALLOCATION on any record."""
+            w._index_allocation = lambda num: None   # pylint: disable=protected-access
+            return w
+
+        if os.path.isfile(idx_fix):
+            try:
+                iheld, idirs, ifail = _ntfs_directory_index_check(idx_fix)
+            except Exception as exc:                 # pylint: disable=broad-except
+                iheld = idirs = 0
+                ifail = [f"the check raised {type(exc).__name__}: {exc}"]
+            icond = iheld == 5 and idirs == 9 and not ifail
+            if not icond:
+                ok = False
+            print(f"  [{'PASS' if icond else 'FAIL'}] directory_index() reads the $I30 index "
+                  f"allocation of each NTFS fixture directory that has one as whole INDX "
+                  f"blocks holding, with the index root, the entries listdir() gives, and "
+                  f"streams() does not list it ({iheld} of {idirs} directories"
+                  + (f"; {ifail[0]}" if ifail else "") + ")")
+            try:
+                bheld = _ntfs_directory_index_check(idx_fix, break_it=_no_index_allocation)[0]
+            except Exception:                        # pylint: disable=broad-except
+                bheld = -1
+            if bheld != 0:
+                ok = False
+            print(f"  [{'PASS' if bheld == 0 else 'FAIL'}] control: a walker that finds no "
+                  f"$INDEX_ALLOCATION gives no directory index, so the check above can "
+                  f"fail ({bheld} given)")
 
         if os.path.isfile(ads_fix) and os.path.isfile(ads_want):
             try:
