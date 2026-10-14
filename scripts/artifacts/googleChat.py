@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Messages from the first Google Chat dynamite.db matched",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Google Chats",
         "notes": "Only the first dynamite.db matched is read, so a second account's database is "
