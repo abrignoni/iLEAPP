@@ -11,7 +11,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.artifacts.routinedParkedCar import routinedParkedCar
+from scripts.artifacts.routinedParkedCar import routinedParkedCar, routinedVehicles
 
 COCOA = 978307200
 ENTRY = 800000000.5          # Cocoa seconds -> 2026-05-09 06:13:20.5 UTC
@@ -90,6 +90,36 @@ class RoutinedVehicleEventsTest(unittest.TestCase):
         _headers, rows, _source = routinedParkedCar.__wrapped__(_Context(path))
         self.assertIsNone(rows[0][0])
         self.assertIsNone(rows[0][1])
+
+    def test_vehicles(self):
+        path = self._database('Local.sqlite', [
+            ('CREATE TABLE ZRTVEHICLEMO (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, '
+             'ZENDDATE TIMESTAMP, ZSTARTDATE TIMESTAMP, ZBLUETOOTHADDRESS VARCHAR, '
+             'ZVEHICLEMODELNAME VARCHAR, ZVEHICLENAME VARCHAR)', ()),
+            # inserted out of order: the artifact sorts by start time
+            ('INSERT INTO ZRTVEHICLEMO VALUES (1, 1, 1, ?, ?, NULL, NULL, ?)',
+             (EXIT, ENTRY + 600, 'Example Car')),
+            ('INSERT INTO ZRTVEHICLEMO VALUES (2, 1, 1, ?, ?, ?, ?, ?)',
+             (ENTRY + 300, ENTRY, '00:11:22:33:44:55', 'Example Model', 'Example Car')),
+            ('INSERT INTO ZRTVEHICLEMO VALUES (3, 1, 1, 0, -1, NULL, NULL, NULL)', ()),
+        ])
+        headers, rows, source = routinedVehicles.__wrapped__(_Context(path))
+        self.assertEqual(source, str(path))            # the sidecars are not cited
+        self.assertEqual(len(rows), 3)
+        for row in rows:
+            self.assertEqual(len(row), len(headers))
+        self.assertEqual(rows[0][:2], (None, None))    # zero / negative times are empty
+        self.assertEqual(rows[1], (_utc(ENTRY), _utc(ENTRY + 300), 'Example Car', 'Example Model',
+                                   '00:11:22:33:44:55'))
+        self.assertEqual(rows[2], (_utc(ENTRY + 600), _utc(EXIT), 'Example Car', None, None))
+
+    def test_vehicles_table_absent(self):
+        path = self._database('Local.sqlite', [
+            ('CREATE TABLE ZRTVEHICLEEVENTMO (Z_PK INTEGER PRIMARY KEY, ZDATE)', ()),
+        ])
+        _headers, rows, source = routinedVehicles.__wrapped__(_Context(path))
+        self.assertEqual(rows, [])
+        self.assertEqual(source, str(path))
 
 
 if __name__ == '__main__':

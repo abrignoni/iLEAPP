@@ -11,7 +11,7 @@ import unittest
 
 from admin.test.scripts.test_local_corpus_artifacts import LOCAL_IMAGE, LocalCorpusTestCase, \
     _Context
-from scripts.artifacts.routinedParkedCar import routinedParkedCar
+from scripts.artifacts.routinedParkedCar import routinedParkedCar, routinedVehicles
 
 COORD = r'^-?\d{1,3}\.\d+$'
 
@@ -49,6 +49,23 @@ class RoutinedParkedCarLocalTest(_RoutinedLocal):
         _headers, rows = self.check(2, 3)
         for row in rows:
             self.assertIn(row[11], ('ZRTVEHICLEEVENTMO', 'ZRTVEHICLEEVENTHISTORYMO'))
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class RoutinedVehiclesLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/Caches/com.apple.routined/Local.sqlite'
+
+    def test_structure(self):
+        path = self.fetch(self.SUFFIX)
+        if not path:
+            self.skipTest(f'{self.SUFFIX} not present in the local image')
+        headers, rows, source = routinedVehicles.__wrapped__(_Context(path))
+        self.assertEqual(source, str(path))
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_plausible_timestamp(row[1])
+            self.assertLessEqual(row[0], row[1])
 
 
 if __name__ == '__main__':
