@@ -1488,6 +1488,7 @@ BITLOCKER_RECOVERY = '111111-222222-333333-444444-555555-666666-000011-000022'
 # values made for it.
 APFS_PASSWORD = 'qnxprobe-apfs-convert'
 APFS_HINT = 'the qnxprobe conversion test'
+LUKS_PASSPHRASE = 'correct horse battery staple'     # the test value tools/make_luks_fixtures.sh in qnxprobe gives
 
 try:
     import tkinter  # noqa: F401  pylint: disable=unused-import
@@ -1853,6 +1854,95 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         with mock.patch.object(simpledialog, 'askstring', lambda *a, **kw: None):
             keys = raw_image.ask_image_keys(None, self.apfs)
         self.assertEqual(keys.apfs_secrets, [])
+
+    def _luks_members(self, keys):
+        data = tempfile.mkdtemp(prefix='raw_image_data_')     # one folder per seeker
+        self.addCleanup(shutil.rmtree, data, True)
+        image = os.path.join(self.work, 'luks1-cbc.img')
+        if not os.path.exists(image):
+            with gzip.open(FIXTURES / 'luks1-cbc.img.gz', 'rb') as src, open(image, 'wb') as dst:
+                shutil.copyfileobj(src, dst)
+        seeker = FileSeekerRaw(image, data, password=keys)
+        self.addCleanup(seeker.cleanup)
+        return seeker, image, [m for m in seeker.name_list if not m.endswith('/')]
+
+    def test_a_luks_container_opens_with_its_passphrase(self):
+        """A LUKS1 container cryptsetup wrote (qnxprobe's tests/fixtures): with its
+        passphrase, as the image's password or as a LUKS one, every file of the ext4
+        inside stages with the hash sha256sum recorded over the tree; without it, or
+        with a wrong one, the container is named locked and holds no members."""
+        hashes = _hash_list(FIXTURES / 'luks-fixture.sha256')
+        _seeker, _image, files = self._luks_members(None)
+        self.assertEqual(files, [])
+        self.assertIn('LUKS-encrypted and not read: give its passphrase', self.log.text())
+        for keys in (raw_image.ImageKeys(password=LUKS_PASSPHRASE),
+                     raw_image.ImageKeys(luks_secrets=[LUKS_PASSPHRASE])):
+            seeker, _image, files = self._luks_members(keys)
+            for rel, digest in hashes.items():
+                staged = seeker.search(f'*/{rel}')
+                self.assertEqual(len(staged), 1, rel)
+                self.assertEqual(_sha256(staged[0]), digest, rel)
+        _seeker, _image, files = self._luks_members(raw_image.ImageKeys(password='not it'))
+        self.assertEqual(files, [])
+
+    def test_the_command_line_takes_a_luks_passphrase_and_says_what_stays_locked(self):
+        _seeker, image, _files = self._luks_members(None)
+        with mock.patch.object(raw_image.sys, 'stdin', None), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(image)
+        self.assertIn('stays locked and its files are not searched', err.getvalue())
+        self.assertIn('Give its passphrase with --image_password_file', err.getvalue())
+
+        class Terminal:
+            @staticmethod
+            def isatty():
+                return True
+        answers = iter(['not it', LUKS_PASSPHRASE])
+        prompts = []
+
+        def getpass(prompt):
+            prompts.append(prompt)
+            return next(answers)
+        with mock.patch.object(raw_image.sys, 'stdin', Terminal()), \
+                mock.patch.object(raw_image.getpass, 'getpass', getpass), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(image)
+        self.assertEqual(keys.luks_secrets, [LUKS_PASSPHRASE])
+        self.assertIn('That does not open it.', err.getvalue())
+        self.assertIn('is a LUKS container', prompts[0])
+
+    @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
+    def test_the_gui_asks_for_a_luks_passphrase(self):
+        from tkinter import simpledialog  # pylint: disable=import-outside-toplevel
+        _seeker, image, _files = self._luks_members(None)
+        answers = iter(['not it', LUKS_PASSPHRASE])
+        prompts = []
+
+        def askstring(_title, prompt, **_kw):
+            prompts.append(prompt)
+            return next(answers)
+        with mock.patch.object(simpledialog, 'askstring', askstring):
+            keys = raw_image.ask_image_keys(None, image)
+        self.assertEqual(keys.luks_secrets, [LUKS_PASSPHRASE])
+        self.assertTrue(prompts[1].startswith('That does not open it.'))
+
+    def test_an_lvm_physical_volume_offers_its_unallocated_extents(self):
+        """A disk lvm2 made one whole physical volume (qnxprobe's tests/fixtures), whose
+        extents start 3 MiB in, 1 MiB each, the one logical volume holding the first 8 of
+        its 13: the other 5 are its free space, and staged they are those bytes of the
+        disk."""
+        image = os.path.join(self.work, 'lvm-wholedisk.img')
+        with gzip.open(FIXTURES / 'lvm-wholedisk.img.gz', 'rb') as src, open(image, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+        seeker = self._seeker(image)
+        self.assertEqual(seeker.free_list,
+                         ['lba0/$Unallocated/lvm-wholedisk.img.lba0.unallocated.bin'])
+        staged = seeker.search('*.unallocated.bin')
+        self.assertEqual(len(staged), 1)
+        mib = 1 << 20
+        with open(image, 'rb') as disk, open(staged[0], 'rb') as got:
+            disk.seek(11 * mib)
+            self.assertEqual(got.read(), disk.read(5 * mib))
 
     @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
     def test_the_gui_asks_for_a_private_key_and_a_bitlocker_startup_key(self):

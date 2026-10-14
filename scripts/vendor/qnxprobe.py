@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.66"
+QNXPROBE_VERSION = "1.67"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -13040,6 +13040,528 @@ def unlock_apfs(fh, size=None, passwords=()):
 
 
 # ---------------------------------------------------------------------------
+# LUKS1 and LUKS2
+# ---------------------------------------------------------------------------
+# The layouts are cryptsetup's (gitlab.com/cryptsetup/cryptsetup, docs/
+# on-disk-format.pdf for LUKS1 and docs/on-disk-format-luks2.pdf for LUKS2).
+# LUKS1 is a big-endian header: the cipher name and mode, the hash, the payload
+# offset in sectors, the master key's length, a PBKDF2 digest of the master key
+# (its salt and iterations), and eight keyslots of 48 bytes from byte 208, each
+# active or not, with its PBKDF2 iterations and salt, the offset of its key
+# material in sectors and its anti-forensic stripe count. LUKS2 is a binary
+# header, twice (the second at the first's size), each with a SHA checksum over
+# itself and its JSON area, the copy with the higher sequence id in force; the
+# JSON names the keyslots (their KDF, PBKDF2 or Argon2, their anti-forensic
+# split, and the area their key material is in, with the cipher it is encrypted
+# with), the digests that confirm a master key, and the data segments.
+#
+# A passphrase opens a keyslot: the KDF gives the key the slot's material is
+# encrypted with, in 512-byte sectors numbered from 0; the material is the
+# master key split into stripes (AF, luks1 style: each stripe XORed into a
+# running block that is diffused with the hash, the last stripe XORed on top);
+# the master key is right when its PBKDF2 digest matches the one stored. The
+# data is then decrypted sector by sector, its IV the sector number, counted
+# from the start of the data in 512-byte units (dm-crypt's default; a LUKS2
+# segment's larger sector_size changes how much one IV covers, not its units).
+#
+# Read: AES in XTS (plain64, plain) and CBC (essiv:<hash>, plain64, plain);
+# PBKDF2 with the hashes hashlib has; Argon2i and Argon2id when argon2-cffi is
+# installed. Not read: other ciphers, a LUKS2 header kept apart from the data
+# (detached), a keyslot type other than luks2, and a volume still being
+# re-encrypted. AES needs pycryptodome, as BitLocker does.
+
+try:
+    from argon2 import low_level as _ARGON2                    # argon2-cffi
+except ImportError:
+    _ARGON2 = None
+
+LUKS_MAGIC = b"LUKS\xba\xbe"
+LUKS_MAX_KEY_BYTES = 128             # a 512-bit XTS key is 64; nothing cryptsetup writes is longer
+LUKS_MAX_STRIPES = 65536             # cryptsetup writes 4000
+LUKS_MAX_PBKDF2 = 50_000_000         # benchmarks give single millions
+LUKS_MAX_ARGON2_KIB = 4 * 1024 * 1024    # cryptsetup's --pbkdf-memory maximum
+
+
+def _luks_cipher_problem(spec):
+    """Why a LUKS cipher spec is not one this reads, else ''."""
+    parts = (spec or "").lower().split("-", 1)
+    if len(parts) != 2 or parts[0] != "aes":
+        return f"its {spec or 'unnamed'} cipher is not one this reads (only AES)"
+    mode = parts[1]
+    if mode in ("xts-plain64", "xts-plain", "cbc-plain64", "cbc-plain") or mode.startswith("cbc-essiv:"):
+        return ""
+    return f"its {spec} mode is not one this reads"
+
+
+def _luks2_shape(meta):
+    """Raise ValueError unless the LUKS2 JSON has the shape cryptsetup writes."""
+    def need(cond, what):
+        if not cond:
+            raise ValueError(f"its LUKS2 metadata has {what}")
+    need(isinstance(meta, dict), "no object at its top")
+    for key in ("keyslots", "segments", "digests"):
+        need(isinstance(meta.get(key), dict), f"{key} that are not an object")
+    for kid, ks in meta["keyslots"].items():
+        need(isinstance(ks, dict), f"keyslot {kid} that is not an object")
+        if ks.get("type") != "luks2":
+            continue
+        for part in ("kdf", "af", "area"):
+            need(isinstance(ks.get(part), dict), f"keyslot {kid} with no {part} object")
+        kdf = ks["kdf"]
+        need(isinstance(kdf.get("salt"), str), f"keyslot {kid} with no salt")
+        fields = (("iterations", "hash") if kdf.get("type") == "pbkdf2" else ("time", "memory", "cpus"))
+        for f in fields:
+            need(f in kdf, f"keyslot {kid} with no {f}")
+        for f in ("offset", "encryption", "key_size"):
+            need(f in ks["area"], f"keyslot {kid} whose area has no {f}")
+        need(str(ks.get("key_size", "")).isdigit() and str(ks["area"]["key_size"]).isdigit()
+             and str(ks["area"]["offset"]).isdigit() and str(ks["af"].get("stripes", "")).isdigit(),
+             f"keyslot {kid} with a size, offset or stripe count that is not a number")
+    for sid, sg in meta["segments"].items():
+        need(isinstance(sg, dict), f"segment {sid} that is not an object")
+        if sg.get("type") == "crypt":
+            need(str(sg.get("offset", "")).isdigit() and (sg.get("size") == "dynamic"
+                                                         or str(sg.get("size", "")).isdigit())
+                 and isinstance(sg.get("encryption"), str),
+                 f"segment {sid} with an offset, size or cipher that does not read")
+    for did, dg in meta["digests"].items():
+        need(isinstance(dg, dict) and isinstance(dg.get("keyslots", []), list),
+             f"digest {did} that does not read")
+        if dg.get("type") == "pbkdf2":
+            need(str(dg.get("iterations", "")).isdigit() and isinstance(dg.get("salt"), str)
+                 and isinstance(dg.get("digest"), str), f"digest {did} that does not read")
+LUKS_CHUNK = 65536
+LUKS_CACHE_CHUNKS = 256
+
+
+def _luks_af_merge(material, key_bytes, stripes, hash_name):
+    """The master key from its anti-forensic split (luks1 AF: af.c AF_merge)."""
+    import hashlib                                  # pylint: disable=import-outside-toplevel
+
+    def diffuse(block):
+        size = hashlib.new(hash_name).digest_size
+        out = bytearray()
+        for i in range(-(-len(block) // size)):
+            piece = block[i * size:(i + 1) * size]
+            out += hashlib.new(hash_name, struct.pack(">I", i) + piece).digest()[:len(piece)]
+        return bytes(out)
+    d = bytes(key_bytes)
+    for i in range(stripes - 1):
+        stripe = material[i * key_bytes:(i + 1) * key_bytes]
+        d = diffuse(bytes(a ^ b for a, b in zip(d, stripe)))
+    last = material[(stripes - 1) * key_bytes:stripes * key_bytes]
+    return bytes(a ^ b for a, b in zip(d, last))
+
+
+class _LuksCipher:
+    """One LUKS cipher spec (cipher-mode-iv, as cryptsetup names them) with its
+    key: decrypt() takes whole sectors and the IV number of the first. Raises
+    ValueError for a spec this does not read."""
+
+    def __init__(self, spec, key):
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        if _BDE_AES is None:
+            raise ValueError("AES needs the pycryptodome package")
+        parts = spec.lower().split("-", 1)
+        if len(parts) != 2 or parts[0] != "aes":
+            raise ValueError(f"the {spec} cipher is not one this reads (only AES)")
+        mode = parts[1]
+        self.spec = spec
+        if mode in ("xts-plain64", "xts-plain"):
+            half = len(key) // 2
+            self.kind = "xts"
+            self.pair = (_BDE_AES.new(key[:half], _BDE_AES.MODE_ECB),
+                         _BDE_AES.new(key[half:], _BDE_AES.MODE_ECB))
+            self.wrap = mode.endswith("-plain")
+        elif mode in ("cbc-plain64", "cbc-plain") or mode.startswith("cbc-essiv:"):
+            self.kind = "cbc"
+            self.key = key
+            self.essiv = None
+            if mode.startswith("cbc-essiv:"):
+                hname = mode.split(":", 1)[1]
+                if hname not in hashlib.algorithms_available:
+                    raise ValueError(f"the ESSIV hash {hname} is not available here")
+                self.essiv = _BDE_AES.new(hashlib.new(hname, key).digest(), _BDE_AES.MODE_ECB)
+            self.wrap = mode == "cbc-plain"
+        else:
+            raise ValueError(f"the {spec} mode is not one this reads")
+
+    def decrypt(self, data, first, unit=512, iv_unit=512):
+        """Whole `unit`-byte sectors; sector i's IV is first + i * unit / iv_unit."""
+        n = len(data) // unit
+        step = unit // iv_unit
+        if self.kind == "xts":
+            if step == 1 and not self.wrap:
+                return _xts_crypt(self.pair, data[:n * unit], first, unit)
+            out = bytearray()
+            for i in range(n):
+                iv = first + i * step
+                out += _xts_crypt(self.pair, data[i * unit:(i + 1) * unit],
+                                  iv & 0xFFFFFFFF if self.wrap else iv, unit)
+            return bytes(out)
+        out = bytearray()
+        for i in range(n):
+            iv = first + i * step
+            if self.wrap:
+                iv &= 0xFFFFFFFF
+            ivb = iv.to_bytes(16, "little")
+            if self.essiv is not None:
+                ivb = self.essiv.encrypt(ivb)
+            out += _BDE_AES.new(self.key, _BDE_AES.MODE_CBC, ivb).decrypt(data[i * unit:(i + 1) * unit])
+        return bytes(out)
+
+
+class Luks:
+    """A LUKS1 or LUKS2 container at base in fh: its header, read before any
+    passphrase is given, and once unlock() finds one, its data in plaintext.
+    Luks.open() returns None for anything that is not LUKS."""
+
+    @classmethod
+    def open(cls, fh, base, size=None):
+        head = read_at(fh, base, 4096)
+        if len(head) < 1024 or head[:6] != LUKS_MAGIC:
+            return None
+        if size is None:
+            size = image_size(fh) - base
+        return cls(fh, base, size, head)
+
+    def __init__(self, fh, base, size, head):
+        # Everything lines(), summary() and unlock() read has a value before the
+        # header is parsed, so a header that does not parse leaves a container
+        # that is reported as not read, and why, rather than an exception.
+        self.fh, self.base, self.size = fh, base, size
+        self.version = struct.unpack_from(">H", head, 6)[0]
+        self.mk, self.why, self.tried, self.unlocked_by = None, "", [], None
+        self.label, self.problems, self.uuid, self.cipher, self.hash = "LUKS", [], "", "", ""
+        self.offset, self.data_size, self.sector_size, self.iv_tweak = 0, 0, SECTOR, 0
+        self.key_bytes, self.keyslots, self.digests = 0, [], []
+        self._cache = collections.OrderedDict()
+        self._cipher = None
+        try:
+            if self.version == 1:
+                self._luks1(head)
+            elif self.version == 2:
+                self._luks2()
+            else:
+                raise ValueError(f"LUKS version {self.version}")
+            self.data_size = max(0, self.size - self.offset) if self.data_size is None else self.data_size
+            unread = _luks_cipher_problem(self.cipher)
+            if unread:
+                raise ValueError(unread)
+        except Exception as exc:                       # pylint: disable=broad-except
+            self.keyslots, self.digests, self.data_size = [], [], 0
+            self.why = f"its header does not read ({type(exc).__name__}: {exc})" \
+                if not isinstance(exc, ValueError) else str(exc)
+
+    def _luks1(self, h):
+        name = h[8:40].split(b"\0")[0].decode("ascii", "replace")
+        mode = h[40:72].split(b"\0")[0].decode("ascii", "replace")
+        self.hash = h[72:104].split(b"\0")[0].decode("ascii", "replace")
+        payload, self.key_bytes = struct.unpack_from(">II", h, 104)
+        self.mk_digest, self.mk_salt = h[112:132], h[132:164]
+        self.mk_iterations, = struct.unpack_from(">I", h, 164)
+        self.uuid = h[168:208].split(b"\0")[0].decode("ascii", "replace")
+        self.cipher = f"{name}-{mode}"
+        self.offset, self.data_size, self.sector_size = payload * SECTOR, None, SECTOR
+        self.keyslots = []
+        for i in range(8):
+            active, iters = struct.unpack_from(">II", h, 208 + 48 * i)
+            salt = h[208 + 48 * i + 8:208 + 48 * i + 40]
+            off, stripes = struct.unpack_from(">II", h, 208 + 48 * i + 40)
+            if active == 0x00AC71F3:
+                self.keyslots.append(dict(id=str(i), kdf=dict(type="pbkdf2", hash=self.hash,
+                                                             iterations=iters, salt=salt),
+                                          offset=off * SECTOR, stripes=stripes, af_hash=self.hash,
+                                          cipher=self.cipher, key_bytes=self.key_bytes,
+                                          kdf_bytes=self.key_bytes))
+        self.digests = [dict(hash=self.hash, iterations=self.mk_iterations, salt=self.mk_salt,
+                             digest=self.mk_digest, keyslots=None)]
+
+    def _luks2(self):
+        import base64                               # pylint: disable=import-outside-toplevel
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        # The second copy is at the first's size; when the first does not give a
+        # size that reads, cryptsetup looks for the second at fixed offsets
+        # (luks2_disk_metadata.c, LUKS2_HDR2_OFFSETS), and so does this.
+        first = read_at(self.fh, self.base, 4096)
+        hdr_size, = struct.unpack_from(">Q", first, 8)
+        places = [0]
+        if 16384 <= hdr_size <= 4 << 20:
+            places.append(hdr_size)
+        places += [o for o in (0x4000, 0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000,
+                               0x200000, 0x400000) if o not in places]
+        best_seq, best_raw, best_size = -1, None, 0
+        for at in places:
+            head = read_at(self.fh, self.base + at, 512)
+            if len(head) < 512 or head[:6] not in (LUKS_MAGIC, b"SKUL\xba\xbe"):
+                continue
+            size, seqid = struct.unpack_from(">QQ", head, 8)
+            stored_at, = struct.unpack_from(">Q", head, 256)
+            if not 16384 <= size <= 4 << 20 or stored_at != at:
+                self.problems.append(f"the header copy at byte {at:,} names another size or place")
+                continue
+            raw = read_at(self.fh, self.base + at, size)
+            alg = raw[72:104].split(b"\0")[0].decode("ascii", "replace")
+            if alg not in hashlib.algorithms_available:
+                self.problems.append(f"header copy at byte {at:,}: checksum {alg} not available")
+                continue
+            body = bytearray(raw)
+            body[448:512] = bytes(64)
+            digest = hashlib.new(alg, bytes(body)).digest()
+            if len(raw) < size or raw[448:448 + len(digest)] != digest:
+                self.problems.append(f"the header copy at byte {at:,} fails its checksum")
+                continue
+            if best_raw is None or seqid > best_seq:
+                best_seq, best_raw, best_size = seqid, raw, size
+        if best_raw is None:
+            raise ValueError("no LUKS2 header copy passes its checksum")
+        raw = best_raw
+        self.uuid = raw[168:208].split(b"\0")[0].decode("ascii", "replace")
+        self.label = raw[24:72].split(b"\0")[0].decode("utf-8", "replace") or "LUKS"
+        meta = json.loads(raw[4096:best_size].split(b"\0", 1)[0])
+        _luks2_shape(meta)
+        if meta.get("requirements", {}).get("mandatory"):
+            raise ValueError("its header names requirements this does not meet "
+                             f"({', '.join(map(str, meta['requirements']['mandatory']))})")
+        segs = meta["segments"]
+        if len(segs) != 1 or any(sg.get("type") != "crypt" for sg in segs.values()):
+            raise ValueError("a volume being re-encrypted, or with more than one data segment")
+        seg = next(iter(segs.values()))
+        if seg.get("integrity"):
+            raise ValueError("its data carries dm-integrity, which this does not read")
+        self.cipher = seg["encryption"]
+        self.offset = int(seg["offset"])
+        self.data_size = None if seg["size"] == "dynamic" else int(seg["size"])
+        self.sector_size = int(seg.get("sector_size", 512))
+        if self.sector_size not in (512, 1024, 2048, 4096):
+            raise ValueError(f"a sector size of {self.sector_size}")
+        self.iv_tweak = int(seg.get("iv_tweak", 0))
+        b64 = base64.b64decode
+        for kid, ks in sorted(meta["keyslots"].items(), key=lambda kv: int(kv[0])):
+            if ks.get("type") != "luks2" or ks.get("af", {}).get("type") != "luks1":
+                self.problems.append(f"keyslot {kid} is of a type this does not read")
+                continue
+            kdf = dict(ks["kdf"])
+            kdf["salt"] = b64(kdf["salt"])
+            # The key the keyslot's material is encrypted with is the area's own
+            # length (luks2_keyslot_luks2.c), which need not be the volume key's.
+            self.keyslots.append(dict(id=kid, kdf=kdf, offset=int(ks["area"]["offset"]),
+                                      stripes=int(ks["af"]["stripes"]), af_hash=ks["af"]["hash"],
+                                      cipher=ks["area"]["encryption"], key_bytes=int(ks["key_size"]),
+                                      kdf_bytes=int(ks["area"]["key_size"])))
+        self.digests = [dict(hash=d["hash"], iterations=int(d["iterations"]), salt=b64(d["salt"]),
+                             digest=b64(d["digest"]), keyslots=set(d["keyslots"]))
+                        for d in meta["digests"].values() if d.get("type") == "pbkdf2"]
+        self.key_bytes = self.keyslots[0]["key_bytes"] if self.keyslots else 0
+
+    def _derive(self, kdf, password, length):
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        # Costs past cryptsetup's own limits (its --pbkdf-memory maximum of 4 GiB,
+        # and time and iteration counts no benchmark gives) are refused rather than
+        # run: a crafted keyslot could otherwise hang the reader or exhaust memory.
+        if kdf["type"] == "pbkdf2":
+            if not 0 < int(kdf["iterations"]) <= LUKS_MAX_PBKDF2:
+                raise ValueError(f"a PBKDF2 iteration count of {kdf['iterations']}, past what this runs")
+            return hashlib.pbkdf2_hmac(kdf["hash"], password, kdf["salt"], int(kdf["iterations"]), length)
+        if kdf["type"] in ("argon2i", "argon2id"):
+            if not (0 < int(kdf["memory"]) <= LUKS_MAX_ARGON2_KIB and 0 < int(kdf["time"]) <= 1000
+                    and 0 < int(kdf["cpus"]) <= 64):
+                raise ValueError("Argon2 costs past cryptsetup's own limits")
+            if _ARGON2 is None:
+                raise ValueError("its Argon2 keyslot needs the argon2-cffi package")
+            kind = _ARGON2.Type.ID if kdf["type"] == "argon2id" else _ARGON2.Type.I
+            return _ARGON2.hash_secret_raw(password, kdf["salt"], int(kdf["time"]), int(kdf["memory"]),
+                                           int(kdf["cpus"]), length, kind, 19)
+        raise ValueError(f"the {kdf['type']} key derivation is not one this reads")
+
+    def _try(self, slot, password):
+        """The master key a passphrase opens in a keyslot, else None."""
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        kb, stripes = slot["key_bytes"], slot["stripes"]
+        if not (0 < kb <= LUKS_MAX_KEY_BYTES and 0 < slot["kdf_bytes"] <= LUKS_MAX_KEY_BYTES
+                and 0 < stripes <= LUKS_MAX_STRIPES):
+            raise ValueError(f"keyslot {slot['id']} has a key size or stripe count past what "
+                             "cryptsetup writes")
+        length = -(-kb * stripes // SECTOR) * SECTOR
+        material = read_at(self.fh, self.base + slot["offset"], length)
+        if len(material) < length:
+            raise ValueError("its key material lies past the end of the image")
+        key = self._derive(slot["kdf"], password, slot["kdf_bytes"])
+        plain = _LuksCipher(slot["cipher"], key).decrypt(material, 0)
+        mk = _luks_af_merge(plain, kb, stripes, slot["af_hash"])
+        for d in self.digests:
+            listed = d["keyslots"] or ()
+            if d["keyslots"] is not None and slot["id"] not in listed:
+                continue
+            if not 0 < d["iterations"] <= LUKS_MAX_PBKDF2:
+                raise ValueError(f"a digest iteration count of {d['iterations']}, past what this runs")
+            if hashlib.pbkdf2_hmac(d["hash"], mk, d["salt"], d["iterations"], len(d["digest"])) == d["digest"]:
+                return mk
+        return None
+
+    def unlock(self, passwords):
+        """Try each passphrase on each keyslot; True once one opens the volume."""
+        if self.mk is not None:
+            return True
+        if not self.keyslots:
+            self.why = self.why or "no keyslot this reads"
+            return False
+        for pw in passwords:
+            pwb = pw.encode("utf-8") if isinstance(pw, str) else pw
+            for slot in self.keyslots:
+                try:
+                    mk = self._try(slot, pwb)
+                except Exception as exc:                   # pylint: disable=broad-except
+                    # a keyslot this cannot use is said, and the next one tried
+                    self.why = (str(exc) if isinstance(exc, ValueError)
+                                else f"keyslot {slot['id']}: {type(exc).__name__}: {exc}")
+                    continue
+                self.tried.append(slot["id"])
+                if mk is not None:
+                    try:
+                        self._cipher = _LuksCipher(self.cipher, mk)
+                    except ValueError as exc:
+                        self.why = str(exc)
+                        return False
+                    self.mk, self.unlocked_by, self.why = mk, f"keyslot {slot['id']}", ""
+                    return True
+        return False
+
+    def read(self, off, n):
+        """n plaintext bytes at data offset off (short at the end of the data)."""
+        out, pos, end = bytearray(), off, min(off + n, self.data_size)
+        while pos < end:
+            ci = pos // LUKS_CHUNK
+            chunk = self._cache.get(ci)
+            if chunk is None:
+                start = ci * LUKS_CHUNK
+                raw = read_at(self.fh, self.base + self.offset + start,
+                              min(LUKS_CHUNK, self.data_size - start))
+                whole = len(raw) - len(raw) % self.sector_size
+                tweak = getattr(self, "iv_tweak", 0)
+                chunk = self._cipher.decrypt(raw[:whole], tweak + start // SECTOR, self.sector_size)
+                self._cache[ci] = chunk
+                if len(self._cache) > LUKS_CACHE_CHUNKS:
+                    self._cache.popitem(last=False)
+            else:
+                self._cache.move_to_end(ci)
+            s = pos - ci * LUKS_CHUNK
+            take = min(len(chunk) - s, end - pos)
+            if take <= 0:
+                break
+            out += chunk[s:s + take]
+            pos += take
+        return bytes(out)
+
+    def lines(self):
+        return [f"LUKS{self.version}, {self.cipher}, {self.key_bytes * 8}-bit key, "
+                f"data at byte {self.offset:,}" + (f", {self.sector_size}-byte sectors"
+                                                   if self.sector_size != SECTOR else ""),
+                f"{len(self.keyslots)} keyslot(s) in use; uuid {self.uuid}"] + self.problems
+
+    def summary(self):
+        return (f"LUKS{self.version} {self.cipher}, opened with {self.unlocked_by}"
+                if self.mk is not None else f"LUKS{self.version}, locked")
+
+    def locked_note(self):
+        if self.why:
+            return f"LUKS-encrypted and not read: {self.why}"
+        if self.tried:
+            return "LUKS-encrypted and not read: no passphrase given opens a keyslot"
+        return "LUKS-encrypted and not read: give its passphrase"
+
+
+class LuksImage:
+    """An image read through read_at() with its opened LUKS volumes' data
+    decrypted in place, at the data's own offset, so identify_fs() and every
+    walker read the plaintext there. ``luks`` maps each opened container's base to
+    its Luks object, ``luks_found`` lists every one; anything else is the
+    image's own attribute."""
+
+    def __init__(self, fh, opened, found=()):
+        self._fh, self.luks, self.luks_found = fh, dict(opened), list(found)
+        self.size = image_size(fh)
+        self._spans = sorted((b + lk.offset, b + lk.offset + lk.data_size, lk)
+                             for b, lk in self.luks.items())
+        self._pos = 0
+
+    def __getattr__(self, name):
+        return getattr(self._fh, name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    def close(self):
+        self._fh.close()
+
+    def seek(self, off, whence=0):
+        self._pos = off if whence == 0 else self._pos + off if whence == 1 else self.size + off
+        return self._pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        end = self.size if n is None or n < 0 else min(self.size, self._pos + n)
+        out = bytearray()
+        while self._pos < end:
+            span = next((s for s in self._spans if s[0] <= self._pos < s[1]), None)
+            if span is not None:
+                take = min(end, span[1]) - self._pos
+                got = span[2].read(self._pos - span[0], take)
+            else:
+                nxt = min([s[0] for s in self._spans if s[0] > self._pos] + [end])
+                self._fh.seek(self._pos)
+                got = self._fh.read(nxt - self._pos)
+            if not got:
+                break
+            out += got
+            self._pos += len(got)
+        return bytes(out)
+
+
+def unlock_luks(fh, size=None, passwords=()):
+    """Find the LUKS containers in an opened image and open those a passphrase
+    opens. Returns (fh, found): fh is a LuksImage when there is any LUKS container
+    (``luks`` holds the opened ones, ``luks_found`` every one), else the image
+    unchanged; found holds one Luks per container, opened or not. Apply it
+    before lvm_image(), so a physical volume inside a LUKS container is seen."""
+    if size is None:
+        size = image_size(fh)
+    regions, _names, containers, protective = partition_regions(fh, size)
+    found, opened = [], {}
+    for label, base, rsize in regions:
+        if label in containers or label in protective:
+            continue
+        lk = Luks.open(fh, base, rsize)
+        if lk is None:
+            continue
+        lk.label = label
+        if lk.mk is None and not lk.why and lk.unlock(passwords):
+            opened[base] = lk
+        found.append(lk)
+    if not found:
+        return fh, found
+    return LuksImage(fh, opened, found), found
+
+
+def identify_luks(fh, base, size=None):
+    """("luks", lines) for a LUKS container at base, else None."""
+    head = read_at(fh, base, 8)
+    if head[:6] != LUKS_MAGIC:
+        return None
+    opened = getattr(fh, "luks", {}).get(base)
+    lk = opened or next((x for x in getattr(fh, "luks_found", ()) if x.base == base), None) \
+        or Luks.open(fh, base, size)
+    if lk is None:
+        return None
+    return "luks", ([lk.summary()] + lk.lines())
+
+
+# ---------------------------------------------------------------------------
 # LVM2 physical volumes and their linear logical volumes
 # ---------------------------------------------------------------------------
 # The layout is lvm2's own (github.com/lvmteam/lvm2 at tag v2_03_43, commit
@@ -13277,7 +13799,7 @@ def _lvm_vg_shape(vg):
             for k in ("start_extent", "extent_count", "stripe_count"):
                 num(seg, k, f"{name} {key}")
             need(isinstance(seg.get("type", ""), str), f"{name} {key} with a type that is not a string")
-            for listed in ("stripes", "mirrors"):
+            for listed in ("stripes", "mirrors", "raids"):
                 areas = seg.get(listed, [])
                 need(isinstance(areas, list), f"{name} {key} with {listed} that are not a list")
                 need(all(isinstance(x, (str, int)) for x in areas),
@@ -13384,6 +13906,7 @@ class LvmMap:
     def __init__(self, segments):
         self.segments = segments
         self.size = sum(s[1] for s in segments)
+        self.copy_name = self.copy_kind = None     # set for a RAID1 or mirror copy (_lvm_copy)
         self._starts = [s[0] for s in segments]
 
     def locate(self, off):
@@ -13472,7 +13995,7 @@ def _lvm_group(name, vg, seqno, by_uuid, ss, virtual=None):
         segs = sorted((v for k, v in lv.items() if k.startswith("segment") and isinstance(v, dict)),
                       key=lambda s: s.get("start_extent", 0))
         shown = _lvm_shown(lvname, segs)
-        why, lmap = _lvm_layout(segs, where, pv_names, ext)
+        why, lmap = _lvm_layout(segs, where, pv_names, ext, vg.get("logical_volumes") or {})
         total = sum(s.get("extent_count", 0) for s in segs if isinstance(s.get("extent_count"), int)) * ext
         if why:
             lines.append(f"logical volume {shown}, {human(total)}: not read ({why})")
@@ -13484,7 +14007,8 @@ def _lvm_group(name, vg, seqno, by_uuid, ss, virtual=None):
         vname = f"{stem}_{suffix}" if suffix else stem
         base = lmap.contiguous()
         if base is not None:
-            lines.append(f"logical volume {lvname}, {human(lmap.size)}: read as {label}")
+            how = (f" ({_lvm_shape_words(lmap)})" if getattr(lmap, "copy_name", None) else "")
+            lines.append(f"logical volume {lvname}, {human(lmap.size)}: read as {label}{how}")
             found.append((label, base, lmap.size, vname))
             continue
         key = (vg.get("id", name), lvname)
@@ -13513,8 +14037,55 @@ def _lvm_group(name, vg, seqno, by_uuid, ss, virtual=None):
     return lines, found, maps, spare
 
 
+def _lvm_copy(seg, where, pv_names, ext, lvs, depth):
+    """A RAID1 or mirror segment, read from the first copy whose extents are all
+    in the image. lvm2 lists a raid1 segment's copies under raids, metadata and
+    image volume in turn (raid.c, out_areas "raid"), and a mirror's under
+    mirrors, each with its first extent (mirrored.c, out_areas "mirror"). Every
+    copy holds the volume's data from its start, unless the segment records a
+    data_offset (raid.c, written while a reshape moves the data), which is not
+    read. Which copies are in sync lives in the RAID metadata, not read here; a
+    copy that fell out of sync is read as it is."""
+    if depth > 4:
+        return "copies nested too deep", None
+    kind = seg["type"]
+    if seg.get("data_offset"):
+        return f"a {kind} segment with a data offset (written while a reshape moves its data)", None
+    if kind == "raid1":
+        listed = seg.get("raids") or []
+        names = [(listed[i], 0) for i in range(1, len(listed), 2)]
+    else:
+        listed = seg.get("mirrors") or []
+        names = [(listed[i], listed[i + 1]) for i in range(0, len(listed) - 1, 2)]
+    size = seg.get("extent_count", 0) * ext
+    reasons = []
+    for name, first in names:
+        copy = lvs.get(name) if isinstance(name, str) else None
+        if not isinstance(copy, dict) or first:
+            reasons.append(f"{name}: not a copy this reads")
+            continue
+        csegs = sorted((v for k, v in copy.items() if k.startswith("segment") and isinstance(v, dict)),
+                       key=lambda c: c.get("start_extent", 0))
+        why, cmap = _lvm_layout(csegs, where, pv_names, ext, lvs, depth + 1)
+        if why or cmap.size < size:
+            reasons.append(f"{name}: {why or 'shorter than the volume'}")
+            continue
+        segs_out, left = [], size
+        for start, length, chunk, bases in cmap.segments:
+            if left <= 0:
+                break
+            segs_out.append((start, min(length, left), chunk, bases))
+            left -= length
+        lmap = LvmMap(segs_out)
+        lmap.copy_name, lmap.copy_kind = name, kind
+        return None, lmap
+    return f"a {kind} volume none of whose copies is read ({'; '.join(reasons) or 'none listed'})", None
+
+
 def _lvm_shape_words(lmap):
     """How a volume that needs a map is laid out, in a few words."""
+    if getattr(lmap, "copy_name", None):
+        return f"{lmap.copy_kind}, read from its copy {lmap.copy_name}"
     striped = [s for s in lmap.segments if s[2] is not None]
     if striped:
         return (f"striped across {len(striped[0][3])} physical volumes in "
@@ -13522,13 +14093,17 @@ def _lvm_shape_words(lmap):
     return f"in {len(lmap.segments)} separate runs of extents"
 
 
-def _lvm_layout(segs, where, pv_names, ext):
+def _lvm_layout(segs, where, pv_names, ext, lvs=None, depth=0):
     """(why not, None) or (None, LvmMap) for an LV's segments: linear and
-    striped segments whose every run is on a physical volume in the image.
+    striped segments whose every run is on a physical volume in the image, or a
+    RAID1 or mirror volume, read from the first of its copies that is.
     `where` maps a physical volume's name in the metadata to (base, pe_start
-    bytes, pe_count) for those in the image; `pv_names` names every one."""
+    bytes, pe_count) for those in the image; `pv_names` names every one; `lvs`
+    is the volume group's logical_volumes, where the copies are."""
     if not segs:
         return "no segments", None
+    if len(segs) == 1 and segs[0].get("type") in ("raid1", "mirror") and lvs is not None:
+        return _lvm_copy(segs[0], where, pv_names, ext, lvs, depth)
     out, start = [], 0
     for seg in segs:
         kind = seg.get("type", "")
@@ -13689,6 +14264,304 @@ def identify_lvm(fh, base, size=None):
     if base not in notes:
         return None
     return "lvm2 pv", notes[base][1:] + [f"id {pv.uuid}"]
+
+
+def _luks2_rewritten(img, change, both=True):
+    """A LUKS2 image whose JSON metadata `change(meta)` has edited, its checksum
+    made good in both header copies (or only the first when `both` is False)."""
+    import hashlib
+    out = bytearray(img)
+    size, = struct.unpack_from(">Q", out, 8)
+    for at in ((0, size) if both else (0,)):
+        meta = json.loads(bytes(out[at + 4096:at + size]).split(b"\0", 1)[0])
+        change(meta)
+        text = json.dumps(meta).encode()
+        out[at + 4096:at + size] = text + bytes(size - 4096 - len(text))
+        alg = out[at + 72:at + 104].split(b"\0")[0].decode()
+        body = bytearray(out[at:at + size])
+        body[448:512] = bytes(64)
+        digest = hashlib.new(alg, bytes(body)).digest()
+        out[at + 448:at + 448 + len(digest)] = digest
+    return bytes(out)
+
+
+def _luks_hostile_checks(images, p1, p2, want, walk):
+    """Damaged and crafted LUKS headers cost nothing but that container, keyslot
+    and digest rules hold, and the paths the fixtures alone do not reach."""
+    import io
+    out = []
+    l2 = images["luks2-pbkdf2"]
+
+    def state(img):
+        """(volumes() ran, the container's note), never raising."""
+        try:
+            vols = volumes(io.BytesIO(img), len(img))
+            luks = [v for v in vols if v["kind"] == "luks"]
+            return True, (luks[0].get("note", "") if luks else "")
+        except Exception as exc:                       # pylint: disable=broad-except
+            return False, f"{type(exc).__name__}: {exc}"
+
+    both_bad = bytearray(l2)
+    size, = struct.unpack_from(">Q", both_bad, 8)
+    both_bad[4096 + 10] ^= 1
+    both_bad[size + 4096 + 10] ^= 1
+    ok1, note1 = state(bytes(both_bad))
+    v3 = bytearray(images["luks1-cbc"])
+    struct.pack_into(">H", v3, 6, 3)
+    ok2, note2 = state(bytes(v3))
+    out.append(("a LUKS2 container with both header copies damaged, and a header of an "
+                "unknown version, are listed as not read, and nothing else is lost",
+                ok1 and "no LUKS2 header copy passes" in note1 and ok2 and "LUKS version 3" in note2))
+
+    crafted = {
+        "a kdf without iterations": lambda m: m["keyslots"]["0"]["kdf"].pop("iterations"),
+        "keyslots as a list": lambda m: m.__setitem__("keyslots", []),
+        "a segment size that is not a number": lambda m: m["segments"]["0"].__setitem__("size", "abc"),
+        "a data segment with dm-integrity": lambda m: m["segments"]["0"].__setitem__(
+            "integrity", {"type": "hmac(sha256)"}),
+        "a serpent cipher": lambda m: m["segments"]["0"].__setitem__("encryption", "serpent-xts-plain64"),
+    }
+    held = []
+    for what, change in crafted.items():
+        img = _luks2_rewritten(l2, change)
+        ok, note = state(img)
+        lk = Luks.open(io.BytesIO(img), 0, len(img))
+        held.append((what, ok and lk.why != "" and not lk.unlock([p1]) and "give its passphrase" not in note))
+    out.append(("crafted LUKS2 metadata (" + ", ".join(w for w, _h in held) + ") is refused as not "
+                "read, with why, before any passphrase is asked for",
+                all(h for _w, h in held)
+                and "dm-integrity" in Luks.open(io.BytesIO(_luks2_rewritten(l2, crafted["a data segment with dm-integrity"])), 0, len(l2)).why
+                and "only AES" in Luks.open(io.BytesIO(_luks2_rewritten(l2, crafted["a serpent cipher"])), 0, len(l2)).why))
+
+    huge = _luks2_rewritten(images["luks2-argon2id"], lambda m: m["keyslots"]["0"]["kdf"].update(
+        memory=2 ** 32 - 1)) if _ARGON2 is not None else None
+    if huge is not None:
+        started = time.time()
+        lk = Luks.open(io.BytesIO(huge), 0, len(huge))
+        lk.unlock([p1])
+        out.append(("an Argon2 keyslot asking for more memory than cryptsetup allows is refused, "
+                    f"not run ({time.time() - started:.2f}s)",
+                    lk.mk is None and "past cryptsetup's own limits" in lk.why
+                    and time.time() - started < 30))
+        # a digest applies to the keyslots it lists: limited to the second keyslot,
+        # the first keyslot's passphrase no longer opens, the second's still does
+        only1 = _luks2_rewritten(images["luks2-argon2id"],
+                                 lambda m: m["digests"]["0"].__setitem__("keyslots", ["1"]))
+        a, b = Luks.open(io.BytesIO(only1), 0, len(only1)), Luks.open(io.BytesIO(only1), 0, len(only1))
+        out.append(("a digest confirms only the keyslots it lists",
+                    not a.unlock([p1]) and b.unlock([p2]) and b.unlocked_by == "keyslot 1"))
+
+    # A header copy records where it sits (hdr_offset, which cryptsetup checks):
+    # a primary that names another place, its checksum made good, is passed over.
+    import hashlib
+    moved = bytearray(l2)
+    struct.pack_into(">Q", moved, 256, 4096)
+    alg = moved[72:104].split(b"\0")[0].decode()
+    body = bytearray(moved[:size])
+    body[448:512] = bytes(64)
+    dg = hashlib.new(alg, bytes(body)).digest()
+    moved[448:448 + len(dg)] = dg
+    mlk = Luks.open(io.BytesIO(bytes(moved)), 0, len(moved))
+    out.append(("a header copy that records another place than its own is passed over for the "
+                "second copy", mlk.unlock([p1]) and any("names another size or place" in p
+                                                         for p in mlk.problems)))
+
+    # The key a keyslot's material is encrypted with is as long as the keyslot's
+    # area says, which need not be the volume key's length.
+    shorter = _luks2_rewritten(l2, lambda m: m["keyslots"]["0"]["area"].__setitem__("key_size", 16))
+    lengths = []
+    lk = Luks.open(io.BytesIO(shorter), 0, len(shorter))
+    real = lk._derive                                   # pylint: disable=protected-access
+
+    def recorded(kdf, password, length):
+        lengths.append(length)
+        return real(kdf, password, length)
+    lk._derive = recorded                               # pylint: disable=protected-access
+    lk.unlock([p1])
+    out.append(("a keyslot's key is derived at its area's key size (16 here), not the volume "
+                "key's (32)", lengths == [16]))
+
+    # plain counts the IV in 32 bits and wraps; plain64 does not
+    block = bytes(range(256)) * 2
+    key = bytes(range(64))
+    wraps = []
+    for spec, k in (("aes-xts-plain", key), ("aes-cbc-plain", key[:32])):
+        c = _LuksCipher(spec, k)
+        c64 = _LuksCipher(spec + "64", k)
+        wraps.append(c.decrypt(block, 1 << 32) == c.decrypt(block, 0)
+                     and c64.decrypt(block, 1 << 32) != c64.decrypt(block, 0))
+    out.append(("the plain IV wraps at 32 bits and plain64 does not, in XTS and in CBC", all(wraps)))
+
+    # iv_tweak shifts every sector's IV
+    lk = Luks.open(io.BytesIO(l2), 0, len(l2))
+    if lk.unlock([p1]):
+        raw = l2[lk.offset:lk.offset + 4096]
+        lk.iv_tweak, lk._cache = 40, collections.OrderedDict()     # pylint: disable=protected-access
+        out.append(("a LUKS2 segment's iv_tweak is added to every sector's IV",
+                    lk.read(0, 4096) == lk._cipher.decrypt(raw, 40, 4096)))   # pylint: disable=protected-access
+
+    # A LUKS container inside a logical volume: lvm-wholedisk's one volume holds
+    # luks1-cbc here, written over it, and what it holds is found and read.
+    import gzip
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    whole_gz = os.path.join(here, "lvm-wholedisk.img.gz")
+    if os.path.isfile(whole_gz):
+        with gzip.open(whole_gz, "rb") as gz:
+            nested = bytearray(gz.read())
+        inner = images["luks1-cbc"]
+        nested[3 << 20:(3 << 20) + len(inner)] = inner
+        fh, found = unlock_luks(io.BytesIO(bytes(nested)), len(nested), [p1])
+        vols = volumes(fh, len(nested))
+        inside = [v for v in vols if v["label"] == "LUKS LVM wholevg/root"]
+        got = dict(walk(inside[0]["walker"], inside[0]["walker"].root)) if inside and inside[0].get("walker") else {}
+        out.append(("a LUKS container inside a logical volume is opened and what it holds is "
+                    "listed, read and marked as read decrypted",
+                    len(found) == 1 and got == want and inside[0].get("encryption", "").startswith("LUKS1")))
+    return out
+
+
+def _luks_self_checks():
+    """[(label, passed or None for a skip)] for the LUKS reader, from the images
+    cryptsetup wrote (tools/make_luks_fixtures.sh), its own luksDump of each, and
+    sha256sum over the tree each holds."""
+    import gzip
+    import hashlib
+    import io
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    names = ("luks2-argon2id", "luks2-pbkdf2", "luks1-xts", "luks1-cbc")
+    need = [f"{n}.img.gz" for n in names] + ["luks-fixtures.json", "luks-fixture.sha256"]
+    absent = [n for n in need if not os.path.isfile(os.path.join(here, n))]
+    if absent:
+        return [(f"the LUKS fixtures are not beside this script ({', '.join(absent)}), so the "
+                 "LUKS reader was not checked against them", None)]
+    if _BDE_AES is None:
+        return [("LUKS volumes open with their passphrases (needs the pycryptodome package)", None)]
+    meta = json.load(open(os.path.join(here, "luks-fixtures.json"), encoding="utf-8"))
+    p1, p2 = meta["passphrases"]
+    want = {}
+    with open(os.path.join(here, "luks-fixture.sha256"), encoding="utf-8") as lf:
+        for line in lf:
+            h, name = line.rstrip("\n").split("  ", 1)
+            want[name] = h
+
+    def walk(w, node, path=""):
+        for name, child in w.listdir(node):
+            if name in (".", "..", "lost+found"):
+                continue
+            mode, size = w.entry(child)[:2]
+            rel = f"{path}/{name}" if path else name
+            if mode & S_IFMT == S_IFDIR:
+                yield from walk(w, child, rel)
+            elif mode & S_IFMT == S_IFREG:
+                yield rel, hashlib.sha256(b"".join(w.read_file(child, size))).hexdigest()
+
+    out, images = [], {}
+    for n in names:
+        with gzip.open(os.path.join(here, f"{n}.img.gz"), "rb") as gz:
+            images[n] = gz.read()
+    for n in names:
+        if n == "luks2-argon2id" and _ARGON2 is None:
+            out.append((f"{n} opens with its passphrase (needs the argon2-cffi package)", None))
+            continue
+        img = images[n]
+        lk = Luks.open(io.BytesIO(img), 0, len(img))
+        dump = meta["images"][n]
+        if "luks2_metadata" in dump:
+            seg = dump["luks2_metadata"]["segments"]["0"]
+            header_ok = (lk.version == 2 and lk.cipher == seg["encryption"]
+                         and lk.offset == int(seg["offset"]) and lk.sector_size == seg["sector_size"]
+                         and len(lk.keyslots) == len(dump["luks2_metadata"]["keyslots"]))
+        else:
+            text = dump["luksDump"]
+
+            def field(key, text=text):
+                return re.search(rf"^{key}:\s*(.+)$", text, re.M).group(1).strip()
+            digest = re.search(r"MK digest:\s*((?:[0-9a-f]{2} ?){20})", text).group(1).replace(" ", "")
+            header_ok = (lk.version == 1 and lk.cipher == f"{field('Cipher name')}-{field('Cipher mode')}"
+                         and lk.offset == int(field("Payload offset")) * SECTOR
+                         and lk.key_bytes * 8 == int(field("MK bits")) and lk.mk_digest.hex() == digest
+                         and len(lk.keyslots) == text.count(": ENABLED"))
+        out.append((f"{n}: the header reads as cryptsetup's own luksDump gives it", header_ok))
+        fh, found = unlock_luks(io.BytesIO(img), len(img), ["not the passphrase", p1])
+        vols = volumes(fh, len(img))
+        data = [v for v in vols if v["label"].startswith("LUKS ")]
+        got = {}
+        if data and data[0].get("walker"):
+            got = dict(walk(data[0]["walker"], data[0]["walker"].root))
+        out.append((f"{n}: opened with its passphrase (a wrong one tried first), every file of "
+                    f"the filesystem inside matches what sha256sum recorded ({len(got)} of {len(want)})",
+                    len(found) == 1 and found[0].mk is not None and got == want))
+        wrong = Luks.open(io.BytesIO(img), 0, len(img))
+        out.append((f"{n}: a wrong passphrase leaves it locked, and the note says to give one",
+                    not wrong.unlock(["not the passphrase"]) and "no passphrase given opens"
+                    in wrong.locked_note()))
+    if _ARGON2 is not None:
+        img = images["luks2-argon2id"]
+        second = Luks.open(io.BytesIO(img), 0, len(img))
+        out.append(("luks2-argon2id: its second passphrase opens its second keyslot",
+                    second.unlock([p2]) and second.unlocked_by == "keyslot 1"))
+        # A primary header changed after cryptsetup wrote it fails its checksum, and
+        # the second copy, which passes, is read instead.
+        bad = bytearray(img)
+        bad[4096 + 10] ^= 0x01
+        fallback = Luks.open(io.BytesIO(bytes(bad)), 0, len(bad))
+        out.append(("luks2-argon2id: a primary header that fails its checksum is passed over for "
+                    "the second copy, and says so",
+                    fallback.unlock([p1]) and any("fails its checksum" in p for p in fallback.problems)))
+        # Of two copies that pass their checksums the one with the higher sequence
+        # id is in force: give the second copy a higher one and its own label.
+        newer = bytearray(img)
+        hdr = struct.unpack_from(">Q", newer, 8)[0]
+        seq = struct.unpack_from(">Q", newer, hdr + 16)[0]
+        struct.pack_into(">Q", newer, hdr + 16, seq + 1)
+        newer[hdr + 24:hdr + 72] = b"second copy".ljust(48, b"\0")
+        alg = newer[hdr + 72:hdr + 104].split(b"\0")[0].decode()
+        body = bytearray(newer[hdr:2 * hdr])
+        body[448:512] = bytes(64)
+        dg = hashlib.new(alg, bytes(body)).digest()
+        newer[hdr + 448:hdr + 448 + len(dg)] = dg
+        out.append(("luks2-argon2id: of two header copies that pass, the one with the higher "
+                    "sequence id is read", Luks.open(io.BytesIO(bytes(newer)), 0, len(newer)).label
+                    == "second copy" and second.label != "second copy"))
+    # Control: the IV of a 4096-byte LUKS2 sector counts 512-byte units. Counting
+    # it in 4096-byte units decrypts sector 0 the same and every later one wrong,
+    # so the files above could not have matched; check that it does differ.
+    img = images["luks2-pbkdf2"]
+    lk = Luks.open(io.BytesIO(img), 0, len(img))
+    if lk.unlock([p1]):
+        raw = img[lk.offset:lk.offset + 2 * 4096]
+        right = lk._cipher.decrypt(raw, 0, 4096)                    # pylint: disable=protected-access
+        wrong_units = lk._cipher.decrypt(raw, 0, 4096, 4096)        # pylint: disable=protected-access
+        out.append(("control: counting a 4096-byte sector's IV in 4096-byte units decrypts its "
+                    "first sector alike and the next one differently",
+                    right[:4096] == wrong_units[:4096] and right[4096:] != wrong_units[4096:]
+                    and right == lk.read(0, 2 * 4096)))
+    # The report main() prints, given the passphrase, names the filesystem inside.
+    import contextlib
+    import shutil
+    import tempfile
+    top = tempfile.mkdtemp(prefix="qnxprobe-luks-")
+    try:
+        path = os.path.join(top, "luks1-cbc.dd")
+        with open(path, "wb") as f:
+            f.write(images["luks1-cbc"])
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            main(path, passwords=["not the passphrase", p1])
+        text = buf.getvalue()
+    finally:
+        shutil.rmtree(top, ignore_errors=True)
+    out.append(("the report, given the passphrase, opens the container and names the "
+                "filesystem inside", "->  luks" in text and "LUKS whole image" in text
+                and "->  ext4" in text))
+    out += _luks_hostile_checks(images, p1, p2, want, walk)
+    # An image with no passphrase given: the container is listed, locked, with why.
+    img = images["luks1-cbc"]
+    locked = [v for v in volumes(io.BytesIO(img), len(img)) if v["kind"] == "luks"]
+    out.append(("a LUKS container with no passphrase given is listed as locked, with what "
+                "would open it", len(locked) == 1 and not locked[0].get("walker")
+                and "give its passphrase" in locked[0].get("note", "")))
+    return out
 
 
 def _lvm_older_copy(disk, pv_at, m_off):
@@ -13987,6 +14860,39 @@ def _lvm_hostile_checks(disk, whole, regions, want, paths, parts, m_off, r_off):
                 and cutv.get("LVM fixvg/data", {}).get("missing_past_end") == 0
                 and cutv["LVM fixvg/data"].get("lba", 0) is None
                 and cutv["LVM fixvg/striped"].get("lba", 0) is None))
+    # RAID1: lvm2's report puts the two copies on the two physical volumes; in
+    # this fixture they hold the same bytes, which is what makes either one the
+    # volume. With the first physical volume left out, the second copy is read.
+    report = json.load(open(paths["lvm-fixture.lvs.json"], encoding="utf-8"))
+    pe_start = {pv["pv_name"][-1]: int(pv["pe_start"].rstrip("B")) for pv in report["pvs"]["report"][0]["pv"]}
+    segs_all = report["segments"]["report"][0]["seg"]
+    def ext_range(name):
+        r = [x for x in segs_all if x["lv_name"] == f"[{name}]"][0]["seg_pe_ranges"]
+        dev, span = r.split(":")
+        a, b = (int(x) for x in span.split("-"))
+        pv = dev[-1]
+        return parts[pv] + pe_start[pv] + a * (1 << 20), (b - a + 1) << 20
+    (c0, n0), (c1, n1) = ext_range("mirror_rimage_0"), ext_range("mirror_rimage_1")
+    only2 = [r for r in lvm_regions if r[0].startswith("GPT part 2")]
+    o2found, _o2 = lvm_volumes(io.BytesIO(disk), only2)
+    mirror2 = [b for lab, b, _n, _nm in o2found if lab == "LVM fixvg/mirror"]
+    out.append(("a RAID1 volume's two copies hold the same bytes, and with the first copy's "
+                "physical volume missing the second is read",
+                n0 == n1 and disk[c0:c0 + n0] == disk[c1:c1 + n1] and mirror2 == [c1]))
+    longer = {"m_rimage_0": {"segment1": {"type": "striped", "stripe_count": 1, "start_extent": 0,
+                                          "extent_count": 3, "stripes": ["pv0", 0]}}}
+    cut_map = _lvm_layout([{"type": "raid1", "start_extent": 0, "extent_count": 2,
+                            "raids": ["m_rmeta_0", "m_rimage_0"]}], {"pv0": (0, 0, 9)}, {"pv0"},
+                          1 << 20, longer)[1]
+    out.append(("a RAID1 copy longer than its volume is read only to the volume's size",
+                cut_map is not None and cut_map.size == 2 << 20))
+    raid = {"type": "raid1", "start_extent": 0, "extent_count": 2, "data_offset": 2048,
+            "raids": ["m_rmeta_0", "m_rimage_0"]}
+    copy = {"m_rimage_0": {"segment1": {"type": "striped", "stripe_count": 1, "start_extent": 0,
+                                        "extent_count": 2, "stripes": ["pv0", 0]}}}
+    out.append(("a RAID1 segment with a data offset (written while a reshape moves its data) "
+                "is not read", "data offset" in (_lvm_layout([raid], {"pv0": (0, 0, 9)}, {"pv0"},
+                                                             1 << 20, copy)[0] or "")))
     del r_off
     return out
 
@@ -14026,9 +14932,18 @@ def _lvm_self_checks():
              for p in report["parts"]["partitiontable"]["partitions"]}
     pe_start = {pv["pv_name"][-1]: int(pv["pe_start"].rstrip("B")) for pv in report["pvs"]["report"][0]["pv"]}
     segs = collections.defaultdict(list)
+    hidden = collections.defaultdict(list)
     for s in report["segments"]["report"][0]["seg"]:
         if not s["lv_name"].startswith("["):        # lvs -a shows a hidden volume in brackets
             segs[s["lv_name"]].append(s)
+        else:
+            hidden[s["lv_name"].strip("[]")].append(s)
+    # A RAID1 volume is read from its first copy: lvm2's report lists its copies
+    # as its ranges, and each copy's own extents under the copy's name.
+    for lv, ss in segs.items():
+        if [x["segtype"] for x in ss] == ["raid1"]:
+            first = ss[0]["seg_pe_ranges"].split()[0].split(":")[0]
+            segs[lv] = [dict(x, lv_name=lv) for x in hidden[first]]
     want, declined, mapped = set(), set(), {}
     for lv, ss in segs.items():
         ext = int(ss[0]["vg_extent_size"].rstrip("B"))
@@ -14055,16 +14970,18 @@ def _lvm_self_checks():
     got = {(lab, b, n) for lab, b, n, _name in found}
     out.append((f"the logical volumes read from lvm-fixture are the ones lvm2's own report "
                 f"lays out as one run on one physical volume, at the offsets and sizes it gives "
-                f"({len(got)} of {len(want)})", got == want and len(want) == 4))
+                f"({len(got)} of {len(want)})", got == want and len(want) == 5))
     lines = [ln for ls in notes.values() for ln in ls]
     not_read = {ln.split()[2].rstrip(",") for ln in lines if ": not read (" in ln}
     reasons = " ".join(ln for ln in lines if ": not read (" in ln)
     here = " ".join(ln for ln in lines if ": not read here (" in ln)
     out.append(("without lvm_image(), the volumes lvm2 split into two runs or striped are not "
-                "read here and say how they are laid out, and the mirror is not read",
-                declined == {"data", "striped", "mirror"} and not_read == {"mirror"}
-                and "a raid1 segment" in reasons and "in 2 separate runs of extents" in here
-                and "striped across 2 physical volumes in 64.0 KiB stripes" in here))
+                "read here and say how they are laid out, and the RAID1 one is read from its "
+                "first copy", declined == {"data", "striped"} and not_read == set() and not reasons
+                and "in 2 separate runs of extents" in here
+                and "striped across 2 physical volumes in 64.0 KiB stripes" in here
+                and any("logical volume mirror, " in ln and "raid1, read from its copy mirror_rimage_0" in ln
+                        for ln in lines)))
 
     # Through lvm_image() the split and the striped volume are read, each
     # through a map that puts every byte where lvm2's report says its extents
@@ -14092,17 +15009,15 @@ def _lvm_self_checks():
                 and sm.image_runs(64 << 10, 64 << 10) == [(mapped["striped"][1][0], 64 << 10)]
                 and {(a, b, c) for a, b, c, _n in wfound if b < len(disk)} == want))
     wlines = [ln for ls in wnotes.values() for ln in ls]
-    out.append(("then only the mirror is listed as not read",
-                {ln.split()[2].rstrip(",") for ln in wlines if ": not read" in ln} == {"mirror"}))
-    out.append(("the mirror's hidden image and metadata legs are not listed, though each is "
-                "one run on one physical volume",
-                not any("rimage" in ln or "rmeta" in ln for ln in lines)
+    out.append(("then no volume is listed as not read",
+                not any(": not read" in ln for ln in wlines)))
+    out.append(("the mirror's hidden image and metadata legs are not listed as volumes, though "
+                "each is one run on one physical volume",
+                not any(ln.startswith("logical volume mirror_r") for ln in lines)
                 and not any("rimage" in f[0] or "rmeta" in f[0] for f in found)))
     pv_notes = [v.get("note", "") for v in volumes(io.BytesIO(disk), len(disk)) if v["kind"] == "lvm2 pv"]
-    out.append(("each physical volume's note in volumes() names the volume not read and why, "
-                "and not the ones read through a map",
-                len(pv_notes) == 2 and all("mirror, 2.0 MiB (a raid1 segment)" in n for n in pv_notes)
-                and not any("data, " in n or "striped, " in n for n in pv_notes)))
+    out.append(("no physical volume's note in volumes() names a volume as not read, when every "
+                "one is read", len(pv_notes) == 2 and not any("not read" in n for n in pv_notes)))
     out.append(("both physical volumes name the volume group and both of its physical volumes",
                 sum("2 of them in this image" in ln for ln in lines) == 2))
 
@@ -14118,7 +15033,8 @@ def _lvm_self_checks():
                 yield rel, hashlib.sha256(b"".join(w.read_file(child, size))).hexdigest()
 
     for img, tree in ((disk, {"LVM fixvg/root": "root", "LVM fixvg/onb": "onb",
-                              "LVM fixvg/data": "data", "LVM fixvg/striped": "striped"}),
+                              "LVM fixvg/data": "data", "LVM fixvg/striped": "striped",
+                              "LVM fixvg/mirror": "mirror"}),
                       (whole, {"LVM wholevg/root": "root"})):
         vols = volumes(io.BytesIO(img), len(img))
         seen = {v["label"] for v in vols}
@@ -14335,6 +15251,12 @@ def identify_fs(fh, base, size=None):
         found = ident(fh, base, size)
         if found:
             return found
+
+    # A LUKS container: its magic at the start of the region. What it holds is
+    # read, once a passphrase opens it (unlock_luks), as a region of its own.
+    found = identify_luks(fh, base, size)
+    if found:
+        return found
 
     # An LVM2 physical volume: a label lvm2 itself would accept (the sector it
     # names and its checksum must hold), and either a metadata area header that
@@ -14875,6 +15797,20 @@ def raw_flash_layout(fh, size):
     return [] if kind else flash_regions(fh, size)
 
 
+def _luks_regions(fh, regions, names, ss):
+    """Add the data region of each opened LUKS container whose own region is among
+    ``regions`` and whose data is not yet; returns what was added."""
+    added = []
+    for base, lk in sorted((getattr(fh, "luks", None) or {}).items()):
+        data = base + lk.offset
+        if any(r[1] == base for r in regions) and not any(r[1] == data for r in regions):
+            region = (f"LUKS {lk.label}", data, lk.data_size)
+            regions.append(region)
+            names[data] = f"luks_lba{data // ss}"
+            added.append((region, lk))
+    return added
+
+
 def table_regions(fh):
     """(regions, names, containers, protective, sector size) from the image's
     partition tables alone: MBR primaries, the logical volumes of the EBR chain
@@ -14942,13 +15878,17 @@ def partition_regions(fh, size):
         if not flash:
             regions.append(("whole image", 0, size))
             names[0] = volume_name(None, 0)
-    # The linear logical volumes of any LVM2 physical volume among them are
-    # regions too, each a byte range of the image (lvm_volumes).
+    # The data of each LUKS container unlock_luks() opened is a region too, at
+    # its own offset, read decrypted there (LuksImage); and the linear logical
+    # volumes of any LVM2 physical volume among them (lvm_volumes). A container
+    # can sit inside a logical volume, so its data is looked for again after.
+    _luks_regions(fh, regions, names, ss)
     lvs, _notes = lvm_volumes(fh, [r for r in regions
                                    if r[0] not in containers and r[0] not in protective], ss)
     for label, base, rsize, name in lvs:
         regions.append((label, base, rsize))
         names[base] = name
+    _luks_regions(fh, regions, names, ss)
     return regions, names, containers, protective
 
 
@@ -15064,6 +16004,20 @@ def volumes(fh, size=None):
                 vol["walker"] = ExtWalker(fh, base)
             elif kind == "QNX IFS boot image":
                 vol["walker"] = IfsWalker(fh, base)
+            elif kind == "luks":
+                lk = (getattr(fh, "luks", None) or {}).get(base) or next(
+                    (x for x in getattr(fh, "luks_found", ()) if x.base == base), None) \
+                    or Luks.open(fh, base, rsize)
+                vol["encryption"] = lk.summary() if lk else "LUKS"
+                if base in placed:
+                    # unlock_luks() reads the image's regions, and a volume read
+                    # through a map is not one of them
+                    vol["note"] = ("LUKS-encrypted and not read: it is inside a logical volume "
+                                   "read through a map, where a LUKS container is not opened")
+                else:
+                    vol["note"] = (f"a LUKS container, opened: its data is listed as LUKS {lk.label}"
+                                   if lk is not None and lk.mk is not None else
+                                   (lk.locked_note() if lk is not None else "LUKS-encrypted and not read"))
             elif kind == "lvm2 pv":
                 # The logical volumes not read are said here too, where a caller
                 # that prints only the note (the LEAPP run log) will show them.
@@ -15099,10 +16053,13 @@ def volumes(fh, size=None):
     # A volume read through a map has no single place on the disk: its base is
     # where lvm_image() put it, so it has no LBA, and the map says where each
     # run of it is in the image.
+    luks_data = {b + lk.offset: lk for b, lk in (getattr(fh, "luks", None) or {}).items()}
     for vol in out:
         if vol.get("base") in placed:
             vol["lba"] = None
             vol["lvm_map"] = fh.lvm_map_for(vol["base"])
+        if vol.get("base") in luks_data and vol.get("label", "").startswith("LUKS "):
+            vol["encryption"] = luks_data[vol["base"]].summary()   # read decrypted
     return out
 
 
@@ -15308,6 +16265,9 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
     # An encrypted APFS volume the passwords (as a password or its personal recovery
     # key) open is read decrypted; the rest stay locked and the report says why.
     image, apfs_found = unlock_apfs(image, None, passwords)
+    # A LUKS container a passphrase opens is read decrypted, its data a region of
+    # its own; the rest stay locked and the report says why.
+    image, _luks_found = unlock_luks(image, None, passwords)
     # The LVM2 logical volumes that need a map (split into runs, or striped) are
     # read through one, placed past the image's end (lvm_image).
     image = lvm_image(image)
@@ -15435,6 +16395,16 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                 regions.append(("whole image", 0))
                 vol_names[0] = volume_name(None, 0)
 
+        # The data of each LUKS container a passphrase opened is a region of its
+        # own, at its offset, read decrypted there.
+        def luks_section():
+            added = _luks_regions(fh, sized_regions, vol_names, ss)
+            if added:
+                print(f"\n  LUKS     {len(added)} container(s) opened")
+            for (label, data, rsize), lk in added:
+                print(f"    {lk.label:<26} {human(rsize):>10}  data at byte {data:,}, {lk.summary()}")
+                regions.append((label, data))
+        luks_section()
         # An LVM2 physical volume's linear logical volumes, each one run of
         # extents on one physical volume here, are byte ranges of the image like
         # partitions, so they are reported and read as regions of their own.
@@ -15452,6 +16422,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                 sized_regions.append((label, base, rsize))
                 regions.append((label, base))
                 vol_names[base] = name
+            luks_section()          # a LUKS container inside a logical volume
 
         # A partition table describes a whole disk and the file may hold only
         # the front of it. FTK Imager and its peers split a raw image into
@@ -15721,6 +16692,9 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                                               for k, _i in bl.protectors):
                             print("        (give a password or recovery password with --password-file "
                                   "or --password-env, a startup key with --bitlocker-key)")
+                if kind == "luks" and not any(lk.base == b and lk.mk is not None
+                                              for lk in getattr(fh, "luks_found", ())):
+                    print("        (give its passphrase with --password-file or --password-env)")
                 if kind == "apfs" and any(lk.base == b and lk.vek is None and not lk.why
                                           and not lk.tried for lk in apfs_found):
                     print("        (give an encrypted volume's password or personal recovery "
@@ -20706,6 +21680,10 @@ def self_test():
             lvm_checks = _lvm_self_checks()
         except Exception as exc:                     # pylint: disable=broad-except
             lvm_checks = [(f"the LVM2 checks ran ({type(exc).__name__}: {exc})", False)]
+        try:
+            lvm_checks += _luks_self_checks()
+        except Exception as exc:                     # pylint: disable=broad-except
+            lvm_checks += [(f"the LUKS checks ran ({type(exc).__name__}: {exc})", False)]
         for label, cond in lvm_checks:
             if cond is None:
                 print(f"  [SKIP] {label}")
@@ -23442,13 +24420,13 @@ if __name__ == "__main__":
     ap.add_argument("--password-file", metavar="FILE", action="append", default=[],
                     help="for an encrypted image (an Apple disk image, an AD-encrypted "
                          "FTK Imager acquisition or an encrypted AFF), a BitLocker "
-                         "volume or an encrypted APFS volume: a password or "
+                         "volume, an encrypted APFS volume or a LUKS container: a password or "
                          "recovery password (for APFS, the personal recovery key), the "
                          "first line of FILE. Repeatable; each opens with the first one "
                          "that opens it")
     ap.add_argument("--password-env", metavar="NAME", action="append", default=[],
-                    help="for an encrypted image, a BitLocker volume or an encrypted "
-                         "APFS volume: a password, "
+                    help="for an encrypted image, a BitLocker volume, an encrypted "
+                         "APFS volume or a LUKS container: a password, "
                          "from the environment variable NAME. Repeatable. Without either, "
                          "qnxprobe asks at a terminal for an encrypted image's password. "
                          "A password is never taken as an argument, which would show in "
