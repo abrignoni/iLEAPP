@@ -1,0 +1,436 @@
+{
+  "metadata": {
+    "module_name": "bumble",
+    "artifact_name": "Bumble - Messages",
+    "function_name": "bumbleMessages",
+    "case_number": "abe_ios16",
+    "number_of_columns": 8,
+    "number_of_rows": 40,
+    "total_data_size_bytes": 14696,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/bumble/testdata.bumble.bumbleMessages.abe_ios16.zip",
+    "start_time": "2026-10-14T18:32:16.503338+00:00",
+    "end_time": "2026-10-14T18:32:16.545912+00:00",
+    "run_time_seconds": 0.018949031829833984,
+    "last_commit": {
+      "hash": "71ba77434a9d0b21f979a037001625d310407788",
+      "author_name": "Frahm",
+      "author_email": "christian.frahm@iacis.com",
+      "date": "2026-10-14T13:43:47-04:00",
+      "message": "Adapt bumble.py for LAVA conversation view (#2317)"
+    }
+  },
+  "headers": [
+    "Created Timestamp",
+    "Modified Timestamp",
+    "Message Direction",
+    "Sender ID",
+    "Collection",
+    "Message",
+    "Receiver ID",
+    "Message Read"
+  ],
+  "data": [
+    [
+      1686073365,
+      1686073365,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Astrology Tuesdays\u2026not really your thing? We get it. Just <a href=\"https://bumble.com/access_comms.phtml?camp=r4rRgJzt8RjEbaQ6xdKb9MTtrtqar8YMEELOUjBidsXhxZegUhWRUsFPJXy9zlwnUzlZkfM23AcbD1QS90yxNFbZA8O6Z\">tap here</a> to opt out.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1651194397,
+      1651194397,
+      "Incoming",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      "875105426",
+      "https://giphy.com/embed/d8oI97avlJAygnp7RC",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "Yes"
+    ],
+    [
+      1651197809,
+      1651197809,
+      "Outgoing",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "875105426",
+      "https://giphy.com/embed/Vbtc9VG51NtzT1Qnv1",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      ""
+    ],
+    [
+      1651198027,
+      1651198027,
+      "Outgoing",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "875105426",
+      "Just having drinks",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      ""
+    ],
+    [
+      1651199508,
+      1651199508,
+      "Incoming",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      "875105426",
+      "Awesome I just put a sauce on",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "Yes"
+    ],
+    [
+      1651200936,
+      1651200936,
+      "Outgoing",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "875105426",
+      "What you making",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      ""
+    ],
+    [
+      1651241258,
+      1651241258,
+      "Incoming",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      "875105426",
+      "I cook my meat sauce for 8 hours so I put it on last night lol meatballs, sausages, lamb and beef  you like Italian food?",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "Yes"
+    ],
+    [
+      1651769429,
+      1651769429,
+      "Outgoing",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "875105426",
+      "Nice. I\u2019m back in Canada you should have had me over for Meatballs",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      ""
+    ],
+    [
+      1651856271,
+      1651856271,
+      "Incoming",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      "875105426",
+      "Awe you live in Canada? I absolutely should have then",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "Yes"
+    ],
+    [
+      1654220194,
+      1654220194,
+      "Outgoing",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "875105426",
+      "Yea would have been amazing.",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      ""
+    ],
+    [
+      1654220198,
+      1654220198,
+      "Outgoing",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      "875105426",
+      "Long distance is hard",
+      "zAhMACTg3NTEwNTQyNggVD5RoAAAAACBfun5iRvkU5Q9IEiplqbMDCl2AbWSnhRedcqd5JR2GNg",
+      ""
+    ],
+    [
+      1663467440,
+      1663467440,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "What is Incognito Mode, we hear you ask? The answer is: \n\n\ud83d\udc9bWe\u2019ll only show your profile to the people you\u2019ve liked so that you can take control over who sees your profile and date with peace of mind. Sound good?\n\nUpgrade to premium and get Incognito <a href=\"https://bumble.com/aa/landto?page=252&camp=qQVCtdijLqdHoMPciPX9xygrTA5dANxLA00mdS9C\">here</a>.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1665608588,
+      1665608588,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Have you heard? We\u2019re teaming up with Apple TV+ to bring you Bantr Live, a weekly dating game with no photos inspired by Apple\u2019s Emmy Award-winning comedy, Ted Lasso.\n\nIf you haven\u2019t seen Ted Lasso, surely you\u2019ve heard of it and soon he\u2019ll be your new favorite coach. <a href=\"https://bumble.com/access_comms.phtml?camp=r7yeyUzZycAlQUVheTttTom0faY3EIEDusTOvfUSpK4sKo1uQpqcdVaflDpHW7l88R\">Redeem your free Apple TV+ trial</a> now to get 2 free months in addition to the free 7-day trial. \n\nYou\u2019ll also get total access to everything Apple TV+ offers, like new premieres every month, making it easy to find a new series to binge or something fun to watch for date night.\n\nPlus, you can share Apple TV+ with up to five people and watch on separate accounts, at no additional cost.\n\nOffer valid for new Apple TV+ subscribers. Plan auto renews at your region's price per month until cancelled. <a href=\"https://bumble.com/access_comms.phtml?camp=rnGoiSkduW60tPf8ezTF2r6jJYh6iD1UdHBPlX5a1PJMShetfzxXwp9SOscb7FRZzlVwBEGoGxOFuM710rGnEyCpaOUGYeQFHN6kgH\">Terms apply</a>. \n\nAnd don\u2019t forget to play Bantr Live this Thursday at 7 p.m.!",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1666645281,
+      1666645281,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Help out your matches \ud83d\udc9b\n\nAdd a Prompt to your profile now! It\u2019ll help your match to break the ice, and show off their personality. Simply choose your Prompt\u2014they can be as serious or silly as you like\u2014and let the answers roll in.\n \nItching to get chatting? Why not take a look through your matches and answer some of their Prompts? Find one you like the look of, and flex a little of that charm.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1666818073,
+      1666818073,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Mix it up \ud83d\ude4c\n\nStuck for date ideas? Try putting a new spin on a classic date.\n\nHeaded for an autumnal walk? \ud83c\udf42\nPack some of your favourite snacks\u2014or the most random ones you can find\u2014and get your match to rate them as you stroll through the fallen leaves. \n\nThere isn\u2019t a situation that can\u2019t be improved with food. Trust us.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1666990885,
+      1666990885,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "It's Friday \ud83d\udcab\n\nYou made it! It\u2019s here. \n\nNo matter what kind of week you\u2019ve had, make sure you reward yourself this weekend. \nWhether you take a little time out, grab yourself a treat, or plan to do something that gets your heart racing, make sure you do something for you\u2014you\u2019ve earned it!",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1667250200,
+      1667250200,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Switch things up \ud83d\udcac\n\nLooking to spice up your chat? Try the Question Game. \n\nYou can skip the small talk, and ask the questions that really matter. You know, questions like \u201cIf I showed up to our first date dressed as a dinosaur, how would you react?\u201d \ud83e\udd95\n\nSo, what are you waiting for?",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1667423066,
+      1667423066,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Date inspo \u2728\n\nLooking for a date idea? Try out an old favourite: a film night. \n\nThat could look like a trip to the cinema, a night on the sofa together or\u2014if you can\u2019t swing being in the same place\u2014try pressing \u2018play\u2019 at the same time and message each other your thoughts throughout. \n\nFeeling brave? Try a spooky title. \ud83c\udf83",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1667590442,
+      1667590442,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Remember to replace your Halloween badges!\n\nSpooky month is over, so it\u2019s time to replace your Halloween interest badges. Here\u2019s your chance to show who you are and kick start the conversation with your matches. <a href=\"https://bumble.com/aa/landto?page=61&camp=qQVCtdijLqdHoMPcknAkjEsVxgTVHEuKM5Lze1x2\">Click here to pick new badges.</a>",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1667595860,
+      1667595860,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "You did it! \n\nThe weekend is here. It\u2019s your time. \u2728\n\nShake off any bad vibes, and focus on fun. Are you doing something this weekend that brings a smile to your face? No? Let's change that. \n\nThe power is in your hands, so use it\u2014get out there and enjoy yourself!",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1667858678,
+      1667858678,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Go Advanced \u2b06\ufe0f\n\nFind out more about your matches with Advanced Filters. \n\nWant a date that leans the same way politically? Or maybe you\u2019re looking for someone who likes to celebrate holidays like Oktoberfest or Diwali? Go ahead and try out that Advanced Filter.\n\nTop tip: You can filter based on any Profile Badge, so keep those eyes peeled!",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1668031277,
+      1668031277,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Date inspo \ud83c\udf5d\n\nThe quickest way to someone\u2019s heart? A great meal (or an attempt at one). \n\nTry grabbing some food with your date. Maybe you could sample something spectacular that caught your eye online\u2014think monster shakes and quadruple loaded fries\u2014or an evening in cooking together? \n\nSounds like a pretty delicious idea in our opinion.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1670452851,
+      1670452851,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Find what you\u2019re looking for with Premium\n\n\ud83d\udc9b See who\u2019s already liked you\n\ud83d\udd0d Get unlimited Advanced Filters\n\u2728 Be seen by more people with Spotlight \n\u26a1 Enjoy unlimited swiping \n\n<a href=\"https://bumble.com/access_comms.phtml?camp=rcyaK8Nh9cLwBEeOMbrwmtgcYKOkEqGMPE3Cbu6VH6KRA4osvON2PUbjwODw6WUYHY5OYj3taxfiT4Fy1o\">Upgrade to Premium</a>",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1680532299,
+      1680532299,
+      "Incoming",
+      "zAhMACTc1MTI0ODU5NggVD5RoAAAAACAryofEuYDIb2ZqLf1Jo8CpDELIewIzADGwzTnASZP13w",
+      "751248596",
+      "Start your week with good vibes by sending Compliments! \ud83d\ude4c\n\nYou can compliment one person per day for free. So, what are you waiting for? Send one to someone special and make their day  \ud83d\udc9b\n\nRun out of Compliments? Don\u2019t worry, you can always buy more. Just draft a compliment as normal and you\u2019ll be taken to the payment screen.\n\n<a href=\"https://bumble.com/aa/landto?page=1&camp=teyo2JiBJy7ypkZcqPV4j8S1snq9FWOMYWuKlCVwLWv\">Send Compliments now!</a>",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1681829296,
+      1681829296,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Oh hey there Abe,",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1681829296,
+      1681829296,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Remember me? It\u2019s Aliza Kelly, your fave astrologer (obviously \ud83d\ude18), and I\u2019ve got a bit more to tell you about your element compatibility and a new relationship astrology app that I\u2019m obsessed with called Zodia! Tap below to learn more\ud83d\udc47",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1681829296,
+      1681829296,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "You received a video",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1681829296,
+      1681829296,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "<a href=\"https://bumble.com/access_comms.phtml?camp=rcyaK8Nh9cLwBEeOMbv7bGBuZiDFZWQwdtDqtchMqIqhK56RKm6msikIoMX2BILxbrTGEHFdZwB2diRHTw\">Download Zodia here</a>",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1681829296,
+      1681829296,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Astrology Tuesdays\u2026\n\u2026not really your thing? It\u2019s okay, we get it. Just tap <a href=\"https://bumble.com/access_comms.phtml?camp=rtTsRKQF3WHGMk4UrzEq5qewfT6uEVvlSphApoibM3DKKLUneC7AYLGBkUdeBLEHynfa6sxQfr5Hbta9v8h2axKPbsxzYVJjEORG0nTMsc16GGfrZ5NeJavKk8eUwdi6UjMWtQVQjZQrBpsyuGVf4G7VX\">here</a> to opt out.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1682430616,
+      1682430616,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Hey Abe,",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1682430616,
+      1682430616,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "So we've told you quite a bit about the compatibility of your sun sign recently, but have you ever looked into the compatibility of your planets?",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1682430616,
+      1682430616,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Check out Aliza Kelly\u2019s video below of what the personal planets really mean for you!",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1682430616,
+      1682430616,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "You received a video",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1682430616,
+      1682430616,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "https://zodia.studio/app",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1682430616,
+      1682430616,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Astrology Tuesdays\u2026\n\u2026not really your thing? It\u2019s okay, we get it. Just tap <a href=\"https://bumble.com/access_comms.phtml?camp=rtTsRKQF3WHGMk4UrzEp1kZvBdifkVIZtWMB0E8BOULENCgeM1gYUBjTx6km70qfI9xDAAV45l0Jgu4FUDU69AiUErKipOSAr2LTOUCG1ESm45xG97aA0etMG7aLIKSWUnxrMAxfRKERNkVkNbieR2xqB\">here</a> to opt out.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1686073365,
+      1686073365,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Oh hey, Scorpio \ud83c\udf1e",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1686073365,
+      1686073365,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Is it getting hot in here? Or is it just summer?",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1686073365,
+      1686073365,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Ok, maybe it's just summer. So let's get your dating life heated up too\u2014with a compatible match.",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1686073365,
+      1686073365,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Check out which star sign you should align with to have the ultimate fun in the summer sun \ud83d\udc49",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ],
+    [
+      1686073365,
+      1686073365,
+      "Incoming",
+      "zAhMACjE3ODQ4NzUxNDIIFQ-UaAAAAAAgJ4oE_Ve0B4-N6AvXaGkKknRv1AVTuGTpJ3V6fa7SwWA",
+      "1784875142",
+      "Sent you a photo",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw",
+      ""
+    ]
+  ]
+}
