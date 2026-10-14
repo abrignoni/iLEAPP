@@ -170,12 +170,18 @@ __artifacts_v2__ = {
         "name": "logarchive lock status",
         "description": "Unified log entries about screen lock and unlock, screen power (ScreenOn "
                        "changed, Screen shut off) and the 'Biometric match' completion entries",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, @stark4n6, Claude",
         "creation_date": "2025-05-28",
-        "last_update_date": "2025-05-28",
+        "last_update_date": "2026-10-14",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "2026-10-14: added com.apple.SpringBoard entries whose message begins "
+                 "'UILocked:', followed by a number (6 on hickman_ios14_sysdiag, 25 on "
+                 "hc_ios17_2, 3 on rodeo_ios17_sysdiag, 7 on hc_ios26_sysdiag). What the number "
+                 "means is not established. The match is anchored to the start of the message "
+                 "because on iOS 14.3 SpringBoard also logs volume-control state that contains "
+                 "'UILocked:' mid-message (20 entries on hickman_ios14_sysdiag); those are not "
+                 "reported.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -183,9 +189,9 @@ __artifacts_v2__ = {
     "logarchive_wifi_status": {
         "name": "logarchive wifi status",
         "description": "WiFi Status",
-        "author": "@AlexisBrignoni & @Hexordia",
+        "author": "@AlexisBrignoni, @Hexordia, @stark4n6, Claude",
         "creation_date": "2025-05-28",
-        "last_update_date": "2026-10-13",
+        "last_update_date": "2026-10-14",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "2026-08-01: added wifid WFMacRandomisation entries (per-network MAC "
@@ -199,7 +205,10 @@ __artifacts_v2__ = {
                  "auto join association of <SSID>' with the network name in the clear, "
                  "'Link went down', and per-network 'Total connection time' entries "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode). "
-                 "Adds autojoin and joined events filtering on '%Auto join association succeeded%' and '%WiFiLQAMgrSetCurrentNetwork: Joined%' respectively.",
+                 "2026-10-13: added wifid entries containing 'Auto join association "
+                 "succeeded' and 'WiFiLQAMgrSetCurrentNetwork: Joined'. On the iOS 14.3 and 26.6 "
+                 "images both carry the network name in the clear, and the second also the "
+                 "BSSID, RSSI and channel.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "wifi",
@@ -1545,46 +1554,69 @@ __artifacts_v2__ = {
     },
     "logarchive_weather": {
         "name": "logarchive weather",
-        "description": "Unified log entries from WeatherWidget, ForecastWeatherWidget, and WeatherService categories "
-                       "under the com.apple.weather subsystem. "
-                       "NOTE: Newer iOS versions may encode the location information where older iOS versions show in plain text.",
-        "author": "@Hexordia & @stark4n6",
+        "description": "Unified log entries from the Weather app and widget about weather data "
+                       "fetches and forecast builds, with the location each one was for. On iOS 14.3 "
+                       "the location is logged as a place name and coordinates; on iOS 17 and 26 it "
+                       "is logged as an encoded value.",
+        "author": "@Hexordia, @stark4n6, @AlexisBrignoni, Claude",
         "creation_date": "2026-10-13",
-        "last_update_date": "2026-10-13",
+        "last_update_date": "2026-10-14",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Queries unified log records for Apple Weather framework and widget synchronization "
-                 "activity across four conditions: (1) categories 'WeatherService' or "
-                 "'ForecastWeatherWidget' containing 'About to fetch', marking outgoing weather data "
-                 "fetch requests; (2) category 'ForecastWeatherWidget' containing 'Data operation "
-                 "succeeded', recording successful completion of forecast background data refreshes; "
-                 "(3) category 'WeatherService' matching 'Successfully built' or 'Got response for fetch of', "
-                 "capturing raw network responses and assembled weather forecast payloads; and (4) "
-                 "category 'WeatherWidget' containing 'successfully built', marking interface and "
-                 "widget rendering updates.",
+        "notes": "Matches four kinds of entry by category and message text: category "
+                 "WeatherService or ForecastWeatherWidget containing 'About to fetch'; category "
+                 "ForecastWeatherWidget containing 'Data operation succeeded'; category "
+                 "WeatherService containing 'Successfully built' or 'Got response for fetch of'; "
+                 "and category WeatherWidget containing 'successfully built'. The query does not "
+                 "filter on subsystem; every matched row on the four images below was "
+                 "com.apple.weather (com.apple.Weather on iOS 14.3). On hickman_ios14_sysdiag all "
+                 "9 rows were ForecastWeatherWidget 'Data operation succeeded' entries carrying a "
+                 "place name, a time zone and latitude and longitude in plain text. On the iOS "
+                 "17.2.1, 17.3 and 26.6 images no entry of that kind was logged, and every row "
+                 "carried the location as a 24-character base64 value (16 bytes) instead of "
+                 "coordinates; what that value encodes is not established. Those rows were "
+                 "WeatherService entries (367 of 393 on hc_ios17_2, 3 of 3 on rodeo_ios17_sysdiag, "
+                 "205 of 221 on hc_ios26_sysdiag) and WeatherWidget 'Timeline: successfully built' "
+                 "entries (26 and 16). Trace ID held no value on any row.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "cloud-pin",
         "sample_data": {
+            "hickman_ios14_sysdiag": "iOS 14.3 | 9 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 393 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 3 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 221 rows",
         },
     },
     "logarchive_family_hotspot": {
         "name": "logarchive family hotspot",
-        "description": "Unified log entries for Family Hotspot state "
-                       "under the com.apple.sharing subsystem. This includes names and ",
-        "author": "@Hexordia & @stark4n6",
+        "description": "Unified log entries recording the Family Hotspot state. An entry holds "
+                       "either a single state (Disabled was observed) or a list of family member "
+                       "names, each followed by a value.",
+        "author": "@Hexordia, @stark4n6, @AlexisBrignoni, Claude",
         "creation_date": "2026-10-13",
-        "last_update_date": "2026-10-13",
+        "last_update_date": "2026-10-14",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Queries unified log records under the com.apple.sharing specific to Family Hotspot State. "
-                 "It filters on event_message for '%Family Hotspot State:%' showing names of family members "
-                 "associated and eligible to share the hotspot. It also shows the state of each (automatic or "
-                 "ask for approval).",
+        "notes": "Matches entries whose message contains 'Family Hotspot State'. The query does "
+                 "not filter on subsystem; every matched row was logged by sharingd under "
+                 "com.apple.sharing, category Daemon. On rodeo_ios17_sysdiag the single row "
+                 "listed five names in quotes, each followed by '-> Ask'; 'Ask' was the only value "
+                 "observed after a name, and what each value means is not established here. On "
+                 "hickman_ios14_sysdiag and hc_ios17_2 every row read 'Family Hotspot State: "
+                 "Disabled'. On hc_ios26_sysdiag no 'Family Hotspot State' entry was logged. "
+                 "sharingd also logs 'Family hotspot entries:' followed by a single number on "
+                 "the iOS 14.3 and 17 images and by '<private>' on iOS 26.6 (value redacted by the "
+                 "unified log); this artifact does not report those entries. Trace ID held no "
+                 "value on any row.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "access-point",
         "sample_data": {
+            "hickman_ios14_sysdiag": "iOS 14.3 | 3 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 3 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 1 row",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows; no 'Family Hotspot State' entry in the log",
         },
     },
 }
@@ -1887,7 +1919,7 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Device unlocked%'
         OR event_message LIKE '%Device lock status%'
         OR event_message LIKE '%Biometric match complete%'
-        OR (subsystem LIKE 'com.apple.SpringBoard' AND event_message LIKE '%UILocked:%')
+        OR (subsystem LIKE 'com.apple.SpringBoard' AND event_message LIKE 'UILocked:%')
         OR event_message LIKE '%SBIconView touches began with event:%'
         OR event_message LIKE '%Setting process visibility%'
         OR event_message LIKE '%WiFi state changed:%'
@@ -2228,10 +2260,10 @@ def logarchive_artifacts(context):
         -- logarchive_wake_source
         OR (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
         -- logarchive_weather
-        OR (category IN ('WeatherService', 'ForecastWeatherWidget') AND event_message LIKE '%About to fetch%')
+        OR ((category = 'WeatherService' OR category = 'ForecastWeatherWidget') AND event_message LIKE '%About to fetch%')
         OR (category LIKE 'ForecastWeatherWidget' AND event_message LIKE '%Data operation succeeded%')
         OR (category LIKE 'WeatherService' AND (event_message LIKE '%Successfully built%' OR event_message LIKE '%Got response for fetch of%'))
-        OR (category LIKE 'WeatherWidget' AND event_message LIKE ('%successfully built%'))
+        OR (category LIKE 'WeatherWidget' AND event_message LIKE '%successfully built%')
         -- logarchive_family_hotspot
         OR event_message LIKE '%Family Hotspot State%'
     )
@@ -2388,7 +2420,7 @@ def logarchive_lock_status(context):
         OR event_message LIKE '%Device unlocked%'
         OR event_message LIKE '%Device lock status%'
         OR event_message LIKE '%Biometric match complete%'
-        OR (subsystem LIKE 'com.apple.SpringBoard' AND event_message LIKE '%UILocked:%')
+        OR (subsystem LIKE 'com.apple.SpringBoard' AND event_message LIKE 'UILocked:%')
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
@@ -3057,10 +3089,10 @@ def logarchive_wake_source(context):
 @artifact_processor
 def logarchive_weather(context):
     return _artifacts_table_records(context, '''
-        (category IN ('WeatherService', 'ForecastWeatherWidget') AND event_message LIKE '%About to fetch%')
+        ((category = 'WeatherService' OR category = 'ForecastWeatherWidget') AND event_message LIKE '%About to fetch%')
         OR (category LIKE 'ForecastWeatherWidget' AND event_message LIKE '%Data operation succeeded%')
         OR (category LIKE 'WeatherService' AND (event_message LIKE '%Successfully built%' OR event_message LIKE '%Got response for fetch of%'))
-        OR (category LIKE 'WeatherWidget' AND event_message LIKE ('%successfully built%'))
+        OR (category LIKE 'WeatherWidget' AND event_message LIKE '%successfully built%')
     ''')
     
 @artifact_processor
