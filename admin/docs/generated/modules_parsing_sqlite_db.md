@@ -146,6 +146,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | payByPhone |
 | personalizationPortrait |
 | photosDbexif |
+| photosGraphMoments |
 | photosMetadata |
 | photosMigration |
 | pingertextfree |
@@ -264,6 +265,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | nest |
 | netflix |
 | odnoklassniki |
+| photosGraphMoments |
 | serialNumber |
 | swissmeteo |
 | teams |
