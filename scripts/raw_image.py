@@ -171,19 +171,21 @@ class ImageKeys:
     sealed to a certificate; ``bitlocker_secrets`` are further passwords or recovery
     passwords and ``bitlocker_keys`` the paths of startup key (.BEK) files, for
     BitLocker; ``apfs_secrets`` are further passwords or personal recovery keys, for
-    APFS. Nothing here is written anywhere; it lasts as long as the run.
+    APFS; ``luks_secrets`` are further passphrases, for LUKS. Nothing here is written
+    anywhere; it lasts as long as the run.
     """
 
     __slots__ = ('password', 'private_key', 'bitlocker_secrets', 'bitlocker_keys',
-                 'apfs_secrets')
+                 'apfs_secrets', 'luks_secrets')
 
     def __init__(self, password=None, private_key=None, bitlocker_secrets=(),
-                 bitlocker_keys=(), apfs_secrets=()):
+                 bitlocker_keys=(), apfs_secrets=(), luks_secrets=()):
         self.password = password
         self.private_key = private_key
         self.bitlocker_secrets = list(bitlocker_secrets)
         self.bitlocker_keys = list(bitlocker_keys)
         self.apfs_secrets = list(apfs_secrets)
+        self.luks_secrets = list(luks_secrets)
 
     def bitlocker_passwords(self):
         """Every secret to try on a BitLocker volume, the image's password first."""
@@ -192,6 +194,10 @@ class ImageKeys:
     def apfs_passwords(self):
         """Every secret to try on an encrypted APFS volume, the image's password first."""
         return ([self.password] if self.password else []) + self.apfs_secrets
+
+    def luks_passwords(self):
+        """Every passphrase to try on a LUKS container, the image's password first."""
+        return ([self.password] if self.password else []) + self.luks_secrets
 
 
 def needs_password(path):
@@ -337,6 +343,35 @@ def _unlock_apfs(path, keys, ask):
     return left
 
 
+def _unlock_luks(path, keys, ask):
+    """Try ``keys`` on each LUKS container in the image at ``path`` and offer every
+    container they leave locked to ``ask(luks, wrong)`` until it opens: ``ask`` returns a
+    passphrase, or None to leave it locked. What opens a container is added to ``keys``.
+    Returns the containers still locked that a passphrase could have opened, as
+    (label, locked note) pairs. Logical evidence holds no volumes."""
+    logical = open_logical(path, keys)
+    if logical is not None:
+        logical.close()
+        return []
+    left = []
+    with qnxprobe.open_image(path, password=keys.password,
+                             private_key=keys.private_key) as image:
+        _fh, found = qnxprobe.unlock_luks(image, qnxprobe.image_size(image),
+                                          keys.luks_passwords())
+        for luks in found:
+            wrong = False
+            while luks.mk is None and not luks.why:
+                answer = ask(luks, wrong)
+                if not answer:
+                    break
+                if luks.unlock([answer]):
+                    keys.luks_secrets.append(answer)
+                wrong = luks.mk is None
+            if luks.mk is None and not luks.why:
+                left.append((luks.label, luks.locked_note()))
+    return left
+
+
 def _apfs_prompt(lock, name, wrong):
     """What an encrypted APFS volume's prompt says, the hint it stores included."""
     return (('That does not open it. ' if wrong else '')
@@ -452,6 +487,23 @@ def cli_image_keys(path, password_file=None, password_env=None, private_key=None
             print(f'{label} of {name} stays locked and its files are not searched ({note}). '
                   f'Give its password or personal recovery key with --image_password_file '
                   f'or --image_password_env.', file=sys.stderr)
+        luks_tries = {}
+
+        def ask_luks(luks, wrong):
+            if not at_terminal:
+                return None
+            if wrong:
+                print('That does not open it.', file=sys.stderr)
+            luks_tries[luks.base] = luks_tries.get(luks.base, 0) + 1
+            if luks_tries[luks.base] > 3:
+                return None
+            return getpass.getpass(f'{luks.label} of {name} is a LUKS container. Its '
+                                   f'passphrase (empty leaves it locked): ') or None
+
+        for label, note in _unlock_luks(path, keys, ask_luks):
+            print(f'{label} of {name} stays locked and its files are not searched ({note}). '
+                  f'Give its passphrase with --image_password_file or --image_password_env.',
+                  file=sys.stderr)
     except _open_errors() as exc:
         raise ValueError(f'{name} could not be opened: {exc}') from None
     return keys
@@ -521,6 +573,14 @@ def ask_image_keys(parent, path):
                                           show='*', parent=parent)
 
         _unlock_apfs(path, keys, ask_apfs)
+
+        def ask_luks(luks, wrong):
+            return simpledialog.askstring(
+                'LUKS container', ('That does not open it. ' if wrong else '')
+                + f'{luks.label} of {name} is a LUKS container. Its passphrase:',
+                show='*', parent=parent)
+
+        _unlock_luks(path, keys, ask_luks)
     except _open_errors() as exc:
         messagebox.showerror('Error', f'{name} could not be opened:\n{exc}', parent=parent)
         return None
@@ -758,6 +818,10 @@ class FileSeekerRaw(FileSeekerBase):
             self._image, size, keys.bitlocker_passwords(), keys.bitlocker_keys)
         self._image, _apfs_found = qnxprobe.unlock_apfs(self._image, size,
                                                          keys.apfs_passwords())
+        # A LUKS container a passphrase opens reads as what it holds, a region of
+        # its own; one none opens is listed with the reason.
+        self._image, _luks_found = qnxprobe.unlock_luks(self._image, size,
+                                                        keys.luks_passwords())
         self.volumes = qnxprobe.volumes(self._image, size)
         if not self.volumes:
             logfunc('  no partition table and no filesystem the reader knows: '
@@ -802,7 +866,10 @@ class FileSeekerRaw(FileSeekerBase):
                         f'pattern that names one')
         image_name = os.path.basename(self.image_path)
         for vol in self.volumes:
-            if getattr(vol.get('walker'), 'free_extents', None) is None:
+            # a filesystem that reports its free space, or an LVM2 physical volume,
+            # whose extents no logical volume holds are its free space
+            if (getattr(vol.get('walker'), 'free_extents', None) is None
+                    and vol.get('free_extents') is None):
                 continue
             member = (f"{vol['name']}/{FREE_SPACE_FOLDER}/"
                       f"{image_name}.{vol['name']}{FREE_SPACE_SUFFIX}")

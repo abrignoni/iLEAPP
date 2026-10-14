@@ -35,10 +35,13 @@ fewer bytes than the file records and the file was not staged.
 Since 1.65, the linear logical volumes of an LVM2 physical volume, each one run of extents
 on one physical volume in the image, are searched as volumes of their own, named
 `lvm_lba<first sector>_<group>_<volume>`. The physical volume's line in the run log
-names any logical volume that is not read (RAID, mirrored, thin, a snapshot, or one
-with a run on a physical volume missing from the image) and why. Since 1.66, a
+names any logical volume that is not read (a RAID level other than 1, thin, a snapshot,
+or one with a run on a physical volume missing from the image) and why. Since 1.66, a
 logical volume split into separate runs of extents, or striped, is searched too,
 read through a map of its runs; its name counts the first sector of its first run.
+Since 1.67, a RAID1 or mirror logical volume is searched too, read from the first of
+its copies whose extents are all in the image, and a LUKS1 or LUKS2 container a
+passphrase opens is searched as what it holds (see Encrypted images).
 
 ## Where the pieces are
 
@@ -86,20 +89,20 @@ encryption given a certificate) opens instead with that certificate's RSA privat
 unencrypted, as PEM or DER; `needs_private_key(path)` says so.
 
 What opens an image travels as `ImageKeys`: its password, a private key's path, the
-secrets and startup key files of any BitLocker volume in it, and the passwords of any
-encrypted APFS volume in it. The GUI asks for each in a dialog when the run starts
+secrets and startup key files of any BitLocker volume in it, the passwords of any
+encrypted APFS volume in it, and the passphrases of any LUKS container in it. The GUI asks for each in a dialog when the run starts
 (`ask_image_keys`): the password, or the key file, until one opens the image, then, for
 each BitLocker volume inside that nothing given opens, its password or recovery
 password, or, left empty, its startup key (`.BEK`) file, and for each encrypted APFS
 volume nothing given opens, its password or personal recovery key, the prompt showing
-the passphrase hint the volume stores; cancelling a volume's prompt leaves that volume
-locked. The command line (`cli_image_keys`) takes a password from
+the passphrase hint the volume stores, and for each LUKS container nothing given opens,
+its passphrase; cancelling a volume's prompt leaves that volume locked. The command line (`cli_image_keys`) takes a password from
 `--image_password_file` (the file's first line) or `--image_password_env` (an
 environment variable), tried on the image, on each BitLocker volume as a password and
-as a recovery password, and on each encrypted APFS volume as a password and as a
-personal recovery key, a private key from `--image_private_key`, and startup keys from
+as a recovery password, on each encrypted APFS volume as a password and as a
+personal recovery key, and on each LUKS container as a passphrase, a private key from `--image_private_key`, and startup keys from
 `--bitlocker_key` (repeatable); at a terminal it asks for what is missing, and
-otherwise it names each BitLocker or APFS volume left locked on stderr and runs
+otherwise it names each BitLocker, APFS or LUKS volume left locked on stderr and runs
 without it. Either way the keys are checked before the
 run, handed to `crunch_artifacts(..., image_password=...)` and on to
 `FileSeekerRaw(..., password=...)`, which passes them to the reader and does not keep
@@ -169,8 +172,10 @@ an error.
 
 A volume's free space is a member too, but one only a pattern that asks for it can
 reach. For every volume whose filesystem reports what is free (the reader's
-`free_extents()`: qnx6, F2FS, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+ and APFS) the member list
-gains one name, kept apart from the files in `free_list`:
+`free_extents()`: qnx6, F2FS, FAT32, FAT16, FAT12, exFAT, NTFS, HFS+ and APFS), and, since
+qnxprobe 1.67, for every LVM2 physical volume, whose extents no logical volume holds are
+its free space, the member list gains one name, kept apart from the files in
+`free_list`:
 
     <volume>/$Unallocated/<image name>.<volume>.unallocated.bin
 
