@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "cachev0": {
         "name": "Image cacheV0",
-        "description": "Images cached in the SQLite database.",
+        "description": "Blobs stored in the cache table of cacheV0.db files, checked in as media. The file is matched by name in any app container; on the tested images it belonged to Google apps.",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-02-06",
         "last_update_date": "2026-08-21",

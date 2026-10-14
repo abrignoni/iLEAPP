@@ -2,19 +2,20 @@ __artifacts_v2__ = {
     "get_biomeDiscoverabilitySignals": {
         "name": "Biome - Discoverability Signals",
         "description": "Parses feature signals from the Discoverability.Signals biome stream. "
-                       "Each record names a system condition that was reported, such as a Face "
-                       "ID face covering being detected, a Wallet transaction occurring or a "
-                       "photo being moved to the trash, together with the value or JSON payload "
-                       "that accompanied it.",
+                       "Each written record carries a signal name as stored (the names seen "
+                       "include ones that refer to Face ID face coverings, Wallet transactions "
+                       "and photos moved to the trash), together with the value or JSON "
+                       "payload stored with it. What causes a signal to be written is not "
+                       "established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "A high volume stream: the sample held tens of thousands of records across "
-                 "thirty distinct signals, dominated by Face ID face covering detections. Some "
+        "notes": "The five tested images held 31 to 8,951 rows each. Some "
                  "records carry the signal name as a submessage rather than a string; those "
-                 "are reported with an empty signal name and their raw content in the payload "
+                 "are reported with an empty Signal column and their raw content in the "
+                 "Signal (raw) "
                  "column rather than being dropped.",
         "paths": ('*/streams/*/Discoverability.Signals/local/*',),
         "output_types": "standard",

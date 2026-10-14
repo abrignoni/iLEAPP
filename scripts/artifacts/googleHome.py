@@ -9,15 +9,17 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Google Home",
-        "notes": "Read from ZSTRUCTURE in the home graph store, whose file name is prefixed with the "
-                 "Google account identifier it belongs to, so one file is reported per signed-in "
-                 "account. Address is taken from the ZADDRESS column, an NSKeyedArchiver binary plist "
-                 "resolved by walking $objects from the $top root, and its addressAsSingleLine value "
-                 "is reported. The latitude and longitude inside that archive matched the ZLATITUDE "
-                 "and ZLONGITUDE columns exactly on the tested sample, which is two independent "
-                 "readings of the same coordinate. Version Timestamp is Unix milliseconds, a different "
-                 "epoch from the Core Data seconds used elsewhere in the same store. Coordinates "
-                 "describe the home the account configured and are not evidence of a person's "
+        "notes": "Read from ZSTRUCTURE in the home graph store, whose file name carries a prefix "
+                 "before _HomeGraphModel. What the prefix identifies was not established; every "
+                 "matching file that carries a ZDEVICE table is read. Address is taken from the "
+                 "ZADDRESS column, an NSKeyedArchiver binary plist resolved by walking $objects "
+                 "from the $top root, and its addressAsSingleLine value is reported. The latitude "
+                 "and longitude inside that archive matched the ZLATITUDE and ZLONGITUDE columns "
+                 "exactly on the tested sample, which is two independent readings of the same "
+                 "coordinate. Version Timestamp is converted as Unix milliseconds, a different "
+                 "epoch from the Core Data seconds this module applies to Link Timestamp in the "
+                 "Devices artifact. Coordinates are the ones the store holds for the home and are "
+                 "not evidence of a person's "
                  "location. Concierge Owner Email was empty in the tested sample; the column is "
                  "kept because the store defines it. The "
                  "app's data container was present on 1 of the 26 registered iOS corpora swept for it, "
@@ -32,17 +34,18 @@ __artifacts_v2__ = {
     "googleHomeDevices": {
         "name": "Google Home - Devices",
         "description": "Devices in the home graph, with the display name, manufacturer, model, "
-                       "software version, assigned room and the timestamp the device was "
-                       "linked.",
+                       "software version, assigned room and the stored link timestamp.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Google Home",
         "notes": "Read from ZDEVICE, with the device type resolved through ZDEVICETYPE and the "
-                 "assigned room through the Z_3SPACES join table to ZSPACE. A device with no row in "
-                 "that join table is reported with an empty Room; 12 of the 14 devices on the "
-                 "tested sample had a row in that table. Link Timestamp is "
+                 "assigned room through the Z_3SPACES join table to ZSPACE. That table and its "
+                 "columns carry entity numbers from the tested store. On a store that names them "
+                 "differently the query fails and this artifact returns no rows. A device with no "
+                 "row in that join table is reported with an empty Room; 12 of the 14 devices on "
+                 "the tested sample had a row in that table. Link Timestamp is converted as "
                  "Core Data seconds since 2001-01-01. Display Name, User Defined Name and Agent "
                  "Defined Name are reported separately because the store holds all three and they need "
                  "not agree. SSID Suffix is the value the store holds for the device and is reported "
@@ -83,8 +86,8 @@ __artifacts_v2__ = {
     },
     "googleHomeAutomations": {
         "name": "Google Home - Automations",
-        "description": "Automations configured for the home, with the name, what starts them, "
-                       "what they do and whether they are enabled.",
+        "description": "Automations configured for the home, with the name, the stored starter "
+                       "and action summary strings and whether they are enabled.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
@@ -111,7 +114,7 @@ __artifacts_v2__ = {
     },
     "googleCastDevices": {
         "name": "Google Cast Framework - Devices",
-        "description": "Cast receivers recorded in the Google Cast SDK's CastFrameworkDB.sqlite "
+        "description": "Cast receivers recorded in a CastFrameworkDB.sqlite store "
                        "inside an app's container, with the app that owns the container, the "
                        "receiver's friendly name and model where the store holds them, IP address "
                        "and port, and the last accessed and last discovered times.",
@@ -121,31 +124,28 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Home",
         "notes": "Read from ZGCKDBDEVICEINFO in every Library/Caches/CastFrameworkDB.sqlite the "
-                 "extraction holds. The file is written by Google's Cast SDK, which many apps "
-                 "embed, so a store sits in the container of whichever app embeds it: Container "
+                 "extraction holds. The store was found in the containers of several apps and its "
+                 "tables carry the GCK prefix; which library writes it was not sourced. Container "
                  "App is the bundle id from that container's metadata plist, and on the 12 tested "
                  "images holding the store the containers belonged to YouTube, Spotify, Netflix, "
-                 "Google Photos, Google Home, Disney+, ESPN, CNN, Facebook, NHL, MSNBC and "
-                 "Twitch; the Google Home app itself was on one of them. A row records that the "
-                 "SDK inside that app knew of a receiver; it does not establish that the user "
-                 "cast to it, and no table in the tested stores records playback. Friendly Name "
-                 "and Model "
-                 "Name are the receiver's own strings as stored, present on 9 of the 31 device "
-                 "rows across the tested images. A device is reached from ZGCKDBDEVICEINFO "
+                 "Google Photos, Google Home, Disney+, ESPN, CNN, Facebook, NHL, MSNBC and Twitch; "
+                 "the Google Home app itself was on one of them. A row records that the store in "
+                 "that app's container held a receiver; it does not establish that the user cast "
+                 "to it, and no table in the tested stores records playback. Friendly Name and "
+                 "Model Name are the receiver's own strings as stored, present on 9 of the 31 "
+                 "device rows across the tested images. A device is reached from ZGCKDBDEVICEINFO "
                  "through ZGCKDBLOCALCONNECTIONINFO (ZGCKDBDISCOVERYINFO.ZDEVICEINFO was null on "
                  "every row), each device owning up to two discovery records that reference it "
                  "through ZLOCALCONNECTIONINFO or ZLOCALCONNECTIONINFO1; both are followed, the "
                  "newest discovery time is reported and Discovery Records gives how many were "
-                 "found. A device with no local connection record, 22 of the 31 rows, has blank "
-                 "IP Address, Port, Service Instance Name and Last Discovered Time and a Device "
-                 "Version and Capabilities of 0, which is why Last Accessed Time, present on "
-                 "every row, leads the table. All timestamps in this store are Core Data seconds "
-                 "since 2001-01-01. IP Address was a private network address on every row that "
-                 "carried one, so it places the receiver on its own network rather than on the "
-                 "internet. Older SDK stores lack the ZDEVICECONFIGCHANGETIMESTAMP and "
-                 "ZINTERNALSTATUS columns (the iOS 12 to 16 images); they are read as empty "
-                 "rather than failing the query, which until this change returned no device on 11 "
-                 "of the 12 images. Last Published Time and Device Config Change Time were empty "
+                 "found. A device with no local connection record, 22 of the 31 rows, has blank IP "
+                 "Address, Port, Service Instance Name and Last Discovered Time and a Device "
+                 "Version and Capabilities of 0, which is why Last Accessed Time, present on every "
+                 "row, leads the table. The four time columns reported here are converted as Core "
+                 "Data seconds since 2001-01-01. IP Address was a private network address on every "
+                 "row that carried one. Some tested stores lack the ZDEVICECONFIGCHANGETIMESTAMP "
+                 "and ZINTERNALSTATUS columns; those columns are read as empty rather than failing "
+                 "the query. Last Published Time and Device Config Change Time were empty "
                  "on all 31 rows and Internal Status on all but 2; the columns are kept because "
                  "the store defines them. Endpoint Device ID held the literal guestModeDeviceID "
                  "on 21 of the 31 rows. The ZMANUFACTURER column was empty on every row of every "
@@ -174,7 +174,7 @@ __artifacts_v2__ = {
     },
     "googleCastNetwork": {
         "name": "Google Cast Framework - Networks",
-        "description": "Networks recorded in the Google Cast SDK's CastFrameworkDB.sqlite inside "
+        "description": "Networks recorded in a CastFrameworkDB.sqlite store inside "
                        "an app's container, with the app that owns the container and the last "
                        "connected and last query times.",
         "author": "@AlexisBrignoni, Claude",
@@ -183,13 +183,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Home",
         "notes": "Read from ZGCKDBNETWORKINFO in every Library/Caches/CastFrameworkDB.sqlite the "
-                 "extraction holds. The file is written by Google's Cast SDK, which many apps "
-                 "embed, so Container App names the app whose container the store sits in, from "
-                 "that container's metadata plist; the apps seen on the 12 tested images are "
-                 "listed in the Devices artifact's notes. Network ID is the value the SDK stored "
-                 "to identify the network: an IPv4 address on 34 of the 38 tested rows and an "
+                 "extraction holds. The store was found in the containers of several apps; which "
+                 "library writes it was not sourced. Container App names the app whose container "
+                 "the store sits in, from that container's metadata plist; the apps seen on the "
+                 "12 tested images are listed in the Devices artifact's notes. Network ID is the "
+                 "stored ZNETWORKID value: an IPv4 address on 34 of the 38 tested rows and an "
                  "IPv6 address on the other 4, never a network name, so it is reported as stored "
-                 "and must not be read as an SSID. Timestamps are Core Data seconds since "
+                 "and must not be read as an SSID. The two time columns are converted as Core "
+                 "Data seconds since "
                  "2001-01-01. Type and Analytics Enabled are reported as stored. Last Query Time "
                  "was empty on all 38 tested rows; the column is kept because the store defines "
                  "it.",

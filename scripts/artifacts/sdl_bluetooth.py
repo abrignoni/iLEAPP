@@ -8,8 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": (
-            "The file opens with a title line and then key : value lines, reported as stored; on "
-            "all seven test sysdiagnoses (iOS 13.3.1 to 26) the keys were Power, MAC Address, "
+            "The file opens with a title line and then key : value lines, reported as stored; keys "
+            "seen on test data: Power, MAC Address, "
             "Discoverable, Connectable, Scanning and Devices. The meaning of each flag is not "
             "decoded here. A sysdiagnose holds the file under WiFi/ and again under "
             "logs/Bluetooth/CoreCapture/; the two copies were byte-identical on the six test "
@@ -47,11 +47,12 @@ __artifacts_v2__ = {
         "category": "Sysdiagnose",
         "notes": (
             "One row per block after the adapter lines; blocks are separated by blank lines and "
-            "start with the device name. Address (letter case as stored), Paired, CloudPaired, "
+            "start with the device name. Address (letter case as stored), Paired, CloudPaired "
+            "(column Cloud Paired), "
             "Connected, Type and LE are reported as stored, and any other key in a block goes to "
             "Other Properties: Apple, RSSI, Manufacturer, Role, Conn Mode, Conn Interval and AFH "
-            "Map appeared on test data. On all seven test sysdiagnoses (iOS 13.3.1 to 26) the count "
-            "at the start of the adapter's Devices line equalled the number of blocks. Copies of "
+            "Map appeared on test data. The count at the start of the adapter's Devices line is not "
+            "compared with the number of blocks here. Copies of "
             "the file inside a sysdiagnose are handled as described for Sysdiagnose - Bluetooth "
             "Status."
         ),

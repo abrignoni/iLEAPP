@@ -9,14 +9,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Apple Wallet",
-        "notes": "Card values are pattern-matched from cached API responses and the type "
-                 "heuristic uses only the first digit; values require verification. Cache "
-                 "timestamps reflect response caching, not card enrollment. In tested images only "
-                 "iOS 13.3.1 yields a card row: the Passbook Cache.db is present but yields no "
-                 "card entries on the 20 other tested images that carry it (iOS 12-26) and on all "
-                 "21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions "
-                 "(iOS 16.1.1-26.5.2). Wallet passes on current images are parsed by the Apple "
-                 "Wallet - Nano Passes and Apple Wallet Transactions artifacts.",
+        "notes": "Card values are pattern-matched from cached API responses and the type heuristic "
+                 "uses the first one or two digits and the number length; values require "
+                 "verification. Cache timestamps reflect response caching, not card enrollment. In "
+                 "tested images only iOS 13.3.1 yields a card row: the Passbook Cache.db yields no "
+                 "card entries on the 13 other recorded images (iOS 12.4-18.7.8) and on the 21 "
+                 "extractions in Mattia Epifani's 2026-08 comparison (iOS 16.1.1-26.5.2). Wallet "
+                 "passes on current images are parsed by the Apple Wallet - Nano Passes and Apple "
+                 "Wallet Transactions artifacts.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
         "output_types": "standard",
         "artifact_icon": "credit-card",

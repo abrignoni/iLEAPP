@@ -7,7 +7,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL", "Timezone", "Device UID", "Device Model and OS", "App version", "RealMojis" ],
@@ -24,7 +25,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*'),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Profile picture"],
@@ -41,7 +43,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL", "Urls" ],
@@ -52,13 +55,14 @@ __artifacts_v2__ = {
     },
     "bereal_friends": {
         "name": "BeReal Friends",
-        "description": "Parses and extract BeReal Friends, Friend Requests Sent, Friend Requests Received, and Friends Following",
+        "description": "Parses BeReal friends, friend requests sent, friend requests received, following and followers",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsFriendsListManager/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestSentListManager/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestReceivedListManager/*',
@@ -79,7 +83,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL" ],
@@ -96,7 +101,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*',
@@ -116,7 +122,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-pinnedMemories-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
@@ -131,10 +138,18 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal RealMojis from my memories and Person's memories",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Direction is relative to the account on this device, whose id is read from "
+                 "group.BeReal.plist. For posts read from PersonRepository and the post feed it is "
+                 "Outgoing when the RealMoji author is that account, Incoming when it is another "
+                 "id, and blank when the plist or the author id is missing. Posts read from "
+                 "MemoriesRepository are the account's own, and there the author is compared to "
+                 "the same id. The Owner column names the post's owner. The registered image "
+                 "holds no rows, so this was not exercised on real data. Reference: Django "
+                 "Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*',
@@ -160,10 +175,18 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Comments from my memories, Person's posts, and Production post Feeds",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Direction is relative to the account on this device, whose id is read from "
+                 "group.BeReal.plist. For posts read from PersonRepository and the post feed it is "
+                 "Outgoing when the comment author is that account, Incoming when it is another "
+                 "id, and blank when the plist or the author id is missing. Posts read from "
+                 "MemoriesRepository are the account's own, and there the author is compared to "
+                 "the same id. The Owner column names the post's owner. The registered image "
+                 "holds no rows, so this was not exercised on real data. Reference: Django "
+                 "Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*',
@@ -192,7 +215,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
                   '*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
@@ -219,7 +243,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
+                 "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
                   '*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
@@ -255,6 +280,14 @@ def get_bereal_preferences(files_found):
         return None, {}
 
     return process_bereal_preferences(preferences_file)
+
+
+def _account_direction(author_id, account_user_id):
+    """Outgoing when the author is the account on this device (the id read from
+    group.BeReal.plist), Incoming when it is another id, blank when either id is missing."""
+    if not account_user_id or not author_id:
+        return ''
+    return 'Outgoing' if author_id == account_user_id else 'Incoming'
 
 
 def format_userid(user_id, name=None, user_map=None):
@@ -1468,7 +1501,7 @@ def bereal_realmojis(context):
                         # author
                         author = format_userid(author_id, author_user_name)
                         # direction
-                        direction = 'Outgoing' if author_id == owner_user_id else 'Incoming'
+                        direction = _account_direction(author_id, bereal_user_id)
                         # emoji
                         emoji = realmoji.get('emoji')
                         uri_moji = generic_url(realmoji.get('uri'), False)
@@ -1607,7 +1640,7 @@ def bereal_realmojis(context):
                                 # author
                                 author = format_userid(author_id, author_user_name)
                                 # direction
-                                direction = 'Outgoing' if author_id == owner_user_id else 'Incoming'
+                                direction = _account_direction(author_id, bereal_user_id)
                                 # emoji
                                 emoji = realmoji.get('emoji')
                                 uri_moji = generic_url(realmoji.get('uri'), False)
@@ -1716,7 +1749,7 @@ def bereal_comments(context):
                         # author
                         author = format_userid(author_id, author_user_name)
                         # direction
-                        direction = 'Outgoing' if author_id == owner_user_id else 'Incoming'
+                        direction = _account_direction(author_id, bereal_user_id)
                         # text
                         text = comment.get('text')
                         # comment id
@@ -1844,7 +1877,7 @@ def bereal_comments(context):
                                 # author
                                 author = format_userid(author_id, author_user_name)
                                 # direction
-                                direction = 'Outgoing' if author_id == owner_user_id else 'Incoming'
+                                direction = _account_direction(author_id, bereal_user_id)
                                 # text
                                 text = comment.get('text')
                                 # uid

@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "wireAccount": {
         "name": "Wire Secure Messenger Account",
-        "description": "Wire account details",
-        "author": "Elliot Glendye",
+        "description": "Results of the ZUSER LEFT JOIN ZUSERCLIENT query, with handle, display name, phone and email as stored, and the existing activation-date conversion and optional activation coordinates. Equal projected rows are retained, including results for users with no matching client. The query is not limited to the account signed in on the device.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2024-01-21",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-10-07",
         "requirements": "",
         "category": "Business",
-        "notes": "",
+        "notes": "Each result of the existing ZUSER LEFT JOIN ZUSERCLIENT query is reported without DISTINCT, including repeated equal projections. These are query results, not a count of unique users, client devices or activation events. Unmatched users remain through the LEFT JOIN; clients with no matching ZUSER are not selected. The existing Activation Date conversion, column position and first matching store selection are unchanged. Source ownership and self-account identity are not established here. Original contribution credited to Elliot Glendye.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
         "output_types": "all",
         "artifact_icon": "user",
@@ -23,12 +23,18 @@ __artifacts_v2__ = {
     "wireMessages": {
         "name": "Wire Secure Messenger Messages",
         "description": "Wire messages, including message sender, associated user identifiers and message type",
-        "author": "Elliot Glendye",
+        "author": 'Elliot Glendye, @AlexisBrignoni, Codex',
         "creation_date": "2024-01-21",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "",
         "category": "Business",
-        "notes": "Rows with category 1 (undefined per the Wire source) are excluded. Unrecognized category values (including bitmask combinations) are reported as stored. Reference: Wire open source, wire-ios-data-model MessageCategory (OptionSet raw values), https://github.com/wireapp/wire-ios/blob/develop/wire-ios-data-model/Source/Model/Message/ZMMessage%2BCategorization.swift",
+        "notes": "Rows with category 1 (undefined per the Wire source) are excluded; rows with "
+                 "no stored category are retained. Message is the ZNORMALIZEDTEXT column as stored. ZDURATION "
+                 "is reported as stored; its unit is not sourced "
+                 "here. Unrecognized category values (including bitmask combinations) are "
+                 "reported as stored. Reference: Wire open source, wire-ios-data-model "
+                 "MessageCategory (OptionSet raw values), "
+                 "https://github.com/wireapp/wire-ios/blob/1d90c3e2c54b223a61fb766802cce112ed5afa0f/wire-ios-data-model/Source/Model/Message/ZMMessage%2BCategorization.swift#L255-L273",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -73,7 +79,7 @@ def wireAccount(context):
     if has_location_data:
         query = f'''
         SELECT
-            DISTINCT ZUSER.ZHANDLE AS 'User ID',
+            ZUSER.ZHANDLE AS 'User ID',
             ZUSER.ZNAME AS 'Display Name',
             ZUSERCLIENT.ZACTIVATIONDATE AS 'Activation Date',
             {phone_column} AS 'Phone Number',
@@ -95,7 +101,7 @@ def wireAccount(context):
     else:
         query = f'''
         SELECT
-            DISTINCT ZUSER.ZHANDLE AS 'User ID',
+            ZUSER.ZHANDLE AS 'User ID',
             ZUSER.ZNAME AS 'Display Name',
             ZUSERCLIENT.ZACTIVATIONDATE AS 'Activation Date',
             {phone_column} AS 'Phone Number',
@@ -156,10 +162,10 @@ def wireMessages(context):
             WHEN 2048 THEN 'System Message'
             ELSE ZMESSAGE.ZCACHEDCATEGORY
         END AS 'Message Type',
-        ZMESSAGE.ZDURATION AS 'Call Duration (seconds)'
+        ZMESSAGE.ZDURATION AS 'ZDURATION (as stored)'
     FROM ZMESSAGE
     LEFT Join ZUSER On ZUSER.Z_PK = ZMESSAGE.ZSENDER
-    WHERE ZMESSAGE.ZCACHEDCATEGORY != 1;
+    WHERE ZMESSAGE.ZCACHEDCATEGORY != 1 OR ZMESSAGE.ZCACHEDCATEGORY IS NULL;
     '''
     data_headers = (
         ('Date / Time', 'datetime'),
@@ -167,7 +173,7 @@ def wireMessages(context):
         'Display Name',
         'Message',
         'Message Type',
-        'Call Duration (seconds)')
+        'ZDURATION (as stored)')
 
     db_records = get_sqlite_db_records(source_path, query)
     for record in db_records:

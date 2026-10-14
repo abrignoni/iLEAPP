@@ -2,45 +2,51 @@ __artifacts_v2__ = {
     "googleDocsDocuments": {
         "name": "Google Docs - Documents",
         "description": "Documents the Google Docs iOS app kept a local store for, with the "
-                       "document title, identifier, type, ownership flag and the timestamps the "
-                       "app recorded for creation, server modification, sync and app start",
+                       "document title, identifier, type, ownership flag and the timestamps "
+                       "stored under the creation, server modification, sync, snapshot and cold "
+                       "and warm start property names",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
-                 "Sheets container on the tested images carries the same paths, and other Google "
-                 "editor apps can carry them too, so a store is only reported when the same "
-                 "container also holds the Google Docs preferences file, and one that does not "
-                 "is skipped and logged. That guard fails closed, so a collection that captured "
-                 "the stores but not the preferences file would report nothing here; the skip "
-                 "lines in the run log are what distinguishes that from an app that was never "
-                 "used. One row per <document id>.db under Documents/<account "
-                 "id>/localStore/documents/<document id>/. Values come from that store's "
-                 "document_properties table, which holds a property name, a type code and a "
-                 "value blob. The type code is read from the file: code 0 values decoded as "
-                 "UTF-8 on all 762 rows tested, code 2 values parsed as JSON on all 188, and "
-                 "code 1 values were 8 bytes on all 694 and decode as little endian IEEE 754 "
-                 "doubles. Little endian is the reading the data supports: it classified all 694 "
-                 "code 1 values as either an exact integer below one million or a Unix "
+                 "Sheets container on the tested images carries the same paths, so a store is "
+                 "only reported when the same container also holds the Google Docs preferences "
+                 "file, and one that does not is skipped and logged. That guard fails closed, so "
+                 "a collection that captured the stores but not the preferences file would report "
+                 "nothing here; the skip lines in the run log are what distinguishes that from an "
+                 "app that was never used. One row per <document id>.db under Documents/<account "
+                 "id>/localStore/documents/<document id>/ that holds at least one "
+                 "document_properties row; a store with none is not reported. Values come from "
+                 "that store's document_properties table, which holds a property name, a type "
+                 "code and a value blob. The type code is read from the file: code 0 values "
+                 "decoded as UTF-8 on all 762 rows tested, code 2 values parsed as JSON on all "
+                 "188, and code 1 values were 8 bytes on all 694 and decode as little endian IEEE "
+                 "754 doubles. Little endian is the reading the data supports: it classified all "
+                 "694 code 1 values as either an exact integer below one million or a Unix "
                  "millisecond time between 2005 and 2030, where big endian classified none as a "
-                 "time and left 587 unclassified. Timestamps in this table are Unix "
-                 "milliseconds. The account name, email address, account identifier and profile "
-                 "image URL are read from the docosKeyData property, a positional JSON array; "
-                 "the four fields were confirmed by shape on all 38 values that carried the "
-                 "block, and the identifier equalled the account directory in the path on all "
-                 "38. It records the account the store belongs to rather than the document "
-                 "creator: three documents whose isOwner property was not true carried the same "
-                 "account, and the identifier matched the account directory on all 38. Owner "
-                 "state is reported from isOwner as stored. Revision, access level and the "
+                 "time and left 587 unclassified. Timestamps in this table are Unix milliseconds. "
+                 "The account name, email address, account identifier and profile image URL are "
+                 "read from the docosKeyData property, a positional JSON array; the four fields "
+                 "were confirmed by shape on all 38 values that carried the block, and the "
+                 "identifier equalled the account directory in the path on all 38. When that "
+                 "property holds no identifier of 15 to 25 digits, the Account ID column shows "
+                 "the account directory name from the path when that name is a run of at least "
+                 "six digits. It records the account the store belongs to rather than the "
+                 "document creator: three documents whose isOwner property was not true carried "
+                 "the same account, and the identifier matched the account directory on all 38. "
+                 "Owner state is reported from isOwner as stored. Revision, access level and the "
                  "remaining code 1 values are reported as stored because no value list ships in "
                  "the file. A store with no title property is reported with the title blank; "
-                 "whether that reflects a document that had not synced is not established. "
-                 "Reference: Park, "
-                 "Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of Google "
+                 "whether that reflects a document that had not synced is not established. The "
+                 "counts in these notes were taken on a tested set of stores that is larger than "
+                 "the registered corpora listed in sample_data and is not named here. Reference: "
+                 "Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of Google "
                  "applications on Android and iOS platforms', Forensic Science International: "
-                 "Digital Investigation.",
+                 "Digital Investigation 55 (2025) 302029, "
+                 "https://doi.org/10.1016/j.fsidi.2025.302029. Which statement in these notes the "
+                 "paper supports is not recorded here.",
         "paths": ('*/Documents/*/localStore/documents/*/*.db*',
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
@@ -54,40 +60,43 @@ __artifacts_v2__ = {
     "googleDocsDocumentText": {
         "name": "Google Docs - Document Text",
         "description": "Text stored in the Google Docs iOS app's per document command log, one "
-                       "row per document",
+                       "row per document"
+                       " that holds insert text",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
-                 "Sheets container on the tested images carries the same paths, and other Google "
-                 "editor apps can carry them too, so a store is "
-                 "only reported when the same container also holds the Google Docs preferences "
-                 "file, and one that does not is skipped and logged. That guard fails closed, so a "
-                 "collection that captured the stores but not the preferences file would report "
-                 "nothing here; the skip lines in the run log are what distinguishes that from an "
-                 "app that was never used. "
-                 "A container holds a directory per signed in account and the same document can be "
-                 "open under more than one of them, so each account's copy is reported as its own "
-                 "row. "
-                 "One row per document, built "
-                 "from the document_commands table of the <document id>.db store under "
-                 "Documents/<account id>/localStore/documents/. Each command row holds a JSON "
-                 "array; the text is taken from the commands whose stored ty value is is, using "
-                 "their s value, and the rows are read in stored order, revision then chunk "
-                 "index, so joining them reproduces the order the log holds. The Stored Text "
-                 "Segments column gives how many such commands the document was built from. "
-                 "Command types are reported as stored: the tested stores held as, is, ae, nm, "
-                 "te, ord, umv, mkch, ac and utlp, and no mapping for those names was sourced. "
-                 "The text is what the command log holds, not a rendering of the document: "
-                 "across the tested stores the recovered characters covered 99.49 percent of the "
-                 "index span the insert commands describe, and 18 of 38 documents were gap free, "
-                 "so positions held by other command types are absent. The timestamp column of "
-                 "document_commands was zero on all 361 tested rows and is not reported, and the "
-                 "part identifier was 0 on all of them. Reference: Park, Park, Kim, Kang and "
-                 "Kim, 'A comprehensive artifact analysis of Google applications on Android and "
-                 "iOS platforms', Forensic Science International: Digital Investigation.",
+                 "Sheets container on the tested images carries the same paths, so a store is only "
+                 "reported when the same container also holds the Google Docs preferences file, and "
+                 "one that does not is skipped and logged. That guard fails closed, so a collection "
+                 "that captured the stores but not the preferences file would report nothing here; "
+                 "the skip lines in the run log are what distinguishes that from an app that was "
+                 "never used. This artifact keys each store on its account directory as well as its "
+                 "document identifier, so a document stored under two account directories is "
+                 "reported as two rows. One row per document whose command log holds at least one "
+                 "insert command with text, built from the document_commands table of the <document "
+                 "id>.db store under Documents/<account id>/localStore/documents/. A document with "
+                 "no such command is not listed here. Each command row holds a JSON array; the text "
+                 "is taken from the commands whose stored ty value is is, using their s value, and "
+                 "the rows are read in stored order, revision then chunk index, so joining them "
+                 "reproduces the order the log holds. The Stored Text Segments column gives how "
+                 "many such commands the document was built from. Command types are reported as "
+                 "stored: the tested stores held as, is, ae, nm, te, ord, umv, mkch, ac and utlp, "
+                 "and no mapping for those names was sourced. The text is what the command log "
+                 "holds, not a rendering of the document: across the tested stores the recovered "
+                 "characters covered 99.49 percent of the index span the insert commands describe, "
+                 "and 18 of 38 documents were gap free, so positions held by other command types "
+                 "are absent. The timestamp column of document_commands was zero on all 361 tested "
+                 "rows and is not reported, and the part identifier was 0 on all of them. The "
+                 "counts in these notes were taken on a tested set of stores that is larger than "
+                 "the registered corpora listed in sample_data and is not named here. Reference: "
+                 "Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of Google "
+                 "applications on Android and iOS platforms', Forensic Science International: "
+                 "Digital Investigation 55 (2025) 302029, "
+                 "https://doi.org/10.1016/j.fsidi.2025.302029. Which statement in these notes the "
+                 "paper supports is not recorded here.",
         "paths": ('*/Documents/*/localStore/documents/*/*.db*',
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
@@ -108,26 +117,27 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
-                 "Sheets container on the tested images carries the same paths, and other Google "
-                 "editor apps can carry them too, so a store is only reported when the same "
-                 "container also holds the Google Docs preferences file, and one that does not "
-                 "is skipped and logged. That guard fails closed, so a collection that captured "
-                 "the stores but not the preferences file would report nothing here; the skip "
-                 "lines in the run log are what distinguishes that from an app that was never "
-                 "used. One row per file under Documents/<account "
-                 "id>/fileStore/documents/<document id>/"
-                 "documents/<document id>/image/ and the sibling drawing/ directory. The document "
-                 "is taken from the path, which repeats the document identifier. The two "
-                 "identifiers were equal on all 61 tested files, image and drawing alike, and "
-                 "each resolved to a per document store holding a title, so only the outer one "
-                 "is reported; a path whose "
-                 "two identifiers disagree is logged. The blob_metadata table that could carry a "
-                 "database side link was empty in all 46 tested stores, so the link reported here "
-                 "is the one the path records. Files are stored without an extension and the "
-                 "image type is read from the file content; PNG and JPEG were observed. "
-                 "Reference: Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of "
-                 "Google applications on Android and iOS platforms', Forensic Science "
-                 "International: Digital Investigation.",
+                 "Sheets container on the tested images carries the same paths, so a store is only "
+                 "reported when the same container also holds the Google Docs preferences file, "
+                 "and one that does not is skipped and logged. That guard fails closed, so a "
+                 "collection that captured the stores but not the preferences file would report "
+                 "nothing here; the skip lines in the run log are what distinguishes that from an "
+                 "app that was never used. One row per file under Documents/<account "
+                 "id>/fileStore/documents/<document id>/documents/<document id>/image/ and the "
+                 "sibling drawing/ directory. The document is taken from the path, which repeats "
+                 "the document identifier. The two identifiers were equal on all 61 tested files, "
+                 "image and drawing alike, and each resolved to a per document store holding a "
+                 "title, so only the outer one is reported; a path whose two identifiers disagree "
+                 "is logged. The blob_metadata table that could carry a database side link was "
+                 "empty in all 46 tested stores, so the link reported here is the one the path "
+                 "records. Files are stored without an extension and the image type is read from "
+                 "the file content; PNG and JPEG were observed. The counts in these notes come "
+                 "from samples outside the registered corpora listed in sample_data; no registered "
+                 "corpus held stored document media. Reference: Park, Park, Kim, Kang and Kim, 'A "
+                 "comprehensive artifact analysis of Google applications on Android and iOS "
+                 "platforms', Forensic Science International: Digital Investigation 55 (2025) "
+                 "302029, https://doi.org/10.1016/j.fsidi.2025.302029. Which statement in these "
+                 "notes the paper supports is not recorded here.",
         "paths": ('*/Documents/*/localStore/documents/*/*.db*',
                   '*/Documents/*/fileStore/documents/*/documents/*/image/*',
                   '*/Documents/*/fileStore/documents/*/documents/*/drawing/*',
@@ -151,35 +161,38 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
-                 "Sheets container on the tested images carries the same paths, and other Google "
-                 "editor apps can carry them too, so a store is only reported when the same "
-                 "container also holds the Google Docs preferences file, and one that does not "
-                 "is skipped and logged. That guard fails closed, so a collection that captured "
-                 "the stores but not the preferences file would report nothing here; the skip "
-                 "lines in the run log are what distinguishes that from an app that was never "
-                 "used. One row per cross_document_metadata row in documentMetadata.db under "
-                 "Documents/<account id>/localStore/shared/. Account ID is the folder name under "
-                 "Documents in the store's path and is blank when that name is not a run of at "
-                 "least six digits, so it does not separate two such stores, and Source File names"
-                 " the store each row came from. This table stores the same server "
-                 "update time in two units in two columns, so each is converted by its own unit "
-                 "rather than by magnitude: last_server_updated_timestamp_milliseconds is Unix "
-                 "milliseconds and drive_last_server_udated_timestamp, whose name carries the "
-                 "spelling used in the schema, is Unix seconds. On all 30 tested rows that "
-                 "carried both, the millisecond value equalled the second value times one "
-                 "thousand. last_sync_finish_timestamp is Unix seconds. A row whose timestamps "
-                 "are zero carries no recorded sync time; 8 of the 46 tested rows were in that "
-                 "state. Pending "
-                 "change, snapshot and failure counts are reported as stored. The resource key "
-                 "column was empty on every tested row and is kept so its absence is visible, and "
-                 "the seconds column was empty on one tested sample while the millisecond column "
-                 "was populated, so the two are reported separately rather than merged. "
-                 "The main database "
-                 "file can be nearly empty with the rows held in the write ahead log, so the "
-                 "sidecars are matched by the path pattern and must travel with the database. "
+                 "Sheets container on the tested images carries the same paths, so a store is only "
+                 "reported when the same container also holds the Google Docs preferences file, "
+                 "and one that does not is skipped and logged. That guard fails closed, so a "
+                 "collection that captured the stores but not the preferences file would report "
+                 "nothing here; the skip lines in the run log are what distinguishes that from an "
+                 "app that was never used. One row per cross_document_metadata row in "
+                 "documentMetadata.db under Documents/<account id>/localStore/shared/. Account ID "
+                 "is the folder name under Documents in the store's path and is blank when that "
+                 "name is not a run of at least six digits, so it does not separate two such "
+                 "stores, and Source File names the store each row came from. This table stores "
+                 "the same server update time in two units in two columns, so each is converted by "
+                 "its own unit rather than by magnitude: "
+                 "last_server_updated_timestamp_milliseconds is Unix milliseconds and "
+                 "drive_last_server_udated_timestamp, whose name carries the spelling used in the "
+                 "schema, is Unix seconds. On all 30 tested rows that carried both, the "
+                 "millisecond value equalled the second value times one thousand. "
+                 "last_sync_finish_timestamp is converted as Unix seconds. A store that does not "
+                 "carry the column is reported with it empty. A row whose timestamps are zero "
+                 "carries no recorded sync time; 8 of the 46 tested rows were in that state. "
+                 "Pending change, snapshot and failure counts are reported as stored. The resource "
+                 "key column was empty on every tested row and is kept so its absence is visible, "
+                 "and the seconds column was empty on one tested sample while the millisecond "
+                 "column was populated, so the two are reported separately rather than merged. The "
+                 "main database file can be nearly empty with the rows held in the write ahead "
+                 "log, so the sidecars are matched by the path pattern and must travel with the "
+                 "database. The counts in these notes were taken on a tested set of stores that is "
+                 "larger than the registered corpora listed in sample_data and is not named here. "
                  "Reference: Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of "
                  "Google applications on Android and iOS platforms', Forensic Science "
-                 "International: Digital Investigation.",
+                 "International: Digital Investigation 55 (2025) 302029, "
+                 "https://doi.org/10.1016/j.fsidi.2025.302029. Which statement in these notes the "
+                 "paper supports is not recorded here.",
         "paths": ('*/Documents/*/localStore/shared/documentMetadata.db*',
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
@@ -192,34 +205,35 @@ __artifacts_v2__ = {
     },
     "googleDocsCommentSync": {
         "name": "Google Docs - Comment Sync State",
-        "description": "Documents the Google Docs iOS app tracked comments for, with the last "
-                       "modified time and the next scheduled sync time",
+        "description": "Rows of the comment_items table in the Google Docs iOS comments "
+                       "snapshot store, with the document identifier, the last modified date "
+                       "and the next sync date as stored",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
-                 "Sheets container on the tested images carries the same paths, and other Google "
-                 "editor apps can carry them too, so a store is only reported when the same "
-                 "container also holds the Google Docs preferences file, and one that does not "
-                 "is skipped and logged. That guard fails closed, so a collection that captured "
-                 "the stores but not the preferences file would report nothing here; the skip "
-                 "lines in the run log are what distinguishes that from an app that was never "
-                 "used. One row per comment_items row in comments_snapshot_<account id>.db under "
-                 "Documents/<account id>/. Account ID is the folder name under Documents in the "
-                 "store's path and is blank when that name is not a run of at least six digits, so"
-                 " it does not separate two such stores, and Source File names the store each row "
-                 "came from. The stored item_identifier reads <kind>:<document id>; "
-                 "the kind part was document on each tested row and is not reported as its own "
-                 "column, and the identifier part is used "
-                 "to fill the Document Title column when a per document store in the same "
-                 "container holds a title. last_modified_date is Unix seconds. next_sync_date is "
-                 "an ISO 8601 string carrying its own zone designator and is reported as stored "
-                 "rather than converted. The comments table in the same database, which holds "
-                 "comment text, was empty on both tested samples while comment_items held rows, "
-                 "so a row here records that the app tracked comments for that document and does "
-                 "not carry the comment content. The resource key column was empty on every "
+                 "Sheets container on the tested images carries the same paths, so a store is only "
+                 "reported when the same container also holds the Google Docs preferences file, and "
+                 "one that does not is skipped and logged. That guard fails closed, so a collection "
+                 "that captured the stores but not the preferences file would report nothing here; "
+                 "the skip lines in the run log are what distinguishes that from an app that was "
+                 "never used. One row per comment_items row in comments_snapshot_<account id>.db "
+                 "under Documents/<account id>/. Account ID is the folder name under Documents in "
+                 "the store's path and is blank when that name is not a run of at least six digits, "
+                 "so it does not separate two such stores, and Source File names the store each row "
+                 "came from. The stored item_identifier reads <kind>:<document id>; the kind part "
+                 "was document on each tested row and is not reported as its own column, and the "
+                 "identifier part is used to fill the Document Title column when a per document "
+                 "store in the same container holds a title. last_modified_date is converted as "
+                 "Unix seconds. next_sync_date is an ISO 8601 string carrying its own zone "
+                 "designator and is reported as stored rather than converted. The comments table in "
+                 "the same database, which holds comment text, was empty on both tested samples "
+                 "while comment_items held rows, so a row here shows the store held a comment_items "
+                 "entry for that document and does not carry the comment content. What causes the "
+                 "app to write an entry was not established. The resource key column was empty on "
+                 "every "
                  "tested row and is kept so its absence is visible; the stored comment item "
                  "version held the same value on every tested row and is not reported. Comment text from this database is covered by "
                  "the Google Drive comments artifact, whose path pattern also matches this file. "
@@ -238,18 +252,21 @@ __artifacts_v2__ = {
     },
     "googleDocsAccounts": {
         "name": "Google Docs - Accounts",
-        "description": "Google accounts the Google Docs iOS app recorded, showing the signed in "
-                       "account and the account identifiers named by keys in the app's "
-                       "preferences",
+        "description": "Account identifiers named by keys in the Google Docs iOS app's "
+                       "preferences, marking the identifier stored under the signed_in_user_id "
+                       "key",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "One row per account identifier named by a key in the app's preferences property "
-                 "list, together with the value of signed_in_user_id. Identifiers are taken from "
-                 "the key names the app writes per account, so an account can appear here with "
-                 "no document directory: on one tested sample five identifiers appeared in the "
+                 "list. The Signed In column reads Yes on the row whose identifier equals the "
+                 "value of signed_in_user_id. That value is not listed when no account key names "
+                 "it, and a key suffix that is not 15 to 25 digits is not reported. Identifiers "
+                 "are taken from the key names the app writes per account, so an account can "
+                 "appear here with no document directory: on one tested sample, which is not named "
+                 "here, five identifiers appeared in the "
                  "notification keys while only one had a document directory. The name, email "
                  "address and profile image URL are filled from the docosKeyData property of a "
                  "document store belonging to that account when the container holds one. Presence "
@@ -268,7 +285,8 @@ __artifacts_v2__ = {
     "googleDocsAppState": {
         "name": "Google Docs - Application State",
         "description": "Application level state recorded by the Google Docs iOS app, including "
-                       "first launch dates, the recorded app version and device boot time",
+                       "first launch dates, the recorded app version and the value stored under "
+                       "the crash state tracker boot time key",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
@@ -276,8 +294,8 @@ __artifacts_v2__ = {
         "category": "Google Docs",
         "notes": "One row per key read from Library/Preferences/com.google.Docs.plist. Date typed "
                  "values are property list dates and are reported in UTC. The three orphan file "
-                 "cleanup keys and the crash state tracker boot time are floating point Unix "
-                 "seconds and are converted as seconds; no other key is converted. The two first "
+                 "cleanup keys and the crash state tracker boot time are converted as Unix seconds "
+                 "when the stored value is a number; no other key is converted. The two first "
                  "launch keys disagreed on one tested "
                  "sample, so both are reported under their stored key names rather than merged. "
                  "Remaining values are reported as stored. Absence of a key means the app wrote "
@@ -307,18 +325,20 @@ __artifacts_v2__ = {
                  "that marker is skipped and logged. The container set is built from the files "
                  "this artifact's own patterns matched, so it does not depend on the order "
                  "artifacts run in. Identity fields are read from the undocumented protobuf in "
-                 "the proto_data column and are selected by field position. Most cached people "
-                 "carry no name: on the one tested cache 2 of 42 rows held a display name while "
-                 "all 42 held an address, so a blank name is the stored state rather than a "
-                 "decoding failure. Where that field is empty the name recorded inside the "
-                 "contact method is used. The affinity value is reported as stored and no meaning "
-                 "is asserted for it. Presence of a person here "
-                 "records that the app held them in a lookup cache and does not establish that "
-                 "the user shared a document with them or contacted them. Photo values are the "
-                 "remote URLs the app recorded; no image bytes were present in the tested "
-                 "samples, so nothing is checked in as media. Reference: Park, Park, Kim, Kang "
-                 "and Kim, 'A comprehensive artifact analysis of Google applications on Android "
-                 "and iOS platforms', Forensic Science International: Digital Investigation.",
+                 "the proto_data column and are selected by field position. On the one tested "
+                 "cache, which held 42 rows and is not named here, 2 held a display name and all "
+                 "42 held an address, so a blank name there is the stored state rather than a "
+                 "decoding failure. Where that field is empty the name recorded inside the contact "
+                 "method is used. The affinity value is reported as stored and no meaning is "
+                 "asserted for it. Presence of a person here records that the app held them in a "
+                 "lookup cache and does not establish that the user shared a document with them or "
+                 "contacted them. Photo values are the remote URLs the app recorded; no image "
+                 "bytes were present in the tested samples, so nothing is checked in as media. "
+                 "Reference: Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of "
+                 "Google applications on Android and iOS platforms', Forensic Science "
+                 "International: Digital Investigation 55 (2025) 302029, "
+                 "https://doi.org/10.1016/j.fsidi.2025.302029. Which statement in these notes the "
+                 "paper supports is not recorded here.",
         "paths": ('*/Library/Caches/Contacts_*.db*',
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",

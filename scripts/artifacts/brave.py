@@ -9,13 +9,15 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Brave",
         "notes": "One row per row of ZSESSIONTAB in Library/Application Support/Brave.sqlite, and "
-                 "one per row of ZTABMO where a store carries that older table instead. The "
-                 "Source Table column says which a row came from: three of the four tested images "
-                 "use ZSESSIONTAB and the iOS 15 image uses ZTABMO. Last Updated is a Core Data "
-                 "time, seconds since 2001, reported in UTC, and read that way every value falls "
-                 "inside the period its own image covers. Thumbnail is a JPEG, checked by its own "
-                 "leading bytes, stored inside the row, and one is attached to every ZSESSIONTAB "
-                 "row, twelve of twelve across the three images. A ZTABMO row stores no image "
+                 "one per row of ZTABMO where a store carries that older table. A store that "
+                 "carries both tables gets rows from both. The Source Table column says which a "
+                 "row came from: three of the four tested images use ZSESSIONTAB and the iOS 15 "
+                 "image uses ZTABMO. Last Updated is a Core Data time, seconds since 2001, "
+                 "reported in UTC, and read that way every value falls inside the period its own "
+                 "image covers. Thumbnail is the image stored inside the row. On the three tested "
+                 "images that use ZSESSIONTAB all twelve rows carried one and each began with JPEG "
+                 "leading bytes; this module's code does not test the leading bytes before "
+                 "attaching them. A ZTABMO row stores no image "
                  "bytes and carries a screenshot identifier instead, so those two rows show that "
                  "identifier in the Window ID or Thumbnail ID column and no picture, and whether "
                  "a file named by it survives elsewhere in the container was not established. "
@@ -48,8 +50,13 @@ __artifacts_v2__ = {
                  "date and a history index. Date Added is a Core Data time, seconds since 2001, "
                  "reported in UTC, and read that way every value falls inside the period its own "
                  "image covers. Two of the four tested images held rows, nine and one, and the "
-                 "other two held none, so an absent row is not evidence that no tab was ever "
-                 "closed. The row also carries an interaction state blob, which is not read here. "
+                 "other two held none. Brave's published source removes rows from this table by "
+                 "address, all at once, and by age, so an absent row is not evidence that no tab "
+                 "was ever closed. Reference: Brave, 'RecentlyClosed.swift', "
+                 "https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "RecentlyClosed.swift#L43-L94. The row also carries an interaction state blob, "
+                 "which is not read here. "
                  "History Index is reported as stored.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
@@ -63,8 +70,8 @@ __artifacts_v2__ = {
     },
     "brave_ios_recent_searches": {
         "name": "Brave - Recent Searches",
-        "description": "Terms held in the Brave browser's recent search list, with the time each "
-                       "was added.",
+        "description": "Terms held in the Brave browser's recent search list, with the Date Added "
+                       "value of each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
@@ -72,13 +79,24 @@ __artifacts_v2__ = {
         "category": "Brave",
         "notes": "One row per row of ZRECENTSEARCH in Library/Application Support/Brave.sqlite, "
                  "which is the list the browser keeps of recent searches. Each row carries the "
-                 "text, a type, an optional website address and the time it was added. Date Added "
-                 "is a Core Data time, seconds since 2001, reported in UTC, and read that way "
-                 "every value falls inside the period its own image covers. Three of the four "
-                 "tested images held exactly one term each and the fourth held none. Search Type "
-                 "held the value 1 on all three rows and Website URL was empty on all three, so "
-                 "neither field has enough values here to say what it distinguishes, and both are "
-                 "reported as stored. A term that is absent from this list is not evidence that "
+                 "text, a type, an optional website address and a date. In Brave's published "
+                 "source, adding a term that is already listed updates the date of the existing "
+                 "row and adds no new row, so Date Added is the latest time the term was added and "
+                 "a term searched more than once has one row. Reference: Brave, "
+                 "'RecentSearches.swift', https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "RecentSearches.swift#L54-L75. Date Added is a Core Data time, seconds since "
+                 "2001, reported in UTC, and read that way every value falls inside the period its "
+                 "own image covers. Three of the four tested images held exactly one term each and "
+                 "the fourth held none. Search Type held the value 1 on all three rows and Website "
+                 "URL was empty on all three. Both are reported as stored. Brave's published "
+                 "source defines the type as 0 QR code, 1 text and 2 website; that is the source "
+                 "at one commit and was not checked against the app versions on the tested images. "
+                 "Reference: Brave, 'RecentSearches.swift', "
+                 "https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "RecentSearches.swift#L11-L15. A term that is absent from this list is not "
+                 "evidence that "
                  "it was never searched for.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
@@ -92,7 +110,8 @@ __artifacts_v2__ = {
     },
     "brave_ios_bookmarks": {
         "name": "Brave - Bookmarks and Favorites",
-        "description": "Entries in the Brave browser's bookmark and favorite lists, with the "
+        "description": "Rows of the Brave browser's ZBOOKMARK table, which held only "
+                       "favorites on the tested images, with the "
                        "address of each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -107,16 +126,27 @@ __artifacts_v2__ = {
                  "On the two older images the six addresses match, one for one, the preloaded "
                  "favourites Brave's published source defines, so those rows are the set the app "
                  "installs and not bookmarks somebody saved. Reference: Brave, "
-                 "'PreloadedFavorites.swift', https://github.com/brave/brave-ios/blob/0d693d2d909 "
-                 "3dfc975e5c645beedd533c0a4c9e8/Sources/Brave/Frontend/Browser/Favorites/Preloade "
-                 "dFavorites.swift. On the two newer images the four addresses are a different "
-                 "set that is not in that file, so what created them was not established; their "
-                 "four rows were written within 7.4 milliseconds of each other, which is not how "
-                 "entries added one at a time would look. Taken together, no row on any tested "
-                 "image shows a mark of having been saved by hand, and a row here is not by "
-                 "itself evidence that one was. Custom Title is what the app stores when an entry "
-                 "is renamed, and it was blank on every row. Folder marks a folder rather than a "
-                 "page and was blank on every row. Favorite and Visits (as stored) hold one value "
+                 "'PreloadedFavorites.swift', https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Brave/Frontend/Browser/"
+                 "Favorites/PreloadedFavorites.swift#L13-L41. On the two newer images the four "
+                 "addresses are a different set that is not in that file, so what created them was "
+                 "not established; their four rows carry Created values within 7.4 milliseconds of "
+                 "each other. In Brave's published source an entry added through the app is also "
+                 "created with the favourite flag set, no custom title and Last Visit equal to "
+                 "Created, so those values do not separate an installed entry from an added one. A "
+                 "row here is not by itself evidence that somebody saved it, and those values are "
+                 "not evidence that nobody did. Reference: Brave, 'Favorite.swift', "
+                 "https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "Favorite.swift#L208-L229. Custom Title is set in Brave's published source when "
+                 "an entry is updated with a new title (https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "Favorite.swift#L248-L262), and it was blank on every row. Folder shows the "
+                 "stored ZISFOLDER flag, which Brave's published source describes as a legacy "
+                 "property kept for migration (https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "Favorite.swift#L29-L30); it held no Yes on any tested row. Favorite and Visits "
+                 "(as stored) hold one value "
                  "each across every tested image.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
@@ -139,12 +169,25 @@ __artifacts_v2__ = {
         "category": "Brave",
         "notes": "One row per row of ZBLOCKEDRESOURCE in Library/Application "
                  "Support/Brave.sqlite. Site Domain is the site the page belonged to, Blocked "
-                 "Host is the host that was blocked, and Page URL is the address the row carries. "
-                 "ZDOMAIN in this table holds the site's domain as text rather than a reference "
-                 "to the separate site entry table, so nothing is joined. Timestamp is a Core "
-                 "Data time, seconds since 2001, reported in UTC, and it is present on 35 of 54, "
-                 "39 of 39 and 14 of 14 rows on three images and on none of the 19 rows of the "
-                 "fourth, so a blank there is the store not recording one. Rows span 2 to 5 "
+                 "Host is the host that was blocked, and Page URL is read from the ZFAVICONURL "
+                 "column. Brave's published source describes that field as the full URL of the "
+                 "site domain, kept to look up the site icon, so it is not the address of the page "
+                 "that was loading. Reference: Brave, 'BlockedResource.swift', "
+                 "https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "BlockedResource.swift#L17-L31. ZDOMAIN in this table holds the site's domain as "
+                 "text rather than a reference to the separate site entry table, so nothing is "
+                 "joined. Timestamp is a Core Data time, seconds since 2001, reported in UTC, and "
+                 "it is present on 35 of 54, 39 of 39 and 14 of 14 rows on three images and on "
+                 "none of the 19 rows of the fourth, so a blank there is a row stored without a "
+                 "time. Brave's published source says rows older than 30 days are consolidated and "
+                 "stored without a timestamp, which means a row with a blank time can stand for "
+                 "more than one blocking event and its date is not recoverable from this table. "
+                 "That is the source at one commit and was not checked against the app versions on "
+                 "the tested images. Reference: Brave, 'BlockedResource.swift', "
+                 "https://github.com/brave/brave-ios/blob/"
+                 "0d693d2d9093dfc975e5c645beedd533c0a4c9e8/Sources/Data/models/"
+                 "BlockedResource.swift#L25-L31. Rows span 2 to 5 "
                  "distinct sites per image. On all four tested images every site named here is "
                  "also named by a tab, a closed tab or a bookmark in the same store, so on this "
                  "data the table corroborates those rather than adding a site of its own. Three "
@@ -180,8 +223,8 @@ __artifacts_v2__ = {
                  "and 16 groups, and one of them carries a contract address; all 17 were marked "
                  "visible, none was marked spam, none was an NFT, and Deletion Flag read No on "
                  "all 17. Those 17 are the native token of each chain plus Brave's own token, "
-                 "which is the one carrying a contract address, so they look like a starting list "
-                 "rather than a set somebody chose. Whether the app writes them when the wallet "
+                 "which is the one carrying a contract address. Whether the app writes them when "
+                 "the wallet "
                  "is first opened or ships with them was not established, so their presence is "
                  "not by itself evidence that a wallet was created or used. Chain ID, Coin and "
                  "Decimals are reported as stored.",

@@ -1,13 +1,19 @@
 __artifacts_v2__ = {
     "bumbleMessages": {
         "name": "Bumble - Messages",
-        "description": "Bumble chat messages",
+        "description": "Bumble chat messages read from the app's Chat.sqlite database",
         "author": "@KevinPagano3",
         "creation_date": "2022-04-16",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Bumble",
-        "notes": "",
+        "notes": "One row per database2 entry that decodes to a plist with a self.dateCreated value "
+                 "and has a row in secondaryIndex_isReadIndex; entries without either are not "
+                 "listed. Only the first Chat.sqlite matched is read. Created Timestamp and "
+                 "Modified Timestamp are the entry's self.dateCreated and self.dateModified values "
+                 "read as Unix seconds and shown in UTC. Message Direction and Message Read come "
+                 "from the isIncoming and isRead columns of that index, shown as Incoming or "
+                 "Outgoing and as Yes or blank. What sets isRead is not established.",
         "paths": ('**/Library/Caches/Chat.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -18,13 +24,17 @@ __artifacts_v2__ = {
     },
     "bumbleAccount": {
         "name": "Bumble - Account Details",
-        "description": "Bumble local user account details (user id/name, app version, last location)",
+        "description": "Bumble local user account details (user id/name, app version, the location stored under the app's lastLocation key)",
         "author": "@KevinPagano3",
         "creation_date": "2022-04-16",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Bumble",
-        "notes": "Last location timestamp is Cocoa/Mac absolute time, converted to UTC.",
+        "notes": "The Timestamp row is the lastLocation key's stored time read as "
+                 "Cocoa/Mac absolute time, cut to whole seconds and converted to UTC. "
+                 "What position the app stores under that key, and when it is refreshed, "
+                 "is not established. Only the first yap-database.sqlite matched is "
+                 "read.",
         "paths": ('**/Documents/yap-database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",

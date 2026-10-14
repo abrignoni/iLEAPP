@@ -9,8 +9,7 @@ __artifacts_v2__ = {
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": (
             "ComputerName and HostName are read from System/System, and Model and __VERSION__ from "
-            "the top level, all as stored. Model equalled the HWModel line of "
-            "remotectl_dumpstate.txt on the five test sysdiagnoses whose dump state had content and "
+            "the top level, all as stored. Model "
             "is pushed to Device Info as Hardware Model, with ComputerName as Device Name and "
             "HostName as Host Name. __VERSION__ was 20191120 on the iOS 14.3 to 26 test "
             "sysdiagnoses and absent from the iOS 13.3.1 one. A copy inside a packed sysdiagnose "
@@ -43,8 +42,8 @@ __artifacts_v2__ = {
         "notes": (
             "One row per NetworkServices entry carrying an Interface dictionary: the service GUID "
             "and the interface's UserDefinedName, Type, Hardware and DeviceName, as stored, sorted "
-            "by source file, device name and GUID. The seven test sysdiagnoses (iOS 13.3.1 to 26) "
-            "held 7 to 13 entries each; the Type and Hardware pairs seen were Ethernet/AirPort, "
+            "by source file, device name and GUID. Row counts per test image are in sample_data; "
+            "the Type and Hardware pairs seen on test data were Ethernet/AirPort, "
             "Ethernet/Ethernet, com.apple.CommCenter/com.apple.CommCenter and VPN with no Hardware."
         ),
         "paths": (

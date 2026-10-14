@@ -37,8 +37,10 @@ Pushing a tag `v` + `leapp_version` (for example `v2.6.0`) runs
 `.github/workflows/release.yml`, which builds every platform and creates a **draft**
 release. It refuses a tag that does not match `leapp_version`, so set the release version
 first, tag that commit, then bump to the next `-dev.0`. It also refuses to publish while
-the repository lacks the `MACOS_*` secrets that sign and notarise the macOS disk images;
-`.claude/rules/ileapp-build-and-release.md` lists them.
+the repository lacks the `MACOS_*` secrets that sign and notarise the macOS disk images.
+Windows is signed by SignPath when `SIGNPATH_API_TOKEN` is set and the signing policy is
+`release-signing`; otherwise a tag builds the Windows downloads unsigned and the run shows
+a warning. `.claude/rules/ileapp-build-and-release.md` lists the secrets and variables.
 
 ## Summary Checklist
 - [ ] Update `scripts/version_info.py`

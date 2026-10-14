@@ -1,8 +1,9 @@
 __artifacts_v2__ = {
     'appleAccountDeviceList': {
         'name': 'Apple Account - Device List',
-        'description': 'Devices cached by the Apple authentication daemon (akd) for the '
-                       'Apple Accounts signed in on this device',
+        'description': 'Rows of the device_list table in the Apple authentication daemon (akd) '
+                       'database, with device name, model, OS, serial number and the stored trust '
+                       'and circle status values',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
@@ -23,14 +24,16 @@ __artifacts_v2__ = {
     'appleAccountDeletedDeviceList': {
         'name': 'Apple Account - Deleted Device List',
         'description': "Rows of the deleted_device_list table in the Apple authentication daemon "
-                       "(akd) database, with deleted date, last updated date and reason as stored",
+                       "(akd) database, with deleted date and last updated date read as Unix "
+                       "seconds and the reason as stored",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Accounts',
-        'notes': ('The reason column is an integer code whose values are not documented, so it '
-                  'is reported as stored.'),
+        'notes': ('The reason column is an integer code whose values are not documented, so it is '
+                  'reported as stored. The table was empty on the recorded image (hc_ios18_7), so '
+                  'the Unix seconds reading of the two dates is not exercised on real data.'),
         'paths': ('*/mobile/Library/Application Support/com.apple.akd/devicelist.db*',),
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-off',

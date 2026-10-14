@@ -19,7 +19,8 @@ __artifacts_v2__ = {
                  "times; read that way they fall in April 2020 and March 2021, which brackets the "
                  "period the image covers, but which of the two is an issue date and which an "
                  "expiry was not established, so neither is labelled. field2, field3 and field35 "
-                 "are reported as stored. One of the 26 registered iOS corpora carries the store, "
+                 "are reported as stored. One of the registered iOS corpora checked carries the "
+                 "store (hickman_ios14), "
                  "with one row.",
         "paths": ('*/Containers/Data/Application/*/Documents/miliao.db*',),
         "output_types": "standard",
@@ -48,8 +49,8 @@ __artifacts_v2__ = {
                  "field10, Unix seconds stored as text, reported in UTC, and both rows fall on "
                  "the same day inside the period the image covers. **Which end placed the call "
                  "was not established**, so no direction is reported and the flag columns are "
-                 "left as stored. The image held two rows, both between the same pair of numbers, "
-                 "of 1 minute 46 seconds and 1 minute 56 seconds.",
+                 "left as stored. The image (hickman_ios14) held two rows, both between the same "
+                 "pair of numbers.",
         "paths": ('*/Containers/Data/Application/*/Documents/miliao.db*',),
         "output_types": "standard",
         "artifact_icon": "phone",
@@ -70,8 +71,10 @@ __artifacts_v2__ = {
                  "column in this database fieldN, so a column's meaning is taken from the values "
                  "it holds rather than from its name, and any column whose meaning the values did "
                  "not settle is reported under the app's own column name and left as stored. "
-                 "**The message bodies are not decoded here.** field4 holds base64 that differs "
-                 "on every row and is reported as stored so an examiner can take it elsewhere; "
+                 "**field4 was not decoded here.** It holds base64 that differs on every row and "
+                 "is reported as stored so an examiner can take it elsewhere. The column headers "
+                 "call field4 a message body and call field4 and field3 encrypted; neither "
+                 "reading is established, because nothing was decoded. "
                  "field3 holds base64 that is constant for each of the two numbers, so it is "
                  "keyed to the number rather than to the message. Number On The Row is field2. "
                  "It alternates between the number in the app's own number table and one other "
@@ -119,7 +122,9 @@ __artifacts_v2__ = {
                  "tested image, so it is reported as the app stored it rather than converted. The "
                  "three days fall inside the period the image covers and two of them are more "
                  "than a fortnight before the day the messages and calls are on, so the table "
-                 "reaches back further than the message table does. The row carries no time of "
+                 "reaches back further than the message table does. The reading of a row as a "
+                 "login day comes from the table's name, loginTimesTable. The row carries no time "
+                 "of "
                  "day and no count, so a row says the app recorded a login on that day and "
                  "nothing more, and a day that is absent is not evidence that no login happened "
                  "on it. field1 (as stored) held the value 1 on all three rows, too few values to "

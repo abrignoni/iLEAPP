@@ -1,20 +1,25 @@
 __artifacts_v2__ = {
 'Ph006_1ViewandPlayDataPhDaPsql': {
 'name': 'Ph006.1-View and Play Data-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets with'
-' view and played data in iOS. If the iOS version is greater than iOS 16.5'
-' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
-' will be included. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZPENDINGVIEWCOUNT,'
+' ZVIEWCOUNT, ZPENDINGPLAYCOUNT or ZPLAYCOUNT is above 0, or (iOS 16 and later) whose'
+' ZLASTVIEWEDDATE is above 0, on iOS 11 through 26. Counts are reported as stored; what increments'
+' them is not established here. On iOS 16 and later a database without the ZLASTVIEWEDDATE column'
+' is skipped and yields no rows. From iOS 16.6 the Last Viewed Date column'
+' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE) is shown. On iOS 16.0 and later versions below 16.6'
+' that field is used to select rows but is not shown. The results contain one row per asset'
+' (ZASSET table, or ZGENERICASSET on iOS 11 to 13).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. Labels marked still'
+' testing are unconfirmed.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "eye",
@@ -37,16 +42,18 @@ __artifacts_v2__ = {
 }
 },
 'Ph006_2ViewandPlayDataSyndPL': {
-'name': 'Ph006.3-View and Play Data-SyndPL',
-'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets with'
-' view and played data in iOS. If the iOS version is greater than iOS 16.5'
-' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
-' will be included. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'name': 'Ph006.2-View and Play Data-SyndPL',
+'description': 'Parses asset rows from Syndication.photoslibrary/database/Photos.sqlite whose view or play'
+' counts are above 0 or (iOS 16 and later) whose ZLASTVIEWEDDATE is above 0. No corpus in'
+" sample_data produced a row, so this artifact's output is unexercised. From iOS 16.6 the Last"
+' Viewed Date column'
+' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE) is shown. On iOS 16.0 and later versions below 16.6'
+' that field is used to select rows but is not shown. The results for this script will contain one'
+' row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '1.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -54,19 +61,23 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "eye"
+"artifact_icon": "eye",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 0 rows',
+}
 },
 'Ph006_3ViewandPlayDataGenPlayPsql': {
 'name': 'Ph006.3-View and Play Data-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets with'
-' view and played data in iOS. If the iOS version is greater than iOS 16.5'
-' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
-' will be included. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets with view and played data in'
+' iOS. Runs on iOS 18 through 26 and shows the Last Viewed Date'
+' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE). The only corpus in sample_data is at 0 rows. The'
+' results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -99,6 +110,9 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -126,10 +140,10 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -153,10 +167,10 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -182,10 +196,10 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -210,10 +224,10 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -239,10 +253,10 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -267,10 +281,10 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -296,11 +310,11 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -325,17 +339,17 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAddAssetAttr- Syndication Identifier-SWY-Files',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) <= version.parse("16.5.1")):
+    elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("16.6")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -355,11 +369,11 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -384,11 +398,11 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAddAssetAttr- Syndication Identifier-SWY-Files',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -415,11 +429,11 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -445,11 +459,11 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         'zAsset-Filename-8',
         'zAddAssetAttr- Original Filename-9',
         'zCldMast- Original Filename-10',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-11',
+        'zCldMast-Import Session ID-11',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-12',
         'zAsset-zPK-13',
         'zAddAssetAttr-zPK-14',
-        'zAsset-UUID = store.cloudphotodb-15',
+        'zAsset-UUID-15',
         'zAddAssetAttr-Master Fingerprint-16')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -481,11 +495,11 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -513,11 +527,11 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
         'zAsset-Filename-9',
         'zAddAssetAttr- Original Filename-10',
         'zCldMast- Original Filename-11',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-12',
+        'zCldMast-Import Session ID-12',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Original Stable Hash-17',
         'zAddAssetAttr.Adjusted Stable Hash-18')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -538,6 +552,9 @@ def Ph006_2ViewandPlayDataSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -565,10 +582,10 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -592,10 +609,10 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
@@ -621,10 +638,10 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -649,10 +666,10 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
@@ -678,10 +695,10 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -706,10 +723,10 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
@@ -735,11 +752,11 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -764,17 +781,17 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAddAssetAttr- Syndication Identifier-SWY-Files',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) <= version.parse("16.5.1")):
+    elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("16.6")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -794,11 +811,11 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -823,11 +840,11 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAddAssetAttr- Syndication Identifier-SWY-Files',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
@@ -854,11 +871,11 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -884,11 +901,11 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         'zAsset-Filename-8',
         'zAddAssetAttr- Original Filename-9',
         'zCldMast- Original Filename-10',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-11',
+        'zCldMast-Import Session ID-11',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-12',
         'zAsset-zPK-13',
         'zAddAssetAttr-zPK-14',
-        'zAsset-UUID = store.cloudphotodb-15',
+        'zAsset-UUID-15',
         'zAddAssetAttr-Master Fingerprint-16')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
@@ -920,11 +937,11 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -952,11 +969,11 @@ def Ph006_2ViewandPlayDataSyndPL(context):
         'zAsset-Filename-9',
         'zAddAssetAttr- Original Filename-10',
         'zCldMast- Original Filename-11',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-12',
+        'zCldMast-Import Session ID-12',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Original Stable Hash-17',
         'zAddAssetAttr.Adjusted Stable Hash-18')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
@@ -977,6 +994,9 @@ def Ph006_3ViewandPlayDataGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -1012,11 +1032,11 @@ def Ph006_3ViewandPlayDataGenPlayPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1044,11 +1064,11 @@ def Ph006_3ViewandPlayDataGenPlayPsql(context):
         'zAsset-Filename-9',
         'zAddAssetAttr- Original Filename-10',
         'zCldMast- Original Filename-11',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-12',
+        'zCldMast-Import Session ID-12',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Original Stable Hash-17',
         'zAddAssetAttr.Adjusted Stable Hash-18')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

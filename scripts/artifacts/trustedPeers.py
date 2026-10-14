@@ -2,7 +2,10 @@
 __artifacts_v2__ = {
     "trusted_peers": {
         "name": "Trusted Peers",
-        "description": "Peer records from TrustedPeersHelper.db",
+        "description": "Rows of the ZESCROWCLIENTMETADATA table of TrustedPeersHelper.db joined "
+                       "to ZESCROWMETADATA, with the device model, name and serial values they "
+                       "store. Identical rows are reported once. What relation a listed device "
+                       "has to the examined device is not established.",
         "author": "Heather Charpentier",
         "creation_date": "2024-12-13",
         "last_update_date": "2026-08-10",

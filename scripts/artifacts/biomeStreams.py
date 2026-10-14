@@ -2,14 +2,15 @@ __artifacts_v2__ = {
     "biomeProactiveMail": {
         "name": "Biome - Proactive Harvesting Mail",
         "description": "Email metadata harvested by the system into the ProactiveHarvesting.Mail biome stream "
-                       "(harvest time, the message date, subject, sender and recipient).",
-        "author": "@AlexisBrignoni, Claude",
+                       "(the SEGB record timestamp, the message date, subject, sender and recipient).",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The message date comes from an embedded CFAbsoluteTime value; the harvest time is the SEGB "
-                 "record timestamp.",
+        "notes": "The message date comes from an embedded CFAbsoluteTime value; the SEGB Record Timestamp "
+                 "column is the SEGB record timestamp, the time the record was written to the "
+                 "stream.",
         "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',),
         "output_types": "standard",
         "artifact_icon": "mail",
@@ -26,11 +27,13 @@ __artifacts_v2__ = {
     },
     "biomeProactiveMessages": {
         "name": "Biome - Proactive Harvesting Messages",
-        "description": "Message content harvested by the system into the ProactiveHarvesting.Messages biome "
-                       "stream (service and handle, message text, sender).",
-        "author": "@AlexisBrignoni, Claude",
+        "description": "Message records from the ProactiveHarvesting.Messages biome stream "
+                       "(service and handle, message text, sender). The SEGB Record Timestamp column is the "
+                       "SEGB record timestamp, the time the record was written to the stream; the "
+                       "message's own date is not reported.",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -51,10 +54,11 @@ __artifacts_v2__ = {
     "biomeMessagesRead": {
         "name": "Biome - Messages Read",
         "description": "Message read events from the Messages.Read biome stream (message identifier and the "
-                       "time it was read).",
-        "author": "@AlexisBrignoni, Claude",
+                       "SEGB record timestamp; "
+                       "that it equals the time the message was read was not tested here).",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
         "notes": "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
@@ -82,7 +86,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The SEGB record timestamp is used; an embedded timestamp field in this stream is unreliable. "
+        "notes": "The SEGB record timestamp is used; the record also holds an embedded timestamp "
+                 "field whose meaning is not established and which is not reported. "
                  "The event code's meaning is not documented; its value is reported as stored.",
         "paths": ('*/[Bb]iome/streams/restricted/ScreenTime.AppUsage/local/*',),
         "output_types": "standard",
@@ -102,10 +107,16 @@ __artifacts_v2__ = {
                        "with their frequency.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Some tokens are stored in a non-text form and appear blank. Reference: Mattia Epifani, "
+        "notes": "Token is the text in subfield 1 of field 1. Where field 1 is stored as bytes or "
+                 "a scalar, the module reads subfield 1 from those bytes when they parse as a "
+                 "submessage holding it, and otherwise reports the stored value as text. Where "
+                 "field 1 is a submessage with no text in subfield 1, the decoded submessage is "
+                 "printed as decoded. What records of the last two kinds hold was not "
+                 "established, and no tested image was checked for them. Reference: Mattia "
+                 "Epifani, "
                  "'84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/[Bb]iome/streams/restricted/Keyboard.TokenFrequency/local/*',),
@@ -206,14 +217,14 @@ def _records(context):
 
 @artifact_processor
 def biomeProactiveMail(context):
-    data_headers = (('Harvest Time', 'datetime'), 'SEGB State', ('Message Date', 'datetime'), 'Subject',
+    data_headers = (('Message Date', 'datetime'), ('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Subject',
                     'Sender', 'Recipient', 'Message ID', 'Filename', 'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
         if message is None:
-            data_list.append((ts, state, '', '', '', '', '', filename, offset))
+            data_list.append(('', ts, state, '', '', '', '', filename, offset))
             continue
-        data_list.append((ts, state, _cf_double_to_utc(message.get('3')), _txt(message.get('11')),
+        data_list.append((_cf_double_to_utc(message.get('3')), ts, state, _txt(message.get('11')),
                           _header(message, 'from'), _header(message, 'to'), _txt(message.get('2')),
                           filename, offset))
     return data_headers, data_list, _source_path(context)
@@ -221,7 +232,7 @@ def biomeProactiveMail(context):
 
 @artifact_processor
 def biomeProactiveMessages(context):
-    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Service and Handle', 'Content', 'Sender',
+    data_headers = (('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Service and Handle', 'Content', 'Sender',
                     'GUID', 'Filename', 'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
@@ -237,7 +248,7 @@ def biomeProactiveMessages(context):
 
 @artifact_processor
 def biomeMessagesRead(context):
-    data_headers = (('Read Timestamp', 'datetime'), 'SEGB State', 'Message ID', 'Filename', 'Offset')
+    data_headers = (('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Message ID', 'Filename', 'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
         message_id = _txt(message.get('1')) if message else ''
@@ -259,6 +270,32 @@ def biomeScreenTimeAppUsage(context):
     return data_headers, data_list, _source_path(context)
 
 
+def _keyboard_token(token_field):
+    """Token text from field 1, keeping what is stored when the expected shape is absent.
+
+    The expected shape is a submessage whose subfield 1 is the token text. The
+    schema-less decoder can leave that submessage as bytes, and a record can
+    store something else in field 1; neither is dropped.
+    """
+    if token_field is None:
+        return ''
+    if isinstance(token_field, bytes):
+        try:
+            inner, _ = blackboxprotobuf.decode_message(token_field)
+        except _DECODE_ERRORS:
+            inner = None
+        if isinstance(inner, dict) and isinstance(inner.get('1'), bytes):
+            return _txt(inner['1'])
+        return _txt(token_field)
+    if isinstance(token_field, dict):
+        if isinstance(token_field.get('1'), (bytes, str)):
+            return _txt(token_field['1'])
+        return str(token_field) if token_field else ''
+    if isinstance(token_field, list):
+        return str(token_field)
+    return _txt(token_field)
+
+
 @artifact_processor
 def biomeKeyboardTokens(context):
     data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Token', 'Frequency', 'Filename', 'Offset')
@@ -267,7 +304,6 @@ def biomeKeyboardTokens(context):
         if message is None:
             data_list.append((ts, state, '', '', filename, offset))
             continue
-        token_field = message.get('1', {})
-        token = _txt(token_field.get('1')) if isinstance(token_field, dict) else ''
-        data_list.append((ts, state, token, _txt(message.get('3')), filename, offset))
+        data_list.append((ts, state, _keyboard_token(message.get('1')), _txt(message.get('3')),
+                          filename, offset))
     return data_headers, data_list, _source_path(context)

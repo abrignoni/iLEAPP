@@ -1,18 +1,28 @@
 __artifacts_v2__ = {
 'Ph003_1TrashedRecentlyDeletedPhDaPsql': {
 'name': 'Ph003.1-Trashed Recently Deleted-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for trashed-recently deleted'
-' assets and supports various iOS versions. The results for this script will contain one row'
-' per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for trashed-recently deleted assets.'
+' The results list assets whose ZTRASHEDSTATE is 1, on iOS 11 through 26. The results contain one'
+' row per asset.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'On iOS 16 and later the SPLzSharePartic columns are read from the ZSHAREPARTICIPANT row whose'
+" Z_PK equals the asset's ZTRASHEDBYPARTICIPANT value. The Core Data model stored in the tested"
+' databases (Z_MODELCACHE on abe_ios16, otto_ios17, dexter_ios18 and falken_ios26) defines'
+' trashedByParticipant as a to-one relationship from Asset to ShareParticipant. The value names a'
+' share participant record. Who operated the device is not recorded. On dexter_ios18'
+' ZTRASHEDBYPARTICIPANT was filled on 2 of 3 rows and both resolved to a participant row. On'
+' abe_ios16 (538 rows), otto_ios17 (2 rows) and iphone12_ios18 (5 rows) it was blank on every row.'
+" Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. Labels marked STILLTESTING'
+' are unconfirmed. The Syndication State labels for values 2, 8 and 10 are interpretations with no'
+' cited source. The store records the state value. It does not record who changed it.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -36,18 +46,28 @@ __artifacts_v2__ = {
 },
 'Ph003_2RemovedfromCameraRollSyndPL': {
 'name': 'Ph003.2-Removed from Camera Roll-SyndPL',
-'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
-' for syndication PL asserts remvoed from camera roll and supports supports various iOS versions.'
-" The results for this script will contain one row per asset."
+'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for'
+' Syndication library assets whose ZSYNDICATIONSTATE is 8 or 10, on iOS 15 through 26. No corpus'
+" in sample_data produced a row, so this artifact's output is unexercised. The results contain one"
+' row per asset.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'On dexter_ios18, iphone12_ios18, hc_ios18_7 and iphone14plus_ios18 the Syndication library held'
+' no asset in state 8 or 10 (34, 2, 0 and 0 assets), so the filter returns no row there. The'
+" Syndication State labels are the module author's interpretation from testing. The module cites"
+' no source for them. The store records the state value. It does not record who changed it. Labels'
+' marked STILLTESTING are unconfirmed. On iOS 16 and later the SPLzSharePartic columns are read'
+" from the ZSHAREPARTICIPANT row whose Z_PK equals the asset's ZTRASHEDBYPARTICIPANT value. The"
+' Core Data model stored in the tested databases (Z_MODELCACHE on abe_ios16, otto_ios17,'
+' dexter_ios18 and falken_ios26) defines trashedByParticipant as a to-one relationship from Asset'
+' to ShareParticipant. The value names a share participant record. Who operated the device is not'
+' recorded.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -68,18 +88,26 @@ __artifacts_v2__ = {
 },
 'Ph003_3TrashedRecentlyDeletedGenPlayPsql': {
 'name': 'Ph003.3-Trashed Recently Deleted-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for trashed-recently deleted'
-' assets and supports various iOS versions. The results for this script will contain one row'
-' per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for trashed-recently deleted assets on'
+' iOS 18 through 26. Lists assets whose ZTRASHEDSTATE is 1. The results contain one row per asset.'
+' The only corpus in sample_data is at 0 rows.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'The SPLzSharePartic columns are read from the ZSHAREPARTICIPANT row whose Z_PK equals the'
+" asset's ZTRASHEDBYPARTICIPANT value. The Core Data model stored in the tested PhotoData"
+' databases (Z_MODELCACHE on abe_ios16, otto_ios17, dexter_ios18 and falken_ios26) defines'
+' trashedByParticipant as a to-one relationship from Asset to ShareParticipant. The value names a'
+' share participant record. Who operated the device is not recorded. Value labels in this report'
+" are the module author's working interpretations from testing. The module cites no source for"
+' them. Each label carries the stored value. Labels marked STILLTESTING are unconfirmed. The'
+' Syndication State labels for values 2, 8 and 10 are interpretations with no cited source. The'
+' store records the state value. It does not record who changed it.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -107,6 +135,9 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -129,10 +160,10 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -152,10 +183,10 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAsset-zPK-7',
         'zAddAssetAttr-zPK-8',
-        'zAsset-UUID = store.cloudphotodb-9',
+        'zAsset-UUID-9',
         'zAddAssetAttr-Master Fingerprint-10')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -180,10 +211,10 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -203,10 +234,10 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAsset-zPK-7',
         'zAddAssetAttr-zPK-8',
-        'zAsset-UUID = store.cloudphotodb-9',
+        'zAsset-UUID-9',
         'zAddAssetAttr-Master Fingerprint-10')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -231,21 +262,21 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',      
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -265,12 +296,12 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
         'zAsset-Syndication State-8',
         'zAsset-zPK-9',
         'zAddAssetAttr-zPK-10',
-        'zAsset-UUID = store.cloudphotodb-11',
+        'zAsset-UUID-11',
         'zAddAssetAttr-Master Fingerprint-12')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -299,30 +330,29 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
             LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
-            LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
-            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
+            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAsset.ZTRASHEDBYPARTICIPANT
         WHERE zAsset.ZTRASHEDSTATE = 1
-        ORDER BY zAsset.ZTRASHEDSTATE, zAsset.rowid, zAddAssetAttr.rowid, zCldMast.rowid, SPLzShare.rowid, zAssetContrib.rowid, SPLzSharePartic.rowid
+        ORDER BY zAsset.ZTRASHEDSTATE, zAsset.rowid, zAddAssetAttr.rowid, zCldMast.rowid, SPLzShare.rowid, SPLzSharePartic.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -340,12 +370,12 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAsset-Syndication State-12',
         'zAsset-zPK-13',
         'zAddAssetAttr-zPK-14',
-        'zAsset-UUID = store.cloudphotodb-15',
+        'zAsset-UUID-15',
         'zAddAssetAttr-Master Fingerprint-16')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -374,29 +404,28 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
             LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
-            LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
-            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
+            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAsset.ZTRASHEDBYPARTICIPANT
         WHERE zAsset.ZTRASHEDSTATE = 1
         ORDER BY zAsset.ZTRASHEDSTATE
         '''
@@ -416,12 +445,12 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAsset-Syndication State-12',
         'zAsset-zPK-13',
         'zAddAssetAttr-zPK-14',
-        'zAsset-UUID = store.cloudphotodb-15',
+        'zAsset-UUID-15',
         'zAddAssetAttr-Original Stable Hash-16',
         'zAddAssetAttr.Adjusted Stable Hash-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -442,6 +471,9 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
@@ -459,18 +491,18 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',               
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
         CASE zAsset.ZTRASHEDSTATE
@@ -480,7 +512,7 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         END AS 'zAsset-Trashed State-LocalAssetRecentlyDeleted',           
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -500,13 +532,13 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
         ('zAsset-Trashed Date-8', 'datetime'),
         'zAsset-Trashed State-LocalAssetRecentlyDeleted-9',
         'zAsset-zPK-10',
         'zAddAssetAttr-zPK-11',
-        'zAsset-UUID = store.cloudphotodb-12',
+        'zAsset-UUID-12',
         'zAddAssetAttr-Master Fingerprint-13')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -526,18 +558,18 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
          CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',            
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
         CASE zAsset.ZTRASHEDSTATE
@@ -551,14 +583,13 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         SPLzSharePartic.ZPHONENUMBER AS 'SPLzSharePartic-Phone Number',            
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
             LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
-            LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
-            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
+            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAsset.ZTRASHEDBYPARTICIPANT
         WHERE zAsset.ZSYNDICATIONSTATE IN (8, 10)
         ORDER BY zAddAssetAttr.ZLASTUPLOADATTEMPTDATE
         '''
@@ -574,7 +605,7 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
         ('zAsset-Trashed Date-8', 'datetime'),
         'zAsset-Trashed State-LocalAssetRecentlyDeleted-9',
@@ -584,7 +615,7 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         'SPLzSharePartic-Phone Number-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Master Fingerprint-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -613,30 +644,29 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
             LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
-            LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
-            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
-        WHERE zAsset.ZTRASHEDSTATE = 1
+            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAsset.ZTRASHEDBYPARTICIPANT
+        WHERE zAsset.ZSYNDICATIONSTATE IN (8, 10)
         ORDER BY zAsset.ZTRASHEDSTATE
         '''
 
@@ -655,12 +685,12 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAsset-Syndication State-12',
         'zAsset-zPK-13',
         'zAddAssetAttr-zPK-14',
-        'zAsset-UUID = store.cloudphotodb-15',
+        'zAsset-UUID-15',
         'zAddAssetAttr-Original Stable Hash-16',
         'zAddAssetAttr.Adjusted Stable Hash-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -681,6 +711,9 @@ def Ph003_3TrashedRecentlyDeletedGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -707,29 +740,28 @@ def Ph003_3TrashedRecentlyDeletedGenPlayPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
             LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
-            LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
-            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
+            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAsset.ZTRASHEDBYPARTICIPANT
         WHERE zAsset.ZTRASHEDSTATE = 1
         ORDER BY zAsset.ZTRASHEDSTATE
         '''
@@ -749,12 +781,12 @@ def Ph003_3TrashedRecentlyDeletedGenPlayPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAsset-Syndication State-12',
         'zAsset-zPK-13',
         'zAddAssetAttr-zPK-14',
-        'zAsset-UUID = store.cloudphotodb-15',
+        'zAsset-UUID-15',
         'zAddAssetAttr-Original Stable Hash-16',
         'zAddAssetAttr.Adjusted Stable Hash-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

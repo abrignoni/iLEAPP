@@ -9,17 +9,27 @@ __artifacts_v2__ = {
     "connected_device_info_device_history": {
         "name": "Connected Device Information - Connected Device and \
 OS History",
-        "description": "Apple devices that wrote to the Health store, from data_provenances "
-                       "joined to objects in healthdb_secure.sqlite, with the first and last "
-                       "sample time for each product type, model, OS build and source id.",
+        "description": "Origin product types and OS builds recorded in the Health store's "
+                       "data provenance rows, from data_provenances "
+                       "joined to objects in healthdb_secure.sqlite, with the earliest and "
+                       "latest objects.creation_date for each product type and OS build. The "
+                       "Source ID column is one source id from that group and is not a "
+                       "grouping key.",
         "author": "@SQLMcGee",
         'creation_date': '2025-01-30',
         'last_update_date': '2025-09-29',
         "requirements": "none",
         "category": "Device Information",
         "notes": "Queries derived from research by Metadata Forensics, LLC; no published "
-                 "reference is cited. Rows give the product type, model, OS build and the first "
-                 "and last sample time per source.",
+                 "reference is cited. Rows give the product type, model, OS build and the "
+                 "earliest and latest object creation time per product type and build. Source "
+                 "ID is one source id from the group and is not a grouping key: on felix_ios17 "
+                 "1 of 13 reported groups held more than one source id, and on iphone11_ios17 7 "
+                 "of 15 did (up to 6), on runs of 3 Oct 2026. Provenances with product type "
+                 "iPhone0,0 or UnknownDevice are left out, as are objects with a creation_date "
+                 "of 0 or less, and a product type and build with a single creation time is not "
+                 "reported. Device Model and OS Version are looked up by this tool from the "
+                 "product type and build and are not stored values.",
         "paths": ('*Health/healthdb_secure.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -44,17 +54,21 @@ OS History",
     "connected_device_info_consolidated_connected_device_history": {
         "name": "Connected Device Information - Consolidated Connected Device \
 History",
-        "description": "The Health store's data_provenances grouped by product type and device "
-                       "model, with the first and last time each device wrote a sample to "
-                       "healthdb_secure.sqlite.",
+        "description": "The Health store's data_provenances grouped by origin product type, "
+                       "with the earliest and latest objects.creation_date recorded for each "
+                       "product type in healthdb_secure.sqlite; devices of the same product "
+                       "type are not told apart.",
         "author": "@SQLMcGee",
         'creation_date': '2025-01-30',
         'last_update_date': '2025-09-29',
         "requirements": "none",
         "category": "Device Information",
         "notes": "Queries derived from research by Metadata Forensics, LLC; no published "
-                 "reference is cited. Rows are grouped by product type and model with the first "
-                 "and last sample time each wrote.",
+                 "reference is cited. Rows are grouped by origin product type, with the "
+                 "earliest and latest objects.creation_date for each. Device Model is looked up "
+                 "by this tool from the product type. Provenances with product type iPhone0,0 "
+                 "or UnknownDevice are left out, as are objects with a creation_date of 1 or "
+                 "less, and devices of the same product type are not told apart.",
         "paths": ('*Health/healthdb_secure.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -78,8 +92,9 @@ History",
     },
     "connected_device_information_current_device_info": {
         "name": "Connected Device Information - Current Device Information",
-        "description": "The device recorded in the device_context table of healthdb.sqlite, with "
-                       "its product type, model, OS version and the row's modified time.",
+        "description": "Rows of the device_context table of healthdb.sqlite, with each row's "
+                       "product type, OS version and modified time, and the device model this "
+                       "tool looks up from the product type.",
         "author": "@SQLMcGee",
         'creation_date': '2025-01-30',
         'last_update_date': '2025-09-29',

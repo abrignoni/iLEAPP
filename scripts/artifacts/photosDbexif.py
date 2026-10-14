@@ -4,36 +4,60 @@ __artifacts_v2__ = {
         "description": "Correlates Photos.sqlite asset records with on-disk file EXIF to surface "
                        "timestamp and coordinate mismatches between the library database, cached EXIF, "
                        "and the media file.",
-        "author": "@abrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Photos",
-        "notes": "Photos only (ZKIND=0 when available). Only assets with a matching on-disk image "
-                 "file and readable EXIF are output. Search patterns cover DCIM and "
-                 "PhotoCloudSharingData image extensions. DB Created and DB Modified are UTC "
-                 "(datetime). File and Cache DateTime columns are local wall time without timezone "
-                 "(strings). DB Modify Lag is the interval from DB Created to DB Modified; its "
-                 "cause is not established. DB "
-                 "Latitude/Longitude of -180 means no location stored. Latitude/Longitude are file "
-                 "EXIF GPS for KML output. File vs DB Delta compares local file EXIF to UTC DB "
-                 "Created; sub-minute skew within 2 seconds is tolerated. Mismatch flags are "
-                 "investigative leads, not conclusions. The -180 latitude/longitude no-location "
-                 "sentinel follows the treatment in Scott Koenig's published Photos.sqlite queries. "
-                 "Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
-                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries",
+        "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
+                 "Scott Koenig's query, "
+                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS15/Previous_Queries/iOS15_LPL_Phsql_Locations.txt#L257-L260) "
+                 "and to file names ending in HEIC, HEIF, JPG, JPEG or PNG. Only assets with a "
+                 "matching on-disk image file and readable EXIF are output. The number of assets "
+                 "skipped for each reason is written to the run log, not to the table. Search "
+                 "patterns cover files in DCIM and PhotoCloudSharingData whose names end in .HEIC, "
+                 ".HEIF, .JPG, .JPEG or .PNG in any ASCII letter case. This extends only extension "
+                 "discovery; directory and basename matching behavior is unchanged. Original contribution "
+                 "credited to @abrignoni. DB Created is ZDATECREATED and DB Modified is "
+                 "ZMODIFICATIONDATE from the asset table, read as seconds from 2001-01-01 and "
+                 "shown in UTC. What event sets each value is not established here; ZADDEDDATE is "
+                 "not read. File DateTime and File DateTimeOriginal are EXIF tags 306 and 36867 "
+                 "from the media file; Cache DateTime is ZEXIFTIMESTAMPSTRING from Photos.sqlite. "
+                 "All three are strings with no time zone recorded and are reported as stored. "
+                 "EXIF offset tags 36880 to 36882 are not read. The comparisons use wall-clock "
+                 "readings and do not establish a zone for any given file. DB Modify Lag is the interval "
+                 "from DB Created to DB Modified; its cause is not established. DB Modify Drift is "
+                 "Yes when DB Modify Lag is more than 5 minutes. DB Latitude and DB Longitude are "
+                 "ZLATITUDE and ZLONGITUDE as stored, including a stored -180; what a stored -180 "
+                 "means is not established here. When the stored latitude is outside -90 to 90 the "
+                 "pair cannot be a position, and Coordinate Mismatch treats it as no database "
+                 "coordinates. Scott Koenig's published queries "
+                 "print a stored latitude or longitude of -180.0 as the text -180.0 and give it no "
+                 "stated meaning (iOS15_LPL_Phsql_Locations.txt lines 148 to 151, "
+                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS15/Previous_Queries/iOS15_LPL_Phsql_Locations.txt#L148-L151). "
+                 "Latitude/Longitude are file EXIF GPS for KML output. File vs DB Delta is the "
+                 "file time minus DB Created, where the file time is DateTimeOriginal when present "
+                 "and DateTime otherwise. File vs DB Mismatch is No when that difference, within 2 "
+                 "seconds, is a multiple of 15 minutes and no more than 14 hours, and Yes "
+                 "otherwise; it does not test whether the difference is the offset of any "
+                 "particular time zone. File vs Cache Mismatch is Yes when the file time and Cache "
+                 "DateTime differ by more than 2 seconds. Coordinate Mismatch is Yes when only one "
+                 "side has coordinates or they differ by more than one part in a million. The lag, "
+                 "delta, drift and time mismatch cells are blank when either of the two times "
+                 "compared is missing or does not parse. Mismatch flags are investigative leads, "
+                 "not conclusions.",
         "paths": (
             '*Media/PhotoData/Photos.sqlite*',
-            '*Media/DCIM/*/*.HEIC',
-            '*Media/DCIM/*/*.HEIF',
-            '*Media/DCIM/*/*.JPG',
-            '*Media/DCIM/*/*.JPEG',
-            '*Media/DCIM/*/*.PNG',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.HEIC',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.HEIF',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.JPG',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.JPEG',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.PNG',
+            '*Media/DCIM/*/*.[Hh][Ee][Ii][Cc]',
+            '*Media/DCIM/*/*.[Hh][Ee][Ii][Ff]',
+            '*Media/DCIM/*/*.[Jj][Pp][Gg]',
+            '*Media/DCIM/*/*.[Jj][Pp][Ee][Gg]',
+            '*Media/DCIM/*/*.[Pp][Nn][Gg]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Hh][Ee][Ii][Cc]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Hh][Ee][Ii][Ff]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Jj][Pp][Gg]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Jj][Pp][Ee][Gg]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Pp][Nn][Gg]',
         ),
         "output_types": "all",
         "artifact_icon": "photo",
@@ -72,7 +96,7 @@ from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, chec
 register_heif_opener()
 
 _EXIF_ERRORS = (OSError, ValueError, KeyError, IndexError, TypeError, AttributeError)
-_NO_LOCATION = -180.0
+_MAX_LATITUDE = 90.0
 _DB_MODIFY_DRIFT_THRESHOLD = timedelta(minutes=5)
 _TIMESTAMP_TOLERANCE = timedelta(seconds=2)
 _MAX_UTC_OFFSET = timedelta(hours=14)
@@ -132,21 +156,18 @@ def isclose(a, b, rel_tol=1e-06, abs_tol=0.0):
 
 
 def _normalize_db_coord(value):
-    """Photos.sqlite uses -180 as a no-location sentinel."""
+    """Return the stored coordinate as a float, or None when it is absent or not a number."""
     if value is None or value == '':
         return None
     try:
-        coord = float(value)
+        return float(value)
     except (TypeError, ValueError):
         return None
-    if abs(coord - _NO_LOCATION) < 1e-6:
-        return None
-    return coord
 
 
 def _format_db_coord(value):
-    coord = _normalize_db_coord(value)
-    return '' if coord is None else coord
+    """Report the coordinate as stored; only SQL NULL becomes a blank cell."""
+    return '' if value is None else value
 
 
 def _parse_exif_datetime(value):
@@ -259,7 +280,10 @@ def _file_vs_db_metrics(file_dt_str, db_created_str):
 def _coordinate_mismatch(db_lat, db_lon, file_lat, file_lon):
     norm_db_lat = _normalize_db_coord(db_lat)
     norm_db_lon = _normalize_db_coord(db_lon)
-    has_db = norm_db_lat is not None and norm_db_lon is not None
+    # A latitude outside -90 to 90 cannot be a position, so such a stored
+    # pair (for example -180, -180) is not compared with the file's GPS.
+    has_db = (norm_db_lat is not None and norm_db_lon is not None
+              and abs(norm_db_lat) <= _MAX_LATITUDE)
     has_file = file_lat != '' and file_lon != ''
     if not has_db and not has_file:
         return 'No'
@@ -368,9 +392,9 @@ def photosDbexif(context):
         'Bundle Creator',
         'DB Modify Lag',
         'DB Modify Drift',
-        'File DateTime (local)',
-        'File DateTimeOriginal (local)',
-        'Cache DateTime (local)',
+        'File DateTime (no zone recorded)',
+        'File DateTimeOriginal (no zone recorded)',
+        'Cache DateTime (no zone recorded)',
         'File vs DB Delta',
         'File vs Cache Delta',
         'File vs Cache Mismatch',
@@ -495,4 +519,7 @@ def photosDbexif(context):
 
         sources.append(context.get_relative_path(file_found))
 
+    order = (0, 1, 8, 9, 10, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))

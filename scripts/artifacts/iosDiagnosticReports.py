@@ -1,15 +1,17 @@
 __artifacts_v2__ = {
     "ips_reports": {
         "name": "iOS Diagnostic Reports - Index",
-        "description": "One row for each .ips diagnostic report in the CrashReporter folders, with the time the "
-                       "report was written, its kind, the process or app it names, and the OS build.",
+        "description": "One row for each .ips diagnostic report in the CrashReporter folders, with the "
+                       "timestamp in the report's metadata, its kind, the process or app it names, and "
+                       "the OS build.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
         "category": "iOS Diagnostic Reports",
         "notes": "Read from the .ips files under Library/Logs/CrashReporter and its Retired "
-                 "subfolder. Every .ips file opens with one line of JSON metadata; the rest of "
+                 "subfolder. A diagnostic report in an .ips file opens with one line of JSON metadata; "
+                 "the rest of "
                  "the file is the report body, which is JSON for some kinds and text for others. "
                  "Reference: Apple, 'Interpreting the JSON format of a crash report', "
                  "https://developer.apple.com/documentation/xcode/interpreting-the-json-format-of-a-crash-report, "
@@ -18,8 +20,8 @@ __artifacts_v2__ = {
                  "as a stackshot, and says other types exist. Report Kind is the file name before "
                  "its date, as stored; the other bug types are reported as stored and are not "
                  "interpreted here. Report Time is the metadata timestamp, which carries a UTC "
-                 "offset, rendered in UTC; OS Version is the metadata os_version, one value per "
-                 "device. Process or App is the metadata name or app_name, and App Version and "
+                 "offset, rendered in UTC; OS Version is the metadata os_version. Process or App is "
+                 "the metadata name or app_name, and App Version and "
                  "Build Version are the metadata app_version and build_version, present only on "
                  "reports whose metadata names an app or process; for the app-usage and "
                  "notification-setting kinds, whose metadata carries no name, Bundle ID is filled "
@@ -65,7 +67,9 @@ __artifacts_v2__ = {
     },
     "ips_app_crashes": {
         "name": "iOS Diagnostic Reports - App and Process Crashes",
-        "description": "Crash reports for apps and system processes, with the crash time, the process launch "
+        "description": "Reports of bug type 309 or 109 (crash reports, including those marked "
+                       "simulated or non-fatal) for apps and system processes, with the crash time, "
+                       "the process launch "
                        "time, the process and bundle, its role, the exception and the termination reason.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
@@ -132,8 +136,9 @@ __artifacts_v2__ = {
     },
     "ips_app_usage": {
         "name": "iOS Diagnostic Reports - App Usage Ranges",
-        "description": "App install, launch and crash counts and foreground duration per app over "
-                       "a time range, from the xp_amp_app_usage_dnu diagnostic reports.",
+        "description": "Per-app entries with an event type (installs, launches or crashes on the "
+                       "tested images), a count, a foregroundDuration value and a time range, as "
+                       "stored, from the xp_amp_app_usage_dnu diagnostic reports.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
@@ -143,16 +148,18 @@ __artifacts_v2__ = {
                  "xp_amp_app_usage_dnu on the tested images. The body is a JSON array; each entry "
                  "carries bundleId, eventType, count, rangeStartTime and rangeEndTime in Unix "
                  "seconds, eventTime in Unix milliseconds, foregroundDuration, shortAppVersion, "
-                 "storefront and cohort. Apple does not document this report, so the columns "
-                 "carry the entry's own key names and values as stored: Count is the count for "
-                 "the Event Type over the range, and Foreground Duration is the "
+                 "storefront and cohort. No Apple documentation of this report was found, so the "
+                 "columns "
+                 "carry the entry's own key names and values as stored: Count is the entry's "
+                 "count value, and Foreground Duration is the "
                  "foregroundDuration number with no unit stated. Reporting App is the entry's app "
                  "value, which on every tested entry was com.apple.appstored. Cohort is the "
                  "entry's cohort string as stored. Event Type was installs, launches or crashes "
                  "on "
                  "the tested images (1,589, 144 and 2 of the 1,735 entries on four images). A row "
-                 "records that the report counted Count events of that type for the app in the "
-                 "range; the range spanned twelve hours on 1,646 entries, four hours on 88 and 21 "
+                 "carries the entry's eventType, count and range values as stored; what the "
+                 "report counted is not documented. The range spanned twelve hours on 1,646 "
+                 "entries, four hours on 88 and 21 "
                  "hours on one.",
         "paths": ('*/Library/Logs/CrashReporter/*.ips',),
         "output_types": "standard",
@@ -199,9 +206,11 @@ __artifacts_v2__ = {
                  "Duration are the Command, PID, Event, Action taken and Duration lines as "
                  "stored; Detail is the line describing the limit that was exceeded (Wakeups, CPU "
                  "or Writes); Hardware Model and OS Version are the Hardware model and OS Version "
-                 "lines, one value per device. Apple does not publish the layout of these "
-                 "reports; the labels are read as they appear. A row records that the process was "
-                 "running between Start and End.",
+                 "lines. No Apple documentation of the layout of these "
+                 "reports was found; the labels are read as they appear. A row carries the "
+                 "report's "
+                 "Date/Time and End time lines for the named process; what the window measures is "
+                 "not documented.",
         "paths": ('*/Library/Logs/CrashReporter/*.ips',),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -246,15 +255,21 @@ __artifacts_v2__ = {
                  "device on the tested images except one that carries two. The jetsam report is "
                  "documented by Apple in 'Identifying high-memory use with jetsam event reports' "
                  "(https://developer.apple.com/documentation/xcode/identifying-high-memory-use-with-jetsam-event-reports): "
-                 "largestProcess names the process using the most memory pages, only the "
-                 "jettisoned process carries a reason, and the documented reasons are "
+                 "largestProcess names the process using the most memory pages, and only the "
+                 "jettisoned process carries a reason; where a report marks more than one process, "
+                 "Reason and Jettisoned Process here are those of the first one listed and the "
+                 "Processes in Jetsam Snapshots artifact shows them all; the documented reasons "
+                 "are "
                  "per-process-limit, vm-pageshortage, vnode-limit, highwater, fc-thrashing and "
                  "jettisoned; the tested images also carried sustained-memory-pressure, "
                  "vm-compressor-space-shortage, vm-compressor-thrashing and (unknown-kill), "
                  "reported as stored; Page Size is memoryStatus.pageSize. Frontmost Processes "
                  "lists the jetsam processes whose states include frontmost, or the stackshot "
                  "processes whose pids are in frontmostPids. The stackshot reason and its process "
-                 "list (processByPid) are read as stored; Apple's page names 288 as a stackshot "
+                 "list (processByPid) are read as stored; Apple's 'Interpreting the JSON format of a "
+                 "crash report' "
+                 "(https://developer.apple.com/documentation/xcode/interpreting-the-json-format-of-a-crash-report) "
+                 "names 288 as a stackshot "
                  "and documents nothing more of it. Time is the report's date value, which "
                  "carries a UTC offset, rendered in UTC. Processes Listed is the number of "
                  "process entries in the report. A row records the processes the system saw at "
@@ -300,8 +315,9 @@ __artifacts_v2__ = {
         "notes": "Read from the processes array of each bug_type 298 JetsamEvent report. "
                  "Reference: Apple, 'Identifying high-memory use with jetsam event reports', "
                  "https://developer.apple.com/documentation/xcode/identifying-high-memory-use-with-jetsam-event-reports, "
-                 "which documents name, pid, states (such as frontmost or suspended), rpages, "
-                 "lifetimeMax, coalition, uuid and reason. Entries whose states include daemon "
+                 "which documents name, states (such as frontmost or suspended), rpages, lifetimeMax, "
+                 "coalition, uuid and reason; pid is read as stored and is not on that page. Entries "
+                 "whose states include daemon "
                  "are left out; the count left "
                  "out is written to the log (54,599 of 66,290 entries across the tested images, "
                  "leaving 11,691 rows, 551 of them frontmost). States are joined as stored; "
@@ -311,8 +327,8 @@ __artifacts_v2__ = {
                  "blank on the rest; one report on the tested images marks eleven processes. Age "
                  "is the entry's age value as stored, with no unit stated. Snapshot Time is the "
                  "report's date, rendered in UTC. A row records that the process existed at "
-                 "Snapshot Time in the state shown; suspended and idle processes were resident "
-                 "but not necessarily in use.",
+                 "Snapshot Time in the state shown. Apple describes the suspended state as not "
+                 "actively using memory; the other state names are reported as stored.",
         "paths": ('*/Library/Logs/CrashReporter/*.ips',),
         "output_types": "standard",
         "artifact_icon": "layers",

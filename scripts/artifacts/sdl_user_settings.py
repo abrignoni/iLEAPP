@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": (
             "One row per restrictedBool entry, value as stored (True, False, or empty when unset). "
-            "The file is MCState's record of restriction values, and a copy inside a sysdiagnose is "
+            "The file sits under MCState/Shared and holds restrictedBool and restrictedValue "
+            "dictionaries, and a copy inside a sysdiagnose is "
             "the file as it stood when the sysdiagnose was taken. The seven test sysdiagnoses (iOS "
             "13.3.1 to 26) held 176 to 272 entries each; the MCState/User copy held an empty "
             "dictionary on all seven and is not read."
@@ -44,7 +45,8 @@ __artifacts_v2__ = {
             "filled for two keys only. Scott Koenig's tests tied restrictedValue/maxInactivity in "
             "PublicEffectiveUserSettings.plist to the Display Auto-Lock choice in seconds, "
             "2147483647 for Never, and maxGracePeriod to the Require Passcode choice, 0 for "
-            "Immediately, on iOS 12.4.8 to 16.0 (Reference: Scott Koenig, 'iOS Settings Display "
+            "Immediately, on iOS 14.4.2, with 12.4.8 and 13.5.1 also checked (Reference: Scott "
+            "Koenig, 'iOS Settings Display "
             "Auto-Lock & Require Passcode', DFIR Review, https://dfir.pubpub.org/pub/khnqi0ff); "
             "other values are shown as a duration. That paper read the live file. On the one full "
             "file system test image holding both, the live PublicEffectiveUserSettings.plist, "
@@ -52,8 +54,8 @@ __artifacts_v2__ = {
             "same maxInactivity value, and the two packed sysdiagnoses carried the value from their "
             "own capture dates (60 in December 2022 and February 2023 against 2147483647 at the "
             "July 2023 extraction), so a sysdiagnose copy shows the setting as it stood when the "
-            "sysdiagnose was taken. Values seen on the seven test sysdiagnoses: maxInactivity 60, "
-            "300 and 2147483647; maxGracePeriod 0 on all seven."
+            "sysdiagnose was taken. Values seen on test data: maxInactivity 60, 300 and 2147483647; "
+            "maxGracePeriod 0."
         ),
         "paths": (
             '*/MCState/Shared/UserSettings.plist',

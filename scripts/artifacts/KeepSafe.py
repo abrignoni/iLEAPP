@@ -2,29 +2,34 @@ __artifacts_v2__ = {
     "keepsafe_vault_items": {
         "name": "KeepSafe - Vault Items",
         "description": (
-            "Media items recorded in the write-ahead logs of KeepSafe's RocksDB store "
-            "(Documents/rdb), matched to the encrypted file each item's id names under "
-            "Documents/<table>/, with the item's name, timestamps, album, GPS and "
-            "SHA-1/dimensions as recorded in the log entry; "
-            "items held only in the .sst tables are not read."
+            "KeepSafe item files and resolved item records in the write-ahead logs under "
+            "Documents/rdb and Documents/rdb_backups/<timestamp>. Files are matched by item id "
+            "to decoded records. Log-only items are retained with a blank Source File. "
+            "Numbered fields are reported under this module's labels; their meanings are not "
+            "established by KeepSafe source. Records held only in .sst tables are not read."
         ),
-        "author": "@Gear-I, Claude",
+        "author": "@Gear-I, Claude, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-23",
-        "last_update_date": "2026-08-23",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
-            "RocksDB *.sst tables are not read (see module docstring); only what is still in the "
-            "write-ahead log(s) is reported, so a count here is a floor, not a ceiling, on what "
-            "the vault has ever held. 'breakin_alert' and 'fake' were empty directories with no "
-            "live records in the validation image, so their field mapping is unexercised - see "
-            "module docstring for the tier of each claim. On the iOS 17.3 image each table is "
-            "sharded into two-letter folders (primary/<xx>/<item-id>_100); the folder "
-            "entries the file search returns beside the files, and the rdb_backups/<timestamp> "
-            "folder itself, are skipped. The KeepSafe version recorded in sample_data is the "
-            "app's own initialVersionInstalled preference, the version first installed rather "
-            "than the one running at acquisition. On the iOS 17.5.1 image the container held the "
-            "rdb stores and no table directory, so no item is reported there."
+            "RocksDB *.sst tables are not read. A row is produced for each item file, with "
+            "its matching resolved WAL fields when present; an item found only in the resolved "
+            "WAL state also produces a row, with no linked item file. This is not a complete "
+            "count of what the vault holds or has held. 'breakin_alert' and "
+            "'fake' were empty directories with no live records on hickman_ios14, so their field "
+            "mapping is unexercised. The column labels (Original Filename, Album, GPS Latitude and Longitude, "
+            "SHA-1, Dimensions and the rest) "
+            "were assigned by this module to numbered keys of the log values; no KeepSafe source "
+            "for them is cited, and how each was identified and on which image is not recorded "
+            "here. Keys 21 and 22 are retained as stored text without assigning a unit or epoch. On the iOS 17.3 image each table is sharded "
+            "into two-letter folders (primary/<xx>/<item-id>_100); the folder entries the file "
+            "search returns beside the files, and the rdb_backups/<timestamp> folder itself, are "
+            "skipped. The KeepSafe version recorded in sample_data is the app's own "
+            "initialVersionInstalled preference, the version first installed rather than the one "
+            "running at acquisition. On the iOS 17.5.1 image the container held the rdb stores "
+            "and no table directory, so no item is reported there."
         ),
         "paths": (
             "*/mobile/Containers/Data/Application/*/Documents/rdb/*",
@@ -55,15 +60,16 @@ __artifacts_v2__ = {
     "keepsafe_albums": {
         "name": "KeepSafe - Albums",
         "description": (
-            "Albums (KeepSafe calls them folders) decoded from the NSKeyedArchiver "
-            "'shared-folders' value in the AppGroup's group.com.keepsafe.KeepSafe.plist."
+            "Albums decoded from the NSKeyedArchiver 'shared-folders' value in the AppGroup's "
+            "group.com.keepsafe.KeepSafe.plist."
         ),
         "author": "@Gear-I, Claude",
         "creation_date": "2026-08-23",
         "last_update_date": "2026-08-23",
         "requirements": "none",
         "category": "KeepSafe",
-        "notes": "Cover Image Bytes is the size of the embedded cover thumbnail, not exported here.",
+        "notes": "Cover Image Bytes is the length of the album's cover_data value. The bytes are "
+                 "not exported here and their format was not checked.",
         "paths": (
             "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.keepsafe.KeepSafe.plist",
         ),
@@ -79,21 +85,25 @@ __artifacts_v2__ = {
     "keepsafe_account_security": {
         "name": "KeepSafe - Account & PIN Security",
         "description": (
-            "App-level account, install and PIN-security state from "
-            "com.keepsafe.KeepSafe.plist (app container) and "
-            "group.com.keepsafe.KeepSafe.plist (AppGroup, keyed by tracking id)."
+            "Account, install and security fields from app-container and AppGroup preferences. "
+            "Exactly one matching app plist and one matching group plist are combined into one row; "
+            "other nonempty combinations produce separate unpaired rows. "
+            "The group plist own tid selects its invalid-count and timeout keys."
         ),
-        "author": "@Gear-I, Claude",
+        "author": "@Gear-I, Claude, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-23",
-        "last_update_date": "2026-08-23",
+        "last_update_date": "2026-10-08",
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
-            "The PIN and invalid-PIN-count/timeout keys in group.com.keepsafe.KeepSafe.plist "
-            "are stored under a '<tracking-id>.' prefix; this module reads shared-pin/"
-            "shared-pin-type directly and the two '<tid>.'-prefixed keys by pattern match "
-            "since the tracking id varies per install. In the image tested the PIN was "
-            "stored in plain text, not hashed - report it exactly as stored, whatever the value."
+            "In group.com.keepsafe.KeepSafe.plist the shared-pin and shared-pin-type values are "
+            "read directly. The invalid-PIN count and the timeout are read from "
+            "<tid>.consecutiveInvalidPinCount and <tid>.pinTimeoutTimeRemaining, where <tid> is "
+            "the value of the plist's own tid key; when the plist has no tid those two columns "
+            "are blank. The app plist and the group plist are reported in one row only when "
+            "exactly one of each is found; otherwise each plist is reported in its own row and no "
+            "pairing is made. The shared-pin value is reported as stored. Whether it is the PIN "
+            "itself or a value derived from it is not established here."
         ),
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Preferences/com.keepsafe.KeepSafe.plist",
@@ -123,7 +133,7 @@ from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, logfun
 
 # ---------------------------------------------------------------------------
 # Minimal MessagePack decoder (nil/bool/int/float/str/array/map only).
-# See module docstring for why this is hand-rolled rather than a dependency.
+# This decoder supports only the MessagePack tags listed below.
 # ---------------------------------------------------------------------------
 
 class _MsgpackError(ValueError):
@@ -365,7 +375,7 @@ def _resolve_album_names(files_found):
 _VAULT_TABLES = ("primary", "breakin_alert", "fake")
 
 # The encrypted content file for an item is named "<item-id>:100" on disk (matching
-# the ":100" RocksDB record suffix documented above). ":" is the classic Mac OS path
+# the ":100" RocksDB record suffix used for the item metadata). ":" is the classic Mac OS path
 # separator, and several real-world extraction paths -- confirmed against a real
 # device extraction, not just the raw tar used to build/validate this module --
 # sanitize it to "_" when the file is written back out to a modern filesystem, so the
@@ -422,7 +432,16 @@ def keepsafe_vault_items(context):
     data_list = []
     source_files = set()
 
-    for table, item_id, enc_path in _item_files(files_found):
+    items = list(_item_files(files_found))
+    file_ids = {(table, item_id) for table, item_id, _path in items}
+    log_ids = set()
+    for key in state:
+        match = re.fullmatch(r'tb#(primary|breakin_alert|fake)##k~\|([^:]+)(?::100)?', key)
+        if match:
+            log_ids.add(match.groups())
+    items.extend((table, item_id, '') for table, item_id in sorted(log_ids - file_ids))
+
+    for table, item_id, enc_path in items:
         base_key = f"tb#{table}##k~|{item_id}"
         exif_key = f"tb#{table}##k~|{item_id}:100"
 
@@ -465,7 +484,8 @@ def keepsafe_vault_items(context):
         except OSError:
             on_disk_bytes = ""
 
-        source_files.add(enc_path)
+        if enc_path:
+            source_files.add(enc_path)
         for extra_src in (base_src, exif_src):
             if extra_src:
                 source_files.add(extra_src)
@@ -475,8 +495,8 @@ def keepsafe_vault_items(context):
             original_name,
             table,
             album_name or album_id,
-            convert_unix_ts_to_utc(content_ts) if content_ts else "",
-            convert_unix_ts_to_utc(added_ts) if added_ts else "",
+            str(content_ts) if content_ts is not None else "",
+            str(added_ts) if added_ts is not None else "",
             mime_type,
             dims,
             dominant_color,
@@ -489,7 +509,7 @@ def keepsafe_vault_items(context):
             photos_asset_id,
             account_id,
             "Yes" if base_deleted else "No",
-            context.get_relative_path(enc_path),
+            context.get_relative_path(enc_path) if enc_path else "",
         ))
 
     data_headers = (
@@ -497,8 +517,8 @@ def keepsafe_vault_items(context):
         "Original Filename",
         "Vault Table",
         "Album",
-        ("Content Date", "datetime"),
-        ("Date Added to Vault", "datetime"),
+        "Key 21 (as stored)",
+        "Key 22 (as stored)",
         "MIME Type",
         "Dimensions (WxH)",
         "Dominant Color (as recorded)",
@@ -514,6 +534,9 @@ def keepsafe_vault_items(context):
         "Source File",
     )
 
+    order = (4, 5, 0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, "\n".join(sorted(source_files))
 
 
@@ -655,7 +678,7 @@ def keepsafe_account_security(context):
 
     data_headers = (
         "Account Tracking ID",
-        "PIN (as stored)",
+        "shared-pin (as stored)",
         "PIN Type (as stored)",
         "Consecutive Invalid PIN Count",
         "PIN Timeout Remaining (seconds)",
@@ -670,4 +693,7 @@ def keepsafe_account_security(context):
         "Source File (Group Prefs)",
     )
 
+    order = (7, 8, 0, 1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, "\n".join(sorted(source_files))

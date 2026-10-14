@@ -1,15 +1,25 @@
 __artifacts_v2__ = {
 'Ph096_1iOS16RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph096.1-iOS16_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses asset data from PhotoData-Photos.sqlite, joined to the resource, album, face,"
+" comment, share and other related tables. One asset can appear on several rows, one"
+" for each combination of related records, so the row count is not a count of assets."
+" The query runs only when the extraction reports iOS 16. On another version the query"
+" is not run, which says nothing about the database. Reads the first matching file"
+" named Photos.sqlite. Date columns are converted in the query from seconds since"
+" 2001-01-01 UTC, except the three zCldRes date columns and zUserFeedback-Last"
+" Modified Date, which the query selects as stored. Column and value labels come from"
+" research by Scott Koenig (reference at the end of this description). Labels"
+" containing 'StillTesting' or 'Still-Testing', in any letter case, mark fields or"
+" values the researcher was still testing; their meaning is not established. A label"
+" that names a person's action (for example 'User_Deleted') is the researcher's"
+" reading of a stored integer, shown with that integer, and is not by itself proof of"
+" who did what. The output has 1,083 columns. The TSV export can be opened in a"
+" spreadsheet or timeline viewer to search and filter it. Reference: Scott Koenig,"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -38,15 +48,26 @@ __artifacts_v2__ = {
 },
 'Ph096_2iOS16RefforAssetAnalysisSyndPL': {
 'name': 'Ph096.2-iOS16_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses asset data from Syndication.photoslibrary-database-Photos.sqlite, joined to"
+" the resource, album, face, comment, share and other related tables. One asset can"
+" appear on several rows, one for each combination of related records, so the row"
+" count is not a count of assets. The query runs only when the extraction reports iOS"
+" 16. On another version the query is not run, which says nothing about the database."
+" Reads the first matching file named Photos.sqlite. Date columns are converted in the"
+" query from seconds since 2001-01-01 UTC, except the three zCldRes date columns and"
+" zUserFeedback-Last Modified Date, which the query selects as stored. Column and"
+" value labels come from research by Scott Koenig (reference at the end of this"
+" description). Labels containing 'StillTesting' or 'Still-Testing', in any letter"
+" case, mark fields or values the researcher was still testing; their meaning is not"
+" established. A label that names a person's action (for example 'User_Deleted') is"
+" the researcher's reading of a stored integer, shown with that integer, and is not by"
+" itself proof of who did what. The output has 1,083 columns. The TSV export can be"
+" opened in a spreadsheet or timeline viewer to search and filter it. Reference: Scott"
+" Koenig,"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
@@ -90,6 +111,9 @@ def Ph096_1iOS16RefforAssetAnalysisPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("17")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -664,7 +688,7 @@ def Ph096_1iOS16RefforAssetAnalysisPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -3922,6 +3946,9 @@ def Ph096_1iOS16RefforAssetAnalysisPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph096_2iOS16RefforAssetAnalysisSyndPL(context):
     files_found = context.get_files_found()
@@ -3936,6 +3963,9 @@ def Ph096_2iOS16RefforAssetAnalysisSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("17")):
         logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path
@@ -4510,7 +4540,7 @@ def Ph096_2iOS16RefforAssetAnalysisSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -7767,3 +7797,6 @@ def Ph096_2iOS16RefforAssetAnalysisSyndPL(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
+    return (), [], source_path

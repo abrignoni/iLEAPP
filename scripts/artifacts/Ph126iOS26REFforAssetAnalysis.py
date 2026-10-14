@@ -1,17 +1,22 @@
 __artifacts_v2__ = {
 'Ph126_1iOS26RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph126.1-iOS26_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.',
+'description': 'Parses asset records from PhotoData/Photos.sqlite on iOS 26. Returns no rows on other iOS'
+' versions. A row is one result of a query that joins each asset to its internal resources, albums,'
+' cloud resources, detected faces, comments, share participants, memories and suggestions, so one'
+' asset can fill more than one row; the row count is not the asset count. The column names and value'
+' labels come from the module author, Scott Koenig. Reference: Scott Koenig, "iLEAPP Parsers &'
+' Photos.sqlite Queries",'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. That page lists'
+' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
+' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
+' in a spreadsheet or timeline viewer to search and filter it.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '1.0',
 'date': '2026-05-25',
-'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
@@ -20,17 +25,23 @@ __artifacts_v2__ = {
 },
 'Ph126_2iOS26RefforAssetAnalysisSyndPL': {
 'name': 'Ph126.2-iOS26_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.',
+'description': 'Parses asset records from the Photos.sqlite of the Syndication.photoslibrary library'
+' (Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite) on iOS 26. Returns no'
+' rows on other iOS versions. A row is one result of a query that joins each asset to its internal'
+' resources, albums, cloud resources, detected faces, comments, share participants, memories and'
+' suggestions, so one asset can fill more than one row; the row count is not the asset count. The'
+' column names and value labels come from the module author, Scott Koenig. Reference: Scott Koenig,'
+' "iLEAPP Parsers & Photos.sqlite Queries",'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. That page lists'
+' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
+' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
+' in a spreadsheet or timeline viewer to search and filter it.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '1.0',
 'date': '2026-05-25',
-'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
+'requirements': 'Acquisition that contains Syndication.photoslibrary/database/Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
@@ -39,17 +50,23 @@ __artifacts_v2__ = {
 },
 'Ph126_3iOS26RefforAssetAnalysisGenPlayPsql': {
 'name': 'Ph126.3-iOS26_Ref_for_Asset_Analysis-GenPlayPsql',
-'description': 'Parses asset records from GenPlay-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.',
+'description': 'Parses asset records from the Photos.sqlite of the com.apple.GenerativePlayground photo library'
+' (Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite)'
+' on iOS 26. Returns no rows on other iOS versions. A row is one result of a query that joins each'
+' asset to its internal resources, albums, cloud resources, detected faces, comments, share'
+' participants, memories and suggestions, so one asset can fill more than one row; the row count is'
+' not the asset count. The column names and value labels come from the module author, Scott Koenig.'
+' Reference: Scott Koenig, "iLEAPP Parsers & Photos.sqlite Queries",'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. That page lists'
+' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
+' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
+' in a spreadsheet or timeline viewer to search and filter it.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '1.0',
 'date': '2026-05-25',
-'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
+'requirements': 'Acquisition that contains the com.apple.GenerativePlayground photoslibrary database/Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
@@ -76,8 +93,11 @@ def Ph126_1iOS26RefforAssetAnalysisPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("27")):
-        logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found, "Photos.sqlite")
@@ -664,7 +684,7 @@ def Ph126_1iOS26RefforAssetAnalysisPhDaPsql(context):
             WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
             WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
             WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-            WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+            WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
             ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
           END AS 'zIntResou-Recipe ID',
           CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -4362,6 +4382,9 @@ def Ph126_1iOS26RefforAssetAnalysisPhDaPsql(context):
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for PhotoData/Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path
 
 @artifact_processor
 def Ph126_2iOS26RefforAssetAnalysisSyndPL(context):
@@ -4376,8 +4399,11 @@ def Ph126_2iOS26RefforAssetAnalysisSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("27")):
-        logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
+        logfunc("Unsupported version for Syndication.photoslibrary/database/Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found, "Photos.sqlite")
@@ -4964,7 +4990,7 @@ def Ph126_2iOS26RefforAssetAnalysisSyndPL(context):
             WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
             WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
             WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-            WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+            WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
             ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
           END AS 'zIntResou-Recipe ID',
           CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -8662,6 +8688,9 @@ def Ph126_2iOS26RefforAssetAnalysisSyndPL(context):
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for Syndication.photoslibrary/database/Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path
 
 @artifact_processor
 def Ph126_3iOS26RefforAssetAnalysisGenPlayPsql(context):
@@ -8677,8 +8706,11 @@ def Ph126_3iOS26RefforAssetAnalysisGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("27")):
-        logfunc("Unsupported version for GenPlay-Photos.sqlite for iOS " + iosversion)
+        logfunc("Unsupported version for the com.apple.GenerativePlayground Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found, "Photos.sqlite")
@@ -9265,7 +9297,7 @@ def Ph126_3iOS26RefforAssetAnalysisGenPlayPsql(context):
             WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
             WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
             WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-            WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+            WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
             ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
           END AS 'zIntResou-Recipe ID',
           CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -12963,3 +12995,6 @@ def Ph126_3iOS26RefforAssetAnalysisGenPlayPsql(context):
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for the com.apple.GenerativePlayground Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path

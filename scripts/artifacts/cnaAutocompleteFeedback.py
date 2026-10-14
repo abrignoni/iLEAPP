@@ -2,10 +2,10 @@ __artifacts_v2__ = {
     "get_cnaAutocompleteFeedback": {
         "name": "Biome - Contact Autocomplete Feedback (CNA)",
         "description": "Parses contact autocomplete feedback records (stream _PSCNAutocompleteFeedback) from the "
-                       "SEGB stream files at CoreDuet/People/Feedback/CNA. Each record is a feedback event from the "
-                       "recipient autocomplete facility and can include "
-                       "suggested contact names, handles (phone numbers), conversation identifiers, and the stated "
-                       "suggestion reason.",
+                       "SEGB stream files at CoreDuet/People/Feedback/CNA. A record can carry suggested "
+                       "contact names, handles with their handle type, conversation identifiers and a "
+                       "suggestion reason, each reported as stored. A record with several suggested "
+                       "recipients is reported as one row per recipient.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-30",
         "last_update_date": "2026-08-20",
@@ -14,10 +14,11 @@ __artifacts_v2__ = {
         "notes": "Biome-format SEGB stream stored outside the Biome folder; location reported by Mattia Epifani. "
                  "A suggested contact in this stream reflects the system offering a suggestion; it does not by "
                  "itself establish that the user selected the suggestion or communicated with that contact. "
-                 "Feedback Type labels are derived from which payload field is populated for each observed type "
-                 "value; type values not observed in test data are reported as numbers. The stream metadata "
-                 "declares a 28-day maximum age, but records in test images persisted for many months beyond "
-                 "that.",
+                 "Feedback Type labels are this module's own (0 Entered, 1 Exited, 2 Suggestions Vended, 4 "
+                 "Typed Handle, 5 Erased Handle), assigned from which payload field was populated for each "
+                 "type value seen in test data; other values are reported as numbers. A deleted SEGB entry "
+                 "is reported as a row with its SEGB timestamp and no payload. A written entry whose payload "
+                 "does not decode to a dictionary is skipped.",
         "paths": ('*/mobile/Library/CoreDuet/People/Feedback/CNA/local/*',),
         "output_types": "standard",
         "artifact_icon": "address-book",

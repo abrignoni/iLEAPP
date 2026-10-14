@@ -14,7 +14,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row from the lastUserJSON value of group.net.box.BoxNet.plist, which the "
+                 "cited research describes as the last user signed in to the app. Reference: Django "
+                 "Faiola, 'Deep-Dive Forense in Box per iOS', "
+                 "https://djangofaiola.blogspot.com/2026/03/deepdive-forense-in-box-per-ios.html",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/"
                   "group.net.box.BoxNet.plist"),
         "output_types": [ "standard" ],
@@ -28,7 +31,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per item of the items table of Item.db that can be reached from a top "
+                 "level item through parentID; an item whose parent row is missing is not listed. "
+                 "Is Offline is set by this module, not stored: Yes when the item id is in "
+                 "itemIDs.plist or lastDownloadDates.plist, Yes (cache only) when a search of the "
+                 "extraction for the item's SHA1 returns a match, No when neither holds, and "
+                 "Undetermined when neither plist yields an entry. A No is the absence of those "
+                 "records, not a stored value. Download At is read from lastDownloadDates.plist. "
+                 "Reference: Django Faiola, 'Deep-Dive Forense in Box per iOS', "
+                 "https://djangofaiola.blogspot.com/2026/03/deepdive-forense-in-box-per-ios.html",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/"
                   "itemIDs.plist",
@@ -46,7 +57,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Box",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per representation entry of each previewItems row in PreviewItem.db that "
+                 "carries a file id, name, representation type, dimensions and SHA1; entries "
+                 "missing any of those are not listed. Last Accessed At is lastAccessedDate read as "
+                 "Unix seconds in UTC. One PreviewItem.db is read; where the extraction holds one "
+                 "per user id, the others are not reported. User ID is taken from the folder name "
+                 "above the database's db folder. Reference: Django Faiola, 'Deep-Dive Forense in "
+                 "Box per iOS', "
+                 "https://djangofaiola.blogspot.com/2026/03/deepdive-forense-in-box-per-ios.html",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/db/"
                   "PreviewItem.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/cache/"
@@ -62,7 +80,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per row of the recents table of Recents.db. Interaction Timestamp is "
+                 "interactionTimeStamp read as Unix seconds in UTC and Interaction Type is reported "
+                 "as stored. Name, Extension and File/Folder Size come from the matching item in "
+                 "Item.db and are blank when that item is not there. Reference: Django Faiola, "
+                 "'Deep-Dive Forense in Box per iOS', "
+                 "https://djangofaiola.blogspot.com/2026/03/deepdive-forense-in-box-per-ios.html",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/Recents.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
         "output_types": [ "standard" ],
@@ -76,7 +99,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per row of the fileActivity table of annotations.db, with the message and "
+                 "people fields taken from the matching comments or annotations row. The file name "
+                 "comes from Item.db and is blank when the item is not there. The reply flag is "
+                 "shown only for comments. Reference: Django Faiola, 'Deep-Dive Forense in Box per "
+                 "iOS', "
+                 "https://djangofaiola.blogspot.com/2026/03/deepdive-forense-in-box-per-ios.html",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/annotations.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
         "output_types": [ "standard" ],

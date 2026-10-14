@@ -40,22 +40,23 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "Values are read from the preference plist the app names for its own bundle "
-            "identifier under Library/Preferences; com.amazon.Amazon and com.amazon.AmazonUK "
-            "are the spellings observed in tested images. Only keys "
-            "on an explicit list are reported; the store holds several hundred further keys that "
-            "are not reported. Timestamp units were established per key "
-            "by decoding the stored value against each candidate epoch and keeping the only "
-            "reading that falls inside the app's observed lifetime; the app binary is not "
-            "present in a Data container, so no producing call site could be read. Keys "
-            "carrying a converted value also report the stored value in Raw Value. "
-            "AmazonAd: timestamps decode as Cocoa/Mac absolute seconds, DCMArcusLastSyncedTimeKey "
-            "and MinervaArcusLastSyncedTimeKey as Unix milliseconds, and "
-            "LocalSamplingKeyLastUpdatedTime as Unix seconds, so unit is a property of the key "
-            "and not of the store. Pam* values are ISO 8601 strings carrying no UTC offset and "
-            "are reported as stored. LastRefreshTime is a small number of seconds that does not "
-            "decode to a plausible date under any epoch tried, so it is reported as stored "
-            "without interpretation."),
+            "Values are read from the preference plist the app names for its own bundle identifier "
+            "under Library/Preferences; com.amazon.Amazon and com.amazon.AmazonUK are the "
+            "spellings observed in tested images. Only keys on an explicit list are reported, each "
+            "under a label this module assigns. Some labels expand an abbreviation in the key (for "
+            "example YO as Your Orders) and that reading is not sourced; the stored key name is "
+            "not reported. The store holds several hundred further keys that are not reported. "
+            "Timestamp units were established per key by decoding the stored value against each "
+            "candidate epoch and keeping the only reading that falls inside the app's observed "
+            "lifetime; the app binary is not present in a Data container, so no producing call "
+            "site could be read. Keys carrying a converted value also report the stored value in "
+            "Raw Value. AmazonAd: timestamps decode as Cocoa/Mac absolute seconds, "
+            "DCMArcusLastSyncedTimeKey and MinervaArcusLastSyncedTimeKey as Unix milliseconds, and "
+            "LocalSamplingKeyLastUpdatedTime as Unix seconds, so unit is a property of the key and "
+            "not of the store. Pam* values are ISO 8601 strings carrying no UTC offset and are "
+            "reported as stored. LastRefreshTime is a small number of seconds that does not decode "
+            "to a plausible date under any epoch tried, so it is reported as stored without "
+            "interpretation."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.Amazon.plist',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.AmazonUK.plist',),
         "output_types": ["standard"],
@@ -78,15 +79,18 @@ __artifacts_v2__ = {
         "category": "Amazon Shopping",
         "notes": (
             "Profile rows come from the pandaStore sub-store of persist:root in "
-            "Documents/RCTAsyncLocalStorage_V1/manifest.json, which records accountId, fullName, "
-            "primaryAccountClaim and primaryAccountClaimType per account. lastActive and "
-            "lastUpdated decode as Unix milliseconds. That manifest path is not unique to this "
-            "app, so rows are emitted only when the file carries an Amazon account identifier. "
-            "Account rows without a profile come from the names of "
-            "Library/Preferences/amzn1.account.*.plist files; the identifier is the file name; "
-            "the file contents are not reported. Presence of an "
-            "account identifier records that the account was known to the app on this device; it "
-            "does not establish that the account was signed in at acquisition."),
+            "Documents/RCTAsyncLocalStorage_V1/manifest.json, read for accountId, fullName, "
+            "primaryAccountClaim and primaryAccountClaimType per account, with lastActive and "
+            "lastUpdated read as Unix milliseconds. None of the three registered images produced a "
+            "row, so this path is not exercised on registered data. That manifest path is not "
+            "unique to this app, so rows are emitted only when the file carries an Amazon account "
+            "identifier. Account rows without a profile come from the names of "
+            "Library/Preferences/amzn1.account.*.plist files; the identifier is the file name; the "
+            "file contents are not reported. Presence of an account identifier records that the "
+            "identifier was written in the container named in Source File; the path patterns match "
+            "any application container, so confirm that container belongs to this app. It does not "
+            "establish that the account was signed in at acquisition. An identifier that appears "
+            "only in a storage key name is reported as 'Referenced in app storage key'."),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/amzn1.account.*.plist',),
         "output_types": ["standard"],
@@ -107,20 +111,24 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "Rows are parsed from the JSON body cached in the app's NSURLCache for requests to "
-            "appx.transient.amazon.*/api/orders/v1. This is a cached order list response, not a "
-            "complete order history; the request URL carries maxOrders and asinsPerOrder "
-            "parameters that limit the response. orderDate decodes as Unix seconds. Cached is "
-            "the NSURLCache entry "
-            "time_stamp, stored by SQLite as UTC text. Line item images are linked by taking the "
-            "image identifier from the line item imageUrl, matching it against the url column of "
-            "the SSNAP image cache registry, and resolving that row's recorded filePath by file "
-            "name inside Library/Caches/ssnap_image_cache; the recorded path carries the container "
-            "UUID of the acquiring device, so only the file name is used. A line item whose image "
-            "is not in that cache is reported with an empty media cell rather than dropped. A "
-            "response body the cache stored as a separate file under fsCachedData is resolved "
-            "through the file name recorded in the cache row before decoding; this path is "
-            "code-present and was not exercised by any tested image for this endpoint."),
+            "Rows are parsed from the JSON body cached in the app's NSURLCache for any request "
+            "whose URL contains /api/orders/v1. This module does not test the host. This is a "
+            "cached order list response, not a complete order history; the request URL carries "
+            "maxOrders and asinsPerOrder parameters that limit the response. orderDate is read as "
+            "Unix seconds. None of the three registered images produced a row, so the response "
+            "layout, the URL parameters and this unit are not exercised on registered data. Cached "
+            "is the NSURLCache entry time_stamp, reported as stored text; see the Network Cache "
+            "notes on its time zone. Adult Item shows No both when the stored value is false and "
+            "when the response carries no adult value, and an order with no line items produces "
+            "one row. Line item images are linked by taking the image identifier from the line "
+            "item imageUrl, matching it against the url column of the SSNAP image cache registry, "
+            "and resolving that row's recorded filePath by file name inside "
+            "Library/Caches/ssnap_image_cache; the recorded path carries the container UUID of the "
+            "acquiring device, so only the file name is used. A line item whose image is not in "
+            "that cache is reported with an empty media cell rather than dropped. A response body "
+            "the cache stored as a separate file under fsCachedData is resolved through the file "
+            "name recorded in the cache row before decoding; this path is code-present and was not "
+            "exercised by any tested image for this endpoint."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
@@ -146,21 +154,21 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "Rows come from NSURLCache entries for data.amazon.*/api/marketplaces/*/products/*. "
-            "The ASIN and marketplace identifier are taken from the request URL. Response bodies "
-            "are Snappy framed streams containing a multipart document; the module decodes them "
-            "with a Snappy reader implemented in this file, then reads the part whose Type header "
-            "ends in title/v1 for displayString. In the tested samples 7 of 22 responses contained "
-            "only the product/v2 part and carried no title part at all, all with HTTP status 200, "
-            "so those rows are reported with an empty title rather than skipped. Image Count is "
-            "the number of physicalId values in the product-images part. A cached product response "
-            "records that the app requested detail for that ASIN, which is not the same as the "
-            "user opening the product page. Documents/asins/*.plist in the same container holds "
-            "tens of thousands of ASINs; "
-            "it is not parsed here and must not be read as products the user viewed. A "
-            "response body the cache stored as a separate file under fsCachedData is resolved "
-            "through the file name recorded in the cache row before decoding; this path is "
-            "code-present and was not exercised by any tested image for this endpoint."),
+            "Rows come from NSURLCache entries whose URL matches */api/marketplaces/*/products/*. "
+            "This module does not test the host. The ASIN and marketplace identifier are taken "
+            "from the request URL. Response bodies are Snappy framed streams containing a "
+            "multipart document; the module decodes them with a Snappy reader implemented in this "
+            "file, then reads the part whose Type header ends in title/v1 for displayString. In "
+            "the tested samples 7 of 22 responses contained only the product/v2 part and carried "
+            "no title part at all, all with HTTP status 200, so those rows are reported with an "
+            "empty title rather than skipped. Image Count is the number of physicalId values in "
+            "the product-images part. A cached product response records that the app requested "
+            "detail for that ASIN, which is not the same as the user opening the product page. "
+            "Documents/asins/*.plist in the same container holds tens of thousands of ASINs; it is "
+            "not parsed here and must not be read as products the user viewed. A response body the "
+            "cache stored as a separate file under fsCachedData is resolved through the file name "
+            "recorded in the cache row before decoding; this path is code-present and was not "
+            "exercised by any tested image for this endpoint."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
@@ -190,12 +198,13 @@ __artifacts_v2__ = {
             "stored. The values are the delivery location label the service returned for that "
             "request; how the location was selected is not established. They are not a device "
             "position fix and carry no coordinates. Page Type is the pageType parameter of the "
-            "request URL, reported as stored. The address identifier and delivery "
-            "line fields populate only when the cached response carries them; the address "
-            "identifiers were empty on every corpus image tested. A response body the cache "
-            "stored as a separate file under fsCachedData is resolved through the file name "
-            "recorded in the cache row before decoding; this path is code-present and was not "
-            "exercised by any tested image for this endpoint."),
+            "request URL, reported as stored. The address identifier and delivery line fields "
+            "populate only when the cached response carries them. Default Shipping Address and "
+            "Account Address show No both when the stored value is false and when the response "
+            "carries no such value. A response body the cache stored as a separate file under "
+            "fsCachedData is resolved through the file name recorded in the cache row before "
+            "decoding; this path is code-present and was not exercised by any tested image for "
+            "this endpoint."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
@@ -220,31 +229,31 @@ __artifacts_v2__ = {
         "category": "Amazon Shopping",
         "notes": (
             "Reads the standard NSURLCache tables in the Cache.db the app keeps under "
-            "Library/Caches in a folder named for its own bundle identifier; "
-            "com.amazon.Amazon and com.amazon.AmazonUK are the spellings observed in tested "
-            "images. time_stamp is stored by SQLite as UTC text. NSURLCache stores a response "
-            "body either inline in the database or, when isDataOnFS is set, as a separate file "
-            "in the fsCachedData folder beside the database, with the row holding that file's "
-            "name; Body Storage says which, Body Size is the byte length of the stored body "
-            "wherever it lives, and Body Format is read from the body's own leading bytes, not "
-            "from the URL. On the two corpus images that use external storage every reference "
-            "resolved to a file present in the extraction (7 of 7 and 17 of 17). An external "
-            "body whose bytes are an image is rendered in Cached Body; on tested images those "
-            "were Amazon interface and promotional graphics, not product photographs. Inline "
-            "bodies are characterized but not rendered; on tested images every inline image "
-            "body was an interface asset or a 43 byte tracking pixel. Body content is served "
-            "by Amazon, so a row records what the app fetched and when; the cache does not "
-            "record what was displayed. The WAL sidecar is load bearing here, carrying entries "
-            "absent from the committed file in both tested samples, so the path pattern picks "
-            "up the sidecars. The app keeps further NSURLCache stores inside the same folder, "
-            "none of which this artifact reads: SSNAP/SNPFileStore, present on all three "
-            "corpus images, held only the app's own JavaScript feature bundles and manifests "
-            "fetched from the ssnap-msa CDN path, with entry dates a subset of this cache's "
-            "dates on every tested image; SSNAP/ARCRuntimeConfig, where populated, held "
-            "server-supplied runtime configuration JSON; ABS/ClientStore held no rows on the "
-            "image that has it. The "
-            "Partition column was empty on every row of every corpus image tested and is "
-            "reported as stored."),
+            "Library/Caches in a folder named for its own bundle identifier; com.amazon.Amazon and "
+            "com.amazon.AmazonUK are the spellings observed in tested images. time_stamp is text "
+            "and is reported as stored. SQLite fills a column declared DEFAULT CURRENT_TIMESTAMP "
+            "in UTC (https://www.sqlite.org/lang_createtable.html); whether this table declares "
+            "that default was not read from the tested images. NSURLCache stores a response body "
+            "either inline in the database or, when isDataOnFS is set, as a separate file in the "
+            "fsCachedData folder beside the database, with the row holding that file's name; Body "
+            "Storage says which, Body Size is the byte length of the stored body wherever it "
+            "lives, and Body Format is read from the body's own leading bytes, not from the URL. "
+            "On the two corpus images that use external storage every reference resolved to a file "
+            "present in the extraction (7 of 7 and 17 of 17). An external body whose bytes are an "
+            "image is rendered in Cached Body; on tested images those were Amazon interface and "
+            "promotional graphics, not product photographs. Inline bodies are characterized but "
+            "not rendered; on tested images every inline image body was an interface asset or a 43 "
+            "byte tracking pixel. Body content is served by Amazon, so a row records what the app "
+            "fetched and when; the cache does not record what was displayed. The WAL sidecar is "
+            "load bearing here, carrying entries absent from the committed file in both tested "
+            "samples, so the path pattern picks up the sidecars. The app keeps further NSURLCache "
+            "stores inside the same folder, none of which this artifact reads: SSNAP/SNPFileStore, "
+            "present on all three corpus images, held only the app's own JavaScript feature "
+            "bundles and manifests fetched from the ssnap-msa CDN path, with entry dates a subset "
+            "of this cache's dates on every tested image; SSNAP/ARCRuntimeConfig, where populated, "
+            "held server-supplied runtime configuration JSON; ABS/ClientStore held no rows on the "
+            "image that has it. The Partition column was empty on every row of every corpus image "
+            "tested and is reported as stored."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
@@ -273,12 +282,13 @@ __artifacts_v2__ = {
             "filePath is an absolute path carrying the container UUID of the acquiring device, so "
             "the file is resolved by file name inside Library/Caches/ssnap_image_cache. In the "
             "tested samples every registry row resolved to a file whose size matched the recorded "
-            "size. lastAccessed and expiryDate decode as Unix milliseconds; lastModified is the "
-            "HTTP Last-Modified header as stored. The cache directory also holds files the "
-            "registry does not reference, which are reported with an empty URL so they are not "
-            "lost. The directory also carries zero length files; those rows report the size and "
-            "carry no media, since there are no bytes to render. numHits is the counter as "
-            "stored and its increment rule is not documented."),
+            "size. lastAccessed and expiryDate decode as Unix milliseconds. lastModified is "
+            "reported as stored; that it is the response's Last-Modified header is not "
+            "established. The cache directory also holds files the registry does not reference, "
+            "which are reported with an empty URL so they are not lost. The directory also carries "
+            "zero length files; those rows report the size and carry no media, since there are no "
+            "bytes to render. numHits is the counter as stored and its increment rule is not "
+            "documented."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/ssnapImageCacheRegistry.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/ssnap_image_cache/*',),
         "output_types": ["standard"],
@@ -292,7 +302,8 @@ __artifacts_v2__ = {
     "amazon_metric_events": {
         "name": "Amazon - Metric Events",
         "description": (
-            "Reports timestamped client metric events from the app's queued DCM batches."),
+            "Reports timestamped client metric events from the batch files under the app's "
+            "Library/METRICS_CRITICAL, METRICS_HIGH and METRICS_NORMAL folders."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
@@ -301,19 +312,22 @@ __artifacts_v2__ = {
         "notes": (
             "Batches under Library/METRICS_CRITICAL, METRICS_HIGH and METRICS_NORMAL are protocol "
             "buffers with no shipped descriptor, so the module walks the wire format directly. "
-            "Field numbers are used positionally and no field is given a name the data does not "
-            "supply: the reported attribute names are the key strings stored inside each event. "
-            "The event timestamp is field 1 of each event, read as Unix milliseconds; that unit is "
-            "corroborated by the batch file name, which is itself a Unix millisecond value. Across "
-            "the 65 batches in the tested samples the file name was never earlier than the newest "
-            "event it contains, and was within ten seconds of it on 45 of them; the rest were "
-            "queued for longer before being written, the widest gap being about fifteen hours. "
-            "Page Type, Sub Page Type, Ref Marker, Customer ID and Session ID are "
-            "lifted from the event's own key strings where present and left empty otherwise. "
-            "Remaining keys are joined into Attributes as stored. Whether a batch was uploaded "
-            "is not established; a row records what the client wrote, not what the server "
-            "received. The path pattern matches these folders in any application container, so "
-            "confirm the "
+            "Field numbers are used positionally. The Program and Event columns are sub-fields 2 "
+            "and 3 of each event and those two names are this module's. The Ref Marker, Customer "
+            "ID and Session ID columns hold the values stored under the keys ref-override, "
+            "nonAnonymousCustomerId and nonAnonymousSessionId. Names in the Attributes column are "
+            "the key strings stored inside each event. The event timestamp is field 1 of each "
+            "event, read as Unix milliseconds; that unit is corroborated by the batch file name, "
+            "which is itself a Unix millisecond value. Across the 65 batches in the tested samples "
+            "the file name was never earlier than the newest event it contains, and was within ten "
+            "seconds of it on 45 of them; on the rest the file name was later than the newest "
+            "event by more than ten seconds, the widest gap being about fifteen hours. Page Type, "
+            "Sub Page Type, Ref Marker, Hit Type, Line Of Business, Customer ID and Session ID are "
+            "lifted from the event's own key strings where present and left empty otherwise. If an "
+            "event stores one of those keys more than once, only the last value is shown. "
+            "Remaining keys are joined into Attributes as stored. Whether a batch was uploaded is "
+            "not established; a row records what the client wrote, not what the server received. "
+            "The path pattern matches these folders in any application container, so confirm the "
             "container the Source File belongs to before attributing a row to this app."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/METRICS_CRITICAL/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
@@ -329,20 +343,24 @@ __artifacts_v2__ = {
     "amazon_metric_batches": {
         "name": "Amazon - Metric Batch Context",
         "description": (
-            "Reports the per-batch device, account and session context recorded in the app's "
-            "queued DCM batches."),
+            "Reports the per-batch device, account and session context recorded in the batch files "
+            "under the app's Library/METRICS_* folders."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "One row per metric batch file. The context values are the key/value pairs the batch "
-            "carries in field 4, reported under their own key names. Batch Time is taken from the "
-            "batch file name, which is a Unix millisecond value. The user agent string is "
-            "reported as stored. Event Count is the number of events the batch holds. See the "
-            "Metric Events artifact for the format notes; the same caution applies that the path "
-            "pattern matches these folders in any application container."),
+            "One row per metric batch file that yields a batch id or a context pair. Eight of the "
+            "key/value pairs the batch carries in field 4 are reported: CustomerId, Session, "
+            "MarketplaceID, countryOfResidence, deviceLanguage, model, softwareVersion and "
+            "HTTP_USER_AGENT, under the headers Customer ID, Session ID, Marketplace ID, Country "
+            "Of Residence, Device Language, Device Model, OS Version and User Agent. Other pairs "
+            "are not reported. Batch Time is taken from the batch file name, which is a Unix "
+            "millisecond value. The user agent string is reported as stored. Event Count is the "
+            "number of events the batch holds. See the Metric Events artifact for the format "
+            "notes; the same caution applies that the path pattern matches these folders in any "
+            "application container."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/METRICS_CRITICAL/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_NORMAL/*',),

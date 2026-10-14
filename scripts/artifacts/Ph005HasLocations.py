@@ -1,19 +1,38 @@
 __artifacts_v2__ = {
 'Ph005_1AssetshavevalidlocationsPhDaPsql': {
 'name': 'Ph005.1-Assets have valid locations-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets that have valid'
-' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields'
-' and supports various iOS versions. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZASSET latitude or'
+' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0 (iOS 11 to 13: ZGENERICASSET'
+' latitude only), on iOS 11 through 26. The results contain one row per asset (ZASSET table, or'
+" ZGENERICASSET on iOS 11 to 13). Each row's shifted and reverse location plists are exported to"
+' the report folder and shown decoded.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'On abe_ios16 and dexter_ios18 the only assets left out were those storing -180.0 (79 of 1,918'
+' and 108 of 1,167). Neither library held a latitude of 0 or a negative latitude other than'
+' -180.0.'
+' The filter was latitude greater than 0 until 2026-10-04 and left out southern hemisphere'
+' coordinates. It now leaves out only the stored value -180.0. Measured on the Photos.sqlite'
+' libraries of 20 registered iOS zip extractions (iOS 12.4 to 26.5.2): every asset latitude was'
+' either -180.0 or above 0, every ZEXTENDEDATTRIBUTES latitude was empty or above 0, and both'
+' filters returned the same rows on each. No tested library held a latitude of 0 or a negative'
+' latitude other than -180.0, so the listing of a southern hemisphere asset was shown on a'
+' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
+' stored latitude is not listed.'
+' The exported plist files are named from the asset file name and the asset row key (Z_PK), and'
+' each is written fresh, so two assets with the same file name export to separate files. No'
+" tested library was checked for assets sharing a file name. Value labels in this report are the module author's working"
+' interpretations from testing. The module cites no source for them. Each label carries the stored'
+' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
+" value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
+" ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
+' values do not establish an AirDrop provenance link or equality with another database.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -37,19 +56,38 @@ __artifacts_v2__ = {
 },
 'Ph005_2AssetshavevalidlocationsSyndPL': {
 'name': 'Ph005.2-Assets have valid locations-SyndPL',
-'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
-' for assets that have valid locations from the ZASSET and ZEXTENDEDATTRIBUTES table'
-' ZLATITUDE fields and supports various iOS versions. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets'
+' whose ZASSET latitude or ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0 (iOS 11'
+' to 13: ZGENERICASSET latitude only), on iOS 11 through 26. The results for this'
+' script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'On abe_ios16 and dexter_ios18 the only Syndication assets left out were those storing -180.0 (30'
+' of 39 and 21 of 34). Neither library held a latitude of 0 or a negative latitude other than'
+" -180.0."
+' The filter was latitude greater than 0 until 2026-10-04 and left out southern hemisphere'
+' coordinates. It now leaves out only the stored value -180.0. Measured on the Photos.sqlite'
+' libraries of 20 registered iOS zip extractions (iOS 12.4 to 26.5.2): every asset latitude was'
+' either -180.0 or above 0, every ZEXTENDEDATTRIBUTES latitude was empty or above 0, and both'
+' filters returned the same rows on each. No tested library held a latitude of 0 or a negative'
+' latitude other than -180.0, so the listing of a southern hemisphere asset was shown on a'
+' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
+' stored latitude is not listed.'
+" Each row's shifted and reverse location plists are exported to the report folder and"
+' shown decoded. The exported plist files are named from the asset file name and the asset row key'
+' (Z_PK), and each is written fresh, so two assets with the same file name export to separate files.'
+" No tested library was checked for assets sharing a file name. Value labels in this report are the module author's working"
+' interpretations from testing. The module cites no source for them. Each label carries the stored'
+' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
+" value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
+" ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
+' values do not establish an AirDrop provenance link or equality with another database.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -70,19 +108,36 @@ __artifacts_v2__ = {
 },
 'Ph005_3AssetshavevalidlocationsGenPlayPsql': {
 'name': 'Ph005.3-Assets have valid locations-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets that have valid'
-' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields'
-' and supports various iOS versions. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose ZASSET latitude or'
+' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0, on iOS 18 through 26. The'
+' results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'On dexter_ios18 all 27 assets of this library stored latitude -180.0, so the artifact returned 0'
+" rows."
+' The filter was latitude greater than 0 until 2026-10-04 and left out southern hemisphere'
+' coordinates. It now leaves out only the stored value -180.0. Measured on the Photos.sqlite'
+' libraries of 20 registered iOS zip extractions (iOS 12.4 to 26.5.2): every asset latitude was'
+' either -180.0 or above 0, every ZEXTENDEDATTRIBUTES latitude was empty or above 0, and both'
+' filters returned the same rows on each. No tested library held a latitude of 0 or a negative'
+' latitude other than -180.0, so the listing of a southern hemisphere asset was shown on a'
+' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
+' stored latitude is not listed.'
+" Each row's shifted and reverse location plists are exported to the report folder and shown"
+' decoded. The exported plist files are named from the asset file name and the asset row key (Z_PK),'
+' and each is written fresh, so two assets with the same file name export to separate files. No'
+" tested library was checked for assets sharing a file name. Value labels in this report are the module author's working"
+' interpretations from testing. The module cites no source for them. Each label carries the stored'
+' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
+" value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
+" ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
+' values do not establish an AirDrop provenance link or equality with another database.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -98,6 +153,15 @@ import nska_deserialize as nd
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
+def _export_name(filename, asset_pk):
+    """Name an exported plist after the asset file name and the asset row key.
+
+    The row key keeps two assets that share a file name, or an asset with no stored
+    file name, from writing to one file.
+    """
+    return f"{'' if filename is None else filename}-zPK{asset_pk}"
+
+
 @artifact_processor
 def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
     files_found = context.get_files_found()
@@ -112,6 +176,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -137,7 +204,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -160,12 +227,12 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAddAssetAttr.ZREVERSELOCATIONDATA AS 'zAddAssetAttr-Reverse Location Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -178,8 +245,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, "rb") as fp:
@@ -190,8 +257,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, "rb") as fp:
@@ -213,7 +280,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
@@ -222,7 +289,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Master Fingerprint-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -250,7 +317,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -299,7 +366,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -308,7 +375,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -321,8 +388,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, 'rb') as f:
@@ -332,14 +399,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -349,9 +416,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             aaashiftedlocation_postal_address,
@@ -367,7 +434,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
@@ -382,7 +449,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-19',
         'zAsset-zPK-20',
         'zAddAssetAttr-zPK-21',
-        'zAsset-UUID = store.cloudphotodb-22',
+        'zAsset-UUID-22',
         'zAddAssetAttr-Master Fingerprint-23')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -416,7 +483,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -465,7 +532,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -475,8 +542,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -489,8 +556,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -500,14 +567,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[16] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[16])
 
                 with open(pathto, 'rb') as f:
@@ -517,9 +584,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12],
@@ -539,7 +606,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr-Shifted Location Valid-11',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
@@ -554,7 +621,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-22',
         'zAsset-zPK-23',
         'zAddAssetAttr-zPK-24',
-        'zAsset-UUID = store.cloudphotodb-25',
+        'zAsset-UUID-25',
         'zAddAssetAttr-Master Fingerprint-26')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -588,7 +655,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -638,7 +705,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -648,8 +715,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid
         '''
 
@@ -662,8 +729,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -673,14 +740,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -690,9 +757,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -712,7 +779,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -728,7 +795,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Master Fingerprint-27')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -762,7 +829,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -812,7 +879,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -823,8 +890,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -837,8 +904,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -848,14 +915,14 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -865,9 +932,9 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -887,7 +954,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -903,7 +970,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -924,6 +991,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
@@ -949,7 +1019,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -972,12 +1042,12 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAddAssetAttr.ZREVERSELOCATIONDATA AS 'zAddAssetAttr-Reverse Location Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -990,8 +1060,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, "rb") as fp:
@@ -1002,8 +1072,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[14]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, "rb") as fp:
@@ -1025,7 +1095,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
@@ -1034,7 +1104,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Master Fingerprint-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1062,7 +1132,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -1111,7 +1181,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1120,7 +1190,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1133,8 +1203,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[10])
 
                 with open(pathto, 'rb') as f:
@@ -1144,14 +1214,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[4], row[20]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -1161,9 +1231,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[4])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[4]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[4]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             aaashiftedlocation_postal_address,
@@ -1179,7 +1249,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
@@ -1194,7 +1264,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-19',
         'zAsset-zPK-20',
         'zAddAssetAttr-zPK-21',
-        'zAsset-UUID = store.cloudphotodb-22',
+        'zAsset-UUID-22',
         'zAddAssetAttr-Master Fingerprint-23')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1228,7 +1298,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -1277,7 +1347,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1287,8 +1357,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1301,8 +1371,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[13])
 
                 with open(pathto, 'rb') as f:
@@ -1312,14 +1382,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[16] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[23]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[16])
 
                 with open(pathto, 'rb') as f:
@@ -1329,9 +1399,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12],
@@ -1351,7 +1421,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr-Shifted Location Valid-11',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
@@ -1366,7 +1436,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-22',
         'zAsset-zPK-23',
         'zAddAssetAttr-zPK-24',
-        'zAsset-UUID = store.cloudphotodb-25',
+        'zAsset-UUID-25',
         'zAddAssetAttr-Master Fingerprint-26')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1400,7 +1470,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -1450,7 +1520,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1460,8 +1530,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid
         '''
 
@@ -1474,8 +1544,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -1485,14 +1555,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -1502,9 +1572,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -1524,7 +1594,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -1540,7 +1610,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Master Fingerprint-27')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1574,7 +1644,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -1624,7 +1694,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1635,8 +1705,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1649,8 +1719,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -1660,14 +1730,14 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -1677,9 +1747,9 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -1699,7 +1769,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -1715,7 +1785,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -1736,6 +1806,9 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -1767,7 +1840,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -1817,7 +1890,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1828,8 +1901,8 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1842,8 +1915,8 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
 
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             if row[14] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[14])
 
                 with open(pathto, 'rb') as f:
@@ -1853,14 +1926,14 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
             if row[17] is not None:
-                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
-                with open(pathto, 'ab') as wf:
+                pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + _export_name(row[7], row[24]) + '.plist')
+                with open(pathto, 'wb') as wf:
                     wf.write(row[17])
 
                 with open(pathto, 'rb') as f:
@@ -1870,9 +1943,9 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
 
                     except (KeyError, ValueError, TypeError) as ex:
                         if str(ex).find("does not contain an '$archiver' key") >= 0:
-                            logfunc('plist was Not an NSKeyedArchive ' + row[7])
+                            logfunc('plist was Not an NSKeyedArchive ' + str(row[7]))
                         else:
-                            logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
+                            logfunc('Error reading exported plist from zAsset-Filename ' + str(row[7]))
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13],
@@ -1892,7 +1965,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -1908,7 +1981,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

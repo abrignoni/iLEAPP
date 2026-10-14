@@ -2,7 +2,10 @@
 __artifacts_v2__ = {
     "cloudkit_snapshots": {
         "name": "iCloud Backup Snapshots",
-        "description": "Parses snapshot information from CloudKit cache",
+        "description": "Parses the Snapshots table of cloudkit_cache.db and the plist stored with "
+                       "each snapshot. File Count and Total File Size are computed here from the "
+                       "Files rows linked to the snapshot's manifests, including rows flagged "
+                       "deleted.",
         "author": "@JamesHabben",
         "creation_date": "2023-04-11",
         "last_update_date": "2026-07-22",
@@ -39,7 +42,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "CloudKit",
         "notes": "The File Type labels File and Folder are assigned to stored fileType values 0 "
-                 "and 1 without a vendor source; unrecognized values are reported as stored.",
+                 "and 1 without a vendor source; unrecognized values are reported as stored. A "
+                 "manifest with no file rows is reported as one row with empty file columns. "
+                 "Modified is the stored modified value read as Unix seconds; the basis for "
+                 "that reading is not stated here.",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
         "artifact_icon": "file-text",

@@ -2,22 +2,26 @@ __artifacts_v2__ = {
     "get_biomeAppInstallation": {
         "name": "Biome - App Installation",
         "description": "Parses app installation events from the App.Installation biome stream: "
-                       "the bundle identifier, a per-app UUID, its short and build "
-                       "version, and the time the event was recorded. Complements the older "
+                       "the bundle identifier, a UUID stored with the bundle identifier, two "
+                       "version strings and two record timestamps. The field names follow "
+                       "Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                       "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html; "
+                       "their meaning is not established. See also the "
                        "App.Install and _DKEvent.App.Install streams.",
-        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani), @AlexisBrignoni, Codex",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
         "notes": "The event type field takes values 0, 1, 2 and 3 in the tested sample; which of "
                  "install, update and removal each denotes is not confirmed, so the raw value is "
-                 "reported. Two 16 byte values accompany each event and are surfaced as hex "
-                 "digests; their role is not established. The version and 16 byte fields are read "
-                 "with a pinned field type because some of those values are themselves valid "
-                 "protobuf and an inferring decode reports them as empty. Paths containing 'tombstone' "
-                 "are not parsed; across the tested images those files hold the Biome daemons' own "
-                 "record of retired stream files and carried no application event.",
+                 "reported. Two 16 byte values accompany each event and are shown as hex in the "
+                 "Field 3.4 (hex) and Field 3.5 (hex) columns; their interpretation is not established and "
+                 "neither is their role. The version and 16 byte fields are read with a pinned "
+                 "field type because some of those values are themselves valid protobuf and an "
+                 "inferring decode reports them as empty. Paths containing 'tombstone' are not "
+                 "parsed. On the tested images those files carried no application event; what "
+                 "writes them is not established here.",
         "paths": ('*/streams/*/App.Installation/local/*',),
         "output_types": "standard",
         "artifact_icon": "download",
@@ -126,9 +130,9 @@ def get_biomeAppInstallation(context):
                 data_list.append((ts, None, None, record.state.name, None, None, None, None,
                                   None, None, None, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
-                    ('App Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'App UUID',
-                    'Version', 'Build Version', 'Event Type (raw)', 'Digest 1', 'Digest 2',
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Field 4 Timestamp', 'datetime'),
+                    ('Field 3.1 Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Field 1.2 (as stored)',
+                    'Version', 'Build Version', 'Event Type (raw)', 'Field 3.4 (hex)', 'Field 3.5 (hex)',
                     'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

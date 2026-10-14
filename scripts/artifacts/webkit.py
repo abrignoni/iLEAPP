@@ -7,7 +7,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Browser",
-        "notes": "The cache record layout (timestamp, hash, response-code positions) was established through reverse engineering and is unverified against WebKit source; undeciphered fields are reported as U1-U8.",
+        "notes": "The cache record layout (timestamp, hash, response-code positions) was "
+                 "established through reverse engineering and is unverified against WebKit "
+                 "source. Timestamp is an 8-byte double read as Unix seconds in UTC and is blank "
+                 "when the value is out of range; what event it marks is not established. A "
+                 "record the module cannot read to the end is still reported with the fields read "
+                 "before that point, so blank cells can mean the read stopped. Undeciphered "
+                 "fields (U1 to U8) are decoded only in the module's research mode, which is off "
+                 "by default, and are not in the standard report.",
         "paths": (
             '*/Library/Caches/WebKit/NetworkCache/Version*/salt',
             '*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*',

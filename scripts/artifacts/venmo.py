@@ -1,7 +1,11 @@
 __artifacts_v2__ = {
     "venmo_transactions": {
         "name": "Venmo - Transactions",
-        "description": "Extracts transaction history from Venmo feed files.",
+        "description": "Payment stories (action pay or charge) from the Venmo PrivateFeed, "
+                       "PublicFeed and FriendsFeed files. A row is a story the app cached and "
+                       "need not involve the device's account. For a charge the charged party is "
+                       "shown as Payer whatever the Status column holds. Other stories are "
+                       "skipped.",
         "author": "@jfarley248",
         "creation_date": "2021-09-25",
         "last_update_date": "2026-08-21",

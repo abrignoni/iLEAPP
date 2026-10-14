@@ -10,16 +10,16 @@ __artifacts_v2__ = {
         "category": "Private Photo Vault",
         "notes": "One row per row of ZALBUM in Library/Application Support/PPVCoreData.sqlite. "
                  "Created and Last Modified are Core Data times, seconds since 2001, reported in "
-                 "UTC, and read that way they fall in the period each image covers. Two of the 26 "
-                 "registered iOS corpora carry the store, with 2 and 3 rows. On both, two rows "
-                 "are titled Main Album and exactly one of that pair has Decoy Album set to Yes, "
-                 "which is the app's own flag and is reported as stored; the third row on the "
-                 "second image is a separate album with its own title. Password Stored says only "
-                 "whether the row carries a stored password value, and it was Yes on one row of "
-                 "five across both images. **The password bytes themselves are read by nothing "
-                 "here.** Album Type, Cover Type and Sort Position are reported as stored. "
-                 "Biometric Login Allowed read No on every row of both images, and Marked Deleted "
-                 "read No on every row; both are reported as stored.",
+                 "UTC, and read that way they fall in the period each image covers. Two "
+                 "registered iOS corpora carry the store, ctf2020_ios12 and hickman_ios14, with 2 "
+                 "and 3 rows. On both, two rows are titled Main Album and exactly one of that "
+                 "pair has Decoy Album set to Yes, which is the app's own flag and is reported as "
+                 "stored; the third row on hickman_ios14 is a separate album with its own "
+                 "title. Password Stored says only whether the row carries a stored password "
+                 "value, and it was Yes on one row of five across both images. The password bytes "
+                 "themselves are read by nothing here. Album Type, Cover Type and Sort Position "
+                 "are reported as stored. Biometric Login Allowed read No on every row of both "
+                 "images, and Marked Deleted read No on every row; both are reported as stored.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PPVCoreData.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "folder",
@@ -30,29 +30,34 @@ __artifacts_v2__ = {
     },
     "photo_vault_ios_media": {
         "name": "Private Photo Vault - Stored Media",
-        "description": "Records of the pictures and videos the Private Photo Vault app holds, with "
+        "description": "Media item records of the Private Photo Vault app, with "
                        "the album and the file names it stored them under.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Private Photo Vault",
         "notes": "One row per row of ZMEDIAITEM in Library/Application "
                  "Support/PPVCoreData.sqlite, joined to ZALBUM for the album title. Created, Last "
                  "Modified and Trashed are Core Data times, seconds since 2001, reported in UTC. "
                  "The row names the files the app stored under Library/PPV_Pics, a full size file "
-                 "and a thumbnail, and a medium file for a live photo. Each name is looked for in "
-                 "that folder inside the same app container, and all four rows across the two "
-                 "images that carry the store resolved both their full size file and their "
-                 "thumbnail, so the byte sizes reported are of the files themselves. **No picture "
-                 "is shown, because the stored files are encrypted.** Every file staged from that "
-                 "folder begins with the bytes 03 00 and none carries the signature of the format "
-                 "its name claims, which agrees with the Encrypted column reading Yes on all four "
-                 "rows. On one of the two images the app's own preferences plist was read and "
-                 "carries no value that looks like key material, and no key is read from anywhere "
-                 "else either, so the files are reported by name, presence and size and are not "
-                 "decoded. Trashed was empty on every row and is reported as stored. File Type "
-                 "held photo on three rows and livePhoto on one. "
+                 "and a thumbnail, and a medium file name where the row holds one. Each of the "
+                 "three names is looked for in that folder inside the same "
+                 "app container, and all "
+                 "four rows across the two images that carry the store resolved both their full "
+                 "size file and their thumbnail, so the byte sizes reported are of the files "
+                 "themselves. The medium file lookup was added on 2026-10-09; how many rows "
+                 "hold a medium file name, and how many of those resolved, is not recorded "
+                 "here. Medium File Present is blank when the row holds no medium file name. "
+                 "No picture is shown, because the stored files are encrypted. The "
+                 "files staged from that folder on the two images begin with the bytes 03 00 and "
+                 "do not carry the signature of the format their names claim (the number of files "
+                 "checked is not recorded here), which agrees with the Encrypted column "
+                 "reading Yes on all four rows. On one of the two images the app's own "
+                 "preferences plist was read and carries no value that looks like key material, "
+                 "and no key is read from anywhere else either, so the files are reported by "
+                 "name, presence and size and are not decoded. Trashed was empty on every row and "
+                 "is reported as stored. File Type held photo on three rows and livePhoto on one. "
                  "Downloaded, Thumbnail Downloaded, Uploaded and Marked Deleted are the app's own "
                  "flags and are reported as stored; Uploaded read No on one image and was empty "
                  "on the other.",
@@ -66,26 +71,26 @@ __artifacts_v2__ = {
                        },
     },
     "photo_vault_ios_break_in_attempts": {
-        "name": "Private Photo Vault - Break In Attempts",
+        "name": "Private Photo Vault - Trespass Records",
         "description": "Rows of the Private Photo Vault app's trespass table, with the login type, "
                        "coordinates and photo file each names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Private Photo Vault",
         "notes": "One row per row of ZTRESSPASSRECORD in Library/Application "
-                 "Support/PPVCoreData.sqlite. The table's columns are a date, a login type, a "
+                 "Support/PPVCoreData.sqlite. The artifact is named for the table. The table's columns are a date, a login type, a "
                  "device name, a latitude, a longitude and two file names; what event causes the "
                  "app to write a row is not established here, since the table was empty on every "
-                 "tested image. **It was empty on both "
-                 "images that carry the store, so this reader is code present and was not "
-                 "exercised**, and its columns are the ones the table declares rather than ones "
-                 "observed carrying values. Date is read as a Core Data time, seconds since 2001, "
-                 "in UTC, with no row to confirm it. An empty table is not evidence that no "
-                 "failed unlock ever happened, only that none is recorded here. Latitude and "
-                 "Longitude are reported as stored and are what the KML output is built from when "
-                 "rows exist. Login Type is reported as stored.",
+                 "tested image. It was empty on both images that carry the store, so this reader "
+                 "is code present and was not exercised, and its columns are the ones the table "
+                 "declares rather than ones observed carrying values. Date is read as a Core Data "
+                 "time, seconds since 2001, in UTC, with no row to confirm it. An empty table "
+                 "shows only that the table holds no rows; it says nothing about unlock attempts, "
+                 "and what a row would record is not established. Latitude and Longitude are "
+                 "reported as stored and are what the KML output is built from when rows exist. "
+                 "Login Type is reported as stored.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PPVCoreData.sqlite*',),
         "output_types": "all",
         "artifact_icon": "alert-triangle",
@@ -231,11 +236,13 @@ def photo_vault_ios_media(context):
                 'ZMEDIUMFILE, ZTHUMBFILE, ZALBUM, ZISENCRYPTED, ZISDOWNLOADED, '
                 'ZISTHUMBDOWNLOADED, ZUPLOADED, ZDIDDELETE, ZUDID'):
             present, size = _file_state(on_disk, container, _text(large))
+            medium_present, medium_size = _file_state(on_disk, container, _text(medium))
             thumb_present, thumb_size = _file_state(on_disk, container, _text(thumb))
             data_list.append((
                 _core_data_to_utc(created), _core_data_to_utc(modified),
                 _core_data_to_utc(trashed), albums.get(album, ''), _text(file_type),
-                _text(large), present, size, _text(medium), _text(thumb), thumb_present,
+                _text(large), present, size, _text(medium), medium_present, medium_size,
+                _text(thumb), thumb_present,
                 thumb_size, _flag(encrypted), _flag(downloaded), _flag(thumb_downloaded),
                 _flag(uploaded), _flag(deleted), _text(udid),
             ))
@@ -244,7 +251,8 @@ def photo_vault_ios_media(context):
     data_headers = (
         ('Created', 'datetime'), ('Last Modified', 'datetime'), ('Trashed', 'datetime'),
         'Album', 'File Type (as stored)', 'Full Size File', 'Full Size File Present',
-        'Full Size File Bytes', 'Medium File', 'Thumbnail File', 'Thumbnail Present',
+        'Full Size File Bytes', 'Medium File', 'Medium File Present', 'Medium File Bytes',
+        'Thumbnail File', 'Thumbnail Present',
         'Thumbnail Bytes', 'Encrypted', 'Downloaded', 'Thumbnail Downloaded', 'Uploaded',
         'Marked Deleted', 'Media UDID',
     )

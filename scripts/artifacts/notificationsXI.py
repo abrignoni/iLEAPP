@@ -1,20 +1,22 @@
 __artifacts_v2__ = {
     "notificationsXI": {
         "name": "Notifications (iOS 11 PushStore)",
-        "description": "Delivered notifications parsed from iOS <= 11 SpringBoard PushStore files",
+        "description": "Notification entries read from SpringBoard PushStore files (iOS 11 and "
+                       "earlier). Not exercised on real data: no tested image holds a PushStore "
+                       "file.",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Notifications",
-        "notes": "Best-effort structured rewrite of the old HTML-triage version: pulls the "
-                 "AppNotification* fields out of the PushStore NSKeyedArchiver into a flat table "
-                 "matching the iOS 12 'Notifications' artifact. Field extraction should be validated "
-                 "against an iOS 11 PushStore sample. Times are read as UTC; the zone of the "
-                 "stored values is not established on any tested sample. No PushStore files "
-                 "exist in any "
-                 "registered corpus image or public path listing checked (iOS 12.4-26.5.2) nor in "
-                 "Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected; notifications there "
+        "notes": "Reads every dictionary in a PushStore file that has a key beginning "
+                 "AppNotification and reports its creation date, title, subtitle and message, with "
+                 "the remaining keys in Other Details. Bundle is the PushStore file's name without "
+                 "its extension. The field extraction has not been run against an iOS 11 PushStore "
+                 "sample. Times are read as UTC; the zone of the stored values is not established "
+                 "on any tested sample. No PushStore file was found in the registered corpus "
+                 "images checked (iOS 12.4 to 26.5.2), so a no-file result on current extractions "
+                 "is expected; notifications there "
                  "are parsed by the Notifications artifact (notificationsXII) from Library/UserNotifications.",
         "paths": ('*PushStore*',),
         "output_types": "standard",

@@ -15,14 +15,13 @@ __artifacts_v2__ = {
                  "Level, Vault Type and File Hash Type are undocumented codes reported as "
                  "stored. Folder Path is reconstructed by walking parentRid to the parent's "
                  "resourceId; a chain that does not resolve yields a partial or empty path. "
-                 "Where fileHash and quickXorHash were both populated they held the same value "
-                 "in tested data, and File Hash reports fileHash. Recent changes can sit in the "
-                 "-wal sidecar; collect QTMetadata.db-wal and -shm with the database. The "
-                 "database is documented at OneDrive/DatabaseQT/QTMetadata.db in the app's "
-                 "shared AppGroup container by the SANS DFIR poster 'iOS Third-Party Apps "
-                 "Forensics Reference Guide' (DFPS_iOS-APPS-v1.3_04-24); app data has also "
-                 "been seen spelling the folder DatabaseQt, so the path pattern accepts both "
-                 "spellings at any depth. Tables not parsed include item_moves, views, "
+                 "File Hash reports the fileHash column; quickXorHash is not read. Recent "
+                 "changes can sit in the -wal sidecar; collect QTMetadata.db-wal and -shm with "
+                 "the database. The database is documented at "
+                 "OneDrive/DatabaseQT/QTMetadata.db in the app's shared AppGroup container by "
+                 "the SANS DFIR poster 'iOS Third-Party Apps Forensics Reference Guide' "
+                 "(DFPS_iOS-APPS-v1.3_04-24); the path pattern also accepts the spelling "
+                 "DatabaseQt, at any depth. Tables not parsed include item_moves, views, "
                  "search_results, my_analytics and recommendation tables.",
         "paths": ('*/DatabaseQ[Tt]/QTMetadata.db*',),
         "output_types": "all",
@@ -37,9 +36,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
-        "notes": "One row per drives row, joined to web_app on accountId and to sync_root on "
-                 "the drive id. Drive Type and Server Type are undocumented codes reported as "
-                 "stored. Last Sync Time is Unix milliseconds reported in UTC.",
+        "notes": "Rows come from the drives table, joined to web_app on accountId and to "
+                 "sync_root on the drive id; a drive is repeated when either table holds "
+                 "more than one matching row. Drive Type and Server Type are undocumented "
+                 "codes reported as stored. Last Sync Time is Unix milliseconds reported in "
+                 "UTC.",
         "paths": ('*/DatabaseQ[Tt]/QTMetadata.db*',),
         "output_types": "standard",
         "artifact_icon": "user-circle",
@@ -53,9 +54,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
-        "notes": "Rows from permission_entity, joined through permission to the items row the "
-                 "permission belongs to. Role, Entity Type and Link Type are reported as "
-                 "stored; no value list ships in the database.",
+        "notes": "Rows from permission_entity, joined through permission to the items row "
+                 "the permission belongs to. Expiration is read as Unix milliseconds and "
+                 "reported in UTC; zero and negative stored values are shown blank. Role, "
+                 "Entity Type and Link Type are reported as stored; this artifact reads no "
+                 "value list for them.",
         "paths": ('*/DatabaseQ[Tt]/QTMetadata.db*',),
         "output_types": "standard",
         "artifact_icon": "share",
@@ -69,10 +72,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
-        "notes": "Stream Location is a path relative to the app's data area, reported as "
-                 "stored; the cached content files themselves are not collected by this "
-                 "artifact. Stream Type, Sync State, Progress and Error Code are undocumented "
-                 "codes reported as stored. Dates are Unix milliseconds reported in UTC.",
+        "notes": "Stream Location is the stream_location value, reported as stored. The "
+                 "folder it is relative to is not established here, and the cached content "
+                 "files themselves are not collected by this artifact. Stream Type, Sync "
+                 "State, Progress and Error Code are undocumented codes reported as stored. "
+                 "Dates are Unix milliseconds reported in UTC.",
         "paths": ('*/DatabaseQ[Tt]/QTMetadata.db*',),
         "output_types": "standard",
         "artifact_icon": "cloud-download",
@@ -86,10 +90,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
-        "notes": "Item Name is resolved by matching resource_id to items.resourceId in "
-                 "QTMetadata.db when that database is present. The table content can reside "
-                 "entirely in the -wal sidecar; collect OfflineSelection.db-wal and -shm "
-                 "alongside the database.",
+        "notes": "Item Name is resolved by matching resource_id to items.resourceId across "
+                 "every QTMetadata.db the pattern matches, keeping the first name found; "
+                 "the match is not limited to the database beside the OfflineSelection.db "
+                 "the row came from. The table content can reside entirely in the -wal "
+                 "sidecar; collect OfflineSelection.db-wal and -shm alongside the database.",
         "paths": ('*/DatabaseQ[Tt]/OfflineSelection.db*',
                   '*/DatabaseQ[Tt]/QTMetadata.db*'),
         "output_types": "standard",

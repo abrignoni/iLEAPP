@@ -1,8 +1,10 @@
 __artifacts_v2__ = {
     "tileAppDb": {
         "name": "Tile App DB Info & Geolocation",
-        "description": "Tile device information and the coordinates stored on the joined "
-                       "ZTILENTITY_TILESTATE row from the Tile network database",
+        "description": "Tile device information from the Tile network database, with the "
+                       "coordinates stored on the joined ZTILENTITY_TILESTATE row where that "
+                       "table exists; where it does not, the columns the database lacks are "
+                       "reported blank",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-08-09",

@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "gettr_ios_messages": {
         "name": "GETTR - Messages",
-        "description": "Direct messages from the app's per account chat database, with the "
+        "description": "Chat messages from the app's per account chat database, with the "
                        "sender, the conversation and the message text.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -13,9 +13,16 @@ __artifacts_v2__ = {
                  "Message Direction is derived by comparing each message's user id against the "
                  "account id the same database records in connection_events.own_user, so it "
                  "comes from a value the app stored rather than from the file name, and it is "
-                 "left blank when that row is absent. Sender is the username the users table "
-                 "carries for that id and falls back to the raw id when no users row matches. "
-                 "The timestamps are Unix seconds. Rows with Message Type deleted carried no "
+                 "left blank when that row is absent. Sender is read from the JSON in the users "
+                 "table's extra_data for that id, taking the username key, then name, then "
+                 "nickname, and falls back to the raw id when no users row matches or none of "
+                 "those keys holds a value. "
+                 "The timestamps are read as Unix seconds. That is the unit the drift library "
+                 "stores a DateTime in by default (drift, mapping.dart, "
+                 "https://github.com/simolus3/drift/blob/f7e4c72bd10d92b9e1a8bfb768730ca1096b1341/drift/lib/src/runtime/types/mapping.dart#L77), "
+                 "and the current Stream Chat Flutter persistence package defines its tables with "
+                 "drift; the release that wrote the tested database was not checked. Rows with "
+                 "Message Type deleted carried no "
                  "text, so such a row still "
                  "shows when it was sent and by whom: 3 of the 32 messages on the tested image "
                  "were in that state, and 28 of the 32 carried text. Attachments holds the "
@@ -59,14 +66,14 @@ __artifacts_v2__ = {
                  "the users table for the account details and to the reads table for that "
                  "account's last read position in the conversation. A row records that the "
                  "account belongs to the conversation, which is not the same as the account "
-                 "having written anything in it. Username comes from the users row and falls "
+                 "having written anything in it. Username is read from the JSON in the users "
+                 "table's extra_data, taking the username key, then name, then nickname, and falls "
                  "back to the raw id. The roles, ban flags and the online flag are reported as "
                  "stored. Four member rows and three user rows were present on the tested image. "
                  "Channel Role, Invited, Banned In Conversation, Shadow Banned and Account "
-                 "Banned each held one value across the four rows of the tested image, which "
-                 "is what a single ordinary conversation with no restricted account looks "
-                 "like; four rows is too few for that to say anything about the app in "
-                 "general. "
+                 "Banned each held one value across the four rows of the tested image; four rows "
+                 "is too few for that to say anything about the app in general, and no meaning is "
+                 "given to the values here. "
                  "The tested image held two conversations and four member rows across three "
                  "accounts, so one account belonged to both.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/db_u*.sqlite*',),
@@ -93,7 +100,9 @@ __artifacts_v2__ = {
                  "row's JSON as stored, and the other account identifiers and display names are "
                  "read out of it where it parses. All six tables were empty on the tested image, "
                  "so this reader is code present and was not exercised, and the columns are the "
-                 "ones the tables declare rather than ones observed carrying values.",
+                 "ones the tables declare rather than ones observed carrying values. Notification "
+                 "Timestamp reads msg_date as Unix seconds, which is an assumption no row has "
+                 "tested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/private_*.db*',),
         "output_types": "standard",
         "artifact_icon": "bell",
@@ -103,8 +112,7 @@ __artifacts_v2__ = {
     },
     "gettr_ios_app_state": {
         "name": "GETTR - App State",
-        "description": "Key and value rows from the app's two key value stores, including an "
-                       "account record and a device identifier.",
+        "description": "Key and value rows from the app's two key value stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
@@ -144,8 +152,12 @@ __artifacts_v2__ = {
                  "libCachedImageData, and where that file is in the extraction it is attached to "
                  "the row, so the picture is shown rather than only named. A cached file is "
                  "paired with the database from its own app container, so two containers holding "
-                 "a file of the same name are never confused. Touched and Valid Until are Unix "
-                 "milliseconds. A row records that the app fetched the address, which is not by "
+                 "a file of the same name are never confused. Touched and Valid Until are read as "
+                 "Unix milliseconds. The table's column names match the flutter_cache_manager "
+                 "package, which writes both as milliseconds since the Unix epoch "
+                 "(cache_object.dart, "
+                 "https://github.com/Baseflow/flutter_cache_manager/blob/313bfa1bb232d700b08e64328a434b65426c0599/flutter_cache_manager/lib/src/storage/cache_object.dart#L73-L75). "
+                 "A row records that the app fetched the address, which is not by "
                  "itself evidence that a person chose to look at it; the cache does not record "
                  "whether the picture was opened. All 12 rows on the "
                  "tested image resolved to a file and every one of them was a picture. "

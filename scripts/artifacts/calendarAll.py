@@ -1,13 +1,25 @@
 __artifacts_v2__ = {
     "calendarEvents": {
         "name": "Calendar Events",
-        "description": "List of calendar events",
+        "description": "Calendar items whose calendar_scale value is not 'gregorian'",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Calendar",
-        "notes": "Participant status is reported as stored. Apple's public EKParticipantStatus enum defines Pending=1, Accepted=2, Declined=3, Tentative=4; whether the Calendar database column follows that enum is unverified. Reference: Apple EventKit, EKParticipantStatus, https://developer.apple.com/documentation/eventkit/ekparticipantstatus",
+        "notes": "Items with calendar_scale 'gregorian' are left out here and reported by Calendar "
+                 "Birthdays. Start Time and End Time are the stored values read as seconds since "
+                 "2001 and shown as UTC. The Timezone column is blank when the store holds _float; "
+                 "what _float means for the stored time was not established, so the UTC reading of "
+                 "those rows is not established. Invitees are the Participant rows with entity_type "
+                 "7. In the HTML report the stored participant status number is shown in square "
+                 "brackets before each invitee; the LAVA and TSV outputs list the invitees without "
+                 "it. Apple's public EKParticipantStatus enum lists the cases unknown, pending, "
+                 "accepted, declined, tentative, delegated, completed and inProcess, in that order; "
+                 "the cited page gives no numeric values, and whether the Calendar database column "
+                 "follows that enum is not established. Reference: Apple EventKit, "
+                 "EKParticipantStatus, "
+                 "https://developer.apple.com/documentation/eventkit/ekparticipantstatus",
         "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
         "output_types": "standard",
@@ -32,7 +44,7 @@ __artifacts_v2__ = {
     },
     "calendarBirthdays": {
         "name": "Calendar Birthdays",
-        "description": "Calendar items on the gregorian birthday calendar scale (commonly Contacts birthdays)",
+        "description": "Calendar items whose calendar_scale value is 'gregorian', with the start date read as a date. That these items are birthdays is not established here; check the Calendar Name of each row",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2024-10-30",
         "last_update_date": "2026-08-21",
@@ -69,7 +81,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Calendar",
-        "notes": "Sharing status and access level value mappings observed in testing; unrecognized values reported as stored.",
+        "notes": "Sharing Status shows 'Not shared', 'Shared by me' and 'Shared with me' for the "
+                 "stored values 0, 1 and 2, and the access level in Sharing Participants shows "
+                 "'View Only' and 'View & Edit' for 1 and 2. No source for these mappings is cited "
+                 "and the testing behind them is not recorded here, so treat the labels as "
+                 "unconfirmed; other values are reported as stored.",
         "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
         "output_types": ["html","lava","tsv"],

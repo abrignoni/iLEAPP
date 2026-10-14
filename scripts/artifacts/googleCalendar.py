@@ -14,12 +14,12 @@ __artifacts_v2__ = {
                  "the EventId column on every row, and the all-day start matched StartDayUtc on every "
                  "all-day row). "
                  "Two mutually exclusive start and end encodings were observed, and exactly one was "
-                 "present on each of the 4,496 rows tested. All-day events store a value that fell on "
-                 "exactly 00:00:00 UTC on all 1,418 rows carrying that form, so it encodes a calendar "
+                 "present on each row tested. All-day events store a value that fell on "
+                 "exactly 00:00:00 UTC on every tested row carrying that form, so it encodes a calendar "
                  "date rather than an instant; those rows carry the date in the All Day Start Date and "
                  "All Day End Date columns, which are date typed so the date is not moved by a report "
                  "timezone conversion. Timed events store an instant together with an IANA timezone name, "
-                 "present on all 3,078 timed rows tested; that name is reported in its own column and the "
+                 "present on every timed row tested; that name is reported in its own column and the "
                  "wall clock time in that zone is reported separately, so the conversion can be redone. "
                  "Created, Updated and the event start and end are milliseconds; the microsecond values "
                  "stored elsewhere in this database are converted separately. "
@@ -29,9 +29,13 @@ __artifacts_v2__ = {
                  "so no media is checked in. Events with no title also carried no description and no "
                  "location in the tested samples and are reported with the remaining fields rather than "
                  "dropped. "
+                 "An Events row whose Proto value is empty or cannot be decoded is not reported. The "
+                 "tested samples are not named here and the artifact records no sample_data, so the "
+                 "observations above cannot be re-derived from this field. "
                  "Path reference: Park, Park, Kim, Kang, Kim, 'A comprehensive artifact analysis of "
                  "Google applications on Android and iOS platforms', Forensic Science International: "
-                 "Digital Investigation.",
+                 "Digital Investigation, volume 55, 2025, article 302029, "
+                 "https://doi.org/10.1016/j.fsidi.2025.302029.",
         "paths": ('*/Library/Application Support/UnifiedSync/unifiedsync.db*',),
         "output_types": "standard",
         "artifact_icon": "calendar",
@@ -45,7 +49,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "One row per attendee entry in the repeated attendee field of the event protobuf. "
-                 "The attendee response and role integers are reported as stored: the app binary is not "
+                 "Three attendee integers, fields 6, 9 and 10, are reported as stored: the app binary is not "
                  "present in an application data container and no mapping for them was sourced. "
                  "The attendee timestamp is milliseconds.",
         "paths": ('*/Library/Application Support/UnifiedSync/unifiedsync.db*',),
@@ -64,7 +68,9 @@ __artifacts_v2__ = {
                  "IEEE 754 doubles. In the tested samples the decoded pairs fell in the region matching "
                  "the timezone the same events carried, which is a consistency check and not a statement "
                  "about where the device was. A structured location records a place associated with the "
-                 "event, not an observed device position. Rows are emitted for structured locations that "
+                 "event, not an observed device position. One row is emitted per event that holds a "
+                 "structured location; where an event holds more than one, the first is read. Rows are "
+                 "emitted for structured locations that "
                  "carry no coordinates as well, so the count is not limited to mappable rows.",
         "paths": ('*/Library/Application Support/UnifiedSync/unifiedsync.db*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -78,8 +84,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
-        "notes": "Rows come from the Calendars table of unifiedsync.db. The calendar timezone is the "
-                 "zone recorded for the calendar itself and is not necessarily the zone of any event on "
+        "notes": "Rows come from the Calendars table of unifiedsync.db. Calendar Name, Calendar Time "
+                 "Zone, Owner Address and Domain are read from the Proto column by field position; how "
+                 "those positions were established is not stated here. The calendar timezone is the "
+                 "value held in the calendar's own record and is not necessarily the zone of any event on "
                  "it. The calendar timestamp in this table is stored as a microsecond string, a different "
                  "unit from the millisecond values in the Events table, and is converted as microseconds. "
                  "Colour and access integers are reported as stored.",
@@ -96,9 +104,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the CalendarSyncInfo table of unifiedsync.db. IsSelected and "
-                 "IsSyncEnabled are the values stored by the app. A day number observed in the protobuf "
-                 "is reported as a date derived by counting days from 1970-01-01 UTC; it is reported as "
-                 "a date rather than a datetime because the stored value has no time component.",
+                 "IsSyncEnabled are the values stored by the app. An integer in the protobuf (field 3.3) "
+                 "is read as a count of days from 1970-01-01 UTC and reported as a date. What the date "
+                 "marks is not established, and the Sync Date header is a label only. It is reported as "
+                 "a date rather than a datetime because a day count carries no time of day.",
         "paths": ('*/Library/Application Support/UnifiedSync/unifiedsync.db*',),
         "output_types": "standard",
         "artifact_icon": "refresh-cw",
@@ -111,9 +120,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
-        "notes": "One row per access entry in the AccessData table of unifiedsync.db. The role integer is "
-                 "reported as stored; no mapping for it was sourced. An entry may name an individual or a "
-                 "group, and both are reported in the column that held the value.",
+        "notes": "One row per entry of the repeated field 2 in the protobuf of an AccessData row of "
+                 "unifiedsync.db. The role integer is "
+                 "reported as stored; no mapping for it was sourced. Each entry holds an address in one "
+                 "of two protobuf fields, reported as Individual Address (field 1) and Group Address "
+                 "(field 2). Those names are not sourced.",
         "paths": ('*/Library/Application Support/UnifiedSync/unifiedsync.db*',),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -145,9 +156,9 @@ __artifacts_v2__ = {
         "notes": "Rows come from the Settings table of unifiedsync.db. The setting identifier is a "
                  "readable key stored by the app. A setting value may be a string or a nested structure; "
                  "where it is a structure the decoded content is reported rather than the row being "
-                 "skipped, so the row count matches the number of settings stored. A minority of settings "
-                 "carry no value in the usual field and hold a structured value in another; those are "
-                 "reported from that field rather than as an empty cell. The setting timestamp "
+                 "skipped, so the row count matches the number of settings stored. Where a setting holds "
+                 "no value in protobuf field 2, the value is read from field 8 rather than reported as "
+                 "an empty cell. The setting timestamp "
                  "is stored as a microsecond string and is converted as microseconds.",
         "paths": ('*/Library/Application Support/UnifiedSync/unifiedsync.db*',),
         "output_types": "standard",
@@ -176,7 +187,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
-        "notes": "Rows come from the contacts table of the per account Contacts cache database. This is a "
+        "notes": "Rows come from the contacts table of the per account Contacts cache database. Display "
+                 "Name is read from the contact's protobuf and, where that holds none, from the first "
+                 "name nested in the contact's address entries. Account ID is taken from the cache file "
+                 "name. This is a "
                  "cache the app holds; presence of a contact here does not establish "
                  "that the user contacted or invited that person. The affinity value is reported as stored "
                  "and no meaning is asserted for it. The cache file name is not specific to this app, so "
@@ -184,7 +198,7 @@ __artifacts_v2__ = {
                  "container holding the same cache without that marker is skipped and logged. "
                  "In the tested samples every contact carried one "
                  "lookup key holding an address and a second lookup key whose value was an empty string "
-                 "on all 517 rows of the largest cache, so the second key type is reported as present and "
+                 "on every row of the largest cache, so the second key type is reported as present and "
                  "empty rather than omitted. Photo values are the remote URLs recorded by the app; the "
                  "image bytes were not present in the tested samples, so nothing is checked in as media.",
         "paths": ('*/Library/Caches/Contacts_*.db*',

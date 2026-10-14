@@ -1,9 +1,10 @@
 __artifacts_v2__ = {
     "applicationSnapshots": {
         "name": "App Snapshots",
-        "description": "Snapshots saved by iOS for individual apps. KTX images are converted to PNG for display, and \
-            XBApplicationSnapshotManifest metadata is joined when applicationState.db is available. KTX files smaller \
-            than 2500 bytes are skipped.",
+        "description": "Snapshots saved by iOS for individual apps. KTX images are converted to "
+                       "PNG for display, and XBApplicationSnapshotManifest metadata is joined when "
+                       "applicationState.db is available. KTX files smaller than 2500 bytes and "
+                       "KTX files that do not decode are left out.",
         "author": "@ydkhatri - @AlexisBrignoni",
         "creation_date": "2020-07-23",
         "last_update_date": "2026-08-21",

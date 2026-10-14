@@ -1,15 +1,28 @@
 __artifacts_v2__ = {
     "callHistoryGroupCall": {
         "name": "Call History - Group Call",
-        "description": "Calls from the CallHistory store (ZCALLRECORD with its remote participant "
-                       "handles), with start and end, service, type, direction, participant "
+        "description": "Calls from CallHistory.storedata (ZCALLRECORD joined to its remote "
+                       "participant handles through the Z_2REMOTEPARTICIPANTHANDLES table), with "
+                       "start and end, service, type, direction, participant "
                        "numbers, duration, FaceTime data, disconnect cause, country and location.",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Call History",
-        "notes": "Call type and disconnected-cause value mappings are community-established decodes reported as observed; unrecognized values are reported as stored.",
+        "notes": "Read only when the store has a Z_2REMOTEPARTICIPANTHANDLES table with a "
+                 "Z_3REMOTEPARTICIPANTHANDLES or Z_4REMOTEPARTICIPANTHANDLES column; a store that "
+                 "numbers that table differently gives no rows. Calls with no participant row are "
+                 "grouped into one row. CallHistoryTemp.storedata is not read. Call End Date/Time "
+                 "is the start time plus the stored duration and is blank when the duration is 0. "
+                 "Call Type shows 'Third-Party App', 'Phone Call', 'FaceTime Video' and 'FaceTime "
+                 "Audio' for the stored values 0, 1, 8 and 16. Disconnected Cause shows 'Ended' for "
+                 "0 and 41, 'No Answer' for 2 and 49 and 'Rejected' for 6, and for WhatsApp calls "
+                 "applies its own rules from the cause, the duration and the direction. No source "
+                 "for these mappings is cited, so treat the labels as unconfirmed; the Call History "
+                 "artifact reports 2, 41 and 49 as stored. Other values are reported as stored. "
+                 "Call Description is set by this module from the number of participant handles "
+                 "joined to the call: one is shown as Direct Call and more as Group Call.",
         "paths": ('*/mobile/Library/CallHistoryDB/CallHistory*'),
         "output_types": "standard",
         "artifact_icon": "phone-call",
@@ -33,15 +46,21 @@ __artifacts_v2__ = {
     },
     "callHistoryInteractionC": {
         "name": "interactionC Call History - Group Call",
-        "description": "Call interactions from CoreDuet's interactionC.db (ZINTERACTIONS with "
-                       "their recipients), with start and end, app bundle id, direction, display "
+        "description": "Interactions from CoreDuet's interactionC.db (ZINTERACTIONS with their "
+                       "recipients) whose bundle id is com.apple.InCallService, "
+                       "com.apple.facetime or com.apple.mobilephone, with start and end, app "
+                       "bundle id, direction, display "
                        "name, number and duration.",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Call History",
-        "notes": "",
+        "notes": "Only those three bundle ids are read, so calls made through other apps are not "
+                 "listed. Interactions with no recipient row are grouped into one row. Call "
+                 "Direction shows Outgoing for a stored 1 and Incoming for 0, and Call Description "
+                 "is set by this module from the recipient count; no source for either reading is "
+                 "cited. Interaction Duration is the end time minus the start time.",
         "paths": (
             '*/mobile/Library/CoreDuet/People/interactionC.db*'),
         "output_types": "standard",

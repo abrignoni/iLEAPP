@@ -1,13 +1,14 @@
 __artifacts_v2__ = {
     'safariDownloads': {
         'name': 'Safari - Downloads',
-        'description': 'Files downloaded through Safari, from the browser download history plist',
+        'description': 'Entries of the DownloadHistory array in Safari\'s Downloads.plist',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Safari Browser',
-        'notes': ('Every Downloads.plist in the available test corpora has an empty DownloadHistory '
+        'notes': ('On the three images in sample_data the Downloads.plist has an empty '
+                  'DownloadHistory '
                   'array, so the columns are mapped from the expected DownloadEntry* key names; no '
                   'populated sample was available to verify them. Unrecognised keys are reported in Other Fields '
                   'rather than dropped.'),

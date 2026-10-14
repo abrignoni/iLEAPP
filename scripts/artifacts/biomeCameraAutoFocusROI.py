@@ -2,17 +2,17 @@ __artifacts_v2__ = {
     "get_biomeCameraAutoFocusROI": {
         "name": "Biome - Camera Auto Focus ROI",
         "description": "Parses camera autofocus region of interest events from the "
-                       "CameraCapture.AutoFocusROI biome stream. Each record marks camera "
-                       "use and which camera port was in use.",
+                       "CameraCapture.AutoFocusROI biome stream. Each record carries a "
+                       "camera port string. What action writes a record is not "
+                       "established here.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Only the camera port (for example PortTypeBack) is self describing. The "
-                 "remaining fields are capture parameters whose units the sample data does not "
-                 "confirm, so they are reported raw; field 8 is a 32 bit float and is also "
-                 "shown decoded.",
+                 "meaning of the remaining fields is not established, so they are reported "
+                 "raw; field 8 is a 32 bit float and is also shown decoded.",
         "paths": ('*/streams/*/CameraCapture.AutoFocusROI/local/*',),
         "output_types": "standard",
         "artifact_icon": "camera",

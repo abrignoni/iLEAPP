@@ -2,17 +2,26 @@
 __artifacts_v2__ = {
     "messageRetention": {
         "name": "iOS Message Retention",
-        "description": "Extract how long messages are kept on the device",
+        "description": "The Keep Messages preference value stored in com.apple.MobileSMS.plist "
+                       "(KeepMessageForDays or SSKeepMessages)",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-03",
         "version": "0.5",
         "date": "2023-10-04",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "iOS <=16 / iOS 17+ key naming per tested corpora. This directory can hold "
-                 "com.apple.MobileSMS.plist and com.apple.mobileSMS.plist as two different files; "
-                 "6 of 23 tested images carry both, iOS 14.3 through 26.5.2. Every found file is "
+        "notes": "Setting names the file and the stored key the row was read from "
+                 "(KeepMessageForDays or SSKeepMessages). A file can hold both keys and then "
+                 "yields a row for each; which iOS releases write which key is not established "
+                 "here. Data Value reads Forever "
+                 "for a stored 0, 1 Year for 365 and 30 Days for 30, a mapping taken from values "
+                 "seen in the tested corpora; any other value is reported as 'Unrecognized value:' "
+                 "followed by the stored value. A file with neither key yields 'No value', and "
+                 "which setting applies then is not established here. "
+                 "This directory can hold com.apple.MobileSMS.plist and "
+                 "com.apple.mobileSMS.plist as two different files; 6 of the 20 tested images "
+                 "listed in sample_data carry both, iOS 14.3 through 26.5.2. Every found file is "
                  "read and each row's Setting names the source spelling it was read from. Where "
                  "the report folder is on a case-insensitive volume, the file seeker preserves "
                  "the second copy under a name tagged ~case- and the row's path points at the "
@@ -59,8 +68,9 @@ from scripts.ilapfuncs import artifact_processor, get_plist_file_content, device
 # Values observed in tested corpora. Anything else is reported as stored.
 _KEEP_VALUES = {0: 'Forever', 365: '1 Year', 30: '30 Days'}
 
-# The key Apple uses changed between generations; both are read.
-_KEEP_KEYS = (('KeepMessageForDays', 'iOS <=16'), ('SSKeepMessages', 'iOS 17+'))
+# Two keys have been seen holding this preference; both are read and each row
+# is labelled with the key it came from.
+_KEEP_KEYS = ('KeepMessageForDays', 'SSKeepMessages')
 
 
 def _describe(val):
@@ -98,11 +108,11 @@ def messageRetention(context):
         pl = get_plist_file_content(source_path)
 
         found = False
-        for key, generation in _KEEP_KEYS:
+        for key in _KEEP_KEYS:
             if key not in pl:
                 continue
             keep_val = _describe(pl[key])
-            setting = f'{filename} - Keep Messages for Days ({generation})'
+            setting = f'{filename} - Keep Messages for Days ({key})'
             data_list.append((setting, keep_val, rel_path))
             device_info('Messages Settings', setting, keep_val, source_path)
             found = True

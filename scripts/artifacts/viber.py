@@ -5,12 +5,16 @@ __artifacts_v2__ = {
         'name': 'Viber - Settings',
         'description': "Parses settings db, extracts and reports on user's available "
                        "information regarding Viber settings.",
-        'author': 'Evangelos Dragonas (@theAtropos4n6)',
+        'author': 'Evangelos Dragonas (@theAtropos4n6), @AlexisBrignoni, Codex',
         'creation_date': '2022-03-09',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-04',
         'requirements': '',
         'category': 'Viber',
-        'notes': 'Negative values are reported as stored.',
+        'notes': 'The _autoBackupLastRunTime value is converted from Unix time to UTC unless it '
+                 'is negative, in which case it is shown as stored. _lastBackupStartDate is '
+                 'reported as stored without an asserted epoch. The two backup attempt counters '
+                 'are reported as hexadecimal for bytes and unchanged otherwise because their '
+                 'byte order is not established. What a negative value records is not established.',
         'paths': ('*/com.viber/settings/Settings.data',),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'settings',
@@ -47,9 +51,9 @@ __artifacts_v2__ = {
     },
     'viber_call_remnants': {
         'name': 'Viber - Call Remnants',
-        'description': "Parses contacts db and reports ZRECENT call rows that have no "
-                       "corresponding ZVIBERMESSAGE entry; why the entry is missing is not "
-                       "established.",
+        'description': "Parses contacts db and reports ZRECENT call rows whose ZCALLLOGMESSAGE "
+                       "and ZRECENTSLINE are both NULL; why those values are NULL is not "
+                       "established. No registered corpus in sample_data produced a row.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
         'last_update_date': '2026-07-31',
@@ -78,7 +82,12 @@ __artifacts_v2__ = {
         'requirements': '',
         'category': 'Viber',
         'notes': 'Column-to-meaning alignment for ZDATE/ZSTATEDATE follows the '
-                 "column names; the app's exact semantics are not vendor-documented.",
+                 "column names; the app's exact semantics are not vendor-documented. State is "
+                 "derived by this module: ZSTATE send or delivered is shown as Outgoing and "
+                 "received as Incoming; other values are shown as stored. On Outgoing rows the "
+                 "sender columns are filled from the _myUserName and _myPhoneNumber settings, and "
+                 "those two values are appended to every Chat Participant(s) and Chat Phone(s) "
+                 "cell.",
         'paths': (
             '**/com.viber/database/Contacts.data*',
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',
@@ -110,7 +119,7 @@ __artifacts_v2__ = {
 }
 
 import json
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc, \
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, get_birthdate_from_unix_ts, \
     check_in_media, check_in_embedded_media, does_table_exist_in_db
 
@@ -159,7 +168,7 @@ def viber_settings(context):
         if record[0] == '_appVersion':
             setting = 'Application Version'
         elif record[0] == '_lastBackupStartDate':
-            setting = 'Last Backup Start Date - UTC'
+            setting = '_lastBackupStartDate (as stored)'
         elif record[0] == '_myUserName':
             setting = 'User Name'
         elif record[0] == '_currentEmail':
@@ -194,29 +203,13 @@ def viber_settings(context):
                 thumb = check_in_embedded_media(data_source, record[1], "Viber Profile Picture")
                 value = thumb
         elif record[0] == '_attemptsToDownloadBackupForRestore':
-            setting = 'Attempts To Download Backup For Restore'
-            try:
-                int.from_bytes(record[1], byteorder='big')  # needs further validation about the byteorder
-            except TypeError as err:
-                error_message = "Viber - Settings '_attemptsToDownloadBackupForRestore' could not be extracted. "
-                error_message += f"The error was: {err}"
-                logfunc(error_message)
+            setting = '_attemptsToDownloadBackupForRestore (as stored)'
+            value = record[1].hex() if isinstance(record[1], bytes) else record[1]
         elif record[0] == '_backupAttemptsCount':
-            setting = 'Backup Attempts Count'
-            try:
-                int.from_bytes(record[1], byteorder='big')  # needs further validation about the byteorder
-            except TypeError as err:
-                error_message = "Viber - Settings '_backupAttemptsCount' could not be extracted. "
-                error_message += f"The error was: {err}"
-                logfunc(error_message)
+            setting = '_backupAttemptsCount (as stored)'
+            value = record[1].hex() if isinstance(record[1], bytes) else record[1]
         elif record[0] == '_autoBackupLastRunTime':
             setting = 'Auto Backup Last Run Time - UTC'
-            x = str(record[1])
-            if x.startswith("-"):
-                value = record[1]
-            else:
-                value = convert_unix_ts_to_utc(record[1])
-        elif record[0] == '_lastBackupStartDate':
             x = str(record[1])
             if x.startswith("-"):
                 value = record[1]

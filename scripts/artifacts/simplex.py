@@ -1,11 +1,11 @@
 __artifacts_v2__ = {
     "simplexMessages": {
         "name": "SimpleX - Messages",
-        "description": "Messages from the SimpleX Chat iOS SQLCipher database, decrypted with "
+        "description": "Chat items from the SimpleX Chat iOS SQLCipher database, decrypted with "
                        "the database passphrase held in the keychain.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-22",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "SimpleX",
         "notes": "SimpleX Chat keeps its data in a SQLCipher-encrypted database, "
@@ -14,17 +14,29 @@ __artifacts_v2__ = {
                  "databasePassword, access group chat.simplex.app). The keychain is captured "
                  "separately from the file system, so supply it with --keychain or the keychain "
                  "field in the GUI; a keychain the extraction carries is picked up automatically. "
-                 "The database is decrypted in memory to a temporary copy using the SQLCipher 4 "
+                 "The database is decrypted to a temporary copy on disk using the SQLCipher 4 "
                  "defaults (page size 4096, 256000 PBKDF2-HMAC-SHA512 iterations, SHA512 HMAC), "
                  "which authenticated every page on the tested sample. One row per row in "
-                 "chat_items. Sent is the item_ts timestamp. Direction is Sent when item_sent is 1 "
-                 "and Received when it is 0. Message is the item_text the app stored for display. "
-                 "Chat is the contact's profile name for a direct chat, or the group's profile name "
-                 "for a group chat. Sender is the other party's name on a received message (the "
-                 "contact, or the group member for a group message), and blank on a sent message "
-                 "because the sender is the account. Media renders an attached file when the app "
-                 "kept it: attachments are stored unencrypted under app_files and linked to the "
-                 "message through the files table. Deleted and Status are reported as stored. "
+                 "chat_items. Item Timestamp is the item_ts text, read as UTC, on sent and "
+                 "received rows alike. What item_ts marks on a received row is not established. "
+                 "Chat ID is group: and the group_id, or contact: and the contact_id, and blank on "
+                 "a row that stores neither. Direction is Sent when item_sent is 1 and "
+                 "Received for any other value. Message is the item_text the app stored for "
+                 "display. Chat is the contact's local alias where one is stored and otherwise the "
+                 "contact's profile display name for a direct chat, or the group's profile display "
+                 "name for a group chat. Sender is that same contact name on a received direct "
+                 "message, or on a received group message the member's profile display name, "
+                 "falling back to the member row's local_display_name, and blank on a sent message "
+                 "because the sender is the account. Media attaches a file where one is found: the "
+                 "file is located under app_files by the name the files table records for the "
+                 "message, and it is attached as stored. SimpleX Chat's v5.3 release notes say "
+                 "files and media other than videos are encrypted locally unless that setting is "
+                 "turned off (https://github.com/simplex-chat/simplex-chat/blob/"
+                 "97b472fd9c43dfdf0f765d18f33794a96458e909/blog/"
+                 "20230925-simplex-chat-v5-3-desktop-app-local-file-encryption-directory-service.md#L83); "
+                 "this artifact does not decrypt them, so a Media cell can hold a file that does "
+                 "not open. Message Status is item_status as stored. Deleted (as stored) is "
+                 "item_deleted as stored, and blank where it is NULL. "
                  "Field mapping was done against a private sample; no sample data is recorded for "
                  "it.",
         "paths": ('*/AppGroup/*/simplex_v1_chat.db*',
@@ -37,7 +49,7 @@ __artifacts_v2__ = {
             "conversation": {
                 "conversationDiscriminatorColumn": "Chat ID",
                 "conversationLabelColumn": "Chat",
-                "timeColumn": "Sent",
+                "timeColumn": "Item Timestamp",
                 "directionColumn": "Direction",
                 "directionSentValue": "Sent",
                 "senderColumn": "Sender",
@@ -57,8 +69,9 @@ __artifacts_v2__ = {
         "notes": "Read from the contacts table joined to contact_profiles in the decrypted "
                  "simplex_v1_chat.db (see the Messages artifact for how the database is decrypted "
                  "from the keychain passphrase). Display Name is the profile name, Local Alias is "
-                 "the name the account set locally for the contact, Full Name is the profile's full "
-                 "name. Created is created_at. Field mapping was done against a private sample; no "
+                 "the profile's local_alias value as stored, Full Name is the profile's full name. "
+                 "Created is the created_at text, read as UTC. Field mapping was done against a "
+                 "private sample; no "
                  "sample data is recorded for it.",
         "paths": ('*/AppGroup/*/simplex_v1_chat.db*',
                   '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -77,7 +90,8 @@ __artifacts_v2__ = {
         "notes": "Read from group_members joined to groups, group_profiles and contact_profiles in "
                  "the decrypted simplex_v1_chat.db (see the Messages artifact for how the database "
                  "is decrypted from the keychain passphrase). One row per group member. Group is "
-                 "the group's profile name, Member is the member's profile name, Member Role and "
+                 "the group's profile name, Member is the member's profile display name, or the "
+                 "member row's local_display_name where the profile has none, Member Role and "
                  "Member Status are reported as stored. Field mapping was done against a private "
                  "sample; no sample data is recorded for it.",
         "paths": ('*/AppGroup/*/simplex_v1_chat.db*',
@@ -224,7 +238,7 @@ def _files_by_item(plain_db):
 @artifact_processor
 def simplexMessages(context):
     data_headers = (
-        ('Sent', 'datetime'),
+        ('Item Timestamp', 'datetime'),
         'Direction',
         'Sender',
         'Chat',
@@ -232,7 +246,7 @@ def simplexMessages(context):
         ('Media', 'media'),
         'Chat ID',
         'Message Status',
-        'Deleted',
+        'Deleted (as stored)',
         'Source File',
     )
     data_list = []
@@ -258,9 +272,12 @@ def simplexMessages(context):
             if group_id is not None:
                 chat = group_names.get(group_id, '')
                 chat_id = f'group:{group_id}'
-            else:
+            elif contact_id is not None:
                 chat = contact_names.get(contact_id, '')
                 chat_id = f'contact:{contact_id}'
+            else:
+                chat = ''
+                chat_id = ''
 
             if row['item_sent'] == 1:
                 direction = 'Sent'
@@ -293,7 +310,7 @@ def simplexMessages(context):
                 media,
                 chat_id,
                 row['item_status'] or '',
-                'Yes' if row['item_deleted'] else '',
+                row['item_deleted'] if row['item_deleted'] is not None else '',
                 context.get_relative_path(db_path),
             ))
             rows += 1

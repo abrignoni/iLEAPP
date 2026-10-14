@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "CarPlay",
-        "notes": "Timestamps are Unix epoch seconds (UTC).",
+        "notes": "The CARRecentAppHistory values are read as Unix epoch seconds and shown in UTC. What event a value marks is not established here.",
         "paths": ('*/com.apple.CarPlayApp.plist',),
         "output_types": "standard",
         "artifact_icon": "navigation",

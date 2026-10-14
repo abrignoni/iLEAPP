@@ -15,13 +15,16 @@ following information can be interpreted:
 __artifacts_v2__ = {
     "hikvisionChannels": {
         "name": "Hikvision - CCTV Channels",
-        "description": "Available CCTV record channels from the Hikvision app",
+        "description": "Rows of the ChannelInfo table of the Hikvision app's database.hik",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Hikvision",
-        "notes": "",
+        "notes": "nEnable (as stored) is the ChannelInfo.nEnable value reported as stored. What "
+                 "each value means is not established here; earlier versions of this artifact "
+                 "labelled 0 as Disabled and 1 as Enabled without a stated source and left any "
+                 "other value blank.",
         "paths": ('*/Documents/database.hik*',),
         "output_types": "standard",
         "artifact_icon": "video"
@@ -42,7 +45,9 @@ __artifacts_v2__ = {
     "hikvisionActivity": {
         "name": "Hikvision - CCTV Activity",
         "description": "Log records from the Hikvision app's YSDCLogItem.sqlite, with the system "
-                       "name and data of each as stored",
+                       "name and data of each as stored. The stored time is read as Unix "
+                       "milliseconds; no sample data is recorded for this artifact, so that unit "
+                       "is not validated against data",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
         "last_update_date": "2026-06-24",
@@ -55,13 +60,17 @@ __artifacts_v2__ = {
     },
     "hikvisionMedia": {
         "name": "Hikvision - CCTV Media",
-        "description": "Media files stored under Documents/YYYY/MM/DD in the Hikvision app container",
+        "description": "Media files found under a Documents/YYYY/MM/DD folder of any app "
+                       "container. The artifact does not confirm that the container belongs to the "
+                       "Hikvision app, so check the File Path of each row",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Hikvision",
-        "notes": "Media are stored under Documents/YYYY/MM/DD within the app container.",
+        "notes": "A file is reported when its path has the shape Documents/YYYY/MM/DD/<file>, with "
+                 "digits in the three folder names. No other test ties the file to the Hikvision "
+                 "app.",
         "paths": ('*/Documents/*/*/*/*.jpg', '*/Documents/*/*/*/*.mov', '*/Documents/*/*/*/*.mp4'),
         "output_types": "standard",
         "artifact_icon": "movie",
@@ -93,7 +102,7 @@ def _find(context, filename):
 
 @artifact_processor
 def hikvisionChannels(context):
-    data_headers = ('Device ID', 'Channel No.', 'Channel Name', 'Status')
+    data_headers = ('Device ID', 'Channel No.', 'Channel Name', 'nEnable (as stored)')
     data_list = []
     source_path = _find(context, 'database.hik')
     if not source_path:
@@ -104,7 +113,7 @@ def hikvisionChannels(context):
         nDeviceID,
         nChannelNo,
         chChannelName,
-        CASE nEnable WHEN '0' THEN 'Disabled' WHEN '1' THEN 'Enabled' END
+        nEnable
     FROM ChannelInfo
     '''
     try:

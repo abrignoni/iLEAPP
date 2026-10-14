@@ -12,9 +12,11 @@ __artifacts_v2__ = {
                  "State is set only by an installer-reported outcome: an 'Install successful' "
                  "line, an 'Uninstalling identifier' line, or a 'Destroying container' line. In "
                  "the tested corpora every 'Destroying container' line was written by "
-                 "MIUninstaller or MIUninstallNotifier. Container bookkeeping ('Made container "
-                 "live', written by makeContainerLiveReplacingContainer, and 'Data container "
-                 "moved', written by _refreshUUIDForContainer) is not an installer-reported "
+                 "MIUninstaller or MIUninstallNotifier; no count of those lines is recorded here, "
+                 "and the code matches the phrase only and does not check which component wrote "
+                 "the line. Container bookkeeping (lines reading 'Made container live for ...' and "
+                 "'Data container for ... is now at ...', which this module labels 'Made container "
+                 "live' and 'Data container moved') is not an installer-reported "
                  "outcome, so it is kept in Apps - Historical Combined and does not place a "
                  "bundle here. A bundle whose install predates the retained log window has no "
                  "'Install successful' line and will not appear; absence here is not evidence "
@@ -56,9 +58,11 @@ __artifacts_v2__ = {
                  "State is set only by an installer-reported outcome: an 'Install successful' "
                  "line, an 'Uninstalling identifier' line, or a 'Destroying container' line. In "
                  "the tested corpora every 'Destroying container' line was written by "
-                 "MIUninstaller or MIUninstallNotifier. Container bookkeeping ('Made container "
-                 "live', written by makeContainerLiveReplacingContainer, and 'Data container "
-                 "moved', written by _refreshUUIDForContainer) is not an installer-reported "
+                 "MIUninstaller or MIUninstallNotifier; no count of those lines is recorded here, "
+                 "and the code matches the phrase only and does not check which component wrote "
+                 "the line. Container bookkeeping (lines reading 'Made container live for ...' and "
+                 "'Data container for ... is now at ...', which this module labels 'Made container "
+                 "live' and 'Data container moved') is not an installer-reported "
                  "outcome, so it is kept in Apps - Historical Combined and does not place a "
                  "bundle here. A bundle whose install predates the retained log window has no "
                  "'Install successful' line and will not appear; absence here is not evidence "
@@ -89,13 +93,14 @@ __artifacts_v2__ = {
     },
     "mobileInstall_historical": {
         "name": "Apps - Historical Combined",
-        "description": "Install, update, patch, uninstall, container and reboot events from mobile_installation.log",
+        "description": "Install, patch update attempt, uninstall, container and reboot lines from "
+                       "mobile_installation.log",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz) are read as well, and they can hold copies of the same log lines. A line found in more than one log file is reported as many times as the one file holding it most often: a copy adds no row, and a line repeated within one file is reported each time. On the three tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5), 853, 797 and 291 rows would otherwise have been reported twice. Every log file read is listed as a source, whether or not it added a row.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz) are read as well, and they can hold copies of the same log lines. A line found in more than one log file is reported as many times as the one file holding it most often: a copy adds no row, and a line repeated within one file is reported each time. On tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5) rows would otherwise have been reported twice; the counts are not recorded here. Every log file read is listed as a source, whether or not it added a row.",
         "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list",
@@ -151,7 +156,8 @@ __artifacts_v2__ = {
     },
     "mobileInstall_container_only": {
         "name": "Apps - Container Activity Only",
-        "description": "Bundle IDs that mobile_installation.log mentions only through container or patch activity, with no installer-reported install or uninstall",
+        "description": "Bundle IDs that mobile_installation.log mentions in a container, patch or "
+                       "'Installing' line, with no installer-reported install or uninstall",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-25",
         "last_update_date": "2026-09-18",
@@ -161,8 +167,9 @@ __artifacts_v2__ = {
                  "marker; in tested corpora the values were consistent with device-local time. "
                  "These bundle IDs appear in the log but never in an 'Install successful', "
                  "'Uninstalling identifier' or 'Destroying container' line, so Apps - Installed "
-                 "and Apps - Uninstalled do not list them. One cause is an install that predates "
-                 "the retained log window; the cause for a given bundle is not established. "
+                 "and Apps - Uninstalled do not list them. An install made before the oldest "
+                 "retained log line would leave a bundle here, and other causes are possible; the "
+                 "cause for a given bundle is not established. "
                  "Presence here shows the log mentioned the bundle; it does not establish that "
                  "the app was installed, and absence of an install line is not evidence that it "
                  "was not. App extension bundle IDs can appear here. Parent Bundle ID (by "

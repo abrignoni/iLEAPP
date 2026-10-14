@@ -22,11 +22,11 @@
     }
   },
   "headers": [
-    "Last Activity",
+    "Latest Sender-Matched Item Timestamp",
     "Phone Number",
     "Blocked",
     "Thread Count",
-    "Item Count"
+    "Sender-Matched Item Count"
   ],
   "data": [
     [

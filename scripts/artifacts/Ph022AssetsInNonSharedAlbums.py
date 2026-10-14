@@ -1,12 +1,15 @@
 __artifacts_v2__ = {
 'Ph022AssetsinNonSharedAlbumsPhDaPsql': {
 'name': 'Ph022-Assets in Non-Shared Albums-PhDaPsql',
-'description': 'Parses Assets associated with Non-Shared Albums found in PhotoData-Photos.sqlite and'
-' supports iOS. Parses limited assets data with full non-shared album data.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses Assets associated with Non-Shared Albums found in PhotoData/Photos.sqlite. "
+"Parses selected asset columns with the album, parent album and album list columns "
+"listed in the report, for albums of kind 2. An asset appears on one row for each "
+"combination of such an album and album list record joined to it. Queries exist for "
+"iOS 11 through 26; other versions return no rows. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -53,6 +56,9 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path

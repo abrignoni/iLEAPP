@@ -28,16 +28,18 @@ import os
 import tarfile
 import hashlib
 import struct
+import zlib
 
 from pathlib import Path
 from shutil import copy2, copyfileobj
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 from fnmatch import _compile_pattern
 from functools import lru_cache
 
 # Yes, this is hazmat, but we're only using it to unwrap existing keys
 import cryptography.hazmat.primitives.keywrap as crypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.padding import PKCS7
 
 
 from scripts.ilapfuncs import get_plist_file_content, get_plist_content, logfunc, \
@@ -45,6 +47,18 @@ from scripts.ilapfuncs import get_plist_file_content, get_plist_content, logfunc
 from scripts.filetype import guess_mime
 
 normcase = lru_cache(maxsize=None)(os.path.normcase)
+
+# A damaged or unsupported member of an otherwise readable zip (bad CRC-32,
+# truncated deflate stream, unsupported compression or encryption).
+_ZIP_MEMBER_ERRORS = (BadZipFile, zlib.error, RuntimeError, NotImplementedError)
+
+
+def _remove_partial(path):
+    try:
+        if path and os.path.isfile(path):
+            os.remove(path)
+    except OSError:
+        pass
 domains = {
     "AppDomain-": "private/var/mobile/Containers/Data/Application",
     "AppDomainGroup-": "private/var/mobile/Containers/Shared/AppGroup",
@@ -262,6 +276,32 @@ def decrypt_itunes_backup(directory, passcode):
 
     logfunc(f"Manifest.db was successfully decrypted with passcode {passcode}")
     return (protection_classes, unwrapped_manifest_key), "Decryption successful"
+
+
+def _without_cbc_padding(decrypted_contents):
+    """Return decrypted contents without their PKCS#7 padding, or None when it is not valid."""
+    unpadder = PKCS7(algorithms.AES.block_size).unpadder()
+    try:
+        return unpadder.update(decrypted_contents) + unpadder.finalize()
+    except ValueError:
+        return None
+
+
+def _backup_file_plaintext(decrypted_contents, manifest_size, relative_path):
+    """Return a decrypted backup file without its CBC padding.
+
+    The length comes from the PKCS#7 padding the file was stored with, not from
+    the Size in its Manifest.db record. The two disagree for SQLite databases
+    in both directions, and the stored copy is the one whose header page count
+    matches its own length; cutting it to Size drops pages or leaves the
+    padding block on the end. Size is only used when the padding is not valid.
+    """
+    plaintext = _without_cbc_padding(decrypted_contents)
+    if plaintext is None:
+        logfunc(f'No valid padding at the end of {relative_path}, '
+                f'writing the {manifest_size} bytes its Manifest.db record gives')
+        return decrypted_contents[0:manifest_size]
+    return plaintext
 
 
 def _probe_volume_case_insensitive(folder):
@@ -611,8 +651,13 @@ class FileSeekerItunes(FileSeekerBase):
                     decryptor = cipher.decryptor()
                     decrypted_manifest_contents = decryptor.update(manifest_contents.read()) + decryptor.finalize()
                     manifest_path = os.path.join(data_folder, "Manifest.db")
+                    # Manifest.db is stored padded like the files it lists
+                    unpadded_manifest_contents = _without_cbc_padding(decrypted_manifest_contents)
+                    if unpadded_manifest_contents is None:
+                        logfunc('No valid padding at the end of Manifest.db, writing it as decrypted')
+                        unpadded_manifest_contents = decrypted_manifest_contents
                     with open(manifest_path, "wb") as new_manifest_contents:
-                        new_manifest_contents.write(decrypted_manifest_contents)
+                        new_manifest_contents.write(unpadded_manifest_contents)
 
             self.build_files_list_from_manifest_db(manifest_path)
         elif backup_type == "mbdb":
@@ -794,9 +839,10 @@ class FileSeekerItunes(FileSeekerBase):
                             decryptor = cipher.decryptor()
                             decrypted_contents = decryptor.update(temp_original_file.read()) + decryptor.finalize()
 
-                            # Write the decrypt into the expected located, only write the expected size, no padding
+                            # Write the decrypt into the expected located, without its padding
                             with open(data_path, "wb") as temp_new_file:
-                                temp_new_file.write(decrypted_contents[0:tmp_file_meta['Size']])
+                                temp_new_file.write(_backup_file_plaintext(
+                                    decrypted_contents, tmp_file_meta['Size'], relative_path))
 
                     # If not encrypted, just copy the thing
                     else:
@@ -1198,6 +1244,7 @@ class FileSeekerZip(FileSeekerBase):
             if pat(root + normcase(member)) is not None:
                 if member not in self.copied or force:
                     source = self._chosen.get(member, member)
+                    dest_path = None
                     try:
                         if member.endswith('/'):
                             # Case-variant directories fold into one on a
@@ -1206,10 +1253,9 @@ class FileSeekerZip(FileSeekerBase):
                             extracted_path = self._extract_member(member, source=source)
                         else:
                             intended = self._intended_extract_path(member)
+                            dest_path = self._unique_data_path(intended, member)
                             extracted_path = self._extract_member(
-                                member,
-                                dest_path=self._unique_data_path(intended, member),
-                                source=source)
+                                member, dest_path=dest_path, source=source)
                         f = self.zip_file.getinfo(member) if source is member else source
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
                         file_info = FileInfo(member, creation_date, modification_date)
@@ -1220,6 +1266,11 @@ class FileSeekerZip(FileSeekerBase):
                         self.copied[member] = extracted_path
                     except OSError as ex:
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+                        continue
+                    except _ZIP_MEMBER_ERRORS as ex:
+                        # One corrupt member must not abort the whole run.
+                        _remove_partial(dest_path)
+                        logfunc(f'Could not extract corrupt zip member, skipped: {member} ({ex})')
                         continue
                     self._stage_other_versions(member)
                 else:
@@ -1250,6 +1301,9 @@ class FileSeekerZip(FileSeekerBase):
                         f'entry {index} ({info.file_size} bytes) staged as {dest_path}')
             except OSError as ex:
                 logfunc(f'Could not write file to filesystem, path was {member} (entry {index}) ' + str(ex))
+            except _ZIP_MEMBER_ERRORS as ex:
+                _remove_partial(dest_path)
+                logfunc(f'Could not extract corrupt zip member, skipped: {member} (entry {index}) ({ex})')
 
     def _intended_extract_path(self, member):
         clean_member = sanitize_file_path(member)

@@ -1,18 +1,18 @@
 __artifacts_v2__ = {
 'Ph007_1FavoritePhDaPsql': {
 'name': 'Ph007.1-Favorite-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for favorite assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZFAVORITE value is 1,'
+' on iOS 11 through 26. The results for this script will contain one row per ZASSET table Z_PK'
+' value. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "heart",
@@ -36,13 +36,13 @@ __artifacts_v2__ = {
 },
 'Ph007_3FavoriteGenPlayPsql': {
 'name': 'Ph007.3-Favorite-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for favorite assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose ZFAVORITE value is 1, on'
+' iOS 18 through 26. The only corpus in sample_data is at 0 rows. The results for this script'
+' will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -75,6 +75,9 @@ def Ph007_1FavoritePhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -96,10 +99,10 @@ def Ph007_1FavoritePhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -119,10 +122,10 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAsset-zPK-7',
         'zAddAssetAttr-zPK-8',
-        'zAsset-UUID = store.cloudphotodb-9',
+        'zAsset-UUID-9',
         'zAddAssetAttr-Master Fingerprint-10')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -146,10 +149,10 @@ def Ph007_1FavoritePhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -169,10 +172,10 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAsset-zPK-7',
         'zAddAssetAttr-zPK-8',
-        'zAsset-UUID = store.cloudphotodb-9',
+        'zAsset-UUID-9',
         'zAddAssetAttr-Master Fingerprint-10')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -196,11 +199,11 @@ def Ph007_1FavoritePhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -220,11 +223,11 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
         'zAsset-zPK-8',
         'zAddAssetAttr-zPK-9',
-        'zAsset-UUID = store.cloudphotodb-10',
+        'zAsset-UUID-10',
         'zAddAssetAttr-Master Fingerprint-11')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -248,11 +251,11 @@ def Ph007_1FavoritePhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -273,11 +276,11 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
         'zAsset-zPK-8',
         'zAddAssetAttr-zPK-9',
-        'zAsset-UUID = store.cloudphotodb-10',
+        'zAsset-UUID-10',
         'zAddAssetAttr-Original Stable Hash-11',
         'zAddAssetAttr.Adjusted Stable Hash-12')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -298,6 +301,9 @@ def Ph007_3FavoriteGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -319,11 +325,11 @@ def Ph007_3FavoriteGenPlayPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -344,11 +350,11 @@ def Ph007_3FavoriteGenPlayPsql(context):
         'zAsset-Filename-3',
         'zAddAssetAttr- Original Filename-4',
         'zCldMast- Original Filename-5',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zCldMast-Import Session ID-6',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
         'zAsset-zPK-8',
         'zAddAssetAttr-zPK-9',
-        'zAsset-UUID = store.cloudphotodb-10',
+        'zAsset-UUID-10',
         'zAddAssetAttr-Original Stable Hash-11',
         'zAddAssetAttr.Adjusted Stable Hash-12')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

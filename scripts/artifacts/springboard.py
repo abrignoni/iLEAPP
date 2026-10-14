@@ -5,11 +5,15 @@ __artifacts_v2__ = {
         "description": "Home screen layout: apps, folders, widgets and the dock, per screen page",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "iOS Screens",
-        "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in their on-screen "
-                 "flow order. See 'iOS Home Screen Layout - Visual' for a rendered image of each screen.",
+        "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in the order the plist "
+                 "stores them; that this is the order on screen was not checked against a device. Only "
+                 "the first IconState.plist found is read, and the run log gives the count of any "
+                 "others. Entries that are not an app identifier, a folder or a sized widget entry "
+                 "are not reported, and the run log gives their count. See 'iOS Home Screen Layout - "
+                 "Visual' for a rendered image of each screen.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "layout-grid",
@@ -33,14 +37,16 @@ __artifacts_v2__ = {
     },
     "icons_screen_visual": {
         "name": "iOS Home Screen Layout - Visual",
-        "description": "Rendered image of each home screen page (apps, folders, widgets, dock)",
+        "description": "Diagram of each home screen page the tool draws (apps, folders, widgets, dock)",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "A PNG is rendered per screen page from SpringBoard/IconState.plist as a visual "
-                 "reference. The 'iOS Home Screen Layout' artifact holds the same data in queryable form.",
+                 "reference. It is not a picture of the screen: items are laid out four to a row, at "
+                 "most four items of a folder or stack are shown and long names are cut. The 'iOS Home "
+                 "Screen Layout' artifact holds the full list.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "layout-grid",
@@ -64,13 +70,16 @@ __artifacts_v2__ = {
     },
     "springboard_wallpaper": {
         "name": "SpringBoard Wallpaper",
-        "description": "Legacy wallpaper files and thumbnails stored by SpringBoard",
+        "description": "Wallpaper and thumbnail files named *Background* under the SpringBoard folder",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
-        "notes": "Legacy cpbitmap wallpaper files are converted to PNG when possible. Image-backed "
+        "notes": "Wallpaper files in the cpbitmap format are converted to PNG when possible. A "
+                 "cpbitmap file is converted with the first row alignment that fits its size; the "
+                 "Status column names the alignment used. Variant is derived by this module from "
+                 "the words lock, home, original, thumbnail and dark in the file name. Image-backed "
                  "wallpapers and thumbnails are checked into the media report as PNG when conversion "
                  "is needed.",
         "paths": (
@@ -92,14 +101,17 @@ __artifacts_v2__ = {
     },
     "posterboard_wallpaper": {
         "name": "PosterBoard Wallpaper",
-        "description": "PosterBoard output.layerStack image layer files",
+        "description": "Image files in folders named output.layerStack",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
-        "notes": "PosterBoard output.layerStack image files are reported. HEIC/HEIF image layers "
-                 "are converted to PNG for reporting.",
+        "notes": "Image files in folders named output.layerStack are reported. The paths match "
+                 "any folder of that name and do not check that it sits in a PosterBoard "
+                 "container. HEIC/HEIF image layers "
+                 "are converted to PNG for reporting. No run against a registered image is "
+                 "recorded for this artifact.",
         "paths": (
             '**/output.layerStack/*.heic',
             '**/output.layerStack/*.jpg',
@@ -154,11 +166,12 @@ def _font(size):
 
 
 def _find_plist(context):
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('IconState.plist'):
-            return file_found
-    return ''
+    matched = [str(file_found) for file_found in context.get_files_found()
+               if str(file_found).endswith('IconState.plist')]
+    if len(matched) > 1:
+        logfunc(f'iOS Home Screen Layout: {len(matched) - 1} other IconState.plist file(s) '
+                'not read; only the first one found is read')
+    return matched[0] if matched else ''
 
 
 def _load(context):
@@ -327,9 +340,12 @@ def icons_screen(context):
     if not plist:
         return data_headers, data_list, source_path
 
+    unreported = 0
     for page_index, page in enumerate(plist.get('iconLists', [])):
         screen = f'Page {page_index}'
-        for item in _iter_items(page):
+        items = _iter_items(page)
+        unreported += max(0, len(page) - len(items))
+        for item in items:
             if item['kind'] == 'app':
                 data_list.append((screen, 'App', item['name'], '', ''))
             elif item['kind'] == 'folder':
@@ -343,6 +359,10 @@ def icons_screen(context):
 
     for bundle in plist.get('buttonBar', []):
         data_list.append(('Dock', 'App', bundle, '', ''))
+
+    if unreported:
+        logfunc(f'iOS Home Screen Layout: {unreported} entry(ies) not reported, being neither '
+                'an app identifier, a folder nor a sized widget entry')
 
     return data_headers, data_list, source_path
 

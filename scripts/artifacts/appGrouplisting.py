@@ -1,13 +1,16 @@
 __artifacts_v2__ = {
     "appGrouplisting": {
         "name": "Bundle ID by AppGroup & PluginKit IDs",
-        "description": "In tested images the listing retained entries for apps no longer present. Each file is named .com.apple.mobile_container_manager.metadata.plist",
+        "description": "Identifier (MCMMetadataIdentifier) recorded in each container's metadata "
+                       "plist under Shared/AppGroup and Data/PluginKitPlugin, with the container "
+                       "directory name and path. Each file is named "
+                       ".com.apple.mobile_container_manager.metadata.plist",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-09-22",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The Bundle ID column holds the MCMMetadataIdentifier value as stored.",
         "paths": (
             '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', 
             '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist'),

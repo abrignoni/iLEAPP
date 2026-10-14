@@ -40,12 +40,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "The bundle identifier is read from each application identifier's compatibilityInfo "
-                 "blob, so an application identifier whose compatibilityInfo is absent or unparseable "
-                 "is logged and left out of this table. Absence of a bundle identifier here therefore "
-                 "means the mapping this parser needs was not available in applicationState.db. It is "
-                 "not evidence that the application was never installed, and other sources such as the "
-                 "Mobile Installation logs may still carry its install and uninstall history.",
+        "notes": "The bundle identifier is read from each application identifier's "
+                 "compatibilityInfo blob, so an application identifier whose compatibilityInfo is "
+                 "absent, or is an archive that does not deserialize, is logged and left out of "
+                 "this table. Absence of a bundle identifier here therefore means the mapping this "
+                 "parser needs was not available in applicationState.db. It is not evidence that "
+                 "the application was never installed, and other sources such as the Mobile "
+                 "Installation logs may still carry its install and uninstall history.",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": ["html","tsv","lava"],
         "artifact_icon": "package",
@@ -69,9 +70,11 @@ __artifacts_v2__ = {
     },
     "get_snapshot_creationDate": {
         "name": "Application Snapshot",
-        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db, using the stored "
-                       "creationDate as the primary timestamp. The value records snapshot-object creation; it does "
-                       "not by itself prove foreground application use or that the user viewed the image contents.",
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db, "
+                       "using the stored creationDate as the primary timestamp. The value is the "
+                       "creationDate property of SplashBoard's snapshot object; the event that "
+                       "sets it is not publicly documented. It does not by itself prove foreground "
+                       "application use or that the user viewed the image contents.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
         "last_update_date": "2026-09-12",
@@ -105,11 +108,12 @@ __artifacts_v2__ = {
     },
     "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
-        "description": "Extract XBApplicationSnapshotManifest records with a "
-                       "lastUsedDate from applicationState.db. The property belongs to SplashBoard's snapshot object, "
-                       "but its update event is not publicly documented. It is sparse and must not be treated as "
-                       "proof that the application was in the foreground or that the user viewed the image contents "
-                       "at that time.",
+        "description": "Extract XBApplicationSnapshotManifest records with a lastUsedDate from "
+                       "applicationState.db. The property belongs to SplashBoard's snapshot "
+                       "object, but its update event is not publicly documented. A record whose "
+                       "stored lastUsedDate is an empty string is left out. The value must not be "
+                       "treated as proof that the application was in the foreground or that the "
+                       "user viewed the image contents at that time.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
         "last_update_date": "2026-09-12",

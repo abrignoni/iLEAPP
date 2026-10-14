@@ -2,16 +2,18 @@ __artifacts_v2__ = {
     "get_biomeSafariWebPagePerformance": {
         "name": "Biome - Safari Web Page Performance",
         "description": "Parses Safari page load performance events from the "
-                       "Safari.WebPagePerformance biome stream. Each record appears to "
-                       "correspond to Safari web activity in a rounded time bucket and "
-                       "complements Safari.Navigations and App.WebUsage.",
+                       "Safari.WebPagePerformance biome stream. What a record "
+                       "represents is not established; the detail field and a "
+                       "timestamp on a 30 minute boundary are reported as stored. "
+                       "Related streams are Safari.Navigations and App.WebUsage.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Like Safari.Navigations, the second timestamp is rounded up to the next 30 "
-                 "minute boundary. The remaining integer fields are of unconfirmed meaning "
+        "notes": "On the tested images the second timestamp fell on a 30 minute boundary "
+                 "after the SEGB timestamp, as in Safari.Navigations. The remaining integer "
+                 "fields are of unconfirmed meaning "
                  "and are reported raw.",
         "paths": ('*/streams/*/Safari.WebPagePerformance/local/*',),
         "output_types": "standard",

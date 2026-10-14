@@ -2,8 +2,7 @@ __artifacts_v2__ = {
     "get_biomeDeviceMetadata": {
         "name": "Biome - Device Metadata",
         "description": "Parses OS build records from the Device.Metadata biome stream. Each record "
-                       "captures the OS build at the time it was written, producing an iOS "
-                       "version/update history that can span years.",
+                       "carries an OS build string and a SEGB timestamp.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",

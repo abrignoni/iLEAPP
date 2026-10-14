@@ -1,32 +1,38 @@
 __artifacts_v2__ = {
     "googlePhotosLibrary": {
         "name": "Google Photos - Library Items",
-        "description": "Items in the Google Photos library store, with the file name, capture "
-                       "and client creation timestamps, dimensions, coordinates and camera "
+        "description": "Items in the Google Photos library store, with the file name, the "
+                       "timestampMs and clientCreationTimestampMs values, dimensions, "
+                       "coordinates and camera "
                        "fields recorded for each item.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Photos",
-        "notes": "Rows come from ServerPhotos joined to ExtendedPhotos, whose mcMediaItem blob "
-                 "is zlib compressed protobuf. File name, camera make and camera model are read "
-                 "from that blob. In the tested samples every row carrying videoDurationMs had a "
-                 "video file extension in the file name field and no still image row did, which "
-                 "is how the field was identified. widthAndHeight packs two 16 bit values, "
-                 "verified as (width << 16) | height against the same two values in the blob on "
-                 "4103 of 4103 rows that carried both. latitudeLongitudeE7 packs two signed 32 "
-                 "bit values, read as latitude in the high half and longitude in the low half; "
-                 "both halves fall in range under either reading, so the order was taken from "
-                 "the column name and corroborated against timeZoneOffsetHoursTimes4, which the "
-                 "longitude agrees with on 263 of 263 and 1172 of 1176 located rows in the two "
-                 "samples. Presence of a coordinate is not evidence of a person's location. "
-                 "timestampMs and clientCreationTimestampMs are Unix milliseconds; no value in "
-                 "either column fell on midnight, so they are read as instants rather than "
-                 "dates. Device Asset ID comes from the LocalAssets table of photos-shared.db, "
-                 "joined on localDedupKey, and is in the iOS local identifier form. flags, "
-                 "storagePolicy, autoAwesomeType and contentVersion are reported as stored; the "
-                 "app binary is not present in a data container, so no mapping was sourced. "
+        "notes": "Rows come from ServerPhotos joined to ExtendedPhotos in each "
+                 "store/photos-<name>.db the pattern matches, other than photos-shared.db; the "
+                 "container is not checked against the app's bundle id, so read Source File to "
+                 "confirm it. The mcMediaItem blob of ExtendedPhotos is zlib compressed protobuf. "
+                 "File name, camera make and camera model are read from that blob. In the tested "
+                 "samples every row carrying videoDurationMs had a video file extension in the "
+                 "file name field and no still image row did, which is how the field was "
+                 "identified. widthAndHeight packs two 16 bit values, verified as (width << 16) | "
+                 "height against the same two values in the blob on 4103 of 4103 rows that "
+                 "carried both. latitudeLongitudeE7 packs two signed 32 bit values, read as "
+                 "latitude in the high half and longitude in the low half; both halves fall in "
+                 "range under either reading, so the order was taken from the column name and "
+                 "corroborated against timeZoneOffsetHoursTimes4, which the longitude agrees with "
+                 "on 263 of 263 and 1172 of 1176 located rows in the two samples. Presence of a "
+                 "coordinate is not evidence of a person's location. timestampMs and "
+                 "clientCreationTimestampMs are Unix milliseconds; no value in either column fell "
+                 "on midnight, so they are read as instants rather than dates. Device Asset ID "
+                 "comes from the LocalAssets table of photos-shared.db, joined on localDedupKey, "
+                 "and is in the iOS local identifier form. flags, storagePolicy and "
+                 "contentVersion are reported as stored; the app binary is not present in a data "
+                 "container, so no mapping was sourced. View Count is the LocalAssets viewCount "
+                 "value as stored; what raises it was not established. The tested samples behind "
+                 "the counts in these notes are not named here. "
                  "Reference: Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis "
                  "of Google applications on Android and iOS platforms', Forensic Science "
                  "International: Digital Investigation 55 (2025) 302029, which documents the "
@@ -44,9 +50,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Photos",
         "notes": "Read from the Collections table, whose mcCollection blob is protobuf. The "
-                 "title, item count, the earliest and latest item timestamps and the cover "
-                 "image URL are taken from that blob. Timestamps are Unix milliseconds. Some "
-                 "titles observed in the tested samples are calendar dates; nothing in the store "
+                 "title, item count, three timestamps, an actor key and the cover image URL are "
+                 "taken from that blob by field position. The blob is undocumented and how each "
+                 "field was identified is not recorded here, so the column names are not "
+                 "established meanings. The three timestamps are converted as Unix milliseconds. "
+                 "Some titles observed in the tested samples are calendar dates; no column or "
+                 "decoded field was found that "
                  "records whether a title was set by the app or by the account holder, so no "
                  "such column is reported.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',),
@@ -55,8 +64,8 @@ __artifacts_v2__ = {
     },
     "googlePhotosSharedAlbums": {
         "name": "Google Photos - Shared Albums",
-        "description": "Shared albums, their recipients and the sync and activity timestamps "
-                       "recorded for each.",
+        "description": "Shared albums, with the recipient count and the last activity, sort "
+                       "and last view timestamps stored for each.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
@@ -68,6 +77,7 @@ __artifacts_v2__ = {
                  "the same database. Timestamps are Unix milliseconds. The share link is the "
                  "album's own goo.gl address as recorded in that blob; it was present on all 11 "
                  "shared albums in the tested samples and on none of the 43 private ones. "
+                 "The tested samples are not named here. "
                  "pinState, isJoined, isLive and suggestedAddViewStatus are reported as stored, "
                  "and suggestedAddViewStatus was null on every shared album observed.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',),
@@ -76,7 +86,7 @@ __artifacts_v2__ = {
     },
     "googlePhotosSharedItems": {
         "name": "Google Photos - Shared Album Items",
-        "description": "Items belonging to shared albums, with the album and contributing actor "
+        "description": "Items belonging to shared albums, with the album and actor "
                        "keys recorded for each.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
@@ -86,7 +96,11 @@ __artifacts_v2__ = {
         "notes": "Read from SharedServerPhotos joined to SharedExtendedPhotos, whose "
                  "mcMediaItem blob is zlib compressed protobuf and supplies the file name. "
                  "actorMediaKey is reported as stored; the store records a key, not a name, and "
-                 "the key was not resolved to an account. Timestamps are Unix milliseconds. "
+                 "the key was not resolved to an account. The column headed Contributor Actor "
+                 "Key holds that value; that the actor contributed the item was not established. "
+                 "Timestamps are Unix milliseconds. The column headed Added To Album Timestamp "
+                 "is the stored creationTimestampMs value; what event it marks was not "
+                 "established. "
                  "widthAndHeight and latitudeLongitudeE7 are unpacked as in the library "
                  "artifact. allowedActions is reported as stored.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',),
@@ -107,8 +121,9 @@ __artifacts_v2__ = {
                  "reported. clusterType, visibleStatus and hiddenReason are reported as stored: "
                  "five distinct clusterType values were observed and no mapping was sourced, "
                  "since a data container carries no app binary to read case names from. "
-                 "clusterIndexKey is the token that appears in the ServerPhotos clusterIndexKeys "
-                 "column, which is how a cluster ties back to the items it covers.",
+                 "clusterIndexKey is reported as stored. This artifact does not join "
+                 "clusterIndexKey to the ServerPhotos clusterIndexKeys column, and how many keys "
+                 "were found there is not recorded here.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "tag",
@@ -124,7 +139,7 @@ __artifacts_v2__ = {
         "notes": "Read from the content table of the OnDeviceRecentSearchesFullTextSearch full "
                  "text index. The label is reported as stored. Each row also carries a "
                  "serialised search entry blob and a blob of local dedup keys, whose byte "
-                 "lengths are reported so the presence of an associated result set is visible; "
+                 "lengths are reported so their presence is visible; "
                  "their contents are not decoded here. The store does not record who or what "
                  "originated an entry.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',),
@@ -139,16 +154,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Photos",
-        "notes": "Files under Library/Caches/com.google.photos/ImageFetcherCache_file_<ext>. "
-                 "Each tested file is a complete standalone file: the MP4 and MOV members read "
-                 "as ISO base media with a moov atom and the M4A members as M4A, so they are "
-                 "checked in and rendered. The cacheV0.index beside them is a 20 byte header "
-                 "followed by 32 byte records of a 20 byte digest and three 32 bit values, the "
-                 "last of which matched the member's byte length. The digest preimage was not "
-                 "recovered: sha1, md5, sha256 and UTF-16 variants over the media key and over "
-                 "2694 image URLs read out of the library store's own protobufs produced no "
-                 "match against 13461 index digests across the two samples, so no link from "
-                 "these files to a library row is reported. The file name is a number the cache "
+        "notes": "Files under Library/Caches/com.google.photos/ImageFetcherCache_file_<ext>, for "
+                 "the MP4, MOV, M4A and MP3 caches only; caches for other extensions are not "
+                 "reported here. Each tested file is a complete standalone file: the MP4 and MOV "
+                 "members read as ISO base media with a moov atom and the M4A members as M4A, so "
+                 "they are checked in and rendered. The cacheV0.index beside them is a 20 byte "
+                 "header followed by 32 byte records of a 20 byte digest and three 32 bit "
+                 "values, the last of which matched the member's byte length. The digest "
+                 "preimage was not recovered: sha1, md5, sha256 and UTF-16 variants over the "
+                 "media key and over 2694 image URLs read out of the library store's own "
+                 "protobufs produced no match against 13461 index digests across the two "
+                 "samples, so no link from these files to a library row is reported. The two "
+                 "samples are not named here. The file name is a number the cache "
                  "assigned and "
                  "does not carry the original name. This path is also listed in Park, Park, "
                  "Kim, Kang and Kim, 'A comprehensive artifact analysis of Google applications "
@@ -160,7 +177,7 @@ __artifacts_v2__ = {
     },
     "googlePhotosCachedVideoStreams": {
         "name": "Google Photos - Cached Video Streams",
-        "description": "Streamed video the app cached, keyed by the library item it belongs to.",
+        "description": "Video stream segments held in the app's media cache, listed by the media key each cache directory is named for.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
@@ -169,13 +186,16 @@ __artifacts_v2__ = {
         "notes": "Under Library/Caches/Media/CacheV0/<account>/<media key>/ the directory name "
                  "is the item's media key: every one of the 9 directories in the first tested "
                  "sample matched a ServerPhotos mediaKey exactly, so the link is recorded "
-                 "rather than correlated. Each holds one directory per stream, named "
-                 "<stream id>_<value>, containing numbered segments, plus a cache_metadata "
-                 "protobuf. The segments are fragmented streams rather than whole files: "
-                 "concatenating them yields a separate audio and video track needing an "
-                 "external muxer, and some caches are missing their first segment, so the "
-                 "bytes are inventoried and located here rather than checked in as media. The "
-                 "stream id is reported as stored. This path is not namespaced by bundle "
+                 "rather than correlated. That sample is not named here and no result is "
+                 "recorded for a second sample. This artifact does not make or check that join. "
+                 "Each media key directory holds one directory per stream, named <stream "
+                 "id>_<value>, containing numbered segments, plus a cache_metadata protobuf. "
+                 "The segments are fragmented streams rather than whole files: concatenating "
+                 "them yields a separate audio and video track needing an external muxer, and "
+                 "some caches are missing their first segment, so the bytes are inventoried and "
+                 "located here rather than checked in as media. The Stream ID column holds the "
+                 "stream directory name, <stream id>_<value>, as stored. This path is not "
+                 "namespaced by bundle "
                  "id, unlike the app's other cache paths, so the Source File column should "
                  "be read to confirm which container a row came from. No other app was "
                  "observed using it in the tested samples.",
@@ -207,7 +227,9 @@ __artifacts_v2__ = {
                  "Full text index tables are skipped because they hold index structures rather "
                  "than records, and the external content index tables are skipped because they "
                  "duplicate the tables they index. Blob values are summarised by byte length "
-                 "and by the container their leading bytes identify.",
+                 "and by the container their leading bytes identify."
+                 " The Timestamp column is taken from one named column for ten tables, read as "
+                 "Unix milliseconds, and is blank for all other tables.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',
                   '*/Library/Application Support/store/transaction-shared.db*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -215,8 +237,8 @@ __artifacts_v2__ = {
     },
     "googlePhotosAppState": {
         "name": "Google Photos - Application State",
-        "description": "Application and operating system versions and backup state recorded in "
-                       "the app's preferences.",
+        "description": "Keys with plain string, number, boolean or date values from the app's "
+                       "preferences file, reported as stored.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",

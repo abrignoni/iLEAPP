@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "direction, author, conversation and body.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-10",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Session",
         "notes": "Session for iOS keeps its database key in the iOS keychain, which is captured "
@@ -18,15 +18,17 @@ __artifacts_v2__ = {
                  "and 1 an outgoing one. On the three tested images with rows, every variant 1 row "
                  "on an image carried the same authorId, across both conversations on "
                  "iphone11_ios17, and every variant 0 row carried the conversation's other party, "
-                 "so Author is left blank on outgoing rows, where it would repeat the local "
-                 "account. The remaining "
-                 "variants are Session's info and control messages, "
-                 "reported with their type: a call (with its direction taken from the call "
-                 "state and the sender), a screenshot or media-saved notification, a message "
+                 "so Author is left blank on every row whose authorId equals the authorId of the "
+                 "first outgoing message found in the database: outgoing messages, and any call "
+                 "or info row that account authored. Where a database holds no outgoing message, "
+                 "no row is blanked. The remaining variants are Session's info and control "
+                 "messages, reported with their type: a call (with its direction taken from the "
+                 "call state and the sender), a screenshot or media-saved notification, a message "
                  "request acceptance, a disappearing-messages change, a group event, or a "
                  "tombstone the app keeps for a deleted message. The author and conversation "
-                 "names are the display name or nickname from the profile table, falling back "
-                 "to the Session ID (the account's public key) where no profile is stored.\n"
+                 "names are the profile table's nickname where one is stored and otherwise its "
+                 "name, falling back to the stored identifier where no profile name is stored: "
+                 "interaction.authorId for the author and thread.id for the conversation.\n"
                  "The incoming deleted-message variant changed value between releases. At tags "
                  "2.2.13 and 2.6.3 the enum numbers its first cases implicitly, so "
                  "standardIncomingDeleted is 2. At tag 2.14.2 it is 3, and 2 is kept as "
@@ -36,6 +38,38 @@ __artifacts_v2__ = {
                  "2.6.3 on iphone11_ios17 and 2.14.2 on dexter_ios18, so the tested images span "
                  "that change. The installed version does not establish which version wrote each "
                  "row.\n"
+                 "Was Read is the interaction's wasRead flag. Session writes it as read for any "
+                 "variant that cannot be unread, and at tags 2.2.13, 2.6.3 and 2.14.2 that "
+                 "includes every outgoing message, so Yes on an outgoing row does not show that "
+                 "the recipient read it. Was Read held Yes on every row of the three tested "
+                 "images with rows (24 on hickman_ios15, 51 on iphone11_ios17 and 10 on "
+                 "dexter_ios18), including every incoming message, and every call on "
+                 "hickman_ios15 and iphone11_ios17 (dexter_ios18 held no call).\n"
+                 "On hickman_ios15 and dexter_ios18 Conversation With and Thread ID held one "
+                 "value on every row: each database held 2 threads and only one had "
+                 "interactions. On iphone11_ios17, 2 of its 3 threads had interactions.\n"
+                 "Attachments renders the files linked to the message in the "
+                 "interactionAttachment table. A file is found by the attachment id in its "
+                 "name, which is how the linked files are named on hickman_ios15 and "
+                 "iphone11_ios17, "
+                 "or else by the hex of a 32 byte hash of the attachment's downloadUrl, which "
+                 "is how Session-iOS 2.14.2 names the file and how the one attachment file on "
+                 "dexter_ios18 is named; that hash matched BLAKE2b-256. Every linked attachment "
+                 "resolved to a file: 2 of 2 on hickman_ios15, 4 of 4 on iphone11_ios17 and 1 "
+                 "of 1 on dexter_ios18.\n"
+                 "Reference: Session-iOS 2.14.2, 'self.wasRead = (wasRead || "
+                 "!variant.canBeUnread)', "
+                 "https://github.com/session-foundation/session-ios/blob/"
+                 "09899523850ab51ac6cb30f0fa9a4b80580add54/"
+                 "SessionMessagingKit/Database/Models/Interaction.swift#L301, and "
+                 "'canBeUnread (.standardOutgoing ... return false)', the same file "
+                 "https://github.com/session-foundation/session-ios/blob/"
+                 "09899523850ab51ac6cb30f0fa9a4b80580add54/"
+                 "SessionMessagingKit/Database/Models/Interaction.swift#L1291-L1312. "
+                 "Reference: Session-iOS 2.14.2, 'path(for urlString:)', "
+                 "https://github.com/session-foundation/session-ios/blob/"
+                 "09899523850ab51ac6cb30f0fa9a4b80580add54/"
+                 "SessionMessagingKit/Utilities/AttachmentManager.swift#L54-L67.\n"
                  "Reference: Session-iOS 2.2.13, 'Interaction.Variant (standardIncoming, "
                  "standardOutgoing, standardIncomingDeleted, ..., infoCall = 5000)', "
                  "https://github.com/session-foundation/session-ios/blob/"
@@ -94,11 +128,18 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Session",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
-                 "GUI. Session ID is the contact's public key. Name and Nickname come from the "
-                 "profile table; Approved, Approved Me and Blocked come from the contact table, "
-                 "reported as Yes where the stored value is 1 and No where it is 0.\n"
-                 "On each of the three tested images with rows (hickman_ios15, iphone11_ios17 "
-                 "and dexter_ios18), one row carried the Session ID that authored the outgoing "
+                 "GUI. Session ID is the contact table's id value as stored. Session-iOS 2.14.2 "
+                 "describes it as 'The id for the contact (Note: This could be a sessionId, a "
+                 "blindedId or some future variant)' "
+                 "(https://github.com/session-foundation/session-ios/blob/"
+                 "09899523850ab51ac6cb30f0fa9a4b80580add54/SessionMessagingKit/Database/Models/"
+                 "Contact.swift#L30). Name and Nickname come from the profile table; Approved, "
+                 "Approved Me and Blocked come from the contact table, reported as Yes where the "
+                 "stored value is 1 and No where it is 0.\n"
+                 "On each of three of the four tested images with rows (hickman_ios15, "
+                 "iphone11_ios17 and dexter_ios18; the single contact row on felix_ios17 is not "
+                 "covered by the statements that follow), one row carried the Session ID that "
+                 "authored the outgoing "
                  "messages, so the contact table includes the local account. On those images "
                  "Nickname was empty on every row, Approved and Approved Me held Yes on every "
                  "row, and Blocked held No on every row.\n"
@@ -267,6 +308,14 @@ def _open_session_databases(context):
         yield sqlite3.connect(decrypted), file_found
 
 
+def _table_columns(connection, table):
+    """Names of the columns the table has in this database; empty if it is absent."""
+    try:
+        return {row[1] for row in connection.execute(f'PRAGMA table_info("{table}")')}
+    except sqlite3.Error:
+        return set()
+
+
 def _attachment_files(context):
     """Paths of the Session attachment files present in the extraction."""
     try:
@@ -281,20 +330,28 @@ def _attachments_by_message(context, connection):
     """Check in each attachment and group the media references by message id.
 
     Session stores attachments in the clear under the app group's Attachments
-    folder, named by the attachment id with the content type's extension, so
-    each row's file is located by matching that id in the file name.
+    folder. Older releases name each file by the attachment id with the content
+    type's extension. Newer ones (2.14.2 on the tested images) name it by the
+    hex of a 32 byte hash of the attachment's downloadUrl, with no extension;
+    on the tested file that hash was BLAKE2b-256. A row's file is located by
+    its id first and by that hash second.
     """
     files = _attachment_files(context)
     by_id = {}
+    by_name = {}
     for path in files:
-        by_id.setdefault(os.path.basename(path).split('.')[0], path)
+        name = os.path.basename(path)
+        by_id.setdefault(name.split('.')[0], path)
+        by_name.setdefault(name, path)
 
     attachments = {}
     checked_in = 0
+    download_url = ('a.downloadUrl' if 'downloadUrl' in _table_columns(connection, 'attachment')
+                    else 'NULL AS downloadUrl')
     try:
         cursor = connection.cursor()
-        cursor.execute('''
-            SELECT ia.interactionId, a.id, a.sourceFilename
+        cursor.execute(f'''
+            SELECT ia.interactionId, a.id, a.sourceFilename, {download_url}
             FROM interactionAttachment ia
             LEFT JOIN attachment a ON a.id = ia.attachmentId
             ORDER BY ia.interactionId, ia.albumIndex
@@ -303,8 +360,11 @@ def _attachments_by_message(context, connection):
     except sqlite3.Error:
         return attachments
 
-    for interaction_id, attachment_id, source_name in rows:
+    for interaction_id, attachment_id, source_name, url in rows:
         path = by_id.get(attachment_id)
+        if not path and url:
+            url_hash = hashlib.blake2b(url.encode('utf-8'), digest_size=32).hexdigest()
+            path = by_name.get(url_hash)
         if not path:
             continue
         reference = check_in_media(path, name=source_name or os.path.basename(path))
@@ -405,14 +465,6 @@ def session_messages(context):
         'Server Hash',
     )
     return data_headers, data_list, source_path
-
-
-def _table_columns(connection, table):
-    """Names of the columns the table has in this database; empty if it is absent."""
-    try:
-        return {row[1] for row in connection.execute(f'PRAGMA table_info("{table}")')}
-    except sqlite3.Error:
-        return set()
 
 
 def _contacts_query(connection, file_found):

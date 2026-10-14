@@ -2,13 +2,19 @@ __artifacts_v2__ = {
     "facebookMessengerCalls": {
         "name": "Facebook Messenger - Calls",
         "description": "Call events from the Facebook Messenger msys mailbox, with the recorded time, the "
-        "caller's name and id and the call type and duration text as stored.",
+        "name and id of the sender recorded on the row and the call type and duration text as "
+        "stored.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
+        "notes": "A row is a thread_messages record whose attachment title_text contains the text "
+        "'call'; a call whose title is worded otherwise, or in another language, is not reported "
+        "here. Call Type and Call Duration/Subtitle are that attachment's title_text and "
+        "subtitle_text as stored. A row whose timestamp_ms is not above 0 carries that stored "
+        "number in the Timestamp column. "
+        "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
         "shared app group group.com.facebook.Messenger, and cask/<account "
         "id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app group "
         "group.com.facebook.Facebook. Both group identifiers were read from those groups' own container "
@@ -57,13 +63,17 @@ __artifacts_v2__ = {
     "facebookMessengerChats": {
         "name": "Facebook Messenger - Chats",
         "description": "Messages from the thread_messages view of the Facebook Messenger msys mailbox, with "
-        "direction, sender, text, attachment name and size and the thread id.",
+        "sender, text, attachment name and size, the thread id, and a direction that reads Sent "
+        "when the row's sender id equals the facebook_user_id in _user_info and Received "
+        "otherwise.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
+        "notes": "A message with more than one attachment or attachment item gives one row per "
+        "combination; rows whose attachment item title contains 'call' are left out. "
+        "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
         "shared app group group.com.facebook.Messenger, and cask/<account "
         "id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app group "
         "group.com.facebook.Facebook. Both group identifiers were read from those groups' own container "
@@ -121,8 +131,8 @@ __artifacts_v2__ = {
     "facebook_messenger_client_chats": {
         "name": "Facebook Messenger - Client Messages",
         "description": "Messages from the client_messages table of the Facebook Messenger msys mailbox, with "
-        "direction, sender, the message text and the attachment image where its persisted "
-        "file is present in the media bank.",
+        "direction, sender, the message text and the attachment image where a .jpg persisted file "
+        "for it is present in the media bank.",
         "author": "Sukochev",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-09-17",
@@ -162,44 +172,50 @@ __artifacts_v2__ = {
         "and differ from it only in Thread ID, 1 on dexter_ios18, 4 on hc_ios18_7 and 7 on otto_ios17. Of "
         "the 25 registered corpora run, 4 carry the Facebook app's copy and no lightspeed copy, and 2 of "
         "those 4 (hexordia_ios1651, iphone12_ios18) have no Messenger app bundle on the image at all. "
-        "Message Direction, Sender Name and Sender ID are resolved through fb_transport_contacts. All 9 "
-        "msys stores carrying client_messages declare sender_contact_pk a foreign key to client_contacts "
-        "(pk), so it holds a client contact key, while contacts.id and _user_info.facebook_user_id hold "
+        "Message Direction, Sender Name and Sender ID are resolved through fb_transport_contacts. "
+        "Message Direction reads Sent when the resolved sender id equals "
+        "_user_info.facebook_user_id and Received otherwise. All 9 msys stores with "
+        "client_messages rows declare sender_contact_pk a foreign key to client_contacts (pk), so "
+        "it holds a client contact key, while contacts.id and _user_info.facebook_user_id hold "
         "Facebook user ids; fb_transport_contacts maps between the two. This is the store's own "
-        "resolution path: its armadillo_participants view reaches a client participant's contact row "
-        "through fb_unified_contacts, which on 8 of the 9 stores is contacts INNER JOIN "
-        "fb_transport_contacts ON contacts.id = fb_transport_contacts.server_contact_id, and on the ninth "
-        "(hickman_ios15, Messenger 405.0) joins that same table through an intermediate "
-        "fb_client_contacts view. All 9 carry a UNIQUE index on fb_transport_contacts.client_contact_pk, "
-        "so the join cannot multiply rows. On 5 of the 9 the mapping is an identity map, every client "
-        "contact key equal to the Facebook user id it maps to, so a client contact key on those stores "
-        "reads like a Facebook user id; on the other 4 the two are unrelated. Measured on the 6 "
-        "registered corpora that report rows (dexter_ios18, hc_ios18_7, hc_ios26, hickman_ios15, "
-        "iphone11_ios17, otto_ios17), 114 rows in all: a sender name and a sender id are reported on 114 "
-        "of 114 rows, and 76 of 114 are Sent. The mapping was cross-checked against the store's own "
-        "server-side records: for each of the 9 client threads that mi_act_mapping_table maps to a server "
-        "thread, the Facebook user ids fb_transport_contacts gives that thread's client_participants "
-        "equal the contact ids the participants table holds for the mapped thread, 9 of 9 with no "
-        "disagreement. Where a store carries no fb_transport_contacts table, or no mapping row for a "
-        "sender, the raw sender_contact_pk is used as the Facebook user id; neither branch is exercised "
-        "by these corpora, where all 9 stores carry the table and 0 of the 114 rows lack a mapping row. "
-        "Attachment Name is read from client_attachments.filename and is blank on every row reported. The "
-        "column is present in the schema of all 16 msys stores carrying a client_messages table, the 9 "
-        "with rows included, and it holds no value on any of the 20 rows that carry a client_attachments "
-        "record. No other name for these attachments is recorded in the stores this artifact reads: "
-        "across every table of all 16 stores, 67 columns hold a value shaped like a file name, and each "
-        "one holds a remote address, an app asset name, or the persisted path described next. The last "
-        "component of client_attachment_store_keys.persisted_path, reported in Attachment Persisted Path, "
-        "is the media bank's own name for the stored copy, att. or prev. followed by the value the app's "
-        "own sidecar labels the plaintext hash and an extension, on all 14 recorded paths. On 13 of the "
-        "15 staged media files that value equals the base64url SHA-256 of the stored bytes, so the path "
-        "names the stored copy rather than the file as it was sent, and it is not repeated here as a "
-        "name. The per-attachment sidecars and message records the app keeps in the same TAMStorage "
-        "folder as the media bank were read as well, 65 records across 5 corpora carrying 79 distinct "
-        "field names between them, and none of those fields is a file name. 11 of the 20 attachment "
-        "records carry a mime type and every one of those is an image type, the other 9 record none, so "
-        "whether an attachment of another kind fills the column is not established here and the column is "
-        "kept rather than dropped.",
+        "resolution path: its armadillo_participants view reaches a client participant's contact "
+        "row through fb_unified_contacts, which on 8 of the 9 stores is contacts INNER JOIN "
+        "fb_transport_contacts ON contacts.id = fb_transport_contacts.server_contact_id, and on "
+        "the ninth (hickman_ios15, Messenger 405.0) joins that same table through an intermediate "
+        "fb_client_contacts view. All 9 carry a UNIQUE index on "
+        "fb_transport_contacts.client_contact_pk, so the join cannot multiply rows. On 5 of the 9 "
+        "the mapping is an identity map, every client contact key equal to the Facebook user id it "
+        "maps to, so a client contact key on those stores reads like a Facebook user id; on the "
+        "other 4 the two are unrelated. Measured on the 6 registered corpora that report rows "
+        "(dexter_ios18, hc_ios18_7, hc_ios26, hickman_ios15, iphone11_ios17, otto_ios17), 114 rows "
+        "in all: a sender name and a sender id are reported on 114 of 114 rows, and 76 of 114 are "
+        "Sent. The mapping was cross-checked against the store's own server-side records: for each "
+        "of the 9 client threads that mi_act_mapping_table maps to a server thread, the Facebook "
+        "user ids fb_transport_contacts gives that thread's client_participants equal the contact "
+        "ids the participants table holds for the mapped thread, 9 of 9 with no disagreement. "
+        "Where a store carries no fb_transport_contacts table, or no mapping row for a sender, the "
+        "raw sender_contact_pk is used as the Facebook user id; neither branch is exercised by "
+        "these corpora, where all 9 stores carry the table and 0 of the 114 rows lack a mapping "
+        "row. Attachment Name is read from client_attachments.filename and is blank on every row "
+        "reported. The column is present in the schema of all 16 msys stores carrying a "
+        "client_messages table, the 9 with rows included, and it holds no value on any of the 20 "
+        "rows that carry a client_attachments record. No other name for these attachments is "
+        "recorded in the stores this artifact reads: across every table of all 16 stores, 67 "
+        "columns hold a value shaped like a file name, and each one holds a remote address, an app "
+        "asset name, or the persisted path described next. The last component of "
+        "client_attachment_store_keys.persisted_path, reported in Attachment Persisted Path, is "
+        "the media bank's own name for the stored copy, att. or prev. followed by the value the "
+        "app's own sidecar labels the plaintext hash and an extension, on all 14 recorded paths. "
+        "On 13 of the 15 staged media files that value equals the base64url SHA-256 of the stored "
+        "bytes, so the path names the stored copy rather than the file as it was sent, and it is "
+        "not repeated here as a name. The per-attachment sidecars and message records the app "
+        "keeps in the same TAMStorage folder as the media bank were read as well, 65 records "
+        "across 5 corpora carrying 79 distinct field names between them, and none of those fields "
+        "is a file name. 11 of the 20 attachment records carry a mime type and every one of those "
+        "is an image type, the other 9 record none, so whether an attachment of another kind fills "
+        "the column is not established here and the column is kept rather than dropped. "
+        "Attachment-Image reads Yes when message_content_type is 2; that reading has no cited "
+        "source, so check it against the mime type where one is recorded.",
         "paths": (
             "*/lightspeed-userDatabases/*.db*",
             "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
@@ -249,7 +265,9 @@ __artifacts_v2__ = {
     "facebookMessengerSecretConversations": {
         "name": "Facebook Messenger - Secret Conversations",
         "description": "Rows from the secure_messages table of the Facebook Messenger msys mailbox. The "
-        "message and attachment values are stored encrypted and are reported as stored.",
+        "text and attachment values are reported as stored. The table held no rows on any tested "
+        "store, so whether those values are encrypted was not observed; the attachment column is "
+        "named secure_message_attachments_encrypted.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
@@ -262,8 +280,8 @@ __artifacts_v2__ = {
         "metadata on the tested images. Records identical in every reported value are merged into one row "
         "whose Source File cell lists each file they were found in; records differing in any value are "
         "reported separately, so one held in both copies can still appear twice when a value differs "
-        "between them. The secure_messages table is present on 15 of the 16 msys stores measured and "
-        "holds no rows on any of them, so this artifact reports nothing on the corpora run and which "
+        "between them. The secure_messages table holds no rows on any of the msys stores measured, "
+        "so this artifact reports nothing on the corpora run and which "
         "value differs between the copies is not established for it. Of the 25 registered corpora run, 4 "
         "carry the Facebook app's copy and no lightspeed copy, and 2 of those 4 (hexordia_ios1651, "
         "iphone12_ios18) have no Messenger app bundle on the image at all.",
@@ -360,23 +378,26 @@ __artifacts_v2__ = {
     "facebookMessengerContacts": {
         "name": "Facebook Messenger - Contacts",
         "description": "Contacts from the contacts table of the Facebook Messenger msys mailbox, with the "
-        "Facebook id, names and profile picture link as stored.",
+        "Facebook id, names and profile picture link as stored."
+        " A row is a user record the app holds; it does not show that the account added or "
+        "messaged that user.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
-        "shared app group group.com.facebook.Messenger, and cask/<account "
-        "id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app group "
-        "group.com.facebook.Facebook. Both group identifiers were read from those groups' own container "
-        "metadata on the tested images. Records identical in every reported value are merged into one row "
-        "whose Source File cell lists each file they were found in; records differing in any value are "
-        "reported separately, so one held in both copies can still appear twice when a value differs "
-        "between them. Of the 10 corpora that report rows, 4 carry both copies, and on those no contact "
-        "row merged: 18 contacts appear in both with a different Profile Pic URL, every one of the 18 "
-        "differing in the oh and _nc_ohc query parameters the address carries, and 17 of the 18 keeping "
-        "the same path. Of the 25 registered corpora run, 4 carry the Facebook app's copy and no "
+        "notes": "Username is the name column. Is App User reads Yes where is_messenger_user is 1 "
+        "and is blank where it is 0. Read from both containers that hold Messenger's msys mailbox: "
+        "lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "
+        "cask/<account id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared "
+        "app group group.com.facebook.Facebook. Both group identifiers were read from those "
+        "groups' own container metadata on the tested images. Records identical in every reported "
+        "value are merged into one row whose Source File cell lists each file they were found in; "
+        "records differing in any value are reported separately, so one held in both copies can "
+        "still appear twice when a value differs between them. Of the 10 corpora that report rows, "
+        "those carrying both copies had contacts appear in both with a different Profile Pic URL, "
+        "differing in the oh and _nc_ohc query parameters the address carries, so those rows did "
+        "not merge. Of the 25 registered corpora run, 4 carry the Facebook app's copy and no "
         "lightspeed copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no Messenger app "
         "bundle on the image at all.",
         "paths": (

@@ -22,9 +22,8 @@ __artifacts_v2__ = {
                  "search was issued from this app; it does not establish who typed it. Result Types "
                  "Requested held one value on every row of one tested sample because the app asked for "
                  "the same result types each time; it is kept because the other sample shows the "
-                 "parameter does vary. The app was present on 2 of the 26 registered iOS corpora swept "
-                 "for it and both carry rows, so the counts recorded here come from two independent "
-                 "extractions.",
+                 "parameter does vary. sample_data records rows on two images, falken_ios26 and "
+                 "adams_iphone12mini.",
         "paths": ('*/Library/Caches/com.cnn.iphone/Cache.db*',
                   '*/Library/Caches/com.cnn.iphone/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -47,14 +46,16 @@ __artifacts_v2__ = {
                  "the app's mobile content API that carry a year, month and day segment are "
                  "reported; the home feed and video feed endpoints are excluded, and whether any "
                  "request was initiated by a person or by the app on its own is not established "
-                 "from the cache. The year, month and day segment in the path is reported as the "
-                 "Published Date Segment as stored; it is not the time of the request. Requested "
-                 "is the cache timestamp and is UTC, corroborated against "
-                 "the HTTP Date header stored in the same row. A cached request records that the app "
+                 "from the cache. The year, month and day segment in the path is reported as stored "
+                 "under Published Date Segment (as stored); it is not the time of the request, and "
+                 "that it is a publication date is not established here. Requested is the cache "
+                 "timestamp, read as UTC; the comparison with the HTTP Date header on the tested "
+                 "samples is described in the notes of the CNN - Searches artifact of this module. A "
+                 "path cached more than once in one database is reported once, with its earliest "
+                 "cache timestamp. A cached request records that the app "
                  "fetched the page; the store keeps no dwell time or read state, so it does not "
-                 "establish that the page was read. The app was present on 2 of the 26 registered iOS "
-                 "corpora swept for it and both carry rows, so the counts recorded here come from two "
-                 "independent extractions.",
+                 "establish that the page was read. sample_data records rows on two images, "
+                 "falken_ios26 and adams_iphone12mini.",
         "paths": ('*/Library/Caches/com.cnn.iphone/Cache.db*',
                   '*/Library/Caches/com.cnn.iphone/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],

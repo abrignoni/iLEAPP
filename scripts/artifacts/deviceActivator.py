@@ -7,7 +7,12 @@ __artifacts_v2__ = {
         "last_update_date": "2025-11-21",
         "requirements": "none",
         "category": "Device Information",
-        "notes": "In tested data the ucrt_oob_request.txt file appears only on the iOS 14.3 test image; it is absent from every other registered corpus image and public path listing checked (iOS 12.4-26.5.2) and from all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected.",
+        "notes": "In tested data the ucrt_oob_request.txt file appears only on the iOS 14.3 test "
+                 "image (hickman_ios14). It is absent from every other registered corpus image and "
+                 "public path listing checked (iOS 12.4-26.5.2) and from the extractions in Mattia "
+                 "Epifani's 2026-08 comparison (iOS 16.1.1-26.5.2); no public reference for that "
+                 "comparison is given here. A no-file result on those extractions is what was "
+                 "observed; whether other extractions carry the file is not established.",
         "paths": ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt',),
         "output_types": "standard",
         "artifact_icon": "circle-check",

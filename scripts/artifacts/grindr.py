@@ -29,8 +29,9 @@ __artifacts_v2__ = {
                  "bytes are not in the extraction: the app's media table marked 3,704 of its "
                  "3,705 entries as not local, no file in the container is named after a hash, "
                  "and that table also holds marketing image addresses, so no media column is "
-                 "offered and nothing is rendered. Field mapping was done against a private "
-                 "sample provided by Mattia; no sample data is recorded for it.",
+                 "offered and nothing is rendered. Field mapped from a private sample; no sample "
+                 "data is recorded for it, so every count in these notes was measured on that one "
+                 "sample.",
         "paths": ('*/Documents/DataContainer/Data/*/PersistenceStore.bin',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "data_views": {
@@ -49,7 +50,7 @@ __artifacts_v2__ = {
     "grindr_conversations": {
         "name": "Grindr - Conversations",
         "description": "Parses the Grindr iOS conversation records, with the other party, "
-                       "the unread count and any unsent draft message.",
+                       "the unread count and the draftMessage field as stored.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
@@ -62,44 +63,46 @@ __artifacts_v2__ = {
                  "conversation be sized without opening it. On the tested device they totalled "
                  "118 message links across 17 conversations and 9 tap links across 9, against "
                  "129 rows in the messages artifact, so the two do not reconcile exactly and a "
-                 "message can be present without a conversation linking it. Draft Message is "
-                 "unsent draft text, and Name is a conversation name; both were empty on every "
-                 "row of the tested device and are carried because either one is significant "
-                 "wherever it is populated. Pinned, Muted and Unread Count are the values the "
-                 "record carries. Type is reported as stored. Some conversation records carry an "
-                 "identifier naming a marketing framework rather than another user, and the "
-                 "Marketing column marks them so they are not read as conversations with another "
-                 "user. Field mapping was done against a private sample provided by Mattia; no "
-                 "sample data is recorded for it.",
+                 "message can be present without a conversation linking it. Draft Message and Name "
+                 "report the record's draftMessage and name fields as stored. Both were empty on "
+                 "every row of the tested device, so what a populated value holds was not "
+                 "observed. Pinned, Muted and Unread Count are the values the record carries. Type "
+                 "is reported as stored. Some conversation records carry an identifier naming a "
+                 "marketing framework rather than another user, and the Marketing Record column is "
+                 "Yes when the conversation ID contains the text braze in any letter case, so "
+                 "those rows are not read as conversations with another user. Field mapped from a "
+                 "private sample; no sample data is recorded for it, so every count in these notes "
+                 "was measured on that one sample.",
         "paths": ('*/Documents/DataContainer/Data/*/PersistenceStore.bin',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "users"
     },
     "grindr_profiles": {
         "name": "Grindr - Cached Profiles",
-        "description": "Parses the profiles of other people that the Grindr iOS app cached, "
+        "description": "Parses the profile records the Grindr iOS app cached, "
                        "including the attributes each profile recorded.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Grindr",
-        "notes": "One row per cached profile. **These are profiles the app received, not "
-                 "profiles the account holder chose to look at.** The app's own session "
+        "notes": "One row per cached profile. A profile row shows that the app stored the profile. "
+                 "It does not show that the account holder looked at it. The app's own session "
                  "preferences keep a list it calls a cascade cache, and on the tested device the "
-                 "store held 2,178 profiles against 23 conversations, so the presence of a "
-                 "profile is not evidence of contact. Columns that do record an interaction are "
-                 "reported separately: Favourite was set on 1 profile and Last Viewed Me on "
-                 "1,634. Last Chat Date is the value the profile record carries and was "
+                 "store held 2,178 profiles against 23 conversations, so the presence of a profile "
+                 "is not evidence of contact. Favourite and Last Viewed Me report the record's "
+                 "__favorite and lastViewedMe fields as stored. Favourite was set on 1 profile and "
+                 "Last Viewed Me was populated on 1,634. What sets either field was not "
+                 "established. Last Chat Date is the value the profile record carries and was "
                  "populated on 1,869 profiles, far more than the account had conversations with, "
                  "so it is reported as stored and must not be read as a chat with this account. "
                  "Distance is the value the record carries, populated on 382 profiles, and is "
-                 "reported as stored. Ethnicity, Body Type, Relationship Status, Sexual "
-                 "Position, HIV Status and the tribe, meeting and looking-for sets are "
-                 "integer codes or code sets and are reported as stored: the extraction "
-                 "carries no app binary and nothing in it maps them to a meaning. Field "
-                 "mapping was done against a private sample provided by Mattia; no sample "
-                 "data is recorded for it.",
+                 "reported as stored. Ethnicity, Body Type, Relationship Status, Sexual Position, "
+                 "HIV Status and the tribe, meeting and looking-for sets are integer codes or code "
+                 "sets and are reported as stored: the extraction carries no app binary and "
+                 "nothing in it maps them to a meaning. Field mapped from a private sample; no "
+                 "sample data is recorded for it, so every count in these notes was measured on "
+                 "that one sample.",
         "paths": ('*/Documents/DataContainer/Data/*/PersistenceStore.bin',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user"
@@ -113,16 +116,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Grindr",
-        "notes": "One row per account. The identifier is read from the name of the "
-                 "preference file the app writes per account and from the directory holding "
-                 "that account's database, which agreed on the tested device. Consents is the "
-                 "list the app records against the account, as stored. The remaining values "
-                 "are settings the app keeps for itself and are reported as stored. A second "
-                 "account directory named entirely with zeros is present on the tested "
-                 "device and holds no messages, conversations or profiles; it is reported "
-                 "when found because its presence is a fact about the device, and its empty "
-                 "counts say what it holds. Field mapping was done against a private sample "
-                 "provided by Mattia; no sample data is recorded for it.",
+        "notes": "One row per account. The identifier is the name of the directory holding that "
+                 "account's database. Has Per Account Preferences is Yes when the container also "
+                 "holds com.grindrguy.grindrx.profile.<identifier>.plist, which it did on the "
+                 "tested device. Consents is the userConsentList stored in the container's "
+                 "com.grindrguy.grindrx.session.plist, as stored. That file is not per account, so "
+                 "every account row from the same container shows the same list. The remaining "
+                 "values are settings the app keeps for itself and are reported as stored. A "
+                 "second account directory named entirely with zeros is present on the tested "
+                 "device and holds no messages, conversations or profiles; it is reported when "
+                 "found because its presence is a fact about the device, and its empty counts say "
+                 "what it holds. Field mapped from a private sample; no sample data is recorded "
+                 "for it.",
         "paths": (
             '*/Documents/DataContainer/Data/*/PersistenceStore.bin',
             '*/Library/Application Support/Preferences/com.grindrguy.grindrx.*.plist',

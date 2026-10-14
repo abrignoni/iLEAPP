@@ -7,7 +7,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-03",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The Foreground/Background labels for values 1 and 0 are an interpretation of the App.InFocus stream name; other values are reported as stored. Records are read from both the local and remote subfolders; the Sync Origin column reports which one a record came from, with the remote folder's device identifier. Remote records were synced from another device on the same account and are not events of this device. Files under a tombstone folder are skipped.",
+        "notes": "The Foreground/Background labels for values 1 and 0 are an interpretation of "
+                 "the App.InFocus stream name; other values are reported as stored. Records are "
+                 "read from both the local and remote subfolders; the Sync Origin column reports "
+                 "which one a record came from, with the remote folder's device identifier. The "
+                 "local and remote naming is the stream's own folder layout. That a remote record "
+                 "is a copy synced from another device is not sourced here, so a Remote row is "
+                 "not shown to be an event of this device. Files under a tombstone folder are "
+                 "skipped.",
         "paths": ('*/[Bb]iome/streams/restricted/App.InFocus/local/*',
                   '*/[Bb]iome/streams/restricted/App.InFocus/remote/*'),
         "output_types": "standard",

@@ -7,7 +7,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
-        "notes": "Log timestamps observed as UTC in tested samples.",
+        "notes": "The date and time text the module's pattern takes from each log line is read as "
+                 "UTC; the pattern reads no zone. The only registered corpus in sample_data "
+                 "produced no row, so the zone of these timestamps is not established.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*',),
         "output_types": "all",
         "artifact_icon": "map-pin",

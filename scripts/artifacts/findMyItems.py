@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     "findMyItemsInfo": {
         "name": "Find My Items Info",
-        "description": "Extract items information from Find My",
+        "description": "Item records from the Find My Items.data cache file, where that file is "
+                       "plain JSON",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-18",
         "last_update_date": "2026-07-13",
@@ -9,7 +10,11 @@ __artifacts_v2__ = {
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
-        "notes": "",
+        "notes": "Where Items.data is not JSON the file is not read and no rows are reported; that "
+                 "is not evidence that no items were recorded. sample_data lists rows on "
+                 "iphone11_ios17 (iOS 17.3) and abe_ios16 (iOS 16.5) and 0 rows on the other "
+                 "listed images; whether Items.data was present and not JSON on those images was "
+                 "not recorded here.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "info-circle",
@@ -51,7 +56,8 @@ __artifacts_v2__ = {
     },
     "findMyItemsSafeLocations": {
         "name": "FindMy Items Safe Locations",
-        "description": "Extract items safe locations from Find My",
+        "description": "Safe location records listed for each item in the Find My Items.data cache "
+                       "file",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-18",
         "last_update_date": "2026-07-13",
@@ -59,7 +65,12 @@ __artifacts_v2__ = {
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
-        "notes": "",
+        "notes": "Timestamp is the timeStamp value stored with the safe location, converted from "
+                 "Unix time to UTC; what it marks is not established. Street Address is read from "
+                 "a key spelled streetAddres and is blank where the file does not use that "
+                 "spelling; use Formatted Address Line or Map Item Full Address. Where Items.data "
+                 "is not JSON no rows are reported, which is not evidence that no safe locations "
+                 "were recorded.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "shield-check",
@@ -76,7 +87,8 @@ __artifacts_v2__ = {
     },
     "findMyItemsCrowdsourcedLocations": {
         "name": "FindMy Items Crowdsourced Locations",
-        "description": "Extract items crowdsourced locations from Find My",
+        "description": "The crowdSourcedLocation record stored for each item in the Find My "
+                       "Items.data cache file",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-18",
         "last_update_date": "2026-07-13",
@@ -84,7 +96,10 @@ __artifacts_v2__ = {
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
-        "notes": "",
+        "notes": "The position is the one stored for the item under the crowdSourcedLocation key; "
+                 "how it was obtained is not established here, and a row does not show that the "
+                 "examined device was at that position. Where Items.data is not JSON no rows are "
+                 "reported.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "users",

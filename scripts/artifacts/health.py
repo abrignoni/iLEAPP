@@ -6,7 +6,7 @@ See artifacts description for more details.
 __artifacts_v2__ = {
     "health_workouts": {
         "name": "Health - Workouts",
-        "description": "Workouts from healthdb_secure.sqlite, with Workout Duration and Total "
+        "description": "Workouts from healthdb_secure.sqlite, with Duration and Total "
                        "Time Duration (end minus start) reported side by side. "
                        "Additional details published within 'Enriching "
                        "Investigations with Apple Watch Data Through the "
@@ -14,11 +14,18 @@ __artifacts_v2__ = {
                        "https://dfir.pubpub.org/pub/xqvcn3hj/release/1",
         "author": "@KevinPagano3 - @Johann-PLW - @SQLMcGee",
         "creation_date": "2022-08-15",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Health",
         "notes": "The Fahrenheit assumption for HKWeatherTemperature is inherited "
-                 "from community queries and unverified.",
+                 "from community queries and unverified. Activity type labels are the "
+                 "member names of the HKWorkoutActivityType enumeration and Location Type "
+                 "labels (2 Indoor, 3 Outdoor) those of HKWorkoutSessionLocationType, read "
+                 "from HKWorkoutActivityType.h and HKWorkoutConfiguration.h in Apple's "
+                 "macOS 27.0 SDK; any other stored value is shown as stored. The Goal Type "
+                 "labels (0 Open, 1 Distance in meters, 2 Time in seconds, 3 Kilocalories) "
+                 "are not in those public headers and their source is not established "
+                 "here.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "all",
         "artifact_icon": "activity",
@@ -42,12 +49,13 @@ __artifacts_v2__ = {
     },
     "health_provenances": {
         "name": "Health - Provenances",
-        "description": "Devices and Apps collecting Health data."
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
-                       "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+        "description": "Provenance records (source app, device and operating system build) stored "
+                       "for Health data. Queries are a derivative of research provided by Heather "
+                       "Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk as "
+                       "well as research provided by Sarah Edwards as part of her APOLLO project. "
+                       "https://for585.com/dfirsummit22 - "
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2022-08-15",
         "last_update_date": "2026-07-31",
@@ -77,18 +85,27 @@ __artifacts_v2__ = {
     },
     "health_headphone_audio_levels": {
         "name": "Health - Headphone Audio Levels",
-        "description": "Headphone audio levels"
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
+        "description": "Headphone audio level samples (data type 173), one row per metadata value "
+                       "stored for the sample other than the "
+                       "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient key, and one row for a "
+                       "sample with no metadata value. Queries are a derivative of research "
+                       "provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR "
+                       "Summit 2022 talk as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "Quantity (as stored) is quantity_samples.quantity for the sample, reported as "
+                 "stored; earlier versions of this artifact headed the column Decibels, and the "
+                 "unit of the stored number is not established here. A sample with no metadata "
+                 "value is reported once with Bundle Name and Key blank. A sample whose only "
+                 "metadata value has the key _HKPrivateMetadataKeyHeadphoneAudioDataIsTransient is "
+                 "not reported. The sample_data counts were recorded before samples with no "
+                 "metadata value were kept and were not remeasured for that change.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "headphones",
@@ -112,19 +129,36 @@ __artifacts_v2__ = {
     },
     "health_heart_rate": {
         "name": "Health - Heart Rate",
-        "description": "Heart Rate. "
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
+        "description": "Heart rate samples (data type 5). Queries are a derivative of research "
+                       "provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR "
+                       "Summit 2022 talk as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
-        "author": "@KevinPagano3 - @Johann-PLW",
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
+        "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Codex",
         "creation_date": "2023-03-06",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Health",
-        "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
-                 "and adding Heart Rate Context and Provenance",
+        "notes": "One row per heart rate sample and distinct stored numeric context value (data type 5). On "
+                 "iOS 15 and later a sample that holds a series is reported as one row per value "
+                 "in the series and distinct context value. Repeated identical context pairs do not "
+                 "add rows; differing values remain separate, without choosing one. "
+                 "Rows whose objects.type is 2 are not reported. Heart Rate Context "
+                 "is read only from the sample's metadata value whose key is "
+                 "_HKPrivateHeartRateContext, as named in the store's metadata_keys table; it is "
+                 "blank when the sample has none. On hickman_ios13, hickman_ios14, iphone11_ios17 "
+                 "and cookbook_ios1751 no heart rate sample held more than one such value, and "
+                 "that key was the only metadata key on these samples. A sample holding two such "
+                 "distinct numeric values is reported for both. Heart Rate Context Value reports the "
+                 "stored numerical_value separately from the existing label. The quantity-times-60 "
+                 "BPM conversion is retained; its basis is not established here. "
+                 "The Heart Rate Context labels are not in the "
+                 "cited APOLLO health_heart_rate module and their source is not established here; "
+                 "a value with no label is shown as stored. Device Name, Manufacturer and "
+                 "Hardware are the source_devices name, manufacturer and hardware values of the "
+                 "sample's provenance; Device Model is the name this tool maps the Hardware value "
+                 "to.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -153,14 +187,15 @@ __artifacts_v2__ = {
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
-        "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
-                 "and adding Heart Rate Context and Provenance",
+        "notes": "One row per resting heart rate sample (data type 118) that stores a quantity. "
+                 "Hardware ID is the product type of the source record.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -184,12 +219,13 @@ __artifacts_v2__ = {
     },
     "health_achievements": {
         "name": "Health - Achievements",
-        "description": "Health achievements"
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
-                       "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+        "description": "Earned achievement records from the ACHAchievementsPlugin_earned_instances "
+                       "table. Queries are a derivative of research provided by Heather Mahalik "
+                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk as well as "
+                       "research provided by Sarah Edwards as part of her APOLLO project. "
+                       "https://for585.com/dfirsummit22 - "
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
         "last_update_date": "2026-08-04",
@@ -220,7 +256,8 @@ __artifacts_v2__ = {
     "health_steps": {
         "name": "Health - Steps",
         "description": "Step count samples from the samples table of healthdb_secure.sqlite, with "
-                       "start and end, steps, duration and the writing device's id and model.",
+                       "start and end, steps, duration and the origin product type recorded in the "
+                       "sample's provenance and the model it maps to.",
         "author": "@KevinPagano3",
         "creation_date": "2023-10-06",
         "last_update_date": "2025-10-13",
@@ -265,7 +302,10 @@ __artifacts_v2__ = {
                  "HKQuantityTypeIdentifierDistanceWalkingRunning with data type 8 and "
                  "HKQuantityTypeIdentifierStepCount with data type 7. Sarah Edwards "
                  "(@iamevltwin, mac4n6.com) also documented data_type 8 as a distance in "
-                 "meters in her APOLLO research; this query was written independently from "
+                 "meters in her APOLLO research "
+                 "(https://github.com/mac4n6/APOLLO/blob/"
+                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/health_distance.txt#L78-L91); "
+                 "this query was written independently from "
                  "the live schema. The stored quantity is in meters: on 205 of the 226 chart "
                  "buckets those records store in meters, the type 8 samples in the bucket "
                  "add up to its total, and the 10 samples on each of hickman_ios13, "
@@ -314,10 +354,11 @@ __artifacts_v2__ = {
     },
     "health_height": {
         "name": "Health - Height Samples",
-        "description": "Height samples recorded in Health; samples may be "
-                       "user-entered or written by apps and connected devices "
-                       "(check the source columns). Height is displayed with the "
-                       "timestamp the sample was recorded followed by height in "
+        "description": "Height samples recorded in Health. This artifact does not report whether "
+                       "a sample was user-entered or written by an app or device; see Health - "
+                       "Provenances for the sources the database records. Height is displayed "
+                       "with the sample's start date "
+                       "followed by height in "
                        "meters, centimeters, feet and inches.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
@@ -348,17 +389,23 @@ __artifacts_v2__ = {
     },
     "health_weight": {
         "name": "Health - Weight Samples",
-        "description": "Weight samples recorded in Health; samples may be "
-                       "user-entered or written by apps and connected devices "
-                       "(check the source columns). Weight is displayed with the "
-                       "timestamp the sample was recorded followed by weight in "
+        "description": "Weight samples recorded in Health. This artifact does not report whether "
+                       "a sample was user-entered or written by an app or device; see Health - "
+                       "Provenances for the sources the database records. Weight is displayed "
+                       "with the sample's start date "
+                       "followed by weight in "
                        "kilograms, stones, and pounds.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "Weight (in Kilograms) is quantity_samples.quantity as stored, with no rounding "
+                 "or cutting of digits; earlier versions of this artifact showed its first five "
+                 "characters. The kilogram unit is the one the original artifact assigned and is "
+                 "not sourced here. Weight (Approximate in Pounds) is the stored quantity "
+                 "multiplied by 2.20462262 and rounded to two decimal places; earlier versions "
+                 "showed the first six characters of the product.",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -383,12 +430,16 @@ __artifacts_v2__ = {
     "health_watch_worn_data": {
         "name": "Health - Device - Watch Worn Data",
         "description": "Parses Apple Watch Worn Data from the healthdb_secure.sqlite database"
-                       ", reporting the periods the Health store records the watch as worn. "
+                       ", grouping the data type 70 samples into periods. A period continues "
+                       "while the gap between one sample's end and the next sample's start is "
+                       "3,600 seconds or less. Hours Worn and the hours off before the next "
+                       "period retain fractional hours. The reading of data type 70 as watch "
+                       "worn, in one-hour samples, is the cited article's. "
                        "Additional details published within 'Apple Watch Worn Data Analysis' at "
                        "https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
-        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "author": "@SQLMcGee for Metadata Forensics, LLC, @AlexisBrignoni, Codex",
         "creation_date": "2024-05-20",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -418,15 +469,17 @@ __artifacts_v2__ = {
         'description': 'Parses Apple Health Sleep Data from the healthdb_secure.sqlite database',
         'author': '@SQLMcGee for Metadata Forensics, LLC',
         'creation_date': '2024-08-01',
-        'last_update_date': '2025-10-13',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Health',
-        'notes': "This artifact provides an 'at a glance' review of sleep periods \
-            when the Apple Watch is worn, given required user settings.\
-            Additional details published within 'Sleepless in Cupertino: \
-            A Forensic Dive into Apple Watch Sleep Tracking' at \
-            https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-\
-            forensic-dive-into-apple-watch-sleep-tracking/",
+        'notes': "One row per sleep sample (data type 63) whose provenance names a Watch and whose "
+                 "category value is not 0 or 1. Values 2, 3, 4 and 5 are labelled AWAKE, CORE, "
+                 "DEEP and REM, the names the cited article gives them; any other value is "
+                 "shown in Sleep State as the stored number, with no label. Additional details "
+                 "published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep "
+                 "Tracking' at "
+                 "https://metadataperspective.com/2024/08/01/"
+                 "sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
         'paths': ('*Health/healthdb_secure.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'moon',
@@ -451,18 +504,26 @@ __artifacts_v2__ = {
     "health_watch_by_sleep_period": {
         "name": "Health - Sleep - Watch By Sleep Period",
         "description": "Parses Apple Health Sleep Data from the healthdb_secure.sqlite database"
-                       "This artifact provides an 'at a glance' review of sleep periods "
-                       "when the Apple Watch is worn, given required user settings. "
+                       ". One row per run of Watch sleep stage samples with consecutive data_id "
+                       "values, which this artifact treats as one sleep period. Time in Bed is the "
+                       "span from the earliest start to the latest end of the period. "
                        "Additional details published within 'Sleepless in Cupertino: "
                        "A Forensic Dive into Apple Watch Sleep Tracking' at "
                        "https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-"
                        "forensic-dive-into-apple-watch-sleep-tracking/",
-        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "author": "@SQLMcGee for Metadata Forensics, LLC, @AlexisBrignoni, Codex",
         "creation_date": "2024-08-01",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The samples read are sleep samples (data type 63) whose provenance names a Watch "
+                 "and whose category value is not 0 or 1. Category values 2, 3, 4 and 5 are "
+                 "counted as awake, core, deep and REM, the names the cited article gives them. A "
+                 "sample with any other category value stays in its period: it counts toward the "
+                 "period span and toward the total each percentage is divided by, and toward no "
+                 "stage duration or stage percentage, so the four percentages of such a period "
+                 "add up to less than 100. Whether a tested image holds such a sample was not "
+                 "measured.",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "moon",
@@ -486,14 +547,27 @@ __artifacts_v2__ = {
     },
     "health_source_devices": {
         "name": "Health - Source Devices",
-        "description": "Parses Apple Health device info from the healthdb.sqlite database,\
-            including make/model/software information.",
-        "author": "@stark4n6",
+        "description": "Source device records selected from healthdb.sqlite, including the stored "
+                       "model field beside the existing mapped Model value.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-03-03",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The model (as stored) column retains source_devices.model without conversion "
+                 "beside Model (existing mapping), which retains the existing Bluetooth PID "
+                 "lookup and fallback. A mapped product name does not establish physical device "
+                 "identity or ownership. Existing selection remains name NOT LIKE '__NONE__' AND"
+                 " localIdentifier NOT LIKE '__NONE__': underscores are SQL LIKE wildcards and "
+                 "NULL predicates exclude rows. Local ID retains the existing str() conversion "
+                 "and terminal -tacl suffix removal. Optional Sync Provenance and Sync ID "
+                 "columns retain their existing schema-dependent presence and values. Creation "
+                 "Date conversion, first selected healthdb.sqlite, hardware-to-device lookup, "
+                 "row order and all prior values are unchanged; this stage does not repair "
+                 "selection, suffix trimming or source association. Original artifact "
+                 "contribution/research attribution: @stark4n6; existing Bluetooth PID reference"
+                 " retained in the source comment. Historical sample_data counts remain recorded"
+                 " and are not assumed remeasured by this change.",
         "paths": ("*Health/healthdb.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -517,9 +591,11 @@ __artifacts_v2__ = {
     },
     "health_wrist_temperature": {
         "name": "Health - Wrist Temperature",
-        "description": "Parses Apple Health Wrist Temperature, as outlined within \
-            Health Application > Summary > Show All Health Data > Wrist Temperature >\
-            Show All Data > All Recorded Data",
+        "description": "Reads samples of data type 256 as Apple Health wrist temperature. None of "
+                       "the 15 images in sample_data returned a row, so the data type, the unit "
+                       "and the metadata keys are not validated against data. The Health app shows "
+                       "this data at Health Application > Summary > Show All Health Data > Wrist "
+                       "Temperature > Show All Data > All Recorded Data",
         "author": "@SQLMcGee for Metadata Forensics, LLC",
         "creation_date": "2025-06-20",
         "last_update_date": "2025-10-13",
@@ -552,7 +628,7 @@ __artifacts_v2__ = {
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc, \
-    does_column_exist_in_db
+    does_column_exist_in_db, logfunc
 
 
 def _record_value(record, index, default=None):
@@ -581,20 +657,23 @@ def health_workouts(context):
         WHEN 11 THEN "CROSS TRAINING"
         WHEN 12 THEN "CURLING"
         WHEN 13 THEN "CYCLING"
+        WHEN 14 THEN "DANCE"
+        WHEN 15 THEN "DANCE INSPIRED TRAINING"
         WHEN 16 THEN "ELLIPTICAL"
         WHEN 17 THEN "EQUESTRIAN SPORTS"
         WHEN 18 THEN "FENCING"
         WHEN 19 THEN "FISHING"
-        WHEN 20 THEN "FUNCTION STRENGTH TRAINING"
+        WHEN 20 THEN "FUNCTIONAL STRENGTH TRAINING"
         WHEN 21 THEN "GOLF"
         WHEN 22 THEN "GYMNASTICS"
         WHEN 23 THEN "HANDBALL"
         WHEN 24 THEN "HIKING"
         WHEN 25 THEN "HOCKEY"
         WHEN 26 THEN "HUNTING"
-        WHEN 27 THEN "LACROSS"
+        WHEN 27 THEN "LACROSSE"
         WHEN 28 THEN "MARTIAL ARTS"
         WHEN 29 THEN "MIND AND BODY"
+        WHEN 30 THEN "MIXED METABOLIC CARDIO TRAINING"
         WHEN 31 THEN "PADDLE SPORTS"
         WHEN 32 THEN "PLAY"
         WHEN 33 THEN "PREPARATION AND RECOVERY"
@@ -608,7 +687,7 @@ def health_workouts(context):
         WHEN 41 THEN "SOCCER"
         WHEN 42 THEN "SOFTBALL"
         WHEN 43 THEN "SQUASH"
-        WHEN 44 THEN "STAIRSTEPPER"
+        WHEN 44 THEN "STAIR CLIMBING"
         WHEN 45 THEN "SURFING SPORTS"
         WHEN 46 THEN "SWIMMING"
         WHEN 47 THEN "TABLE TENNIS"
@@ -641,10 +720,13 @@ def health_workouts(context):
         WHEN 74 THEN "HAND CYCLING"
         WHEN 75 THEN "DISC SPORTS"
         WHEN 76 THEN "FITNESS GAMING"
-        WHEN 77 THEN "DANCE"
+        WHEN 77 THEN "CARDIO DANCE"
         WHEN 78 THEN "SOCIAL DANCE"
         WHEN 79 THEN "PICKLEBALL"
         WHEN 80 THEN "COOLDOWN"
+        WHEN 82 THEN "SWIM BIKE RUN"
+        WHEN 83 THEN "TRANSITION"
+        WHEN 84 THEN "UNDERWATER DIVING"
         WHEN 3000 THEN "OTHER"
     '''
 
@@ -943,11 +1025,13 @@ def health_headphone_audio_levels(context):
     LEFT OUTER JOIN objects ON samples.data_id = objects.data_id
     LEFT OUTER JOIN data_provenances ON objects.provenance = data_provenances.ROWID
     LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
-    WHERE samples.data_type = 173 AND metadata_keys.key != "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient"
+    WHERE samples.data_type = 173
+        AND (metadata_values.object_id IS NULL
+             OR metadata_keys.key != '_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient')
     '''
 
     data_headers = (
-        ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Decibels',
+        ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Quantity (as stored)',
         'Bundle Name', 'Device Name', 'Device Manufacturer', 'Device Model',
         'Local Identifier', 'Key', 'Data ID')
 
@@ -971,6 +1055,9 @@ def health_heart_rate(context):
 
     data_list = []
     os_version = context.get_installed_os_version()
+    if not os_version:
+        logfunc('No iOS version had been read when this artifact ran, heart rate samples were not queried')
+        return (), data_list, data_source
 
     attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
 
@@ -1003,10 +1090,16 @@ def health_heart_rate(context):
         data_provenances.tz_name,
         quantity_sample_series.hfd_key,
         quantity_sample_series.count,
-        healthdb.sources.source_options
+        healthdb.sources.source_options,
+        metadata_values.numerical_value
     FROM samples
     LEFT JOIN quantity_samples on samples.data_id = quantity_samples.data_id
-    LEFT JOIN metadata_values ON samples.data_id = metadata_values.object_id
+    LEFT JOIN (
+        SELECT DISTINCT metadata_values.object_id, metadata_values.numerical_value
+        FROM metadata_values
+        JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
+        WHERE metadata_keys.key = '_HKPrivateHeartRateContext'
+    ) AS metadata_values ON samples.data_id = metadata_values.object_id
     LEFT JOIN objects ON samples.data_id = objects.data_id
     LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
     LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
@@ -1037,29 +1130,29 @@ def health_heart_rate(context):
                 for qsd_record in quantity_series_data_records:
                     series_data_date = convert_cocoa_core_data_ts_to_utc(qsd_record[0])
                     data_list.append(
-                        (series_data_date, qsd_record[1], record[3], added_timestamp,
+                        (series_data_date, added_timestamp, qsd_record[1], record[3],
                          record[5], record[6], record[7], device_model, record[8],
-                         record[9], record[10]))
+                         record[9], record[10], record[14]))
             else:
                 data_list.append(
-                    (start_timestamp, record[2], record[3], added_timestamp, record[5],
-                     record[6], record[7], device_model, record[8], record[9], record[10]))
+                    (start_timestamp, added_timestamp, record[2], record[3], record[5],
+                     record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
         else:
             data_list.append(
-                (start_timestamp, end_timestamp, record[2], record[3], added_timestamp,
-                 record[5], record[6], record[7], device_model, record[8], record[9], record[10]))
+                (start_timestamp, end_timestamp, added_timestamp, record[2], record[3],
+                 record[5], record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
 
     if version.parse(os_version) >= version.parse("15"):
         data_headers = (
-            ('Date', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
-            ('Date added to Health', 'datetime'), 'Device ID', 'Device Model',
-            'Manufacturer', 'Hardware', 'Source', 'Software Version', 'Timezone')
+            ('Date', 'datetime'), ('Date added to Health', 'datetime'),
+            'Heart Rate (BPM)', 'Heart Rate Context', 'Device Name', 'Manufacturer',
+            'Hardware', 'Device Model', 'Source', 'Software Version', 'Timezone', 'Heart Rate Context Value')
     else:
         data_headers = (
-            ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Heart Rate (BPM)',
-            'Heart Rate Context', ('Date added to Health', 'datetime'),
-            'Device ID', 'Device Model', 'Manufacturer', 'Hardware', 'Source',
-            'Software Version', 'Timezone')
+            ('Start Date', 'datetime'), ('End Date', 'datetime'),
+            ('Date added to Health', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
+            'Device Name', 'Manufacturer', 'Hardware', 'Device Model', 'Source',
+            'Software Version', 'Timezone', 'Heart Rate Context Value')
 
     return data_headers, data_list, data_source
 
@@ -1269,7 +1362,7 @@ def health_weight(context):
     query = '''
     SELECT
         samples.start_date AS "Weight Value Timestamp",
-        SUBSTR(quantity_samples.quantity,1,5) AS "Weight (in Kilograms)",
+        quantity_samples.quantity AS "Weight (in Kilograms)",
         CASE
             WHEN SUBSTR(CAST(ROUND(((quantity_samples.quantity / 6.35029317) -
                 CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR),
@@ -1284,7 +1377,7 @@ def health_weight(context):
                 CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR), '.')
                 - 1) || ' Pounds'))
             END AS "Weight (in Stones and Pounds)",
-        SUBSTR((quantity_samples.quantity * '2.20462262'),1,6) AS "Weight (Approximate in Pounds)"
+        ROUND(quantity_samples.quantity * 2.20462262, 2) AS "Weight (Approximate in Pounds)"
     FROM samples
     LEFT OUTER JOIN quantity_samples ON samples.data_id = quantity_samples.data_id
     WHERE samples.data_type = '3'
@@ -1348,11 +1441,10 @@ def health_watch_worn_data(context):
     )
     SELECT
         s1."Watch Worn Start Time",
-        CAST(s1."Hours Worn" AS INT),
+        s1."Hours Worn",
         s1."Last Watch Worn Hour Time",
-        CAST(
-            (s2."Watch Worn Start Time" - s1."Last Watch Worn Hour Time") / 3600 AS INT
-        ) AS "Hours Off Before Next Worn"
+        (s2."Watch Worn Start Time" - s1."Last Watch Worn Hour Time") / 3600.0
+            AS "Hours Off Before Next Worn"
     FROM
         Summary s1
     LEFT JOIN
@@ -1361,15 +1453,15 @@ def health_watch_worn_data(context):
     '''
 
     data_headers = (
-        ('Watch Worn Start Time', 'datetime'), 'Hours Worn',
-        ('Last Watch Worn Hour Time', 'datetime'), 'Hours Off Before Next Worn Start Time')
+        ('Watch Worn Start Time', 'datetime'), ('Last Watch Worn Hour Time', 'datetime'),
+        'Hours Worn', 'Hours Off Before Next Worn Start')
 
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         last_hour_time = convert_cocoa_core_data_ts_to_utc(record[2])
-        data_list.append((start_timestamp, record[1], last_hour_time, record[3]))
+        data_list.append((start_timestamp, last_hour_time, record[1], record[3]))
 
     return data_headers, data_list, data_source
 
@@ -1388,6 +1480,7 @@ def health_all_watch_sleep_data(context):
             WHEN category_samples.value IS 3 THEN "CORE"
             WHEN category_samples.value IS 4 THEN "DEEP"
             WHEN category_samples.value IS 5 THEN "REM"
+            ELSE CAST(category_samples.value AS TEXT)
         END,
         SAMPLES.END_DATE,
         STRFTIME('%H:%M:%S', (samples.end_date - samples.start_date), 'unixepoch')
@@ -1469,9 +1562,7 @@ def health_watch_by_sleep_period(context):
     SELECT
         MIN(start_time),
         MAX(end_time),
-        STRFTIME('%H:%M:%S',
-            SUM(CASE WHEN sleep_value IN ('AWAKE', 'REM', 'CORE', 'DEEP')
-            THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+        MAX(end_time) - MIN(start_time),
         STRFTIME('%H:%M:%S',
             SUM(CASE WHEN sleep_value IN ('REM', 'CORE', 'DEEP')
             THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
@@ -1497,7 +1588,7 @@ def health_watch_by_sleep_period(context):
 
     data_headers = (
         ('Sleep Start Time', 'datetime'), ('Sleep End Time', 'datetime'),
-        'Time in Bed (HH:MM:SS)', 'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)',
+        'Time in Bed (seconds, period span)', 'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)',
         'REM Duration (HH:MM:SS)', 'Core Duration (HH:MM:SS)',
         'Deep Duration (HH:MM:SS)', 'Awake %', 'REM %', 'Core %', 'Deep %')
 
@@ -1562,7 +1653,7 @@ def health_source_devices(context):
     '''
 
     data_headers = [
-        ('Creation Date', 'datetime'), 'Device Name', 'Manufacturer', 'Model',
+        ('Creation Date', 'datetime'), 'Device Name', 'Manufacturer', 'Model (existing mapping)', 'model (as stored)',
         'Device ID', 'Device Model', 'Firmware', 'Software', 'Local ID'
     ]
     if sync_provenance_exists:
@@ -1592,6 +1683,7 @@ def health_source_devices(context):
             record[column_positions['name']],
             record[column_positions['manufacturer']],
             model,
+            model_value,
             hardware_value,
             device_model,
             record[column_positions['firmware']],

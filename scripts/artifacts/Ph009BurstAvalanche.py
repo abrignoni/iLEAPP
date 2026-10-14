@@ -1,18 +1,21 @@
 __artifacts_v2__ = {
 'Ph009_1BurstAvalanchePhDaPsql': {
 'name': 'Ph009.1-Burst Avalanche-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for burst avalanche assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZAVALANCHEPICKTYPE or'
+' ZCLOUDAVALANCHEPICKTYPE is above 0, on iOS 11 through 26. The results contain one row per asset'
+' (ZASSET table, or ZGENERICASSET on iOS 11 to 13).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'reuirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
+' or Still_Testing are unconfirmed. The pick type labels use the words Selected and Picked. The'
+' store records the value. It does not record who or what made a choice.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "stack-2",
@@ -36,18 +39,21 @@ __artifacts_v2__ = {
 },
 'Ph009_3BurstAvalancheGenPlayPsql': {
 'name': 'Ph009.3-Burst Avalanche-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for burst avalanche assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose ZAVALANCHEPICKTYPE or'
+' ZCLOUDAVALANCHEPICKTYPE is above 0, on iOS 18 through 26. The results for this script will'
+' contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
+' or Still_Testing are unconfirmed. The pick type labels use the words Selected and Picked. The'
+' store records the value. It does not record who or what made a choice.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "stack-2",
@@ -75,6 +81,9 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -117,10 +126,10 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -143,10 +152,10 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         'zAsset-Filename-5',
         'zAddAssetAttr- Original Filename-6',
         'zCldMast- Original Filename-7',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-8',
+        'zCldMast-Import Session ID-8',
         'zAsset-zPK-9',
         'zAddAssetAttr-zPK-10',
-        'zAsset-UUID = store.cloudphotodb-11',
+        'zAsset-UUID-11',
         'zAddAssetAttr-Master Fingerprint-12')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -191,10 +200,10 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -217,10 +226,10 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         'zAsset-Filename-5',
         'zAddAssetAttr- Original Filename-6',
         'zCldMast- Original Filename-7',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-8',
+        'zCldMast-Import Session ID-8',
         'zAsset-zPK-9',
         'zAddAssetAttr-zPK-10',
-        'zAsset-UUID = store.cloudphotodb-11',
+        'zAsset-UUID-11',
         'zAddAssetAttr-Master Fingerprint-12')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -270,10 +279,10 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -298,10 +307,10 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         'zAsset-Filename-6',
         'zAddAssetAttr- Original Filename-7',
         'zCldMast- Original Filename-8',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-9',
+        'zCldMast-Import Session ID-9',
         'zAsset-zPK-10',
         'zAddAssetAttr-zPK-11',
-        'zAsset-UUID = store.cloudphotodb-12',
+        'zAsset-UUID-12',
         'zAddAssetAttr-Original Stable Hash-13',
         'zAddAssetAttr.Adjusted Stable Hash-14')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -322,6 +331,9 @@ def Ph009_3BurstAvalancheGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -369,10 +381,10 @@ def Ph009_3BurstAvalancheGenPlayPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -397,10 +409,10 @@ def Ph009_3BurstAvalancheGenPlayPsql(context):
         'zAsset-Filename-6',
         'zAddAssetAttr- Original Filename-7',
         'zCldMast- Original Filename-8',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-9',
+        'zCldMast-Import Session ID-9',
         'zAsset-zPK-10',
         'zAddAssetAttr-zPK-11',
-        'zAsset-UUID = store.cloudphotodb-12',
+        'zAsset-UUID-12',
         'zAddAssetAttr-Original Stable Hash-13',
         'zAddAssetAttr.Adjusted Stable Hash-14')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

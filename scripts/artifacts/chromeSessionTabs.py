@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "chrome_session_tabs": {
         "name": "Chromium Session Tabs - Navigation Entries",
         "description": "Pages held in the tab restore file of a Chromium browser, with the "
-                       "address, page title and visit time the browser stored for each entry, and "
+                       "address, page title and timestamp the browser stored for each entry, and "
                        "the tab it belongs to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
@@ -14,27 +14,33 @@ __artifacts_v2__ = {
                  "no bundle name because an app's data container is named by an identifier, so "
                  "the Browser column reports the vendor and browser folders the file sits under "
                  "and the same pattern covers Chrome and Edge.\n"
-                 "One row per navigation entry, taken from the command Chromium calls "
-                 "kCommandUpdateTabNavigation. Timestamp is the entry's stored time, microseconds "
+                 "One row per navigation entry that decodes, taken from the command Chromium "
+                 "calls kCommandUpdateTabNavigation; an entry that does not decode is skipped. "
+                 "Timestamp is the entry's stored time, microseconds "
                  "since 1601. Tab ID and Index identify the tab and the position of the entry in "
                  "that tab's back and forward list, so several rows with one Tab ID are one tab's "
-                 "history. Transition Type and Referrer Policy are integers Chromium defines and "
-                 "are reported as stored. Reference: Chromium, "
-                 "components/sessions/core/serialized_navigation_entry.cc, which sets the field "
-                 "order, and components/sessions/core/tab_restore_service_impl.cc, which sets the "
-                 "command ids.\n"
+                 "history. Transition Type (as stored) and Referrer Policy (as stored) are "
+                 "integers Chromium defines and are reported as stored. Reference: Chromium, "
+                 "'components/sessions/core/serialized_navigation_entry.cc' (WriteToPickle sets "
+                 "the field order), "
+                 "https://github.com/chromium/chromium/blob/c0a4e90e444306fce9f8493d05d1717dcab52504/components/sessions/core/serialized_navigation_entry.cc "
+                 "and 'components/sessions/core/tab_restore_service_impl.cc' "
+                 "(kCommandUpdateTabNavigation = 1, kCommandSelectedNavigationInTab = 4), "
+                 "https://github.com/chromium/chromium/blob/c0a4e90e444306fce9f8493d05d1717dcab52504/components/sessions/core/tab_restore_service_impl.cc\n"
                  "The format also carries an HTTP status, an original request URL, a post data "
                  "flag, a user agent override flag and a page state blob holding form and scroll "
                  "state. On every one of the 19 entries across the tested images those were "
-                 "empty, zero or false, which is why they are not reported here and why an entry "
-                 "written on this platform is a fraction of the size of one written on Android. "
+                 "empty, zero or false, which is why they are not reported here. "
                  "Every Chrome entry consumed its record exactly. The Edge entries left four "
                  "trailing bytes unread, one further value the format allows after the fields "
                  "read here, which Chromium's own reader also treats as optional; the reported "
                  "fields decode the same way in both browsers.\n"
                  "This is the browser's own restore file, so a row means the page was in a tab "
-                 "the browser was holding, not that it was open when the device was seized, and "
-                 "the file keeps a limited number of tabs rather than a full history. A page here "
+                 "the browser was holding, not that it was open when the device was seized, and Chromium's "
+                 "tab restore service caps the entries it keeps (kMaxEntries = 25, "
+                 "https://github.com/chromium/chromium/blob/c0a4e90e444306fce9f8493d05d1717dcab52504/components/sessions/core/tab_restore_service_helper.h), "
+                 "so the file is not a full history; whether the iOS browsers apply that cap to this file "
+                 "was not checked. A page here "
                  "need not appear in the browser's History database.",
         "paths": ('*/Library/Application Support/*/Sessions/Tabs_*',),
         "output_types": "standard",
@@ -80,11 +86,16 @@ __artifacts_v2__ = {
         "notes": "Read from the same Tabs_<number> files, from the command Chromium calls "
                  "kCommandSelectedNavigationInTab. Unlike the navigation entries this record is "
                  "not a pickle but a fixed structure of a tab id, the selected navigation index "
-                 "and a timestamp, microseconds since 1601. Chromium's tab restore service "
-                 "records that timestamp when the tab is closed. One row per record.\n"
+                 "and a timestamp, microseconds since 1601. Chromium's source describes that "
+                 "timestamp as the time the tab was closed and says it is not always set "
+                 "(Reference: Chromium, 'components/sessions/core/tab_restore_types.h', "
+                 "https://github.com/chromium/chromium/blob/c0a4e90e444306fce9f8493d05d1717dcab52504/components/sessions/core/tab_restore_types.h); "
+                 "a zero is reported blank. One row per record that decodes; a record that does not decode "
+                 "is skipped.\n"
                  "Selected Index refers to the Index column of the navigation entries artifact "
-                 "for the same Tab ID, so the two join on Tab ID to show which page the tab was "
-                 "on. Browser reports the vendor and browser folders the file sits under.",
+                 "for the same Tab ID, so within one Source File the two join on Tab ID to show which entry "
+                 "the record points at; whether a Tab ID repeats across files was not measured. Browser "
+                 "reports the vendor and browser folders the file sits under.",
         "paths": ('*/Library/Application Support/*/Sessions/Tabs_*',),
         "output_types": "standard",
         "artifact_icon": "browser-check",

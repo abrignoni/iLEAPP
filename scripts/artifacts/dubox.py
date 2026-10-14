@@ -1,18 +1,21 @@
 __artifacts_v2__ = {
     "dubox_messages": {
         "name": "Dubox - Messages",
-        "description": "Messages from the Dubox (Terabox) in-app chat, with the direction, the "
-                       "conversation partner, the message text and any file that was sent",
+        "description": "Messages from the Dubox (Terabox) in-app chat, with a direction read "
+                       "from the is_receive column, the partner, the message text and any file "
+                       "path, size and md5 stored on the row",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "Dubox",
         "notes": "Read from mbox_main.sqlite. Direction is derived from the is_receive column, "
-                 "reading 0 as sent and 1 as received on the column name alone with no "
-                 "documented source and the partner is resolved from mbox_friendlist through the "
-                 "message's "
-                 "msguk. contentType is reported as the stored integer; message text, and for file "
+                 "reading 0 as Sent and any other value, a null included, as Received, on the "
+                 "column name alone with no documented source. Partner is the uname "
+                 "mbox_friendlist holds for the message's msguk, or the msguk itself where the "
+                 "friend list gives no name. Sender is the row's username; where that is empty it "
+                 "is blank on a Sent row and the partner on a Received row. contentType is "
+                 "reported as the stored integer; message text, and for file "
                  "messages the file name, path and md5, are shown where present.",
         "paths": ('*/mbox_main.sqlite*',),
         "output_types": "standard",
@@ -40,7 +43,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "Dubox",
-        "notes": "Read from mbox_conversations in mbox_main.sqlite.",
+        "notes": "Read from mbox_conversations in mbox_main.sqlite."
+                 " Last Message Time is the mtime column and Created is the time column, both read "
+                 "as Unix seconds and shown in UTC; what the app records in each is not "
+                 "established. Official Account is Yes when is_official holds a non-zero value and "
+                 "No otherwise, a null included.",
         "paths": ('*/mbox_main.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "list",
@@ -75,7 +82,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Dubox",
         "notes": "Read from the cachefilelist table of netdisk.sqlite; this is the cloud file "
-                 "listing the app had cached, not necessarily the full account contents.",
+                 "listing the app had cached, not necessarily the full account contents."
+                 " Created and Modified are the ctime and mtime columns read as Unix seconds; "
+                 "whether they are server or device times is not established. Is Directory, "
+                 "Favourite, Shared and Collected read Yes for a non-zero stored value and No "
+                 "otherwise, a null included.",
         "paths": ('*/netdisk.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "cloud",
@@ -92,8 +103,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "Dubox",
-        "notes": "Read from the image_filelist table of imageDB.sqlite. The location columns are "
-                 "blank where the store holds no value for them.",
+        "notes": "Read from the image_filelist table of imageDB.sqlite. Latitude and Longitude "
+                 "are blank where the store holds no value or holds 0.",
         "paths": ('*/imageDB.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "image",

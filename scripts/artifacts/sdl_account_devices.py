@@ -3,14 +3,24 @@
 __artifacts_v2__ = {
     "sdl_account_devices": {
         "name": "Sysdiagnose - Account Devices",
-        "description": "Parses the otctl_status.txt file from Sysdiagnose logs, \
-            to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
-        "author": "@C_Peter",
+        "description": "Parses otctl_status.txt from sysdiagnose logs for the peers listed under contextDump/peers, one row per serial number: model, OS build and serial as stored, with the file's lastOctagonPush value.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-05-22",
-        "last_update_date": "2026-09-11",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "OCTL refers to the Octagon Account (iCloud Keychain). Reference: Apple Security open source (OctagonTrust; otctl man page: 'diagnostic information for iCloud Keychain syncing'), https://github.com/apple-oss-distributions/Security",
+        "notes": (
+            "otctl_status.txt is named for otctl, a command line tool whose man page describes it "
+            "as a 'Command line interface do provide diagnostic information for iCloud Keychain "
+            "syncing'. A peer lacking model_id, os_version or serial_number, or whose serial "
+            "number was already reported, including from another sysdiagnose, is not listed. "
+            "Serials are compared only with previously admitted raw serial values using native "
+            "equality, not with other report cells. Original parser contribution: @C_Peter. "
+            "lastOctagonPush is a value of the file and repeats on every row from it. Product and "
+            "OS Version are looked up from the tool's tables. Reference: Apple Security open "
+            "source, otctl man page, "
+            "https://github.com/apple-oss-distributions/Security/blob/5366a77746f485a8846aeabf7e8b64d3a25cebfd/keychain/otctl/otctl.1#L6"
+        ),
         "paths": (
             '*/otctl_status.txt',
             '*/sysdiagnose_*.tar.gz'),
@@ -34,6 +44,7 @@ from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 def sdl_account_devices(context):
     files_found = context.get_files_found()
     data_list = []
+    admitted_serials = []
     sources = []
     
     for file_obj, source_path in get_sysdiagnose_files(files_found, "otctl_status.txt"):
@@ -57,8 +68,9 @@ def sdl_account_devices(context):
             except (KeyError, IndexError):
                 continue
 
-            if not any(serial in subliste for subliste in data_list):
+            if serial not in admitted_serials:
                 data_list.append((opush, model, m_name, os_bnum, os_ver, serial,source_name))
+                admitted_serials.append(serial)
 
     data_headers = ("lastOctagonPush", "Model", "Product", "OS Build", "OS Version", "Serial Number","Source Path")
     return data_headers, data_list, '\n'.join(sorted(sources))

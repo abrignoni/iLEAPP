@@ -9,7 +9,10 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Safari Browser',
         'notes': ('An entry records that Safari fetched and cached a URL, not that the user '
-                  "navigated to it. Where the isDataOnFS flag is set, the payload is a file in "
+                  'navigated to it. HTTP Status, MIME Type and Request Method are picked out of the '
+                  'archived response and request arrays by the form of the value, not by a fixed '
+                  'position. Only the first Cache.db found is read. Where the isDataOnFS flag is '
+                  'set, the payload is a file in '
                   "the sibling fsCachedData directory and "
                   'receiver_data holds the file name rather than the content.'),
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.mobilesafari/Cache.db*',

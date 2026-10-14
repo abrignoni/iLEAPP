@@ -71,7 +71,7 @@ class TestSwissmeteoMissingFiles(unittest.TestCase):
         result = plz_interaction.__wrapped__(Context)
         self.assertIsNotNone(result)
         data_headers, data_list, _source = result
-        self.assertEqual(len(data_headers), 4)
+        self.assertEqual(len(data_headers), 5)
         self.assertEqual(data_list, [])
 
     def test_swissmeteo_plz_returns_tuple_when_app_absent(self):
@@ -87,7 +87,11 @@ class TestSwissmeteoMissingFiles(unittest.TestCase):
         Context.set_files_found([self._make_prediction_db()])
         _headers, data_list, source = plz_interaction.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
+        # The stored postal code stays under its own header and the two
+        # looked-up columns stay blank when no plz row resolves it.
         self.assertEqual(data_list[0][1], 1000)
+        self.assertEqual(data_list[0][2], '')
+        self.assertEqual(data_list[0][3], '')
         self.assertTrue(str(source).endswith('favorites_prediction_db.sqlite'))
 
     def test_plz_interaction_with_localdata_enriches_rows(self):
@@ -95,11 +99,12 @@ class TestSwissmeteoMissingFiles(unittest.TestCase):
                                  self._make_localdata_db()])
         _headers, data_list, _source = plz_interaction.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][1], 'Lausanne')
+        self.assertEqual(data_list[0][1], 1000)
+        self.assertEqual(data_list[0][2], 'Lausanne')
         # Coordinates as text, not a map URL: a report links to nothing outside
         # its own folder, so no openstreetmap.org destination is emitted.
-        self.assertNotIn('openstreetmap.org', data_list[0][2])
-        self.assertRegex(data_list[0][2], r'^-?\d+\.\d+, -?\d+\.\d+$')
+        self.assertNotIn('openstreetmap.org', data_list[0][3])
+        self.assertRegex(data_list[0][3], r'^-?\d+\.\d+, -?\d+\.\d+$')
 
     def test_swissmeteo_plz_parses_app_open_rows(self):
         Context.set_files_found([self._make_prediction_db()])

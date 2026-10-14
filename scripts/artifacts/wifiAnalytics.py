@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Wi-Fi",
-        "notes": "Dates use the Apple Cocoa epoch. Locations should be corroborated.",
+        "notes": "Date is ZGEOTAG.ZDATE and Last Seen is ZLASTSEEN of the ZBSS record the geotag "
+                 "links to, both read as seconds since 2001-01-01 UTC. What event either value "
+                 "marks is not established here. BSSID and SSID come from the ZBSS and ZNETWORK "
+                 "records the geotag links to. Only the first matched database is read. Locations "
+                 "should be corroborated.",
         "paths": (
             "*/root/Library/Application Support/com.apple.wifianalyticsd/"
             "DeviceAnalyticsModel.sqlite*",

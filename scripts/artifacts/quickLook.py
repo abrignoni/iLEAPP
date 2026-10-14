@@ -1,16 +1,18 @@
 __artifacts_v2__ = {
     "quickLook": {
         "name": "iCloud Quick Look",
-        "description": "Entries from the Quick Look cloudthumbnails.db cache: paths of iCloud files with last-hit dates. A cache entry does not establish that the file was viewed.",
+        "description": "Entries from the Quick Look cloudthumbnails.db cache: the last seen path and size of each thumbnails row as stored, with its last-hit date read as Unix seconds. A cache entry does not establish that the file was viewed.",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "iCloud Quick Look",
         "notes": "On iOS 12 test images the database sits under Library/Application Support/Quick Look/; "
-                 "on iOS 15-26 test images it sits under Library/Caches/com.apple.QuickLook.thumbnailcache/ "
+                 "on newer test images it sits under "
+                 "Library/Caches/com.apple.QuickLook.thumbnailcache/ "
                  "with the main file a 4 KB shell whose thumbnails table and rows live entirely in the "
-                 "-wal sidecar, so the -wal and -shm files must be collected with the database.",
+                 "-wal sidecar, so the -wal and -shm files must be collected with the database."
+                 " Which of the two locations each image in sample_data used is not recorded here.",
         "paths": ('*/Quick Look/cloudthumbnails.db*',
                   '*/Library/Caches/com.apple.QuickLook.thumbnailcache/cloudthumbnails.db*'),
         "output_types": "standard",

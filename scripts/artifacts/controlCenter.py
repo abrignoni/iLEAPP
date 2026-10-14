@@ -1,7 +1,11 @@
 __artifacts_v2__ = {
     "controlCenter": {
         "name": "Control Center Configuration",
-        "description": "Parses controls/apps added to the Control Center",
+        "description": "Lists the module identifiers stored under the module-identifiers, "
+                       "userenabled-fixed-module-identifiers and disabled-module-identifiers keys "
+                       "of the Control Center ModuleConfiguration.plist, with each entry's "
+                       "position in its list. What places an identifier in each list is not "
+                       "established here.",
         "author": "@KevinPagano3",
         "creation_date": "2024-10-18",
         "last_update_date": "2026-08-21",

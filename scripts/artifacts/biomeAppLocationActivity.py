@@ -4,10 +4,9 @@ __artifacts_v2__ = {
         "description": "Parses NSUserActivity records that carry place details from the "
                        "App.LocationActivity biome stream: the donating app, the activity type "
                        "and payload, the web page or item involved, and the associated street "
-                       "address, city and postal code. TIMESTAMP CAUTION: the place details in "
-                       "this stream parse consistently, but the timestamps require caution. "
-                       "Records are "
-                       "written in batches, so the SEGB record time is a write time rather than "
+                       "address, city and postal code. TIMESTAMP CAUTION: the timestamps "
+                       "require caution. On the tested images many records shared one SEGB "
+                       "time, so the SEGB record time is not taken as "
                        "the moment of the activity, and the other timestamp on the record is an "
                        "expiry roughly 30 days ahead. Corroborate any time here against another "
                        "source before relying on it.",
@@ -17,10 +16,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "Same NSUserActivity record shape as the App.Activity stream, extended with "
-                 "place fields. In the sample data the SEGB write times were identical across "
-                 "records and fell on an exact minute boundary, which is a further sign they "
-                 "are batch write times and not activity times. The expiration timestamp sits "
-                 "about 30 days after the SEGB write, matching the interval seen in "
+                 "place fields. On the tested data the SEGB write times were identical across "
+                 "records and fell on an exact minute boundary, so they are not taken as activity "
+                 "times. The image and the record counts are not recorded here. The expiration "
+                 "timestamp sits about 30 days after the SEGB write, matching the interval seen in "
                  "App.Activity. Payload strings are URL-decoded for display. Reference: Mattia "
                  "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",

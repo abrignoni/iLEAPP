@@ -30,7 +30,7 @@ __artifacts_v2__ = {
     "googleMapsSemanticSegments": {
         "name": "Google Maps - Semantic Location Segments",
         "description": (
-            "Time-bounded segments stored by Google's On Device Location History "
+            "Time-bounded segments held in the SemanticLocation store "
             "(odlh-storage.db, semantic_segment_table). For segments whose "
             "semantic_segment protobuf embeds a coordinate pair the latitude and "
             "longitude are decoded; the segment type is reported as stored."),
@@ -51,14 +51,15 @@ __artifacts_v2__ = {
             "mapping from the value to a name was found in the evidence. "
             "start_timestamp_seconds and end_timestamp_seconds are Unix seconds; "
             "timestamp_millis is Unix milliseconds and is converted at this call site "
-            "rather than inferred from magnitude. obfuscated_gaia_id is reported as stored; its "
-            "name indicates an obfuscated Google account identifier and it was not resolved to "
-            "an account. The SemanticLocation folder is not named for an app, so the owning app "
-            "is resolved per "
-            "container from its own .com.apple.mobile_container_manager.metadata.plist and "
-            "reported in Container App. Across the 19 scannable registered iOS images every "
-            "container matching this pattern resolved to com.google.Maps or its "
-            "HomeTrafficWidgetExtension, so no foreign attribution was observed; the column is "
+            "rather than inferred from magnitude. What event it marks is not established, so the "
+            "Record Written column should be read as the stored timestamp_millis value. "
+            "obfuscated_gaia_id is reported as stored; its name indicates an obfuscated Google "
+            "account identifier and it was not resolved to an account. The SemanticLocation "
+            "folder is not named for an app, so the owning app is resolved per container from "
+            "its own .com.apple.mobile_container_manager.metadata.plist and reported in "
+            "Container App. On the nine registered images in sample_data every container "
+            "matching this pattern resolved to com.google.Maps, so no foreign attribution was "
+            "observed; the column is "
             "present so a container belonging to another app is visible rather than silently "
             "reported as Google Maps."),
         "paths": (
@@ -81,7 +82,7 @@ __artifacts_v2__ = {
     "googleMapsEditedSegments": {
         "name": "Google Maps - Edited Location Segments",
         "description": (
-            "Entries in the edited_segment_table of Google's On Device Location History "
+            "Entries in the edited_segment_table of the SemanticLocation store "
             "(odlh-storage.db): segment time ranges with the block range they belong to "
             "and whether the edit was uploaded."),
         "author": "@AlexisBrignoni, Claude",
@@ -91,16 +92,16 @@ __artifacts_v2__ = {
         "category": "Google Maps",
         "notes": (
             "Same table and columns as the Android copy read by ALEAPP's googleOdlh "
-            "module. All four timestamp columns are Unix seconds. segment_type and "
-            "is_edit_uploaded are reported as stored. The table was present and empty "
-            "in the tested image, so this reader is code-present and exercised only "
-            "against the empty case; the column list comes from the CREATE TABLE "
+            "module. All four timestamp columns are named as seconds and are converted by a "
+            "shared helper that picks the unit from the size of the value; no row was available "
+            "to check the unit. segment_type and is_edit_uploaded are reported as stored. The "
+            "table was present and empty in the tested image, so this reader is code-present and "
+            "exercised only against the empty case; the column list comes from the CREATE TABLE "
             "statement in the evidence. The SemanticLocation folder is not named for an app, so "
-            "the owning app is resolved per "
-            "container from its own .com.apple.mobile_container_manager.metadata.plist and "
-            "reported in Container App. Across the 19 scannable registered iOS images every "
-            "container matching this pattern resolved to com.google.Maps or its "
-            "HomeTrafficWidgetExtension, so no foreign attribution was observed; the column is "
+            "the owning app is resolved per container from its own "
+            ".com.apple.mobile_container_manager.metadata.plist and reported in Container App. "
+            "On the nine registered images in sample_data every container matching this pattern "
+            "resolved to com.google.Maps, so no foreign attribution was observed; the column is "
             "present so a container belonging to another app is visible rather than silently "
             "reported as Google Maps."),
         "paths": (
@@ -124,27 +125,26 @@ __artifacts_v2__ = {
         "name": "Google Maps - Place Index Cells",
         "description": (
             "Rows of the on-device place index (place-index.db, l1_table). Each row "
-            "records an S2 geographic cell identifier, the time the entry was inserted, "
-            "and a protobuf payload describing places within that cell."),
+            "records the s2_cell_id value, the stored time_inserted value, and the size "
+            "of the s2_cell_with_places payload, which is not decoded."),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Maps",
         "notes": (
-            "s2_cell_id is reported as stored. The value is an S2 cell identifier, which "
-            "encodes a geographic cell, but this module does not convert it to latitude "
-            "and longitude and no coordinate pair was found inside the payload, so no "
-            "position is asserted. time_inserted is Unix milliseconds, converted at this "
-            "call site. Payload Bytes reports the size of the s2_cell_with_places blob so "
-            "an examiner can see which cells carry more than a stub; the payload itself is "
-            "not decoded. Presence of a cell records that the index held it, which is not "
-            "by itself evidence the device was inside that cell. The SemanticLocation folder is "
-            "not named for an app, so the owning app is resolved per "
-            "container from its own .com.apple.mobile_container_manager.metadata.plist and "
-            "reported in Container App. Across the 19 scannable registered iOS images every "
-            "container matching this pattern resolved to com.google.Maps or its "
-            "HomeTrafficWidgetExtension, so no foreign attribution was observed; the column is "
+            "s2_cell_id is reported as stored. Whether each value is a valid S2 cell identifier "
+            "was not checked here. This module does not convert it to latitude and longitude and "
+            "no coordinate pair was found inside the payload, so no position is asserted. "
+            "time_inserted is Unix milliseconds, converted at this call site. Payload Bytes "
+            "reports the size of the s2_cell_with_places blob so an examiner can see which cells "
+            "carry more than a stub; the payload itself is not decoded. Presence of a cell "
+            "records that the index held it, which is not by itself evidence the device was "
+            "inside that cell. The SemanticLocation folder is not named for an app, so the "
+            "owning app is resolved per container from its own "
+            ".com.apple.mobile_container_manager.metadata.plist and reported in Container App. "
+            "On the nine registered images in sample_data every container matching this pattern "
+            "resolved to com.google.Maps, so no foreign attribution was observed; the column is "
             "present so a container belonging to another app is visible rather than silently "
             "reported as Google Maps."),
         "paths": (
@@ -182,15 +182,15 @@ __artifacts_v2__ = {
             "read as Unix seconds the same values land in 1994. ZTYPE is an undocumented "
             "integer and is reported as stored. In the tested images most entries are HTTP "
             "cache keys and bundled icon or texture asset names; a small number of ZTYPE 6 "
-            "entries carry named corpora. Entry names are cache keys written by the app, "
-            "not necessarily places the user visited or searched. The WAL sidecar is "
-            "load-bearing for this store and the path pattern picks it up: across the nine "
-            "tested images the committed file alone reads short on six of them, and on one "
-            "it reads zero rows against 44 with the WAL applied. GMSCacheStorage is not named "
-            "for an app, so the owning app is resolved per container from its own "
-            ".com.apple.mobile_container_manager.metadata.plist and reported in Container App. "
-            "Across the 19 scannable registered iOS images every container matching this pattern "
-            "resolved to com.google.Maps or its HomeTrafficWidgetExtension; the column is present "
+            "entries carry other names. Entry names are cache keys written by the app, not "
+            "necessarily places the user visited or searched. The write ahead log has to be read "
+            "with this store and the path pattern picks it up: across the nine tested images the "
+            "committed file alone reads short on six of them, and on one it reads zero rows "
+            "against 44 with the WAL applied. GMSCacheStorage is not named for an app, so the "
+            "owning app is resolved per container from its own "
+            ".com.apple.mobile_container_manager.metadata.plist and reported in Container App. On "
+            "the nine registered images in sample_data every container matching this pattern "
+            "resolved to com.google.Maps; the column is present "
             "so a container belonging to another app is visible rather than silently reported as "
             "Google Maps."),
         "paths": (

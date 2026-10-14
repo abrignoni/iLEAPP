@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "callHistoryTransactions": {
         "name": "Call History Transactions",
-        "description": "Parses transaction.log file in Call History Transactions",
+        "description": "Parses the records of the transactions.log file in the CallHistoryTransactions folder. Only the first remote participant handle of each record is shown.",
         "author": "@JohnHyla",
         "creation_date": "2024-12-11",
         "last_update_date": "2026-08-21",

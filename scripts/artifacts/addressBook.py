@@ -8,9 +8,11 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Contacts',
         'notes': "ABMultiValue property numeric IDs follow the observed AddressBook.sqlitedb "
-                 "schema; No published Apple source for the numeric values of these constants "
-                 "was found. Values are additionally corroborated by the per-value labels stored "
-                 "in the database.",
+                 "schema; No published Apple source for the numeric values of these constants was "
+                 "found. This module reads property 3 as phone numbers, 4 as email addresses, 5 as "
+                 "addresses, 13 as instant messages, 22 as URLs, 23 as related names and 46 as "
+                 "profiles. The comparison those assignments were derived from is not recorded "
+                 "here.",
         'paths': ('*/mobile/Library/AddressBook/AddressBook*.sqlitedb*',),
         'output_types': 'standard',
         'artifact_icon': 'user',

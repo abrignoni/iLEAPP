@@ -82,3 +82,18 @@ jobs:
       # on Windows until sanitize_file_path covered them.
       - name: Stage archive members whose names hold characters Windows forbids
         run: python admin/test/scripts/test_extraction_illegal_filenames.py
+
+      # Free space and recovered deleted files are staged under folders named $Unallocated
+      # and $Deleted. These are the tests that write them, run here so the names are
+      # written on Windows too.
+      - name: Stage free space and deleted files from a raw image
+        run: python admin/test/scripts/test_raw_image_seeker.py -k free_space -k deleted
+
+      - name: Recover HTML run logging and close its handle
+        run: python admin/test/scripts/test_screen_log_recovery.py
+
+      - name: Verify compiled Unified Log filtering and SQLite fallback
+        run: |
+          python -c "import ahocorasick"
+          python admin/test/scripts/test_log_filter.py
+          python admin/test/scripts/test_logarchive_filtering.py

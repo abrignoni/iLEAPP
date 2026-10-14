@@ -2,16 +2,18 @@ __artifacts_v2__ = {
     "get_biomeSiriRemembersMessageHistory": {
         "name": "Biome - Siri Remembers Message History",
         "description": "Parses message exchange records (timestamps, participants, chat and message "
-                       "identifiers) from the Siri.Remembers.MessageHistory biome stream. The stream "
-                       "records message activity for Messages and third party messaging apps; no "
+                       "identifiers) from the Siri.Remembers.MessageHistory biome stream. On the "
+                       "tested images the stream held records for Messages and for third party "
+                       "messaging apps; no "
                        "message body content was present in the records examined.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Direction values and message timestamps validated against sms.db (is_from_me, date) "
-                 "from the same iOS 18.7 test extraction. In this stream direction 1 = Incoming and "
+        "notes": "Direction values and message timestamps were compared with sms.db (is_from_me, "
+                 "date) from the same iOS 18.7 test extraction; the number of records compared is "
+                 "not recorded here. In this stream direction 1 = Incoming and "
                  "2 = Outgoing, inverted from the siriremembers.sqlite3 convention.",
         "paths": (
             '*/streams/*/Siri.Remembers.MessageHistory/local/*',

@@ -149,6 +149,10 @@ CHECKED_FIELDS = {
 # granted for and never the next claim added to the same text.
 # needs a comment justifying it. See the module docstring before adding one.
 ALLOWLIST = {
+    # 'Is Viewed By User' is the column header of this artifact, named in the notes
+    # so the reader can match the sentence to the column.
+    ('snapchat.py', 'snapchatMessages', 'notes', 'viewed by user'),
+
     # "All Files" is Box's own name for the product feature; renaming it would
     # make the artifact harder to match to what the examiner sees in the app.
     ('box.py', 'box_all_files', 'name', 'all'),

@@ -1,13 +1,20 @@
 __artifacts_v2__ = {
     "get_cacheRoutesGmap": {
         "name": "Google Maps Cache Routes",
-        "description": "Parses cached Google Maps route data and timestamps from the app CachedRoutes plists.",
+        "description": "Parses coordinates and a file name time from NSKeyedArchiver plists in an app's Library/Application Support/CachedRoutes folder. On the tested extractions the folder belonged to Google Maps.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
-        "notes": "The plist filename is interpreted as a millisecond Unix timestamp based on observed values; app attribution rests on tested extractions.",
+        "notes": "One row per object in the archive that carries a _coordinateLat and "
+                 "_coordinateLong pair. The time on every row of a file is the file name read as "
+                 "Unix milliseconds, which is an interpretation based on the values seen on the "
+                 "tested extractions; what event that time marks is not established. A file whose "
+                 "name is not a whole number is skipped. The coordinates are points stored in a "
+                 "cached route. They are not shown to be positions of the device, and the file does "
+                 "not establish that the route was travelled. App attribution rests on the tested "
+                 "extractions.",
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
         "output_types": "all",
         "artifact_icon": "route",

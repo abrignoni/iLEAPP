@@ -1,9 +1,13 @@
 __artifacts_v2__ = {
     "googleDuoContacts": {
         "name": "Google Duo - Contacts",
-        "description": "Google Duo contacts",
+        "description": "Rows of the contact table in the Google Duo or Google Meet DataStore database",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Google Duo", "notes": "",
+        "category": "Google Duo", "notes": "Only the first matched file whose path ends in "
+                                           "DataStore is read. The path pattern is not tied to one "
+                                           "app and the container is not checked. Registration Date "
+                                           "and Sync Date are converted as Unix microseconds; no "
+                                           "source or measurement for that unit is recorded here.",
         "paths": ('*/Application Support/DataStore*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -14,9 +18,21 @@ __artifacts_v2__ = {
     },
     "googleDuoCallHistory": {
         "name": "Google Duo - Call History",
-        "description": "Google Duo call history",
+        "description": "Rows of the call_history table in the Google Duo or Google Meet DataStore database, joined to the contact table for the name",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Google Duo", "notes": "",
+        "category": "Google Duo", "notes": "Only the first matched file whose path ends in "
+                                           "DataStore is read. The path pattern is not tied to one "
+                                           "app and the container is not checked. Timestamp is "
+                                           "converted as Unix seconds. Call Duration is the stored "
+                                           "duration read as seconds and rendered as HH:MM:SS, so a "
+                                           "value of 24 hours or more wraps. Call Direction reads "
+                                           "Incoming when call_history_is_outgoing_call is 0 and "
+                                           "Outgoing when it is 1, and is blank for any other "
+                                           "value. Video Call? reads Yes when "
+                                           "call_history_is_video_call is 1. Contact Name comes "
+                                           "from the contact table row whose contact_id equals "
+                                           "call_history_other_user_id and is blank when there is "
+                                           "none. No source for these readings is recorded here.",
         "paths": ('*/Application Support/DataStore*',),
         "output_types": "standard", "artifact_icon": "phone",
         "sample_data": {
@@ -27,10 +43,15 @@ __artifacts_v2__ = {
     },
     "googleDuoClips": {
         "name": "Google Duo - Clips",
-        "description": "Google Duo media clips (with thumbnails from ClipsCache)",
+        "description": "Rows of the media_clip_v2 table in the Google Duo or Google Meet DataStore database, with the ClipsCache PNG named for the message id where one is found",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "Google Duo",
-        "notes": "The media_clip_source value's direction semantics are not documented in published research; the value is reported as stored.",
+        "notes": "The media_clip_source value's direction semantics are not established; the value "
+                 "is reported as stored. The Clip column shows the first matched file whose path "
+                 "contains <message id>.png. Creation Date, Message Date and Viewed Date are "
+                 "converted as Unix microseconds; Viewed Date is the stored media_clip_viewed_date "
+                 "value and what event it marks is not established. Only the first matched file "
+                 "whose path ends in DataStore is read.",
         "paths": ('*/Application Support/DataStore*', '*/Application Support/ClipsCache/*.png'),
         "output_types": "standard", "artifact_icon": "movie",
         "sample_data": {

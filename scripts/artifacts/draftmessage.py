@@ -1,13 +1,17 @@
 __artifacts_v2__ = {
     "get_draftmessage": {
         "name": "Draft Native Messages",
-        "description": "Parses unsent draft iMessage and SMS messages and their modified times from SMS/Drafts composition.plist files.",
+        "description": "Draft text from SMS/Drafts/<chat>/composition.plist files, with the chat "
+                       "folder name and the modified time of each plist file as extracted. The "
+                       "time is file system metadata, not a value stored in the draft.",
         "author": "@abrignoni",
         "creation_date": "2022-10-18",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Messages",
-        "notes": "",
+        "notes": "Modified Time is the modification time of the composition.plist file as staged "
+                 "for this run. Draft Message is the NSString of the plist's text value. Files "
+                 "whose path contains 'tombstone' are skipped.",
         "paths": ('*/SMS/Drafts/*/composition.plist'),
         "output_types": "standard",
         "artifact_icon": "message-circle"

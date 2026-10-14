@@ -2,15 +2,16 @@ __artifacts_v2__ = {
     "get_biomeAutonamingMessageIds": {
         "name": "Biome - Autonaming Message IDs",
         "description": "Parses message references (message GUID, conversation identifier and message "
-                       "date) from the Autonaming.Messages.MessageIds biome stream, apparently "
-                       "related to Messages conversation auto-naming (per the stream name).",
+                       "date) from the Autonaming.Messages.MessageIds biome stream. The purpose of "
+                       "the stream is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Message GUIDs and Unix epoch double dates validated against sms.db (guid, date) "
-                 "from the same iOS 18.7 test extraction.",
+        "notes": "Message GUIDs and message dates were compared with sms.db (guid, date) from the "
+                 "same test extraction; the image and the number of records compared are not "
+                 "recorded here.",
         "paths": ('*/streams/*/Autonaming.Messages.MessageIds/local/*',),
         "output_types": "standard",
         "artifact_icon": "message-square",

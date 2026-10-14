@@ -1,5 +1,9 @@
 # Attributions
 
+- Unified Log filtering uses [`pyahocorasick`](https://github.com/WojciechMula/pyahocorasick)
+  by Wojciech Muła and contributors. Licensed under BSD-3-Clause and Public Domain;
+  the distributed license is retained in `scripts/data/pyahocorasick-LICENSE.txt`.
+
 - Realm database parsing (`scripts/realm_parser.py`) adapted from `crush/parsers/realm_parser.py` in
   [`crush-forensics`](https://github.com/kalink0/crush-forensics) by Marco Neumann (kalink0).
   Licensed under [Apache-2.0](https://github.com/kalink0/crush-forensics/blob/main/LICENSE).

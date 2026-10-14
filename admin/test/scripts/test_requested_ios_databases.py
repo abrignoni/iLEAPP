@@ -263,10 +263,10 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(path))
         self.assertEqual(len(headers), len(rows[0]))
         self.assertIn("2026-04-29T17:35:08", rows[0][0].isoformat())
-        self.assertEqual(rows[0][5], "Test App")          # itemName wins over bundle_name
-        self.assertEqual(rows[0][6], "com.example.app")
-        self.assertEqual(rows[0][9], "Test Developer")    # artistName wins over vendor_name
-        self.assertEqual(rows[0][12], "user@example.com")
+        self.assertEqual(rows[0][7], "Test App")          # itemName wins over bundle_name
+        self.assertEqual(rows[0][8], "com.example.app")
+        self.assertEqual(rows[0][11], "Test Developer")    # artistName wins over vendor_name
+        self.assertEqual(rows[0][14], "user@example.com")
 
     def test_store_system_installs_legacy_schema(self):
         """iOS 14 lacks install_finished_timestamp; the query must still run."""
@@ -280,7 +280,7 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(len(headers), len(rows[0]))
         self.assertEqual(rows[0][1], '')                  # absent column reads as empty
-        self.assertEqual(rows[0][5], "Example")           # falls back to bundle_name
+        self.assertEqual(rows[0][7], "Example")           # falls back to bundle_name
 
     APP_INSTALL_IOS26 = (
         "CREATE TABLE app_install (pid INTEGER PRIMARY KEY, account_id INTEGER, "
@@ -309,10 +309,10 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         ])
         headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(path))
         self.assertEqual(len(headers), len(rows[0]))
-        self.assertEqual(rows[0][22], "Example.app")   # Bundle Directory Name
-        self.assertEqual(rows[0][28], 0)               # One Shot Bootstrap
-        self.assertEqual(rows[0][29], 1)               # Switch Distributor
-        self.assertEqual(rows[0][30], 338)             # Optimal Download Duration
+        self.assertEqual(rows[0][24], "Example.app")   # Bundle Directory Name
+        self.assertEqual(rows[0][30], 0)               # One Shot Bootstrap
+        self.assertEqual(rows[0][31], 1)               # Switch Distributor
+        self.assertEqual(rows[0][32], 338)             # Optimal Download Duration
 
     def test_store_system_installs_pre_ios26_leaves_new_columns_empty(self):
         path = self._database("containers/Data/System/GUID/Documents/Persistence/"
@@ -323,7 +323,7 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         ])
         headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(path))
         self.assertEqual(len(headers), len(rows[0]))
-        for index in (22, 28, 29, 30):
+        for index in (24, 30, 31, 32):
             self.assertEqual(rows[0][index], '')
 
     def test_store_system_updates_ios26_packaging_type(self):
@@ -336,7 +336,7 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         ])
         headers, rows, _ = storeSystemAppUpdates.__wrapped__(_Context(path))
         self.assertEqual(len(headers), len(rows[0]))
-        self.assertEqual(rows[0][15], 1)               # Installer Packaging Type
+        self.assertEqual(rows[0][17], 1)               # Installer Packaging Type
 
     def test_locationd_wifi_locations_ios26_als_timestamp(self):
         path = self._locationd_database([
@@ -393,10 +393,10 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         ])
         headers, rows, _ = storeSystemAppUpdates.__wrapped__(_Context(path))
         self.assertEqual(len(headers), len(rows[0]))
-        self.assertEqual(rows[0][4], "Catalog App")
-        self.assertEqual(rows[0][8], "7.4.3")
+        self.assertEqual(rows[0][6], "Catalog App")
+        self.assertEqual(rows[0][10], "7.4.3")
         self.assertIn("2025-12-17T21:04:59", rows[0][2].isoformat())
-        self.assertEqual(rows[0][14], '')                 # package_type absent
+        self.assertEqual(rows[0][16], '')                 # package_type absent
 
     CFURL_SCHEMA = (
         ("CREATE TABLE cfurl_cache_response (entry_ID INTEGER PRIMARY KEY, version INTEGER, "

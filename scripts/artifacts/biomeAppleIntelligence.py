@@ -8,9 +8,8 @@ the delivery result.
 __artifacts_v2__ = {
     "get_biomeAppleIntelligenceAvailability": {
         "name": "Biome - Apple Intelligence Availability",
-        "description": "Parses Apple Intelligence availability state changes from the "
-                       "AppleIntelligence.Availability biome stream, including the language "
-                       "the feature was evaluated for.",
+        "description": "Parses records from the AppleIntelligence.Availability biome "
+                       "stream: three state values reported raw and a language string.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
@@ -31,8 +30,9 @@ __artifacts_v2__ = {
         "name": "Biome - Apple Intelligence Asset Availability",
         "description": "Parses Apple Intelligence asset availability reporting from the "
                        "AppleIntelligence.Reporting.AssetDeliveryLog.Availability biome "
-                       "stream: the requesting client, the attribute it was evaluated against "
-                       "and the OS build at the time.",
+                       "stream: strings labelled here as client, attribute and OS build. The "
+                       "record is decoded without a schema and the labels are not confirmed "
+                       "by a source.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
@@ -50,17 +50,17 @@ __artifacts_v2__ = {
         "name": "Biome - Apple Intelligence Model Catalog",
         "description": "Parses Apple Intelligence model catalog activity from the "
                        "AppleIntelligence.Reporting.AssetDeliveryLog.ModelCatalog biome "
-                       "stream. Each record names the Apple Intelligence feature whose model "
-                       "was requested, for example a text composition or summarisation "
-                       "feature, and the language it was requested for, showing which "
-                       "features' models were requested on the device and when; user exercise "
-                       "of the feature is not established.",
+                       "stream. Each record carries a feature or client name and an attribute "
+                       "and value, which on the tested image included a language. What event "
+                       "writes a record is not established, and neither is user exercise of "
+                       "the feature.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "In test data, this is the highest volume stream of the Apple Intelligence family.",
+        "notes": "On hc_ios26 this stream held more records (206) than the other Apple "
+                 "Intelligence streams parsed here.",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.ModelCatalog/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
@@ -89,9 +89,10 @@ __artifacts_v2__ = {
     "get_biomeAISafetyOverrides": {
         "name": "Biome - Apple Intelligence Safety Overrides",
         "description": "Parses Apple Intelligence safety override reporting from the "
-                       "AppleIntelligence.Reporting.SafetyOverrides biome stream. Records mark "
-                       "the times safety override reporting occurred, which is worth noting "
-                       "even where the payload itself no longer survives.",
+                       "AppleIntelligence.Reporting.SafetyOverrides biome stream. On the "
+                       "tested sample no record was in the written state, and only the SEGB "
+                       "timestamp of each deleted record was reported. What event writes a "
+                       "record is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
@@ -99,12 +100,11 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "The sample for this stream held only deleted records, so the written record "
                  "layout is not confirmed. It is read with the shared AssetDeliveryLog parser "
-                 "because the partially recoverable deleted payloads carry the same field 1 "
-                 "event and field 3 context structure as the rest of that family; if a future "
-                 "sample shows a different layout the detail columns will be empty while the "
-                 "timestamps stay correct. Deleted payloads in the sample were largely "
-                 "overwritten and did not decode, but their SEGB timestamps are intact and "
-                 "consistent with reporting having occurred at those times.",
+                 "on the assumption that written records share that family's layout; this is "
+                 "not confirmed. If a future sample shows a different layout the detail "
+                 "columns will be empty while the timestamps stay correct. Deleted payloads "
+                 "in the sample were largely overwritten and did not decode, and only their "
+                 "SEGB timestamps are reported; what the records held is not established.",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.SafetyOverrides/local/*',),
         "output_types": "standard",
         "artifact_icon": "shield",
@@ -113,8 +113,9 @@ __artifacts_v2__ = {
         "name": "Biome - Apple Intelligence Unified Asset",
         "description": "Parses Apple Intelligence unified asset framework reporting from the "
                        "AppleIntelligence.Reporting.AssetDeliveryLog.UnifiedAssetFramework "
-                       "biome stream: the asset requested, the client that requested it and "
-                       "the user id it was requested under.",
+                       "biome stream: values labelled here as asset ID, client and user ID. "
+                       "The record is decoded without a schema and the labels are not "
+                       "confirmed by a source.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",

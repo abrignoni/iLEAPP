@@ -3,30 +3,32 @@ __artifacts_v2__ = {
         "name": "LG ThinQ - Devices",
         "description": "LG appliances held in the ThinQ app's Realm store, with the name, model, "
                        "serial number, SSID and room recorded for each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Product table of the app's Realm store using the vendored "
-                 "realm_parser, with the sales model and serial number joined from class_ProductModel "
-                 "on the product identifier and the room name joined from class_Room. The store's file "
-                 "name carries the account and environment, so the path pattern matches on the "
-                 "environment suffix and every candidate is then required to carry a class_Product "
-                 "table before it is read; a file without one is skipped and logged. Two further "
-                 "Realm files sat beside this one on the tested sample: shared-prd-op-op.realm "
-                 "held only interface layout and feature JSON and the tv- prefixed file held "
-                 "nothing but its schema version, so neither is reported. SSID is the network "
-                 "name stored against the appliance; it is not evidence of the phone's own "
-                 "connection. Registered is a 17 digit packed value of the form "
-                 "YYYYMMDDHHMMSSmmm; it is reformatted for reading but no time zone is recorded "
-                 "anywhere in the store for it, so it is reported as stored in a text column "
-                 "rather than rendered as UTC. Device Type, Platform Type and Network Type are "
-                 "reported as stored. Online held one value on every appliance in the tested "
-                 "sample; it is kept because "
-                 "an offline appliance is exactly what an examiner would want distinguished. The app's "
-                 "data container was present on 1 of the 26 registered iOS corpora swept for it, so "
-                 "every count recorded here comes from that one extraction.",
+                 "realm_parser, with the sales model and serial number joined from "
+                 "class_ProductModel on the product identifier and the room name joined from "
+                 "class_Room. The store's file name carries the account and environment, so the "
+                 "path pattern matches on the environment suffix and every candidate is then "
+                 "required to hold a class_Product table before it is read. A file without that "
+                 "table is skipped and the run log names it, a file that cannot be read is "
+                 "logged, and none of the ThinQ artifacts report anything from a skipped file. "
+                 "A file that holds the table with no rows is still read by the other ThinQ "
+                 "artifacts, and the run log says so; no such file was available for testing. "
+                 "Two further Realm files sat beside this one on the tested sample: "
+                 "shared-prd-op-op.realm held only interface layout and feature JSON and the tv- "
+                 "prefixed file held nothing but its schema version, so neither is reported. SSID "
+                 "is the network name stored against the appliance; it is not evidence of the "
+                 "phone's own connection. Registered is a 17 digit packed value of the form "
+                 "YYYYMMDDHHMMSSmmm; all stored digits are reported as text without assigning "
+                 "a time zone. Device Type, Platform Type and Network Type are "
+                 "reported as stored. Online is reported as stored. It held one value on all 3 "
+                 "rows of the tested sample; what the other value looks like and what moment the "
+                 "value reflects are not established. Every count recorded here comes from one "
+                 "extraction, adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "device-washing-machine",
@@ -38,19 +40,17 @@ __artifacts_v2__ = {
         "name": "LG ThinQ - Rooms",
         "description": "Rooms defined in the ThinQ home, with the creation value stored for "
                        "each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
-        "notes": "Read from the class_Room table of the app's Realm store. The created_at column holds "
-                 "two different shapes in the same column on the tested sample, an 8 digit YYYYMMDD "
-                 "date on one row and a 14 digit YYYYMMDDHHMMSS value on another, so it is reformatted "
-                 "from whichever shape is present and reported as stored in a text column; no time "
-                 "zone is recorded for it. Is Default is the store's flag as stored. The app's "
-                 "data container was present on 1 of the 26 "
-                 "registered iOS corpora swept for it, so every count recorded here comes from that "
-                 "one extraction.",
+        "notes": "Read from the class_Room table of the app's Realm store. The created_at column "
+                 "holds two different shapes in the same column on the tested sample, an 8 digit "
+                 "YYYYMMDD date on one row and a 14 digit YYYYMMDDHHMMSS value on another, so it "
+                 "is reported as stored text with all digits retained. No time zone is recorded for "
+                 "it. Is Default is the store's flag as stored. Every count recorded here comes "
+                 "from one extraction, adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "door",
@@ -60,23 +60,23 @@ __artifacts_v2__ = {
     },
     "lgThinqFavorites": {
         "name": "LG ThinQ - Favorites",
-        "description": "Items the account marked as favorites, with the created and modified "
-                       "timestamps the service recorded.",
+        "description": "Rows of the FavoritesItem class in the ThinQ app's Realm store, with the "
+                       "createdAt and modifiedAt values stored for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
-        "notes": "Read from the class_FavoritesItem table of the app's Realm store. Unlike the other "
-                 "date columns in this store these two carry an explicit UTC marker in the value "
-                 "itself, so they are reported as datetimes. Item Type is reported as stored. Model ID "
-                 "refers to the product identifier used by the Devices artifact, so the two can be "
-                 "joined. Created At and Modified At held the same value on every row in the tested "
-                 "sample, and Home ID held one value because that account had a single home. All three "
-                 "are kept: the timestamps separate when a favorite was added from when it was last "
-                 "changed, and Home ID shows which home an item belongs to on an account with more "
-                 "than one. The app's data container was present on 1 of the 26 registered iOS corpora "
-                 "swept for it, so every count recorded here comes from that one extraction.",
+        "notes": "Read from the class_FavoritesItem table of the app's Realm store. Unlike the "
+                 "other date columns in this store these two carry an explicit UTC marker in the "
+                 "value itself, so they are reported as datetimes. Item Type is reported as "
+                 "stored. Model ID is the row's modelID value, reported as stored. Created At and "
+                 "Modified At held the same value on every row in the tested sample, and Home ID "
+                 "held one value because that account had a single home. All three are reported. "
+                 "What createdAt and modifiedAt each mark is not established, since they did not "
+                 "differ on the tested rows, and Home ID was not tested on an account with more "
+                 "than one home. Every count recorded here comes from one extraction, "
+                 "adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "star",
@@ -90,14 +90,14 @@ __artifacts_v2__ = {
                        "recorded for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
-        "notes": "Read from the class_UserIdInfo table of the app's Realm store. Identifier Type is "
-                 "the string the service uses to describe the identifier and is reported as stored. "
-                 "The access token the same store holds in class_Token is deliberately not reported. "
-                 "The app's data container was present on 1 of the 26 registered iOS corpora swept for "
-                 "it, so every count recorded here comes from that one extraction.",
+        "notes": "Read from the class_UserIdInfo table of the app's Realm store. Identifier Type "
+                 "is the row's idType value and is reported as stored; what each value denotes is "
+                 "not established. The access token the same store holds in class_Token is "
+                 "deliberately not reported. Every count recorded here comes from one extraction, "
+                 "adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
@@ -107,22 +107,17 @@ __artifacts_v2__ = {
     },
     "lgThinqServices": {
         "name": "LG ThinQ - Services",
-        "description": "LG services the account is enrolled in, with the join date recorded "
-                       "for each.",
-        "author": "@AlexisBrignoni, Claude",
+        "description": "Rows of the Service class in the ThinQ app's Realm store, with the "
+                       "service name, code, isService flag and joinDate value stored for each.",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "LG ThinQ",
-        "notes": "Read from the class_Service table of the app's Realm store. Join Date is stored as a "
-                 "text date whose field order is not stated by the store. It is read as month, day, "
-                 "year on two grounds from the tested sample: the value resolves to the same day the "
-                 "appliances in class_Product record as their registration date, and read as day first "
-                 "it would fall after the date the extraction was taken. The reformatted date is "
-                 "reported in a text column and no time of day or zone is recorded. Service Code is "
-                 "reported as stored. The app's data container was present on 1 of the 26 registered "
-                 "iOS corpora swept for it, so every count recorded here comes from that one "
-                 "extraction.",
+        "notes": "Read from the class_Service table of the app's Realm store. Join Date is stored "
+                 "as a text date whose field order is not stated by the store; the original text "
+                 "is retained without reordering it. No time of day or zone is recorded. Service Code is reported as stored. "
+                 "Every count recorded here comes from one extraction, adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
@@ -133,32 +128,23 @@ __artifacts_v2__ = {
 }
 
 import os
-import re
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.realm_parser import realm_rows
+from scripts.realm_parser import parse_realm_file, realm_rows
 
 _MARKER_CLASS = 'class_Product'
-_PACKED = re.compile(r'^(\d{4})(\d{2})(\d{2})(?:(\d{2})(\d{2})(\d{2}))?\d*$')
 
 
 def _packed_as_stored(value):
-    """Reformat a packed YYYYMMDD[HHMMSS[mmm]] value for reading, or '' when unusable.
+    """Report a packed date value as stored text, with no assigned time zone.
 
-    The store records no time zone for these columns, so the value is reformatted and
-    reported as stored rather than rendered as an instant.
+    The store records no time zone for these columns, so the original digits are retained rather than rendered as an instant.
     """
     if value in (None, ''):
         return ''
-    match = _PACKED.match(str(value).strip())
-    if not match:
-        return str(value)
-    year, month, day, hour, minute, second = match.groups()
-    stamp = f'{year}-{month}-{day}'
-    if hour:
-        stamp += f' {hour}:{minute}:{second}'
-    return stamp
+    return str(value)
+
 
 
 def _utc_marked(value):
@@ -175,14 +161,9 @@ def _utc_marked(value):
 
 
 def _month_first_date(value):
-    """A month-first MM-DD-YYYY text date reformatted as YYYY-MM-DD, or the raw value."""
-    if not value or not isinstance(value, str):
-        return ''
-    match = re.match(r'^(\d{2})-(\d{2})-(\d{4})$', value.strip())
-    if not match:
-        return value
-    month, day, year = match.groups()
-    return f'{year}-{month}-{day}'
+    """A date value as stored text, without assuming its field order."""
+    return '' if value is None else str(value)
+
 
 
 def _stores(files_found):
@@ -193,12 +174,17 @@ def _stores(files_found):
         if os.path.isdir(file_found) or not file_found.endswith('.realm'):
             continue
         try:
-            rows = list(realm_rows(file_found, _MARKER_CLASS))
+            marker = parse_realm_file(file_found).get('active', {}).get(_MARKER_CLASS)
         except Exception as error:  # pylint: disable=broad-exception-caught
             logfunc(f'LG ThinQ: could not read {os.path.basename(file_found)}: {error}')
             continue
-        if not rows:
+        if marker is None:
+            logfunc(f'LG ThinQ: {os.path.basename(file_found)} holds no {_MARKER_CLASS} '
+                    f'table; skipped')
             continue
+        if not marker.get('row_count'):
+            logfunc(f'LG ThinQ: {os.path.basename(file_found)} holds a {_MARKER_CLASS} '
+                    f'table with no rows; its other classes are still read')
         stores.append(file_found)
     return stores
 

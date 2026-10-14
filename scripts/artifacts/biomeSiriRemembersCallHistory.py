@@ -2,15 +2,17 @@ __artifacts_v2__ = {
     "get_biomeSiriRemembersCallHistory": {
         "name": "Biome - Siri Remembers Call History",
         "description": "Parses call records (timestamps, direction, contacts and handles, conversation "
-                       "identifiers) from the Siri.Remembers.CallHistory biome stream. Covers cellular "
-                       "and third party VoIP calls (WhatsApp, Messenger, LINE, imo and others observed).",
+                       "identifiers) from the Siri.Remembers.CallHistory biome stream. On the "
+                       "tested image, records were present for the Phone app and for third party "
+                       "calling apps (WhatsApp, Messenger, LINE, imo and others).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Direction and call timestamps validated against CallHistory.storedata (ZORIGINATED, "
-                 "ZDATE) from the same iOS 17 test extraction (5/5 matches). In this stream direction "
+                 "ZDATE) from the same iOS 17 test extraction (5 of 5 records compared matched; "
+                 "the report for that image holds 22 rows). In this stream direction "
                  "1 = Incoming and 2 = Outgoing, matching the Siri.Remembers.MessageHistory convention.",
         "paths": (
             '*/streams/*/Siri.Remembers.CallHistory/local/*',

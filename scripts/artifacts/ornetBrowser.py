@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "ornet_browser_tabs": {
         "name": "OrNET Browser - Open Tabs",
-        "description": "URLs of the tabs that were open in OrNET Browser, from the archived open "
-                       "and private tab lists in the app preferences",
+        "description": "URLs held in the archived open_tabs and privateTabs lists of the OrNET "
+                       "Browser preferences",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-15",
@@ -29,12 +29,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "OrNET Browser",
-        "notes": "Values are read directly from the app preferences plist. Each configured custom "
-                 "bridge is reported on its own row; a bridge line contains the transport, the "
-                 "relay address and its fingerprint, reported as stored. The app with "
-                 "bundle id ch.b-eng.tor names itself OrNET Browser in its bundle's Info.plist, "
-                 "read from the tested image; iLEAPP releases up to v2026.3.0 labelled these "
-                 "artifacts Onion Browser, which is a different app.",
+        "notes": "Values are read from the app preferences plist and shown under labels this "
+                 "module assigns to the keys; booleans are shown as Yes or No. The labels are "
+                 "readings of the key names and no source for what each setting does is cited. "
+                 "Each entry of the customBridges list is reported on its own row, as stored. "
+                 "The app with bundle id ch.b-eng.tor names itself OrNET Browser in its bundle's "
+                 "Info.plist, read from the tested image; iLEAPP releases up to v2026.3.0 "
+                 "labelled these artifacts Onion Browser, which is a different app.",
         "paths": ('*/Library/Preferences/ch.b-eng.tor.plist',),
         "output_types": "standard",
         "artifact_icon": "settings",
@@ -51,12 +52,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "OrNET Browser",
-        "notes": "Read from the class_BookmarkItem table of the app's Realm store "
-                 "(Documents/default.realm) using the vendored realm_parser. The stored icon is a "
-                 "base64 PNG and is checked in. The app with bundle id ch.b-eng.tor names "
-                 "itself OrNET Browser in its bundle's Info.plist, read from the tested image; "
-                 "iLEAPP releases up to v2026.3.0 labelled these artifacts Onion Browser, which "
-                 "is a different app.",
+        "notes": "Read from the class_BookmarkItem table of the first Documents/default.realm "
+                 "found that carries a BookmarkItem, FavouriteModel or BrowsingHistoryItem "
+                 "class, using the vendored realm_parser. The container's bundle id is not "
+                 "checked; confirm the app from the source path. The stored icon is a base64 PNG "
+                 "and is checked in. The app with bundle id ch.b-eng.tor names itself OrNET "
+                 "Browser in its bundle's Info.plist, read from the tested image; iLEAPP "
+                 "releases up to v2026.3.0 labelled these artifacts Onion Browser, which is a "
+                 "different app.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "bookmark",
@@ -66,18 +69,19 @@ __artifacts_v2__ = {
     },
     "ornet_browser_favourites": {
         "name": "OrNET Browser - Favourites",
-        "description": "Favourite sites shown on the OrNET Browser start page, with the title, the "
-                       "URL and the site icon",
+        "description": "Rows of the FavouriteModel table in the OrNET Browser Realm store, with "
+                       "the title, the URL and the site icon",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "OrNET Browser",
-        "notes": "Read from the class_FavouriteModel table of the app's Realm store. The app ships "
-                 "with preset favourites, so a row does not on its own show the user added it. "
-                 "The app with bundle id ch.b-eng.tor names itself OrNET Browser in its "
-                 "bundle's Info.plist, read from the tested image; iLEAPP releases up to "
-                 "v2026.3.0 labelled these artifacts Onion Browser, which is a different app.",
+        "notes": "Read from the class_FavouriteModel table of the app's Realm store. Whether a "
+                 "row was added by a person or placed by the app is not established, so a row "
+                 "does not on its own show the user added it. The app with bundle id ch.b-eng.tor "
+                 "names itself OrNET Browser in its bundle's Info.plist, read from the tested "
+                 "image; iLEAPP releases up to v2026.3.0 labelled these artifacts Onion Browser, "
+                 "which is a different app.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "star",
@@ -87,19 +91,20 @@ __artifacts_v2__ = {
     },
     "ornet_browser_history": {
         "name": "OrNET Browser - Browsing History",
-        "description": "Pages recorded in OrNET Browser browsing history, with the title, the URL, "
-                       "the site icon and the date and time shown to the user",
+        "description": "Pages recorded in OrNET Browser browsing history, with the title, the "
+                       "URL, the site icon and the date and time strings stored with each entry",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "OrNET Browser",
-        "notes": "Read from the class_BrowsingHistoryItem table of the app's Realm store. The date "
-                 "and time are the display strings the app stored and are reported as stored; "
-                 "their zone is not established. The "
-                 "app with bundle id ch.b-eng.tor names itself OrNET Browser in its bundle's "
-                 "Info.plist, read from the tested image; iLEAPP releases up to v2026.3.0 "
-                 "labelled these artifacts Onion Browser, which is a different app.",
+        "notes": "Read from the class_BrowsingHistoryItem table of the app's Realm store. The "
+                 "date and time are the display strings the app stored and are reported as "
+                 "stored; their zone is not established. The column headers read 'Date (device "
+                 "local)' and 'Time (device local)'; that wording is this module's and no source "
+                 "for it is cited. The app with bundle id ch.b-eng.tor names itself OrNET Browser "
+                 "in its bundle's Info.plist, read from the tested image; iLEAPP releases up to "
+                 "v2026.3.0 labelled these artifacts Onion Browser, which is a different app.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "clock",

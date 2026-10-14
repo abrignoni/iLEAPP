@@ -1,17 +1,20 @@
 __artifacts_v2__ = {
 'Ph001_1AssetBasicDataPhDaPsql': {
 'name': 'Ph001.1-Asset Basic Data-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite.'
-' The results will contain one row per ZASSET table Z_PK value and supports iOS.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite. One '
+'row per asset row (ZGENERICASSET on iOS 11 to 13, ZASSET from iOS 14). iOS 11 '
+'to 26 are handled; other versions return no rows. '
+'https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'The coded columns show the stored number inside a label the module\'s author assigned; '
+         'no source for the value lists is cited. Labels marked StillTesting are not established, '
+         'and the stored number is the value to rely on.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -35,12 +38,15 @@ __artifacts_v2__ = {
 },
 'Ph001_2AssetBasicDataSyndPL': {
 'name': 'Ph001.2-Asset Basic Data-SyndPL',
-'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite.'
-' The results will contain one row per ZASSET table Z_PK value and supports iOS.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from '
+'Syndication.photoslibrary-database-Photos.sqlite. One row per asset row (ZGENERICASSET on iOS '
+'11 to 13, ZASSET from iOS 14). iOS 11 to 26 are handled; other versions return no rows. Coded '
+'columns show the stored number inside a label the module\'s author assigned; the stored number '
+'is the value to rely on. '
+'https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -66,12 +72,11 @@ __artifacts_v2__ = {
 },
 'Ph001_3AssetBasicDataGenPlayPsql': {
 'name': 'Ph001.3-Asset Basic Data-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-database-Photos.sqlite.'
-' The results will contain one row per ZASSET table Z_PK value and supports iOS.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from GenPlay-database-Photos.sqlite. '
+'One row per ZASSET row. iOS 18 to 26 are handled; other versions return no rows.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -104,6 +109,9 @@ def Ph001_1AssetBasicDataPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -654,6 +662,9 @@ def Ph001_2AssetBasicDataSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
@@ -1201,6 +1212,9 @@ def Ph001_3AssetBasicDataGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path

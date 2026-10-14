@@ -3,16 +3,20 @@ __artifacts_v2__ = {
         "name": "Biome - Emergency Voice Call",
         "description": "Parses emergency voice calls from the "
                        "CommCenter.Call.EmergencyVoiceCall biome stream: the emergency number "
-                       "that was dialled and the apparent mobile country and network codes of "
-                       "the serving network at the time of the call.",
+                       "that was dialled and two short numeric strings read as a mobile "
+                       "country code and a mobile network code; which network they describe "
+                       "is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field mapped from a small private sample, so read the columns with that in "
-                 "mind. Field 1 is the dialled number and is unambiguous in an emergency call "
-                 "stream. Fields 2 and 3 are short numeric strings in the positions and value "
+                 "mind. Field 1 is read as the dialled number; the published stream research "
+                 "lists the same value as Emergency Number (Mattia Epifani, '84 Streams "
+                 "Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html). "
+                 "Fields 2 and 3 are short numeric strings in the positions and value "
                  "ranges of a mobile country code and mobile network code, which is the "
                  "reading given here but is inferred from shape rather than confirmed. Field 7 "
                  "is a small integer that varies per call and is consistent with a duration in "

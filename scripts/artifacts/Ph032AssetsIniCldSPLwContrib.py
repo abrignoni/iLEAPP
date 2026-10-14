@@ -1,15 +1,16 @@
 __artifacts_v2__ = {
 'Ph032iCloudSPLAssetswithContributorPhDaPsql': {
 'name': 'Ph032-iCloud SPL Assets with Contributor-PhDaPsql',
-'description': 'Parses Assets in iCloud Shared Photo Library with contributor information from'
-' PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
-' Parses basic asset data and iCloud SPL and contributor information.'
-' If you are attempting to match SPL count with results please check'
-' hidden, trashed, and burst assets.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses Assets in iCloud Shared Photo Library with contributor information from the "
+"PhotoData/Photos.sqlite ZASSET table, joined to ZSHARE and ZSHAREPARTICIPANT, for "
+"assets whose Active Library Scope Participation State is 1. Queries exist for iOS 16 "
+"through 26; other versions return no rows. Parses basic asset data and iCloud SPL "
+"and contributor information. If you are attempting to match SPL count with results "
+"please check hidden, trashed, and burst assets. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -56,7 +57,10 @@ def Ph032iCloudSPLAssetswithContributorPhDaPsql(context):
     if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
-    if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("27")):
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
+    if (version.parse(iosversion) < version.parse("16")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("17.6")):

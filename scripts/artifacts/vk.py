@@ -4,23 +4,30 @@ __artifacts_v2__ = {
         "description": "VK Messenger messages from the iOS client's messages store",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-22",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "VK",
         "notes": "Read from the message table of messages-store.sqlite in the client's "
-                 "VKM_<account id> folder under Application Support, one folder per signed in account. "
+                 "VKM_<account id> folder under Application Support. "
                  "Each message row carries a data column holding the message as JSON in the clear, and "
                  "the fields here are read from that JSON: Sent is the date value, Unix seconds; "
                  "Message is the text; From ID is the from_id; Direction is Outgoing when the JSON out "
-                 "flag is 1 and Incoming when it is 0, which is the client's own marking of a sent "
-                 "message. Conversation is the peer the message belongs to, resolved to a title from "
+                 "flag is 1, Incoming when it is 0, and blank for any other case, including a row "
+                 "with no out flag or with data that does not parse as JSON. "
+                 "VK's API reference for the message object gives out as 0 received and 1 sent "
+                 "(https://dev.vk.com/en/reference/objects/message); that the client's stored "
+                 "JSON follows the API object is not established here. Conversation is the peer "
+                 "the message belongs to, resolved to a title from "
                  "the peer_title table in the same store where present, otherwise the numeric peer id. "
                  "From Name resolves From ID against the user records in the sibling content-store.sqlite "
                  "where the sender is a user. Attachments lists the types the message JSON records "
-                 "(for example photo, doc, audio, link), reported as stored; the attachment bytes "
-                 "themselves are cached elsewhere by the client and are not rendered here. Forwarded is "
-                 "the count of forwarded messages the JSON carries. Reactions and Action are reported as "
-                 "stored. Field mapping was done against a private sample; no sample data is recorded "
+                 "(for example photo, doc, audio, link), reported as stored; the attachment files "
+                 "are not read or rendered here. Forwarded is "
+                 "the count of forwarded messages the JSON carries. Reactions is the number of "
+                 "entries in the JSON reactions list, blank when there are none, and Action is "
+                 "the type value of the JSON action object, or the action value itself when it is "
+                 "not an object. Field mapping was done against a private sample; no sample data "
+                 "is recorded "
                  "for it. The account id is the number in the VKM_ folder name.",
         "paths": ('*/Library/Application Support/VKM_*/messages-store.sqlite*',),
         "output_types": "standard",
@@ -46,8 +53,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "VK",
         "notes": "Read from the user table of content-store.sqlite in the client's VKM_<account id> "
-                 "folder. Each row is a user the client cached, which includes the account's own "
-                 "contacts and the senders of cached messages, so a row is not by itself evidence of a "
+                 "folder. Each row is a user the client cached, and why the client cached a given "
+                 "user is not established, so a row is not by itself evidence of a "
                  "conversation. User ID, First Name, Last Name, Screen Name, Nickname, Sex, Verified "
                  "and Is Closed are read from the JSON data column, reported as stored. Field mapping "
                  "was done against a private sample; no sample data is recorded for it.",
@@ -115,6 +122,16 @@ def _attachment_types(data):
     return ', '.join(types)
 
 
+def _direction(out_flag):
+    if isinstance(out_flag, bool):
+        out_flag = int(out_flag)
+    if out_flag == 1:
+        return 'Outgoing'
+    if out_flag == 0:
+        return 'Incoming'
+    return ''
+
+
 @artifact_processor
 def vkMessages(context):
     data_headers = (
@@ -144,7 +161,7 @@ def vkMessages(context):
             action = data.get('action') or ''
             data_list.append((
                 convert_unix_ts_to_utc(data.get('date')) if data.get('date') else '',
-                'Outgoing' if data.get('out') == 1 else 'Incoming',
+                _direction(data.get('out')),
                 names.get(from_id_str, ''),
                 titles.get(peer, peer),
                 data.get('text', ''),

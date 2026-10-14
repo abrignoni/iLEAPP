@@ -2,13 +2,24 @@
 __artifacts_v2__ = {
     "cloudkit_sharing": {
         "name": "CloudKit Shares",
-        "description": "Processes CloudKit sharing data from NoteStore.sqlite",
+        "description": "Lists one row per object in NoteStore.sqlite whose CloudKit server record "
+                       "data or share data holds a record id, with share fields where the reader "
+                       "decoded them from the object's share data. A row is not evidence that the "
+                       "item was shared.",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Cloudkit",
-        "notes": "",
+        "notes": "A row is created for each ZICCLOUDSYNCINGOBJECT record whose ZSERVERRECORDDATA "
+                 "holds a RecordID item, whether or not the record has share data. Root Record ID, "
+                 "Container Identifier, Displayed Hostname, Public Permission, Participant "
+                 "Visibility, Allows Anonymous Access and Known To Server are filled only from "
+                 "ZSERVERSHAREDATA. On iphone11_ios17 (35 rows) and iphone12_ios18 (40 rows) Root "
+                 "Record ID and every other share column were empty on every row, on runs of 3 Oct "
+                 "2026. On iphone11_ios17 three of the objects store share data and the share "
+                 "columns were still empty for them, so an empty share column is not evidence that "
+                 "the item was not shared.",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "share-2",

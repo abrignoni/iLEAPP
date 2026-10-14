@@ -2,16 +2,14 @@
 __artifacts_v2__ = {
     "home_depot_account": {
         "name": "Home Depot - Account",
-        "description": "Home Depot account profile",
-        "author": "@jameshabben",
+        "description": 'Home Depot account profile fields from cached user info, including the parser-selected accountIdentity.logonId value under its stored field name.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": '2026-10-09',
         "requirements": "nska_deserialize",
         "category": "Home Depot",
         "notes": (
-            "Account data is parsed from three sources when present: USER_INFO_KEY in "
-            "com.thehomedepot.homedepot.plist, SharedUserInfoKey in group.com.thehomedepot.homedepot.plist, "
-            "and userInfo.txt in the App Group container. Contains PII."
+            "Account data is parsed from three sources when present: USER_INFO_KEY in the first matched file named com.thehomedepot.homedepot.plist, SharedUserInfoKey in the first matched file named group.com.thehomedepot.homedepot.plist, and userInfo.txt in the App Group container. Contains PII. In emitted rows, missing or null logonId values, or a non-dictionary parent, remain empty under existing parsing. Other values retain the parser's current representation. The stored field name does not establish an email address, active account or ownership. Original contribution credited to @jameshabben."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',
@@ -26,12 +24,14 @@ __artifacts_v2__ = {
         "description": "Home Depot local store details from cached user info",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": "2026-10-09",
         "requirements": "nska_deserialize",
         "category": "Home Depot",
         "notes": (
             "Store data is parsed from the same three user-info sources as the account artifact. "
-            "Preferred Store IDs are only present when sourced from com.thehomedepot.homedepot.plist."
+            "Preferred Store IDs are filled only on the row read from the file named "
+            "com.thehomedepot.homedepot.plist; the file name is matched whole, so the App Group "
+            "file is not read in its place."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',
@@ -70,13 +70,13 @@ __artifacts_v2__ = {
     },
     "home_depot_products_viewed": {
         "name": "Home Depot - Cached Products",
-        "description": "Cached product details from THDConsumer Core Data store",
-        "author": "@jameshabben",
+        "description": "Cached product records from the THDConsumer Core Data store, including the decoded specialPriceKey field with the parser's existing rendering.",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-07',
         "requirements": "nska_deserialize",
         "category": "Home Depot",
-        "notes": "",
+        "notes": "The specialPriceKey (as decoded) column reports the existing _product_field result from the decoded product object. A missing key becomes an empty string; an explicit null remains None. Zero, False, empty strings and other native values are retained. A dictionary containing NS.string yields that key's value without recursive conversion; other dictionaries and lists remain native containers until existing report rendering. These values do not establish a monetary amount, currency, purchase or user view. Only the first matched THDConsumer.sqlite is queried, and repeated records remain separate. The artifact has no event timestamp; no timestamp is introduced by this header correction. Original contribution credited to @jameshabben. Historical sample or research statements are not revalidated here.",
         "paths": ('*/Containers/Data/Application/*/Documents/THDConsumer.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "shopping-bag",
@@ -96,23 +96,27 @@ __artifacts_v2__ = {
     },
     "home_depot_last_location": {
         "name": "Home Depot - Last Known Location",
-        "description": "Last known location (CLLocation) from Home Depot app preferences",
+        "description": "Location stored under currentLocationKey (an archived CLLocation) in the "
+                       "Home Depot app preferences, with the timestamp the archive carries",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-07-31",
         "requirements": "nska_deserialize",
         "category": "Home Depot",
-        "notes": "Parsed from currentLocationKey CLLocation blob.",
+        "notes": "Parsed from currentLocationKey CLLocation blob. Latitude and Longitude use the "
+                 "archive's raw coordinate keys when its coordinate keys are missing or empty.",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "all",
         "artifact_icon": "map-pin",
     },
     "home_depot_product_image_cache": {
         "name": "Home Depot - Product Image Cache",
-        "description": "Cached product image URLs and HTTP Last-Modified timestamps",
-        "author": "@jameshabben",
+        "description": "Cached product image URLs and the HTTP Last-Modified value stored with "
+                       "each. The Last-Modified column holds that Last-Modified value; it is not "
+                       "shown to be the time the app cached the image",
+        "author": "@jameshabben, @AlexisBrignoni, Codex",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Home Depot",
         "notes": "",
@@ -141,7 +145,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-26",
         "requirements": "none",
         "category": "Home Depot",
-        "notes": "Excludes product image cache, search URL cache, and SDK analytics keys.",
+        "notes": "Leaves out the keys the other Home Depot artifacts read, every key that starts "
+                 "with https://, and keys starting with Adobe., AppsFlyer, com.akamai., "
+                 "clearingCoTheVeryFirstTime or hasAlreadyRegisteredForRemoteNotifications. Some "
+                 "of the https:// keys left out, such as Etag entries, are not reported by any "
+                 "artifact.",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "standard",
         "artifact_icon": "adjustments-alt",
@@ -201,7 +209,9 @@ _PRODUCT_IMAGE_RE = re.compile(
 def _find_file_by_name(context, filename):
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        if file_found.endswith(filename):
+        # Whole file name, not the end of the path: group.com.thehomedepot.homedepot.plist
+        # ends with com.thehomedepot.homedepot.plist.
+        if file_found.replace('\\', '/').rsplit('/', 1)[-1] == filename:
             return file_found
     return ''
 
@@ -473,7 +483,7 @@ def _build_store_row(user_info, preferred_store_ids, source):
 def home_depot_account(context):
     """ see artifact description """
     data_headers = (
-        'Source', 'User ID', 'Email', 'First Name', 'Last Name', ('Phone', 'phonenumber'), 'Customer Type',
+        'Source', 'User ID', 'logonId (as stored)', 'First Name', 'Last Name', ('Phone', 'phonenumber'), 'Customer Type',
         'Zip Code', 'Customer Account ID', 'Local Store ID', 'Preferred Store IDs',
     )
     data_list = []
@@ -556,7 +566,7 @@ def home_depot_search_history(context):
 def home_depot_products_viewed(context):
     """ see artifact description """
     data_headers = (
-        'Item ID', 'Product Label', 'Brand', 'Model Number', 'Store SKU', 'Price', 'Product URL', 'Image URL',
+        'Item ID', 'Product Label', 'Brand', 'Model Number', 'Store SKU', 'specialPriceKey (as decoded)', 'Product URL', 'Image URL',
     )
     data_list = []
     source_path = _find_sqlite(context)
@@ -644,7 +654,7 @@ def home_depot_last_location(context):
 @artifact_processor
 def home_depot_product_image_cache(context):
     """ see artifact description """
-    data_headers = (('Cache Date', 'datetime'), 'Product Slug', 'Image URL')
+    data_headers = (('Last-Modified', 'datetime'), 'Product Slug', 'Image URL')
     data_list = []
     source_path, plist = _load_preferences(context)
     if not plist:

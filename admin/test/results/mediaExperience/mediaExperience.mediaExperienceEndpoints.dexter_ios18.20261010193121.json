@@ -1,0 +1,116 @@
+{
+  "metadata": {
+    "module_name": "mediaExperience",
+    "artifact_name": "Media Experience Endpoints",
+    "function_name": "mediaExperienceEndpoints",
+    "case_number": "dexter_ios18",
+    "number_of_columns": 8,
+    "number_of_rows": 8,
+    "total_data_size_bytes": 370,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/mediaExperience/testdata.mediaExperience.mediaExperienceEndpoints.dexter_ios18.zip",
+    "start_time": "2026-10-10T19:31:21.214965+00:00",
+    "end_time": "2026-10-10T19:31:21.269962+00:00",
+    "run_time_seconds": 0.00043702125549316406,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T19:31:21.265766",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Endpoint",
+    "Endpoint Type",
+    "Audio/Video Volume",
+    "PhoneCall Volume",
+    "VoiceCommand Volume",
+    "Alarm Volume",
+    "Ringtone Volume",
+    "Other Volumes"
+  ],
+  "data": [
+    [
+      "HeadphonesBT~38:C4:3A:20:89:18",
+      "Headphones",
+      "0.4256930351257324",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "HeadphonesBT~40:D5:21:2B:BB:06",
+      "Vehicle",
+      "0.22047242522239685",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "HeadphonesBT~68:FC:CA:B9:26:95",
+      "Unspecified",
+      "0.3700787425041199",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "HeadphonesBT~F4:4E:FD:84:1F:EB",
+      "Headphones",
+      "0.5354330539703369",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "LineOut~iiap~USB Audio Output",
+      "Unspecified",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Receiver~Built-In Receiver",
+      "Unspecified",
+      "",
+      "0.9484133720397949",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Speaker~Speaker",
+      "Unspecified",
+      "0.0",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "broadcast",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "0.0625",
+      ""
+    ]
+  ]
+}

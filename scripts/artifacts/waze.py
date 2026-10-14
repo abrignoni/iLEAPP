@@ -15,7 +15,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian).",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture URL" ],
@@ -35,7 +37,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-22",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reads the key and value lines of the Waze Documents/session file. Only the keys "
+                 "this module lists are reported, and lines with an empty value are skipped. "
+                 "Field is the key as stored. Friendly Name is a label added by this module; no "
+                 "Waze source for the labels is cited. Coordinates are the stored integers "
+                 "divided by 1,000,000. Reference: Django Faiola, 'Comprehensive Waze Forensic "
+                 "Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian).",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "navigation",
@@ -54,7 +63,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-27",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Read from GPS_QUALITY entries in the spdlog.*logdata files under the Waze "
+                 "Documents folder. Two log layouts are read. When an older single-line entry is "
+                 "followed by a newer block whose timestamp is within 250 ms, only the newer "
+                 "block is reported; that pairing rule is this module's and is not taken from a "
+                 "Waze source. Timestamp is the entry's own TIMESTAMP_MS or "
+                 "event_client_timestamp value. Counts, accuracy values and provider are reported "
+                 "as logged, with N/A where an entry has none. Reference: Django Faiola, "
+                 "'Comprehensive Waze Forensic Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian).",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata"),
         "output_types": [ "all" ],
         "artifact_icon": "navigation",
@@ -66,14 +84,14 @@ __artifacts_v2__ = {
         }
     },
     "waze_search_history": {
-        "name": "Waze - Search History",
-        "description": "Parses and extracts location entries from the PLACES table",
-        "author": "@djangofaiola",
+        "name": 'Waze - PLACES Table Entries',
+        "description": 'Reports supported rows selected from the PLACES table in the selected Waze user.db. The query applies no search-event filter; a row alone does not establish a search, navigation, visit, or user interaction.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-08-01",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Every row of the PLACES table in user.db is reported with no filter. The module's own documentation says the table includes searched and referenced places, so a row is not by itself a record of a search. Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html (in Italian). Original contribution and Waze research credited to Django Faiola (@djangofaiola). Artifact naming was neutralized to match the existing all-PLACES query; no native value, header, SQL, filter, date conversion, source selection, or row multiplicity was changed. Existing per-record error skips and database error handling are unchanged. Coordinate scaling, Residential Status labels, date meanings, source-state association and other Waze research remain outside this change. Historical sample_data entries are retained and are not fresh validation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "search",
@@ -92,7 +110,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Type shows a label this module assigns to the stored RECENTS.type integer (0 "
+                 "User Search, 1 Advertising, 2 Map Interaction, 3 Shared, 4 Navigation History); "
+                 "-1 is shown as N/A and any other value is shown as stored. The labels follow "
+                 "Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian), which says the classification comes from empirical analysis and "
+                 "not from Waze documentation. A label is not by itself a record of what a person "
+                 "did.",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "map-pin",
@@ -108,10 +133,16 @@ __artifacts_v2__ = {
         "description": "Parses and extracts favorite locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Type shows a label this module assigns to the stored type integer, which is "
+                 "FAVORITES.type in user.db (0 Custom, 1 Home, 2 Work, 3 Events, 4 Saved POI); -1 "
+                 "is shown as N/A. Any other value is shown as stored by both readers (the cached "
+                 "data reader and the user.db reader). The labels "
+                 "follow Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian); no Waze source for them is cited.",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "star",
@@ -130,7 +161,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-22",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian).",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "map-pin",
@@ -149,7 +182,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Type shows a label this module assigns to the stored EVENTS_PLACES.type integer "
+                 "(1 Calendar, 2 Partner, 6 Reservation); any other value is shown as stored and "
+                 "a missing value as N/A. The labels follow Django Faiola, 'Comprehensive Waze "
+                 "Forensic Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian), which says the classification comes from empirical analysis and "
+                 "not from Waze documentation. No registered test image held a row, so this "
+                 "artifact is unexercised on the registered images.",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "html_columns": [ "Image URL" ],
@@ -169,7 +209,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-19",
         "requirements": "none",
         "category": "Waze",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reads the text, type and update time of each row in the tables whose name "
+                 "passes this module's name check in the Waze text-to-speech cache "
+                 "(Library/Caches/tts/tts.db). Text Type shows a label this module assigns to the "
+                 "stored text_type integer (0 Prompt, 1 Maneuver, 2 Route, 3 Alert); any other "
+                 "value is shown as stored and a missing value as N/A. The labels follow Django "
+                 "Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian), which says the classification comes from empirical analysis and "
+                 "not from Waze documentation. A row shows the cache held that text with that "
+                 "update time; it does not by itself show the text was played.",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "standard" ],
         "artifact_icon": "volume-2",
@@ -1985,7 +2034,7 @@ def _parse_favorite_user_db(source_path: str, context, data_list: list) -> None:
             WHEN 2 THEN 'Work'
             WHEN 3 THEN 'Events'
             WHEN 4 THEN 'Saved POI'
-            ELSE 'Unknown (' || IFNULL(f.type, 'N/A') || ')'	
+            ELSE CAST(f.type AS TEXT)
         END AS "entry_type",        
 	    F.name,
         P.name AS "place_name",

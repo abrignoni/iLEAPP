@@ -24,10 +24,13 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Clubhouse',
-        'notes': "Sourced from the contact-upload-store-suggested-invites key, which holds "
-                 "contacts staged in the app contact-upload store (the cnContactIdentifier keys "
-                 "are reported as stored; whether these entries came from the device address "
-                 "book is not established here).",
+        'notes': "Sourced from the contact-upload-store-suggested-invites key, which holds JSON "
+                 "with a list named suggestedInvites and a lastUpdated value. What the app uses "
+                 "the list for is not established here. The cnContactIdentifier value is "
+                 "reported as stored under Address Book Identifier; whether these entries came "
+                 "from the device address book is not established. The pop value is reported as "
+                 "stored and its meaning is not established. Store Last Updated is the "
+                 "lastUpdated value read as seconds since 2001-01-01 UTC, an assumed epoch.",
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Preferences/co.alphaexploration.clubhouse.plist',),
         'output_types': 'standard',
         'artifact_icon': 'address-book',
@@ -37,7 +40,8 @@ __artifacts_v2__ = {
     },
     'clubhouseConversations': {
         'name': 'Clubhouse - Conversations',
-        'description': 'Recent Clubhouse conversations cached for the home screen widget',
+        'description': 'Entries of the widgetConversations key in the Clubhouse app group '
+                       'preferences, with the name, id and image URL stored for each',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
@@ -53,7 +57,9 @@ __artifacts_v2__ = {
     },
     'clubhouseNotifications': {
         'name': 'Clubhouse - Received Notifications',
-        'description': 'Identifiers and timestamps of push notifications received by Clubhouse',
+        'description': 'Values of the notification_received_ids and '
+                       'notification_received_timestamps keys in the Clubhouse app group '
+                       'preferences, paired by position, with the timestamp read as Unix seconds',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
