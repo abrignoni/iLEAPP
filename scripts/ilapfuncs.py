@@ -451,12 +451,19 @@ def check_in_media(file_path, name="", converted_file_path=False, force_type=Non
     Returns:
         The media reference ID or None.
     '''
-    extraction_path = Context.get_source_file_path(file_path)
-    if not extraction_path:
-        logfunc(f'No matching file found for "{file_path}"')
-        return None
-
-    file_info = Context.get_seeker().file_infos.get(extraction_path)
+    # A file the seeker staged is checked in as itself, whether or not the current artifact's
+    # files_found lists it. An artifact that stages a file with its own seeker search would
+    # otherwise get no media, or, when files_found holds another file of the same name, have
+    # the media identified by that other file's evidence path.
+    seeker = Context.get_seeker()
+    extraction_path = os.fspath(file_path)
+    file_info = seeker.file_infos.get(extraction_path)
+    if not file_info:
+        extraction_path = Context.get_source_file_path(file_path)
+        if not extraction_path:
+            logfunc(f'No matching file found for "{file_path}"')
+            return None
+        file_info = seeker.file_infos.get(extraction_path)
     if file_info:
         media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
         # Only the type sniffer reads media_data for a file on disk, and it looks at no more
