@@ -2,7 +2,8 @@ __artifacts_v2__ = {
     'anonymousChat_appInfo': {
         'name': 'Anonymous Chat & Fun - Application Info',
         'description': 'Bundle and data containers of the iOS app "Anonymous Chat & Fun" '
-                       '(bundle ID com.anonimchat.app), identified from container metadata.',
+                       '(bundle ID com.anonimchat.app), identified from the container metadata plist, the '
+                       'app\'s own plists or the backup domain name.',
         'author': '@darren33',
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-14',
@@ -14,7 +15,7 @@ __artifacts_v2__ = {
                  'Library/Preferences/com.anonimchat.app.plist, a bundle container whose '
                  'Info.plist or iTunesMetadata.plist names the bundle ID, or an iTunes backup '
                  'AppDomain, where the bundle ID takes the place of the container UUID. '
-                 'Version, build and store fields come from the bundle container\'s Info.plist '
+                 'Application name, version, build and store fields come from the bundle container\'s Info.plist '
                  'and iTunesMetadata.plist and are blank for data containers.',
         'paths': (
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
@@ -80,8 +81,10 @@ __artifacts_v2__ = {
         'notes': 'Rows come from the conversations table of anonimchat.db. Message, outgoing '
                  'and incoming counts and the observed last message time are computed from '
                  'the messages table. Columns marked (raw) are reported as stored because '
-                 'their meaning is not established. Numeric times are read as Unix seconds; '
-                 'this epoch is not confirmed on a real device. A conversation_time held as '
+                 'their meaning is not established. Numeric times are read as Unix time: a '
+                 'value of ten digits or fewer as seconds, a longer one scaled down from '
+                 'milliseconds, microseconds or nanoseconds by its size. Neither the unit nor '
+                 'the epoch is confirmed on a real device. A conversation_time held as '
                  'text with no timezone is left in the raw column only. Other Party names the '
                  'opposite participant only when the Accounts artifact found one signed-in '
                  'username; otherwise it lists both participants. Conversation Key joins the '
@@ -107,7 +110,7 @@ __artifacts_v2__ = {
         'name': 'Anonymous Chat & Fun - Messages',
         'description': 'Messages stored by the iOS app "Anonymous Chat & Fun" '
                        '(bundle ID com.anonimchat.app), with the cached image on the message '
-                       'row when the app\'s image cache holds it.',
+                       'row when a file in the app\'s image cache is named for its stored URL.',
         'author': '@darren33',
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-14',
@@ -119,10 +122,14 @@ __artifacts_v2__ = {
                  'when the flag is 1 and the sender name is the other participant, and blank '
                  'otherwise. Neither the flag values nor the account keys are confirmed on a '
                  'real device, so a blank direction is expected. Numeric times are read as '
-                 'Unix seconds; this epoch is not confirmed on a real device. Media: '
-                 'SDWebImage names each file in Library/Caches/com.hackemist.SDImageCache/'
-                 '<namespace>/ by the MD5 of its cache key plus the URL\'s extension, and the '
-                 'default cache key is the URL itself (SDWebImage 4.4.8 and 5.19.0 source). A '
+                 'Unix time: a value of ten digits or fewer as seconds, a longer one scaled '
+                 'down from milliseconds, microseconds or nanoseconds by its size. Neither the '
+                 'unit nor the epoch is confirmed on a real device. Media: SDWebImage 5 keeps '
+                 'cached images in Library/Caches/com.hackemist.SDImageCache/<namespace>/ '
+                 '(5.19.0 source) and SDWebImage 4 in Library/Caches/default/'
+                 'com.hackemist.SDWebImageCache.default/ (4.4.8 source). Both name each file '
+                 'by the MD5 of its cache key plus the URL\'s extension, and the default cache '
+                 'key is the URL itself. A '
                  'cached file is shown on a message only when its name equals that value for '
                  'the message\'s stored media_url, in the same data container. A custom cache '
                  'key, image transformer or thumbnail changes the key and leaves the message '
@@ -138,6 +145,7 @@ __artifacts_v2__ = {
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/*',
             '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/*',
             '*/Containers/Data/Application/*/Library/Caches/com.hackemist.SDImageCache/*',
+            '*/Containers/Data/Application/*/Library/Caches/default/com.hackemist.SDWebImageCache.*',
         ),
         'output_types': ['html', 'tsv', 'timeline', 'lava'],
         'data_views': {
@@ -198,7 +206,7 @@ __artifacts_v2__ = {
                  'Table: a row of the media table of anonimchat.db; media_data is not read, '
                  'and these rows are not linked to messages or files because no stored join '
                  'between them is confirmed. Cached Image: a file in the app\'s SDImageCache '
-                 'folder whose name matches no stored media_url. It can be an image the app '
+                 'folder that no message row was linked to. It can be an image the app '
                  'showed outside a message, or one whose message is no longer in the '
                  'database; which one is not established. Size on a Cached Image row is the '
                  'file size; on a Message Media row it is the stored media_size.',
@@ -210,6 +218,7 @@ __artifacts_v2__ = {
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/*',
             '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/*',
             '*/Containers/Data/Application/*/Library/Caches/com.hackemist.SDImageCache/*',
+            '*/Containers/Data/Application/*/Library/Caches/default/com.hackemist.SDWebImageCache.*',
         ),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'image',
@@ -246,7 +255,10 @@ _MAX_JSON_BYTES = 1024 * 1024
 # containers, or one container in two extractions, never share a folder.
 _CONTAINER_RE = re.compile(r'^(.*?/containers/(data|bundle)/application/([^/]+))(?:/|$)',
                            re.IGNORECASE)
-_SDIMAGECACHE_RE = re.compile(r'/library/caches/com\.hackemist\.sdimagecache/', re.IGNORECASE)
+# SDWebImage 5 and SDWebImage 4 disk-cache folders.
+_SDIMAGECACHE_RE = re.compile(r'/library/caches/(?:com\.hackemist\.sdimagecache/|'
+                              r'default/com\.hackemist\.sdwebimagecache\.[^/]+/)',
+                              re.IGNORECASE)
 
 # AsyncStorage keys that may hold the signed-in username. Not confirmed on a device.
 _ACCOUNT_KEYS = {'signedinusername', 'loggedinusername', 'currentusername',
@@ -588,8 +600,8 @@ def anonymousChat_appInfo(context):
             folder,
         ))
     data_headers = ('Container Type', 'Container ID', 'Bundle ID', 'Application Name', 'Version',
-               'Build', 'Store Item Name', 'Developer', 'Purchase Date', 'Identified By',
-               'Container Path')
+                    'Build', 'Store Item Name', 'Store Artist Name', 'Purchase Date', 'Identified By',
+                    'Container Path')
     return data_headers, rows, '\n'.join(sorted(set(sources)) or sorted(containers))
 
 
@@ -623,7 +635,7 @@ def anonymousChat_accounts(context):
             min(item['times']) if item['times'] else '',
             max(item['times']) if item['times'] else '',
             name,
-            'Signed-in username in AsyncStorage' if local else 'Participant, not confirmed '
+            'Username under an account key in AsyncStorage' if local else 'Participant, not confirmed '
                                                                'as the signed-in account',
             len(item['conversations']),
             item['messages'],
@@ -633,8 +645,8 @@ def anonymousChat_accounts(context):
             '\n'.join(sorted(item['sources'])),
         ))
     data_headers = (('First Message Timestamp', 'datetime'), ('Last Message Timestamp', 'datetime'),
-               'Username', 'Account Status', 'Conversation Count', 'Message Count',
-               'Outgoing Count', 'Incoming Count', 'AsyncStorage Evidence', 'Source')
+                    'Username', 'Account Status', 'Conversation Count', 'Message Count',
+                    'Outgoing Count', 'Incoming Count', 'AsyncStorage Evidence', 'Source')
     return data_headers, rows, '\n'.join(source for _, source, _ in databases)
 
 
@@ -686,14 +698,14 @@ def anonymousChat_conversations(context):
                 _conversation_key(source, conversation.get('conversation_id')),
             ))
     data_headers = (('Stored Last Message Timestamp', 'datetime'),
-               ('Observed Last Message Timestamp', 'datetime'),
-               ('Seen Message Timestamp', 'datetime'), ('Conversation Timestamp', 'datetime'),
-               'Conversation ID', 'From Username', 'To Username', 'Other Party',
-               'Message Count', 'Outgoing Count', 'Incoming Count', 'Seen Message ID',
-               'Anonymous Status (raw)', 'Anonymous Color', 'Anonymous Reveal (raw)',
-               'Anonymous Alert (raw)', 'Anonymous Alias', 'Trusted Media (raw)',
-               'Pin Status (raw)', 'Unread Count (raw)', 'Conversation Time (raw)', 'Source',
-               'Conversation Key')
+                    ('Observed Last Message Timestamp', 'datetime'),
+                    ('Seen Message Timestamp', 'datetime'), ('Conversation Timestamp', 'datetime'),
+                    'Conversation ID', 'From Username', 'To Username', 'Other Party',
+                    'Message Count', 'Outgoing Count', 'Incoming Count', 'Seen Message ID',
+                    'Anonymous Status (raw)', 'Anonymous Color', 'Anonymous Reveal (raw)',
+                    'Anonymous Alert (raw)', 'Anonymous Alias', 'Trusted Media (raw)',
+                    'Pin Status (raw)', 'Unread Count (raw)', 'Conversation Time (raw)', 'Source',
+                    'Conversation Key')
     return data_headers, rows, '\n'.join(source for _, source, _ in databases)
 
 
@@ -741,14 +753,14 @@ def anonymousChat_messages(context):
                                   message.get('message_id')),
             ))
     data_headers = (('Message Timestamp', 'datetime'), ('Send Timestamp', 'datetime'), 'Direction',
-               'Sender Name', 'Other Party', 'Message Text', ('Media', 'media'),
-               'Conversation ID', 'Message ID', 'Message UUID', 'Sender Flag (raw)',
-               'From Username', 'To Username', 'Media URL', 'Media MIME Type', 'Media Size',
-               'Media Duration', 'Media AC Type (raw)', 'Media Origin (raw)',
-               'Media Show (raw)', 'Media Spotify (raw)', 'Anonymous Reveal (raw)',
-               'Message Reaction (raw)', 'Message Reply (raw)', 'Message Info (raw)',
-               'Verified Profile Link (raw)', 'Media Link Method', 'Source',
-               'Conversation Key')
+                    'Sender Name', 'Other Party', 'Message Text', ('Media', 'media'),
+                    'Conversation ID', 'Message ID', 'Msg ID (raw)', 'Sender Flag (raw)',
+                    'From Username', 'To Username', 'Media URL', 'Media MIME Type', 'Media Size',
+                    'Media Duration', 'Media AC Type (raw)', 'Media Origin (raw)',
+                    'Media Show (raw)', 'Media Spotify (raw)', 'Anonymous Reveal (raw)',
+                    'Message Reaction (raw)', 'Message Reply (raw)', 'Message Info (raw)',
+                    'Verified Profile Link (raw)', 'Media Link Method', 'Source',
+                    'Conversation Key')
     return data_headers, rows, '\n'.join(source for _, source, _ in databases)
 
 
@@ -779,7 +791,7 @@ def anonymousChat_media(context):
                 continue
             media, cache_source, link = _message_media(message, folder, cache_files)
             linked.add(cache_source)
-            rows.append(('Message Media', _time(message.get('message_time')), '', media,
+            rows.append((_time(message.get('message_time')), '', 'Message Media', media,
                          message.get('conversation_id'), message.get('message_id'),
                          _direction(message, local_accounts), message.get('sender_name'), '',
                          message.get('media_url'), message.get('media_mime_type'),
@@ -787,21 +799,21 @@ def anonymousChat_media(context):
                          message.get('media_origin'), message.get('media_show'),
                          cache_source, link, source))
         for row in _rows(path, _MEDIA_TABLE_QUERY):
-            rows.append(('Media Table', '', _time(row.get('media_time')), '', '', '', '', '',
+            rows.append(('', _time(row.get('media_time')), 'Media Table', '', '', '', '', '',
                          row.get('media_id'), row.get('media_name'), '', '', '', '', '', '',
                          'Not linked: no confirmed join to a message or file', source))
     for _name, matches in sorted(cache_files.items()):
         for path, cache_source in matches:
             if cache_source in linked:
                 continue
-            rows.append(('Cached Image', '', '', _check_in(path, cache_source), '', '', '', '',
+            rows.append(('', '', 'Cached Image', _check_in(path, cache_source), '', '', '', '',
                          '', '', '', os.path.getsize(path), '', '', '', cache_source,
-                         'Not linked: no stored media_url is named by this file', ''))
-    data_headers = ('Record Type', ('Message Timestamp', 'datetime'), ('Media Timestamp', 'datetime'),
-               ('Media', 'media'), 'Conversation ID', 'Message ID', 'Direction', 'Sender Name',
-               'Media ID', 'Media URL or Name', 'Media MIME Type', 'Size', 'Media Duration',
-               'Media Origin (raw)', 'Media Show (raw)', 'Cache File', 'Link Method',
-               'Source Database')
+                         'Not linked: no message row was linked to this file', ''))
+    data_headers = (('Message Timestamp', 'datetime'), ('Media Timestamp', 'datetime'), 'Record Type',
+                    ('Media', 'media'), 'Conversation ID', 'Message ID', 'Direction', 'Sender Name',
+                    'Media ID', 'Media URL or Name', 'Media MIME Type', 'Size', 'Media Duration',
+                    'Media Origin (raw)', 'Media Show (raw)', 'Cache File', 'Link Method',
+                    'Source Database')
     sources = [source for _, source, _ in databases] + sorted(
         source for matches in cache_files.values() for _, source in matches)
     return data_headers, rows, '\n'.join(sources)

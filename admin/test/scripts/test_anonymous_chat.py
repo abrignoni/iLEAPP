@@ -49,6 +49,14 @@ class CacheNameTests(unittest.TestCase):
     def test_no_extension_gives_the_bare_md5(self):
         self.assertRegex(module._cache_name('https://example.invalid/avatar'), r'^[0-9a-f]{32}$')
 
+    def test_both_sdwebimage_cache_folders_are_read(self):
+        data = 'private/var/mobile/Containers/Data/Application/U'
+        sources = [f'{data}/Library/Caches/com.hackemist.SDImageCache/default/a.png',
+                   f'{data}/Library/Caches/default/com.hackemist.SDWebImageCache.default/b.png',
+                   f'{data}/Library/Caches/other/c.png']
+        files = module._cache_files([(source, source, data) for source in sources])
+        self.assertEqual(sorted(name for _, name in files), ['a.png', 'b.png'])
+
     def test_only_http_urls_have_a_cache_name(self):
         for value in ('', None, 'photo.png', '/var/mobile/photo.png', 'file:///photo.png'):
             self.assertEqual(module._cache_name(value), '', value)

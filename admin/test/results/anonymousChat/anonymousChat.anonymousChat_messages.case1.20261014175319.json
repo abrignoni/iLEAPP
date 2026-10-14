@@ -10,15 +10,15 @@
     "media_checkins": 1,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_messages.case1.zip",
-    "start_time": "2026-10-14T17:42:00.860252+00:00",
-    "end_time": "2026-10-14T17:42:00.879116+00:00",
-    "run_time_seconds": 0.0009400844573974609,
+    "start_time": "2026-10-14T17:53:19.784068+00:00",
+    "end_time": "2026-10-14T17:53:19.805500+00:00",
+    "run_time_seconds": 0.001004934310913086,
     "last_commit": {
-      "hash": "0344668234d15268347123c40cc2de147c186acf",
-      "author_name": "Darren",
-      "author_email": "19848044+darren33@users.noreply.github.com",
-      "date": "2026-10-08T19:09:49+01:00",
-      "message": "Prevent filename-only Anonymous Chat media joins"
+      "hash": "8011c9a391bd3b34b9b15b1a35b346a9db1fcaaf",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-14T13:45:26-04:00",
+      "message": "Slim the Anonymous Chat module onto files_found"
     }
   },
   "headers": [
@@ -31,7 +31,7 @@
     "Media",
     "Conversation ID",
     "Message ID",
-    "Message UUID",
+    "Msg ID (raw)",
     "Sender Flag (raw)",
     "From Username",
     "To Username",

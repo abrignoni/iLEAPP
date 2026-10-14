@@ -6,25 +6,25 @@
     "case_number": "case1",
     "number_of_columns": 18,
     "number_of_rows": 4,
-    "total_data_size_bytes": 1322,
+    "total_data_size_bytes": 1319,
     "media_checkins": 2,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_media.case1.zip",
-    "start_time": "2026-10-14T17:42:00.896529+00:00",
-    "end_time": "2026-10-14T17:42:00.915373+00:00",
-    "run_time_seconds": 0.0013930797576904297,
+    "start_time": "2026-10-14T17:53:19.824452+00:00",
+    "end_time": "2026-10-14T17:53:19.845408+00:00",
+    "run_time_seconds": 0.0011856555938720703,
     "last_commit": {
-      "hash": "0344668234d15268347123c40cc2de147c186acf",
-      "author_name": "Darren",
-      "author_email": "19848044+darren33@users.noreply.github.com",
-      "date": "2026-10-08T19:09:49+01:00",
-      "message": "Prevent filename-only Anonymous Chat media joins"
+      "hash": "8011c9a391bd3b34b9b15b1a35b346a9db1fcaaf",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-14T13:45:26-04:00",
+      "message": "Slim the Anonymous Chat module onto files_found"
     }
   },
   "headers": [
-    "Record Type",
     "Message Timestamp",
     "Media Timestamp",
+    "Record Type",
     "Media",
     "Conversation ID",
     "Message ID",
@@ -43,9 +43,9 @@
   ],
   "data": [
     [
-      "Message Media",
       1770000000,
       "",
+      "Message Media",
       "mock_hash_for_2e7c9ff3e567104f8251dcb6a6c0c961.png",
       "conversation-1",
       "message-1",
@@ -63,9 +63,9 @@
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
     ],
     [
-      "Message Media",
       1770000002,
       "",
+      "Message Media",
       "",
       "conversation-1",
       "message-3",
@@ -83,9 +83,9 @@
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
     ],
     [
-      "Media Table",
       "",
       1770000002,
+      "Media Table",
       "",
       "",
       "",
@@ -103,9 +103,9 @@
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
     ],
     [
+      "",
+      "",
       "Cached Image",
-      "",
-      "",
       "mock_hash_for_c6f613500bad0dbfba3792cfc153809e.png",
       "",
       "",
@@ -119,7 +119,7 @@
       "",
       "",
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/Caches/com.hackemist.SDImageCache/default/c6f613500bad0dbfba3792cfc153809e.png",
-      "Not linked: no stored media_url is named by this file",
+      "Not linked: no message row was linked to this file",
       ""
     ]
   ]

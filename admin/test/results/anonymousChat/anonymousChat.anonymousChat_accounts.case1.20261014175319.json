@@ -6,19 +6,19 @@
     "case_number": "case1",
     "number_of_columns": 10,
     "number_of_rows": 2,
-    "total_data_size_bytes": 568,
+    "total_data_size_bytes": 579,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_accounts.case1.zip",
-    "start_time": "2026-10-14T17:42:00.821105+00:00",
-    "end_time": "2026-10-14T17:42:00.840666+00:00",
-    "run_time_seconds": 0.0011639595031738281,
+    "start_time": "2026-10-14T17:53:19.743308+00:00",
+    "end_time": "2026-10-14T17:53:19.762802+00:00",
+    "run_time_seconds": 0.0011470317840576172,
     "last_commit": {
-      "hash": "0344668234d15268347123c40cc2de147c186acf",
-      "author_name": "Darren",
-      "author_email": "19848044+darren33@users.noreply.github.com",
-      "date": "2026-10-08T19:09:49+01:00",
-      "message": "Prevent filename-only Anonymous Chat media joins"
+      "hash": "8011c9a391bd3b34b9b15b1a35b346a9db1fcaaf",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-14T13:45:26-04:00",
+      "message": "Slim the Anonymous Chat module onto files_found"
     }
   },
   "headers": [
@@ -38,7 +38,7 @@
       1770000000,
       1770000002,
       "local.synthetic",
-      "Signed-in username in AsyncStorage",
+      "Username under an account key in AsyncStorage",
       1,
       3,
       1,
