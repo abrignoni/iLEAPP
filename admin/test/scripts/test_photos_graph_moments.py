@@ -7,7 +7,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.artifacts.photosGraphMoments import photosGraphMoments
+from scripts.artifacts.photosGraphMoments import _media_root, _resolve, photosGraphMoments
 
 START, END = 1776255287.0, 1776255806.0       # Unix seconds, as utcs / utce are stored
 COCOA = 978307200
@@ -102,7 +102,11 @@ class PhotosGraphMomentsTest(unittest.TestCase):
         self.assertEqual(row[6:9], (42.6847, -73.8186, 'MOMENT-UUID-1'))
         # photos of that moment only, in capture order
         self.assertEqual(row[10], 'DCIM/100APPLE/IMG_0001.MOV, DCIM/100APPLE/IMG_0002.HEIC')
-        self.assertIsNone(row[11])                     # no DCIM files in the extraction to attach
+        # no DCIM files in the extraction: nothing attached, and the check says which and why
+        self.assertEqual(row[11], '0 of 2 attached (path and size match Photos.sqlite); not attached: '
+                                  'DCIM/100APPLE/IMG_0001.MOV (not in the extraction), '
+                                  'DCIM/100APPLE/IMG_0002.HEIC (not in the extraction)')
+        self.assertIsNone(row[12])
         self.assertEqual(source.split('\n'), [str(graph), str(photos)])
 
     def test_without_photos_database(self):
@@ -110,12 +114,62 @@ class PhotosGraphMomentsTest(unittest.TestCase):
         _headers, rows, source = photosGraphMoments.__wrapped__(_Context([graph]))
         self.assertEqual(len(rows), 1)
         self.assertIsNone(rows[0][10])
+        self.assertIsNone(rows[0][11])
         self.assertEqual(source, str(graph))
 
     def test_not_a_graph(self):
         path = _write(self.root / 'photosgraph.kgdb', [('CREATE TABLE Other (x)', ())])
         _headers, rows, _source = photosGraphMoments.__wrapped__(_Context([path]))
         self.assertEqual(rows, [])
+
+
+class ResolvePhotoFileTest(unittest.TestCase):
+    """The file attached for a photo: same Media folder, one file at the stored path, same size."""
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.root = Path(self.temp_dir.name)
+        self.media = self.root / 'private' / 'var' / 'mobile' / 'Media'
+        self.photos_db = self.media / 'PhotoData' / 'Photos.sqlite'
+        self.media_root = _media_root(self.photos_db)
+
+    def _file(self, base, relative, data):
+        path = base / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        return str(path)
+
+    def test_same_path_and_size_is_attached(self):
+        path = self._file(self.media, 'DCIM/100APPLE/IMG_0001.HEIC', b'x' * 10)
+        self.assertEqual(_resolve(self.media_root, [path], 'DCIM/100APPLE/IMG_0001.HEIC', 10), (path, None))
+
+    def test_size_differs(self):
+        path = self._file(self.media, 'DCIM/100APPLE/IMG_0001.HEIC', b'x' * 10)
+        self.assertEqual(_resolve(self.media_root, [path], 'DCIM/100APPLE/IMG_0001.HEIC', 11),
+                         (None, 'size differs from Photos.sqlite'))
+
+    def test_no_stored_size(self):
+        path = self._file(self.media, 'DCIM/100APPLE/IMG_0001.HEIC', b'x')
+        self.assertEqual(_resolve(self.media_root, [path], 'DCIM/100APPLE/IMG_0001.HEIC', None),
+                         (None, 'no stored size to compare'))
+
+    def test_same_name_in_another_folder_is_not_used(self):
+        other = self._file(self.media, 'DCIM/101APPLE/IMG_0001.HEIC', b'x' * 10)
+        self.assertEqual(_resolve(self.media_root, [other], 'DCIM/100APPLE/IMG_0001.HEIC', 10),
+                         (None, 'not in the extraction'))
+
+    def test_another_media_tree_is_not_used(self):
+        # the same folder and name under a different Media folder (another copy of the tree)
+        elsewhere = self._file(self.root / 'copy' / 'Media', 'DCIM/100APPLE/IMG_0001.HEIC', b'x' * 10)
+        self.assertEqual(_resolve(self.media_root, [elsewhere], 'DCIM/100APPLE/IMG_0001.HEIC', 10),
+                         (None, 'not in the extraction'))
+
+    def test_more_than_one_file_at_the_path(self):
+        path = self._file(self.media, 'DCIM/100APPLE/IMG_0001.HEIC', b'x' * 10)
+        twin = path.replace('IMG_0001.HEIC', 'img_0001.heic')    # a case variant of the same path
+        self.assertEqual(_resolve(self.media_root, [path, twin], 'DCIM/100APPLE/IMG_0001.HEIC', 10),
+                         (None, 'more than one file at that path'))
 
 
 if __name__ == '__main__':
