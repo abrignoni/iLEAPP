@@ -62,6 +62,17 @@ Windows leaves in front of them, and a stream that stores nothing
 (``$BadClus:$Bad``) is not listed at all. Streams need qnxprobe 1.37 or later;
 with an older vendored copy there are simply none.
 
+A directory's file name index that has grown into an ``$INDEX_ALLOCATION``
+attribute is a member as well, named ``<directory>:$I30`` and ``:$I30`` on the
+root directory, unless the record also holds a ``$DATA`` stream of that name,
+which then reads as the stream. It is not an alternate data stream and is kept apart from them, in
+``index_list``: it is matched only by a pattern whose last segment ends ``:$I30``,
+which is handed the indexes besides what it was handed before, so a pattern that
+does not end that way, ``*:*`` included, is handed exactly what it was.
+What is staged is the attribute as the volume stores it, one index block after
+another with their update sequence arrays not applied. Directory indexes need
+qnxprobe 1.63 or later; with an older vendored copy there are none.
+
 This file is shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP and is kept
 byte-identical across them. It names nothing specific to a platform; the
 platform is in the artifacts.
@@ -523,6 +534,13 @@ def names_a_stream(filepattern):
     return ':' in filepattern.replace('\\', '/').rpartition('/')[2]
 
 
+def names_a_directory_index(filepattern):
+    """True when a pattern's last segment ends ``:$I30``, which is how a pattern asks
+    for a directory's index allocation (``*:$I30``). Only such a pattern is matched
+    against directory indexes."""
+    return filepattern.replace('\\', '/').rpartition('/')[2].endswith(':$I30')
+
+
 FREE_SPACE_FOLDER = '$Unallocated'
 FREE_SPACE_SUFFIX = '.unallocated.bin'
 
@@ -675,6 +693,7 @@ class FileSeekerRaw(FileSeekerBase):
         self.file_infos = {}
         self.name_list = []
         self.stream_list = []
+        self.index_list = []
         self.free_list = []
         self.volumes = []
         self._free = {}
@@ -792,6 +811,9 @@ class FileSeekerRaw(FileSeekerBase):
         if self.free_list:
             logfunc(f'  {len(self.free_list):,} volumes can give their free space, to a '
                     f'pattern that asks for it (*{FREE_SPACE_SUFFIX})')
+        if self.index_list:
+            logfunc(f'  {len(self.index_list):,} directories can give their index, to a '
+                    f'pattern that asks for it (*:$I30)')
         logfunc(f'File listing complete - {len(self.name_list):,} members'
                 + (f' and {len(self.stream_list):,} streams' if self.stream_list else ''))
 
@@ -977,6 +999,17 @@ class FileSeekerRaw(FileSeekerBase):
             name = f'{member}:{name}'
             self.stream_list.append(name)
             self._entries[name] = _Entry(walker, stream_node, size or 0, mtime or 0, reading)
+        # A directory's $I30 index allocation, where the reader offers it (qnxprobe 1.63
+        # or later): a member of its own kind, counted apart from the streams.
+        index_of = getattr(walker, 'directory_index', None)
+        if index_of is not None:
+            try:
+                for name, index_node, size in index_of(node):
+                    name = f'{member}:{name}'
+                    self.index_list.append(name)
+                    self._entries[name] = _Entry(walker, index_node, size or 0, mtime or 0, reading)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logfunc(f'Could not list the directory index of {member}: {exc}')
         return len(found)
 
     @staticmethod
@@ -1035,6 +1068,8 @@ class FileSeekerRaw(FileSeekerBase):
         members = self.name_list
         if self.stream_list and names_a_stream(filepattern):
             members = self.name_list + self.stream_list
+        if self.index_list and names_a_directory_index(filepattern):
+            members = members + self.index_list
         if self.free_list and names_free_space(filepattern):
             members = members + self.free_list
         if names_deleted(filepattern):

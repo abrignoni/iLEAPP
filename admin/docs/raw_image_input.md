@@ -196,6 +196,33 @@ read of the whole image sees.
 What it costs is the write: the free space of every volume a pattern matches goes
 into the data folder, 14.2 GiB in that VLEAPP run.
 
+## Directory indexes
+
+Since qnxprobe 1.63. An NTFS directory whose file name index has grown into an
+`$INDEX_ALLOCATION` attribute gives one more member, kept apart from the files and from
+the alternate data streams in `index_list`:
+
+    <volume>/<directory>:$I30
+
+A record that also holds a `$DATA` stream named `$I30` gives no such member: that name
+then reads as the stream.
+
+Only a pattern whose last segment ends in `:$I30` is matched against it
+(`names_a_directory_index()`), and such a pattern is handed the indexes besides what
+it was handed before. A pattern that does not end that way, `*:*` included, is handed
+exactly what it was, and the run log counts the indexes on a line of their own, so the
+count of alternate data streams does not move.
+
+What is staged is the attribute as the volume stores it: one index block after another,
+most starting `INDX` and some all zero, with the update sequence array of each block not
+applied. The space past a block's last entry can still hold entries the list no longer
+includes, and copies of entries it still does, which is what DLEAPP's two NTFS $I30
+Index Slack artifacts read. The index root, which sits in the directory's `$MFT` record or in
+a record that extends it, is not staged; those artifacts read it from the `$MFT`.
+
+On four Windows acquisitions every file and stream member, and its size, was the same
+with qnxprobe 1.62 and 1.63, and 5,313 to 13,158 directories gave an index.
+
 ## Deleted files a flash filesystem still holds
 
 A flash filesystem writes a change to a new place and leaves the old data until its
