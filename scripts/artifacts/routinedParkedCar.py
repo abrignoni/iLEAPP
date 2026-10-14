@@ -11,17 +11,22 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations",
         "notes": "Times are Cocoa (Core Data) seconds converted to UTC. Both tables are reported "
-                 "as stored and named in the Table column; rows are not merged. ZRTVEHICLEEVENTHISTORYMO "
-                 "has no vehicle identifier, notes, user-set, usual-location or location-quality "
-                 "columns, so those are empty on its rows. Checked against the hc_ios18_7 "
-                 "extraction (iPhone XS, iOS 18.7.8): the times and coordinates of every row "
-                 "matched an independent reader (MLEAPP) of the same file. "
+                 "as stored and named in the Table column; rows are not merged. On hc_ios18_7 "
+                 "ZRTVEHICLEEVENTHISTORYMO has no vehicle identifier, notes, user-set, "
+                 "usual-location or location-quality columns, so those are empty on its rows. "
+                 "Checked against the hc_ios18_7 extraction (iPhone XS, iOS 18.7.8): the times and "
+                 "coordinates of every row matched a second reader of the same file (MLEAPP). "
                  "Observed on hc_ios18_7 (iOS 18.7.8): 1 "
                  "event row and 6 history rows carrying 3 distinct identifiers; 4 history rows share "
-                 "the event row's identifier, so one event can appear several times. Whiffin "
-                 "describes these records as written when the device disconnects from a vehicle; "
-                 "this artifact reports the rows and does not establish that a vehicle was parked "
-                 "or where. Not covered: ZPHOTODATA and ZMAPITEMIDENTIFIER. Reference: Ian Whiffin, "
+                 "the event row's identifier, so an identifier can repeat across rows. In Whiffin's "
+                 "2020 tests an event was created after the engine was turned off and he walked "
+                 "away with the phone, and none after Bluetooth was turned off (on the phone or the "
+                 "car stereo) while in motion or after the phone was left in the parked car for "
+                 "about 25 minutes; a later update records park events without leaving the car and "
+                 "says this hypothesis may be incorrect. This artifact reports the rows and does "
+                 "not establish that a vehicle was parked or where. Not covered: ZPHOTODATA, "
+                 "ZMAPITEMIDENTIFIER and ZLOCREFERENCEFRAME of ZRTVEHICLEEVENTMO, and the "
+                 "ZRTVEHICLEMO table. Reference: Ian Whiffin, "
                  "'Locations, Locations, Locations', https://doubleblak.com/blogPost.php?k=Locations",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite*',),
         "output_types": ["html", "tsv", "lava", "kml", "timeline"],
