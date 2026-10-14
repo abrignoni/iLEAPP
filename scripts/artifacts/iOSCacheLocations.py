@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Parses Cache.sqlite Routined Location Records',
         'author': 'Heather Charpentier',
         'creation_date': '2026-05-12',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-14',
         'requirements': 'none',
         'category': 'Locations',
         'notes': 'Parses latitude, longitude, accuracy, and speeds from Cache.sqlite. '
@@ -13,9 +13,23 @@ __artifacts_v2__ = {
                  '(meters) and CLLocation.speed (meters per second), on the reading that the table '
                  'stores those values. Apple documents a negative value of either as invalid; negative '
                  'values are reported as stored, and the miles-per-hour column is blank only where the '
-                 'speed is exactly -1. Reference: '
-                 'https://developer.apple.com/documentation/corelocation/cllocation/horizontalaccuracy '
-                 'and https://developer.apple.com/documentation/corelocation/cllocation/speed',
+                 'speed is exactly -1. The course, course accuracy, altitude, vertical accuracy and '
+                 'speed accuracy columns are ZCOURSE, ZCOURSEACCURACY, ZALTITUDE, ZVERTICALACCURACY '
+                 'and ZSPEEDACCURACY as stored, read the same way against CLLocation.course '
+                 '(degrees), courseAccuracy (degrees), altitude (meters), verticalAccuracy '
+                 '(meters) and speedAccuracy (meters per second); Apple documents a negative '
+                 'course, course accuracy, vertical accuracy or speed accuracy as invalid, and '
+                 'those are reported as stored. A column the database lacks (older iOS versions) '
+                 'is reported empty. Checked against the hc_ios18_7 extraction (iPhone XS, iOS '
+                 '18.7.8): course and altitude matched an independent reader (MLEAPP) of the same '
+                 'file on every row. Reference: '
+                 'https://developer.apple.com/documentation/corelocation/cllocation/horizontalaccuracy, '
+                 'https://developer.apple.com/documentation/corelocation/cllocation/speed, '
+                 'https://developer.apple.com/documentation/corelocation/cllocation/course, '
+                 'https://developer.apple.com/documentation/corelocation/cllocation/courseaccuracy, '
+                 'https://developer.apple.com/documentation/corelocation/cllocation/altitude, '
+                 'https://developer.apple.com/documentation/corelocation/cllocation/verticalaccuracy '
+                 'and https://developer.apple.com/documentation/corelocation/cllocation/speedaccuracy',
         'paths': ('*/Library/Caches/com.apple.routined/Cache.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'map-pin',
@@ -39,7 +53,8 @@ __artifacts_v2__ = {
     }
 }
 from datetime import datetime, timezone
-from scripts.ilapfuncs import (artifact_processor, get_file_path, get_sqlite_db_records, logfunc)
+from scripts.ilapfuncs import (artifact_processor, get_file_path, get_sqlite_db_records, logfunc,
+                               null_absent_columns)
 
 @artifact_processor
 def CacheSQLite_Locations(context):
@@ -48,7 +63,9 @@ def CacheSQLite_Locations(context):
     source_path = get_file_path(files_found, 'Cache.sqlite')
     data_headers = (
         ('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Horizontal Accuracy (Meters)',
-        'Speed (Meters/Sec)', 'Speed (Miles/Hour)')
+        'Speed (Meters/Sec)', 'Speed (Miles/Hour)', 'Course (Degrees)',
+        'Course Accuracy (Degrees)', 'Altitude (Meters)', 'Vertical Accuracy (Meters)',
+        'Speed Accuracy (Meters/Sec)')
     if not source_path:
         return data_headers, [], ''
 
@@ -62,7 +79,12 @@ def CacheSQLite_Locations(context):
         CASE
             WHEN ZSPEED = -1.0 THEN NULL
             ELSE ZSPEED * 2.23694
-        END AS SpeedMPH
+        END AS SpeedMPH,
+        ZCOURSE,
+        ZCOURSEACCURACY,
+        ZALTITUDE,
+        ZVERTICALACCURACY,
+        ZSPEEDACCURACY
     FROM ZRTCLLOCATIONMO
     '''
 
@@ -72,13 +94,14 @@ def CacheSQLite_Locations(context):
     )
 
     try:
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         for record in db_records:
             unix_timestamp = record[0] + 978307200
             timestampr = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
 
-            results.add_row((timestampr, record[1], record[2], record[3], record[4], record[5]))
+            results.add_row((timestampr, record[1], record[2], record[3], record[4], record[5],
+                             record[6], record[7], record[8], record[9], record[10]))
 
     except Exception as e:  # pylint: disable=broad-exception-caught
         logfunc(f'Error processing Cache.sqlite locations: {e}')
