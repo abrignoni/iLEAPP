@@ -181,7 +181,9 @@ __artifacts_v2__ = {
                  "means is not established. The match is anchored to the start of the message "
                  "because on iOS 14.3 SpringBoard also logs volume-control state that contains "
                  "'UILocked:' mid-message (20 entries on hickman_ios14_sysdiag); those are not "
-                 "reported.",
+                 "reported. The SpringBoard process also logs entries under subsystem "
+                 "com.apple.UserNotificationsKit that contain 'UILocked:' mid-message; the "
+                 "subsystem filter keeps those out.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -206,9 +208,8 @@ __artifacts_v2__ = {
                  "'Link went down', and per-network 'Total connection time' entries "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode). "
                  "2026-10-13: added wifid entries containing 'Auto join association "
-                 "succeeded' and 'WiFiLQAMgrSetCurrentNetwork: Joined'. On the iOS 14.3 and 26.6 "
-                 "images both carry the network name in the clear, and the second also the "
-                 "BSSID, RSSI and channel.",
+                 "succeeded', which carry the network name in the clear on the iOS 14.3, 17.2.1 "
+                 "and 26.6 images. None was found in the parsed iOS 17.3 log.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "wifi",
@@ -1554,10 +1555,11 @@ __artifacts_v2__ = {
     },
     "logarchive_weather": {
         "name": "logarchive weather",
-        "description": "Unified log entries from the Weather app and widget about weather data "
-                       "fetches and forecast builds, with the location each one was for. On iOS 14.3 "
-                       "the location is logged as a place name and coordinates; on iOS 17 and 26 it "
-                       "is logged as an encoded value.",
+        "description": "Unified log entries under the com.apple.weather subsystem about weather "
+                       "data fetches and forecast builds, each carrying a location value. They are "
+                       "written by the Weather app, its widget and, on some images, other "
+                       "processes. On the iOS 14.3 image the location is a place name with "
+                       "coordinates; on the iOS 17 and 26 images it is an encoded value.",
         "author": "@Hexordia, @stark4n6, @AlexisBrignoni, Claude",
         "creation_date": "2026-10-13",
         "last_update_date": "2026-10-14",
@@ -1572,12 +1574,15 @@ __artifacts_v2__ = {
                  "com.apple.weather (com.apple.Weather on iOS 14.3). On hickman_ios14_sysdiag all "
                  "9 rows were ForecastWeatherWidget 'Data operation succeeded' entries carrying a "
                  "place name, a time zone and latitude and longitude in plain text. On the iOS "
-                 "17.2.1, 17.3 and 26.6 images no entry of that kind was logged, and every row "
+                 "17.2.1, 17.3 and 26.6 images no entry of that kind was found in the parsed log, "
+                 "and every row "
                  "carried the location as a 24-character base64 value (16 bytes) instead of "
                  "coordinates; what that value encodes is not established. Those rows were "
                  "WeatherService entries (367 of 393 on hc_ios17_2, 3 of 3 on rodeo_ios17_sysdiag, "
                  "205 of 221 on hc_ios26_sysdiag) and WeatherWidget 'Timeline: successfully built' "
-                 "entries (26 and 16). Trace ID held no value on any row.",
+                 "entries (26 and 16). Besides the Weather app and WeatherWidget, the rows on "
+                 "rodeo_ios17_sysdiag were written by SleepLockScreen and 40 rows on "
+                 "hc_ios26_sysdiag by destinationd. Trace ID held no value on any row.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "cloud-pin",
@@ -1591,8 +1596,8 @@ __artifacts_v2__ = {
     "logarchive_family_hotspot": {
         "name": "logarchive family hotspot",
         "description": "Unified log entries recording the Family Hotspot state. An entry holds "
-                       "either a single state (Disabled was observed) or a list of family member "
-                       "names, each followed by a value.",
+                       "either a single state (Disabled was observed) or a list of quoted "
+                       "strings, each followed by a value.",
         "author": "@Hexordia, @stark4n6, @AlexisBrignoni, Claude",
         "creation_date": "2026-10-13",
         "last_update_date": "2026-10-14",
@@ -1601,10 +1606,12 @@ __artifacts_v2__ = {
         "notes": "Matches entries whose message contains 'Family Hotspot State'. The query does "
                  "not filter on subsystem; every matched row was logged by sharingd under "
                  "com.apple.sharing, category Daemon. On rodeo_ios17_sysdiag the single row "
-                 "listed five names in quotes, each followed by '-> Ask'; 'Ask' was the only value "
-                 "observed after a name, and what each value means is not established here. On "
+                 "listed five quoted strings, each followed by '-> Ask'; 'Ask' was the only value "
+                 "observed after a quoted string. What the strings and values mean is not "
+                 "established here. On "
                  "hickman_ios14_sysdiag and hc_ios17_2 every row read 'Family Hotspot State: "
-                 "Disabled'. On hc_ios26_sysdiag no 'Family Hotspot State' entry was logged. "
+                 "Disabled'. On hc_ios26_sysdiag no 'Family Hotspot State' entry was found in the "
+                 "parsed log. "
                  "sharingd also logs 'Family hotspot entries:' followed by a single number on "
                  "the iOS 14.3 and 17 images and by '<private>' on iOS 26.6 (value redacted by the "
                  "unified log); this artifact does not report those entries. Trace ID held no "
@@ -1616,7 +1623,7 @@ __artifacts_v2__ = {
             "hickman_ios14_sysdiag": "iOS 14.3 | 3 rows",
             "hc_ios17_2": "iOS 17.2.1 | 3 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 | 1 row",
-            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows; no 'Family Hotspot State' entry in the log",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows; no 'Family Hotspot State' entry in the parsed log",
         },
     },
 }
@@ -1947,7 +1954,6 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
         OR event_message LIKE '%Auto join association succeeded%'
-        OR event_message LIKE '%WiFiLQAMgrSetCurrentNetwork: Joined%'
         OR event_message LIKE '%ATXModeDrivingFeaturizer: Driving mode%'
         OR event_message LIKE '%ATXModeCorrelatedAppsDataSource: user%'
         -- The observed locationd form is 'VEHICULAR: vehicularStartTime' with a
@@ -2462,7 +2468,6 @@ def logarchive_wifi_status(context):
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
         OR event_message LIKE '%Auto join association succeeded%'
-        OR event_message LIKE '%WiFiLQAMgrSetCurrentNetwork: Joined%'
         -- Per-network MAC randomisation records and hand-picked joins; see the
         -- artifact notes for sourcing.
         OR event_message LIKE '%WFMacRandomisation%'
