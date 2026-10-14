@@ -17,8 +17,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "Identifiers allow correlation with Segment/Amplitude/Braze/Zendesk "
-                 "server-side records. Each row cites the plist it came from.",
+        "notes": "Identifiers are reported as stored, except the Zendesk account-id, which is "
+                 "base64 decoded and split into its leading text and trailing hex string. The "
+                 "labels given to those two parts (Help Center URL and Application ID) and to the "
+                 "other Zendesk values are this module's, and no source for them is cited. Each "
+                 "row cites the plist it came from.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -30,17 +33,21 @@ __artifacts_v2__ = {
     },
     "oura_ring_hardware": {
         "name": "Oura - Ring Hardware & Status",
-        "description": "Paired ring hardware: BLE MAC, model, color, size, firmware, "
-                       "PPG LED parameters, battery records, low-battery notifications "
-                       "and ring/UTC time mapping records.",
+        "description": "Ring records: ring ID (twelve hex digits), model, color, "
+                       "size, firmware, PPG LED parameters, battery records, "
+                       "low-battery notifications and ring/UTC time mapping records.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "The Ring ID is the ring's Bluetooth MAC address - correlate with "
-                 "device Bluetooth pairing records. ringTime values are raw ring "
-                 "tick counters kept alongside their UTC anchor.",
+        "notes": "The Ring ID is a twelve-hex-digit value formatted as a MAC address; that it "
+                 "is the ring's Bluetooth address is not established by a source, and the "
+                 "column header Ring (BLE MAC) is this module's wording. ringTime values are "
+                 "reported as stored beside the utcTime value of the same record, which is read "
+                 "as Unix time. Battery and notification dates are read as seconds since 2001. "
+                 "A row whose record names no ring is shown against the first ring ID found, "
+                 "which is not a recorded link when more than one ring ID is present.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -52,14 +59,19 @@ __artifacts_v2__ = {
     },
     "oura_find_my_ring_location": {
         "name": "Oura - Find My Ring Last Known Location",
-        "description": "Last known GPS fix from Find My Ring: lat/long, altitude, "
+        "description": "Last known location from the 'findMyRingLastKnownLocation' key: "
+                       "lat/long, altitude, "
                        "speed, course and their accuracy values. Exportable to KML.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "From 'findMyRingLastKnownLocation'; timestamp is Apple Cocoa/NSDate.",
+        "notes": "From the 'findMyRingLastKnownLocation' value. The timestamp is read as seconds "
+                 "since 2001 (UTC). What device's position the value holds, and the units of the "
+                 "altitude, speed and accuracy fields, are not established here; values are "
+                 "reported as stored, and the (m) and (m/s) in the column headers are this "
+                 "module's wording.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -72,17 +84,21 @@ __artifacts_v2__ = {
     },
     "oura_health_profile": {
         "name": "Oura - Health Profile & Disclosures",
-        "description": "Demographics, body metrics, sleep/stress disclosures, "
-                       "cycle & pregnancy settings, glucose settings, activity "
-                       "level settings and goals, consents, and other profile traits.",
+        "description": "Demographics, body metrics, sleep/stress profile values, cycle & "
+                       "pregnancy settings, glucose settings, activity level settings and goals, "
+                       "consent keys, and other profile traits as stored.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "Values the user disclosed to the app (sleep problems, shift work, "
-                 "GLP-1 use, cycle tracking...) plus profile traits Segment/Braze "
-                 "cached. Each row cites its source plist.",
+        "notes": "Profile values held under the app's preference keys (for example "
+                 "currentSleep, sleepDetractors, metabolic/hasGlp1Tag and the cycle keys) "
+                 "plus profile traits held under the Segment/Braze keys; whether a value came "
+                 "from entry in the app or was set by the app or service is not established. "
+                 "The row labels are this module's wording, including 'Self-Reported' on the "
+                 "two sleep rows and the units on the Height (m) and Weight (kg) rows, and no "
+                 "source for them is cited. Each row cites its source plist.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -102,9 +118,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "Snapshot of 'widgetInfo' cached for the last day the widget "
-                 "refreshed - not a full history. Series without their own "
-                 "timestamps are reported in stored order.",
+        "notes": "Snapshot from the 'widgetInfo' value; it is a single cached state, not "
+                 "a history. Series without their own timestamps are reported in stored "
+                 "order; which end of a series is the most recent day is not established, "
+                 "and the Details text 'stored order, most recent day first' on the "
+                 "past-day score rows is this module's wording. Each movement intensity "
+                 "interval is given a time computed from the stored intervalsStart and "
+                 "interval length (30 minutes when none is stored), read as seconds since "
+                 "2001; those times are derived, not stored.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -116,17 +137,26 @@ __artifacts_v2__ = {
     },
     "oura_connected_services": {
         "name": "Oura - Connected Services & Permissions",
-        "description": "Third-party and system integrations: Strava/Dexcom-style app "
-                       "connections, HealthKit read/write authorizations and import "
-                       "anchors, CarPlay head units, home-screen widgets, permissions.",
+        "description": "Third-party and system integrations: app connection entries, HealthKit "
+                       "read/write authorization and import anchor keys, CarCapabilities "
+                       "entries, home-screen widgets, permission keys.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "appConnections names the external accounts linked to Oura. "
-                 "CarCapabilities entries are CarPlay head-unit identifiers - "
-                 "evidence the device was used in specific vehicles.",
+        "notes": "appConnections entries are listed one per row; the value 'connected' is "
+                 "supplied by this module. The HealthKit prompted lists are listed the same way "
+                 "with the value 'prompted', also supplied by this module. A HealthKit import "
+                 "anchor row shows that an anchor value is stored for that type; its Details "
+                 "text, 'proof samples were imported from HealthKit', is this module's wording, "
+                 "and what an anchor establishes about imported samples is not established "
+                 "here. CarCapabilities entries are listed under the category CarPlay Head Unit "
+                 "with the value 'UI version' followed by the stored CRCapabilitiesVersionKey "
+                 "and the Details text 'evidence of use in this vehicle head unit'. That "
+                 "category, value prefix and Details text are supplied by this module. What a "
+                 "CarCapabilities entry means is not established, and its presence is not "
+                 "evidence that the device was used in any vehicle.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -139,17 +169,23 @@ __artifacts_v2__ = {
     "oura_app_activity": {
         "name": "Oura - App Activity Timeline",
         "description": "Timestamp-bearing Oura keys found by a heuristic scan of "
-                       "the app's plists: launches, syncs, token refresh, uploads, "
-                       "PPG/stress sensing, onboarding milestones and more.",
+                       "the app's plists, each shown under a label this module "
+                       "assigns from its key name; what writes each key is not "
+                       "established.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "Mixed ISO/Unix/Cocoa timestamps normalised to UTC; day-only values "
+        "notes": "ISO, Unix and Cocoa timestamps are reported in one column. A "
+                 "number is read as seconds since 2001 when it is between "
+                 "500,000,000 and 1,000,000,000 and as Unix time when larger, "
+                 "chosen from its size, and only under keys whose names look like "
+                 "dates or times. An ISO string is reported with its own clock "
+                 "reading; an offset it carries is not applied. Day-only values "
                  "(YYYY-MM-DD) are reported as-is. Both the suite and the standard "
-                 "defaults plist are scanned - older copies of the same key can "
-                 "legitimately appear twice with different sources.",
+                 "defaults plist are scanned, so the same key can appear twice, "
+                 "once per file; which copy is the earlier one is not established.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -161,16 +197,17 @@ __artifacts_v2__ = {
     },
     "oura_app_environment": {
         "name": "Oura - App Environment & Versions",
-        "description": "App versions across both preference files (they diverge), "
-                       "build and migration numbers, locale, keyboards, unit system, "
-                       "free disk space, network and permission state.",
+        "description": "App versions across both preference files (which can "
+                       "differ), build and migration numbers, locale, keyboards, "
+                       "unit system, free disk space, and the last network status "
+                       "and biometric lock keys as stored.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "The suite and com.ouraring.oura.plist copies of version keys are "
-                 "written at different times - both are reported so the divergence "
+        "notes": "The suite and com.ouraring.oura.plist copies of version keys can carry "
+                 "different values; both are reported so a difference "
                  "is visible instead of silently resolved.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
@@ -183,17 +220,18 @@ __artifacts_v2__ = {
     },
     "oura_content_campaigns": {
         "name": "Oura - Content Caches & Campaigns",
-        "description": "Cached health-topic articles (heart, glucose, reproductive "
-                       "health, pregnancy...), marketing campaign engagement and "
-                       "explore/meditation session traces.",
+        "description": "Cached health-topic articles (heart, glucose, "
+                       "reproductive health, pregnancy...), campaign keys and "
+                       "explore keys as stored.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "Article caches show which health modules the app served to this "
-                 "account. Cache presence alone is not proof the user read the "
-                 "content; engagement keys (dismissed/played/interacted) are.",
+        "notes": "Article cache entries are reported as stored. Cache presence alone is not "
+                 "proof the user read the content, and the engagement keys "
+                 "(dismissed/played/interacted) are reported as stored without a source for what "
+                 "writes them.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -205,16 +243,19 @@ __artifacts_v2__ = {
     },
     "oura_analytics_integrations": {
         "name": "Oura - Analytics Integrations",
-        "description": "Segment analytics destinations (Amplitude, Braze, Segment.io, "
-                       "AWS S3) with API key, type, SDK version, consent categories, "
-                       "plus queued event count and telemetry sample rate.",
+        "description": "Segment analytics destinations with API key, type, SDK "
+                       "version and consent categories, plus the segment.events "
+                       "value and the metrics sample rate.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "From the 'integrations' block of 'segment.settings'. API keys can "
-                 "support lawful-process requests to the analytics vendors.",
+        "notes": "From the 'integrations' block of 'segment.settings', plus one row each for "
+                 "the consentSettings.allCategories and metrics.sampleRate values of the "
+                 "same settings and for the 'segment.events' value; values are reported as "
+                 "stored and the row labels, including '(consent categories granted)' and "
+                 "'(queued/recorded event count)', are this module's.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -226,8 +267,9 @@ __artifacts_v2__ = {
     },
     "oura_analytics_event_plan": {
         "name": "Oura - Analytics Event Plan",
-        "description": "Segment tracking plan: the analytics event names configured "
-                       "for track/identify/group calls, showing planned telemetry.",
+        "description": "Segment tracking plan: the analytics event names as listed "
+                       "in the plan block, with the enabled value stored for each. "
+                       "A listed event is not shown to have been sent.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
         "last_update_date": "2026-08-21",
@@ -245,16 +287,16 @@ __artifacts_v2__ = {
     },
     "oura_feature_flags": {
         "name": "Oura - Feature Flags & Labs",
-        "description": "Server-enabled feature flags, flag parameters, Oura Labs "
-                       "enrollments and blackout-mode features cached in the "
-                       "Segment traits.",
+        "description": "Entries of the enabledFeatureFlagsApp list, flag "
+                       "parameters, Oura Labs enrollments and blackout-mode "
+                       "features cached in the Segment traits.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "Flags reveal which features/studies were active for this account "
-                 "(e.g. blood-pressure study, AI coach). Bulk, so TSV + LAVA only.",
+        "notes": "Flag values are reported as stored; whether a flag was active for this account "
+                 "is not established. Bulk, so TSV + LAVA only.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',
@@ -274,9 +316,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
-        "notes": "Completeness guarantee: keys land here instead of being silently "
-                 "dropped, so new-version keys surface for triage. Values are "
-                 "decoded (nested bplist/JSON) and reported raw.",
+        "notes": "Keys of the suite plist and of com.ouraring.oura.plist that are "
+                 "not on the module's claimed-key lists and are not shown on the "
+                 "App Activity Timeline are listed here, as are the keys of any "
+                 "other plist in the folder apart from the Segment storage plist "
+                 "and the four com.zendesk.core plists (account, identity, "
+                 "session, settings). Unread keys of those five files are not "
+                 "reported. The Category column is assigned from the key's "
+                 "spelling. Values are decoded (nested bplist/JSON) and reported "
+                 "raw.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.segment.storage.*.plist',

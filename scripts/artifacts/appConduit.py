@@ -6,15 +6,18 @@ interactions between iPhone and other iOS devices (e.g., Apple Watch).
 __artifacts_v2__ = {
     'app_conduit': {
         'name': 'App Conduit',
-        'description': 'The AppConduit log file stores information about \
-            interactions between iPhone and other iOS devices, \
-            i.e. Apple Watch',
+        'description': "Device connection and disconnection entries parsed from the AppConduit "
+                       "log files",
         'author': '@ydkhatri',
         'creation_date': '2020-08-05',
         "last_update_date": "2025-10-08",
         'requirements': 'none',
         'category': 'App Conduit',
-        'notes': '',
+        'notes': 'The log lines record no time zone. The Timestamp column shows the logged time '
+                 'labelled UTC; whether the log is written in UTC or device local time is not '
+                 'established here. A Disconnected row takes its device type, model, OS build and '
+                 'OS version from the first Connected line read with the same pairing id, and '
+                 'those cells are blank when no such line was read before it.',
         'paths': ('*/mobile/Library/Logs/AppConduit/AppConduit.log.*',),
         'output_types': 'standard',
         'artifact_icon': 'activity',
@@ -113,6 +116,5 @@ def app_conduit(context):
     data_headers = (('Timestamp', 'datetime'), 'Device interaction',
                     'Device ID', 'Pairing ID', 'Device Type', 'Device Model',
                     'OS Build', 'OS Version', 'Log File Name')
-    source_path = 'See source info below'
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "skg_archive": {
         "name": "SKG Archive",
-        "description": "Parses SKG Archive Records",
+        "description": "Parses the records in the skg_archive files under CoreSpotlight/SpotlightKnowledge. A record identical to one already read is reported once.",
         "author": "@JFHyla",
         "creation_date": "2024-12-03",
         "last_update_date": "2026-07-13",
@@ -9,7 +9,12 @@ __artifacts_v2__ = {
         "date": "2025-04-11",
         "requirements": "mdplistlib",
         "category": "Spotlight",
-        "notes": "",
+        "notes": "Every matched skg_archive file is read. A record whose reported fields and Raw Data "
+                 "all equal those of a record already read, from the same file or another, is "
+                 "reported once, so the table does not show how many times or in which file a "
+                 "record was stored. The run log gives the number of repeated records left out. "
+                 "Column names are the stored attribute keys. Raw Data is the whole decoded "
+                 "record as text.",
         "paths": (
             '*/CoreSpotlight/SpotlightKnowledge/index.V2/keyphrases/NSFileProtectionComplete/skg_archive.V2.*',
             '*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive.V2.*',

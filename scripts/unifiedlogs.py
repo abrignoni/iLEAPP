@@ -33,7 +33,8 @@ import sys
 import tempfile
 import time
 
-from scripts.ilapfuncs import logfunc, is_platform_windows
+from scripts.ilapfuncs import logfunc, is_platform_windows, open_sqlite_db_readonly
+from scripts.log_filter import accelerate_query
 
 BINARY_NAME = 'unifiedlog_iterator.exe' if is_platform_windows() else 'unifiedlog_iterator'
 
@@ -65,7 +66,7 @@ MAX_DIAGNOSTIC_LINE_LENGTH = 300
 def _bundled_binary_dirs():
     """Directories to search for a binary shipped with iLEAPP, frozen or from source.
 
-    Both point at 'bin': the PyInstaller specs place the executable there inside the
+    Both point at 'bin': packaging/build.py places the executable there inside the
     bundle, and admin/scripts/fetch_unifiedlog_iterator.py places it in the repository's
     bin/ for a source checkout. Keep the two in step; a mismatch means a build that
     bundles the parser cannot find it at runtime.
@@ -96,6 +97,22 @@ def find_iterator():
             return candidate
 
     return shutil.which(BINARY_NAME)
+
+
+def iterator_version(binary):
+    """Return what the binary reports for --version ('unifiedlog_iterator 0.7.0'), or ''.
+
+    Logged at the start of an import so the run log records which parser produced the
+    rows; the version is what bin/PROVENANCE.md asks an examiner to be able to name. Some
+    releases exit non-zero on --version, so the exit status is ignored and only the text
+    counts. Any failure to run it yields '' and the import proceeds regardless.
+    """
+    try:
+        result = subprocess.run([binary, '--version'], capture_output=True, text=True,
+                                encoding='utf-8', errors='replace', timeout=30, check=False)
+    except (OSError, subprocess.SubprocessError):
+        return ''
+    return (result.stdout or '').strip().splitlines()[0].strip() if (result.stdout or '').strip() else ''
 
 
 def _path_components(path):
@@ -264,6 +281,64 @@ def _format_duration(seconds):
     return f'{minutes}:{secs:02d}'
 
 
+def filtered_records(source_path, query, batch_size=10000, interval=20.0,
+                     clock=time.monotonic, log=logfunc):
+    """Filter the imported logarchive in bounded rowid ranges, reporting progress.
+
+    ``query`` is a SELECT from logarchive with its WHERE predicates enclosed in
+    parentheses. Range bounds are appended outside those parentheses so every OR
+    branch respects them. The table is immutable during filtering; rowid endpoints
+    provide a cheap progress denominator without a preliminary COUNT(*) scan.
+    Percent describes the source rowid range, so gaps do not inflate a row count.
+
+    Each SELECT is exhausted and closed before yielding its matches. The caller
+    can then write/commit them to another table in the same database without a
+    reader holding a lock. Errors propagate so the artifact processor can discard
+    partial output rather than report an incomplete collection as successful.
+    """
+    if batch_size <= 0:
+        raise ValueError('Unified Log filter batch_size must be positive')
+    started = last_report = clock()
+    log('Filtering imported Unified Logs for relevant events...')
+    db = open_sqlite_db_readonly(source_path)
+    if db is None:
+        raise OSError('Cannot open imported Unified Logs for filtering')
+    selected = 0
+    try:
+        query, filter_mode = accelerate_query(db, query)
+        log(f'Unified Log filtering mode: {filter_mode}')
+        first = db.execute('SELECT rowid FROM logarchive ORDER BY rowid LIMIT 1').fetchone()
+        if first is None:
+            log('Unified Log filtering finished: 0 selected (empty source)')
+            return
+        last = db.execute('SELECT rowid FROM logarchive ORDER BY rowid DESC LIMIT 1').fetchone()[0]
+        lower = first[0] - 1
+        span = last - lower
+        completed = 0
+        bounded_query = query + ' AND rowid > ? AND rowid <= ? ORDER BY rowid'
+        while lower < last:
+            upper = min(lower + batch_size, last)
+            cursor = db.execute(bounded_query, (lower, upper))
+            try:
+                rows = cursor.fetchall()
+            finally:
+                cursor.close()
+            # Finish writing these rows before starting the next SELECT.
+            yield from rows
+            selected += len(rows)
+            completed += upper - lower
+            lower = upper
+            now = clock()
+            if now - last_report >= interval:
+                log(f'Unified Log filtering: {100.0 * completed / span:.0f}% of source range'
+                    f' | {selected:,} selected | elapsed {_format_duration(now - started)}')
+                last_report = now
+        log(f'Unified Log filtering finished: 100% of source range | {selected:,} selected'
+            f' | elapsed {_format_duration(clock() - started)}')
+    finally:
+        db.close()
+
+
 class ImportProgress:
     """Throttled progress lines for a long import, through logfunc.
 
@@ -366,7 +441,8 @@ def _report_parser_diagnostics(stderr_file):
             reported += 1
     if total > reported:
         logfunc(f'unifiedlog_iterator reported {total:,} messages in total; first {reported} shown. '
-                f'These are per-record decode failures; the rest of the import is unaffected.')
+                f'They are the parser\'s own per-record diagnostics; the records they concern are '
+                f'imported as the parser rendered them, and every other record is unaffected.')
 
 
 def stream_records(binary, archive_dir):

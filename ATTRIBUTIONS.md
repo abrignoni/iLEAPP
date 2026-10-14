@@ -1,5 +1,9 @@
 # Attributions
 
+- Unified Log filtering uses [`pyahocorasick`](https://github.com/WojciechMula/pyahocorasick)
+  by Wojciech Muła and contributors. Licensed under BSD-3-Clause and Public Domain;
+  the distributed license is retained in `scripts/data/pyahocorasick-LICENSE.txt`.
+
 - Realm database parsing (`scripts/realm_parser.py`) adapted from `crush/parsers/realm_parser.py` in
   [`crush-forensics`](https://github.com/kalink0/crush-forensics) by Marco Neumann (kalink0).
   Licensed under [Apache-2.0](https://github.com/kalink0/crush-forensics/blob/main/LICENSE).
@@ -18,4 +22,6 @@
 - Apple Unified Log `.tracev3` parsing provided by the `unifiedlog_iterator` binary from
   [`macos-UnifiedLogs`](https://github.com/mandiant/macos-UnifiedLogs) by Mandiant.
   Licensed under [Apache-2.0](https://github.com/mandiant/macos-UnifiedLogs/blob/main/LICENSE).
-  Redistributed unmodified in builds that include it; see `bin/PROVENANCE.md`.
+  Redistributed unmodified in builds that include it; see `bin/PROVENANCE.md`. The Rust
+  crates it links are listed, with their license texts, in
+  `bin/THIRD-PARTY-NOTICES-unifiedlog_iterator.txt`.

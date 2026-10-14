@@ -10,6 +10,11 @@ Design Goals:
   streamlined developer experience.
 - CI/CD Ready: Structured to be eventually integrated into continuous integration
   pipelines for automated regression testing.
+
+Record baselines with TZ=UTC. The committed snapshots are UTC and CI runs UTC, so
+recording on a host in any other zone bakes that offset into every column derived
+from a naive datetime, and the snapshot then only reproduces on a machine set the
+same way. It fails as a wrong value rather than an error.
 """
 
 import sys
@@ -31,6 +36,8 @@ import inspect
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
+from scripts.search_files import FileInfo, FileSeekerZip
+from leapp_functions.app.artifact_result import ArtifactResult
 
 
 def mock_logdevinfo(message):
@@ -53,7 +60,54 @@ def mock_logfunc(message):
     print(f"[LOGFUNC] {message}")
 
 
-def process_artifact(zip_path, module_name, artifact_name, artifact_data, target_os_version=None):
+def unwrap_data_list(data_list):
+    """Unpacks a (data_list, html_data_list) artifact return the way artifact_processor
+    does (scripts/ilapfuncs.py), so snapshots hold the plain rows the LAVA, TSV and
+    timeline outputs consume instead of the two lists serialized as two giant rows."""
+    if isinstance(data_list, tuple):
+        return data_list[0]
+    return data_list
+
+
+def artifact_declaration_order(artifacts_info):
+    """Artifact names mapped to their __artifacts_v2__ declaration position.
+
+    Production runs a module's artifacts in declaration order (ileapp.py sorts
+    plugins by category only, and that sort is stable), and modules with
+    cross-artifact state depend on it, so tests must execute in the same order.
+    """
+    return {name: index for index, name in enumerate(artifacts_info)}
+
+
+def stage_case_members(zip_ref, temp_dir, file_infos):
+    """
+    Extracts a case zip into temp_dir recording what FileSeekerZip.search records.
+
+    For each file member, file_infos maps the extracted path to a FileInfo holding
+    the member name and the creation and modification times the zip seeker's own
+    decoder reads from the member's extended timestamp field, or None where the
+    member has none. The extracted file's modification time is then set from the
+    member's date and time, read as local time, as the seeker does. So an artifact
+    sees the values a real run of the same zip gives it, not the time of the test.
+
+    Args:
+        zip_ref (zipfile.ZipFile): The open case zip.
+        temp_dir (Path): Folder to extract into.
+        file_infos (dict): Filled in place, keyed by extracted path.
+    """
+    for info in zip_ref.infolist():
+        extracted_path = zip_ref.extract(info, temp_dir)
+        if info.is_dir():
+            continue
+        # decode_extended_timestamp does not use the instance, so no seeker (and no
+        # archive handle) is needed to call it.
+        creation_date, modification_date = FileSeekerZip.decode_extended_timestamp(None, info.extra)
+        file_infos[extracted_path] = FileInfo(info.filename, creation_date, modification_date)
+        member_time = time.mktime(info.date_time + (0, 0, -1))
+        os.utime(extracted_path, (member_time, member_time))
+
+
+def process_artifact(zip_path, module_name, artifact_name, _artifact_data, target_os_version=None):
     """
     Processes a specific artifact from a given zip file.
 
@@ -61,7 +115,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
         zip_path (Path): Path to the zip file containing test data.
         module_name (str): Name of the artifact module.
         artifact_name (str): Name of the artifact function to test.
-        artifact_data (dict): Metadata about the artifact from the test case.
+        _artifact_data (dict): Metadata about the artifact from the test case (unused).
         target_os_version (str, optional): OS version to mock for the test.
 
     Returns:
@@ -92,20 +146,9 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
     # original_check_in_media = ilapfuncs.check_in_media
     # original_check_in_media_embedded = ilapfuncs.check_in_embedded_media
 
-    # Configure mock_seeker.file_infos.get() to return a mock
-    # with a dynamic source_path based on the input extraction_path.
-    def mock_file_infos_get_side_effect(key_extraction_path):
-        mock_file_info = MagicMock()
-        # Use the unique extraction_path (path in temp dir for the test)
-        # as the source_path for hashing purposes. In a real run,
-        # source_path is the original path in the evidence.
-        mock_file_info.source_path = key_extraction_path
-        # Provide default datetime objects for creation and modification dates
-        mock_file_info.creation_date = datetime.now(timezone.utc)
-        mock_file_info.modification_date = datetime.now(timezone.utc)
-        return mock_file_info
-
-    mock_seeker.file_infos.get.side_effect = mock_file_infos_get_side_effect
+    # A plain dict, as in the real seekers: stage_case_members fills it once the
+    # case zip is extracted, and a path it does not hold is simply absent.
+    mock_seeker.file_infos = {}
 
     all_files = []
 
@@ -128,7 +171,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
     try:
         # Extract all files from the zip
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
+            stage_case_members(zip_ref, temp_dir, mock_seeker.file_infos)
 
             # Recursively get all files
             for root, _, files in os.walk(temp_dir):
@@ -146,14 +189,14 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
         mock_lava_db_instance.commit.return_value = None
 
         # <<< NEW MOCKS FOR CHECK_IN_MEDIA >>>
-        def mocked_check_in_media(file_path, *args, **kwargs):
+        def mocked_check_in_media(file_path, *_args, **_kwargs):
             nonlocal check_in_media_call_count
             check_in_media_call_count += 1
             # Simplified return for counter, avoiding deep side effects of original if problematic
             return f"mock_hash_for_{os.path.basename(str(file_path))}"
 
 
-        def mocked_check_in_embedded_media(*args, **kwargs):
+        def mocked_check_in_embedded_media(*_args, **_kwargs):
             nonlocal check_in_media_embedded_call_count
             check_in_media_embedded_call_count += 1
             # Similar to above, call original or return dummy
@@ -196,8 +239,10 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
 
         ]
 
-        # If a target OS version is provided, mock iOS.get_version()
-        if target_os_version:
+        # If a target OS version is provided, mock iOS.get_version() where the
+        # core defines it (iLEAPP); other cores have no such class to mock.
+        import scripts.ilapfuncs as _ilapfuncs
+        if target_os_version and hasattr(_ilapfuncs, 'iOS'):
             mock_ios_get_version = MagicMock(return_value=target_os_version)
             patches.append(patch('scripts.ilapfuncs.iOS.get_version', mock_ios_get_version))
 
@@ -208,6 +253,11 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             all_artifacts_info = getattr(module, '__artifacts_v2__', {})
             artifact_info = all_artifacts_info.get(artifact_name, {})
 
+            # The case zip is extracted into temp_dir, so temp_dir is this run's
+            # equivalent of the seeker's data folder. Without it get_relative_path
+            # is a no-op here and a path column records the recorder's own
+            # directory instead of the extraction-relative path.
+            Context.set_data_folder(str(temp_dir))
             Context.set_report_folder(str(mock_report_folder_path))
             Context.set_seeker(mock_seeker)
             Context.set_files_found(all_files)
@@ -220,15 +270,23 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             try:
                 sig = inspect.signature(original_func)
                 if len(sig.parameters) == 1:
-                    data_headers, data_list, _ = original_func(Context)
+                    result = original_func(Context)
                 else:
-                    data_headers, data_list, _ = original_func(all_files,
-                                                               str(mock_report_folder_path),
-                                                               mock_seeker,
-                                                               mock_wrap_text,
-                                                               timezone_offset)
+                    result = original_func(all_files,
+                                           str(mock_report_folder_path),
+                                           mock_seeker,
+                                           mock_wrap_text,
+                                           timezone_offset)
+                if isinstance(result, ArtifactResult):
+                    # No LAVA run is active here, so a writer-style module kept its rows in
+                    # memory; read them back the way artifact_processor would iterate them.
+                    data_headers, data_list = result.headers, list(result)
+                else:
+                    data_headers, data_list, _ = result
             finally:
                 Context.clear()
+
+            data_list = unwrap_data_list(data_list)
 
             end_time = time.time()
 
@@ -268,7 +326,7 @@ def load_test_cases(module_name):
         return json.load(f)
 
 
-def get_artifact_names(module_name, test_cases):
+def get_artifact_names(_module_name, test_cases):
     """
     Retrieves all artifact names defined in the test cases for a module.
 
@@ -279,9 +337,9 @@ def get_artifact_names(module_name, test_cases):
     Returns:
         list: List of artifact names.
     """
-    artifact_names = set()
+    artifact_names = {}
     for case in test_cases.values():
-        artifact_names.update(case['artifacts'].keys())
+        artifact_names.update(dict.fromkeys(case['artifacts'].keys()))
     return list(artifact_names)
 
 
@@ -424,6 +482,18 @@ def convert_to_unix_time(value):
     return value
 
 
+def previous_row_count(output_dir, module_name, artifact, case):
+    """Rows in the newest existing snapshot for this unit, or None if there is none."""
+    snapshots = sorted(Path(output_dir).glob(f"{module_name}.{artifact}.{case}.*.json"))
+    if not snapshots:
+        return None
+    try:
+        with open(snapshots[-1], encoding='utf-8') as handle:
+            return len(json.load(handle).get("data") or [])
+    except (OSError, ValueError):
+        return None
+
+
 def process_data(headers, data):
     """
     Processes artifact output data for comparison, handling datetime conversions.
@@ -455,7 +525,7 @@ def process_data(headers, data):
     return processed_headers, processed_data
 
 
-def main(module_name, artifact_name=None, case_number=None):
+def main(module_name, artifact_name=None, case_number=None, allow_empty=False):
     """
     Main entry point for testing module artifacts.
 
@@ -490,6 +560,14 @@ def main(module_name, artifact_name=None, case_number=None):
 
         module = importlib.import_module(f'scripts.artifacts.{module_name}')
         artifacts_info = getattr(module, '__artifacts_v2__', {})
+
+        # Execute in production's order so cross-artifact state (module-level maps
+        # populated by earlier artifacts) matches a real run, and so two recordings
+        # of the same code and data cannot differ by iteration order.
+        declaration_order = artifact_declaration_order(artifacts_info)
+        artifacts_to_process = sorted(
+            artifacts_to_process,
+            key=lambda name: (declaration_order.get(name, len(declaration_order)), name))
 
         for case in cases_to_process:
             case_data = test_cases[case]
@@ -546,6 +624,24 @@ def main(module_name, artifact_name=None, case_number=None):
 
                     output_dir = Path('admin/test/results') / module_name
                     output_dir.mkdir(parents=True, exist_ok=True)
+
+                    # An artifact that needs an optional dependency disables itself and
+                    # returns nothing when that dependency is absent, so a recording made
+                    # on a machine without it replaces real rows with zero and the
+                    # snapshot then asserts the absence as the correct answer. Refuse the
+                    # overwrite rather than trust the recorder to notice: Threema goes
+                    # from 33 messages to 0 without sqlcipher3, which has no wheel on
+                    # every platform. Pass --allow-empty when the artifact genuinely
+                    # stopped finding anything.
+                    prior_rows = previous_row_count(output_dir, module_name, artifact, case)
+                    if not processed_data and prior_rows and not allow_empty:
+                        print(f"REFUSED to record {module_name} - {artifact} - Case {case}: "
+                              f"this run produced 0 rows but the existing snapshot has "
+                              f"{prior_rows}. Check the run log for a disabled capability "
+                              f"(a missing optional dependency logs one line and carries on). "
+                              f"Re-run with --allow-empty if the artifact really finds nothing now.")
+                        continue
+
                     output_file = output_dir / f"{module_name}.{artifact}.{case}.{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
 
                     with open(output_file, 'w', encoding='utf-8') as f:
@@ -616,6 +712,12 @@ if __name__ == '__main__':
                         help="Case number to test (or 'all' for all cases)",
                         default=None)
 
+    parser.add_argument("--allow-empty", action="store_true",
+                        help="Record a snapshot even when this run produced 0 rows and the "
+                             "existing one has rows. Without it that overwrite is refused, "
+                             "because an artifact whose optional dependency is missing "
+                             "returns nothing and the snapshot would assert that as correct.")
+
     args = parser.parse_args()
 
-    main(args.module_name, args.artifact, args.case)
+    main(args.module_name, args.artifact, args.case, args.allow_empty)

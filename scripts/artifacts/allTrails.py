@@ -7,7 +7,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health & Fitness",
-        "notes": "Difficulty value mapping observed in testing; unrecognized values are reported as stored.",
+        "notes": "The Trail Difficulty labels (1 Easy, 3 Moderate, 5 Hard) are assigned by this "
+                 "module and are not vendor-documented. The comparison they were derived from is "
+                 "not recorded here; unrecognized values are reported as stored.",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map",

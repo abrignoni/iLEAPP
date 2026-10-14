@@ -1,16 +1,19 @@
 __artifacts_v2__ = {
     "what3words_saved_places": {
         "name": "what3words - Saved Places",
-        "description": "Places the user saved in what3words, with the three word address, the label "
-                       "given to it, the nearest place and the coordinates",
+        "description": "Rows of the what3words class_DataPlace table, with the three word "
+                       "address, label, nearest place and coordinates as stored",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "what3words",
-        "notes": "Read from the class_DataPlace table of the app's Realm store (Documents/default.realm) "
-                 "using the vendored realm_parser. Each three word address maps to a fixed 3m square; "
-                 "the latitude and longitude are the square's coordinates as the app stored them.",
+        "notes": "Read from the class_DataPlace table of the app's Realm store "
+                 "(Documents/default.realm) using the vendored realm_parser. Every matched "
+                 "default.realm that carries a what3words class is read. Saved Time is the "
+                 "createdAt attribute. Shared shows Yes or No for a stored isShared value and is "
+                 "blank when the attribute is not present. The latitude "
+                 "and longitude are reported as the app stored them.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -24,10 +27,13 @@ __artifacts_v2__ = {
                        "nearest place, coordinates and the time recorded for each entry",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "what3words",
-        "notes": "Read from the class_DataSearchItem table of the app's Realm store.",
+        "notes": "Read from the class_DataSearchItem table of the app's Realm store. Every "
+                 "matched default.realm that carries a what3words class is read. Search Time is the "
+                 "created attribute. Three Word Address is threeWordAddress, or the result "
+                 "attribute when that is empty.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "search",
@@ -37,14 +43,18 @@ __artifacts_v2__ = {
     },
     "what3words_account": {
         "name": "what3words - Account",
-        "description": "The signed-in what3words account from the app's Realm store, with the email, "
-                       "name, country and the provider the account signed in with",
+        "description": "The what3words account profile from the app's Realm store "
+                       "class_DataProfile table, with the email, name, country and the stored "
+                       "sign-in provider",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "what3words",
-        "notes": "Read from the class_DataProfile table of the app's Realm store.",
+        "notes": "Read from the class_DataProfile table of the app's Realm store. Every matched "
+                 "default.realm that carries a what3words class is read. Verified, Suspended and "
+                 "Search History Opt-out show Yes or No for a stored value and are blank when the "
+                 "attribute is not present.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -78,20 +88,34 @@ def _is_what3words_realm(path):
     return 'class_DataPlace' in tables or 'class_DataProfile' in tables or 'class_DataSearchItem' in tables
 
 
-def _realm_path(files_found):
+def _realm_paths(files_found):
+    paths = []
     for file_found in files_found:
         file_found = str(file_found)
+        if file_found in paths:
+            continue
         if file_found.endswith('default.realm') and _is_what3words_realm(file_found):
-            return file_found
-    return ''
+            paths.append(file_found)
+    return paths
+
+
+def _all_rows(source_paths, table):
+    for source_path in source_paths:
+        yield from realm_rows(source_path, table)
+
+
+def _yes_no(value):
+    if value is None or value == '':
+        return ''
+    return 'Yes' if value else 'No'
 
 
 @artifact_processor
 def what3words_saved_places(context):
-    source_path = _realm_path(context.get_files_found())
+    source_paths = _realm_paths(context.get_files_found())
     data_list = []
 
-    for row in realm_rows(source_path, 'class_DataPlace'):
+    for row in _all_rows(source_paths, 'class_DataPlace'):
         data_list.append((
             _realm_ts(row.get('createdAt')),
             row.get('address'),
@@ -101,7 +125,7 @@ def what3words_saved_places(context):
             row.get('lng'),
             row.get('countryCode'),
             row.get('language'),
-            'Yes' if row.get('isShared') else 'No',
+            _yes_no(row.get('isShared')),
         ))
 
     data_headers = (
@@ -115,15 +139,15 @@ def what3words_saved_places(context):
         'Language',
         'Shared',
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor
 def what3words_search_history(context):
-    source_path = _realm_path(context.get_files_found())
+    source_paths = _realm_paths(context.get_files_found())
     data_list = []
 
-    for row in realm_rows(source_path, 'class_DataSearchItem'):
+    for row in _all_rows(source_paths, 'class_DataSearchItem'):
         data_list.append((
             _realm_ts(row.get('created')),
             row.get('threeWordAddress') or row.get('result'),
@@ -143,15 +167,15 @@ def what3words_search_history(context):
         'Country Code',
         'Language',
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor
 def what3words_account(context):
-    source_path = _realm_path(context.get_files_found())
+    source_paths = _realm_paths(context.get_files_found())
     data_list = []
 
-    for row in realm_rows(source_path, 'class_DataProfile'):
+    for row in _all_rows(source_paths, 'class_DataProfile'):
         data_list.append((
             _realm_ts(row.get('created')),
             _realm_ts(row.get('updated')),
@@ -160,9 +184,9 @@ def what3words_account(context):
             row.get('lastName'),
             row.get('country'),
             row.get('oauthProvider'),
-            'Yes' if row.get('verified') else 'No',
-            'Yes' if row.get('suspended') else 'No',
-            'Yes' if row.get('searchHistoryOptout') else 'No',
+            _yes_no(row.get('verified')),
+            _yes_no(row.get('suspended')),
+            _yes_no(row.get('searchHistoryOptout')),
             row.get('userId'),
         ))
 
@@ -179,4 +203,4 @@ def what3words_account(context):
         'Search History Opt-out',
         'User ID',
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)

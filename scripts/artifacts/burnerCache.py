@@ -8,7 +8,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same account can appear in more than one row and the row "
+                 "count is not a count of accounts. Reference: Django Faiola, 'iOS Burner - "
+                 "Cache.db', https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, and "
+                 "'iOS Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
@@ -17,6 +24,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 2 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 2 rows",
         }
     },
     "burnerCache_contacts": {
@@ -28,7 +36,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same contact can appear in more than one row and the row "
+                 "count is not a count of contacts. Verified, Blocked and Muted read No when the "
+                 "response carries a false value or no value. Reference: Django Faiola, 'iOS Burner "
+                 "- Cache.db', https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, "
+                 "and 'iOS Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
@@ -37,6 +53,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 4 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 2 rows",
         }
     },
     "burnerCache_numbers": {
@@ -48,7 +65,19 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same number can appear in more than one row and the row "
+                 "count is not a count of numbers. Notifications, Inbound caller ID, In-App calling "
+                 "(VoIP) and Auto-replay enabled labels are this module's reading of the response "
+                 "values and fall to Off, Burner Number, Standard Voice and No when the value is "
+                 "absent. Phone number is filled from the user ids the accounts artifact of this "
+                 "module collected and is blank when that artifact did not run earlier in the same "
+                 "session. Reference: Django Faiola, 'iOS Burner - Cache.db', "
+                 "https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, and 'iOS "
+                 "Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
@@ -57,6 +86,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 1 row",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 1 row",
         }
     },
     "burnerCache_messages": {
@@ -65,10 +95,25 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same message can appear in more than one row and the row "
+                 "count is not a count of messages. Sent is the response's dateCreated value read "
+                 "as Unix time and shown in UTC. Direction, Read, Message type and the call texts "
+                 "in the Message column are this module's reading of the response values, following "
+                 "the cited research. Read shows Not read when the value is false or absent. When "
+                 "the direction is not incoming, Sender is the burner number and Recipient the "
+                 "contact. Names beside numbers are filled from the other artifacts of this module; "
+                 "when those did not run earlier in the same session the contact shows the stored "
+                 "phone number and the burner number is blank. Reference: Django Faiola, 'iOS "
+                 "Burner - Cache.db', "
+                 "https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, and 'iOS "
+                 "Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*',
                   '*/Library/Caches/com.adhoclabs.burner/fsCachedData/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
@@ -78,6 +123,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 34 rows",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 9 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 12 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 18 rows",
         },
         "data_views": {
             "conversation": {
@@ -101,9 +147,10 @@ from pathlib import Path
 from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_full_media_info, \
     convert_unix_ts_to_utc, check_in_media, check_in_embedded_media, artifact_processor, logfunc
 from scripts.html_safe import esc, safe_join, safe_url
+from scripts.context import Context
 
 
-# <id, phone number (display name)> shared across the artifacts below.
+# <id or phone number, phone number (display name)> shared across the artifacts below.
 # NOTE: accounts/contacts/numbers populate entries that numbers/messages read,
 # so ID-to-number resolution is richer when artifacts run in file order;
 # readers fall back to raw IDs when an entry is missing.
@@ -170,25 +217,36 @@ def get_json_content(data):
         return {}
 
 
+def _device_relative(path):
+    """A path as it sits in the evidence: extraction relative, no leading slash.
+
+    The seeker stages every file under <report folder>/data/<extraction relative
+    path>, whatever the input type, so stripping that prefix is what makes this
+    work the same for a zip, a tar, an iTunes backup and a directory. A media
+    item's recorded source path is already the evidence path, for every input
+    type, so it only loses its leading slash here.
+    """
+    text = Context.get_relative_path(Path(str(path)).as_posix()).replace('\\', '/')
+    return text.lstrip('/')
+
+
 # device path/local path
 def get_device_file_path(file_path, seeker):
-    device_path = file_path
+    """Where this file sits in the evidence, for the Source file name column.
 
-    if bool(file_path):
-        file_info = seeker.file_infos.get(file_path) if file_path else None
-        # data folder: /path/to/report/data
-        if file_info:
-            source_path = file_info.source_path
-        # extraction folder: /path/to/directory
-        else:
-            source_path = file_path
-        source_path = Path(source_path).as_posix()
+    Callers pass either a staged path or a media item's recorded source_path.
+    file_infos is keyed by the staged path, so a hit means the first kind and a
+    miss means the second; both reduce the same way.
 
-        index_private = source_path.find('/private/')
-        if index_private > 0:
-            device_path = source_path[index_private:]
-    
-    return device_path
+    Previously this returned the staged path whenever it could not find
+    '/private/', which published the examiner's own report folder in the report
+    and never fired at all on an image whose root is not /private.
+    """
+    if not file_path:
+        return file_path
+
+    file_info = seeker.file_infos.get(file_path) if seeker else None
+    return _device_relative(file_info.source_path if file_info else file_path)
 
 
 def get_cache_db_fs_path(data, file_found, seeker):
@@ -690,10 +748,12 @@ def burnerCache_messages(context):
         burner_id = message.get('burnerId', '')
         # burner number
         burner_number = burner_uid_map.get(burner_id)
-        # contact id
+        # contact id, falling back to the phone-number key the contacts artifact also stores
         contact_id = message.get('contactId', '')
         contact_temp = burner_uid_map.get(contact_id)
-        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')       
+        if not bool(contact_temp):
+            contact_temp = burner_uid_map.get(message.get('contactPhoneNumber'))
+        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')
         # sender, recipient
         if dir_val == 1:
             sender = contact_phone_number
@@ -731,7 +791,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = message.get('messageType')
@@ -811,7 +871,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = conversation.get('messageType')

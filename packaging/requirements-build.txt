@@ -1,0 +1,9 @@
+# What packaging/build.py needs on top of requirements.txt, and nothing iLEAPP needs to
+# run. Phase 1 installs both files before it builds.
+#
+# PyInstaller is pinned: a new release changes what gets collected and how, so it is taken
+# on deliberately, with a test build, rather than picked up by whichever machine builds next.
+pyinstaller==6.22.3
+# Lays out the macOS disk image: the app, an Applications link to drag it onto, and the
+# background from packaging/dmg_background.png. The same pin as GLEAPP.
+dmgbuild==1.6.7; sys_platform == "darwin"

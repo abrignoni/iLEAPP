@@ -20,10 +20,12 @@ import tarfile
 import fnmatch
 import argparse
 import time
+import calendar
+import struct
 import platform
 import subprocess
 from datetime import datetime
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 # from io import BytesIO
 import csv
 from io import StringIO
@@ -100,6 +102,9 @@ def load_image_manifest():
         list: A list of image dictionaries from the manifest.
     """
     manifest_path = os.path.join(repo_root, 'admin', 'image_manifest.json')
+    if not os.path.exists(manifest_path):
+        sys.exit("This repo has no admin/image_manifest.json yet; use --case with --input, "
+                 "or add a manifest (see admin/docs/testing/guide_adding_images.md).")
     with open(manifest_path, 'r', encoding='utf-8') as f:
         return json.load(f)['images']
 
@@ -114,32 +119,98 @@ def expand_user_path(path):
     """
     return os.path.expanduser(path)
 
-def get_image_info(image_name):
-    """Finds an image in the manifest and validates its local path.
+LOCAL_CONFIG_FILENAME = 'image_manifest.local.json'
+
+def load_local_image_config(config_path=None):
+    """Loads the per-machine image location file, if present.
+
+    The manifest itself carries only machine-independent identity; where an
+    image lives on a given machine is recorded in a git-ignored
+    admin/image_manifest.local.json:
+
+        {
+          "image_paths": {"<image_name or sample_data_key>": "/path/to/image.zip"},
+          "search_roots": ["/path/to/a/folder/of/images"]
+        }
 
     Args:
-        image_name (str): The name of the image to look up.
+        config_path (str): Override for the config location (used by tests).
 
     Returns:
-        dict: The image's metadata dictionary from the manifest, with an
-              'input_file' key added for the validated local path.
-
-    Raises:
-        ValueError: If the image is not found in the manifest.
-        FileNotFoundError: If no valid local path for the image can be found.
+        dict: The parsed config, or an empty dict when the file is absent.
     """
-    manifest = load_image_manifest()
-    image_data = next((img for img in manifest if img['image_name'] == image_name), None)
-    if not image_data:
-        raise ValueError(f"Image '{image_name}' not found in manifest")
+    if config_path is None:
+        config_path = os.path.join(repo_root, 'admin', LOCAL_CONFIG_FILENAME)
+    if not os.path.exists(config_path):
+        return {}
+    with open(config_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def resolve_image_path(image_data, local_config):
+    """Finds an existing local copy of a manifest image.
+
+    Tried in order: an explicit "image_paths" mapping in the local config
+    (keyed by image_name or sample_data_key), the entry's legacy
+    local_image_paths list, then each local config "search_roots" directory
+    walked for a file named exactly like the entry's published_file.
+
+    Args:
+        image_data (dict): One entry from the image manifest.
+        local_config (dict): Result of load_local_image_config().
+
+    Returns:
+        str: An existing path, or None when nothing resolves.
+    """
+    mapped = local_config.get('image_paths', {})
+    for key in (image_data.get('image_name'), image_data.get('sample_data_key')):
+        if key and key in mapped:
+            candidate = expand_user_path(mapped[key])
+            if os.path.exists(candidate):
+                return candidate
+            print(f"Warning: {LOCAL_CONFIG_FILENAME} maps '{key}' to a missing path: {candidate}")
 
     for path in image_data.get('local_image_paths', []):
         expanded_path = expand_user_path(path)
         if os.path.exists(expanded_path):
-            image_data['input_file'] = expanded_path
-            return image_data
+            return expanded_path
 
-    raise FileNotFoundError(f"No valid path found for image '{image_name}'. Please add your local path to the manifest.")
+    published = image_data.get('published_file')
+    if published:
+        for root in local_config.get('search_roots', []):
+            for dirpath, _dirnames, filenames in os.walk(expand_user_path(root)):
+                if published in filenames:
+                    return os.path.join(dirpath, published)
+    return None
+
+def get_image_info(image_name, config_path=None):
+    """Finds an image in the manifest and resolves its local path.
+
+    Args:
+        image_name (str): The image_name or sample_data_key to look up.
+        config_path (str): Override for the local config location (tests).
+
+    Returns:
+        dict: The image's metadata dictionary from the manifest, with an
+              'input_file' key added for the resolved local path.
+
+    Raises:
+        ValueError: If the image is not found in the manifest.
+        FileNotFoundError: If no local copy of the image can be found.
+    """
+    manifest = load_image_manifest()
+    image_data = next((img for img in manifest
+                       if image_name in (img.get('image_name'), img.get('sample_data_key'))), None)
+    if not image_data:
+        raise ValueError(f"Image '{image_name}' not found in manifest")
+
+    resolved = resolve_image_path(image_data, load_local_image_config(config_path))
+    if resolved:
+        image_data['input_file'] = resolved
+        return image_data
+
+    raise FileNotFoundError(
+        f"No local copy found for image '{image_name}'. Map it in admin/{LOCAL_CONFIG_FILENAME} "
+        "(see admin/docs/testing/guide_adding_images.md).")
 
 def read_filepath_list(file_path_list):
     """Reads a zipped CSV file containing a list of file paths from an image.
@@ -182,6 +253,81 @@ def match_files_from_list(filepath_list, patterns):
             matching_files.append(filepath)
     return matching_files
 
+# One matched source file: its bytes, and the source archive's member for it (a
+# zipfile.ZipInfo or a tarfile.TarInfo), which holds the times that member recorded.
+RecordedFile = namedtuple('RecordedFile', ('content', 'source'))
+
+# The span a zip member's date and time can hold, as UTC epoch seconds.
+ZIP_EARLIEST = calendar.timegm((1980, 1, 1, 0, 0, 0))
+ZIP_LATEST = calendar.timegm((2107, 12, 31, 23, 59, 58))
+
+
+def without_zip64(extra):
+    """Returns a zip extra field with any zip64 record (header 0x0001) removed.
+
+    A zip64 record describes the source archive's own sizes and offsets, which do
+    not hold in a case zip. Every other record is kept byte for byte and in order.
+
+    Args:
+        extra (bytes): A member's extra field.
+
+    Returns:
+        bytes: The same records without the zip64 one.
+    """
+    kept = b''
+    offset = 0
+    while offset + 4 <= len(extra):
+        header_id, size = struct.unpack_from('<HH', extra, offset)
+        end = offset + 4 + size
+        if header_id != 0x0001:
+            kept += extra[offset:end]
+        offset = end
+    return kept
+
+
+def case_member_info(file_path, source):
+    """Returns the ZipInfo for a case zip member, carrying its source member's times.
+
+    The seekers record a staged file's times from the archive it came from.
+    FileSeekerZip reads the member's extended timestamp field (0x5455) and sets the
+    staged file's modification time from the member's date and time, and
+    FileSeekerTar records the member's modification time and a creation time of 0.
+    The test harness stages a case zip the way FileSeekerZip does, so the case zip
+    member keeps what the source member recorded:
+
+    - from a zip member, its date and time and its extra field, less any zip64
+      record;
+    - from a tar member, its modification time, as the date and time in UTC and as
+      an extended timestamp field holding that time and a creation time of 0.
+
+    A zip date and time cannot hold a moment before 1980 or after 2107, so a tar
+    member's time outside that span is clamped in the date and time, and kept
+    exactly in the extended timestamp field when it fits in its 32 bits.
+
+    Args:
+        file_path (str): The member's name in the case zip.
+        source (zipfile.ZipInfo or tarfile.TarInfo): The member in the source archive.
+
+    Returns:
+        zipfile.ZipInfo: The case zip member, with the attributes writestr gives a
+            member written by name.
+    """
+    if isinstance(source, zipfile.ZipInfo):
+        info = zipfile.ZipInfo(file_path, date_time=source.date_time)
+        info.extra = without_zip64(source.extra)
+    else:
+        modified = int(source.mtime)
+        clamped = min(max(modified, ZIP_EARLIEST), ZIP_LATEST)
+        info = zipfile.ZipInfo(file_path, date_time=time.gmtime(clamped)[:6])
+        if 0 <= modified <= 0xFFFFFFFF:
+            info.extra = struct.pack('<HHBII', 0x5455, 9, 0x01 | 0x04, modified, 0)
+    if file_path.endswith('/'):
+        info.external_attr = 0o40775 << 16 | 0x10
+    else:
+        info.external_attr = 0o600 << 16
+    return info
+
+
 def process_archive(input_file, all_patterns, filepath_list=None):
     """Searches an archive for files matching patterns defined by artifacts.
 
@@ -191,18 +337,26 @@ def process_archive(input_file, all_patterns, filepath_list=None):
     Args:
         input_file (str): The path to the archive file.
         all_patterns (dict): A dictionary where keys are artifact names and
-                             values are lists of glob patterns.
+                             values are a sequence of glob patterns, or a
+                             single pattern string.
         filepath_list (list, optional): A pre-compiled list of file paths
                                         within the archive. Defaults to None.
 
     Returns:
         defaultdict: A dictionary where keys are artifact names.
                      If `filepath_list` is provided, values are lists of matching file paths.
-                     Otherwise, values are dictionaries mapping file paths to file content.
+                     Otherwise, values are dictionaries mapping file paths to a
+                     RecordedFile holding the file's content and its source member.
     
     Raises:
         ValueError: If the input file is not a supported archive format.
     """
+    # A single-pattern `paths` written without its trailing comma is a str, not a
+    # one-element tuple. Iterating it yields characters, and a leading '*' then
+    # matches every member of the archive. Normalize once here, the way
+    # match_files_from_list and the main loop already do.
+    all_patterns = {name: (patterns,) if isinstance(patterns, str) else patterns
+                    for name, patterns in all_patterns.items()}
     matching_files = defaultdict(list if filepath_list else dict)
     file_count = 0
     start_time = time.time()
@@ -226,7 +380,8 @@ def process_archive(input_file, all_patterns, filepath_list=None):
                     for artifact, patterns in all_patterns.items():
                         for pattern in patterns:
                             if fnmatch.fnmatch(file, pattern):
-                                matching_files[artifact][file] = zip_ref.read(file)
+                                matching_files[artifact][file] = RecordedFile(
+                                    zip_ref.read(file), zip_ref.getinfo(file))
                                 break
         elif input_file.endswith('.tar.gz') or input_file.endswith('.tgz'):
             print("Processing tar.gz file")
@@ -239,7 +394,8 @@ def process_archive(input_file, all_patterns, filepath_list=None):
                     for artifact, patterns in all_patterns.items():
                         for pattern in patterns:
                             if fnmatch.fnmatch(member.name, pattern):
-                                matching_files[artifact][member.name] = tar_ref.extractfile(member).read()
+                                matching_files[artifact][member.name] = RecordedFile(
+                                    tar_ref.extractfile(member).read(), member)
                                 break
         elif input_file.endswith('.tar'):
             with tarfile.open(input_file, 'r') as tar_ref:
@@ -250,7 +406,8 @@ def process_archive(input_file, all_patterns, filepath_list=None):
                     for artifact, patterns in all_patterns.items():
                         for pattern in patterns:
                             if fnmatch.fnmatch(member.name, pattern):
-                                matching_files[artifact][member.name] = tar_ref.extractfile(member).read()
+                                matching_files[artifact][member.name] = RecordedFile(
+                                    tar_ref.extractfile(member).read(), member)
                                 break
         else:
             raise ValueError("Unsupported file format. Please use .zip, tar, or .tar.gz")
@@ -299,6 +456,41 @@ def find_file_in_tar(tar_archive, target_path, tar_filename):
 
     # If both attempts fail, return None
     return None
+
+def write_case_zip(file_name, matched, source_archive, input_file):
+    """Writes one artifact's case zip from the files matched in the source archive.
+
+    Each member keeps the times its source member recorded (see case_member_info).
+
+    Args:
+        file_name (str): Path of the case zip to write.
+        matched (dict or list): process_archive's result for one artifact: file paths
+            mapped to RecordedFile, or, when a file path list was used, the paths.
+        source_archive (zipfile.ZipFile or tarfile.TarFile): The open source archive.
+        input_file (str): The source archive's path, for prefixed tar member names.
+    """
+    with zipfile.ZipFile(file_name, 'w') as zip_file:
+        if isinstance(matched, list):
+            # If using filepath_list, we only have file paths
+            for file_path in matched:
+                if isinstance(source_archive, zipfile.ZipFile):
+                    if file_path in source_archive.namelist():
+                        zip_file.writestr(case_member_info(file_path, source_archive.getinfo(file_path)),
+                                          source_archive.read(file_path))
+                    else:
+                        print(f"Warning: File not found in zip: {file_path}")
+                else:  # tarfile
+                    tar_path = find_file_in_tar(source_archive, file_path, input_file)
+                    if tar_path:
+                        zip_file.writestr(case_member_info(file_path, source_archive.getmember(tar_path)),
+                                          source_archive.extractfile(tar_path).read())
+                    else:
+                        print(f"Warning: File not found in tar: {file_path}")
+        else:
+            # If processing archive directly, we have each file's content and source member
+            for file_path, recorded in matched.items():
+                zip_file.writestr(case_member_info(file_path, recorded.source), recorded.content)
+
 
 def create_test_data(module_name, image_name=None, case_number=None, input_file=None, image_metadata=None):
     """Orchestrates the creation of test data for a specific module.
@@ -368,7 +560,7 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
         "description": "",
         "maker": "",
         "make_data": {
-            "input_data_path": os.path.abspath(input_file),
+            "input_data_path": os.path.basename(input_file),
             "os": platform.platform(),
             "timestamp": datetime.now().isoformat(),
             "last_commit": last_commit_info
@@ -435,27 +627,7 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
 
             # Create zip file with matching files
             # zip_start_time = time.time()
-            with zipfile.ZipFile(file_name, 'w') as zip_file:
-                if isinstance(matching_files[artifact_name], list):
-                    # If using filepath_list, we only have file paths
-                    for file_path in matching_files[artifact_name]:
-                        if isinstance(source_archive, zipfile.ZipFile):
-                            if file_path in source_archive.namelist():
-                                file_content = source_archive.read(file_path)
-                                zip_file.writestr(file_path, file_content)
-                            else:
-                                print(f"Warning: File not found in zip: {file_path}")
-                        else:  # tarfile
-                            tar_path = find_file_in_tar(source_archive, file_path, input_file)
-                            if tar_path:
-                                file_content = source_archive.extractfile(tar_path).read()
-                                zip_file.writestr(file_path, file_content)
-                            else:
-                                print(f"Warning: File not found in tar: {file_path}")
-                else:
-                    # If processing archive directly, we have file contents
-                    for file_path, file_content in matching_files[artifact_name].items():
-                        zip_file.writestr(file_path, file_content)
+            write_case_zip(file_name, matching_files[artifact_name], source_archive, input_file)
             # zip_end_time = time.time()
 
             json_data[case_key]["artifacts"][artifact_name]["expected_output"] = {

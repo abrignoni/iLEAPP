@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "module_name": "BeReal",
+    "artifact_name": "BeReal Comments",
+    "function_name": "bereal_comments",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 10,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/BeReal/testdata.BeReal.bereal_comments.josh_ios15_ffs.zip",
+    "start_time": "2026-08-24T21:13:26.387400+00:00",
+    "end_time": "2026-08-24T21:13:26.407225+00:00",
+    "run_time_seconds": 0.00020194053649902344,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Created",
+    "BeReal ID",
+    "Direction",
+    "Owner",
+    "Author",
+    "Text",
+    "Moment ID",
+    "Comment ID",
+    "Source file name",
+    "Location"
+  ],
+  "data": []
+}

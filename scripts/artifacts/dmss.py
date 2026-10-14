@@ -1,13 +1,23 @@
 __artifacts_v2__ = {
     "get_dmss_pin": {
         "name": "Dahua Technology (DMSS) - PIN",
-        "description": "Extract PINs from Dahua Technology (DMSS) Application",
+        "description": "Reads Library/Support/configFile1 (base64 of a plist with an $objects "
+                       "list) and reports the value at index 5 of its objects as PIN.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
-        "notes": "",
+        "notes": "'No Pass' in the PIN column means the values the code looks for at indexes 3 and "
+                 "4 of the objects list were not found, not that no PIN was set. That index 5 "
+                 "holds the app PIN is the module author's reading; no source for it is cited "
+                 "here. The path pattern matches a file named configFile1 under Library/Support in "
+                 "any app container, so check the Source File path. No test image is recorded for "
+                 "this artifact. The module's code comment credits the research paper E. Dragonas, "
+                 "C. Lambrinoudakis and M. Kotsis, 'IoT Forensics: Investigating the Mobile App of "
+                 "Dahua Technology', 2023 IEEE International Conference on Cyber Security and "
+                 "Resilience (CSR); the paper was not read for these notes, so no reading here "
+                 "rests on it.",
         "paths": ('*/Library/Support/configFile1',),
         "output_types": "standard",
         "artifact_icon": "password",
@@ -27,65 +37,115 @@ __artifacts_v2__ = {
     },
     "get_dmss_info": {
         "name": "Dahua Technology (DMSS) - Info",
-        "description": "Extract info from Dahua Technology (DMSS) Application",
+        "description": "Device connection values (name, address, port, user, stored password "
+                       "value) and DDNS settings from the Devices.sqlite3 database of the Dahua "
+                       "DMSS app.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
-        "notes": "",
+        "notes": "Only DEVICES rows with a DDNSCONFIG row whose DEVICEID equals the device's IP "
+                 "value are reported. Stored password values are reported as stored; the column "
+                 "headers call them encrypted, and that is not established here. The path pattern "
+                 "matches a Devices.sqlite3 file under Library/Support in any app container, so "
+                 "check the Source File path. No test image is recorded for this artifact. The "
+                 "module's code comment credits the research paper E. Dragonas, C. Lambrinoudakis "
+                 "and M. Kotsis, 'IoT Forensics: Investigating the Mobile App of Dahua "
+                 "Technology', 2023 IEEE International Conference on Cyber Security and Resilience "
+                 "(CSR); the paper was not read for these notes, so no reading here rests on it.",
         "paths": ('*/Library/Support/Devices.sqlite3*'),
         "output_types": "standard",
         "artifact_icon": "info-circle",
     },
     "get_dmss_registered_sensors": {
         "name": "Dahua Technology (DMSS) - Sensors",
-        "description": "Extract registered sensors from Dahua Technology (DMSS) Application",
+        "description": "Rows of GatewayPartTable in the DMSSCloud.sqlite database of the Dahua "
+                       "DMSS app.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
-        "notes": "",
+        "notes": "alarmState, onLineState and fullDayAlarm values 0 and 1 are shown as off and on; "
+                 "any other value is shown blank. Owner is taken from the name of the folder "
+                 "holding the database: a folder named 0 is shown as '(without DMSS account)' and "
+                 "any other name as '(Account- <name>)'. That reading of the folder name has no "
+                 "cited source here. No test image is recorded for this artifact. The module's "
+                 "code comment credits the research paper E. Dragonas, C. Lambrinoudakis and M. "
+                 "Kotsis, 'IoT Forensics: Investigating the Mobile App of Dahua Technology', 2023 "
+                 "IEEE International Conference on Cyber Security and Resilience (CSR); the paper "
+                 "was not read for these notes, so no reading here rests on it.",
         "paths": ('*/Library/Support/*/DMSSCloud.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "radar",
     },
     "get_dmss_registered_devices": {
         "name": "Dahua Technology (DMSS) - Devices",
-        "description": "Extract registered devices from Dahua Technology (DMSS) Application",
+        "description": "Rows of the DEVICES table in the DMSSCloud.sqlite database of the Dahua "
+                       "DMSS app.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
-        "notes": "",
+        "notes": "Receive Share From and Send Share To are the ReceiveShare and SendShareStr "
+                 "columns as stored; what the app records in them is not established here. Owner "
+                 "is taken from the name of the folder holding the database: a folder named 0 is "
+                 "shown as '(without DMSS account)' and any other name as '(Account- <name>)'. "
+                 "That reading of the folder name has no cited source here. No test image is "
+                 "recorded for this artifact. The module's code comment credits the research paper "
+                 "E. Dragonas, C. Lambrinoudakis and M. Kotsis, 'IoT Forensics: Investigating the "
+                 "Mobile App of Dahua Technology', 2023 IEEE International Conference on Cyber "
+                 "Security and Resilience (CSR); the paper was not read for these notes, so no "
+                 "reading here rests on it.",
         "paths": ('*/Library/Support/*/DMSSCloud.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "video",
     },
     "get_dmss_notifications": {
         "name": "Dahua Technology (DMSS) - Notifications",
-        "description": "Extract notifications from Dahua Technology (DMSS) Application",
+        "description": "Rows of CHNALARMMESSAGE in the DMSSCloud.sqlite database of the Dahua DMSS "
+                       "app, joined to the device each names.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
-        "notes": "",
+        "notes": "Ten stored alarm type codes are shown as a sentence written for this report, not "
+                 "text the app stored; other codes are shown as stored. Timestamp (Local) is the "
+                 "TIME column as stored; its zone is not established. Checked reads Yes for "
+                 "ISCHECKED 1 and No for 0. Rows naming a device absent from the DEVICES table are "
+                 "not reported. Owner is taken from the name of the folder holding the database: a "
+                 "folder named 0 is shown as '(without DMSS account)' and any other name as "
+                 "'(Account- <name>)'. That reading of the folder name has no cited source here. "
+                 "No test image is recorded for this artifact. The module's code comment credits "
+                 "the research paper E. Dragonas, C. Lambrinoudakis and M. Kotsis, 'IoT Forensics: "
+                 "Investigating the Mobile App of Dahua Technology', 2023 IEEE International "
+                 "Conference on Cyber Security and Resilience (CSR); the paper was not read for "
+                 "these notes, so no reading here rests on it.",
         "paths": ('*/Library/Support/*/DMSSCloud.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "bell",
     },
     "get_dmss_created_media": {
         "name": "Dahua Technology (DMSS) - Media",
-        "description": "Extract created media from Dahua Technology (DMSS) Application",
+        "description": "Media files (.jpg, .mp4, .dav) found under a Documents/Captures or "
+                       "Documents/Videos folder; the artifact does not check which app the folder "
+                       "belongs to.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
-        "notes": "",
+        "notes": "The folder names are not unique to the Dahua DMSS app and nothing in the code "
+                 "ties a file to that app or to how the file came to exist, so check the Source "
+                 "File path. Files ending .jpg whose path contains Videos are not reported. No "
+                 "registered test image produces rows for this artifact. The module's code comment "
+                 "credits the research paper E. Dragonas, C. Lambrinoudakis and M. Kotsis, 'IoT "
+                 "Forensics: Investigating the Mobile App of Dahua Technology', 2023 IEEE "
+                 "International Conference on Cyber Security and Resilience (CSR); the paper was "
+                 "not read for these notes, so no reading here rests on it.",
         "paths": ('*/Documents/Captures/*','*/Documents/Videos/*'),
         "output_types": "standard",
         "artifact_icon": "movie",

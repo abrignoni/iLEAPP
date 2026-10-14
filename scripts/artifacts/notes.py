@@ -4,15 +4,30 @@
 __artifacts_v2__ = {
     "notes": {
         "name": "Notes",
-        "description": "Apple Notes including decoded note body text and embedded attachments",
-        "author": "@any333",
+        "description": "Apple Notes with the note body text decoded and attachment file names and "
+                       "metadata; the attachment itself is shown only when its file is present "
+                       "beside the staged database",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Notes",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
-                 "Password-protected note contents are not decoded.",
-        "paths": ('*/NoteStore.sqlite*',),
+                 "Password-protected note contents are not decoded. One row per note and "
+                 "attachment, so a note with several attachments is repeated. An attachment is "
+                 "shown when exactly one file with the stored file name sits under "
+                 "Accounts/<account folder>/Media/<media identifier>/ beside the database, at any "
+                 "depth below the identifier folder; with no such file or more than one, none is "
+                 "shown and Attachment Storage Folder is blank. A file that holds no bytes is not "
+                 "shown. On abe_ios16 each file sits directly in its identifier folder; two of "
+                 "the three named attachments are shown and the third file is empty in the "
+                 "extraction. On hc_ios26 the one Media file sits one folder below its identifier "
+                 "folder, and no note row there names a file, so that depth is not exercised. "
+                 "Attachment Size (as stored) renders the stored "
+                 "value as text without digit grouping or unit conversion. "
+                 "Original Notes parser by @any333.",
+        "paths": ('*/NoteStore.sqlite*',
+                  '*/Containers/Shared/AppGroup/*/Accounts/*/Media/*'),
         "output_types": "standard",
         "artifact_icon": "file-text",
         "sample_data": {
@@ -35,13 +50,23 @@ __artifacts_v2__ = {
     },
     "notesParticipants": {
         "name": "Notes - Shared Note Participants",
-        "description": "People a note is shared with, decoded from the CloudKit share record held against each invitation",
+        "description": "Participants listed in the CloudKit share record held against each note "
+                       "invitation; an owner entry in that list is reported like any other",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
-        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA. Reference: Apple CloudKit, CKShareParticipant (role/permission/acceptance enums; raw values per the CloudKit.framework SDK header), https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
+        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in "
+                 "ZICINVITATION.ZSERVERSHAREDATA. Role, Permission and Acceptance Status are "
+                 "mapped from the integers in the share record's Type, Permission and "
+                 "AcceptanceStatus keys using the raw values of CKShareParticipantRole, "
+                 "CKShareParticipantPermission and CKShareParticipantAcceptanceStatus in "
+                 "CloudKit/CKShareParticipant.h (MacOSX 27.0 SDK: role 0 Unknown, 1 Owner, 2 "
+                 "Administrator, 3 Private User, 4 Public User; permission 1 None, 2 Read Only, 3 "
+                 "Read/Write; acceptance 1 Pending, 2 Accepted, 3 Removed). A value outside those "
+                 "maps is shown as stored. Case names: "
+                 "https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -200,18 +225,22 @@ def process_note_body_blob(blob):
 @artifact_processor
 def notes(context):
     data_headers = (
-        ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
-        'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
-        'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
-        'Attachment Storage Folder', 'Attachment Size (as stored)', 'Attachment Type',
-        ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
+        ('Creation Date', 'datetime'), ('Last Modified', 'datetime'),
+        ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'),
+        'Note Title', 'Snippet', 'Note Contents', 'Folder', 'Storage Place',
+        'Password Protected', 'Password Hint', 'Marked for Deletion', 'Pinned',
+        ('Attachment', 'media'), 'Attachment Original Filename', 'Attachment Storage Folder',
+        'Attachment Size (as stored)', 'Attachment Type')
     data_list = []
     sources = []
+    all_files = [str(found) for found in context.get_files_found()]
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
+    for file_found in all_files:
         if not file_found.endswith('.sqlite'):
             continue
+        media_root = join(dirname(file_found), 'Accounts') + os.sep
+        media_files = [found for found in all_files
+                       if found.startswith(media_root) and os.path.isfile(found)]
 
         rows = get_sqlite_db_records(file_found, _query_for_db(file_found))
         # if not rows:
@@ -229,10 +258,12 @@ def notes(context):
             attachment_storage = ''
             filename, identifier = row[10], row[11]
             if filename and identifier:
-                attachment_file = join(dirname(file_found), 'Accounts/LocalAccount/Media',
-                                       identifier, filename)
-                attachment_storage = context.get_relative_path(dirname(attachment_file))
-                if os.path.exists(attachment_file):
+                marker = f'{os.sep}Media{os.sep}{identifier}{os.sep}'
+                matches = [found for found in media_files
+                           if marker in found and os.path.basename(found) == filename]
+                if len(matches) == 1:
+                    attachment_file = matches[0]
+                    attachment_storage = context.get_relative_path(dirname(attachment_file))
                     try:
                         with open(attachment_file, 'rb') as af:
                             media_ref = check_in_embedded_media(file_found, af.read(), filename)
@@ -240,13 +271,13 @@ def notes(context):
                         logfunc(f'Failed to read Notes attachment {attachment_file}: {ex}')
 
             if row[12] is not None:
-                filesize = '.'.join(str(row[12])[i:i + 3] for i in range(0, len(str(row[12])), 3))
+                filesize = str(row[12])
             else:
                 filesize = ''
 
-            data_list.append((row[0], row[1], row[2], text_content, row[3], row[4], row[5],
-                              row[6], row[7], row[8], row[9], media_ref, row[10],
-                              attachment_storage, filesize, row[13], row[14], row[15]))
+            data_list.append((row[0], row[5], row[14], row[15], row[1], row[2], text_content,
+                              row[3], row[4], row[6], row[7], row[8], row[9], media_ref,
+                              row[10], attachment_storage, filesize, row[13]))
 
         sources.append(context.get_relative_path(file_found))
 

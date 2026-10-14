@@ -7,7 +7,12 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it holds the trusted, untrusted and low quality timelines.',
+        'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it '
+                 'holds the trusted, untrusted and low quality timelines, and the Timeline column '
+                 'names which of those three archive keys a conversation came from. From Me is '
+                 'computed by this module: 1 when the entry\'s sender user id equals the user id '
+                 'in the archive\'s inbox context, and 0 in every other case, including an entry '
+                 'with no sender id.',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.atebits.tweetie.direct-message.cache/*',),
         'output_types': 'all',
         'artifact_icon': 'message',
@@ -50,7 +55,9 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': 'Cached objects are gzip compressed JSON stored in the Items table.',
+        'notes': 'Cached objects are gzip compressed JSON stored in the Items table. A key with '
+                 'no stored object, or one that does not decode, gives no row and is counted in '
+                 'the run log. One modelCache.sqlite3 is read.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'brand-twitter',
@@ -362,14 +369,18 @@ def _projected(value):
 @artifact_processor
 def twitterTweets(context):
     source_path = get_file_path(context.get_files_found(), 'modelCache.sqlite3')
-    data_list = []
     data_headers = (
         ('Posted', 'datetime'), ('Cache Updated', 'datetime'), 'Text',
         'Author User ID', 'Language', 'Replies', 'Retweets', 'Quotes',
         'Bookmarks', 'Views', 'Possibly Sensitive', 'Quoted Post URL',
         'Conversation ID', 'Post ID')
     if not source_path:
-        return data_headers, data_list, ''
+        return data_headers, [], ''
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source_path,
+    )
 
     for uid, model in _iter_cached_models(source_path, MODEL_TYPE_STATUS):
         view_count = model.get('viewCountInfo')
@@ -377,7 +388,7 @@ def twitterTweets(context):
         posted = model.get('date')
         updated = model.get('updatedTimestamp')
 
-        data_list.append((
+        results.add_row((
             convert_cocoa_core_data_ts_to_utc(posted) if isinstance(posted, (int, float)) else '',
             convert_cocoa_core_data_ts_to_utc(updated) if isinstance(updated, (int, float)) else '',
             model.get('originalText'),
@@ -394,7 +405,7 @@ def twitterTweets(context):
             uid,
         ))
 
-    return data_headers, data_list, source_path
+    return results
 
 
 @artifact_processor

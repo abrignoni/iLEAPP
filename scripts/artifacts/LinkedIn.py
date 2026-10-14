@@ -10,20 +10,21 @@
 __artifacts_v2__ = {    
     "linkedin_account": {
         "name": "LinkedIn - Account",
-        "description": "Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[Public Identifier])",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "description": 'Member identifier and profile fields from the voy.authenticatedMemberId and voy.authenticatedDashProfileModel keys of the LinkedIn preferences plist. A plist lacking both keys, or whose root is not a dictionary, produces no row; the existing six-field projection is retained when either key is present.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2024-10-01",
-        "last_update_date": "2026-06-15",
+        "last_update_date": '2026-10-09',
         "requirements": "ccl_bplist",
         "category": "LinkedIn",
-        "notes": "",
+        "notes": 'Row retention tests presence of the two top-level keys, not truthiness or presence of every nested field. A present empty, null or partial profile value retains the existing projection and can still produce blank cells. A decoded root that is not a dictionary produces no row. A row does not establish an account, authentication or ownership. Original contribution: Marco Neumann (kalinko@be-binary.de).',
         "paths": ('*/Library/Preferences/com.linkedin.LinkedIn.plist'),
         "output_types": "html",
         "artifact_icon": "user"
     },
     "linkedin_messages": {
         "name": "LinkedIn - Messages",
-        "description": "Messages sent and received in the LinkedIn App.",
+        "description": "Messages stored in the LinkedIn app's msg_database.sqlite, with the sender "
+                       "fields each message record carries. Delivery Status is reported as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
         "last_update_date": "2026-06-15",
@@ -39,10 +40,18 @@ __artifacts_v2__ = {
         "description": "LinkedIn Conversations",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
-        "last_update_date": "2026-06-15",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "LinkedIn",
-        "notes": "Messages threaded",
+        "notes": "Messages with their conversation record where one exists. Sent is 1 when the "
+                 "sender's distance value in the message record is SELF and 0 otherwise; no other "
+                 "field was used to confirm direction. A message whose conversationUrn has no row "
+                 "in the conversations table is reported with a blank Conversation Name. "
+                 "Conversation Name lists, separated by commas, the first and last name of each "
+                 "member in the conversation record's conversationParticipants whose distance "
+                 "value is not SELF; a participant stored with no member name is not listed, and "
+                 "the column is blank when none is. No registered corpus holds this database; the "
+                 "query was run on a constructed database only.",
         "paths": ('*/Documents/msg_database.sqlite*'),
         "output_types": "all", 
         "data_views": {
@@ -98,7 +107,10 @@ def linkedin_account(context):
     except (IndexError, TypeError, KeyError):
         public_identifier = ''
 
-    data_list.append((member_id, lastname, firstname, headline, location, public_identifier))
+    if isinstance(bplist_data, dict) and (
+            'voy.authenticatedMemberId' in bplist_data
+            or 'voy.authenticatedDashProfileModel' in bplist_data):
+        data_list.append((member_id, lastname, firstname, headline, location, public_identifier))
 
     return data_headers, data_list, source_path
 
@@ -156,15 +168,15 @@ def linkedin_conversations(context):
         ELSE 0
         END [Sent],
 		json_extract(serializedMessage, '$.body.text') [message], 
-		CASE WHEN json_extract(serializedConversation, '$.conversationParticipants[0].participantType.member.distance') = 'SELF'
-        THEN CONCAT (json_extract(serializedConversation, '$.conversationParticipants[1].participantType.member.firstName.text'), ' ', 
-		        json_extract(serializedConversation, '$.conversationParticipants[1].participantType.member.lastName.text'))
-        ELSE CONCAT (json_extract(serializedConversation, '$.conversationParticipants[0].participantType.member.firstName.text'), ' ', 
-		        json_extract(serializedConversation, '$.conversationParticipants[0].participantType.member.lastName.text'))
-        END [data-name],
+		(SELECT group_concat(participant_name, ', ') FROM (
+            SELECT trim(coalesce(json_extract(p.value, '$.participantType.member.firstName.text'), '') || ' ' ||
+                        coalesce(json_extract(p.value, '$.participantType.member.lastName.text'), '')) AS participant_name
+            FROM json_each(c.serializedConversation, '$.conversationParticipants') p
+            WHERE coalesce(json_extract(p.value, '$.participantType.member.distance'), '') != 'SELF')
+         WHERE participant_name != '') [data-name],
 		messages.conversationUrn [conversationUrn]
         FROM messages
-		INNER JOIN conversations c on messages.conversationUrn = c.conversationUrn
+		LEFT JOIN conversations c on messages.conversationUrn = c.conversationUrn
     ''')
 
     db_records = get_sqlite_db_records(source_path, query)
@@ -173,7 +185,7 @@ def linkedin_conversations(context):
     for record in db_records:
         delivery_date = convert_unix_ts_to_utc(record[0])
         conversation_urn = record[5]
-        conversation_label = record[4]
+        conversation_label = record[4] or ''
         message = record[3]
         sent = record[2]
         sender_name = record[1]

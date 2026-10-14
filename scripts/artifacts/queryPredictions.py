@@ -1,25 +1,23 @@
 __artifacts_v2__ = {
     "queryPredictions": {
         "name": "Query Predictions",
-        "description": "Message query predictions from query_predictions.db",
-        "author": "@abrignoni",
+        "description": "Rows of the messages table in query_predictions.db",
+        "author": "@abrignoni; @AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "SMS & iMessage",
-        "notes": "The query_predictions.db file is absent from every registered corpus image and public path listing checked (iOS 12.4-26.5.2) and from all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected.",
+        "notes": (
+            "No sample data is recorded for this artifact, and its query has not been run against "
+            "a real query_predictions.db. creationTimestamp is read as Unix seconds; this reading "
+            "has not been checked against a real database. isSent (as stored) carries the selected "
+            "database value without a sent or received interpretation. No conversation direction "
+            "mapping is declared because the meaning of isSent has not been established. Only the "
+            "first query_predictions.db found is read."
+        ),
         "paths": ('**/query_predictions.db*',),
         "output_types": "standard",
         "artifact_icon": "message",
-        "data_views": {
-            "conversation": {
-                "conversationDiscriminatorColumn": "Conversation ID",
-                "textColumn": "Content",
-                "directionColumn": "Is Sent?",
-                "directionSentValue": 1,
-                "timeColumn": "Timestamp"
-            }
-        },
     }
 }
 
@@ -28,7 +26,7 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
 @artifact_processor
 def queryPredictions(context):
-    data_headers = (('Timestamp', 'datetime'), 'Is Sent?', 'Content', 'Conversation ID', 'ID', 'UUID')
+    data_headers = (('Timestamp', 'datetime'), 'isSent (as stored)', 'Content', 'Conversation ID', 'ID', 'UUID')
     data_list = []
 
     source_path = ''

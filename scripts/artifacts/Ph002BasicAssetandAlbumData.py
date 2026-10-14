@@ -1,21 +1,27 @@
 __artifacts_v2__ = {
 'Ph002_1AssetBasicGenAlbumDataPhDaPsql': {
 'name': 'Ph002.1-Asset Basic Data & GenAlbum Data-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for basic asset and album data.'
-' The results may contain multiple records per ZASSET table Z_PK value and supports iOS.'
-' Use 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
-' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
-' Shared with You Conversation Identifiers Assets.'
+'description': 'Parses asset rows and their album membership from PhotoData/Photos.sqlite (ZASSET, or'
+' ZGENERICASSET on iOS 11 to 13). The code has branches for iOS 11 through 26; the iOS 26 branch'
+' has no recorded sample. An asset in more than one album appears on more than one row. Use'
+' 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets. Use'
+' 1505-Shared-Album-1505 in the search box to view Shared Albums Assets. Use'
+' 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You Conversation'
+' Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value, except the has_Plist and'
+' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
+' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
+' 10 are interpretations with no cited source. The store records the state value. It does not'
+' record who changed it.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -39,22 +45,26 @@ __artifacts_v2__ = {
 },
 'Ph002_2AssetBasicConversationDataSyndPL': {
 'name': 'Ph002.2-Asset Basic Data & Convers Data-SyndPL',
-'description': 'Parses basic asset row data from -Syndication.photoslibrary-database-Photos.sqlite'
-' for basic asset and album data. The results may contain multiple records'
-' per ZASSET table Z_PK value and supports iOS.'
-' Use -Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
-' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
-' Shared with You Conversation Identifiers Assets.'
+'description': 'Parses asset rows and their album and conversation data from'
+' Syndication.photoslibrary/database/Photos.sqlite. The code has branches for iOS 11 through 26.'
+' An asset can appear on more than one row. Use 2-Non-Shared-Album-2 in the search box to view'
+' Non-Shared Albums Assets. Use 1505-Shared-Album-1505 in the search box to view Shared Albums'
+' Assets. Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You'
+' Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value, except the has_Plist and'
+' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
+' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
+' 10 are interpretations with no cited source. The store records the state value. It does not'
+' record who changed it.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -75,21 +85,26 @@ __artifacts_v2__ = {
 },
 'Ph002_3AssetBasicGenAlbumGenPlayPsql': {
 'name': 'Ph002.3-Asset Basic Data & GenAlbum Data-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for basic asset and album data.'
-' The results may contain multiple records per ZASSET table Z_PK value and supports iOS.'
-' Use 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
-' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
-' Shared with You Conversation Identifiers Assets.'
+'description': 'Parses asset rows and their album membership from the Photos.sqlite of the'
+' com.apple.GenerativePlayground photo library on iOS 18 through 26. An asset in more than one'
+' album appears on more than one row. Use 2-Non-Shared-Album-2 in the search box to view'
+' Non-Shared Albums Assets. Use 1505-Shared-Album-1505 in the search box to view Shared Albums'
+' Assets. Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You'
+' Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value, except the has_Plist and'
+' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
+' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
+' 10 are interpretations with no cited source. The store records the state value. It does not'
+' record who changed it.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "player-play",
@@ -117,6 +132,9 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -194,7 +212,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zCldMast.ZCLOUDLOCALSTATE || ''
         END AS 'zCldMast-Cloud Local State',
         DateTime(zCldMast.ZIMPORTDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Import Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -258,7 +276,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',       
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -297,7 +315,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-Camera Captured Device-17',
         'zCldMast-Cloud Local State-18',
         ('zCldMast-Import Date-19', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-20',
+        'zCldMast-Import Session ID-20',
         ('zAsset-Cloud Batch Publish Date-21', 'datetime'),
         ('zAsset-Cloud Server Publish Date-22', 'datetime'),
         'zAsset-Cloud Download Requests-23',
@@ -323,7 +341,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zGenAlbum-Cloud GUID-43',
         'zAsset-zPK-44',
         'zAddAssetAttr-zPK-45',
-        'zAsset-UUID = store.cloudphotodb-46',
+        'zAsset-UUID-46',
         'zAddAssetAttr-Master Fingerprint-47')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -403,7 +421,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zCldMast.ZCLOUDLOCALSTATE || ''
         END AS 'zCldMast-Cloud Local State',
         DateTime(zCldMast.ZIMPORTDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Import Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -467,7 +485,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',       
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -506,7 +524,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-Camera Captured Device-17',
         'zCldMast-Cloud Local State-18',
         ('zCldMast-Import Date-19', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-20',
+        'zCldMast-Import Session ID-20',
         ('zAsset-Cloud Batch Publish Date-21', 'datetime'),
         ('zAsset-Cloud Server Publish Date-22', 'datetime'),
         'zAsset-Cloud Download Requests-23',
@@ -532,7 +550,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zGenAlbum-Cloud GUID-43',
         'zAsset-zPK-44',
         'zAddAssetAttr-zPK-45',
-        'zAsset-UUID = store.cloudphotodb-46',
+        'zAsset-UUID-46',
         'zAddAssetAttr-Master Fingerprint-47')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -643,7 +661,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -735,7 +753,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -791,7 +809,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-27', 'datetime'),
         'zAddAssetAttr-Import Session ID-28',
         ('zAddAssetAttr-Alt Import Image Date-29', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-30',
+        'zCldMast-Import Session ID-30',
         ('zAsset-Cloud Batch Publish Date-31', 'datetime'),
         ('zAsset-Cloud Server Publish Date-32', 'datetime'),
         'zAsset-Cloud Download Requests-33',
@@ -825,7 +843,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zGenAlbum-Cloud GUID-61',
         'zAsset-zPK-62',
         'zAddAssetAttr-zPK-63',
-        'zAsset-UUID = store.cloudphotodb-64',
+        'zAsset-UUID-64',
         'zAddAssetAttr-Master Fingerprint-65')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -944,7 +962,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -1042,7 +1060,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'       
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1102,7 +1120,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-31', 'datetime'),
         'zAddAssetAttr-Import Session ID-32',
         ('zAddAssetAttr-Alt Import Image Date-33', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-34',
+        'zCldMast-Import Session ID-34',
         ('zAsset-Cloud Batch Publish Date-35', 'datetime'),
         ('zAsset-Cloud Server Publish Date-36', 'datetime'),
         'zAsset-Cloud Download Requests-37',
@@ -1139,7 +1157,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zGenAlbum-Cloud GUID-68',
         'zAsset-zPK-69',
         'zAddAssetAttr-zPK-70',
-        'zAsset-UUID = store.cloudphotodb-71',
+        'zAsset-UUID-71',
         'zAddAssetAttr-Master Fingerprint-72')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1173,11 +1191,11 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -1271,7 +1289,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -1376,7 +1394,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'        
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1442,7 +1460,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-35', 'datetime'),
         'zAddAssetAttr-Import Session ID-36',
         ('zAddAssetAttr-Alt Import Image Date-37', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-38',
+        'zCldMast-Import Session ID-38',
         ('zAsset-Cloud Batch Publish Date-39', 'datetime'),
         ('zAsset-Cloud Server Publish Date-40', 'datetime'),
         'zAsset-Cloud Download Requests-41',
@@ -1480,7 +1498,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zGenAlbum-Cloud GUID-73',
         'zAsset-zPK-74',
         'zAddAssetAttr-zPK-75',
-        'zAsset-UUID = store.cloudphotodb-76',
+        'zAsset-UUID-76',
         'zAddAssetAttr-Master Fingerprint-77')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1514,11 +1532,11 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -1613,7 +1631,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -1723,7 +1741,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'       
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1790,7 +1808,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-36', 'datetime'),
         'zAddAssetAttr-Import Session ID-37',
         ('zAddAssetAttr-Alt Import Image Date-38', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-39',
+        'zCldMast-Import Session ID-39',
         ('zAsset-Cloud Batch Publish Date-40', 'datetime'),
         ('zAsset-Cloud Server Publish Date-41', 'datetime'),
         'zAsset-Cloud Download Requests-42',
@@ -1829,7 +1847,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-75',
         'zAsset-zPK-76',
         'zAddAssetAttr-zPK-77',
-        'zAsset-UUID = store.cloudphotodb-78',
+        'zAsset-UUID-78',
         'zAddAssetAttr-Master Fingerprint-79')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1864,11 +1882,11 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -1963,7 +1981,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -2073,7 +2091,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'        
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -2086,7 +2104,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
             LEFT JOIN ZGENERICALBUM SWYConverszGenAlbum ON SWYConverszGenAlbum.Z_PK = zAsset.ZCONVERSATION
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, z28Assets.rowid, zGenAlbum.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, SWYConverszGenAlbum.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -2141,7 +2159,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-37', 'datetime'),
         'zAddAssetAttr-Import Session ID-38',
         ('zAddAssetAttr-Alt Import Image Date-39', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-40',
+        'zCldMast-Import Session ID-40',
         ('zAsset-Cloud Batch Publish Date-41', 'datetime'),
         ('zAsset-Cloud Server Publish Date-42', 'datetime'),
         'zAsset-Cloud Download Requests-43',
@@ -2180,7 +2198,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-76',
         'zAsset-zPK-77',
         'zAddAssetAttr-zPK-78',
-        'zAsset-UUID = store.cloudphotodb-79',
+        'zAsset-UUID-79',
         'zAddAssetAttr-Master Fingerprint-80')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -2215,11 +2233,11 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -2314,7 +2332,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -2424,7 +2442,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'        
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -2492,7 +2510,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-37', 'datetime'),
         'zAddAssetAttr-Import Session ID-38',
         ('zAddAssetAttr-Alt Import Image Date-39', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-40',
+        'zCldMast-Import Session ID-40',
         ('zAsset-Cloud Batch Publish Date-41', 'datetime'),
         ('zAsset-Cloud Server Publish Date-42', 'datetime'),
         'zAsset-Cloud Download Requests-43',
@@ -2531,7 +2549,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-76',
         'zAsset-zPK-77',
         'zAddAssetAttr-zPK-78',
-        'zAsset-UUID = store.cloudphotodb-79',
+        'zAsset-UUID-79',
         'zAddAssetAttr-Master Fingerprint-80')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -2566,11 +2584,11 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -2671,7 +2689,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -2781,7 +2799,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -2853,7 +2871,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39', 'datetime'),
         'zAddAssetAttr-Import Session ID-40',
         ('zAddAssetAttr-Alt Import Image Date-41', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+        'zCldMast-Import Session ID-42',
         ('zAsset-Cloud Batch Publish Date-43', 'datetime'),
         ('zAsset-Cloud Server Publish Date-44', 'datetime'),
         'zAsset-Cloud Download Requests-45',
@@ -2892,7 +2910,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-78',
         'zAsset-zPK-79',
         'zAddAssetAttr-zPK-80',
-        'zAsset-UUID = store.cloudphotodb-81',
+        'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -2928,11 +2946,11 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -3033,7 +3051,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -3143,7 +3161,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -3215,7 +3233,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39', 'datetime'),
         'zAddAssetAttr-Import Session ID-40',
         ('zAddAssetAttr-Alt Import Image Date-41', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+        'zCldMast-Import Session ID-42',
         ('zAsset-Cloud Batch Publish Date-43', 'datetime'),
         ('zAsset-Cloud Server Publish Date-44', 'datetime'),
         'zAsset-Cloud Download Requests-45',
@@ -3254,7 +3272,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-78',
         'zAsset-zPK-79',
         'zAddAssetAttr-zPK-80',
-        'zAsset-UUID = store.cloudphotodb-81',
+        'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
@@ -3275,6 +3293,9 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
@@ -3352,7 +3373,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
             ELSE 'Unknown-New-Value!: ' || zCldMast.ZCLOUDLOCALSTATE || ''
         END AS 'zCldMast-Cloud Local State',
         DateTime(zCldMast.ZIMPORTDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Import Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -3416,7 +3437,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',       
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON
@@ -3456,7 +3477,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-Camera Captured Device-17',
         'zCldMast-Cloud Local State-18',
         ('zCldMast-Import Date-19', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-20',
+        'zCldMast-Import Session ID-20',
         ('zAsset-Cloud Batch Publish Date-21', 'datetime'),
         ('zAsset-Cloud Server Publish Date-22', 'datetime'),
         'zAsset-Cloud Download Requests-23',
@@ -3482,7 +3503,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zGenAlbum-Cloud GUID-43',
         'zAsset-zPK-44',
         'zAddAssetAttr-zPK-45',
-        'zAsset-UUID = store.cloudphotodb-46',
+        'zAsset-UUID-46',
         'zAddAssetAttr-Master Fingerprint-47')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -3562,7 +3583,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
             ELSE 'Unknown-New-Value!: ' || zCldMast.ZCLOUDLOCALSTATE || ''
         END AS 'zCldMast-Cloud Local State',
         DateTime(zCldMast.ZIMPORTDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Import Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -3626,7 +3647,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',       
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON
@@ -3666,7 +3687,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-Camera Captured Device-17',
         'zCldMast-Cloud Local State-18',
         ('zCldMast-Import Date-19', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-20',
+        'zCldMast-Import Session ID-20',
         ('zAsset-Cloud Batch Publish Date-21', 'datetime'),
         ('zAsset-Cloud Server Publish Date-22', 'datetime'),
         'zAsset-Cloud Download Requests-23',
@@ -3692,7 +3713,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zGenAlbum-Cloud GUID-43',
         'zAsset-zPK-44',
         'zAddAssetAttr-zPK-45',
-        'zAsset-UUID = store.cloudphotodb-46',
+        'zAsset-UUID-46',
         'zAddAssetAttr-Master Fingerprint-47')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -3803,7 +3824,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -3895,7 +3916,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON
@@ -3952,7 +3973,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-27', 'datetime'),
         'zAddAssetAttr-Import Session ID-28',
         'zAddAssetAttr-Alt Import Image Date-29',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-30',
+        'zCldMast-Import Session ID-30',
         ('zAsset-Cloud Batch Publish Date-31', 'datetime'),
         ('zAsset-Cloud Server Publish Date-32', 'datetime'),
         'zAsset-Cloud Download Requests-33',
@@ -3986,7 +4007,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zGenAlbum-Cloud GUID-61',
         'zAsset-zPK-62',
         'zAddAssetAttr-zPK-63',
-        'zAsset-UUID = store.cloudphotodb-64',
+        'zAsset-UUID-64',
         'zAddAssetAttr-Master Fingerprint-65')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -4105,7 +4126,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -4203,7 +4224,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'       
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON
@@ -4263,7 +4284,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-31', 'datetime'),
         'zAddAssetAttr-Import Session ID-32',
         ('zAddAssetAttr-Alt Import Image Date-33', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-34',
+        'zCldMast-Import Session ID-34',
         ('zAsset-Cloud Batch Publish Date-35', 'datetime'),
         ('zAsset-Cloud Server Publish Date-36', 'datetime'),
         'zAsset-Cloud Download Requests-37',
@@ -4300,7 +4321,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zGenAlbum-Cloud GUID-68',
         'zAsset-zPK-69',
         'zAddAssetAttr-zPK-70',
-        'zAsset-UUID = store.cloudphotodb-71',
+        'zAsset-UUID-71',
         'zAddAssetAttr-Master Fingerprint-72')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -4334,11 +4355,11 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -4432,7 +4453,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -4537,7 +4558,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'        
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON
@@ -4604,7 +4625,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-35', 'datetime'),
         'zAddAssetAttr-Import Session ID-36',
         ('zAddAssetAttr-Alt Import Image Date-37', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-38',
+        'zCldMast-Import Session ID-38',
         ('zAsset-Cloud Batch Publish Date-39', 'datetime'),
         ('zAsset-Cloud Server Publish Date-40', 'datetime'),
         'zAsset-Cloud Download Requests-41',
@@ -4642,7 +4663,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zGenAlbum-Cloud GUID-73',
         'zAsset-zPK-74',
         'zAddAssetAttr-zPK-75',
-        'zAsset-UUID = store.cloudphotodb-76',
+        'zAsset-UUID-76',
         'zAddAssetAttr-Master Fingerprint-77')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -4676,11 +4697,11 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -4775,7 +4796,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -4885,7 +4906,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'       
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON
@@ -4953,7 +4974,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-36', 'datetime'),
         'zAddAssetAttr-Import Session ID-37',
         ('zAddAssetAttr-Alt Import Image Date-38', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-39',
+        'zCldMast-Import Session ID-39',
         ('zAsset-Cloud Batch Publish Date-40', 'datetime'),
         ('zAsset-Cloud Server Publish Date-41', 'datetime'),
         ('zAsset-Cloud Download Requests-42', 'datetime'),
@@ -4992,7 +5013,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-Active Library Scope Participation State-75',
         'zAsset-zPK-76',
         'zAddAssetAttr-zPK-77',
-        'zAsset-UUID = store.cloudphotodb-78',
+        'zAsset-UUID-78',
         'zAddAssetAttr-Master Fingerprint-79')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -5027,11 +5048,11 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -5126,7 +5147,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -5236,7 +5257,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'        
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -5249,7 +5270,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
             LEFT JOIN ZGENERICALBUM SWYConverszGenAlbum ON SWYConverszGenAlbum.Z_PK = zAsset.ZCONVERSATION
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, z28Assets.rowid, zGenAlbum.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, SWYConverszGenAlbum.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -5304,7 +5325,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-37', 'datetime'),
         'zAddAssetAttr-Import Session ID-38',
         ('zAddAssetAttr-Alt Import Image Date-39', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-40',
+        'zCldMast-Import Session ID-40',
         ('zAsset-Cloud Batch Publish Date-41', 'datetime'),
         ('zAsset-Cloud Server Publish Date-42', 'datetime'),
         'zAsset-Cloud Download Requests-43',
@@ -5343,7 +5364,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-Active Library Scope Participation State-76',
         'zAsset-zPK-77',
         'zAddAssetAttr-zPK-78',
-        'zAsset-UUID = store.cloudphotodb-79',
+        'zAsset-UUID-79',
         'zAddAssetAttr-Master Fingerprint-80')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -5378,11 +5399,11 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -5477,7 +5498,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -5587,7 +5608,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'        
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -5655,7 +5676,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-37', 'datetime'),
         'zAddAssetAttr-Import Session ID-38',
         ('zAddAssetAttr-Alt Import Image Date-39', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-40',
+        'zCldMast-Import Session ID-40',
         ('zAsset-Cloud Batch Publish Date-41', 'datetime'),
         ('zAsset-Cloud Server Publish Date-42', 'datetime'),
         'zAsset-Cloud Download Requests-43',
@@ -5694,7 +5715,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-Active Library Scope Participation State-76',
         'zAsset-zPK-77',
         'zAddAssetAttr-zPK-78',
-        'zAsset-UUID = store.cloudphotodb-79',
+        'zAsset-UUID-79',
         'zAddAssetAttr-Master Fingerprint-80')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -5729,11 +5750,11 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -5834,7 +5855,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -5944,7 +5965,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'    
         FROM ZASSET zAsset
@@ -6016,7 +6037,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39', 'datetime'),
         'zAddAssetAttr-Import Session ID-40',
         ('zAddAssetAttr-Alt Import Image Date-41', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+        'zCldMast-Import Session ID-42',
         ('zAsset-Cloud Batch Publish Date-43', 'datetime'),
         ('zAsset-Cloud Server Publish Date-44', 'datetime'),
         'zAsset-Cloud Download Requests-45',
@@ -6055,7 +6076,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-Active Library Scope Participation State-78',
         'zAsset-zPK-79',
         'zAddAssetAttr-zPK-80',
-        'zAsset-UUID = store.cloudphotodb-81',
+        'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
@@ -6091,11 +6112,11 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -6196,7 +6217,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -6306,7 +6327,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'    
         FROM ZASSET zAsset
@@ -6378,7 +6399,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39', 'datetime'),
         'zAddAssetAttr-Import Session ID-40',
         ('zAddAssetAttr-Alt Import Image Date-41', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+        'zCldMast-Import Session ID-42',
         ('zAsset-Cloud Batch Publish Date-43', 'datetime'),
         ('zAsset-Cloud Server Publish Date-44', 'datetime'),
         'zAsset-Cloud Download Requests-45',
@@ -6417,7 +6438,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-Active Library Scope Participation State-78',
         'zAsset-zPK-79',
         'zAddAssetAttr-zPK-80',
-        'zAsset-UUID = store.cloudphotodb-81',
+        'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
@@ -6438,6 +6459,9 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -6470,11 +6494,11 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -6575,7 +6599,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -6685,7 +6709,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'    
         FROM ZASSET zAsset
@@ -6757,7 +6781,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39', 'datetime'),
         'zAddAssetAttr-Import Session ID-40',
         ('zAddAssetAttr-Alt Import Image Date-41', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+        'zCldMast-Import Session ID-42',
         ('zAsset-Cloud Batch Publish Date-43', 'datetime'),
         ('zAsset-Cloud Server Publish Date-44', 'datetime'),
         'zAsset-Cloud Download Requests-45',
@@ -6796,7 +6820,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         'zAsset-Active Library Scope Participation State-78',
         'zAsset-zPK-79',
         'zAddAssetAttr-zPK-80',
-        'zAsset-UUID = store.cloudphotodb-81',
+        'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -6832,11 +6856,11 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
@@ -6937,7 +6961,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
         DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
          AS 'zAddAssetAttr-Alt Import Image Date',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
         DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
         zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
@@ -7047,7 +7071,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         END AS 'zAsset-Active Library Scope Participation State',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'    
         FROM ZASSET zAsset
@@ -7119,7 +7143,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39', 'datetime'),
         'zAddAssetAttr-Import Session ID-40',
         ('zAddAssetAttr-Alt Import Image Date-41', 'datetime'),
-        'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+        'zCldMast-Import Session ID-42',
         ('zAsset-Cloud Batch Publish Date-43', 'datetime'),
         ('zAsset-Cloud Server Publish Date-44', 'datetime'),
         'zAsset-Cloud Download Requests-45',
@@ -7158,7 +7182,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         'zAsset-Active Library Scope Participation State-78',
         'zAsset-zPK-79',
         'zAddAssetAttr-zPK-80',
-        'zAsset-UUID = store.cloudphotodb-81',
+        'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

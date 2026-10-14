@@ -1,13 +1,20 @@
 __artifacts_v2__ = {
     "duetlocations": {
         "name": "Duet Locations",
-        "description": "Location records from the DuetExpertCenter location stream (SEGB)",
+        "description": "Location records decoded from the DuetExpertCenter location stream (SEGB) "
+                       "files",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Geolocation",
-        "notes": "",
+        "notes": "One row per record that decodes to a plist holding a latitude and a longitude; "
+                 "other records are skipped. Timestamp is the record's "
+                 "kCLLocationCodingKeyTimestamp read as seconds since 2001-01-01 UTC. The SEGB "
+                 "entry times and entry state are not reported. Rows were produced on the two iOS "
+                 "16.5 test images only (abe_ios16 and felix23_ios16); the iOS 16.1.1, 17 and 18 "
+                 "test images listed in sample_data gave no rows, and whether their files hold "
+                 "records this reader does not read was not established.",
         "paths": ('*/DuetExpertCenter/streams/location/local/*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -49,7 +56,7 @@ def duetlocations(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
-        if filename.startswith('.') or not os.path.isfile(file_found) or 'tombstone' in file_found:
+        if filename.startswith('.') or not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
             continue
         with open(file_found, 'rb') as f:
             data = f.read()

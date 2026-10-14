@@ -4,10 +4,33 @@ __artifacts_v2__ = {
         "description": "Extract Call History",
         "author": "@AlexisBrignoni - @JohnHyla",
         "creation_date": "2020-04-30",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Call History",
-        "notes": "Call type and disconnected-cause value mappings are community-established decodes reported as observed; unrecognized values are reported as stored.",
+        "notes": 'Call Type shows \'Third-Party App\', \'Phone Call\', \'FaceTime Video\' and '
+                 '\'FaceTime Audio\' for the stored values 0, 1, 8 and 16. Disconnected Cause shows '
+                 '\'Ended\' for 0 and \'Rejected\' for 6, and for WhatsApp calls applies its own '
+                 'rules from the cause, the duration and the direction. No source for these '
+                 'mappings is cited, so treat the labels as unconfirmed; other values are reported '
+                 'as stored. Ending Timestamp is the start time plus the stored duration; it is not '
+                 'a stored value and is blank when the duration is 0. On a store in the old '
+                 'call_history.db format the Answered column is filled from that store\'s read '
+                 'column; no registered image is recorded as exercising that path. When both '
+                 'CallHistory.storedata and CallHistoryTemp.storedata hold records, rows from both '
+                 'are reported with a Source File path column and the report names both stores. '
+                 'That path was exercised on a constructed tree with the same records under both '
+                 'names; which registered corpora were checked for both stores holding records is '
+                 'not recorded here. A tested iOS 26.5 store carries four more columns in '
+                 'ZCALLRECORD that are read here when present and left blank on older stores that '
+                 'lack them: Auto-Answered Reason and Communication Trust Score are reported as '
+                 'stored, and Originating Device Name and Blocked By Extension Name are reported as '
+                 'stored. What sets the Auto-Answered Reason value was not established; the meaning '
+                 'of the Auto-Answered Reason integer is reported as stored and not otherwise '
+                 'interpreted. On that iOS 26.5 sample, which is not among the images in '
+                 'sample_data, the auto-answered reason and communication trust score columns held '
+                 'values, while the originating device name and blocked-by-extension name columns '
+                 'were present in the schema but empty, so those two are code-present and '
+                 'unexercised on that sample.',
         "paths": (
             '*/mobile/Library/CallHistoryDB/CallHistory*',
             '*/mobile/Library/CallHistoryDB/call_history.db*'),
@@ -38,7 +61,12 @@ __artifacts_v2__ = {
 # The Call Ending Timestamp provides an "at-a-glance" review of call lengths during analysis and review
 # Additional details published within "Maximizing iOS Call Log Timestamps and Call Duration Effectiveness: Will You Answer the Call?" at https://sqlmcgee.wordpress.com/2022/11/30/maximizing-ios-call-log-timestamps-and-call-duration-effectiveness-will-you-answer-the-call/
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc, does_column_exist_in_db
+
+# Columns added to ZCALLRECORD in newer iOS (26). Selected only when present so
+# older CallHistory.storedata schemas keep parsing.
+_IOS26_CALL_COLUMNS = ('ZAUTOANSWEREDREASON', 'ZCOMMUNICATIONTRUSTSCORE',
+                       'ZORIGINATINGDEVICENAME', 'ZBLOCKEDBYEXTENSIONNAME')
 
 @artifact_processor
 def callHistory(context):
@@ -89,6 +117,7 @@ def callHistory(context):
     END ZDISCONNECTED_CAUSE,
     upper(ZISO_COUNTRY_CODE),
     ZLOCATION
+    __IOS26_COLUMNS__
     from ZCALLRECORD
     '''
 
@@ -117,9 +146,23 @@ def callHistory(context):
     face_time_data,
     'N/A' as ZDISCONNECTED_CAUSE,
     country_code,
-    'N/A' as ZLOCATION
+    'N/A' as ZLOCATION,
+    NULL as ZAUTOANSWEREDREASON,
+    NULL as ZCOMMUNICATIONTRUSTSCORE,
+    NULL as ZORIGINATINGDEVICENAME,
+    NULL as ZBLOCKEDBYEXTENSIONNAME
     from call
     '''
+
+    # Build the newer-iOS column list, using NULL for any column a given schema
+    # does not have, so the same query runs against old and new stores alike.
+    schema_ref = db_path or temp_db_path
+    extra_columns = ''
+    if schema_ref:
+        parts = [col if does_column_exist_in_db(schema_ref, 'ZCALLRECORD', col)
+                 else f'NULL as {col}' for col in _IOS26_CALL_COLUMNS]
+        extra_columns = ', ' + ', '.join(parts)
+    query = query.replace('__IOS26_COLUMNS__', extra_columns)
 
     # NOTE: I think it could be changed for a better pattern, for the moment
     #   I'm just list()-ing everything to keep the logic working.
@@ -129,7 +172,7 @@ def callHistory(context):
     temp_db_records = list( get_sqlite_db_records(temp_db_path, query) )
     if db_path or temp_db_path:
         if db_records and temp_db_records:
-            source_path = "Source file path in the report below"
+            source_path = '\n'.join([db_path, temp_db_path])
             records_in_both_db = True
             records = [tuple(list(record) + [db_path]) for record in db_records] + [tuple(list(record) + [temp_db_path]) for record in temp_db_records]
         else:
@@ -151,10 +194,11 @@ def callHistory(context):
 
         facetime_data = convert_bytes_to_unit(record[8])
 
-        record_data = [starting_time, ending_time, record[2], record[3], record[4], an, record[6], 
-                            record[7], facetime_data, record[9], record[10], record[11]]
+        record_data = [starting_time, ending_time, record[2], record[3], record[4], an, record[6],
+                            record[7], facetime_data, record[9], record[10], record[11],
+                            record[12], record[13], record[14], record[15]]
         if records_in_both_db:
-            record_data.append(record[12])
+            record_data.append(record[16])
         data_list.append(tuple(record_data))
 
     headers = [
@@ -167,9 +211,13 @@ def callHistory(context):
         'Answered', 
         'Call Duration', 
         'FaceTime Data', 
-        'Disconnected Cause', 
-        'ISO Country Code', 
-        'Location'
+        'Disconnected Cause',
+        'ISO Country Code',
+        'Location',
+        'Auto-Answered Reason (as stored)',
+        'Communication Trust Score (as stored)',
+        'Originating Device Name',
+        'Blocked By Extension Name'
         ]
     if records_in_both_db:
         headers.append('Source File path')

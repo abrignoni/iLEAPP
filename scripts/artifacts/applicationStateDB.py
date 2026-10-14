@@ -37,10 +37,16 @@ __artifacts_v2__ = {
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
         "creation_date": "2025-08-27",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The bundle identifier is read from each application identifier's "
+                 "compatibilityInfo blob, so an application identifier whose compatibilityInfo is "
+                 "absent, or is an archive that does not deserialize, is logged and left out of "
+                 "this table. Absence of a bundle identifier here therefore means the mapping this "
+                 "parser needs was not available in applicationState.db. It is not evidence that "
+                 "the application was never installed, and other sources such as the Mobile "
+                 "Installation logs may still carry its install and uninstall history.",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": ["html","tsv","lava"],
         "artifact_icon": "package",
@@ -64,12 +70,14 @@ __artifacts_v2__ = {
     },
     "get_snapshot_creationDate": {
         "name": "Application Snapshot",
-        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db, using the stored "
-                       "creationDate as the primary timestamp. The value records snapshot-object creation; it does "
-                       "not by itself prove foreground application use or that the user viewed the image contents.",
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db, "
+                       "using the stored creationDate as the primary timestamp. The value is the "
+                       "creationDate property of SplashBoard's snapshot object; the event that "
+                       "sets it is not publicly documented. It does not by itself prove foreground "
+                       "application use or that the user viewed the image contents.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "SplashBoard runtime headers expose creationDate and lastUsedDate properties on "
@@ -100,14 +108,15 @@ __artifacts_v2__ = {
     },
     "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
-        "description": "Extract XBApplicationSnapshotManifest records with a "
-                       "lastUsedDate from applicationState.db. The property belongs to SplashBoard's snapshot object, "
-                       "but its update event is not publicly documented. It is sparse and must not be treated as "
-                       "proof that the application was in the foreground or that the user viewed the image contents "
-                       "at that time.",
+        "description": "Extract XBApplicationSnapshotManifest records with a lastUsedDate from "
+                       "applicationState.db. The property belongs to SplashBoard's snapshot "
+                       "object, but its update event is not publicly documented. A record whose "
+                       "stored lastUsedDate is an empty string is left out. The value must not be "
+                       "treated as proof that the application was in the foreground or that the "
+                       "user viewed the image contents at that time.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "The property name is sourced from the runtime-derived SplashBoard header. Its forensic meaning is "
@@ -154,7 +163,7 @@ _query = '''SELECT application_identifier_tab.application_identifier,
              FROM kvs LEFT JOIN application_identifier_tab
              ON application_identifier_tab.id = kvs.application_identifier
              LEFT JOIN key_tab ON kvs.key = key_tab.id
-             ORDER BY application_identifier_tab.id
+             ORDER BY application_identifier_tab.id, kvs.rowid, application_identifier_tab.rowid, key_tab.rowid
           '''
 
 
@@ -168,8 +177,8 @@ _snapshot = _nt('snapshot', 'creationDate bundleID snapshot_group '
                             'contentType imageOpaque requiredOSVersion')
 
 # display headers for the snapshot analysis results
-_snapshot_headers = ('Creation Date', 'Bundle ID', 'Snapshot Group',
-                     'Snapshot Index', 'Expiration Date', 'Last Used Date',
+_snapshot_headers = (('Creation Date', 'datetime'), 'Bundle ID', 'Snapshot Group',
+                     'Snapshot Index', ('Expiration Date', 'datetime'), ('Last Used Date', 'datetime'),
                      'Launch Interface Identifier', 'Relative Path',
                      'Group ID', 'Image Scale', 'Fullscreen', 'Name',
                      'Interface Orientation', 'File Location',
@@ -243,8 +252,9 @@ def get_snapshot_lastUsedDate(context):
         new_data_list.append(new_entry)
 
     # swap Last Used Date and Creation Date in headers as well
-    last_idx = _snapshot_headers.index('Last Used Date')
-    new_headers = [hdr for hdr in _snapshot_headers[1:] if hdr != 'Last Used Date']
+    names = [hdr[0] if isinstance(hdr, tuple) else hdr for hdr in _snapshot_headers]
+    last_idx = names.index('Last Used Date')
+    new_headers = [hdr for hdr, name in zip(_snapshot_headers[1:], names[1:]) if name != 'Last Used Date']
     new_headers.insert(0, ('Last Used Date', 'datetime'))
     new_headers.insert(last_idx, ('Creation Date', 'datetime'))
 

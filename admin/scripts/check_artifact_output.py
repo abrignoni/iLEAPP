@@ -16,10 +16,28 @@ Every finding here has shipped in a merged artifact at least once:
                      case is a basename split on the wrong path separator.
   sparse-lead        the first column is a timestamp that is empty on most rows, so the
                      table leads with a blank and sorts on nothing.
+  source-column      a Source File, Source Path, Source Folder or Source Database column
+                     that another column already separates: every value of the other column
+                     sits beside one source, every source beside one value, and every source
+                     holds at least two rows. The report's located-at line and the LAVA
+                     source_path already name every file read, so the column repeats what the
+                     other one says. A match on one image can be a coincidence, so read the
+                     artifact before removing anything.
 
-A column is NOT reported when the artifact's own notes name it. That is the documented way
-to keep a uniform column: say in the notes that it was uniform and why it still earns its
-place. So this check enforces the rule rather than second-guessing it.
+A finding is NOT reported when the artifact's own notes address that finding: a sentence
+naming the column (or, for identical-columns, both columns) and saying what this check
+would otherwise say about it. That is the documented way to keep a uniform column: write
+in the notes that it was uniform and why it still earns its place.
+
+The key is the finding, not the column. A column named for an unrelated reason no longer
+silences a real defect: a note explaining that ps_thread.txt puts %CPU in its 4th column
+does not certify that the %CPU column of ps.txt is uniform. The column name also has to
+appear as a word, so "timezone" and "timestamp" no longer silence a column named TIME.
+A one-word header must appear as the header spells it, because most one-word headers are
+ordinary words: "a name not applied" no longer silences a column named Name, while
+"Name held an empty string" does. A header written in lower case also matches with a
+capital first letter, for the start of a sentence. Headers of several words match in any
+case.
 
 Scaling is checked separately with --compare, which takes the report of the same profile
 run against a tree holding the same container twice plus a second tenant. Per artifact:
@@ -37,6 +55,7 @@ REPORT_DIR is a report folder, the one holding "_TSV Exports". Exits 0 unless --
 
 import argparse
 import ast
+import collections
 import csv
 import glob
 import os
@@ -47,19 +66,86 @@ MIN_ROWS_FOR_CONSTANT = 3
 SPARSE_LEAD_FRACTION = 0.5
 # Columns that are bookkeeping rather than findings.
 IGNORED = {'source file', 'source files', 'source path', 'source paths'}
+# A column that names the file a row came from. A bare "Source" is left out: it is often a
+# data field (the app or sensor a record came from), not bookkeeping.
+SOURCE_COLUMN = re.compile(r'^source\s*(?:file|path|folder|db|database)s?$', re.I)
 # A header often carries a qualifier the prose does not repeat, so a note saying
 # "Disappearing TTL was empty" should silence a column headed "Disappearing TTL (as stored)".
 QUALIFIER = re.compile(r'\s*\((?:as stored|seconds|utc|local)[^)]*\)\s*$', re.I)
 
 
+# A finding is silenced only by prose that addresses that finding. Each vocabulary is the
+# way the notes in this repo already describe its defect; an unlisted phrasing reports the
+# finding rather than hiding it, which is the safe direction for a check like this.
+SHAPES = {
+    'empty-column': re.compile(
+        r'empt|blank|no value|without a value|not populated|unpopulated|unset|'
+        r'never (?:filled|set|populated|written)|absent|not recorded|not present|'
+        r'no data|nothing|null|(?:carries|carried|holds|held|has|had) no', re.I),
+    'constant-column': re.compile(
+        r'constant|uniform|one value|single value|same value|one distinct|only value|'
+        r'did not vary|does not vary|never varies|unchanged|invariant|'
+        r'(?:on|across|for) (?:all|every)\s+[\d,]*\s*rows?|every row|all rows', re.I),
+    'identical-columns': re.compile(
+        r'identical|the same|same as|duplicat|copy of|copies|mirror|equal|matches', re.I),
+    'source-column': re.compile(
+        r'identif|which (?:file|database|store|copy|profile|account)|more than one|'
+        r'second (?:copy|user|profile|account|database|file|store)|'
+        r'per (?:user|profile|account|copy|file|database|store)|separat|distinguish|apart|'
+        r'not unique|coinciden', re.I),
+}
+
+# Split on sentence enders and on a newline, so one bullet cannot borrow its neighbour's
+# vocabulary. A finding needs its column and its vocabulary in the SAME sentence. A colon
+# is not an ender: "these are blank: A, B and C" is one statement about A, B and C.
+SENTENCE = re.compile(r'(?<=[.;!?])\s+|\n+')
+
+
+def column_pattern(column):
+    """A whole-word matcher for a column name, tolerating a plural or possessive.
+
+    "Timestamp" matches "Timestamps" because that is the same column being described.
+    It does not match "zitunessubtitle" or "timezone", which name something else.
+
+    A one-word header is matched as the header spells it, so the column Name is not
+    named by "a name not applied" and the column Value is not named by "no value". A
+    lower-case header also matches with its first letter capitalised. A header of
+    several words is matched in any case, since prose rarely repeats one by accident.
+    """
+    bare = QUALIFIER.sub('', column).strip()
+    if not bare:
+        return None
+    suffix = r"(?:'s|\u2019s|es|s)?(?![0-9A-Za-z])"
+    if re.search(r'\s', bare):
+        return re.compile(r"(?<![0-9A-Za-z])" + re.escape(bare) + suffix, re.I)
+    spellings = [bare]
+    if bare[0].islower():
+        spellings.append(bare[0].upper() + bare[1:])
+    alternatives = '|'.join(re.escape(spelling) for spelling in spellings)
+    return re.compile(r"(?<![0-9A-Za-z])(?:" + alternatives + r")" + suffix)
+
+
 def named_in(notes, *columns):
-    """Whether the notes name every one of these columns, qualifier or not."""
-    lowered = notes.lower()
+    """Whether the notes name every one of these columns as a word, qualifier or not."""
     for column in columns:
-        bare = QUALIFIER.sub('', column).strip().lower()
-        if not bare or bare not in lowered:
+        pattern = column_pattern(column)
+        if pattern is None or not pattern.search(notes):
             return False
     return True
+
+
+def documented(notes, kind, *columns):
+    """Whether some sentence names every column AND says what this finding would say."""
+    shape = SHAPES.get(kind)
+    if shape is None:
+        return False
+    patterns = [column_pattern(c) for c in columns]
+    if any(p is None for p in patterns):
+        return False
+    for sentence in SENTENCE.split(notes):
+        if all(p.search(sentence) for p in patterns) and shape.search(sentence):
+            return True
+    return False
 
 
 def artifact_notes(repo_root):
@@ -86,6 +172,23 @@ def artifact_notes(repo_root):
     return notes
 
 
+def allow_oversized_fields():
+    """Accept cells over csv's 128KB default; a rendered message body exceeds it.
+
+    sys.maxsize overflows the C long on some platforms, so halve until accepted.
+    """
+    limit = sys.maxsize
+    while True:
+        try:
+            csv.field_size_limit(limit)
+            return
+        except OverflowError:
+            limit //= 2
+
+
+allow_oversized_fields()
+
+
 def read_table(path):
     """(column names, rows) for one tab separated export."""
     with open(path, encoding='utf-8-sig', newline='') as handle:
@@ -103,29 +206,79 @@ def looks_like_a_time(values):
     return False
 
 
+def separates(values, files):
+    """Whether a column pairs one to one with the files: one value per file, one file per value.
+
+    A blank value does not identify anything, and a rendered time that happens to differ
+    per file is a property of that image rather than a name for the file, so neither counts.
+    """
+    if any(v == '' for v in values) or looks_like_a_time(values):
+        return False
+    file_of, value_of = {}, {}
+    for value, name in zip(values, files):
+        if file_of.setdefault(value, name) != name or value_of.setdefault(name, value) != value:
+            return False
+    return True
+
+
+def source_column_findings(columns, series, notes):
+    """The source-column findings for one artifact's export."""
+    findings = []
+    total = len(next(iter(series.values()), []))
+    for source in columns:
+        if not SOURCE_COLUMN.match(QUALIFIER.sub('', source).strip()):
+            continue
+        files = series[source]
+        per_file = collections.Counter(files)
+        # Two files at least, each on two rows at least: a value that holds across the
+        # rows of every file is evidence, one that pairs with a single row is not.
+        if len(set(files) - {''}) < 2 or min(per_file.values()) < 2:
+            continue
+        separating = [other for other in columns
+                      if other != source and separates(series[other], files)]
+        if not separating:
+            continue
+        if any(documented(notes, 'source-column', source, other) for other in separating):
+            continue
+        names = ', '.join(repr(other) for other in separating[:3])
+        message = (f'{source!r} names {len(set(files))} files on {total} rows, and {names} '
+                   f'already separate{"s" if len(separating) == 1 else ""} them one to one')
+        if any(named_in(notes, source, other) for other in separating):
+            message += ' (the notes name it, but not as this finding)'
+        findings.append(('source-column', message))
+    return findings
+
+
 def check_table(columns, rows, notes):
     """The findings for one artifact's export."""
     findings = []
     if not rows:
         return findings
-    mentioned = notes.lower()
     total = len(rows)
 
     series = {c: [(r.get(c) or '') for r in rows] for c in columns}
+
+    def record(kind, message, *involved):
+        """Keep a finding unless the notes address it; say so when only the name is there."""
+        if documented(notes, kind, *involved):
+            return
+        if named_in(notes, *involved):
+            message += ' (the notes name it, but not as this finding)'
+        findings.append((kind, message))
+
     for column in columns:
         if column.lower() in IGNORED:
             continue
         values = series[column]
         filled = sum(1 for v in values if v != '')
         distinct = len(set(values))
-        if named_in(mentioned, column):
-            continue
         if filled == 0:
-            findings.append(('empty-column', f'{column!r} has no value on any of {total} rows'))
+            record('empty-column',
+                   f'{column!r} has no value on any of {total} rows', column)
         elif distinct == 1 and total >= MIN_ROWS_FOR_CONSTANT:
-            findings.append(('constant-column',
-                             f'{column!r} holds one value on all {total} rows: '
-                             f'{values[0][:40]!r}'))
+            record('constant-column',
+                   f'{column!r} holds one value on all {total} rows: {values[0][:40]!r}',
+                   column)
 
     for index, first in enumerate(columns):
         if first.lower() in IGNORED:
@@ -134,11 +287,12 @@ def check_table(columns, rows, notes):
             if second.lower() in IGNORED:
                 continue
             left, right = series[first], series[second]
-            if named_in(mentioned, first, second):
-                continue
             if left == right and len(set(left)) > 1 and any(v != '' for v in left):
-                findings.append(('identical-columns',
-                                 f'{first!r} and {second!r} are identical on all {total} rows'))
+                record('identical-columns',
+                       f'{first!r} and {second!r} are identical on all {total} rows',
+                       first, second)
+
+    findings.extend(source_column_findings(columns, series, notes))
 
     lead = columns[0] if columns else ''
     if lead and lead.lower() not in IGNORED:
@@ -226,8 +380,9 @@ def main():
     print(f'\nChecked {checked} artifact export(s): '
           f'{total_findings or "nothing"} to look at.')
     if total_findings:
-        print('A column named in its artifact\'s notes is not reported, so the documented way '
-              'to keep a uniform column is to say so in the notes.')
+        print('A finding whose artifact notes already say what it says is not reported, so '
+              'the documented way to keep a uniform column is a sentence in the notes that '
+              'names the column and states it was uniform.')
     return 1 if (args.strict and total_findings) else 0
 
 

@@ -7,7 +7,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Browser",
-        "notes": "The cache record layout (timestamp, hash, response-code positions) was established through reverse engineering and is unverified against WebKit source; undeciphered fields are reported as U1-U8.",
+        "notes": "The cache record layout (timestamp, hash, response-code positions) was "
+                 "established through reverse engineering and is unverified against WebKit "
+                 "source. Timestamp is an 8-byte double read as Unix seconds in UTC and is blank "
+                 "when the value is out of range; what event it marks is not established. A "
+                 "record the module cannot read to the end is still reported with the fields read "
+                 "before that point, so blank cells can mean the read stopped. Undeciphered "
+                 "fields (U1 to U8) are decoded only in the module's research mode, which is off "
+                 "by default, and are not in the standard report.",
         "paths": (
             '*/Library/Caches/WebKit/NetworkCache/Version*/salt',
             '*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*',
@@ -106,7 +113,6 @@ SALT_MAP = {}
 
 @artifact_processor
 def webkit_cache_records(context):
-    data_list = []
     source_dirs = set()
     research_mode = context.get_artifact_info().get("research_mode", False)
     data_headers = (
@@ -116,6 +122,10 @@ def webkit_cache_records(context):
     )
     if research_mode:
         data_headers = RESEARCH_HEADERS
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+    )
 
     for file_found in context.get_files_found():
         if file_found.endswith('salt'):
@@ -247,8 +257,8 @@ def webkit_cache_records(context):
         finally:
             # Append whatever data we have, even if it's incomplete
             # If header is a tuple (e.g., ('Timestamp', 'datetime')), use header[0] for the key
-            data_list.append(
-                tuple(file_data.get(header[0] if isinstance(header, tuple) else header, '') for header in data_headers)
-            )
+            results.add_row(tuple(file_data.get(header[0] if isinstance(header, tuple) else header, '')
+                                   for header in data_headers))
 
-    return data_headers, data_list, '\n'.join(sorted(source_dirs))
+    results.set_source_path('\n'.join(sorted(source_dirs)))
+    return results

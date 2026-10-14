@@ -1,14 +1,18 @@
 __artifacts_v2__ = {
     'appStoreSearches': {
         'name': 'App Store - Searches',
-        'description': 'Search terms submitted in the App Store, recovered from the cached search API requests',
+        'description': "Search terms the App Store app sent to its search API, recovered from the "
+                       "cached search and suggestion requests; a cached request does not "
+                       "establish that the term was submitted by the user",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'App Store',
-        'notes': ('In test data, cached suggestion requests appeared in per-keystroke progressions; '
-                  'whether a search term was submitted by the user is not established by a cache entry.'),
+        'notes': ('On the one recorded image (iphone11_ios17, 24 of 27 rows from the suggestions '
+                  'endpoint), cached suggestion requests appeared in per-keystroke progressions; '
+                  'whether a search term was submitted by the user is not established by a cache '
+                  'entry.'),
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.AppStore/Cache.db*',),
         'output_types': 'standard',
         'artifact_icon': 'search',
@@ -81,7 +85,7 @@ def appStoreSearches(context):
     SELECT entry_ID, request_key, time_stamp
     FROM cfurl_cache_response
     WHERE request_key LIKE '%/search%'
-    ORDER BY time_stamp
+    ORDER BY time_stamp, cfurl_cache_response.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):
@@ -113,22 +117,26 @@ def appStoreSearches(context):
 @artifact_processor
 def appStoreCachedRequests(context):
     source_path = get_file_path(context.get_files_found(), 'Cache.db')
-    data_list = []
     data_headers = (
         ('Timestamp', 'datetime'), 'Host', 'Path', 'Request URL', 'Entry ID')
     if not source_path:
-        return data_headers, data_list, ''
+        return data_headers, [], ''
 
     query = '''
     SELECT entry_ID, request_key, time_stamp
     FROM cfurl_cache_response
-    ORDER BY time_stamp
+    ORDER BY time_stamp, cfurl_cache_response.rowid
     '''
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source_path,
+    )
 
     for record in get_sqlite_db_records(source_path, query):
         request_url = record['request_key'] or ''
         parsed = urllib.parse.urlparse(request_url)
-        data_list.append((
+        results.add_row((
             convert_human_ts_to_utc(record['time_stamp']),
             parsed.netloc,
             parsed.path,
@@ -136,4 +144,4 @@ def appStoreCachedRequests(context):
             record['entry_ID'],
         ))
 
-    return data_headers, data_list, source_path
+    return results

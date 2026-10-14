@@ -1,10 +1,15 @@
 __artifacts_v2__ = {
     "get_kleinanzeigenuser": {
         "name": "Kleinanzeigen.de - User Account",
-        "description": "Extracts Information about the Kleinanzeigen User Account",
-        "author": "@C_Peter",
+        "description": "Account values from the currentUserProfile entry of "
+                       "com.ebaykleinanzeigen.ebc.plist: e-mail, id, contact name, initials, "
+                       "account type, and the userSince and lastModified values read as Cocoa "
+                       "seconds and printed in UTC, independently of the time zone of the "
+                       "computer running the tool. No tested image is "
+                       "recorded for this artifact.",
+        "author": "@C_Peter, @AlexisBrignoni, Codex",
         "creation_date": "2025-02-19",
-        "last_update_date": "2025-02-19",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
         "notes": "",
@@ -14,13 +19,27 @@ __artifacts_v2__ = {
     },
     "get_kleinanzeigenmessagecache": {
         "name": "Kleinanzeigen.de - Message Cache",
-        "description": "Extracts cached Messages",
-        "author": "@C_Peter",
+        "description": "Rows from the selected conversation_cache JSON file, labelled by the existing preview or "
+                 "messages branch. The cache filename alone does not establish app ownership.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-02-18",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
-        "notes": "The sender=0 = local account mapping was established through testing; the OUTBOUND boundness branch is self-describing.",
+        "notes": "sender=0 is read as the local account; no source for that mapping is given here and it was "
+                 "not measured on a counted sample. The OUTBOUND boundness value is read as the store spells "
+                 "it. A conversation with no cached messages is reported as one row built from its preview: "
+                 "the text is the shortened textShortTrimmed value, the time is receivedDate and the "
+                 "Message_ID is blank, so that row is a preview and not a message record. A conversation "
+                 "with no cached messages whose preview keys are missing or whose receivedDate cannot "
+                 "be read produces no row, and the run log names its conversation id. Times are read as "
+                 "Cocoa seconds and shown in UTC. The file is matched by name within any app container, so "
+                 "the owning app should be confirmed from the source path. No tested image is recorded for "
+                 "this artifact. Cache Row Origin is Preview only for rows emitted from an empty messages "
+                 "list using the existing preview fallback, and Cached Message only for rows emitted by the "
+                 "messages loop. Those labels describe parser row origin, not independently verified event "
+                 "type, authorship, completeness, or whether a message was sent. The existing conversation "
+                 "view includes both origins without filtering. Original contribution credited to @C_Peter.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/conversation_cache', ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -38,10 +57,14 @@ __artifacts_v2__ = {
     },
     "get_kleinanzeigensearchhistory": {
         "name": "Kleinanzeigen.de - Search History",
-        "description": "Extracts searched Keywords",
-        "author": "@C_Peter",
+        "description": "Entries of searchedKeywords in the advertisementSearchDataHistory value "
+                       "of com.ebaykleinanzeigen.ebc.plist, with each entry's timeStamp read as "
+                       "Cocoa seconds and printed in UTC, independently of the time zone of the "
+                       "computer running the tool. No tested image is "
+                       "recorded for this artifact.",
+        "author": "@C_Peter, @AlexisBrignoni, Codex",
         "creation_date": "2025-02-19",
-        "last_update_date": "2025-02-19",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
         "notes": "",
@@ -68,7 +91,7 @@ import json
 import plistlib
 import datetime
 
-from scripts.ilapfuncs import artifact_processor, get_file_path
+from scripts.ilapfuncs import artifact_processor, get_file_path, logfunc
 
 @artifact_processor
 def get_kleinanzeigenmessagecache(context):
@@ -97,7 +120,10 @@ def get_kleinanzeigenmessagecache(context):
         if elem['messages'] == []:
             try:
                 m_text = elem['clientData']['textShortTrimmed']
-                m_rec = datetime.datetime.fromtimestamp(elem['clientData']['receivedDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+                m_rec = datetime.datetime.fromtimestamp(elem['clientData']['receivedDate'] + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                # preview row: no message id and no attachments
+                m_id = ''
+                m_att = "none"
                 if elem['clientData']['boundness'] == "OUTBOUND":
                     m_from = my_name
                     id_from = my_id
@@ -111,15 +137,16 @@ def get_kleinanzeigenmessagecache(context):
                     id_to = my_id
                     out = 0
                 conv_name = f"{ad_name} ({counter_name})"
-                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat))
+                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat, "Preview"))
 
-            except (KeyError, TypeError, ValueError, OverflowError, OSError, NameError):
-                pass
+            except (KeyError, TypeError, ValueError, OverflowError, OSError) as ex:
+                logfunc(f'Kleinanzeigen.de message cache: no preview row for conversation '
+                        f'{conv_id}: {type(ex).__name__}: {ex}')
         else:
             for message in elem['messages']:
                 m_id = message['messageId']
                 # Original timestamp is cocoa time - so 978307200 will be added
-                m_rec = datetime.datetime.fromtimestamp(message['sentDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+                m_rec = datetime.datetime.fromtimestamp(message['sentDate'] + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
                 m_text = message['text']
                 m_att = []
                 for att in message['attachments']:
@@ -141,7 +168,7 @@ def get_kleinanzeigenmessagecache(context):
                     id_to = my_id
                     out = 0
                 conv_name = f"{ad_name} ({counter_name})"
-                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat))
+                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat, "Cached Message"))
 
     data_headers = (
         ('Timestamp', 'datetime'),
@@ -157,6 +184,7 @@ def get_kleinanzeigenmessagecache(context):
         "Attachment",
         "Message_ID",
         "AD-Status",
+        "Cache Row Origin",
     )
     return data_headers, data_list, source_path
 
@@ -202,8 +230,8 @@ def get_kleinanzeigenuser(context):
         data_list.append(("Contact Name", name))
         data_list.append(("Contact Initials", u_in))
         data_list.append(("Account Type", atype))
-        data_list.append(("User since", datetime.datetime.fromtimestamp(c_dt + 978307200).strftime('%Y-%m-%d %H:%M:%S')))
-        data_list.append(("Last modified", datetime.datetime.fromtimestamp(m_dt + 978307200).strftime('%Y-%m-%d %H:%M:%S')))
+        data_list.append(("User since (UTC)", datetime.datetime.fromtimestamp(c_dt + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
+        data_list.append(("Last modified (UTC)", datetime.datetime.fromtimestamp(m_dt + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
     
     data_headers = ("Property", "Property Value")
     return data_headers, data_list, source_path
@@ -218,8 +246,8 @@ def get_kleinanzeigensearchhistory(context):
         s_hist = json.loads(pref['UserDefaultsKit.UserDefaultItem.advertisementSearchDataHistory'])
         for keyword in s_hist['searchedKeywords']:
             k_word = keyword['value']
-            k_time = datetime.datetime.fromtimestamp(keyword['timeStamp'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
-            data_list.append((k_word, k_time))
+            k_time = datetime.datetime.fromtimestamp(keyword['timeStamp'] + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            data_list.append((k_time, k_word))
     
-    data_headers = ("Keyword", "Timestamp")
+    data_headers = (("Timestamp", "datetime"), "Keyword")
     return data_headers, data_list, source_path

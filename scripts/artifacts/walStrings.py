@@ -7,7 +7,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "Database Metadata",
-        "notes": "Generates text files with strings found in WAL/Journal files.",
+        "notes": "Writes one text file for each file whose name ends in -wal or -journal and that "
+                 "holds at least one run of four or more printable ASCII characters. Each "
+                 "distinct run is listed with its first byte offset and how many times it occurs. "
+                 "The bytes are scanned as they are and the file is not checked to be a SQLite "
+                 "file; a string listed here is not shown to belong to the database's current "
+                 "content.",
         "paths": ('**/*-wal', '**/*-journal'),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "database",
@@ -15,7 +20,7 @@ __artifacts_v2__ = {
             "ctf2020_ios12": "iOS 12.4 | 373 rows",
             "dexter_ios18": "iOS 18.3.2 | 909 rows",
             "felix_ios17": "iOS 17.6.1 | 502 rows",
-            "fsfull002_ios17": "iOS 17.1 | 461 rows",
+            "fsfull002_ios17": "iOS 17.1 | 444 rows",
             "hc_ios18_7": "iOS 18.7.8 | 814 rows",
             "iphone11_ios17": "iOS 17.3 | 1012 rows",
             "iphone12_ios18": "iOS 18.7 | 654 rows",
@@ -38,7 +43,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-07",
         "requirements": "none",
         "category": "Database Metadata",
-        "notes": "LAVA-only detailed string output.",
+        "notes": "LAVA-only output. Each row is one distinct run of four or more printable ASCII "
+                 "characters in a file whose name ends in -wal or -journal, with the byte offset "
+                 "of its first occurrence and how many times it occurs in that file. The file is "
+                 "not checked to be a SQLite file, and a string listed here is not shown to "
+                 "belong to the database's current content.",
         "paths": ('**/*-wal', '**/*-journal'),
         "output_types": "lava_only",
         "artifact_icon": "database",
@@ -46,7 +55,7 @@ __artifacts_v2__ = {
             "ctf2020_ios12": "iOS 12.4 | 789973 rows",
             "dexter_ios18": "iOS 18.3.2 | 1161158 rows",
             "felix_ios17": "iOS 17.6.1 | 788273 rows",
-            "fsfull002_ios17": "iOS 17.1 | 805831 rows",
+            "fsfull002_ios17": "iOS 17.1 | 795295 rows",
             "hc_ios18_7": "iOS 18.7.8 | 1208783 rows",
             "iphone11_ios17": "iOS 17.3 | 1279032 rows",
             "iphone12_ios18": "iOS 18.7 | 565084 rows",

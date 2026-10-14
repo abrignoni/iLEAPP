@@ -273,8 +273,14 @@ def decode_message(buf, typedef=None, pos=0, end=None, group=False):
                     field_out, message_typedef, pos = decode_lendelim_message(buf, {}, pos)
                     if 'alt_typedefs' in field_typedef:
                         # get the next higher alt field number
+                        # LEAPP fix: upstream 1.0.1 misspells field_typedef here as
+                        # field_tyepdef, so this branch raises NameError instead of
+                        # recording the anonymous typedef. It only runs when a field
+                        # already has alt_typedefs and then needs another one, which is
+                        # why it survived upstream. Observed aborting biomeProactiveMail
+                        # on an iOS 26.2.1 full filesystem extraction.
                         alt_field_number = str(
-                            max(map(int, field_tyepdef['alt_typedefs'].keys()))
+                            max(map(int, field_typedef['alt_typedefs'].keys()))
                             + 1)
                     else:
                         field_typedef['alt_typedefs'] = {}

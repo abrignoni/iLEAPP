@@ -1,13 +1,24 @@
 __artifacts_v2__ = {
     "mobileInstallb": {
         "name": "Mobile Installation Logs History",
-        "description": "App install/update/uninstall and reboot events from mobile_installation.log (iOS 17+)",
-        "author": "@AlexisBrignoni",
+        "description": "Selected mobile_installation.log lines (install start and success, patch "
+                       "update attempts, container lines, uninstall, container destruction and "
+                       "reboot), on images whose iOS version is 17 or later",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
+                 "the time zone is not established, so the timestamps are reported as text. Type is a label this artifact assigns from a phrase in the line; "
+                 "'Update' and 'Parallel Update' mark a line that says a patch update was "
+                 "attempted, which is not a completed update, and 'Install' marks an 'Installing' "
+                 "line, which is not a completed install. The Notice column holds the text of the "
+                 "line after its prefix. Both capitalization forms of Install successful for "
+                 "are matched, and Delta, Parallel and ParallelWithArchives patch attempts "
+                 "are included. Nothing is reported when the image's iOS version reads as "
+                 "earlier than 17 or when no iOS version has been read. Apps - Historical Combined reads the same logs without these "
+                 "limits.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package",
@@ -32,12 +43,14 @@ __artifacts_v2__ = {
     "mobileInstallb_reboots": {
         "name": "Reboots - Mobile Installation Logs",
         "description": "Reboot events from mobile_installation.log (iOS 17+)",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
+                 "the time zone is not established, so the timestamps are reported as text. Nothing is reported when the image's iOS version reads as earlier "
+                 "than 17 or when no iOS version has been read.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh",
@@ -65,7 +78,7 @@ import re
 
 from packaging import version
 
-from scripts.ilapfuncs import artifact_processor, iOS
+from scripts.ilapfuncs import artifact_processor, iOS, logfunc
 
 _MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -77,8 +90,10 @@ _EVENTS = {
     'Made container live for': 'Container Live',
     'Reboot detected': 'Reboot',
     'Install Successful for': 'Install Successful',
+    'Install successful for': 'Install Successful',
     'Running installation as': 'Running Installation',
     'Attempting Parallel patch update': 'Parallel Update',
+    'Attempting ParallelWithArchives patch update': 'Parallel Update',
     'Uninstalling identifier': 'Uninstalling',
     'Destroying container': 'Destroying',
 }
@@ -110,11 +125,20 @@ def _line_splitting(line):
     return timestamp, notice.strip()
 
 
+def _ios_17_or_later():
+    """False below iOS 17, and when no iOS version has been read yet."""
+    ios_version = iOS.get_version()
+    if not ios_version:
+        logfunc("No iOS version had been read when this artifact ran, mobile installation logs were not read")
+        return False
+    return version.parse(ios_version) >= version.parse("17")
+
+
 def _parse(context):
-    """Return (rows, source) where rows are (timestamp_local, type, notice, source_rel); iOS 17+ only."""
+    """Return (rows, source) where rows are (timestamp_no_zone, type, notice, source_rel); iOS 17+ only."""
     rows = []
     sources = []
-    if version.parse(iOS.get_version()) < version.parse("17"):
+    if not _ios_17_or_later():
         return rows, ''
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -137,15 +161,41 @@ def _parse(context):
     return rows, ', '.join(sources)
 
 
+def _add_rows(context, add_row):
+    """Add (timestamp_no_zone, type, notice, source_rel) rows; iOS 17+ only."""
+    if not _ios_17_or_later():
+        return
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        rel = context.get_relative_path(file_found)
+        try:
+            with open(file_found, 'r', encoding='utf8', errors='ignore') as f:
+                for line in f:
+                    for marker, desc in _EVENTS.items():
+                        if marker in line:
+                            values = _line_splitting(line)
+                            if values:
+                                add_row((values[0], desc, values[1], rel))
+                            break
+        except OSError:
+            continue
+
+
 @artifact_processor
 def mobileInstallb(context):
-    data_headers = ('Timestamp (Local)', 'Type', 'Notice', 'Source File')
+    data_headers = ('Timestamp (no zone recorded)', 'Type', 'Notice', 'Source File')
     rows, source = _parse(context)
-    return data_headers, rows, source
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source,
+    )
+    for row in rows:
+        results.add_row(row)
+    return results
 
 
 @artifact_processor
 def mobileInstallb_reboots(context):
-    data_headers = ('Timestamp (Local)', 'Type', 'Notice', 'Source File')
+    data_headers = ('Timestamp (no zone recorded)', 'Type', 'Notice', 'Source File')
     rows, source = _parse(context)
     return data_headers, [row for row in rows if row[1] == 'Reboot'], source

@@ -24,7 +24,8 @@ _SPEC.loader.exec_module(fetch)
 # The normalizer is module-private; the tests exist precisely to pin its behavior.
 normalize = fetch._normalize_digest  # pylint: disable=protected-access
 
-LOWER = '749731fc09d0d107958d777188c99682db8f2d7810835d6afe46172e1d0d9d36'
+# v0.7.0 Windows archive, as published (uppercase) in its .sha256 file, lowered here.
+LOWER = '4776ac9c677ad3bdec6a0cee3e92e27308f7493a0ac4e4fedde65555eb36373d'
 UPPER = LOWER.upper()
 
 

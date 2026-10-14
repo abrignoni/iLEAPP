@@ -9,9 +9,11 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Safari Browser',
         'notes': ('An entry records that Safari fetched and cached a URL, not that the user '
-                  'navigated to it: pages pull subresources, and Safari fetches configuration '
-                  'files on its own. Payloads above a size threshold are written to the '
-                  'sibling fsCachedData directory instead of the database, in which case '
+                  'navigated to it. HTTP Status, MIME Type and Request Method are picked out of the '
+                  'archived response and request arrays by the form of the value, not by a fixed '
+                  'position. Only the first Cache.db found is read. Where the isDataOnFS flag is '
+                  'set, the payload is a file in '
+                  "the sibling fsCachedData directory and "
                   'receiver_data holds the file name rather than the content.'),
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.mobilesafari/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.mobilesafari/fsCachedData/*'),
@@ -170,7 +172,7 @@ def safariCache(context):
     FROM cfurl_cache_response AS response
     LEFT JOIN cfurl_cache_receiver_data AS receiver ON receiver.entry_ID = response.entry_ID
     LEFT JOIN cfurl_cache_blob_data AS blob ON blob.entry_ID = response.entry_ID
-    ORDER BY response.time_stamp
+    ORDER BY response.time_stamp, response.rowid, receiver.rowid, blob.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):

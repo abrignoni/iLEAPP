@@ -1,0 +1,38 @@
+{
+  "abe_ios16": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-10T15:37:37.836517",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-10T15:37:37.827435",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "photosRecentSearches": {
+        "search_patterns": [
+          "*/mobile/Media/PhotoData/Caches/search/RecentSearches.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "abe_ios16",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "16.5",
+      "device_model": "iPhone X",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  }
+}

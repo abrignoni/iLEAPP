@@ -1,10 +1,12 @@
 __artifacts_v2__ = {
     "googleTranslateHistory": {
         "name": "Google Translate History",
-        "description": "History from Google Translate App",
-        "author": "Django Faiola (djangofaiola.blogspot.com)",
+        "description": "Rows of the history table of Google Translate's translate.db. The first "
+                       "column is the row's stored timestamp value, without an assumed epoch or unit; what event "
+                       "it marks is not established",
+        "author": "Django Faiola (djangofaiola.blogspot.com), @AlexisBrignoni, Codex",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-01-09",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Translator",
         "notes": "",
@@ -54,7 +56,7 @@ import os
 from pathlib import Path
 from scripts.filetype import audio_match
 from scripts.html_safe import safe_local_path
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist_in_db, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist_in_db
 
 @artifact_processor
 def googleTranslateHistory(context):
@@ -74,7 +76,7 @@ def googleTranslateHistory(context):
     '''
 
     data_headers = (
-        ('Created', 'datetime'), 
+        'timestamp (as stored)',
         'Language', 
         'Source text', 
         'Target text', 
@@ -85,7 +87,7 @@ def googleTranslateHistory(context):
     db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
-        timestamp = convert_unix_ts_to_utc(record[1])  # timestamp
+        timestamp = '' if record[1] is None else str(record[1])  # preserve an unsourced unit
         starred = record[5] == 1  # starred
         location = f'history (ROWID: {record[0]})'  # location
 
@@ -147,6 +149,7 @@ def googleTranslateTts(context):
     for record in db_records:
         # audio
         audio_html = ''
+        audio_ref = ''
         audio = record[3]
         if bool(audio):
             mimetype = audio_match(audio)
@@ -159,13 +162,13 @@ def googleTranslateTts(context):
                 # Report-relative path to the audio written beside the report.
                 # safe_local_path() percent-encodes it and refuses anything that
                 # would leave the report folder.
-                audio_path_html = safe_local_path(
-                    Path(report_folder).name + '/' + audio_filename)
+                audio_ref = Path(report_folder).name + '/' + audio_filename
+                audio_path_html = safe_local_path(audio_ref)
                 audio_html = f'<audio controls><source src="{audio_path_html}" type="audio/ogg"><source src="{audio_path_html}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
 
         location = f'tts (ROWID: {record[0]})'  # location
 
-        data_list.append((record[1], record[2], audio_path, location))
+        data_list.append((record[1], record[2], audio_ref, location))
         data_list_html.append((record[1], record[2], audio_html, location))
 
     return data_headers, (data_list, data_list_html), source_path

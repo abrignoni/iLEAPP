@@ -1,24 +1,32 @@
 __artifacts_v2__ = {
 'Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql': {
 'name': 'Ph011.1-KwrdsCapsTitlesDescripsLikesBasicAsstData-PhDaPsql',
-'description': 'Parses basic asset record data from iOS PhotoData-Photos.sqlite for assets that have'
-' Keywords, Captions, Titles, Descriptions, Captions and Likes.'
-' (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or'
-' (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or'
-' (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or'
-' (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or'
-' (zCldSharedCommentLiked.ZISLIKE = 1). I recommend opening the TSV generated report'
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer to view,'
-' search and filter the results.'
+'description': 'Parses asset rows from PhotoData/Photos.sqlite on iOS 14 through 26 (earlier versions are not'
+' handled) for assets that have a long description, title, accessibility description, keyword,'
+' shared album comment or like. Any one is enough. An asset with several keywords, comments or'
+' likes appears on several rows. The tests are: ZASSETDESCRIPTION.ZLONGDESCRIPTION,'
+' ZADDITIONALASSETATTRIBUTES.ZTITLE, ZADDITIONALASSETATTRIBUTES.ZACCESSIBILITYDESCRIPTION,'
+' ZKEYWORD.ZSHORTCUT, ZKEYWORD.ZTITLE or ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT not empty,'
+' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE not NULL and not empty, or ZISLIKE equal to 1.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig. Comment type is selected by stored value presence without assigning a numeric domain or action meaning. Keywords are joined through Z_1KEYWORDS. The name of its keyword column carries a Core Data'
+' entity number that differs between iOS versions, so the module reads the column name from the'
+' table. In the tested PhotoData databases it was Z_38KEYWORDS on jess_ios15, Z_40KEYWORDS on'
+' abe_ios16 and otto_ios17, Z_41KEYWORDS on felix_ios17, Z_47KEYWORDS on dexter_ios18 and'
+' Z_52KEYWORDS on falken_ios26. The long description, title, accessibility description, keyword'
+' shortcut, keyword title and comment text tests select values that are not NULL and not empty.'
+' Those columns are declared VARCHAR in the tested databases. Value labels in this report are the'
+" module author's working interpretations from testing. The module cites no source for them. Each"
+' label carries the stored value. Labels marked StillTesting or STILLTESTING are unconfirmed. The'
+' Syndication State labels for values 2, 8 and 10 are interpretations with no cited source. The'
+' store records the state value. It does not record who changed it.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "info-circle",
@@ -42,24 +50,32 @@ __artifacts_v2__ = {
 },
 'Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql': {
 'name': 'Ph011.3-KwrdsCapsTitlesDescripsLikesBasicAsstData-GenPlayPsql',
-'description': 'Parses basic asset record data from iOS GenPlay-Photos.sqlite for assets that have'
-' Keywords, Captions, Titles, Descriptions, Captions and Likes.'
-' (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or'
-' (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or'
-' (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or'
-' (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or'
-' (zCldSharedCommentLiked.ZISLIKE = 1). I recommend opening the TSV generated report'
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer to view,'
-' search and filter the results.'
+'description': 'Parses basic asset record data from iOS GenPlay-Photos.sqlite for assets that have a long'
+' description, title, accessibility description, keyword, shared album comment or like (iOS 18'
+' through 26). Any one is enough. An asset with several keywords, comments or likes appears on'
+' several rows. The tests are: ZASSETDESCRIPTION.ZLONGDESCRIPTION,'
+' ZADDITIONALASSETATTRIBUTES.ZTITLE, ZADDITIONALASSETATTRIBUTES.ZACCESSIBILITYDESCRIPTION,'
+' ZKEYWORD.ZSHORTCUT, ZKEYWORD.ZTITLE or ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT not empty,'
+' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE not NULL and not empty, or ZISLIKE equal to 1.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',    
-'author': 'Scott Koenig',
+'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig. Comment type is selected by stored value presence without assigning a numeric domain or action meaning. Keywords are joined through Z_1KEYWORDS. The name of its keyword column carries a Core Data'
+' entity number that differs between iOS versions, so the module reads the column name from the'
+' table. In the tested PhotoData databases it was Z_38KEYWORDS on jess_ios15, Z_40KEYWORDS on'
+' abe_ios16 and otto_ios17, Z_41KEYWORDS on felix_ios17, Z_47KEYWORDS on dexter_ios18 and'
+' Z_52KEYWORDS on falken_ios26. The long description, title, accessibility description, keyword'
+' shortcut, keyword title and comment text tests select values that are not NULL and not empty.'
+' Those columns are declared VARCHAR in the tested databases. Value labels in this report are the'
+" module author's working interpretations from testing. The module cites no source for them. Each"
+' label carries the stored value. Labels marked StillTesting or STILLTESTING are unconfirmed. The'
+' Syndication State labels for values 2, 8 and 10 are interpretations with no cited source. The'
+' store records the state value. It does not record who changed it.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "info-circle",
@@ -70,8 +86,21 @@ __artifacts_v2__ = {
 }
 
 import os
+import re
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+
+def _resolve_keywords_column(source_path, query):
+    """Use the keyword column name Z_1KEYWORDS has in this database.
+
+    The column is named for a Core Data entity number (Z_36KEYWORDS, Z_47KEYWORDS and so on) that
+    differs between iOS versions, so the name is read from the table. The query is returned
+    unchanged when the table has no such column.
+    """
+    for column in get_sqlite_db_records(source_path, "PRAGMA table_info('Z_1KEYWORDS')"):
+        if re.fullmatch(r'Z_\d+KEYWORDS', column[1]):
+            return re.sub(r'\bz1KeyWrds\.Z_\d+KEYWORDS\b', 'z1KeyWrds.' + column[1], query)
+    return query
 
 @artifact_processor
 def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
@@ -87,6 +116,9 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -132,7 +164,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -218,14 +250,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_36KEYWORDS AS 'z1KeyWrds-36Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_36KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',       
         zAsset.Z_PK AS 'zAsset-zPK',
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -236,10 +268,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -268,7 +301,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zAsset-Saved Asset Type-14',
         'zAsset-Visibility State-15',
         'zAssetDes-Long Description-16',
-        'zAddAssetAttr-Title-Comments via Cloud Website-17',
+        'zAddAssetAttr-Title-17',
         'zAddAssetAttr-Accessibility Description-18',
         'zKeywrd-Shortcut-19',
         'zKeywrd-Title-20',
@@ -313,14 +346,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-59',
         'zCldSharedComment-Cloud GUID-60',
         'zKeywrd-zPK-61',
-        'z1KeyWrds-36Keywords = zKeywrd-zPK-62',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-62',
         'zKeywrd-zENT-63',
         'zKeywrd-zOPT-64',
         'zKeywrd-UUID-65',
         'zAsset-zPK-66',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-67',
         'zAddAssetAttr-zPK-68',
-        'zAsset-UUID = store.cloudphotodb-69',
+        'zAsset-UUID-69',
         'zAddAssetAttr-Master Fingerprint-70')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -367,11 +400,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',      
         CASE zAsset.ZBUNDLESCOPE
@@ -392,7 +425,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',	
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -478,14 +511,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_38KEYWORDS AS 'z1KeyWrds-38Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_38KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',       
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -496,10 +529,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -534,7 +568,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zAddAssetAttr-Share Type-19',
         'zAsset-Visibility State-20',
         'zAssetDes-Long Description-21',
-        'zAddAssetAttr-Title-Comments via Cloud Website-22',
+        'zAddAssetAttr-Title-22',
         'zAddAssetAttr-Accessibility Description-23',
         'zKeywrd-Shortcut-24',
         'zKeywrd-Title-25',
@@ -579,14 +613,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-64',
         'zCldSharedComment-Cloud GUID-65',
         'zKeywrd-zPK-66',
-        'z1KeyWrds-38Keywords = zKeywrd-zPK-67',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-67',
         'zKeywrd-zENT-68',
         'zKeywrd-zOPT-69',
         'zKeywrd-UUID-70',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-71',
         'zAsset-zPK-72',
         'zAddAssetAttr-zPK-73',
-        'zAsset-UUID = store.cloudphotodb-74',
+        'zAsset-UUID-74',
         'zAddAssetAttr-Master Fingerprint-75')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -634,11 +668,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -664,7 +698,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',	
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -750,14 +784,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_40KEYWORDS AS 'z1KeyWrds-40Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_40KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAsset.Z_PK AS 'zAsset-zPK',      
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -768,10 +802,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -808,7 +843,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-21',
         'zAsset-Visibility State-22',
         'zAssetDes-Long Description-23',
-        'zAddAssetAttr-Title-Comments via Cloud Website-24',
+        'zAddAssetAttr-Title-24',
         'zAddAssetAttr-Accessibility Description-25',
         'zKeywrd-Shortcut-26',
         'zKeywrd-Title-27',
@@ -853,14 +888,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-66',
         'zCldSharedComment-Cloud GUID-67',
         'zKeywrd-zPK-68',
-        'z1KeyWrds-40Keywords = zKeywrd-zPK-69',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-69',
         'zKeywrd-zENT-70',
         'zKeywrd-zOPT-71',
         'zKeywrd-UUID-72',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-73',
         'zAsset-zPK-74',
         'zAddAssetAttr-zPK-75',
-        'zAsset-UUID = store.cloudphotodb-76',
+        'zAsset-UUID-76',
         'zAddAssetAttr-Master Fingerprint-77')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -908,11 +943,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -938,7 +973,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',	
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -1024,14 +1059,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_41KEYWORDS AS 'z1KeyWrds-41Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_41KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAsset.Z_PK AS 'zAsset-zPK',      
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1042,10 +1077,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -1082,7 +1118,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-21',
         'zAsset-Visibility State-22',
         'zAssetDes-Long Description-23',
-        'zAddAssetAttr-Title-Comments via Cloud Website-24',
+        'zAddAssetAttr-Title-24',
         'zAddAssetAttr-Accessibility Description-25',
         'zKeywrd-Shortcut-26',
         'zKeywrd-Title-27',
@@ -1127,14 +1163,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-66',
         'zCldSharedComment-Cloud GUID-67',
         'zKeywrd-zPK-68',
-        'z1KeyWrds-41Keywords = zKeywrd-zPK-69',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-69',
         'zKeywrd-zENT-70',
         'zKeywrd-zOPT-71',
         'zKeywrd-UUID-72',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-73',
         'zAsset-zPK-74',
         'zAddAssetAttr-zPK-75',
-        'zAsset-UUID = store.cloudphotodb-76',
+        'zAsset-UUID-76',
         'zAddAssetAttr-Master Fingerprint-77')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1187,11 +1223,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -1217,7 +1253,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',       
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -1303,14 +1339,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_47KEYWORDS AS 'z1KeyWrds-47Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_47KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAsset.Z_PK AS 'zAsset-zPK',      
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1322,10 +1358,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -1363,7 +1400,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-22',
         'zAsset-Visibility State-23',
         'zAssetDes-Long Description-24',
-        'zAddAssetAttr-Title-Comments via Cloud Website-25',
+        'zAddAssetAttr-Title-25',
         'zAddAssetAttr-Accessibility Description-26',
         'zKeywrd-Shortcut-27',
         'zKeywrd-Title-28',
@@ -1408,14 +1445,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-67',
         'zCldSharedComment-Cloud GUID-68',
         'zKeywrd-zPK-69',
-        'z1KeyWrds-47Keywords = zKeywrd-zPK-70',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-70',
         'zKeywrd-zENT-71',
         'zKeywrd-zOPT-72',
         'zKeywrd-UUID-73',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-74',
         'zAsset-zPK-75',
         'zAddAssetAttr-zPK-76',
-        'zAsset-UUID = store.cloudphotodb-77',
+        'zAsset-UUID-77',
         'zAddAssetAttr-Original Stable Hash-78',
         'zAddAssetAttr.Adjusted Stable Hash-79')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -1469,11 +1506,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -1499,7 +1536,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',       
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -1585,14 +1622,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_52KEYWORDS AS 'z1KeyWrds-52Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_52KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAsset.Z_PK AS 'zAsset-zPK',      
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1604,10 +1641,11 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -1645,7 +1683,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zAsset-Active Library Scope Participation State-22',
         'zAsset-Visibility State-23',
         'zAssetDes-Long Description-24',
-        'zAddAssetAttr-Title-Comments via Cloud Website-25',
+        'zAddAssetAttr-Title-25',
         'zAddAssetAttr-Accessibility Description-26',
         'zKeywrd-Shortcut-27',
         'zKeywrd-Title-28',
@@ -1690,14 +1728,14 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-67',
         'zCldSharedComment-Cloud GUID-68',
         'zKeywrd-zPK-69',
-        'z1KeyWrds-52Keywords = zKeywrd-zPK-70',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-70',
         'zKeywrd-zENT-71',
         'zKeywrd-zOPT-72',
         'zKeywrd-UUID-73',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-74',
         'zAsset-zPK-75',
         'zAddAssetAttr-zPK-76',
-        'zAsset-UUID = store.cloudphotodb-77',
+        'zAsset-UUID-77',
         'zAddAssetAttr-Original Stable Hash-78',
         'zAddAssetAttr.Adjusted Stable Hash-79')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
@@ -1718,6 +1756,9 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -1768,11 +1809,11 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -1798,7 +1839,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',       
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -1884,14 +1925,14 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_47KEYWORDS AS 'z1KeyWrds-47Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_47KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAsset.Z_PK AS 'zAsset-zPK',      
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1903,10 +1944,11 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -1944,7 +1986,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         'zAsset-Active Library Scope Participation State-22',
         'zAsset-Visibility State-23',
         'zAssetDes-Long Description-24',
-        'zAddAssetAttr-Title-Comments via Cloud Website-25',
+        'zAddAssetAttr-Title-25',
         'zAddAssetAttr-Accessibility Description-26',
         'zKeywrd-Shortcut-27',
         'zKeywrd-Title-28',
@@ -1989,14 +2031,14 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-67',
         'zCldSharedComment-Cloud GUID-68',
         'zKeywrd-zPK-69',
-        'z1KeyWrds-47Keywords = zKeywrd-zPK-70',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-70',
         'zKeywrd-zENT-71',
         'zKeywrd-zOPT-72',
         'zKeywrd-UUID-73',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-74',
         'zAsset-zPK-75',
         'zAddAssetAttr-zPK-76',
-        'zAsset-UUID = store.cloudphotodb-77',
+        'zAsset-UUID-77',
         'zAddAssetAttr-Original Stable Hash-78',
         'zAddAssetAttr.Adjusted Stable Hash-79')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -2050,11 +2092,11 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         CASE zAsset.ZSYNDICATIONSTATE
             WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
-            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 2 THEN '2-SyndPs-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_Link_Removed-8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10-SyndPs-Saved_SWY_Synd_Asset_Removed_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -2080,7 +2122,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',       
         zAssetDes.ZLONGDESCRIPTION AS 'zAssetDes-Long Description',
-        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title-Comments via Cloud Website',
+        zAddAssetAttr.ZTITLE AS 'zAddAssetAttr-Title',
         zAddAssetAttr.ZACCESSIBILITYDESCRIPTION AS 'zAddAssetAttr-Accessibility Description',
         zKeywrd.ZSHORTCUT AS 'zKeywrd-Shortcut',
         zKeywrd.ZTITLE AS 'zKeywrd-Title',
@@ -2166,14 +2208,14 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         zCldSharedCommentLiked.Z_FOK_CLOUDFEEDLIKECOMMENTENTRY AS 'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key',
         zCldSharedComment.ZCLOUDGUID AS 'zCldSharedComment-Cloud GUID',       
         zKeywrd.Z_PK AS 'zKeywrd-zPK',
-        z1KeyWrds.Z_52KEYWORDS AS 'z1KeyWrds-52Keywords = zKeywrd-zPK',
+        z1KeyWrds.Z_52KEYWORDS AS 'z1KeyWrds-Keywords = zKeywrd-zPK',
         zKeywrd.Z_ENT AS 'zKeywrd-zENT',
         zKeywrd.Z_OPT AS 'zKeywrd-zOPT',       
         zKeywrd.ZUUID AS 'zKeywrd-UUID',
         z1KeyWrds.Z_1ASSETATTRIBUTES AS 'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK',
         zAsset.Z_PK AS 'zAsset-zPK',      
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -2185,10 +2227,11 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
+        query = _resolve_keywords_column(source_path, query)
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -2226,7 +2269,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         'zAsset-Active Library Scope Participation State-22',
         'zAsset-Visibility State-23',
         'zAssetDes-Long Description-24',
-        'zAddAssetAttr-Title-Comments via Cloud Website-25',
+        'zAddAssetAttr-Title-25',
         'zAddAssetAttr-Accessibility Description-26',
         'zKeywrd-Shortcut-27',
         'zKeywrd-Title-28',
@@ -2271,14 +2314,14 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
         'zCldSharedComment-FOK-Cld-Feed-Like-Comment-Entry-Key-67',
         'zCldSharedComment-Cloud GUID-68',
         'zKeywrd-zPK-69',
-        'z1KeyWrds-52Keywords = zKeywrd-zPK-70',
+        'z1KeyWrds-Keywords = zKeywrd-zPK-70',
         'zKeywrd-zENT-71',
         'zKeywrd-zOPT-72',
         'zKeywrd-UUID-73',
         'z1KeyWrds-1AssetAttributes = zAddAssetAttr-zPK-74',
         'zAsset-zPK-75',
         'zAddAssetAttr-zPK-76',
-        'zAsset-UUID = store.cloudphotodb-77',
+        'zAsset-UUID-77',
         'zAddAssetAttr-Original Stable Hash-78',
         'zAddAssetAttr.Adjusted Stable Hash-79')
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))

@@ -16,6 +16,14 @@ on:
       # break on an older Python
       - 'ileapp.py'
       - 'ileappGUI.py'
+      # The entry points and scripts/ilapfuncs.py import leapp_functions, so a
+      # change there is equally able to break on an older Python
+      - 'leapp_functions/**'
+      # test_packaging_build.py loads packaging/build.py, the entry point and the spec
+      - 'packaging/**'
+
+permissions:
+  contents: read
 
 jobs:
   runtime-contract:
@@ -28,10 +36,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          # Blob-less fetch; materialize everything except the committed test
+          # fixtures under admin/test/cases/data, which no step here reads.
+          sparse-checkout: |
+            /*
+            !/admin/test/cases/data
+          sparse-checkout-cone-mode: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 

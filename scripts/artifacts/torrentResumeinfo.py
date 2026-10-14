@@ -17,7 +17,6 @@ __artifacts_v2__ = {
 
 import bencoding
 import hashlib
-import textwrap
 from scripts.ilapfuncs import (
     artifact_processor,
     convert_unix_ts_to_utc
@@ -65,8 +64,7 @@ def torrent_resume_info(context):
                 aggregate += f'{esc(key_str)}: {esc(ts_val)} <br>'
             else:
                 aggregate += f'{esc(key_str)}: {esc(value)} <br>'
-        wrapped_path = textwrap.fill(context.get_relative_path(file_found), width=50)
-        data_list.append((wrapped_path, infohash, aggregate.strip()))
+        data_list.append((context.get_relative_path(file_found), infohash, aggregate.strip()))
 
     data_headers = ('File', 'InfoHash', 'Data')
 

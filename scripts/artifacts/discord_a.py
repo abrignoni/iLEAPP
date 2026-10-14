@@ -7,9 +7,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Discord",
-        "notes": "Direction is derived by comparing the message sender id to the "
-                 "account id in the kv-storage/@account.<id>/ path. "
-                 "Reference: Discord Developer Documentation, 'Message Resource', "
+        "notes": "Direction reads Outgoing when the message sender id equals the "
+                 "account id in the kv-storage/@account.<id>/ path and Incoming when "
+                 "it differs; it is blank when the path gives no account id or the "
+                 "record has no sender id. Message Type shows Message, Call, User "
+                 "Joined and Reply for type values 0, 3, 7 and 19, following the "
+                 "message type table in the Discord Developer Documentation; any other "
+                 "type value is shown as stored. Reference for the four type values: "
+                 "Discord Developer Documentation, 'Message Resource', "
                  "https://docs.discord.com/developers/resources/message",
         "paths": ('*/Library/Caches/kv-storage/@account*/a*'),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]

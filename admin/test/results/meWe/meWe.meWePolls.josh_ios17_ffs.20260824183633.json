@@ -1,0 +1,158 @@
+{
+  "metadata": {
+    "module_name": "meWe",
+    "artifact_name": "MeWe - Polls",
+    "function_name": "meWePolls",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 10,
+    "number_of_rows": 10,
+    "total_data_size_bytes": 3213,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/meWe/testdata.meWe.meWePolls.josh_ios17_ffs.zip",
+    "start_time": "2026-08-24T18:36:33.884717+00:00",
+    "end_time": "2026-08-24T18:36:33.923426+00:00",
+    "run_time_seconds": 0.00238800048828125,
+    "last_commit": {
+      "hash": "aaac2bad87415e89fc76ec5712ec22bde09a0ee3",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-16T19:59:41-04:00",
+      "message": "Order conversation artifact columns by their declared roles"
+    }
+  },
+  "headers": [
+    "Post Created",
+    "End Date",
+    "Question",
+    "Options",
+    "Option Votes",
+    "Selected Option (client state)",
+    "Option Count",
+    "Closed",
+    "Posted By User ID",
+    "Post ID"
+  ],
+  "data": [
+    [
+      1713285331,
+      "",
+      "Which type of content do you wish was easier to find through the MeWe search function?",
+      "Pages | Groups and communities | Events | News and articles relevant to your interests | Specific users or influencers",
+      "173 | 1659 | 133 | 252 | 364",
+      null,
+      5,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "661ea8d3ef0b962b473cd3ba"
+    ],
+    [
+      1711464495,
+      "",
+      "Which of the following options would best help foster constructive political discussions on our platform?",
+      "Dedicated spaces for community-driven, respectful political dialogue | Resources to help users critically evaluate political information | Clearer guidelines on what constitutes respectful and constructive discussions | No changes are needed | Tools for users to more easily report inaccurate or harmful content",
+      "153 | 322 | 208 | 770 | 394",
+      null,
+      5,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "6602e02fe0998470aba5304c"
+    ],
+    [
+      1712677443,
+      "",
+      "The most important thing to me is:",
+      "Staying away from Big Tech | Connecting with new people | An ad-free experience | Finding interesting content | Privacy",
+      "264 | 968 | 233 | 1511 | 1121",
+      null,
+      5,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "66156243a176732dc2e07424"
+    ],
+    [
+      1712154925,
+      "",
+      "Which of these features needs the most improvement?",
+      "Search | Stories | Profiles | Groups | Chats",
+      "545 | 312 | 979 | 525 | 709",
+      null,
+      5,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "660d692dad51017252b2ab2b"
+    ],
+    [
+      1713889732,
+      "",
+      "When using the search function on MeWe, what is your primary goal? Please select the option that best describes your most frequent use of this feature.",
+      "I use it to find a group I joined | Exploring specific topics that interest me | Finding new content | Finding friends or users I follow | Discovering new interesting groups",
+      "231 | 888 | 357 | 656 | 874",
+      null,
+      5,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "6627e1c48be29d3a582fb2c2"
+    ],
+    [
+      1710867273,
+      "",
+      "How do you feel about the discussions related to politics on our platform?",
+      "Often dominated by extreme viewpoints or misleading information | They negatively impact my experience on MeWe | I haven\u2019t noticed any issues | Generally OK but could be more constructive | Respectful and informative",
+      "556 | 181 | 808 | 306 | 674",
+      null,
+      5,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "65f9c34956789e32fbdc7226"
+    ],
+    [
+      1714503939,
+      "",
+      "How do you support your favorite content creators?",
+      "I encourage others to follow them | I pay for subscriptions and exclusive perks | I engage with and share their content | I support by viewing and liking only",
+      "405 | 212 | 1442 | 882",
+      null,
+      4,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "663141037585e45aa6bb8241"
+    ],
+    [
+      1720017409,
+      "",
+      "Where is it important to see posts with recent comments?",
+      "In my home feed | In both my home and group feeds | In my group feed",
+      "1210 | 1686 | 579",
+      null,
+      3,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "66856201933f14112a77d9cd"
+    ],
+    [
+      1716993912,
+      "",
+      "How easy do you find it to report inappropriate content on MeWe?",
+      "It could be simplified | It is user-friendly and efficient | I don't know how to report content | Straightforward, but could use some minor improvements | It is not good and should be improved",
+      "313 | 1204 | 508 | 455 | 246",
+      null,
+      5,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "66573f787e04097958f03e7f"
+    ],
+    [
+      1715780011,
+      "",
+      "How do you stay connected to your closest friends on MeWe?",
+      "I wish there was a better way on MeWe | I only follow my closest friends | I use the \"Favorites\" function | I use the chat feature | We are all in a group together | I use voice and video",
+      "179 | 615 | 275 | 757 | 875 | 1216",
+      null,
+      6,
+      "",
+      "5cfa2aa14eddd07d431314b8",
+      "6644b9abc26fcf732f70cbb4"
+    ]
+  ]
+}

@@ -1,14 +1,18 @@
 __artifacts_v2__ = {
     "widgets": {
         "name": "Widgets",
-        "description": "Snapshots of widgets saved by iOS appear here. \
-            Dates and times shown are from file modified timestamps",
+        "description": "Snapshot images from the com.apple.chrono snapshot-cache folder. Dates "
+                       "and times shown are from file modified timestamps",
         "author": "@maala-nfi",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "Most code copied from appSnapshots.py",
+        "notes": "Each .snapshot file under com.apple.chrono/snapshot-cache that decodes as a KTX "
+                 "image is converted to PNG and shown; files that do not decode are not listed. "
+                 "App Name is cut from the snapshot folder name (the text before the first space, "
+                 "with 'sceneID:' removed, up to the first hyphen). Date Modified is the modified "
+                 "time recorded for the snapshot file when it was checked in as media.",
         "paths": ('*/Library/Caches/com.apple.chrono/snapshot-cache/*/*/*.snapshot',),
         "output_types": "standard",
         "artifact_icon": "package",

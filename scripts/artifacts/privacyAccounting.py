@@ -4,7 +4,8 @@ __artifacts_v2__ = {
         'description': 'Resource-access records from the privacyaccountingd SEGB streams under '
                        'PrivacyAccounting/Biome (tcc, location, oop): the accessing bundle '
                        'identifier, the TCC service name where the stream carries one, an access '
-                       'identifier shared by paired records, and the record kind.',
+                       'identifier that paired two records in the contributed sample, and the '
+                       'record kind.',
         'author': '@abrignoni, @mattiaepi (Mattia Epifani)',
         'creation_date': '2026-07-31',
         'last_update_date': '2026-08-20',
@@ -12,21 +13,27 @@ __artifacts_v2__ = {
         'category': 'App Permissions',
         'notes': ('Biome-format SEGB v2 streams stored under PrivacyAccounting/Biome rather than '
                   'the main Biome folder; location reported and sample data provided by Mattia '
-                  'Epifani. Recording is gated by a setting: privacyaccountingd contains the log '
-                  'string "Logging disabled, ignoring incoming access" and a '
-                  'PASettingsLoggingEnabled key, and in every local test image the stream folders '
-                  'exist with no records. This gating is consistent with the App Privacy Report '
-                  'feature, which is off until enabled. Kind is an integer reported as stored: in '
-                  'the sample data every access identifier appeared exactly twice, kind 2 then '
-                  'kind 3, and privacyaccountingd\'s log strings describe accesses as begin/end '
-                  'intervals, but the kind values themselves are not documented. Records in the '
-                  'location stream carry no service name; in the sample data the tcc stream held '
-                  'kTCCService* names and the oop stream held a numeric value there. Pruned '
-                  'records remain in the live segments as deleted-state SEGB entries whose '
-                  'payload bytes were zeroed in the sample data but whose timestamps survive: '
-                  'they are reported with timestamp, state and stream only, and reached months '
-                  'to years before the earliest written record, showing that access events '
-                  'occurred at those times without identifying the client or service.'),
+                  'Epifani. privacyaccountingd contains the log string "Logging disabled, '
+                  'ignoring incoming access" and a PASettingsLoggingEnabled key (the iOS build of '
+                  'the binary read is not recorded here); whether and how these relate to '
+                  'recording on a given device is not established here. In every local test image '
+                  'the stream folders exist with no records. Kind is an integer reported as '
+                  'stored: in the contributed sample (not a registered corpus) every access '
+                  'identifier appeared exactly twice, kind 2 then kind 3, and '
+                  'privacyaccountingd\'s log strings describe accesses as begin/end intervals, '
+                  'but the kind values themselves are not documented. Records in the location '
+                  'stream carry no service name; in the contributed sample the tcc stream held '
+                  'kTCCService* names and the oop stream held a numeric value '
+                  'there. Deleted-state SEGB entries remain in the live segments; in the '
+                  'contributed sample their payload bytes were zeroed and their timestamps '
+                  'survive. Where the payload does not decode they are reported with timestamp, '
+                  'state, stream, file name and offset only. Decoding is attempted for '
+                  'deleted-state entries too, so one whose payload decodes is reported with its '
+                  'decoded fields; whether such a row is an event separate from a Written row '
+                  'holding the same content is not established here. In the contributed sample '
+                  'their timestamps reached months to years before the earliest written record. '
+                  'Whether each such entry records an access event, and which client or service '
+                  'it involved, is not established from a zeroed payload.'),
         'paths': ('*/mobile/Library/PrivacyAccounting/Biome/com.apple.privacy.accounting.stream*/local/*',),
         'output_types': 'standard',
         'artifact_icon': 'shield-lock',
@@ -38,23 +45,27 @@ __artifacts_v2__ = {
     'privacyAccountingTombstones': {
         'name': 'Privacy Accounting - Stream Tombstones',
         'description': 'Entries from the tombstone folders of the privacyaccountingd SEGB '
-                       'streams. Each entry names a stream segment file and the recording '
-                       'process; entry timestamps record when the entries were written.',
+                       'streams. A decoded entry carries a stream segment name and a '
+                       'process name; the SEGB timestamp of each entry is reported as '
+                       'stored.',
         'author': '@abrignoni, @mattiaepi (Mattia Epifani)',
         'creation_date': '2026-07-31',
         'last_update_date': '2026-08-20',
         'requirements': 'none',
         'category': 'App Permissions',
-        'notes': ('Tombstone entries accompany pruning of the access streams: privacyaccountingd '
-                  'holds a com.apple.PrivacyAccounting.prune activity and is the process named '
-                  'in every sample entry. Referenced segment names decode as Apple absolute '
-                  'timestamps in microseconds (the Referenced Segment Name Time column); in '
-                  'unpruned segments observed, that time matched the earliest record. Referenced '
-                  'segments may no longer exist or may have been rewritten since an entry was '
-                  'made. Fields 2, 3, 4 and 6 are integers whose meaning is not documented and '
-                  'are reported as stored. In the sample data, tombstone entries existed for '
-                  'segments dating back well before the earliest surviving stream records, '
-                  'documenting that older data existed and was removed.'),
+        'notes': ("privacyaccountingd holds a com.apple.PrivacyAccounting.prune activity string "
+                  "and is the process named in every sample entry; whether tombstone entries are "
+                  "written by that pruning activity is not established here. Referenced segment "
+                  "names decode as Apple absolute timestamps in microseconds (the Referenced "
+                  "Segment Name Time column); in segments of the contributed sample (not a "
+                  "registered corpus) that were still present, that time equalled the timestamp "
+                  "of the earliest record; the number of segments compared is not recorded here. "
+                  "Referenced segments may no longer exist or may have been rewritten since an "
+                  "entry was made. Fields 2, 3, 4 and 6 are integers whose meaning is not "
+                  "documented and are reported as stored. In the contributed sample, "
+                  "tombstone entries named segments dating back well before the earliest "
+                  "surviving stream records. Whether those segments held records, and why they "
+                  "are absent, is not established from the tombstone alone."),
         'paths': ('*/mobile/Library/PrivacyAccounting/Biome/com.apple.privacy.accounting.stream*/local/*',),
         'output_types': 'standard',
         'artifact_icon': 'trash',
@@ -131,7 +142,7 @@ def _stream_files(context, tombstones):
             continue
         if not os.path.isfile(file_found):
             continue
-        is_tombstone = 'tombstone' in file_found.replace('\\', '/').split('/')
+        is_tombstone = 'tombstone' in context.get_relative_path(file_found).replace('\\', '/').split('/')
         if is_tombstone == tombstones:
             yield file_found
 

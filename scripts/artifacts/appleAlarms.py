@@ -7,7 +7,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Clock",
-        "notes": "Repeat-schedule bitmask mapping observed in testing; not vendor-documented.",
+        "notes": "The Repeat Schedule labels (1 Monday, 2 Tuesday, 4 Wednesday, 8 Thursday, 16 "
+                 "Friday, 32 Saturday, 64 Sunday, 127 Every Day, 0 Never) are assigned by this "
+                 "module and are not vendor-documented. The comparison they were derived from is "
+                 "not recorded here.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",

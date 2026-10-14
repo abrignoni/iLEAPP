@@ -4,13 +4,21 @@ __artifacts_v2__ = {
         "description": "Passcode-change callbacks, upgrade detections, and lockdownd startup records",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "System Activity",
         "notes": (
-            "Timestamps are stored without a UTC offset and are reported as device-local time. "
-            "A lockdownd startup record shows that the daemon started; it is not, by itself, "
-            "proof that the device booted. Event selection is based on research by Ian Whiffin: "
+            "Timestamps are stored without a UTC offset and are reported as stored text "
+            "in a column headed Timestamp (as stored, no offset); the zone is not established. "
+            "One row on iphone11_ios17 and dexter_ios18 carries a reading the former "
+            "parser dates 1969-12-31. A lockdownd startup record shows that the daemon started; "
+            "it is not, by itself, proof that the device booted. Event selection is based on "
+            "research by Ian Whiffin, 'KnowledgeC (and Friends)'. A line containing roll_keys: "
+            "Detected upgrade is labelled Upgrade detected by lockdownd, except that a line "
+            "containing Detected upgrade from (NULL) is labelled Upgrade detected by lockdownd, "
+            "from (NULL). The cited research reads the from (NULL) form as setup after a wipe; "
+            "that reading was not tested here, and no line of that form was counted on the "
+            "listed images. Reference: "
             "https://doubleblak.com/blogPost.php?k=knowledgec"
         ),
         "paths": ("*/private/var/logs/lockdownd.log", "*/private/var/logs/lockdownd.log.*"),
@@ -36,8 +44,11 @@ _LINE_RE = re.compile(
     r"^(?P<timestamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\.\d+)"
     r"\s+pid=(?P<pid>\d+)\s+(?P<message>.*)$"
 )
+# Order matters: the first marker found in the message decides the label, so the
+# narrower from (NULL) form is tested before the general upgrade marker.
 _EVENT_MARKERS = (
     ("password_changed_callback", "Device passcode changed"),
+    ("Detected upgrade from (NULL)", "Upgrade detected by lockdownd, from (NULL)"),
     ("roll_keys: Detected upgrade", "Upgrade detected by lockdownd"),
     ("main: Starting Up", "Lockdownd startup"),
 )
@@ -57,19 +68,19 @@ def _parse_lockdown_line(line):
         return None
 
     try:
-        timestamp = datetime.strptime(
+        datetime.strptime(
             match.group("timestamp"), "%m/%d/%y %H:%M:%S.%f"
         )
     except ValueError:
         return None
 
-    return timestamp, event_type, int(match.group("pid")), message
+    return match.group("timestamp"), event_type, int(match.group("pid")), message
 
 
 @artifact_processor
 def lockdownEvents(context):
     data_headers = (
-        ("Timestamp (Device Local, No Offset)", "datetime"),
+        "Timestamp (as stored, no offset)",
         "Event",
         "PID",
         "Log Message",

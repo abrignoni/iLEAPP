@@ -1,15 +1,18 @@
 __artifacts_v2__ = {
 'Ph094_1iOS14RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph094.1-iOS14_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
+'description': 'Parses asset records from PhotoData-Photos.sqlite on iOS 14 only; no rows are returned'
+' on other versions. One asset appears on more than one row when it has more than one'
+' internal resource, album, face, person, memory, share participant or suggestion, among'
+' other joined tables, so the row count is not an asset count. Integer codes are shown'
+' with labels taken from the research of Scott Koenig; a value with no label is shown as'
+' Unknown-New-Value! with the stored number. Some labels are marked by the author as'
+' still being tested. The output has 1,270 columns. The TSV export is easier to search'
+' and filter than the HTML page.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -38,15 +41,19 @@ __artifacts_v2__ = {
 },
 'Ph094_2iOS14RefforAssetAnalysisSyndPL': {
 'name': 'Ph094.2-iOS14_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite on iOS 14'
+' only; no rows are returned on other versions. One asset appears on more than one row'
+' when it has more than one internal resource, album, face, person, memory, share'
+' participant or suggestion, among other joined tables, so the row count is not an asset'
+' count. Integer codes are shown with labels taken from the research of Scott Koenig; a'
+' value with no label is shown as Unknown-New-Value! with the stored number. Some labels'
+' are marked by the author as still being tested. sample_data records 0 rows on twelve'
+' images, none of which runs iOS 14, so no recorded image has exercised this query. The'
+' output has 1,270 columns. The TSV export is easier to search and filter than the HTML'
+' page. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
@@ -90,6 +97,9 @@ def Ph094_1iOS14RefforAssetAnalysisPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("15")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -574,7 +584,7 @@ def Ph094_1iOS14RefforAssetAnalysisPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -4598,6 +4608,9 @@ def Ph094_1iOS14RefforAssetAnalysisPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph094_2iOS14RefforAssetAnalysisSyndPL(context):
     files_found = context.get_files_found()
@@ -4612,6 +4625,9 @@ def Ph094_2iOS14RefforAssetAnalysisSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("15")):
         logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path
@@ -5096,7 +5112,7 @@ def Ph094_2iOS14RefforAssetAnalysisSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -9119,3 +9135,6 @@ def Ph094_2iOS14RefforAssetAnalysisSyndPL(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
+    return (), [], source_path

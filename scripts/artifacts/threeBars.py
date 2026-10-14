@@ -2,18 +2,21 @@ __artifacts_v2__ = {
     'threeBarsNetworks': {
         'name': 'Wi-Fi ThreeBars - Networks',
         'description': 'Wi-Fi networks held in the Wi-Fi daemon ThreeBars cache, with the '
-                       'centroid coordinates the location service reported for each one',
+                       'centroid coordinates stored against each one',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('ThreeBars caches tiles of Wi-Fi location data that the device downloaded. '
-                  'A row records what the location service reported '
-                  'about a network, not that this device connected to it or observed it, and '
-                  'the coordinates are the network position rather than a device position. '
+        'notes': ("ThreeBars holds Wi-Fi network records with coordinates stored against each "
+                  "network. A row does not establish that this device connected to or observed "
+                  "the network, and the coordinates are stored against the network rather than "
+                  "as a device position; how the cache is populated is not sourced here. "
                   'The venue, type, authentication mask and score columns are integer codes '
-                  'whose values are not documented and are reported as stored. A row whose '
+                  "whose values are not documented and are reported as stored. Captive, "
+                  "Public, Moving, Suspicious and Low Quality show a stored 1 as Yes and 0 "
+                  "as No; what sets them is not sourced here. Created is ZCREATED; what "
+                  "event it marks is not sourced here. A row whose "
                   'latitude and longitude are both exactly zero holds no position and is '
                   'reported with empty coordinates rather than plotted at 0/0.'),
         'paths': ('*/root/Library/Caches/com.apple.wifid/ThreeBars.sqlite*',),
@@ -29,14 +32,15 @@ __artifacts_v2__ = {
     'threeBarsAccessPoints': {
         'name': 'Wi-Fi ThreeBars - Access Points',
         'description': 'Individual access points in the Wi-Fi daemon ThreeBars cache, with '
-                       'their BSSID and reported coordinates',
+                       'their BSSID and the coordinates stored against each',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('Same caveat as the networks artifact: these are access points the location '
-                  'service reported for the area, not access points this device connected to. '
+        'notes': ("Same caveat as the networks artifact: a row does not establish that this "
+                  "device connected to the access point, and how the cache is populated is not "
+                  "sourced here. "
                   'Each row is joined to its parent network through ZNETWORK. A row whose '
                   'latitude and longitude are both exactly zero holds no position and is '
                   'reported with empty coordinates rather than plotted at 0/0.'),
@@ -51,15 +55,18 @@ __artifacts_v2__ = {
     },
     'threeBarsTiles': {
         'name': 'Wi-Fi ThreeBars - Downloaded Tiles',
-        'description': 'Map tiles of Wi-Fi location data downloaded by the Wi-Fi daemon, with '
-                       'the time of each download',
+        'description': "Tile records in the Wi-Fi daemon ThreeBars cache, with the timestamp "
+                       "stored against each",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('A tile row records that the device requested Wi-Fi location data covering '
-                  'an area at a given time. The tile key is not decoded here because its '
+        'notes': ("A tile row carries a key and a ZCREATED time. The key, Network Count and "
+                  "ETag are reported as stored and the time is read as a Core Data time and "
+                  "shown in UTC; what event "
+                  "writes a tile row is not sourced here. The tile key is not decoded here "
+                  "because its "
                   'mapping to a geographic area is not documented; the networks and access '
                   'points belonging to a tile carry the coordinates.'),
         'paths': ('*/root/Library/Caches/com.apple.wifid/ThreeBars.sqlite*',),

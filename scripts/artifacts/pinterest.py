@@ -1,30 +1,36 @@
 __artifacts_v2__ = {
     "pinterestAccount": {
         "name": "Pinterest - Account",
-        "description": "Parses the signed in account record stored by the Pinterest iOS app.",
+        "description": "Parses the account record in Documents/activeUser* files.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Pinterest",
         "notes": "Read from the activeUser file in the app's Documents directory, an "
-                 "NSKeyedArchiver archive of the account record as the API returned it. The "
-                 "app writes the same record twice, once as activeUser and once as "
-                 "activeUser followed by the account id; the two were byte identical in both "
-                 "tested samples, so rows are keyed on the account id and the duplicate is "
-                 "reported once with both file names in Source File. Account Created and Last "
-                 "Board Created are RFC 2822 strings carrying their own UTC offset, so they "
-                 "are converted from that offset rather than from an assumed zone; neither "
-                 "landed on midnight in the tested samples, so they are instants and not "
-                 "calendar dates. The counts are the values the record carries, not a count "
-                 "of anything parsed from this extraction. The record's key set differs "
-                 "between app versions, so every column is read by key with an empty value "
-                 "when the key is absent, and absence of a key is not evidence the setting "
-                 "was off. Field mapping was done against private samples; no sample data is "
-                 "recorded for them.",
+                 "NSKeyedArchiver archive of the account record. In both tested samples the "
+                 "record was present twice, once as activeUser and once as activeUser "
+                 "followed by the account id; the two were byte identical, so rows are "
+                 "keyed on the account id and the duplicate is reported once with both file "
+                 "names in Source File. Account Created and Last Board Created are RFC 2822 "
+                 "strings carrying their own UTC offset, so they are converted from that "
+                 "offset rather than from an assumed zone; neither landed on midnight in the "
+                 "tested samples, so they are instants and not calendar dates. The counts are "
+                 "the values the record carries, not a count of anything parsed from this "
+                 "extraction. The record's key set differs between app versions, so every "
+                 "column is read by key with an empty value when the key is absent, and "
+                 "absence of a key is not evidence the setting was off. The file name is not "
+                 "specific to Pinterest, so an activeUser file is read only when its container "
+                 "also holds Library/Preferences/pinterest.plist or "
+                 "Library/Preferences/com.pinterest.applicationhealthmonitor.plist. An "
+                 "activeUser file in any other container is skipped with a log line, so no "
+                 "rows is not evidence that no such file exists. The container check was "
+                 "added on 2026-10-09 and has not been run on a sample. Field mapping was "
+                 "done against private samples; no sample data is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Documents/activeUser*',
             '*/mobile/Containers/Data/Application/*/Library/Preferences/pinterest.plist',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/com.pinterest.applicationhealthmonitor.plist',
         ),
         "output_types": "standard",
         "artifact_icon": "user"
@@ -41,14 +47,14 @@ __artifacts_v2__ = {
                  "NSKeyedArchiver archive of one cached API response and the file name is the "
                  "percent encoded request path. Files whose decoded path begins with "
                  "conversations/ hold PIMessage objects and are parsed here. This is a "
-                 "response cache, not a message store: it holds what the app last fetched for "
-                 "the conversations it opened, so it is neither the complete message history "
-                 "nor evidence that other conversations do not exist.\n"
+                 "response cache, not a message store: it holds the responses found cached "
+                 "for conversation requests; when each was fetched and whether it replaced an "
+                 "earlier one is not established here, so it is neither the complete message "
+                 "history nor evidence that other conversations do not exist.\n"
                  "The cache key of the response parsed from the tested sample carries the "
-                 "request parameter hide_sys_msg true, so system messages were excluded by "
-                 "the server before the response was cached and none appear here. A file whose "
-                 "key does not carry that parameter is parsed the same way and its system "
-                 "messages, if any, would be reported.\n"
+                 "request parameter hide_sys_msg true, and no system messages appear in that "
+                 "response. A file whose key does not carry that parameter is parsed the same "
+                 "way.\n"
                  "Direction is derived by comparing the message sender id against the signed "
                  "in account id read from the activeUser file, so it is reported only when "
                  "that file is present in the extraction. Every message in the tested "
@@ -71,13 +77,13 @@ __artifacts_v2__ = {
                  "identity: the file name in the app's PINRemoteImage cache is the percent "
                  "encoded image URL, so a cached file is matched by decoding its name and "
                  "comparing it to the pin's own image URL, with no size or time correlation. "
-                 "The largest rendition present on disk is rendered; a pin whose renditions "
-                 "were never downloaded is reported with an empty media cell, which does not "
-                 "establish that the image was never on the device. Both shared pins of the "
-                 "tested sample had one rendition cached and two not, so the rendered path "
-                 "and the partly absent path were both exercised, but a pin with nothing on "
-                 "disk was not observed. Field mapping was done against private samples; no "
-                 "sample data is recorded for them.",
+                 "The largest rendition present on disk is rendered; a pin with no rendition "
+                 "found in the image cache is reported with an empty media cell, which does "
+                 "not establish that the image was never on the device. Both shared pins of "
+                 "the tested sample had one rendition cached and two not, so the rendered "
+                 "path and the partly absent path were both exercised, but a pin with nothing "
+                 "on disk was not observed. Field mapping was done against private samples; "
+                 "no sample data is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteModelCache/*',
             '*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*',
@@ -109,20 +115,20 @@ __artifacts_v2__ = {
         "category": "Pinterest",
         "notes": "One row per file in the app's PINRemoteModelCache. The file name is the "
                  "percent encoded path and query of the API request whose response it holds, "
-                 "so the decoded name states what the app asked the server for; any nineteen "
-                 "digit run inside it is reported separately as a referenced identifier, "
+                 "so the decoded name states what the app asked the server for; any run of 16 to "
+                 "20 digits inside it is reported separately as a referenced identifier, "
                  "because on the tested sample those matched the signed in account id and a "
                  "conversation id, but what a given identifier points at is not established "
                  "here. Model Count is the number of objects in the cached response and Model "
                  "Class is the archived class name of the first of them, both read from the "
-                 "archive. A cached response with zero models is reported as such: it records "
-                 "that the app made the request and the server returned nothing, which is not "
-                 "the same as the app never making it.\n"
+                 "archive. A cached response with zero models is reported as such: it shows that "
+                 "a cached response file exists for that request path with an empty model list. "
+                 "Why the list is empty is not established here.\n"
                  "Created and Modified are the file system dates the extraction recorded for "
-                 "the cache file, not times the app wrote into the record. This library keys "
-                 "its cache entries on the request path, so an entry is overwritten in place "
-                 "when the same request is repeated and these dates describe the most recent "
-                 "fetch only. Field mapping was done against private samples; no sample data "
+                 "the cache file, not times the app wrote into the record. Whether an earlier "
+                 "response for the same request path was overwritten is not established here, so "
+                 "these dates describe the cache file as found. Field mapping was done against "
+                 "private samples; no sample data "
                  "is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteModelCache/*',
@@ -138,21 +144,30 @@ __artifacts_v2__ = {
         "description": "Parses and renders the PINRemoteImage disk cache of the Pinterest iOS app.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Pinterest",
-        "notes": "Each file in this cache is named for the URL it was fetched from, percent "
-                 "encoded, so the source URL is recovered by decoding the file name rather "
-                 "than by correlating anything. Every file name in both tested samples "
-                 "decoded to a URL, 253 of 253.\n"
-                 "PINRemoteImage is Pinterest's own open source image library and other "
-                 "applications embed it, so this cache directory carries the "
-                 "com.pinterest.PINDiskCache prefix inside those applications' containers "
-                 "too. Rows are therefore restricted to files sitting under a container that "
-                 "also holds a file only the Pinterest application writes, and cache files "
-                 "found under any other container are skipped with a log line rather than "
-                 "reported here. If no such container is identified, no rows are produced and "
-                 "that is logged; it is not evidence the cache was empty.\n"
+        "notes": "In the tested samples each file in this cache was named for the URL it was "
+                 "fetched from, percent encoded. The Cache File Name (decoded) column is the "
+                 "file name with the percent encoding removed, and Host is the host part of "
+                 "that name when it reads as a URL. The library names a file by an MD5 hash instead when the URL key is "
+                 "longer than 200 characters, and adds a suffix for processed images "
+                 "(https://github.com/pinterest/PINRemoteImage/blob/f16af5e8bbb7541e7faeb741e09bc548a663f2b4/Source/Classes/PINRemoteImageManager.m#L1558-L1591); "
+                 "for such a file the column holds the decoded name as found, not a URL. "
+                 "Every file name in both tested private samples decoded to a URL, 253 of 253.\n"
+                 "PINRemoteImage is an open source image library published by Pinterest, and its "
+                 "disk cache directory is named with the prefix com.pinterest.PINDiskCache "
+                 "(https://github.com/pinterest/PINCache/blob/00733305a8a808f1adb0e001428e494e10fe03ee/Source/PINDiskCache.m#L27), "
+                 "so any application that embeds the library can carry a directory of this name in "
+                 "its own container. Rows are therefore restricted to files sitting under a "
+                 "container that also holds one of three marker files "
+                 "(Library/Preferences/pinterest.plist, "
+                 "Library/Preferences/com.pinterest.applicationhealthmonitor.plist, "
+                 "Documents/activeUser), and cache files found under any other container are "
+                 "skipped with a log line rather than reported here. That no other application "
+                 "writes a file named Documents/activeUser is not established. If no such "
+                 "container is identified, no rows are produced and that is logged; it is not "
+                 "evidence the cache was empty.\n"
                  "Types are taken from the leading bytes of each file, not from the URL, "
                  "because the cache stores jpeg, png and webp alike under a name that carries "
                  "no extension. Raster images are checked in and rendered. Anything whose "
@@ -189,20 +204,20 @@ __artifacts_v2__ = {
                  "URLs the corpus was fetched from on a Pinterest host, a version string "
                  "naming a country and gender audience segment with a dated build, a download "
                  "date and the local file prefix naming the database; the table's rows ran on "
-                 "a contiguous span of docids from one to the row count with no gaps, which is "
-                 "one bulk insert; every query value was distinct, which is a dictionary and "
-                 "not a history; the table declares a score column, which a user does not "
-                 "supply; and score decreased monotonically with the docid across every row of "
-                 "all three databases, so each was written once in server rank order. One "
-                 "sample also retained the raw downloaded partition files in the Documents "
-                 "directory as tab separated query and score pairs in that same descending "
-                 "order.\n"
+                 "a contiguous span of docids from one to the row count with no gaps; every "
+                 "query value was distinct; the table declares a score column, which a user "
+                 "does not supply; and score decreased monotonically with the docid across "
+                 "every row of all three databases, so each was written once in server rank "
+                 "order. One sample also retained the raw downloaded partition files in the "
+                 "Documents directory as tab separated query and score pairs in that same "
+                 "descending order.\n"
                  "Row Count is counted from the database. Downloaded and Last Checked come "
                  "from that preference, as an NSDate in Cocoa epoch seconds and a plist date "
                  "respectively. The Local File Prefix the preference records is the current "
-                 "cache; a database whose prefix does not match it is a superseded download "
-                 "still on disk and is reported with Current reading No. One tested sample "
-                 "named a prefix that was not present in the extraction at all, so the "
+                 "cache; a database whose prefix does not match it is reported with Current "
+                 "reading No. Current also reads No when the preference is absent or could not "
+                 "be read, so No does not by itself show the database was replaced. One tested "
+                 "sample named a prefix that was not present in the extraction at all, so the "
                  "preference row is reported even when its database is absent.\n"
                  "No store holding terms entered by the user was found in either tested "
                  "sample. Field mapping was done against private samples; no sample data is "
@@ -222,20 +237,22 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Pinterest",
-        "notes": "One row per preference key, with the value as stored. The app's preference "
-                 "file also holds the state of several embedded third party kits, so only "
-                 "keys whose names carry one of the application's own prefixes are reported "
-                 "and the rest are left out; the prefix list is matched rather than a fixed "
-                 "key list, so keys added by a later app version still appear. What the "
-                 "application does with each preference is not established here, so no "
-                 "meaning is asserted beyond the key name the application itself uses.\n"
+        "notes": "One row per preference key, with the value as stored. The preference file "
+                 "holds more keys than are reported: only keys whose names start with one of "
+                 "a fixed list of prefixes set in this module are reported, and every other "
+                 "key is left out without being examined. That the listed prefixes belong to "
+                 "the application and the rest to third party kits is not established here. "
+                 "A key added by a later app version appears only if it starts with one of "
+                 "those prefixes. What the application does with each preference is not "
+                 "established here, so no meaning is asserted beyond the key name the "
+                 "application itself uses.\n"
                  "A value that the plist stored as a date is converted; every other value is "
-                 "reported as text in the form it was stored, and a value that is a nested "
+                 "reported as text: a boolean as Yes or No, a list as its items joined by "
+                 "commas, a dictionary as its key count, and a value that is a nested "
                  "archive or binary payload is reported by its type and length rather than "
                  "decoded. The keys ending last_selected_date carry a tab number whose "
                  "meaning is not established, so the key name is reported as stored. Absence "
-                 "of a key is not evidence a setting was off; the app writes many of these "
-                 "only once the state they describe changes. Field mapping was done against "
+                 "of a key is not evidence a setting was off. Field mapping was done against "
                  "private samples; no sample data is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Preferences/pinterest.plist',
@@ -251,6 +268,7 @@ import re
 import sqlite3
 import urllib.parse
 import xml.parsers.expat
+from datetime import timezone
 from email.utils import parsedate_to_datetime
 from plistlib import UID
 
@@ -383,6 +401,23 @@ def _containers(files_found):
     return roots
 
 
+def _preference_containers(files_found):
+    '''Container directories holding one of the two Pinterest preference files.
+
+    Documents/activeUser is left out here: it is the file the account artifact
+    reads, so it cannot also be the evidence that its container is Pinterest's.
+    '''
+    roots = set()
+    for path in _paths(files_found):
+        normalized = path.replace('\\', '/')
+        for marker in CONTAINER_MARKERS[:2]:
+            index = normalized.rfind('/' + marker)
+            if index > 0:
+                roots.add(normalized[:index])
+                break
+    return roots
+
+
 def _container_of(path, roots):
     '''The Pinterest container a path sits under, or '' when it is outside them.
 
@@ -494,9 +529,15 @@ def _rfc2822(value):
     if not value or not isinstance(value, str):
         return ''
     try:
-        return parsedate_to_datetime(value)
+        parsed = parsedate_to_datetime(value)
     except (TypeError, ValueError):
         return value
+    if parsed.tzinfo is None:
+        # A '-0000' or unrecognized zone parses to a naive datetime. RFC 5322
+        # (3.3, 4.3) reads both as Universal Time with the sender's zone
+        # unknown, so pin UTC here.
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _text(value):
@@ -563,8 +604,19 @@ def pinterestAccount(context):
     data_list = []
     source_path = ''
 
-    roots = _containers(files_found)
-    for account_id, (record, names) in sorted(_account_records(files_found, roots).items()):
+    roots = _preference_containers(files_found)
+    kept, skipped = [], 0
+    for path in _paths(files_found):
+        if not os.path.basename(path).startswith('activeUser') or not os.path.isfile(path):
+            continue
+        if _in_container(path, roots):
+            kept.append(path)
+        else:
+            skipped += 1
+    if skipped:
+        logfunc(f'Pinterest: skipped {skipped} activeUser file(s) in a container that holds '
+                f'no Pinterest preference file; the file name is not specific to Pinterest.')
+    for account_id, (record, names) in sorted(_account_records(kept, roots).items()):
         source_path = source_path or 'activeUser'
         data_list.append((
             _rfc2822(record.get('created_at')),
@@ -789,7 +841,7 @@ def pinterestCachedImages(context):
     files_found = context.get_files_found()
     data_headers = (
         ('Created', 'datetime'), ('Modified', 'datetime'), ('Image', 'media'),
-        'Source URL', 'Host', 'Image Type', 'File Size (bytes)', 'Source File')
+        'Cache File Name (decoded)', 'Host', 'Image Type', 'File Size (bytes)', 'Source File')
     data_list = []
     source_path = ''
 

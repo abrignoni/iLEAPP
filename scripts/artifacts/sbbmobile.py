@@ -1,39 +1,67 @@
 __artifacts_v2__ = {
     "sbb_searchhistory": {
         "name": "SBB Mobile - Search History",
-        "description": "Parse search history in the SBB Mobile app",
-        "author": "jonah.osterwalder@vd.ch",
+        "description": "Rows of ZSEARCHRESULT in the SBB Mobile app's search history database",
+        "author": 'jonah.osterwalder@vd.ch, @AlexisBrignoni, Codex',
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Travel",
-        "notes": "",
+        "notes": (
+            "ZTIMESTAMP, ZLAT and ZLON are reported as stored without unit or epoch conversion. "
+            "Neither unit is sourced or measured here, and no tested image is recorded for this "
+            "artifact."
+        ),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.searchhistory.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "search"
     },
     "sbb_easyride_trips": {
         "name": "SBB Mobile - EasyRide Trips",
-        "description": "Parse EasyRide check-in and check-out events",
-        "author": "jonah.osterwalder@vd.ch",
+        "description": "Check-in and check-out times inferred from EasyRide log messages in ch.sbb.coredata.logs.sqlite",
+        "author": 'jonah.osterwalder@vd.ch, @AlexisBrignoni, Codex',
         "creation_date": "2026-03-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Travel",
-        "notes": "",
+        "notes": (
+            "Rows are built by this artifact, not stored. A ZLOGENTRY message containing "
+            "'EasyRide slider on the right, starting check-in process' or 'Fairtiq state update: "
+            "[checkingIn]' is treated as a check-in, and one containing 'EasyRide slider on the "
+            "left, starting check-out process' or 'Fairtiq state update: [checkingOut]' as a "
+            "check-out. Messages are paired in time order and ZTIMESTAMP Difference is computed from the "
+            "pair in the stored units. Unknown marks a message with no partner; when two check-in messages follow "
+            "each other, the first is reported with an Unknown check-out. A message that a "
+            "process is starting does not establish a completed check-in or check-out. ZTIMESTAMP "
+            "is reported as stored; its epoch and unit are not established. No tested image is recorded for this artifact."
+        ),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.logs.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "map"
     },
     "sbb_purchased_tickets": {
         "name": "SBB Mobile - Purchased Tickets",
-        "description": "Parse purchased tickets from SbbMobile",
-        "author": "jonah.osterwalder@vd.ch",
+        "description": (
+            'Rows of PurchasedTickets in the selected SbbMobile.db, with refundState reported as stored and text '
+            "fields extracted from each ticket's HTML."
+        ),
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-03-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Travel",
-        "notes": "Refund-state values other than COMPLETE are reported as stored.",
+        "notes": (
+            (
+            'refundState is reported directly as stored; its values do not establish whether a ticket was '
+            'refunded. The previous COMPLETE-to-Refunded interpretation had no located source and is not '
+            'retained. Valid from and Valid until are reported without conversion; their stored representation, '
+            "epoch and unit are not established here. Purchase Time is the first value in the ticket HTML's "
+            'ticketinformationen block, taken by position; its event meaning is not independently verified. The '
+            'date-first projection changes the timeline key from Traveler to Valid from without a date '
+            'conversion. Only the first matching SbbMobile.db is selected by the existing helper. No tested iOS '
+            'image is recorded for this artifact. Original contribution credited to jonah.osterwalder@vd.ch.'
+        )
+        ),
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SbbMobile.db*'),
         "output_types": "standard",
         "artifact_icon": "star"
@@ -57,7 +85,7 @@ def sbb_searchhistory(context):
 
     query = """
         SELECT	
-            datetime(ZTIMESTAMP / 1000, 'unixepoch'),
+            ZTIMESTAMP,
             ZFROM,
             ZFROMTYPE,
             ZTO,
@@ -68,25 +96,19 @@ def sbb_searchhistory(context):
     """
 
     data_headers = (
-        ('Search timestamp (UTC)','datetime'),
+        'ZTIMESTAMP (as stored)',
         'Departure', 
         'Departure type', 
         'Target', 
         'Target type', 
-        'Result Coordinates (lat/lon)',
+        'ZLAT (as stored)', 'ZLON (as stored)',
     )
 
     db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
 
-        # Coordinates as text
-        if record[5] and record[6]:
-            map_link = coordinate_to_text(record[5]/1_000_000, record[6]/1_000_000)
-        else:
-            map_link = ""
-
-        data_list.append(record[:5] + (map_link,))
+        data_list.append((str(record[0]) if record[0] is not None else '',) + tuple(record[1:]))
 
     return data_headers, data_list, source_path
 
@@ -105,15 +127,15 @@ def sbb_easyride_trips(context):
         SELECT 
             ZTIMESTAMP,
             ZMESSAGE,
-            datetime(ZTIMESTAMP + 978307200, 'unixepoch')
+            ZTIMESTAMP
         FROM ZLOGENTRY
         ORDER BY ZTIMESTAMP ASC
     '''
 
     data_headers = (
-        ('Check-in Time (UTC)', 'datetime'),
-        'Check-out Time (UTC)',
-        'Duration (min)',
+        'Check-in Log ZTIMESTAMP (as stored)',
+        'Check-out Log ZTIMESTAMP (as stored)',
+        'ZTIMESTAMP Difference (as stored)',
     )
 
     records = get_sqlite_db_records(source_path, query)
@@ -124,7 +146,7 @@ def sbb_easyride_trips(context):
     for record in records:
         timestamp = record[0]
         message = record[1]
-        timestamp_str = record[2]
+        timestamp_str = str(record[2]) if record[2] is not None else ''
 
         # Detect checkin / checkout 
         CHECKIN_MESSAGES = (
@@ -152,7 +174,7 @@ def sbb_easyride_trips(context):
             if current_checkin:
                 # calculate duration in minutes if both times known
                 if checkin_timestamp and timestamp:
-                    duration = round((timestamp - checkin_timestamp)/ 60, 1)
+                    duration = timestamp - checkin_timestamp
                 else:
                     duration = "Unknown"
 
@@ -185,10 +207,7 @@ def sbb_purchased_tickets(context):
             traveler,
             validFrom,
             validUntil,
-            CASE
-                WHEN refundState = 'COMPLETE' THEN 'Refunded'
-                ELSE refundState
-            END AS refundState,
+            refundState AS refundState,
             paymentMethodType,
             displayInfo_ticketType,
             screenTicket_contentHtml
@@ -198,24 +217,25 @@ def sbb_purchased_tickets(context):
     db_records = get_sqlite_db_records(source_path, query)
 
     data_headers = (
-        "Traveler",
-        "Valid from",
-        "Valid until",
-        "is Refunded",
-        "Payment method",
-        "Ticket description",
-        "Purchase Time",
-        "Departure",
-        "Target",
-        "Zones",
-        )
+        'Valid from',
+        'Valid until',
+        'Purchase Time',
+        'Traveler',
+        'refundState (as stored)',
+        'Payment method',
+        'Ticket description',
+        'Departure',
+        'Target',
+        'Zones',
+    )
 
     for record in db_records:
         html = record[-1]
         parsed = parse_ticket_html(html)
 
         data_list.append(
-            record[:6] + (parsed["purchase_time"], parsed["departure"], parsed["target"], parsed["zones"])
+            (record[1], record[2], parsed["purchase_time"], record[0], record[3],
+             record[4], record[5], parsed["departure"], parsed["target"], parsed["zones"])
             )
 
     return data_headers, data_list, source_path

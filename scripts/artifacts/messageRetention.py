@@ -2,15 +2,37 @@
 __artifacts_v2__ = {
     "messageRetention": {
         "name": "iOS Message Retention",
-        "description": "Extract how long messages are kept on the device",
+        "description": "The Keep Messages preference value stored in com.apple.MobileSMS.plist "
+                       "(KeepMessageForDays or SSKeepMessages)",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-03",
-        "version": "0.4",
+        "version": "0.5",
         "date": "2023-10-04",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "iOS <=16 / iOS 17+ key naming per tested corpora. This directory can hold com.apple.MobileSMS.plist and com.apple.mobileSMS.plist as two different files; 6 of 20 tested images carry both, iOS 14.3 through 26.5.2. Every match is read and each row names the file it was read from. Where the report folder is on a case-insensitive volume the two copies collide under data/, so the preserved copy at a row's path can hold the other file's bytes; the value reported is read before the overwrite. That collision is in the file seeker, not here. On all 6 of those images the lowercase-spelled file held the same three IMDCKBackupController* keys and no retention key, so it is reported as 'No value'. Row counts here are from runs on macOS. Windows cannot tell the two spellings apart, so where both exist it reports whichever single file the extraction preserved. Reference: Apple Support, 'Delete messages and attachments', https://support.apple.com/guide/iphone/delete-messages-and-attachments-iph2c9c4bfcb/ios",
+        "notes": "Setting names the file and the stored key the row was read from "
+                 "(KeepMessageForDays or SSKeepMessages). A file can hold both keys and then "
+                 "yields a row for each; which iOS releases write which key is not established "
+                 "here. Data Value reads Forever "
+                 "for a stored 0, 1 Year for 365 and 30 Days for 30, a mapping taken from values "
+                 "seen in the tested corpora; any other value is reported as 'Unrecognized value:' "
+                 "followed by the stored value. A file with neither key yields 'No value', and "
+                 "which setting applies then is not established here. "
+                 "This directory can hold com.apple.MobileSMS.plist and "
+                 "com.apple.mobileSMS.plist as two different files; 6 of the 20 tested images "
+                 "listed in sample_data carry both, iOS 14.3 through 26.5.2. Every found file is "
+                 "read and each row's Setting names the source spelling it was read from. Where "
+                 "the report folder is on a case-insensitive volume, the file seeker preserves "
+                 "the second copy under a name tagged ~case- and the row's path points at the "
+                 "copy holding the bytes it reports; the run log records which source each tagged "
+                 "copy came from. On all 6 of those images the lowercase-spelled file held the "
+                 "same three IMDCKBackupController* keys and no retention key, so it is reported "
+                 "as 'No value'. Row counts are from runs on macOS. A directory input sitting on "
+                 "a case-insensitive volume holds only the single file that extraction kept, so "
+                 "both spellings can only arrive from archive or case-sensitive inputs. "
+                 "Reference: Apple Support, 'Delete messages and attachments', "
+                 "https://support.apple.com/guide/iphone/delete-messages-and-attachments-iph2c9c4bfcb/ios",
         "paths": ('*/mobile/Library/Preferences/com.apple.[Mm]obileSMS.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "message-circle",
@@ -46,10 +68,9 @@ from scripts.ilapfuncs import artifact_processor, get_plist_file_content, device
 # Values observed in tested corpora. Anything else is reported as stored.
 _KEEP_VALUES = {0: 'Forever', 365: '1 Year', 30: '30 Days'}
 
-# The key Apple uses changed between generations; both are read.
-_KEEP_KEYS = (('KeepMessageForDays', 'iOS <=16'), ('SSKeepMessages', 'iOS 17+'))
-
-_PREFERENCES = '*/mobile/Library/Preferences/'
+# Two keys have been seen holding this preference; both are read and each row
+# is labelled with the key it came from.
+_KEEP_KEYS = ('KeepMessageForDays', 'SSKeepMessages')
 
 
 def _describe(val):
@@ -68,55 +89,37 @@ def messageRetention(context):
     data_headers = ('Setting', 'Data Value', 'Path')
     data_list = []
 
-    # One bracket class, never one pattern per spelling. os.path.normcase folds case on
-    # Windows, so two case-variant patterns compile to the same thing: both searches
-    # return the same first file, its rows are emitted twice, and the other file is
-    # never read.
+    # One bracket class in paths, never one pattern per spelling. os.path.normcase
+    # folds case on Windows, so two case-variant patterns compile to the same thing.
     #
-    # Both spellings can be present at once. iOS APFS is case-sensitive and 6 of the 20
-    # tested images carry com.apple.MobileSMS.plist and com.apple.mobileSMS.plist here
-    # as different files, so every spelling is read rather than only the first.
-    matches = seeker.search(_PREFERENCES + 'com.apple.[Mm]obileSMS.plist', force=True)
-    if not matches:
-        return data_headers, data_list, ''
-
+    # Both spellings can be present at once. iOS APFS is case-sensitive and 6 of the
+    # 20 tested images carry com.apple.MobileSMS.plist and com.apple.mobileSMS.plist
+    # here as different files. The seeker preserves case-variant copies under
+    # distinct destination names, so every found file is read directly; each row
+    # labels the source spelling and its path points at the copy holding the bytes
+    # that produced it.
     source_paths = set()
-    processed = set()
-    for spelling in sorted({os.path.basename(str(p)) for p in matches}):
-        # On Windows the two spellings name one file; process it once.
-        folded = os.path.normcase(spelling)
-        if folded in processed:
-            continue
-        processed.add(folded)
-
-        # Search for this one spelling and read it before looking for the next. The
-        # seeker copies each match into the report data folder, where the two spellings
-        # collide on a case-insensitive volume and the second copy overwrites the first,
-        # so reading has to happen between the copies rather than after both.
-        source_path = seeker.search(_PREFERENCES + spelling,
-                                    return_on_first_hit=True, force=True)
-        if not source_path:
-            continue
-
-        # Name the file that was actually read, which on a case-insensitive volume is
-        # not necessarily the spelling that was asked for.
-        filename = os.path.basename(source_path)
+    for source_path in sorted({str(p) for p in context.get_files_found()}):
+        info = seeker.file_infos.get(source_path)
+        filename = os.path.basename(info.source_path) if info else \
+            os.path.basename(source_path)
         source_paths.add(source_path)
+        rel_path = context.get_relative_path(source_path)
         pl = get_plist_file_content(source_path)
 
         found = False
-        for key, generation in _KEEP_KEYS:
+        for key in _KEEP_KEYS:
             if key not in pl:
                 continue
             keep_val = _describe(pl[key])
-            setting = f'{filename} - Keep Messages for Days ({generation})'
-            data_list.append((setting, keep_val, source_path))
+            setting = f'{filename} - Keep Messages for Days ({key})'
+            data_list.append((setting, keep_val, rel_path))
             device_info('Messages Settings', setting, keep_val, source_path)
             found = True
 
         if not found:
             setting = f'{filename} - Keep Messages for Days'
-            data_list.append((setting, 'No value', source_path))
+            data_list.append((setting, 'No value', rel_path))
             device_info('Messages Settings', setting, 'No value', source_path)
 
     return data_headers, data_list, '\n'.join(sorted(source_paths))

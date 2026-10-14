@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "cachev0",
+    "artifact_name": "Image cacheV0",
+    "function_name": "cachev0",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 3,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 1005,
+    "media_checkins": 0,
+    "media_embedded_checkins": 5,
+    "input_zip_path": "admin/test/cases/data/cachev0/testdata.cachev0.cachev0.mvs_ios_2023.zip",
+    "start_time": "2026-08-25T15:39:12.173339+00:00",
+    "end_time": "2026-08-25T15:39:12.201400+00:00",
+    "run_time_seconds": 0.0010399818420410156,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "ID",
+    "Media",
+    "Source DB"
+  ],
+  "data": [
+    [
+      1,
+      "mock_embedded_html_path",
+      "private/var/mobile/Containers/Data/Application/862D62F2-A6A8-476F-A76E-77885F11E736/Library/Caches/drivekit/users/100708051342911799753/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      1,
+      "mock_embedded_html_path",
+      "private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/117165063630066444062/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      2,
+      "mock_embedded_html_path",
+      "private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/117165063630066444062/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      1,
+      "mock_embedded_html_path",
+      "private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/100708051342911799753/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      2,
+      "mock_embedded_html_path",
+      "private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/100708051342911799753/image-fetcher-cache/main-cache/cacheV0.db"
+    ]
+  ]
+}

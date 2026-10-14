@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "module_name": "storeSystem",
+    "artifact_name": "Installed Apps - App Store Update Records",
+    "function_name": "storeSystemAppUpdates",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 19,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/storeSystem/testdata.storeSystem.storeSystemAppUpdates.mvs_ios_2023.zip",
+    "start_time": "2026-10-04T20:45:41.692123+00:00",
+    "end_time": "2026-10-04T20:45:41.733624+00:00",
+    "run_time_seconds": 0.01115107536315918,
+    "last_commit": {
+      "hash": "15e7c988b5c9cbb1d904b3fe3f3de78042708ed3",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-04T08:10:39-04:00",
+      "message": "Fix wrong values, joins and misnamed headers in 46 artifact modules"
+    }
+  },
+  "headers": [
+    "Record Timestamp",
+    "Install Date",
+    "Latest Version Released",
+    "App First Released",
+    "releaseTimestamp (as stored)",
+    "releaseDate (as stored)",
+    "App Name",
+    "Bundle ID",
+    "Developer",
+    "Genre",
+    "Latest Version",
+    "Release Notes",
+    "Item ID",
+    "Store Software Version ID",
+    "External Version ID",
+    "Update State",
+    "Package Type",
+    "Installer Packaging Type",
+    "App Store URL"
+  ],
+  "data": []
+}

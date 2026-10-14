@@ -1,20 +1,15 @@
 __artifacts_v2__ = {
 'Ph033iCldSPLAssetsfromothercontribPhDaPsql': {
-'name': 'Ph033-iCld SPL Assets from other contrib-PhDaPsql',
-'description': 'Parses Assets in iCloud Shared Photo Library from other contributors'
-' from PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
-' Parses basic asset and iCloud SPL data for assets that were shared by other contributors.'
-' If you are attempting to match SPL count with results please check'
-' hidden, trashed, and burst assets.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'name': 'Ph033-Shared Photo Library Asset Records-PhDaPsql',
+'description': 'Reports ZASSET rows selected by version-specific Shared Photo Library predicates in PhotoData/Photos.sqlite, with joined share and participant fields. On iOS 16 and 17, rows require the joined participant ZISCURRENTUSER value to equal 0. On iOS 18 through 26, rows require ZASSET.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE to equal 1 and no participant-current-user predicate is applied. Joined rows may repeat assets. These predicates and stored identifiers do not by themselves establish ownership or who created, added, or contributed an asset. Other versions return no rows. Original query research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.',
+'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'Original contribution and Photos query research credited to Scott Koenig. Artifact naming was neutralized to cover both existing version-specific selections; no query, native value, timestamp, source selection, or row multiplicity was changed. Historical sample_data entries are retained and are not a claim of fresh validation. Existing enum interpretations and contributor/ownership meanings are not independently established by this metadata change. Existing first-main selection, scattered date columns, unsupported-version behavior, and unrelated repetitive Photos SQL semantics remain outside this scope.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "cloud-download",
@@ -56,6 +51,9 @@ def Ph033iCldSPLAssetsfromothercontribPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
@@ -526,3 +524,6 @@ def Ph033iCldSPLAssetsfromothercontribPhDaPsql(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
+    return (), [], source_path

@@ -2,18 +2,28 @@ __artifacts_v2__ = {
     "get_biomeIntents": {
         "name": "Biome - Intents",
         "description": "Parses app intent entries from biomes",
-        "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Each record is parsed independently: a record that cannot be decoded is "
-                 "logged with its file and offset and skipped, so one malformed entry no "
-                 "longer discards the rest of the stream. Intent payloads are app-authored "
-                 "and their inner shape varies by app and iOS version, so an app branch that "
-                 "cannot read its own payload still emits the record metadata. Labels inside "
-                 "the Data column (thread, sender, number) are inferred from observed record "
-                 "content; the underlying protobuf fields are not documented.",
+        "notes": "Each record is parsed independently: a record that cannot be decoded is logged with"
+                 " its file and offset and skipped, so one malformed entry no longer discards the "
+                 "rest of the stream. In the records examined the inner shape of the intent payload "
+                 "differed between apps, so an app branch that cannot read its own payload still "
+                 "emits the record metadata. The Data column is filled only for Instagram, Snapchat, "
+                 "Siri assistant service, Notes, Telegram, InCallService, WhatsApp, Signal, Messages "
+                 "and Maps records; for other apps it is empty, and the HTML report shows the text "
+                 "'Unsupported intent' there. Records whose plist cannot be read, or whose intent "
+                 "holds no payload, are logged and skipped, and records in the Deleted SEGB state are"
+                 " not reported. direction (as stored) reports the decoded plist direction value "
+                 "without assigning enum names. A missing direction key remains None in the native "
+                 "row; this does not establish communication direction or participant ownership. "
+                 "Donated by Siri reads True or False from the truth value of the _donatedBySiri key "
+                 "and is blank when the record has no such key. Labels "
+                 "inside the Data column (thread, sender, number) are inferred from observed record "
+                 "content; the underlying protobuf fields are not documented. Original parser "
+                 "credits: @JohnHyla and @mattiaepi (Mattia Epifani).",
         "paths": (
             '*/AppIntent/local/*',
             '*/streams/*/App.Intent/local/*',
@@ -121,16 +131,13 @@ def _parse_record(protostuff, filename, offset):
     enddate = _safe_time_obj(date_interval.get('NS.endDate'))
     durationinterval = date_interval.get('NS.duration')
 
-    donatedbysiri = 'True' if deserialized_plist.get('_donatedBySiri') else 'False'
+    if '_donatedBySiri' in deserialized_plist:
+        donatedbysiri = 'True' if deserialized_plist['_donatedBySiri'] else 'False'
+    else:
+        donatedbysiri = ''
     groupid = deserialized_plist.get('groupIdentifier', '')
 
     direction = deserialized_plist.get('direction')
-    if direction == 0:
-        direction = 'Unspecified'
-    elif direction == 1:
-        direction = 'Outgoing'
-    elif direction == 2:
-        direction = 'Incoming'
 
     raw_intent = _intent_payload(deserialized_plist)
     if raw_intent is None:
@@ -255,7 +262,7 @@ def _parse_record(protostuff, filename, offset):
 @artifact_processor
 def get_biomeIntents(context):
     data_headers = (('Timestamp', 'datetime'), ('End Date', 'datetime'), 'Duration Interval', 'Donated by Siri',
-                         'App ID', 'Classname', 'Action', 'Direction', 'Group ID', 'Data', 'Filename',
+                         'App ID', 'Classname', 'Action', 'direction (as stored)', 'Group ID', 'Data', 'Filename',
                          'Protobuf data Offset')
     files_found = context.get_files_found()
     files_found = sorted(files_found)
@@ -269,7 +276,7 @@ def get_biomeIntents(context):
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue

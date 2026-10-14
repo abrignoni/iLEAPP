@@ -1,0 +1,110 @@
+{
+  "abe_ios16": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-08-24T23:44:55.459326",
+      "last_commit": {
+        "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+        "author_name": "Brigs",
+        "author_email": "abrignoni@gmail.com",
+        "date": "2026-08-20T23:00:52-05:00",
+        "message": "Report real source paths across 83 more modules"
+      }
+    },
+    "artifacts": {
+      "battery_bdc": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_SBC_*.csv",
+          "*/BatteryBDC/BDC_SBC_*.csv"
+        ],
+        "file_count": 26,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "battery_bdc_once": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_Once_*.csv",
+          "*/BatteryBDC/BDC_Once_*.csv"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "battery_bdc_daily": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_Daily_*.csv",
+          "*/BatteryBDC/BDC_Daily_*.csv"
+        ],
+        "file_count": 7,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "battery_bdc_weekly": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_Weekly_*.csv",
+          "*/BatteryBDC/BDC_Weekly_*.csv"
+        ],
+        "file_count": 5,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "battery_bdc_obc": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_OBC_*.csv",
+          "*/BatteryBDC/BDC_OBC_*.csv"
+        ],
+        "file_count": 8,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "battery_bdc_smartcharging": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_SmartCharging_*.csv",
+          "*/BatteryBDC/BDC_SmartCharging_*.csv"
+        ],
+        "file_count": 17,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "battery_bdc_cpmsrc": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_CPMSRC_*.csv",
+          "*/BatteryBDC/BDC_CPMSRC_*.csv"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "battery_bdc_timestamps": {
+        "search_patterns": [
+          "*/Battery/BDC/BDC_Timestamps_*.csv",
+          "*/BatteryBDC/BDC_Timestamps_*.csv"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "abe_ios16",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "16.5",
+      "device_model": "iPhone X",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  }
+}

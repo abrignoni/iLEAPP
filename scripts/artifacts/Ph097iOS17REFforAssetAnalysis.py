@@ -1,15 +1,22 @@
 __artifacts_v2__ = {
 'Ph097_1iOS17RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph097.1-iOS17_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Reads asset rows from PhotoData/Photos.sqlite joined to related tables, among them'
+' resource, album, face, share, memory and suggestion tables. The query runs only when'
+' the iOS version is 17.0 or later and below 18. On other iOS versions the artifact'
+' reports nothing, which is not a statement about the database. An asset with more'
+' than one joined row appears on more than one row. The value labels in the decoded'
+' columns follow Scott Koenig\'s research, described at'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
+' This field does not state how each label was derived. A stored value with no label'
+' is shown as \'Unknown-New-Value!: \' followed by the value. The only label for'
+' ZDEPTHTYPE is the one for 0, so any other stored value is shown that way and no'
+' meaning is assigned to it. The output has 1,094 columns. The TSV export can'
+' be filtered in a table viewer such as Eric Zimmerman\'s Timeline Explorer'
+' (https://ericzimmerman.github.io/#!index.md).',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -38,15 +45,22 @@ __artifacts_v2__ = {
 },
 'Ph097_2iOS17RefforAssetAnalysisSyndPL': {
 'name': 'Ph097.2-iOS17_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Reads asset rows from Syndication.photoslibrary/database/Photos.sqlite joined to'
+' related tables, among them resource, album, face, share, memory and suggestion'
+' tables. The query runs only when the iOS version is 17.0 or later and below 18. On'
+' other iOS versions the artifact reports nothing, which is not a statement about the'
+' database. An asset with more than one joined row appears on more than one row. The'
+' value labels in the decoded columns follow Scott Koenig\'s research, described at'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
+' This field does not state how each label was derived. A stored value with no label'
+' is shown as \'Unknown-New-Value!: \' followed by the value. The only label for'
+' ZDEPTHTYPE is the one for 0, so any other stored value is shown that way and no'
+' meaning is assigned to it. The output has 1,094 columns. The TSV export can'
+' be filtered in a table viewer such as Eric Zimmerman\'s Timeline Explorer'
+' (https://ericzimmerman.github.io/#!index.md).',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
@@ -90,6 +104,9 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("16.7.7")) or (version.parse(iosversion) >= version.parse("18")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -106,6 +123,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -472,6 +490,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -668,7 +687,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -721,7 +740,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -792,6 +811,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -2120,6 +2140,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',
@@ -2721,7 +2742,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 			LEFT JOIN ZSUGGESTION SBKAzSugg ON SBKAzSugg.Z_PK = z3SuggBKA.Z_59SUGGESTIONSBEINGKEYASSETS
 			LEFT JOIN Z_3SUGGESTIONSBEINGREPRESENTATIVEASSETS z3SuggBRA ON z3SuggBRA.Z_3REPRESENTATIVEASSETS1 = zAsset.Z_PK
 			LEFT JOIN ZSUGGESTION SBRAzSugg ON SBRAzSugg.Z_PK = z3SuggBRA.Z_59SUGGESTIONSBEINGREPRESENTATIVEASSETS
-		ORDER BY zAsset.ZADDEDDATE
+		ORDER BY zAsset.ZADDEDDATE, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zIntResou.rowid, zSceneP.rowid, z28Assets.rowid, zGenAlbum.rowid, zUnmAdj.rowid, z27AlbumLists.rowid, zAlbumList.rowid, ParentzGenAlbum.rowid, SWYConverszGenAlbum.rowid, zAssetDes.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zCldRes.rowid, zAssetAnalyState.rowid, zMedAnlyAstAttr.rowid, zPhotoAnalysisAssetAttr.rowid, zCompAssetAttr.rowid, zCharRecogAttr.rowid, zVisualSearchAttr.rowid, zCldFeedEnt.rowid, zCldSharedComment.rowid, zCldSharedCommentLiked.rowid, zCldShareAlbumInvRec.rowid, SPLzShare.rowid, SPLzSharePartic.rowid, zShare.rowid, zSharePartic.rowid, zAssetContrib.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid, z3MemoryBCAs.rowid, zMemory.rowid, z3MemoryBCUAs.rowid, z3MemoryBECAs.rowid, z3MemoryBMCAs.rowid, z3MemoryBRAs.rowid, z3MemoryBUCAs.rowid, zUserFeedback.rowid, zMoment.rowid, z3SuggBKA.rowid, SBKAzSugg.rowid, z3SuggBRA.rowid, SBRAzSugg.rowid
 		'''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -3975,6 +3996,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -4341,6 +4363,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -4537,7 +4560,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -4590,7 +4613,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -4661,6 +4684,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -5989,6 +6013,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',
@@ -7831,6 +7856,9 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
     files_found = context.get_files_found()
@@ -7844,6 +7872,9 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("16.7.7")) or (version.parse(iosversion) >= version.parse("18")):
         logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path
@@ -7860,6 +7891,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -8226,6 +8258,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -8422,7 +8455,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -8475,7 +8508,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -8546,6 +8579,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -9874,6 +9908,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',
@@ -10475,7 +10510,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 			LEFT JOIN ZSUGGESTION SBKAzSugg ON SBKAzSugg.Z_PK = z3SuggBKA.Z_58SUGGESTIONSBEINGKEYASSETS
 			LEFT JOIN Z_3SUGGESTIONSBEINGREPRESENTATIVEASSETS z3SuggBRA ON z3SuggBRA.Z_3REPRESENTATIVEASSETS1 = zAsset.Z_PK
 			LEFT JOIN ZSUGGESTION SBRAzSugg ON SBRAzSugg.Z_PK = z3SuggBRA.Z_58SUGGESTIONSBEINGREPRESENTATIVEASSETS
-		ORDER BY zAsset.ZADDEDDATE
+		ORDER BY zAsset.ZADDEDDATE, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zIntResou.rowid, zSceneP.rowid, z28Assets.rowid, zGenAlbum.rowid, zUnmAdj.rowid, z27AlbumLists.rowid, zAlbumList.rowid, ParentzGenAlbum.rowid, SWYConverszGenAlbum.rowid, zAssetDes.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zCldRes.rowid, zAssetAnalyState.rowid, zMedAnlyAstAttr.rowid, zPhotoAnalysisAssetAttr.rowid, zCompAssetAttr.rowid, zCharRecogAttr.rowid, zVisualSearchAttr.rowid, zCldFeedEnt.rowid, zCldSharedComment.rowid, zCldSharedCommentLiked.rowid, zCldShareAlbumInvRec.rowid, SPLzShare.rowid, SPLzSharePartic.rowid, zShare.rowid, zSharePartic.rowid, zAssetContrib.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid, z3MemoryBCAs.rowid, zMemory.rowid, z3MemoryBCUAs.rowid, z3MemoryBECAs.rowid, z3MemoryBMCAs.rowid, z3MemoryBRAs.rowid, z3MemoryBUCAs.rowid, zUserFeedback.rowid, zMoment.rowid, z3SuggBKA.rowid, SBKAzSugg.rowid, z3SuggBRA.rowid, SBRAzSugg.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -11729,6 +11764,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -12095,6 +12131,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -12291,7 +12328,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -12344,7 +12381,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -12415,6 +12452,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -13743,6 +13781,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',
@@ -15584,3 +15623,6 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
+    return (), [], source_path

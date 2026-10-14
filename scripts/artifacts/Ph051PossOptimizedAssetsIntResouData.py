@@ -1,17 +1,23 @@
 __artifacts_v2__ = {
 'Ph051PossibleOptimizedAssetsIntResouPhDaPsql': {
 'name': 'Ph051-Possible_Optimized_Assets_IntResou-PhDaPsql',
-'description': 'Parses iOS 14-18 asset records from PhotoData-Photos.sqlite ZINTERNALRESOURCE'
-' and other tables. This and other related parsers should provide data for investigative'
-' analysis of assets being stored locally on the device verses assets being stored in'
-' iCloud Photos as the result of optimization. This is very large query and script,'
-' I recommend opening the TSV generated report with Zimmermans Tools'
-' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,'
-' and filter the results.'
+'description': 'Parses asset records from PhotoData-Photos.sqlite ZINTERNALRESOURCE and other tables'
+' on iOS 14 through iOS 26. The iOS 26 query was run on hc_ios26 and falken_ios26 and'
+' returned no rows on either, so its output on iOS 26 has not been seen. Rows are limited to ZINTERNALRESOURCE records where'
+' ZDATASTORESUBTYPE is 1, ZLOCALAVAILABILITY is -1 and ZFINGERPRINT is not null. The'
+' module labels those two values as the original-size main asset resource and as not'
+' available locally, and the post by Scott Koenig linked at the end describes this'
+' parser as a way to identify assets optimized for iPhone storage whose full-size file'
+' is not available locally on the device. Assets whose full-size resource is available'
+' locally are not listed. On iOS 16 and later no rows are returned when the'
+' ZADDITIONALASSETATTRIBUTES table lacks the ZDUPLICATEDETECTORPERCEPTUALPROCESSINGSTATE'
+' column, so an empty result does not establish that no such assets exist. The output'
+' has 234 to 303 columns, depending on the iOS version. The TSV export is easier to'
+' search and filter than the HTML page.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-10',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -36,6 +42,8 @@ __artifacts_v2__ = {
 'hickman_ios14': 'iOS 14.3 | 24 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+'hc_ios26': 'iOS 26.5.2 | 0 rows',
+'falken_ios26': 'iOS 26.2.1 | 0 rows',
 }
 }
 }
@@ -58,6 +66,9 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
@@ -153,7 +164,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -543,7 +554,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -1134,7 +1145,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -1563,7 +1574,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -2224,7 +2235,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -2666,7 +2677,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -3360,7 +3371,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -3818,7 +3829,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -4527,7 +4538,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -5008,7 +5019,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -5789,7 +5800,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -6256,7 +6267,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -6946,3 +6957,6 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
+    return (), [], source_path

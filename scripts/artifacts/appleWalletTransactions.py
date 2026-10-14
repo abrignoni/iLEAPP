@@ -1,13 +1,17 @@
 __artifacts_v2__ = {
     'appleWalletTransactions': {
         'name': 'Apple Wallet Transactions',
-        'description': 'Apple Wallet Transactions',
+        'description': "Wallet transactions from passes23.sqlite, with date, merchant, locality, "
+                       "amount and currency, location fields, peer payment handle, memo, status "
+                       "and type.",
         'author': '@any333',
         'creation_date': '2021-02-05',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Apple Wallet',
-        'notes': 'The amount divisor of 10000 was established through testing against known transactions; not vendor-documented.',
+        'notes': "The amount divisor of 10000 is not vendor-documented; the comparison it was "
+                 "derived from is not recorded here, so check a reported amount against a known "
+                 "transaction before relying on it.",
         'paths': ('*/mobile/Library/Passes/passes23.sqlite*'),
         'output_types': 'all',
         'artifact_icon': 'credit-card',

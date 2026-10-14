@@ -119,5 +119,215 @@ class Scaling(unittest.TestCase):
         self.assertEqual(coa.check_scaling({'a': 0}, {'a': 0}), [])
 
 
+
+class SilencedOnTheFindingNotTheColumn(unittest.TestCase):
+    """The notes silence a finding only by addressing that finding.
+
+    Before this, any mention of the column anywhere in the notes silenced every
+    finding about it, and the match was a bare substring. A real case: a module
+    whose notes explained that ps_thread.txt carries %CPU in its 4th column had
+    its own uniform %CPU column silenced by that sentence, and its uniform TIME
+    column silenced by the words "timezone" and "timestamp".
+    """
+
+    CONSTANT = [{'A': str(i), '%CPU': '0.0', 'TIME': '0:00.00'} for i in range(5)]
+    COLUMNS = ['A', '%CPU', 'TIME']
+
+    def test_a_mention_for_another_reason_does_not_silence(self):
+        notes = ('ps_thread.txt is not read: its 4th column is %CPU, where the 4th of '
+                 'ps.txt holds the process identifier.')
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        reported = [m for k, m in findings if k == 'constant-column']
+        self.assertTrue(any("'%CPU'" in m for m in reported))
+
+    def test_a_longer_word_containing_the_name_does_not_silence(self):
+        notes = "STARTED carries no date or timezone and is not a usable timestamp."
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        reported = [m for k, m in findings if k == 'constant-column']
+        self.assertTrue(any("'TIME'" in m for m in reported))
+
+    def test_saying_the_column_is_uniform_does_silence(self):
+        notes = "%CPU and TIME each held a single value on all 5 rows."
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        self.assertNotIn('constant-column', _kinds(findings))
+
+    def test_a_plural_still_names_the_column(self):
+        rows = [{'A': 'x', 'Timestamp': ''} for _ in range(3)]
+        findings = coa.check_table(['A', 'Timestamp'], rows,
+                                   notes='Timestamps were blank on every row.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_a_colon_list_is_one_statement(self):
+        rows = [{'A': 'x', 'B': ''} for _ in range(3)]
+        findings = coa.check_table(['A', 'B'], rows, notes='These are blank: A, B and C.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_documenting_emptiness_does_not_silence_uniformity(self):
+        """Each kind has its own vocabulary, so the wrong one leaves the finding."""
+        rows = [{'A': 'x', 'B': 'same'} for _ in range(4)]
+        findings = coa.check_table(['A', 'B'], rows, notes='B is blank on rows with no record.')
+        self.assertIn('constant-column', _kinds(findings))
+
+    def test_identical_columns_need_both_named_in_one_sentence(self):
+        rows = [{'A': str(i), 'B': str(i)} for i in range(4)]
+        loose = coa.check_table(['A', 'B'], rows,
+                                notes='A is the path. Separately, B is the name.')
+        self.assertIn('identical-columns', _kinds(loose))
+        stated = coa.check_table(['A', 'B'], rows,
+                                 notes='A and B are identical because the store repeats it.')
+        self.assertNotIn('identical-columns', _kinds(stated))
+
+    def test_a_bare_mention_is_reported_with_a_hint(self):
+        notes = 'The %CPU column is read from the 7th field.'
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        hinted = [m for k, m in findings if "'%CPU'" in m]
+        self.assertTrue(hinted and 'not as this finding' in hinted[0])
+
+
+class OneWordHeadersAreMatchedAsSpelled(unittest.TestCase):
+    """A one-word header is usually an ordinary word, so prose uses it by accident.
+
+    A real case: biomeSync's notes said a HomePod row's OS Version "is left blank"
+    and that tvOS is "a name not applied to a HomePod". That one sentence held the
+    word name and the word blank, and it silenced an empty Name column on every
+    tested image.
+    """
+
+    EMPTY_NAME = [{'A': str(i), 'Name': ''} for i in range(3)]
+
+    def test_the_word_used_in_prose_does_not_silence(self):
+        notes = 'It is left blank for these rows, a name not applied to them.'
+        findings = coa.check_table(['A', 'Name'], self.EMPTY_NAME, notes=notes)
+        self.assertIn('empty-column', _kinds(findings))
+
+    def test_the_header_as_spelled_does_silence(self):
+        notes = 'Name held an empty string on all 3 rows.'
+        findings = coa.check_table(['A', 'Name'], self.EMPTY_NAME, notes=notes)
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_lower_case_prose_does_not_name_a_capitalised_header(self):
+        rows = [{'A': 'x', 'Timestamp': ''} for _ in range(3)]
+        findings = coa.check_table(['A', 'Timestamp'], rows,
+                                   notes='The timestamps were blank on every row.')
+        self.assertIn('empty-column', _kinds(findings))
+
+    def test_a_lower_case_header_matches_at_the_start_of_a_sentence(self):
+        rows = [{'A': str(i), 'direction': ''} for i in range(3)]
+        findings = coa.check_table(['A', 'direction'], rows,
+                                   notes='Direction was blank on every row.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_a_header_of_several_words_matches_in_any_case(self):
+        rows = [{'A': str(i), 'Last Sync Timestamp': ''} for i in range(3)]
+        findings = coa.check_table(['A', 'Last Sync Timestamp'], rows,
+                                   notes='The last sync timestamp was empty on every row.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_the_hint_uses_the_same_rule(self):
+        rows = [{'A': str(i), 'Value': ''} for i in range(3)]
+        prose = coa.check_table(['A', 'Value'], rows, notes='A holds the value as stored.')
+        self.assertTrue(all('not as this finding' not in m for _, m in prose))
+        named = coa.check_table(['A', 'Value'], rows, notes='Value is read from the store.')
+        self.assertTrue(any('not as this finding' in m for _, m in named))
+
+
+class SourceColumn(unittest.TestCase):
+    """A Source column that another column already separates repeats what that column says.
+
+    The report's located-at line and the LAVA source_path name every file an artifact
+    read, so a Source File column earns a place only when nothing else in the row tells
+    the files apart. A Profile column that pairs one to one with the files is the case
+    this looks for: two Chrome profiles, each database beside exactly one profile name.
+    """
+
+    COLUMNS = ['Visited', 'URL', 'Profile', 'Source File']
+
+    def rows(self, profiles=('Default', 'Profile 1'), per_file=2):
+        return [{'Visited': f'2024-01-0{i + 1} 10:00:00', 'URL': f'u{f}{i}',
+                 'Profile': profile, 'Source File': f'app_chrome/{profile}/History'}
+                for f, profile in enumerate(profiles) for i in range(per_file)]
+
+    def test_flags_a_source_another_column_separates(self):
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes='')
+        reported = [m for k, m in findings if k == 'source-column']
+        self.assertEqual(len(reported), 1)
+        self.assertIn("'Profile'", reported[0])
+
+    def test_one_file_is_not_judged(self):
+        findings = coa.check_table(self.COLUMNS, self.rows(profiles=('Default',)), notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_one_row_per_file_is_not_judged(self):
+        """With one row per file every unique column pairs with the files by accident."""
+        findings = coa.check_table(self.COLUMNS, self.rows(per_file=1), notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_file_with_one_row_is_not_evidence(self):
+        rows = self.rows(per_file=3)[:4]
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_column_that_varies_within_a_file_does_not_separate(self):
+        rows = self.rows()
+        rows[1]['Profile'] = 'Guest'
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_two_files_under_one_value_are_not_separated(self):
+        rows = self.rows()
+        for row in rows:
+            row['Profile'] = 'Default'
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_blank_value_names_nothing(self):
+        rows = self.rows()
+        for row in rows[:2]:
+            row['Profile'] = ''
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_time_that_differs_per_file_is_not_a_name(self):
+        rows = self.rows()
+        for row in rows:
+            row['Profile'] = 'x'
+            month = '02' if 'Default' in row['Source File'] else '03'
+            row['Visited'] = f'2024-{month}-01 00:00:00'
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_other_source_spellings_are_judged(self):
+        for header in ('Source Path', 'Source Database (as stored)', 'source db', 'Source Folders'):
+            rows = [dict(row, **{header: row['Source File']}) for row in self.rows()]
+            for row in rows:
+                del row['Source File']
+            columns = ['Visited', 'URL', 'Profile', header]
+            findings = coa.check_table(columns, rows, notes='')
+            self.assertIn('source-column', _kinds(findings), header)
+
+    def test_a_bare_source_is_a_data_field(self):
+        rows = [dict(row, Source=row['Source File']) for row in self.rows()]
+        for row in rows:
+            del row['Source File']
+        findings = coa.check_table(['Visited', 'URL', 'Profile', 'Source'], rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_note_saying_why_it_stays_silences_it(self):
+        notes = ('Source File stays because Profile is not unique: two users can each '
+                 'hold a profile named Default.')
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes=notes)
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_naming_both_without_the_reason_leaves_a_hint(self):
+        notes = 'Source File is the database read.'
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes=notes)
+        reported = [m for k, m in findings if k == 'source-column']
+        self.assertTrue(reported and 'not as this finding' not in reported[0])
+        both = 'Profile and Source File are read from the path.'
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes=both)
+        reported = [m for k, m in findings if k == 'source-column']
+        self.assertTrue(reported and 'not as this finding' in reported[0])
+
+
 if __name__ == '__main__':
     unittest.main()

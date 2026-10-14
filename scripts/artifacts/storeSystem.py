@@ -1,19 +1,25 @@
 __artifacts_v2__ = {
     'storeSystemAppInstalls': {
         'name': 'Installed Apps - App Store Install Records',
-        'description': 'App Store install records from storeSystem.db, including the purchasing '
-                       'Apple Account and the on-disk bundle path',
-        'author': '@AlexisBrignoni',
+        'description': 'App Store install records from storeSystem.db, including the Apple '
+                       'Account values the record stores and the on-disk bundle path',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-04',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ('Store metadata is an NSKeyedArchiver payload recorded at install time, so the '
-                  'version, genre and purchase date describe the app as it was when installed. '
-                  'The phase, update type, source type, one shot bootstrap and switch '
-                  'distributor columns are integer codes whose values are not documented and '
-                  'are reported as stored. Bundle directory name arrived with iOS 26 and was '
-                  'empty on every row of the image tested, so what it holds is unknown.'),
+        'notes': ("Store metadata is an NSKeyedArchiver payload; the version and genre are "
+                  "reported from it as stored. Purchase Date and App Release Date are parsed "
+                  "from offset-bearing ISO 8601 strings and converted to UTC. Raw strings are "
+                  "also reported; a zone-less or unsupported string has a blank datetime. "
+                  "App Name and Developer come from it when present and otherwise from the "
+                  "table's bundle_name and vendor_name columns. When the payload was written is "
+                  "not "
+                  "established here. The phase, update type, source type, one shot bootstrap and "
+                  "switch distributor columns are integer codes whose values are not documented "
+                  "and are reported as stored. Bundle directory name is present on the iOS 26 "
+                  "image tested (hc_ios26) and was empty on every row of it, so what it holds "
+                  "is unknown."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-down',
@@ -31,15 +37,16 @@ __artifacts_v2__ = {
         'name': 'Installed Apps - App Store Update Records',
         'description': 'Per-app update state from storeSystem.db, with the App Store catalog '
                        'metadata cached alongside it',
-        'author': '@AlexisBrignoni',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-04',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ('The catalog metadata is a cached copy of the App Store listing, so the latest '
-                  'version and release notes describe what the store offered at the time of the '
-                  'last refresh, not necessarily what is installed. Update state and package '
-                  'type are integer codes whose values are not documented.'),
+        'notes': ("The latest version and release notes come from the catalog metadata and are "
+                  "reported as stored; they are not necessarily what is installed. ISO release "
+                  "timestamps convert only when an offset is recorded, and raw values are kept. Update "
+                  "state, package type and installer packaging type are stored codes whose "
+                  "values are not documented; they are reported as stored."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'refresh',
@@ -54,14 +61,22 @@ __artifacts_v2__ = {
     'storeSystemAppPackages': {
         'name': 'Installed Apps - App Store Download Packages',
         'description': 'Download packages recorded in storeSystem.db, with sizes and source '
-                       'URLs, joined to the install record they belong to',
+                       'URLs, joined to app_install on parent_id = pid',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ('One install can own several packages, such as the app itself plus its '
-                  'on-demand resources, so bundle identifiers repeat across rows.'),
+        'notes': ("Bundle ID and App Name come from the app_install row whose pid equals the "
+                  "package row's parent_id. The store declares no foreign key for parent_id and "
+                  "declares the column UUID; on the tested images it held integers. Measured on "
+                  "the 14 registered images whose app_package table holds rows (275 package "
+                  "rows, 144 install records): every parent_id equalled the pid of one "
+                  "app_install row, and none equalled a pid in any other table of the store "
+                  "that has a pid column. A package row whose parent_id matches no install "
+                  "record is reported with Bundle ID and App Name blank. Several package rows "
+                  "can join to one install record, so bundle identifiers repeat across rows; "
+                  "on those images an install record had one or two package rows."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'package',
@@ -84,21 +99,14 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 def _iso_to_utc(value):
-    """Convert an App Store ISO 8601 string to an aware datetime.
-
-    The catalog and store metadata use several widths: '2026-06-10T17:01:48Z',
-    '2026-06-10' and occasionally a bare date-time without a zone. Anything that
-    does not parse is returned untouched so the value still reaches the report.
-    """
+    """Only offset-bearing ISO strings establish UTC instants."""
     if not value:
         return ''
     try:
         parsed = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
     except (ValueError, TypeError):
-        return value
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
-    return parsed
+        return ''
+    return parsed.astimezone(timezone.utc) if parsed.tzinfo is not None else ''
 
 
 def _store_metadata(blob):
@@ -160,7 +168,7 @@ def storeSystemAppInstalls(context):
     data_headers = (
         ('Record Timestamp', 'datetime'), ('Install Finished', 'datetime'),
         ('Last Start Date', 'datetime'), ('Purchase Date', 'datetime'),
-        ('App Release Date', 'datetime'), 'App Name', 'Bundle ID', 'Short Version',
+        ('App Release Date', 'datetime'), 'purchaseDate (as stored)', 'releaseDate (as stored)', 'App Name', 'Bundle ID', 'Short Version',
         'Bundle Version', 'Developer', 'Genre', 'Rating', 'Apple ID', 'Account DSID',
         'altDSID', 'Item ID', 'External Version ID', 'Storefront Country', 'Storefront',
         'Source App', 'Client ID', 'Install Path', 'Bundle Directory Name', 'Transaction ID',
@@ -183,7 +191,7 @@ def storeSystemAppInstalls(context):
     query = f'''
     SELECT {columns}
     FROM app_install
-    ORDER BY timestamp
+    ORDER BY timestamp, app_install.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):
@@ -194,6 +202,7 @@ def storeSystemAppInstalls(context):
             convert_cocoa_core_data_ts_to_utc(_get(record, 'last_start_date')),
             _iso_to_utc(metadata.get('purchaseDate')),
             _iso_to_utc(metadata.get('releaseDate')),
+            metadata.get('purchaseDate', ''), metadata.get('releaseDate', ''),
             metadata.get('itemName') or _get(record, 'bundle_name'),
             _get(record, 'bundle_id'),
             metadata.get('bundleShortVersionString', ''),
@@ -232,6 +241,7 @@ def storeSystemAppUpdates(context):
     data_headers = (
         ('Record Timestamp', 'datetime'), ('Install Date', 'datetime'),
         ('Latest Version Released', 'datetime'), ('App First Released', 'datetime'),
+        'releaseTimestamp (as stored)', 'releaseDate (as stored)',
         'App Name', 'Bundle ID', 'Developer', 'Genre', 'Latest Version', 'Release Notes',
         'Item ID', 'Store Software Version ID', 'External Version ID', 'Update State',
         'Package Type', 'Installer Packaging Type', 'App Store URL')
@@ -259,6 +269,7 @@ def storeSystemAppUpdates(context):
             convert_cocoa_core_data_ts_to_utc(_get(record, 'install_date')),
             _iso_to_utc(latest.get('releaseTimestamp')),
             _iso_to_utc(ios.get('releaseDate')),
+            latest.get('releaseTimestamp', ''), ios.get('releaseDate', ''),
             attributes.get('name', ''),
             _get(record, 'bundle_id'),
             attributes.get('artistName', ''),
@@ -288,22 +299,25 @@ def storeSystemAppPackages(context):
     if not source_path or not does_table_exist_in_db(source_path, 'app_package'):
         return data_headers, data_list, source_path or ''
 
-    # parent_id carries the app_install.pid this package belongs to, despite the
-    # column being declared UUID.
+    # parent_id is declared UUID with no foreign key. It is joined to app_install.pid
+    # on measurement: 275 of 275 package rows on 14 registered images matched one
+    # install row, and none matched a pid in any other table of the store.
     wanted = ('timestamp', 'package_type', 'bytes_total', 'disk_usage',
               'extracted_content_size', 'variant_id', 'compression', 'delta_algorithm',
               'archive_type', 'request_count', 'package_url')
     available = _existing_columns(source_path, 'app_package')
     columns = ', '.join(f'app_package.{column}' for column in wanted if column in available)
     join = ''
+    join_order = ''
     if does_table_exist_in_db(source_path, 'app_install'):
         columns += ', app_install.bundle_id, app_install.bundle_name'
         join = 'LEFT JOIN app_install ON app_install.pid = app_package.parent_id'
+        join_order = ', app_install.rowid'
     query = f'''
     SELECT {columns}
     FROM app_package
     {join}
-    ORDER BY app_package.timestamp
+    ORDER BY app_package.timestamp, app_package.rowid{join_order}
     '''
 
     for record in get_sqlite_db_records(source_path, query):

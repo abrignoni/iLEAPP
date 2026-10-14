@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
-        "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing. In tested images a row is recovered only on iOS 12.4; the group plist is present without recoverable coordinates on the other recorded images (iOS 13-26) and on all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so an empty result on current extractions is common.",
+        "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing. In tested images a row is recovered only on iOS 12.4; the group plist yields no row on the 14 other recorded images (iOS 13.3.1-18.7.8) and on the 21 extractions in Mattia Epifani's 2026-08 comparison (iOS 16.1.1-26.5.2), so an empty result on current extractions is common.",
         "paths": ('*/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist',),
         "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map-pin",
@@ -32,7 +32,11 @@ __artifacts_v2__ = {
 }
 
 from scripts import blackboxprotobuf
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
+from google.protobuf.message import DecodeError
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, logfunc
+
+_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError,
+                  IndexError)
 
 @artifact_processor
 def appleMapsGroup(context):
@@ -59,10 +63,13 @@ def appleMapsGroup(context):
                                 '7': {'type': 'int', 'name': ''}},
                         'name': ''}
                 }    
-        internal_deserialized_plist, _ = blackboxprotobuf.decode_message(maps_activity, types)
-        latitude = (internal_deserialized_plist['1']['5']['Latitude'])
-        longitude = (internal_deserialized_plist['1']['5']['Longitude'])
-        data_list.append((latitude, longitude))
+        try:
+            internal_deserialized_plist, _ = blackboxprotobuf.decode_message(maps_activity, types)
+            latitude = (internal_deserialized_plist['1']['5']['Latitude'])
+            longitude = (internal_deserialized_plist['1']['5']['Longitude'])
+            data_list.append((latitude, longitude))
+        except _DECODE_ERRORS as ex:
+            logfunc(f'Apple Maps Group: could not decode MapsActivity: {ex}')
 
     data_headers = ('Latitude', 'Longitude')     
     return data_headers, data_list, source_path

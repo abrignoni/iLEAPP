@@ -6,8 +6,7 @@ caller to close. They used to leave the connection to the garbage collector, whi
 up as `ResourceWarning: unclosed database` and, on a full extraction, means one held
 handle per probe - artifacts probe the same NoteStore.sqlite several times over.
 
-get_sqlite_db_records is deliberately not covered here: it returns its cursor for the
-caller to iterate, so closing the connection inside it would break every caller.
+Streaming query cleanup is covered separately in test_sqlite_records_cleanup.py.
 
 Closure is asserted by using the connection afterwards - a closed sqlite3 connection
 raises ProgrammingError - rather than by watching for ResourceWarning, which only fires

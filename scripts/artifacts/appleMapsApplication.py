@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
-        "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing. In tested images rows are recovered only on iOS 12.4, 13.3.1 and 17.1 (one row each); the plist is present without recoverable coordinates on the other recorded images (iOS 14-26) and on all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so an empty result on current extractions is common.",
+        "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing. In tested images rows are recovered only on iOS 12.4, 13.3.1 and 17.1 (one row each); the plist yields no row on the 11 other recorded images (iOS 14.3-18.7.8) and on the 21 extractions in Mattia Epifani's 2026-08 comparison (iOS 16.1.1-26.5.2), so an empty result on current extractions is common.",
         "paths": ('*/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map-pin",
@@ -32,7 +32,11 @@ __artifacts_v2__ = {
 
 
 from scripts import blackboxprotobuf
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
+from google.protobuf.message import DecodeError
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, logfunc
+
+_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError,
+                  IndexError)
 
 @artifact_processor
 def appleMapsApplication(context):
@@ -55,11 +59,14 @@ def appleMapsApplication(context):
     
     protobuf = plist.get('__internal__LastActivityCamera', None)
     if protobuf:
-        internal_plist, _ = blackboxprotobuf.decode_message(protobuf,types)
-        latitude = (internal_plist['Latitude'])
-        longitude = (internal_plist['Longitude'])
-        
-        data_list.append((latitude, longitude))
+        try:
+            internal_plist, _ = blackboxprotobuf.decode_message(protobuf,types)
+            latitude = (internal_plist['Latitude'])
+            longitude = (internal_plist['Longitude'])
+            data_list.append((latitude, longitude))
+        except _DECODE_ERRORS as ex:
+            logfunc(f'Apple Maps Last Activity Camera: could not decode '
+                    f'__internal__LastActivityCamera: {ex}')
                             
     data_headers = ('Latitude','Longitude')
     return data_headers, data_list, source_path    

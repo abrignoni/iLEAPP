@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from scripts.artifacts.diagnosticLogd import diagnosticLogdEvents
+from leapp_functions.app.artifact_result import ArtifactResult
 from scripts.artifacts.fileSystemEvents import (
     iosFileSystemEvents,
     iosFileSystemEventsAppContainers,
@@ -34,6 +35,19 @@ class _Context:
 
     def get_relative_path(self, path):
         return Path(path).name
+
+    def create_artifact_result(self, headers=None, source_path=None, **_kwargs):
+        # No LAVA run is active here, so the result keeps its rows in memory and reads
+        # back like a list; the source path is relative to the file name, as above.
+        return ArtifactResult(headers=headers, source_path=source_path,
+                              source_path_formatter=self.get_relative_path)
+
+
+def _unpack(result):
+    """(headers, rows, source) from a list-returning or a streaming artifact."""
+    if isinstance(result, ArtifactResult):
+        return result.headers, list(result), result.source_path
+    return result
 
 
 class IOSSystemHistoryArtifactsTest(unittest.TestCase):
@@ -62,6 +76,23 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
         self.assertEqual(rows[0][2], 84)
         self.assertEqual(rows[1][1], "Lockdownd startup")
         self.assertEqual(source, "lockdownd.log")
+
+    def test_lockdown_upgrade_from_null_keeps_its_own_label(self):
+        path = self.root / "lockdownd.log"
+        path.write_text(
+            "05/23/25 19:35:47.154568 pid=84 "
+            "roll_keys: Detected upgrade from 21A100 to 21B200\n"
+            "05/23/25 19:36:47.154568 pid=84 "
+            "roll_keys: Detected upgrade from (NULL) to 21B200\n",
+            encoding="utf-8",
+        )
+
+        _headers, rows, _source = lockdownEvents.__wrapped__(_Context([path]))
+
+        self.assertEqual([row[1] for row in rows], [
+            "Upgrade detected by lockdownd",
+            "Upgrade detected by lockdownd, from (NULL)",
+        ])
 
     def test_diagnostic_logd_converts_offset_to_utc(self):
         path = self.root / "logd.0.log"
@@ -119,7 +150,7 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
         path = self.root / "0000000000000065"
         path.write_bytes(gzip.compress(first_page) + gzip.compress(second_page))
 
-        headers, rows, _source = iosFileSystemEvents.__wrapped__(_Context([path]))
+        headers, rows, _source = _unpack(iosFileSystemEvents.__wrapped__(_Context([path])))
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(len(headers), len(rows[0]))
@@ -139,7 +170,7 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
         path = self.root / "0000000000000002"
         path.write_bytes(gzip.compress(v1_page + v2_page))
 
-        headers, rows, _source = iosFileSystemEvents.__wrapped__(_Context([path]))
+        headers, rows, _source = _unpack(iosFileSystemEvents.__wrapped__(_Context([path])))
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(len(headers), len(rows[0]))
@@ -183,7 +214,7 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
             (iosFileSystemEventsRemoved, "tmp/deleted-item"),
         )
         for artifact, expected_path in expected:
-            _headers, rows, _source = artifact.__wrapped__(context)
+            _headers, rows, _source = _unpack(artifact.__wrapped__(context))
             self.assertEqual([row[1] for row in rows], [expected_path])
 
 

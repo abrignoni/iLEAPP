@@ -57,21 +57,19 @@ def safe_url(url, text=None, target=None):      # pylint: disable=unused-argumen
     return esc(text if text is not None else url)
 
 
-def _is_report_relative(path, allow_parent=False):
+def _is_report_relative(path):
     """True when ``path`` names something reachable from the report folder.
 
     Rejects a URL scheme, a protocol-relative ``//host`` and an absolute path, so a
     crafted media name cannot turn a report cell into a remote fetch. ``..`` is
-    rejected too unless ``allow_parent`` is set: media_to_html() genuinely emits
-    ``../data/...`` to reach the extraction folder next to the report, and that is a
-    deliberate part of the report layout rather than an escape.
+    rejected too, so a path cannot climb out of the report folder.
     """
     if path.startswith(('/', '\\')):
         return False
     normalized = path.replace('\\', '/')
     if normalized.startswith('//'):
         return False
-    if not allow_parent and '..' in normalized.split('/'):
+    if '..' in normalized.split('/'):
         return False
     try:
         if urlparse(path).scheme:
@@ -81,7 +79,7 @@ def _is_report_relative(path, allow_parent=False):
     return True
 
 
-def safe_local_path(path, allow_parent=False):
+def safe_local_path(path):
     """Percent-encode a report-relative path for use in an ``href``/``src`` attribute.
 
     Returns ``''`` when the path is not report-relative, so a crafted media filename
@@ -91,7 +89,7 @@ def safe_local_path(path, allow_parent=False):
     the whole anchor.
     """
     path = '' if path is None else str(path).strip()
-    if not path or not _is_report_relative(path, allow_parent):
+    if not path or not _is_report_relative(path):
         return ''
     return esc(quote(path, safe='/.'))
 

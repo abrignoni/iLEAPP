@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "module_name": "accountData",
+    "artifact_name": "Account Data",
+    "function_name": "accountData",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 6,
+    "number_of_rows": 19,
+    "total_data_size_bytes": 1839,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/accountData/testdata.accountData.accountData.josh_ios15_ffs.zip",
+    "start_time": "2026-08-24T20:06:06.878599+00:00",
+    "end_time": "2026-08-24T20:06:06.951426+00:00",
+    "run_time_seconds": 0.0013391971588134766,
+    "last_commit": {
+      "hash": "977de16b4cc2b0ddc565758987a2fc2535a99664",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-11T22:48:20-04:00",
+      "message": "Populate sample_data from 6 older iOS test images (13.3.1-16.5)"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Account Desc.",
+    "Username",
+    "Description",
+    "Identifier",
+    "Bundle ID"
+  ],
+  "data": [
+    [
+      1681224347,
+      "iTunes Store",
+      "local",
+      null,
+      "8F20C9B2-32DB-48F1-9B9F-23037D0105C4",
+      "locationd"
+    ],
+    [
+      1681566864,
+      "iTunes Store (Sandbox)",
+      "local",
+      null,
+      "C4ED1414-7F34-4128-BFB1-51C5B6F31E1E",
+      "appstored"
+    ],
+    [
+      1681567098,
+      "IDMS",
+      "thisisdfir@gmail.com",
+      null,
+      "A557D70F-95E6-41E9-9469-AE7E3D3BFBF1",
+      "com.apple.AuthKit"
+    ],
+    [
+      1681567098,
+      "Apple ID",
+      "thisisdfir@gmail.com",
+      null,
+      "E78C1C66-9632-4991-948D-4719D4A5D016",
+      "com.apple.AuthKit"
+    ],
+    [
+      1681567108,
+      "Game Center",
+      "thisisdfir@gmail.com",
+      "thisisdfir@gmail.com",
+      "800619F5-D745-4591-A9AA-FCE86AD2D9A0",
+      "com.apple.purplebuddy"
+    ],
+    [
+      1681567108,
+      "Messages",
+      "thisisdfir@gmail.com",
+      null,
+      "11AB33A0-0233-400A-9B5B-4960720458E6",
+      "com.apple.purplebuddy"
+    ],
+    [
+      1681567108,
+      "iCloud",
+      "thisisdfir@gmail.com",
+      "iCloud",
+      "79327CCA-8D1E-4F0A-B32B-871C0CC1C1AF",
+      "com.apple.purplebuddy"
+    ],
+    [
+      1681567108,
+      "CloudKit",
+      "thisisdfir@gmail.com",
+      null,
+      "8A19A168-0E55-4E8C-8424-231E0261D3AF",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      1681567119,
+      "CardDAV",
+      null,
+      null,
+      "4309665D-5460-4602-ADED-0C4121AD6A3D",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      1681567119,
+      "IMAPNotes",
+      null,
+      null,
+      "2C08C313-0A73-42F5-9D5C-8A770BE09F2D",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      1681567119,
+      "CalDAV",
+      null,
+      null,
+      "32785ECA-F771-45DE-976D-0A4C483ED5A3",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      1681567122,
+      "Device Locator",
+      "thisisdfir@gmail.com",
+      "iCloud - Device Locator",
+      "94E5BDF7-B2D9-4C68-A648-95FB3053B779",
+      "com.apple.accountsd"
+    ],
+    [
+      1681567122,
+      "Find My Friends",
+      "thisisdfir@gmail.com",
+      "iCloud - Find My Friends",
+      "51799F1D-4CBB-4516-BA46-6BB388709395",
+      "com.apple.accountsd"
+    ],
+    [
+      1681567122,
+      "iTunes Store",
+      "thisisdfir@gmail.com",
+      null,
+      "9CDDF80D-D8A1-45CB-B409-33EF12107ED0",
+      "com.apple.purplebuddy"
+    ],
+    [
+      1681567207,
+      "Holiday Calendar",
+      null,
+      "US Holidays",
+      "21B932F3-4DE5-4B0C-84DE-64B1D2328094",
+      "dataaccessd"
+    ],
+    [
+      1682359192,
+      "Gmail",
+      "thisisdfir@gmail.com",
+      "Gmail",
+      "56AB9BA6-2343-41BF-9B3A-CF187043AC5C",
+      "com.apple.mobilemail"
+    ],
+    [
+      1682359192,
+      "CardDAV",
+      null,
+      null,
+      "BEBE918C-3A13-4949-8C19-9B6B7E7E266F",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      1682359192,
+      "CalDAV",
+      null,
+      null,
+      "DCAAA518-A99E-4B92-964A-0015D769FA77",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      1682359192,
+      "IMAPNotes",
+      null,
+      null,
+      "E1073B39-D3EB-474B-A50E-1368BC1515F6",
+      "com.apple.accounts.accountsd"
+    ]
+  ]
+}

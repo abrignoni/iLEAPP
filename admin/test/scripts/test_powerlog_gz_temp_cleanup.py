@@ -31,6 +31,14 @@ class GzTempRemovalTests(unittest.TestCase):
     """What a finished run must leave behind: nothing."""
 
     def setUp(self):
+        # The first copy of a run sweeps the temp directory for abandoned copies, so
+        # point it at one this test owns rather than the machine's own.
+        system_temp = tempfile.TemporaryDirectory()
+        self.addCleanup(system_temp.cleanup)
+        patcher = mock.patch.object(powerlog.tempfile, 'gettempdir',
+                                    return_value=system_temp.name)
+        patcher.start()
+        self.addCleanup(patcher.stop)
         self.original_cache = dict(powerlog._GZ_CACHE)  # pylint: disable=protected-access
         self.original_temp = dict(powerlog._GZ_TEMP)  # pylint: disable=protected-access
         powerlog._GZ_CACHE.clear()  # pylint: disable=protected-access

@@ -2,8 +2,9 @@ __artifacts_v2__ = {
     "get_biomeFrontBoardDisplayElement": {
         "name": "Biome - FrontBoard Display Element",
         "description": "Parses app scene display events from the FrontBoard.DisplayElement "
-                       "biome stream: which app scene was recorded against which display and "
-                       "when. This is a high volume stream that may assist in reconstructing "
+                       "biome stream: which app scene was recorded against which display, "
+                       "with the time stored in the record read as Unix epoch seconds. This "
+                       "is a high volume stream that may assist in reconstructing "
                        "app display activity; whether a record corresponds to on-screen "
                        "presentation is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
@@ -11,8 +12,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "In sample data, records with an empty bundle id corresponded to system or "
-                 "home screen scenes. Numeric state fields are reported raw as their semantics "
+        "notes": "Records with an empty Bundle ID are reported with their Scene ID as stored; "
+                 "what those scenes are is not established. Numeric state fields are reported "
+                 "raw as their semantics "
                  "are not confirmed.",
         "paths": ('*/streams/*/FrontBoard.DisplayElement/local/*',),
         "output_types": "standard",
@@ -74,15 +76,21 @@ def _unix_double(value):
 @artifact_processor
 def get_biomeFrontBoardDisplayElement(context):
 
-    data_list = []
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
+                    'SEGB State', 'Bundle ID', 'Scene ID', 'Display Type', 'Display Role',
+                    'Field 4 (raw)', 'Field 5 (raw)', 'Field 6 (raw)', 'Field 7 (raw)',
+                    'Field 8 (raw)', 'Field 10 (raw)', 'Filename', 'Offset')
+
     source_dirs = set()
+    results = context.create_artifact_result(headers=data_headers)
+
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
@@ -103,7 +111,7 @@ def get_biomeFrontBoardDisplayElement(context):
                 if not isinstance(display, dict):
                     display = {}
 
-                data_list.append((ts, _unix_double(protostuff.get('1')), record.state.name,
+                results.add_row((ts, _unix_double(protostuff.get('1')), record.state.name,
                                   _to_str(protostuff.get('3', b'')),
                                   _to_str(protostuff.get('2', b'')),
                                   _to_str(display.get('2', b'')),
@@ -114,13 +122,9 @@ def get_biomeFrontBoardDisplayElement(context):
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None, None,
+                results.add_row((ts, None, record.state.name, None, None, None, None, None,
                                   None, None, None, None, None, filename,
                                   record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
-                    'SEGB State', 'Bundle ID', 'Scene ID', 'Display Type', 'Display Role',
-                    'Field 4 (raw)', 'Field 5 (raw)', 'Field 6 (raw)', 'Field 7 (raw)',
-                    'Field 8 (raw)', 'Field 10 (raw)', 'Filename', 'Offset')
-
-    return data_headers, data_list, '\n'.join(sorted(source_dirs))
+    results.set_source_path('\n'.join(sorted(source_dirs)))
+    return results

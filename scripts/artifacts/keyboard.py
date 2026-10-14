@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "keyboardLexicon": {
         "name": "Keyboard Dynamic Lexicon",
-        "description": "Extracts dynamic lexicon data from the keyboard",
+        "description": "Printable strings longer than two characters found in each "
+                       "dynamic-lexicon.dat file under mobile/Library/Keyboard, one row per file. "
+                       "The file's format is not parsed, and what the presence of a string in the "
+                       "file means is not established.",
         "author": "@any333",
         "creation_date": "2023-05-24",
         "last_update_date": "2026-08-21",
@@ -47,7 +50,10 @@ __artifacts_v2__ = {
     },
     "keyboardUsageStats": {
         "name": "Keyboard Usage Stats",
-        "description": "Extracts keyboard usage statistics",
+        "description": "Key and value records from the usermodeldurablerecords table of "
+                       "user_model_database.sqlite, with the creation and last update dates read "
+                       "as Unix seconds. What each key measures is not established; values are "
+                       "reported as stored.",
         "author": "@any333",
         "creation_date": "2023-05-24",
         "last_update_date": "2026-08-21",

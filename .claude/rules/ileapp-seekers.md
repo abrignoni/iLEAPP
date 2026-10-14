@@ -11,9 +11,10 @@ differently from the directory, zip and tar seekers in one way that changes what
 matches.
 
 `FileSeekerItunes` matches against the **full reconstructed path with no synthetic `root/`
-prefix**, and it does **not** apply `os.path.normcase`, so backup matching is always
-case-sensitive on every platform, including Windows. The other seekers prepend `root/` and
-normcase both sides.
+prefix**. The directory, tar, zip and raw seekers prepend `root/`. Case is handled the
+same way everywhere: `FileSeekerItunes` matches with `fnmatch.filter`, which applies
+`os.path.normcase` to the pattern and, on Windows, to every path, so backup matching is
+case-insensitive on Windows and case-sensitive on macOS and Linux, like the other seekers.
 
 A pattern written against a filesystem extraction can therefore behave differently against
 a backup of the same device. Test both input types when the artifact is meant to support

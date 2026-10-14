@@ -52,11 +52,30 @@ def illegal_chars_in_filename(filename):
                   key=lambda c: order.get(c, len(order)))
 
 
+# Windows reads these names as devices, with or without an extension: Microsoft's file naming
+# guidance lists them and says "NUL.txt and NUL.tar.gz are both equivalent to NUL". Measured on
+# GitHub's Windows runners, members named AUX, CON and LPT1 were not written through a network
+# share path on Windows Server 2022 or 2025, and AUX, aux.dat, COM1.log and LPT1 were not
+# written through an ordinary path on Server 2022.
+_RESERVED_DEVICE_NAME = re.compile(r'^(con|prn|aux|nul|com[1-9\u00b9\u00b2\u00b3]|lpt[1-9\u00b9\u00b2\u00b3])(?=\.|$)',
+                                   re.IGNORECASE)
+
+
+def _not_a_device_name(component, replacement_char):
+    '''Put replacement_char after a leading device name: AUX becomes AUX_, aux.dat aux_.dat.'''
+    match = _RESERVED_DEVICE_NAME.match(component)
+    return component if match is None else match.group(1) + replacement_char + component[match.end(1):]
+
+
 def sanitize_file_path(filename, replacement_char='_'):
     r'''
-    Removes illegal characters (for windows) from the string passed. Does not replace \ or /
+    Removes illegal characters (for windows) from the string passed. Does not replace \ or /.
+    A path component Windows would read as a device (CON, PRN, AUX, NUL, COM1 to COM9, LPT1 to
+    LPT9 and the superscript COM and LPT forms, with or without an extension) gets
+    replacement_char after the device name.
     '''
-    return re.sub(_illegal_filepath_char_pattern(), replacement_char, filename)
+    cleaned = re.sub(_illegal_filepath_char_pattern(), replacement_char, filename)
+    return re.sub(r'[^\\/]+', lambda part: _not_a_device_name(part.group(0), replacement_char), cleaned)
 
 
 def sanitize_file_name(filename, replacement_char='_'):

@@ -2,13 +2,20 @@
 __artifacts_v2__ = {
     "geodMapTiles": {
         "name": "GeoD Maptiles",
-        "description": "Parses Map Tile Records from Apple geod Cache",
+        "description": "Map tile records from the first MapTiles.sqlitedb matched",
         "author": "@ydkhatri",
         "creation_date": "2024-10-17",
         "last_update_date": "2026-06-17",
         "requirements": "none",
         "category": "Location",
-        "notes": "",
+        "notes": "Only the first MapTiles.sqlitedb matched is read. Timestamp is the tile's "
+                 "access_times.timestamp, or the image table's retrieved value where the database "
+                 "has no data table, read as Unix seconds; the basis for that unit is not given "
+                 "here. Where the database has a data table, a tile with no access_times row is "
+                 "not reported. Places_from_VLOC and Labels_in_tile are text strings found inside "
+                 "the tile data and are reported as found; what each string names is not "
+                 "established here. A tile records map data the system cached and does not by "
+                 "itself establish where the device was.",
         "paths": ('**/MapTiles.sqlitedb*'),
         "output_types": "standard",
         "artifact_icon": "map",

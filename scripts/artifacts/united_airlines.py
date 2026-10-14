@@ -33,8 +33,9 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Core Data: ZUACDUSER.ZSAVEDTRAVELERSJSON (simplifiedTravelers). "
-            "Per-traveler MileagePlus/KTN are usually on trip passengers, not this list. "
-            "In examined extractions, the column may be absent on older app versions."
+            "Per-traveler MileagePlus and KTN values, where present, are reported by the Trip "
+            "Passengers artifact rather than here. A database whose ZUACDUSER table has no "
+            "ZSAVEDTRAVELERSJSON column gives no row."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -44,7 +45,8 @@ __artifacts_v2__ = {
     },
     "united_trips": {
         "name": "United - Trips",
-        "description": "Active and past United wallet reservations and flight segments.",
+        "description": "Reservations and flight segments from the United wallet reservation "
+                       "tables and their past-reservation counterparts.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-31",
@@ -70,7 +72,10 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Core Data: ZUACDWALLETRESERVATION.ZJSON / ZUACDWALLETPASTRESERVATION.ZJSON "
-            "(pnr.passengers); falls back to ZUACDWALLETMBP when reservation JSON is empty."
+            "(pnr.passengers); also reports each distinct passenger on ZUACDWALLETMBP rows with "
+            "Source Type Mobile Boarding Pass, whether or not the reservation JSON held "
+            "passengers, so one passenger can appear once from each source. Repeats of the same "
+            "status, record locator, name, MileagePlus ID and KTN are reported once."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -87,8 +92,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
-            "Core Data table: ZUACDWALLETMBP. "
-            "In examined extractions, often present on older app versions when wallet reservation JSON is empty."
+            "Core Data table: ZUACDWALLETMBP."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -157,7 +161,11 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Source: Documents/logFile.txt (concatenated JSON travel-mode status history). "
-            "In examined extractions, not present on all app versions."
+            "The path patterns match the file only where the folder above Documents is named with "
+            "the bundle id (a name beginning with it, or that name with the AppDomain prefix); a "
+            "container "
+            "named by GUID is not matched. The first matched file is read, and reading stops at "
+            "the first text that is not valid JSON."
         ),
         "paths": (
             "*/com.united.UnitedCustomerFacingIPhone*/Documents/logFile.txt",
@@ -168,39 +176,52 @@ __artifacts_v2__ = {
     },
     "united_ife_watch_history": {
         "name": "United - IFE Playback Resume Positions",
-        "description": "Inflight entertainment playback resume positions from prefs and Core Data.",
+        "description": "Rows of the ZUACDINFLIGHTMEDIA Core Data table and the .mpd, .mp4 and "
+                       "MOV_ keys of the app preferences plist, with the position value as "
+                       "stored. The tested table held no rows and the preferences branch is "
+                       "unexercised, so what the values record is not established.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "United Airlines",
+        "sample_data": {'abe_ios16': 'iOS 16.5 | 0 rows'},
         "notes": (
-            "Core Data table: ZUACDINFLIGHTMEDIA; also app prefs "
-            "com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys)."
+            'Core Data table: ZUACDINFLIGHTMEDIA; also app prefs '
+            'com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys). On abe_ios16 '
+            'the Core Data store is read and its ZUACDINFLIGHTMEDIA table is present with no '
+            'rows. The preferences plist was not found on any of the 21 registered corpora whose '
+            'listings were checked. The path pattern matches a file of that name directly under any '
+            'Library/Preferences folder, so a container named by GUID is matched as well as one '
+            'named for the bundle id. The preferences branch is unexercised.'
         ),
         "paths": (
-            "*/UnitediPhoneCoreData.sqlite*"
-            "*/com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
-            "com.united.UnitedCustomerFacingIPhone.plist",
+            "*/UnitediPhoneCoreData.sqlite*",
+            "*/Library/Preferences/com.united.UnitedCustomerFacingIPhone.plist",
         ),
         "output_types": "standard",
         "artifact_icon": "film",
     },
     "united_watch_complications": {
         "name": "United - Watch Complications",
-        "description": "Trip summary data shared with Apple Watch complications.",
+        "description": "Trip entries from the WatchComplicationsData.WatchData value of the "
+                       "United app group preferences plist. What the app uses the value for is "
+                       "not established.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Source: group.com.united.UnitedCustomerFacingIPhone.plist key "
-            "WatchComplicationsData.WatchData (complicationData / reservations JSON)."
+            "WatchComplicationsData.WatchData (complicationData / reservations JSON). "
+            "The path pattern matches a file of that name directly under any "
+            "Library/Preferences folder, so an app group container named by GUID is matched "
+            "as well as one named for the group id. The GUID-named layout was not exercised "
+            "on a registered corpus."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
-            "group.com.united.UnitedCustomerFacingIPhone.plist",
+            "*/Library/Preferences/group.com.united.UnitedCustomerFacingIPhone.plist",
         ),
         "output_types": "standard",
         "artifact_icon": "watch",
@@ -208,18 +229,27 @@ __artifacts_v2__ = {
     "united_imessage_recipients": {
         "name": "United - iMessage Recipients",
         "description": (
-            "Phone numbers cached for the United Airlines iMessage balloon plugin."
+            "Handle keys of the metadata cache kept for the United Airlines iMessage "
+            "balloon plugin."
         ),
         "author": "James Habben",
         "creation_date": "2026-07-16",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Source: MobileSMS PluginMetaDataCache plist for "
             "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension. "
-            "Handles present in the plugin's metadata cache; not full message content. "
-            "Prefer the AppDomain-com.apple.MobileSMS copy over the notification-extension stub."
+            "Every string key of the plugin's metadata cache other than localID is reported. "
+            "Handle is the key as stored, with a leading iMessage;-; prefix removed, so a key "
+            "stored both bare and with that prefix gives one row; Key Forms says which forms "
+            "were present. A handle can be a phone number, an email address or another key "
+            "form, and it is not validated. Bare Key Cache ID and iMessage Key Cache ID are the "
+            "values stored under each form. "
+            "This artifact reports no message content. What the presence of a handle records is "
+            "not established. "
+            "The same cache can also be present under the notification extension domain; both "
+            "copies are read where present."
         ),
         "paths": (
             "*/Library/SMS/PluginMetaDataCache/*/com.apple.messages."
@@ -1318,7 +1348,7 @@ def united_watch_complications(context):
         file_found = str(file_found)
         if not file_found.endswith("group.com.united.UnitedCustomerFacingIPhone.plist"):
             continue
-        if "group.com.united.UnitedCustomerFacingIPhone" not in file_found.replace("\\", "/"):
+        if "Library/Preferences/" not in file_found.replace("\\", "/"):
             continue
         source_path = file_found
         relative = context.get_relative_path(file_found)
@@ -1412,7 +1442,7 @@ def united_imessage_recipients(context):
         relative = context.get_relative_path(file_found)
         local_id = plist.get("localID") or ""
 
-        # Collapse bare +E.164 and iMessage;-;+E.164 keys into one row per number.
+        # Collapse a bare key and its iMessage;-; form into one row per handle.
         by_number = {}
         for key, value in plist.items():
             if key == "localID" or not isinstance(key, str):
@@ -1422,7 +1452,7 @@ def united_imessage_recipients(context):
             if key.startswith(imessage_prefix):
                 handle_type = "iMessage"
                 number = key[len(imessage_prefix):]
-            if not number.startswith("+"):
+            if not number:
                 continue
             entry = by_number.setdefault(
                 number,
@@ -1451,9 +1481,9 @@ def united_imessage_recipients(context):
             entry = by_number[number]
             handle_types = []
             if entry["has_phone"]:
-                handle_types.append("Phone")
+                handle_types.append("Bare")
             if entry["has_imessage"]:
-                handle_types.append("iMessage")
+                handle_types.append("iMessage;-;")
             data_list.append((
                 entry["phone"],
                 ", ".join(handle_types),
@@ -1464,10 +1494,10 @@ def united_imessage_recipients(context):
             ))
 
     data_headers = (
-        ("Phone Number", "phonenumber"),
-        "Handle Types",
-        "Phone Cache ID",
-        "iMessage Cache ID",
+        "Handle",
+        "Key Forms",
+        "Bare Key Cache ID",
+        "iMessage Key Cache ID",
         "Local ID",
         "Source File",
     )

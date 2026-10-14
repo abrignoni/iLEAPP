@@ -4,7 +4,8 @@ __artifacts_v2__ = {
         "description": "Parses share sheet conversation records from the "
                        "MLSE.ShareSheet.ConversationUserInteraction biome stream: the app "
                        "associated with the share and the conversation identifier, which "
-                       "carries a contact handle for Messages shares.",
+                       "on the tested image had the service;-;handle form on Messages "
+                       "records.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
@@ -78,7 +79,7 @@ def get_biomeShareSheetConversation(context):
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue

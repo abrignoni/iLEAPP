@@ -1,0 +1,246 @@
+{
+  "metadata": {
+    "module_name": "appleWatchPhotoCollections",
+    "artifact_name": "Apple Watch Photo Collection Assets",
+    "function_name": "appleWatchPhotoCollectionAssets",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 9,
+    "number_of_rows": 19,
+    "total_data_size_bytes": 3424,
+    "media_checkins": 19,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWatchPhotoCollections/testdata.appleWatchPhotoCollections.appleWatchPhotoCollectionAssets.josh_ios17_ffs.zip",
+    "start_time": "2026-10-10T23:09:37.747960+00:00",
+    "end_time": "2026-10-10T23:09:37.845118+00:00",
+    "run_time_seconds": 0.005243062973022461,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T23:09:37.787539",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Target Type",
+    "Collection ID",
+    "Collection Title",
+    "List",
+    "Position",
+    "Asset ID",
+    "Thumbnail",
+    "File Path",
+    "Device Registry ID"
+  ],
+  "data": [
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      1,
+      "6A8ED079-8D82-470F-8680-AFE646A2FDE9",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0026.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      2,
+      "3A8171EB-50EA-48EA-B89E-AB0BE3743951",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0028.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      3,
+      "FD2999BA-DB23-4D3A-8195-B96BE64E0767",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0029.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      4,
+      "D9CE1B8E-3099-4816-B978-DBF24D8CBF2B",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0030.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      5,
+      "0C31CD34-B1E3-4384-8F99-98A1BED7C3BB",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0033.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      6,
+      "FF637E11-D7A1-4F19-A91B-4818A1FDA342",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0034.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      7,
+      "9EBF9F58-F9D1-4D75-BF09-3EC8AAB24396",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0035.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      8,
+      "CD45EEFC-FFD3-49DC-9E06-6293A331C3B3",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0038.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      9,
+      "616342B6-9462-4BEF-AF81-4982BB82A9E2",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0039.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      10,
+      "71850932-366E-4F9D-BA6D-FB780A8CB475",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0040.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      11,
+      "15D9F0C3-FAFF-42BC-9B14-1DF5A95362EE",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0041.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      12,
+      "30781EDA-232D-478A-B73C-89AD7006C202",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0042.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      13,
+      "842BCCD9-2487-47B1-BE9A-FD14D9E54DF0",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0044.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      14,
+      "A97A754F-3DC1-49F6-8C6B-0EFD79F247EA",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0045.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      15,
+      "53308EE0-95E9-4617-BD42-4E0B297B659B",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0046.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "assetUUIDs",
+      16,
+      "CD45EEFC-FFD3-49DC-9E06-6293A331C3B3",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0038.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "keyAssetUUIDs",
+      1,
+      "CD45EEFC-FFD3-49DC-9E06-6293A331C3B3",
+      "mock_hash_for_5005.JPG",
+      "DCIM/100APPLE/IMG_0038.HEIC",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "6",
+      "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+      "",
+      "assetUUIDs",
+      1,
+      "17625CA5-00FC-4168-BBE8-A5F74B3C288B",
+      "mock_hash_for_5005.JPG",
+      "PhotoData/CPLAssets/group295/19BCD143-F826-4D3A-AF2B-936E88F67BCD.JPG",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "6",
+      "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+      "",
+      "assetUUIDs",
+      2,
+      "58BD6177-9EEC-4249-9541-D73469388A58",
+      "mock_hash_for_5005.JPG",
+      "PhotoData/CPLAssets/group189/DB8639D6-E6F3-49CE-88CA-8C8719E94268.JPG",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ]
+  ]
+}

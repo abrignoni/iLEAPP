@@ -7,9 +7,10 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Cookies',
-        'notes': ('Apple binarycookies format. Each application container keeps its own file, so the '
-                  'container path identifies which application the cookie belongs to. '
-                  "Reference: Satish B., 'BinaryCookieReader', "
+        'notes': ('Apple binarycookies format. The Source File column gives the path each file was '
+                  'read from. That path names the container folder; this module does not resolve '
+                  'it to an application name. Flags shows the Secure (1) and HTTP Only (4) bits; '
+                  "other bits are not shown. Reference: Satish B., 'BinaryCookieReader', "
                   'https://github.com/as0ler/BinaryCookieReader/blob/'
                   'd77e0f9eda49b9422211356027dca744363082a5/BinaryCookieReader.py'),
         'paths': (

@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "photosRecentSearches",
+    "artifact_name": "Photos Recent Searches",
+    "function_name": "photosRecentSearches",
+    "case_number": "abe_ios16",
+    "number_of_columns": 7,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 55,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/photosRecentSearches/testdata.photosRecentSearches.photosRecentSearches.abe_ios16.zip",
+    "start_time": "2026-10-10T19:37:43.307738+00:00",
+    "end_time": "2026-10-10T19:37:43.364198+00:00",
+    "run_time_seconds": 0.0008881092071533203,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T19:37:43.359671",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Position",
+    "Search Text",
+    "Represented Objects",
+    "Represented Object Titles",
+    "Token Text",
+    "Token User Category",
+    "Token Match Type"
+  ],
+  "data": [
+    [
+      1,
+      "redmo",
+      1,
+      "Videos",
+      "Videos",
+      "17",
+      "2"
+    ],
+    [
+      2,
+      " video",
+      1,
+      "Redmond",
+      "Redmond",
+      "0",
+      "2"
+    ],
+    [
+      3,
+      "redmond",
+      0,
+      "",
+      "",
+      "",
+      ""
+    ]
+  ]
+}

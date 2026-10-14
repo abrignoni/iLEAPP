@@ -28,11 +28,16 @@ __artifacts_v2__ = {
 
 
 import os
+import struct
 from datetime import timezone
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
+                  IndexError)
 
 
 @artifact_processor
@@ -71,7 +76,7 @@ def get_biomeAppWebUsage(context):
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
             else:
                 report_file = os.path.dirname(file_found)
@@ -83,7 +88,12 @@ def get_biomeAppWebUsage(context):
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, _types = blackboxprotobuf.decode_message(record.data, typess)
+                try:
+                    protostuff, _types = blackboxprotobuf.decode_message(record.data, typess)
+                except _DECODE_ERRORS as ex:
+                    logfunc(f'Biome App Web Usage: could not decode record at offset '
+                            f'{record.data_start_offset} in {filename}: {ex}')
+                    continue
 
                 guid               = protostuff.get('guid', '')
                 timestamp          = webkit_timestampsconv(protostuff['timestamp'])

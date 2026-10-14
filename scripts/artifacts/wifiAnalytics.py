@@ -1,13 +1,20 @@
 __artifacts_v2__ = {
     "wifiAnalyticsGeotags": {
         "name": "Wi-Fi Analytics - Geotags",
-        "description": "Geotagged Wi-Fi networks recorded by wifianalyticsd",
+        "description": (
+            "Wi-Fi geotags from DeviceAnalyticsModel.sqlite in the com.apple.wifianalyticsd "
+            "directory, with the linked BSSID and SSID"
+        ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Wi-Fi",
-        "notes": "Dates use the Apple Cocoa epoch. Locations should be corroborated.",
+        "notes": "Date is ZGEOTAG.ZDATE and Last Seen is ZLASTSEEN of the ZBSS record the geotag "
+                 "links to, both read as seconds since 2001-01-01 UTC. What event either value "
+                 "marks is not established here. BSSID and SSID come from the ZBSS and ZNETWORK "
+                 "records the geotag links to. Only the first matched database is read. Locations "
+                 "should be corroborated.",
         "paths": (
             "*/root/Library/Application Support/com.apple.wifianalyticsd/"
             "DeviceAnalyticsModel.sqlite*",
@@ -15,7 +22,7 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava", "timeline", "kml"],
         "artifact_icon": "map-pin",
         "sample_data": {
-            "hickman_ios15": "iOS 15 | 9 rows",
+            "hickman_ios15": "iOS 15.3.1 | 9 rows",
             "jess_ios15": "iOS 15.0.2 | 17 rows",
             "magnet_ios16": "iOS 16.1.1 | 14 rows",
             "felix_ios17": "iOS 17.6.1 | 15 rows",
@@ -25,14 +32,18 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.ilapfuncs import (
+    artifact_processor,
+    convert_cocoa_core_data_ts_to_utc,
+    get_sqlite_db_records,
+)
 
 
 @artifact_processor
 def wifiAnalyticsGeotags(context):
     data_headers = (
-        ("Date", "datetime"), ("Last Seen", "datetime"), "Geotag ID", "Entity ID",
-        ("Latitude", "latitude"), ("Longitude", "longitude"), "BSSID", "SSID",
+        ("Date", "datetime"), ("Last Seen", "datetime"), "Geotag ID",
+        "Latitude", "Longitude", "BSSID", "SSID",
     )
     data_list = []
     source_path = next(
@@ -44,14 +55,17 @@ def wifiAnalyticsGeotags(context):
         return data_headers, data_list, ""
 
     query = """
-        SELECT datetime(ZGEOTAG.ZDATE + 978307200, 'unixepoch'),
-               datetime(ZBSS.ZLASTSEEN + 978307200, 'unixepoch'),
-               ZGEOTAG.Z_PK, ZGEOTAG.Z_ENT,
+        SELECT ZGEOTAG.ZDATE, ZBSS.ZLASTSEEN, ZGEOTAG.Z_PK,
                ZGEOTAG.ZLATITUDE, ZGEOTAG.ZLONGITUDE, ZBSS.ZBSSID, ZNETWORK.ZSSID
         FROM ZGEOTAG
         LEFT JOIN ZBSS ON ZBSS.Z_PK = ZGEOTAG.ZBSS
         LEFT JOIN ZNETWORK ON ZNETWORK.Z_PK = ZBSS.ZNETWORK
-        ORDER BY ZGEOTAG.ZDATE
+        ORDER BY ZGEOTAG.ZDATE, ZGEOTAG.rowid, ZBSS.rowid, ZNETWORK.rowid
     """
-    data_list.extend(tuple(row) for row in get_sqlite_db_records(source_path, query))
+    for row in get_sqlite_db_records(source_path, query):
+        values = tuple(row)
+        data_list.append((
+            convert_cocoa_core_data_ts_to_utc(values[0]),
+            convert_cocoa_core_data_ts_to_utc(values[1]),
+        ) + values[2:])
     return data_headers, data_list, context.get_relative_path(source_path)

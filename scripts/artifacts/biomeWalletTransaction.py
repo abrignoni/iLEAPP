@@ -2,8 +2,8 @@ __artifacts_v2__ = {
     "get_biomeWalletTransaction": {
         "name": "Biome - Wallet Transactions",
         "description": "Parses Wallet transaction events from the Wallet.Transaction biome "
-                       "stream: record time, the card used (name as shown in Wallet), the "
-                       "pass identifier and a per-transaction UUID.",
+                       "stream: record time, a card name, a pass identifier and a UUID, as "
+                       "labelled from a private sample.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",
@@ -68,7 +68,7 @@ def get_biomeWalletTransaction(context):
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue

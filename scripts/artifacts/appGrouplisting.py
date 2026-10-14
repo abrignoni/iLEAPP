@@ -1,13 +1,16 @@
 __artifacts_v2__ = {
     "appGrouplisting": {
         "name": "Bundle ID by AppGroup & PluginKit IDs",
-        "description": "In tested images the listing retained entries for apps no longer present. Each file is named .com.apple.mobile_container_manager.metadata.plist",
+        "description": "Identifier (MCMMetadataIdentifier) recorded in each container's metadata "
+                       "plist under Shared/AppGroup and Data/PluginKitPlugin, with the container "
+                       "directory name and path. Each file is named "
+                       ".com.apple.mobile_container_manager.metadata.plist",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-09-22",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The Bundle ID column holds the MCMMetadataIdentifier value as stored.",
         "paths": (
             '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', 
             '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -36,25 +39,31 @@ __artifacts_v2__ = {
 import pathlib
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content
 
+
 @artifact_processor
 def appGrouplisting(context):
-    source_path = 'Path column in the report'
-    data_list = []       
-    
+    source_paths = set()
+    data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+        estimated_row_count=len(context.get_files_found()),
+    )
+
     for file_found in context.get_files_found():
         plist = get_plist_file_content(file_found)
         # Check if plist is a valid parseable object
         if not plist or not isinstance(plist, dict):
             continue
+        source_paths.add(str(file_found))
         bundleid = plist['MCMMetadataIdentifier']
-        
+
         p = pathlib.Path(file_found)
         appgroupid = p.parent.name
-        fileloc = str(p.parents[1])
+        fileloc = context.get_relative_path(str(p.parents[1]))
         typedir = str(p.parents[1].name)
-        
-        data_list.append((bundleid, typedir, appgroupid, fileloc))
-                
-    data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
-    return data_headers, data_list, source_path
-    
+
+        results.add_row((bundleid, typedir, appgroupid, fileloc))
+
+    results.set_source_path('\n'.join(sorted(source_paths)))
+    return results

@@ -1,13 +1,18 @@
 __artifacts_v2__ = {
     'threema_chats': {
         'name': 'Threema - Chats',
-        'description': 'Extract chats from Threema',
+        'description': 'Messages from the ZMESSAGE table of ThreemaData.sqlite, with attachments where the store or its external data folder holds them. System messages are not reported. Sender Name and Receiver are derived from ZISOWN and the conversation',
         'author': '@C_Peter',
         'creation_date': '2026-01-03',
         'last_update_date': '2022-01-03',
         'requirements': 'none',
         'category': 'Threema',
-        'notes': '',
+        'notes': "The text 'local user' in Sender Name (ZISOWN 1) and in Receiver (ZISOWN 0) is a label "
+                 "this parser supplies; it is not a name stored in the database, and the stored ZISOWN "
+                 "value is reported in From Me. The media type given to an attachment is set by this "
+                 "parser from the message entity name in Message Type (image as image/jpeg, video as "
+                 "video/mp4, audio as audio/m4a) and is not read from the attachment itself; file "
+                 "messages use the stored ZMIMETYPE where there is one.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ThreemaData.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/.ThreemaData_SUPPORT/_EXTERNAL_DATA/*',

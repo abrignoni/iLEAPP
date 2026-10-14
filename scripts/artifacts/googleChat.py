@@ -1,14 +1,24 @@
 __artifacts_v2__ = {
     "google_chat": {  # This should match the function name exactly
         "name": "Google Chat",
-        "description": "Parses google chats",
+        "description": "Messages from the first Google Chat dynamite.db matched",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Google Chats",
-        "notes": "Group-type value mapping observed in testing; unrecognized values reported as stored. "
-                 "Reaction protobuf field positions established through testing.",
+        "notes": "Only the first dynamite.db matched is read, so a second account's database is "
+                 "not reported. A message with no users row or no Groups row is not reported. "
+                 "Timestamp reads create_time as Unix microseconds; the basis for that unit is not "
+                 "given here. Is Sent is 1 when the message's creator_id equals the name of the "
+                 "account directory holding the database; it is not a stored flag. Group Type "
+                 "shows Group Message where the stored group_type value is 1 and 1-to-1 Message "
+                 "where it is 2; no source for that mapping was found, so the two labels are not "
+                 "established, and any other value is reported as stored. Reaction and Reaction "
+                 "User are read from the reactions protobuf by field position; the positions were "
+                 "not sourced. One reaction and one user are read. Where the stored value holds "
+                 "more than one of either, neither is reported and the cells are blank, so a blank "
+                 "cell does not establish that a message had no reaction.",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',
                   '*/Documents/user_accounts/*/tmp/*'),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]
@@ -33,6 +43,7 @@ __artifacts_v2__ = {
 
 import os
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 import re
 from io import BytesIO
 
@@ -46,6 +57,7 @@ from scripts.ilapfuncs import (
 )
 
 _FLATTEN_ERRORS = (TypeError, AttributeError, KeyError, ValueError)
+_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError, IndexError, AttributeError)
 
 
 class Tuppsub(tuple):
@@ -323,15 +335,21 @@ def google_chat(context):
                 reaction = ''
                 reactionuser = ''
             else:
-                protostuff, _types = blackboxprotobuf.decode_message(protobufreactions)
-                reaction = (protostuff['1']['1']['1']['1']).decode()
-                reaction = (utf8_in_extended_ascii(reaction))[1]
+                try:
+                    protostuff, _types = blackboxprotobuf.decode_message(protobufreactions)
+                    reaction = (protostuff['1']['1']['1']['1']).decode()
+                    reaction = (utf8_in_extended_ascii(reaction))[1]
 
-                reactionuser = protostuff['1'].get('2')
-                if reactionuser is not None:
-                    reactionuser = protostuff['1']['2']['1']
-                    reactionuser = (reactionuser.decode())
-                else:
+                    reactionuser = protostuff['1'].get('2')
+                    if reactionuser is not None:
+                        reactionuser = protostuff['1']['2']['1']
+                        reactionuser = (reactionuser.decode())
+                    else:
+                        reactionuser = ''
+                except _DECODE_ERRORS as ex:
+                    logfunc(f'Google Chat: could not decode reactions for message '
+                            f'{row[7]}: {ex}')
+                    reaction = ''
                     reactionuser = ''
 
             protobufmedia = row[6]
@@ -341,7 +359,12 @@ def google_chat(context):
             if check == b'\xfe\xff\x00':
                 mediafilename = ''
             else:
-                protostuff, _ = blackboxprotobuf.decode_message(protobufmedia)
+                try:
+                    protostuff, _ = blackboxprotobuf.decode_message(protobufmedia)
+                except _DECODE_ERRORS as ex:
+                    logfunc(f'Google Chat: could not decode media reference for message '
+                            f'{row[7]}: {ex}')
+                    protostuff = {'1': {}}
                 aggregator = []
                 if isinstance(protostuff['1'], list):
                     nested_whatever = list(fla_tu(protostuff['1']))

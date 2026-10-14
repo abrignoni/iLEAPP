@@ -8,13 +8,16 @@
 __artifacts_v2__ = {
     "airbnb_messages": {
         "name": "Airbnb - Messages",
-        "description": "Messages sent and received in the Airbnb App",
+        "description": "Messages stored in the Airbnb app's messaging database",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-04-29",
         "last_update_date": "2026-05-18",
         "requirements": "Path, re",
         "category": "Airbnb",
-        "notes": "",
+        "notes": "Sent is set by this module: it is 1 when the sender user id equals the number in "
+                 "the database file name and 0 otherwise. It is not a stored value. For multipart "
+                 "messages only the first part's body is reported, message types other than text "
+                 "and multipart get no body, and only the first matching database is read.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/user_*_messaging_core.sqlite3*'),
         "output_types": "standard",
         "artifact_icon": "message",

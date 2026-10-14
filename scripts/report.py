@@ -5,6 +5,7 @@ sidebar navigation, and the index summary page with case information and credits
 
 import html
 import os
+import re
 from pathlib import Path
 import shutil
 
@@ -14,7 +15,8 @@ from scripts.html_parts import nav_bar_script, nav_bar_script_footer, \
     body_main_header, body_main_data_title, body_main_trailer, thank_you_note, credits_block, \
     individual_contributor, blog_icon, twitter_icon, github_icon, blank_icon, tabs_code, \
     tabs_code_with_lava, body_sidebar_dynamic_data_placeholder
-from scripts.ilapfuncs import logfunc
+from scripts.ilapfuncs import logfunc, html_tables_held_back
+import scripts.artifact_report as artifact_report
 from scripts.version_info import leapp_version, ileapp_contributors
 
 from leapp_functions.data_sources.text_files import get_txt_file_content
@@ -149,6 +151,72 @@ def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, i
             print("_elements folder seems fine. Probably nothing to worry about")
 
 
+# The run log and the processed files list are copied into two index tabs. Above this
+# size a tab shows a summary and a link to the full file instead. Measured 2026-09-19 in
+# Chromium with a 43 MB list of 229,869 paths: index.html opened in under a second, but
+# clicking the tab laid out 230,000 list items, blocked the page for over a minute and
+# took the browser to 12 GB.
+INDEX_TAB_EMBED_LIMIT = 2 * 1024 * 1024
+INDEX_TAB_LOG_LINES = 200         # lines kept from each end of a summarised run log
+INDEX_TAB_PATHS_PER_PATTERN = 200  # paths kept per search pattern in a summarised files list
+
+_ARTIFACT_BLOCK = re.compile(r'<b>For (.*?) artifact</b>(.*?)(?=<b>For |\Z)', re.S)
+_PATTERN_BLOCK = re.compile(
+    r'<ul><li>(?:No file found for regex <i>(.*?)</i>'
+    r'|(\d+) files? for regex <i>(.*?)</i> located at:((?:<ul><li>.*?</li></ul>)*))</li></ul>', re.S)
+_PATH_ITEM = re.compile(r'<ul><li>(.*?)</li></ul>', re.S)
+
+
+def _summary_link(path, label, size):
+    name = os.path.basename(path)
+    return (f'<p class="note note-warning mb-4">The full {label} is {size / 1048576:.1f} MB, above '
+            f'the {INDEX_TAB_EMBED_LIMIT // 1048576} MB this page copies in, so this tab shows a '
+            f'summary. <a href="_Script_Logs/{html.escape(name)}" target="_blank">Open '
+            f'{html.escape(name)}</a> for the whole file.</p>')
+
+
+def run_log_tab_content(path):
+    """The run log for its index tab: whole when small, both ends and a link when not."""
+    size = os.path.getsize(path)
+    text = get_file_content(path)
+    if size <= INDEX_TAB_EMBED_LIMIT:
+        return text
+    lines = text.split('\n')
+    if len(lines) <= 2 * INDEX_TAB_LOG_LINES:   # long lines, not many: nothing to leave out
+        return text
+    head, tail = lines[:INDEX_TAB_LOG_LINES], lines[-INDEX_TAB_LOG_LINES:]
+    omitted = len(lines) - len(head) - len(tail)
+    return (_summary_link(path, 'run log', size) + '\n'.join(head)
+            + f'<p class="note note-light mb-4">{omitted:,} lines not shown here.</p>' + '\n'.join(tail))
+
+
+def processed_files_tab_content(path):
+    """The processed files list for its index tab: whole when small, otherwise each
+    artifact's patterns with their counts and the first paths, and a link."""
+    size = os.path.getsize(path)
+    text = get_file_content(path)
+    if size <= INDEX_TAB_EMBED_LIMIT:
+        return text
+    out = [_summary_link(path, 'processed files list', size)]
+    first_block = text.find('<b>For ')
+    out.append(text[:first_block] if first_block > 0 else '')
+    for block in _ARTIFACT_BLOCK.finditer(text):
+        out.append(f'<b>For {block.group(1)} artifact</b>')
+        for pattern in _PATTERN_BLOCK.finditer(block.group(2)):
+            missing, count, regex, items = pattern.groups()
+            if missing is not None:
+                out.append(f'<ul><li>No file found for regex <i>{missing}</i></li></ul>')
+                continue
+            paths = _PATH_ITEM.findall(items)
+            shown = ''.join(f'<ul><li>{p}</li></ul>' for p in paths[:INDEX_TAB_PATHS_PER_PATTERN])
+            more = len(paths) - min(len(paths), INDEX_TAB_PATHS_PER_PATTERN)
+            if more:
+                shown += f'<ul><li><i>{more:,} more in the full list</i></li></ul>'
+            noun = 'file' if count == '1' else 'files'
+            out.append(f'<ul><li>{count} {noun} for regex <i>{regex}</i> located at:{shown}</li></ul>')
+    return ''.join(out)
+
+
 def get_file_content(path):
     """Return UTF-8 text content from the file at the given path."""
     f = open(path, 'r', encoding='utf8')
@@ -195,11 +263,20 @@ def create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type,
         tab1_content += \
             """
                 <p class="note alert-warning mb-4">
-                This report contains artifacts that are likely to return too much data
-                 to be viewed in a Web browser.<br> Please review the <i>'LAVA only artifacts'</i>
-                 tab for a listing of those artifacts and information on how to open this report using LAVA.
+                This report contains artifacts declared LAVA only because of the amount of data
+                 they return.<br> The <i>'LAVA only artifacts'</i> tab lists them and says how to
+                 open this report in LAVA.
                 </p>
             """
+    if html_tables_held_back:
+        held_back_items = ''.join(
+            f'<li><a href="{html.escape(table["page"])}">{html.escape(table["artifact_name"])}</a> '
+            f'({html.escape(table["category"])}): {table["rows"]:,} rows</li>'
+            for table in html_tables_held_back)
+        tab1_content += (
+            f'<div class="note note-warning mb-4">These tables have more than '
+            f'{artifact_report.HTML_TABLE_ROW_LIMIT:,} rows and are left off their HTML pages; each '
+            f'page says where the complete rows are.<ul>{held_back_items}</ul></div>')
     tab1_content += \
         """
             <p class="note note-primary mb-4">
@@ -213,11 +290,11 @@ def create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type,
 
     # Get script run log (this will be tab3)
     script_log_path = os.path.join(reportfolderbase, '_HTML', '_Script_Logs', 'Screen_Output.html')
-    tab3_content = get_file_content(script_log_path)
+    tab3_content = run_log_tab_content(script_log_path)
 
     # Get processed files list (this will be tab4)
     processed_files_path = os.path.join(reportfolderbase, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html')
-    tab4_content = get_file_content(processed_files_path)
+    tab4_content = processed_files_tab_content(processed_files_path)
 
     # Get processed LAVA list (this will be tab5)
     if lava_only:

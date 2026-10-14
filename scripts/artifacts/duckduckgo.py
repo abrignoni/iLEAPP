@@ -2,17 +2,24 @@ __artifacts_v2__ = {
     "duckduckgo_history": {
         "name": "DuckDuckGo - Browsing History",
         "description": "Browsing history entries from the DuckDuckGo browser, with the page title, "
-                       "the last visit time and the number of trackers the browser blocked on the page",
+                       "the last visit time and the stored blocked-tracker count",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "DuckDuckGo",
-        "notes": "Read from the Core Data store History.sqlite. ZBROWSINGHISTORYENTRYMANAGEDOBJECT "
-                 "holds one row per visited page with an aggregate visit count and blocked-tracker "
-                 "count; the timestamps are Core Data (Cocoa) seconds. A store lacking the "
-                 "ZCOOKIEPOPUPBLOCKED column and the tab history table has been observed in a "
-                 "private sample; columns absent from a store are reported empty, not as No.",
+        "notes": "Read from the Core Data store History.sqlite. "
+                 "ZBROWSINGHISTORYENTRYMANAGEDOBJECT holds one row per history entry with an "
+                 "aggregate visit count and blocked-tracker count; the timestamps are Core Data "
+                 "(Cocoa) seconds. A store lacking the ZCOOKIEPOPUPBLOCKED column and the tab "
+                 "history table has been observed in a private sample; columns absent from a "
+                 "store are reported empty, not as No."
+                 " Trackers Blocked is the ZNUMBEROFTRACKERSBLOCKED column. The browser's "
+                 "published source keeps a numberOfTrackersBlocked value on a history entry and "
+                 "adds one to it in addBlockedTracker(entityName:). Reference: DuckDuckGo, "
+                 "BrowserServicesKit, Sources/History/HistoryEntry.swift, "
+                 "https://github.com/duckduckgo/BrowserServicesKit/blob/f3a9e71bb3be7dc53a74e2750d4282150e62798e/Sources/History/HistoryEntry.swift#L71-L77 "
+                 "(the pinned commit was not matched to the app version on the tested image).",
         "paths": ('*/Library/Application Support/History.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "globe",

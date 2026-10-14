@@ -5,22 +5,32 @@ __artifacts_v2__ = {
                        "Tinder2.sqlite, with the sender, the match and the media fields",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
         "notes": "Timestamps are Core Data (Cocoa) seconds and are converted to UTC. ZCREATED "
                  "is reported as the message time and ZCLIENTCREATED alongside it; the two "
                  "differ, and nothing in the extraction documents what each records.\n"
                  "Sender is ZFROMUSERID, resolved to a first name through the ZUSER table where "
-                 "a matching row exists. Messages the app itself sends into the user's inbox "
-                 "carry the literal sender id com.tinder.inbox.user, which is the app's own "
-                 "identifier rather than a person; in the tested image every message row was of "
-                 "that kind, so the person-to-person path of this artifact is implemented and "
+                 "a matching row exists. Direction is computed by this module: Outgoing when "
+                 "ZFROMUSERID equals the user id of the ZUSER row flagged ZISCURRENTUSER, "
+                 "Incoming for any other sender id (and for every sender id when no row carries "
+                 "that flag), blank when there is no sender id. Rows whose sender id is "
+                 "com.tinder.inbox.user are therefore labelled Incoming. Rows carrying the "
+                 "literal sender id "
+                 "com.tinder.inbox.user resolve to no ZUSER row; what that identifier represents "
+                 "is not established beyond the literal, and in the tested image every message "
+                 "row carried it, so the person-to-person path of this artifact is implemented "
+                 "and "
                  "not exercised by a corpus. A sample with real conversations would be welcome.\n"
-                 "ZTYPE and ZSUBTYPE are reported as stored and were empty on every tested row. "
+                 "ZTYPE and ZSUBTYPE are reported as stored and are blank only when the stored "
+                 "value is NULL or an empty string. They were shown blank on every tested row "
+                 "by the earlier version of this module, which also blanked a stored 0, so "
+                 "which of the three those rows hold was not re-measured. "
                  "Media columns are reported where present: ZMEDIAURL, ZPHOTOURL and "
-                 "ZLOCALIMAGEURL hold locations rather than content, and no media message "
-                 "existed in the tested image, so this artifact renders no media. See the "
+                 "ZLOCALIMAGEURL are reported as stored; no media message existed in the tested "
+                 "image, so what they hold is not established. This artifact renders no media. "
+                 "See the "
                  "Tinder - Cached Photos artifact for the images present on disk.\n"
                  "The ZFORMATTINGDATA, ZVERSIONINGDATA and ZANALYTICSINFO columns hold "
                  "NSKeyedArchiver plists and are not decoded here.\n"
@@ -50,15 +60,18 @@ __artifacts_v2__ = {
                        "Tinder2.sqlite, joined to the matched person's ZUSER row",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
         "notes": "One row per ZMATCH entry. Timestamps are Core Data (Cocoa) seconds. The "
                  "boolean-shaped columns (ZISSUPERLIKEMATCH, ZISFASTMATCH, ZISBOOSTMATCH, "
-                 "ZISEXPIRED, ZMATCHSEEN and the rest) are reported as stored; Core Data leaves "
-                 "them NULL rather than 0 when unset, so a blank means the app stored nothing.\n"
-                 "The match whose ZMATCHID is the literal com.tinder.inbox.match is the app's "
-                 "own inbox rather than a person, and it was the only match in the tested "
+                 "ZISEXPIRED, ZMATCHSEEN and the rest) are reported as stored; a blank in those "
+                 "columns is a NULL as stored. Subscription Tier is reported as stored and is "
+                 "blank only for NULL or an empty string. Message Draft is also blank when the "
+                 "stored value is 0 or empty.\nThe match whose ZMATCHID is the literal "
+                 "com.tinder.inbox.match does "
+                 "not resolve to a person's ZUSER row; what it represents is not established "
+                 "beyond the literal, and it was the only match in the tested "
                  "image, so the person-match path here is implemented and not exercised by a "
                  "corpus. A sample with real matches would be welcome.\n"
                  "The WAL sidecar must travel with the database; see the Tinder - Messages "
@@ -76,7 +89,7 @@ __artifacts_v2__ = {
                        "Data store Tinder2.sqlite, joined to each profile's ZUSER row",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
         "notes": "Each row is a profile the app had stored as a recommendation, with that "
@@ -84,15 +97,16 @@ __artifacts_v2__ = {
                  "Presence of a row records that the app held the profile locally. It does not "
                  "establish that the profile was displayed to the user, that the user viewed "
                  "it, or that the user acted on it.\n"
-                 "ZRECTYPE, ZRECSOURCE and ZSUBSOURCE are reported as stored; nothing in the "
+                 "ZRECTYPE, ZRECSOURCE and ZSUBSOURCE are reported as stored; a blank in "
+                 "those columns is a NULL or an empty string. Nothing in the "
                  "extraction maps their values. ZLIKED and ZSUPERLIKED come from the joined "
                  "ZUSER row and were NULL on every row in the tested image, so no swipe "
                  "decision is recoverable from it; a blank is an unset column, not a negative "
                  "answer. Birth dates are stored as Core Data seconds; in the tested image "
-                 "most carried an identical time of day, which suggests the app stores a date "
-                 "rather than an instant, so read the date and not the clock time.\n"
-                 "ZDISTANCEMILES is the stored value, in miles, as the app recorded it at the "
-                 "time; it is a distance from the account holder, not a location.",
+                 "most carried an identical time of day; whether the value records a date or an "
+                 "instant is not established.\nZDISTANCEMILES is reported as stored; the column "
+                 "name indicates miles, and the point the distance is measured from is not "
+                 "established. It is not a location.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Tinder/Tinder2.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -102,7 +116,7 @@ __artifacts_v2__ = {
     },
     "tinderAccount": {
         "name": "Tinder - Account",
-        "description": "The signed-in account from the Tinder preferences plist "
+        "description": "The account recorded in the Tinder preferences plist "
                        "com.cardify.tinder.plist and the current-user row of the Core Data "
                        "store Tinder2.sqlite",
         "author": "@AlexisBrignoni, Claude",
@@ -113,14 +127,15 @@ __artifacts_v2__ = {
         "notes": "The email address, account creation time and login times come from the "
                  "preferences plist keys Profile.email, Profile.accountCreated, "
                  "Session.firstConsecutiveLoginDate and Session.lastConsecutiveLoginDate. The "
-                 "Profile.account key holds a JSON document whose linked-account booleans "
-                 "(Apple, Facebook, Google, phone and so on) are reported as stored.\n"
+                 "Profile.account key holds a JSON document whose apple_id_linked, "
+                 "facebook_id_linked, google_id_linked and line_id_linked values are reported as "
+                 "stored. Phone Number is that document's account_phone_number, and Email falls "
+                 "back to its account_email when Profile.email is absent.\n"
                  "The name, user id, birth date, gender, city and bio come from the ZUSER row "
                  "flagged ZISCURRENTUSER. Gender is reported as stored; nothing in the "
-                 "extraction maps its values, and -1 appears on rows where the app stored no "
-                 "value.\n"
-                 "A key absent from the plist is reported blank. Tinder writes several of these "
-                 "keys only once the corresponding action has happened, so a blank is absence "
+                 "extraction maps its values, and -1 was observed on some rows, with a meaning "
+                 "that is not established.\nA key absent from the plist is reported blank; a "
+                 "blank is absence "
                  "from the file rather than a zero or a negative finding.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.cardify.tinder.plist',
                   '*/mobile/Containers/Data/Application/*/Library/Application Support/Tinder/Tinder2.sqlite*'),
@@ -136,34 +151,37 @@ __artifacts_v2__ = {
                        "and matched to the profile photo URLs stored in Tinder2.sqlite",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Tinder",
-        "notes": "The cache file name is the source URL with the ':', '/' and '.' characters "
-                 "percent-encoded, so a cached file is tied to its URL by name rather than by "
-                 "guesswork; the URL is decoded back from the file name and reported. Where "
-                 "that URL also appears in the ZPHOTO or ZPROCESSEDPHOTO tables of "
+        "notes": "The cache file name is the cache key, percent-encoded; where the name decodes "
+                 "to a URL, that URL is reported in the Source URL column. PINCache's "
+                 "PINDiskCache.m encodes the '.', ':', '/' and '%' characters "
+                 "(https://github.com/pinterest/PINCache/blob/00733305a8a808f1adb0e001428e494e10fe03ee/Source/PINDiskCache.m#L484); "
+                 "which release of the library the app embeds is not established. This module "
+                 "decodes those four back in one pass, so a URL that itself holds a percent "
+                 "escape gets its own percent sign back and no other escape is decoded. No "
+                 "cache name holding %25 was measured on the tested image. Where "
+                 "the decoded URL also appears in the ZPHOTO or ZPROCESSEDPHOTO tables of "
                  "Tinder2.sqlite, the owning profile's name and user id are reported with it, "
                  "and the Source column says whether the row was matched to the database.\n"
                  "In the tested image the Tinder container held 79 cache files. 53 carry a "
                  "percent encoded name that decodes to a URL and 26 carry an opaque cache "
                  "key that does not, so the Source URL column holds the stored name as is on "
                  "those 26 rows. 4 of the 79 matched a stored profile photo URL, all of them "
-                 "the account holder's own photos; the rest are app assets and marketing "
-                 "images served from static-assets, marketing-images and inboxcrm hosts, and "
-                 "they are reported too rather than dropped. A profile photo URL with no "
-                 "cached file means no copy was found in the extraction; it does not "
-                 "establish that the image was never on the device.\n"
-                 "Content is sniffed from the file header rather than trusted from the URL "
-                 "extension, since the cache stores webp, jpeg and png alike with no extension "
-                 "of its own.\n"
-                 "PINRemoteImage is Pinterest's own open source image library and other "
-                 "applications embed it, so this cache directory carries the "
-                 "com.pinterest.PINDiskCache prefix inside those applications' containers too "
-                 "and its name does not say which application wrote a file. Twelve distinct "
-                 "applications were observed carrying this directory across the tested images. "
-                 "Rows are therefore restricted to files sitting under a container that also "
-                 "holds Tinder2.sqlite or com.cardify.tinder.plist, which only Tinder writes. "
+                 "the account holder's own photos; the other 49 names that decode to a URL point "
+                 "to static-assets, marketing-images and inboxcrm hosts and matched no stored "
+                 "profile photo URL, and the 26 opaque names matched none either; "
+                 "they are reported too rather than dropped. A profile photo URL with no cached "
+                 "file means no copy was found in the extraction; it does not establish that the "
+                 "image was never on the device.\nContent is sniffed from the file header rather "
+                 "than trusted from the URL extension, since the cache stores webp, jpeg and png "
+                 "alike with no extension of its own.\nThe com.pinterest.PINDiskCache directory "
+                 "name is not specific to Tinder, so its name does not say which application "
+                 "wrote a file. Twelve distinct applications were observed carrying this "
+                 "directory across the tested images. Rows are therefore restricted to files "
+                 "sitting under a container that also holds Tinder2.sqlite or "
+                 "com.cardify.tinder.plist, files named for Tinder. "
                  "Cache files under any other container are skipped and counted in the run log "
                  "rather than reported here, and where no Tinder container is identified no "
                  "rows are produced and that is logged. An empty result is not evidence that "
@@ -184,6 +202,7 @@ __artifacts_v2__ = {
 import json
 import os
 import plistlib
+import re
 
 from scripts.ilapfuncs import artifact_processor, check_in_media, \
     convert_cocoa_core_data_ts_to_utc, convert_plist_date_to_utc, get_file_path, \
@@ -271,12 +290,22 @@ def _records(files_found, query):
     return source_path, list(get_sqlite_db_records(source_path, query))
 
 
+_CACHE_NAME_DECODED = {'%2E': '.', '%3A': ':', '%2F': '/', '%25': '%'}
+_CACHE_NAME_ESCAPE = re.compile(r'%(?:2E|3A|2F|25)', re.I)
+
+
+def _stored(value):
+    '''A column value as stored; only NULL becomes a blank cell.'''
+    return '' if value is None else value
+
+
 def _decode_cache_name(name):
-    '''The PINRemoteImage cache stores a file under its source URL with ':', '/' and
-    '.' percent-encoded. Decode those three back, leaving any other percent escape
-    from the URL itself untouched.'''
-    return (name.replace('%3A', ':').replace('%2F', '/').replace('%2E', '.')
-                .replace('%3a', ':').replace('%2f', '/').replace('%2e', '.'))
+    '''The PINRemoteImage cache stores a file under its source URL with '.', ':',
+    '/' and '%' percent-encoded (PINDiskCache.m). Decode those four back in a single
+    pass, so a '%25' becomes '%' and what follows it is not decoded a second time,
+    leaving any other percent escape from the URL itself untouched.'''
+    return _CACHE_NAME_ESCAPE.sub(
+        lambda match: _CACHE_NAME_DECODED[match.group(0).upper()], name)
 
 
 def _sniffed_extension(path):
@@ -337,8 +366,8 @@ def tinderMessages(context):
             record['SENDER_NAME'] or '',
             record['ZTEXT'] or '',
             record['MATCH_NAME'] or '',
-            record['ZTYPE'] or '',
-            record['ZSUBTYPE'] or '',
+            _stored(record['ZTYPE']),
+            _stored(record['ZSUBTYPE']),
             record['ZLIKED'],
             record['ZVIEWED'],
             record['ZISHIDDEN'],
@@ -412,7 +441,7 @@ def tinderMatches(context):
             record['ZMATCHSEEN'],
             record['ZVIEWED'],
             record['ZFOLLOWING'],
-            record['ZSUBSCRIPTIONTIER'] or '',
+            _stored(record['ZSUBSCRIPTIONTIER']),
             record['ZMESSAGEDRAFT'] or '',
             record['ZUSERID'] or '',
             record['ZMATCHID'] or '',
@@ -482,8 +511,8 @@ def tinderRecommendations(context):
             record['ZLIKED'],
             record['ZSUPERLIKED'],
             record['ZRECTYPE'],
-            record['ZRECSOURCE'] or '',
-            record['ZSUBSOURCE'] or '',
+            _stored(record['ZRECSOURCE']),
+            _stored(record['ZSUBSOURCE']),
             record['ZISNEW'],
             record['ZDIDREWIND'],
             record['ZSWIPENOTE'] or '',

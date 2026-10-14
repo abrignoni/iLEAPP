@@ -3,12 +3,13 @@
 Two things here are easy to break and expensive to notice.
 
 The first is memory. The logarchive artifact imports tens of millions of records, and
-artifact_processor materializes every row twice: once as the returned data_list and again
-as the converted rows lava_insert_sqlite_data builds before executemany(). At ~617 bytes
-per row that is roughly 19 GB for a 31M row import and ~39 GB at peak, which is why the
-artifact uses artifact_processor_streaming instead. Nothing in a normal test run would
-catch a regression back to list building, so the streaming decorator is tested directly:
-it must never pull more than one batch of rows into memory at a time.
+a module that returns a list has every row materialized twice: once as the returned
+data_list and again as the converted rows lava_insert_sqlite_data builds before
+executemany(). At ~617 bytes per row that is roughly 19 GB for a 31M row import and ~39 GB
+at peak, which is why the artifact streams through an ArtifactResult instead, adding each
+row as it arrives. Nothing in a normal test run would catch a regression back to list
+building, so the writer is tested directly: it must never pull more than one batch of rows
+into memory at a time.
 
 The second is the table contract. Twelve dependent artifacts all query `FROM logarchive`
 with LIKE predicates against the same eight columns. Whether the rows came from Apple's
@@ -33,7 +34,7 @@ from scripts import lavafuncs  # pylint: disable=wrong-import-position
 from scripts import unifiedlogs  # pylint: disable=wrong-import-position
 from scripts.artifacts import logarchive  # pylint: disable=wrong-import-position
 from scripts.context import Context  # pylint: disable=wrong-import-position
-from scripts.ilapfuncs import artifact_processor_streaming  # pylint: disable=wrong-import-position
+from scripts.ilapfuncs import artifact_processor  # pylint: disable=wrong-import-position
 
 
 class TestIteratorTimestamp(unittest.TestCase):
@@ -413,6 +414,35 @@ class TestBinaryDiscovery(unittest.TestCase):
         self.assertEqual(unifiedlogs.find_iterator(), fake)
 
 
+class TestIteratorVersion(unittest.TestCase):
+    """The run log must name the parser build; a binary that cannot say must not break the import."""
+
+    def _fake(self, script):
+        tmpdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmpdir, True)
+        fake = os.path.join(tmpdir, 'unifiedlog_iterator')
+        with open(fake, 'w', encoding='utf-8') as handle:
+            handle.write(script)
+        os.chmod(fake, 0o755)
+        return fake
+
+    def test_reports_first_line_of_version_output(self):
+        fake = self._fake('#!/bin/sh\necho "unifiedlog_iterator 0.7.0"\necho "extra"\n')
+        self.assertEqual(unifiedlogs.iterator_version(fake), 'unifiedlog_iterator 0.7.0')
+
+    def test_nonzero_exit_still_yields_the_text(self):
+        # Some releases exit non-zero on --version; the text is what matters.
+        fake = self._fake('#!/bin/sh\necho "unifiedlog_iterator 0.6.0"\nexit 1\n')
+        self.assertEqual(unifiedlogs.iterator_version(fake), 'unifiedlog_iterator 0.6.0')
+
+    def test_silent_binary_yields_empty_string(self):
+        fake = self._fake('#!/bin/sh\nexit 0\n')
+        self.assertEqual(unifiedlogs.iterator_version(fake), '')
+
+    def test_unrunnable_binary_yields_empty_string(self):
+        self.assertEqual(unifiedlogs.iterator_version('/nonexistent/unifiedlog_iterator'), '')
+
+
 __artifacts_v2__ = {
     'streaming_probe': {
         'name': 'streaming probe',
@@ -426,28 +456,35 @@ __artifacts_v2__ = {
 
 
 class TestStreamingWriter(unittest.TestCase):
-    """artifact_processor_streaming must write everything without ever holding everything."""
+    """Adding rows one at a time must write everything without ever holding everything."""
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmpdir, True)
+        # initialize_lava sets module-level singletons. Left set, they point at this
+        # directory after it is deleted, and any later test that streams rows would write
+        # into a database that is gone. Put them back the way they were found.
+        for name in ('lava_data', 'lava_db', 'lava_db_path'):
+            self.addCleanup(setattr, lavafuncs, name, getattr(lavafuncs, name))
         lavafuncs.initialize_lava(self.tmpdir, self.tmpdir, 'fs')
         self.addCleanup(Context.clear)
 
     def _run(self, row_count):
-        """Run the decorator over a generator, tracking how far ahead it consumes."""
+        """Run the artifact over a generator, tracking how far ahead it consumes."""
         headers = (('Timestamp', 'datetime'), 'Row Number', 'Event Message')
-        state = {'produced': 0, 'max_outstanding': 0}
+        # Size every hand-off to SQLite. The largest one is the writer's true footprint:
+        # a module that built a list would hand over every row in a single call.
+        state = {'largest_insert': 0, 'calls': 0}
         written = {'count': 0}
+        created = {}
 
         original_insert = lavafuncs.lava_insert_sqlite_data
 
-        def counting_insert(table_name, data, object_columns, hdrs, column_map):
+        def counting_insert(table_name, data, object_columns, hdrs, column_map, **kwargs):
             written['count'] += len(data)
-            # Rows produced but not yet handed to SQLite: the decorator's true footprint.
-            outstanding = state['produced'] - written['count']
-            state['max_outstanding'] = max(state['max_outstanding'], outstanding)
-            return original_insert(table_name, data, object_columns, hdrs, column_map)
+            state['calls'] += 1
+            state['largest_insert'] = max(state['largest_insert'], len(data))
+            return original_insert(table_name, data, object_columns, hdrs, column_map, **kwargs)
 
         lavafuncs.lava_insert_sqlite_data = counting_insert
         self.addCleanup(setattr, lavafuncs, 'lava_insert_sqlite_data', original_insert)
@@ -460,23 +497,24 @@ class TestStreamingWriter(unittest.TestCase):
 
         def rows():
             for index in range(row_count):
-                state['produced'] += 1
                 yield (datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc),
                        index, f'message {index}')
 
-        @artifact_processor_streaming
-        def streaming_probe(context):  # pylint: disable=unused-argument
-            return headers, rows(), None
+        @artifact_processor
+        def streaming_probe(context):
+            result = context.create_artifact_result(headers=headers)
+            created['result'] = result
+            return result.extend(rows())
 
         streaming_probe.__globals__['__artifacts_v2__'] = __artifacts_v2__
         # The decorator copies the wrapped function's one-argument signature, so pylint
         # reads this five-argument call (the framework's calling convention) as wrong.
         streaming_probe([], self.tmpdir, None, False, 0)  # pylint: disable=too-many-function-args
-        return written['count'], state['max_outstanding']
+        return written['count'], state, created['result']
 
     def test_all_rows_reach_the_database(self):
         row_count = 3 * 50000 + 137  # deliberately not a batch multiple
-        written, _ = self._run(row_count)
+        written, _, _ = self._run(row_count)
         self.assertEqual(written, row_count)
 
         lavafuncs.lava_db.commit()
@@ -485,22 +523,25 @@ class TestStreamingWriter(unittest.TestCase):
         self.assertEqual(stored, row_count)
 
     def test_memory_stays_bounded_by_the_batch_size(self):
-        from scripts.ilapfuncs import STREAMING_BATCH_SIZE
-        row_count = 3 * STREAMING_BATCH_SIZE + 137
-        _, max_outstanding = self._run(row_count)
-        # If this ever regresses to building a list, outstanding would reach row_count.
-        self.assertLessEqual(max_outstanding, STREAMING_BATCH_SIZE)
+        # Read the batch size off the result rather than restating it, so the bound stays
+        # true if the default moves.
+        row_count = 3 * 10000 + 137
+        _, state, result = self._run(row_count)
+        # A regression to building a list hands every row over in one call, so both of
+        # these move: the largest hand-off becomes row_count and the call count becomes 1.
+        self.assertLessEqual(state['largest_insert'], result.batch_size)
+        self.assertEqual(state['calls'], -(-row_count // result.batch_size))
 
     def test_record_count_is_corrected_after_streaming(self):
         row_count = 12345
         self._run(row_count)
         artifacts = lavafuncs.lava_data['artifacts']['Unified Logs']
         probe = next(a for a in artifacts if a['tablename'] == 'streaming_probe')
-        # Registered as 0 before the rows were counted; must not stay that way.
+        # Registered before the rows were counted; must not stay that way.
         self.assertEqual(probe['record_count'], row_count)
 
     def test_empty_result_creates_no_table(self):
-        written, _ = self._run(0)
+        written, _, _ = self._run(0)
         self.assertEqual(written, 0)
         lavafuncs.lava_db.commit()
         with sqlite3.connect(os.path.join(self.tmpdir, '_lava_artifacts.db')) as connection:
@@ -560,6 +601,11 @@ class TestColumnContract(unittest.TestCase):
             logarchive.DATA_HEADERS,
             (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
              'Subsystem', 'Category', 'Event Message', 'Trace ID'))
+
+    def test_the_import_stays_lava_only(self):
+        # Nothing replays a 31M row table for a second output. Declaring any other output
+        # type would send the HTML, TSV and timeline writers back through every row.
+        self.assertEqual(logarchive.__artifacts_v2__['logarchive']['output_types'], 'lava_only')
 
     def test_native_rows_line_up_with_the_headers(self):
         record = {
@@ -655,6 +701,66 @@ class TestDialedNumbersPredicates(unittest.TestCase):
                          "category = 'ContactSearchManager'"):
             with self.subTest(category=category):
                 self.assertIn(category, source)
+
+
+class TestNavigationPredicates(unittest.TestCase):
+    """Navigation is matched by subsystem, never by spoken guidance text.
+
+    The artifact used to filter event_message for fifteen English turn-by-turn phrases
+    ('Starting route to', 'Turn right', 'your destination'). Those phrases occur in 0 of
+    117,678,121 unified log records across six images spanning iOS 16.5 to 26.5.2, all of
+    them en-US devices, so the artifact returned nothing on every one of them and a
+    non-English device could never have matched regardless.
+
+    Two of the old clauses could not match anything at all: SQLite reads the backslash in
+    "%Arrived\\%" literally without an ESCAPE clause, so the pattern required a literal
+    backslash after the word.
+
+    logarchive_navigation selects from the table logarchive_artifacts builds, so a
+    predicate missing from the broad query cannot be recovered by the narrow one. Both
+    halves are checked here for that reason.
+    """
+
+    SUBSYSTEM = "subsystem LIKE 'com.apple.Navigation%'"
+
+    # Every phrase the artifact used to match. None of them appeared in any tested image.
+    RETIRED_PHRASES = (
+        'Starting route to', 'Proceed to', 'Turn right', 'Turn left', 'roundabout',
+        'first exit', 'Stay in the', 'parking lot', 'of a mile', 'In about',
+        'then arrive', 'your destination', 'At the light', 'Arrived',
+    )
+
+    def test_collection_query_gathers_the_subsystem_the_artifact_reads(self):
+        source = inspect.getsource(logarchive.logarchive_artifacts.__wrapped__)
+        self.assertIn(self.SUBSYSTEM, source)
+
+    def test_navigation_artifact_matches_the_subsystem(self):
+        source = inspect.getsource(logarchive.logarchive_navigation.__wrapped__)
+        self.assertIn(self.SUBSYSTEM, source)
+
+    def test_spoken_guidance_phrases_are_not_matched_anywhere_in_the_module(self):
+        source = pathlib.Path(logarchive.__file__).read_text(encoding='utf-8')
+        predicates = [line for line in source.splitlines() if 'event_message LIKE' in line]
+        for phrase in self.RETIRED_PHRASES:
+            with self.subTest(phrase=phrase):
+                self.assertFalse(
+                    [line for line in predicates if phrase in line],
+                    f'{phrase!r} is a spoken guidance phrase; match the subsystem instead')
+
+    def test_subsystem_predicate_matches_real_navigation_rows(self):
+        # Verbatim subsystem values from iOS 17.1, 18 and 26.5.2 extractions. The
+        # lowercase VirtualGarage spelling is included on purpose: SQLite LIKE is
+        # case-insensitive for ASCII, so one pattern covers both.
+        subsystems = ('com.apple.Navigation', 'com.apple.Navigation.Audio',
+                      'com.apple.Navigation.NavigationListener',
+                      'com.apple.navigation.VirtualGarage')
+        with sqlite3.connect(':memory:') as connection:
+            connection.execute('CREATE TABLE t (subsystem TEXT)')
+            connection.executemany('INSERT INTO t VALUES (?)', [(s,) for s in subsystems])
+            connection.execute("INSERT INTO t VALUES ('com.apple.locationd.Core')")
+            matched = connection.execute(
+                f'SELECT COUNT(*) FROM t WHERE {self.SUBSYSTEM}').fetchone()[0]
+        self.assertEqual(matched, len(subsystems))
 
 
 if __name__ == '__main__':

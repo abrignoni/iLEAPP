@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "module_name": "appleMusicSearch",
+    "artifact_name": "Apple Music Recent Search Terms",
+    "function_name": "appleMusicRecentSearchTerms",
+    "case_number": "hickman_ios13",
+    "number_of_columns": 2,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 13,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleMusicSearch/testdata.appleMusicSearch.appleMusicRecentSearchTerms.hickman_ios13.zip",
+    "start_time": "2026-10-10T20:18:37.466699+00:00",
+    "end_time": "2026-10-10T20:18:37.508277+00:00",
+    "run_time_seconds": 0.00029730796813964844,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T20:18:37.504921",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Position",
+    "Search Term"
+  ],
+  "data": [
+    [
+      1,
+      "beastie boys"
+    ]
+  ]
+}

@@ -2,22 +2,27 @@ __artifacts_v2__ = {
     "get_biomeBootSession": {
         "name": "Biome - Boot Session",
         "description": "Parses boot session records from the Device.BootSession biome stream. "
-                       "Each boot closes the previous session identifier and opens a new one, "
-                       "so the stream reconstructs when the device started and stopped running "
-                       "and, where a close and the following open are separated in time, a "
-                       "gap consistent with the device being powered off.",
+                       "Each record carries a session identifier and a state, labelled 1 "
+                       "Session Start and 0 Session End; those labels are inferred from the "
+                       "record pattern and the stored value is in Session State (raw). What a gap between an end and the "
+                       "next start shows is not established here.",
         "author": "@abrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Session state 1 is the opening of a session and 0 its close, established by "
-                 "the record pattern across four test images: a close and an open share a "
-                 "timestamp at a reboot, and each session identifier appears exactly twice, "
-                 "once opened and once closed. A close with no open at the same instant marks "
-                 "a shutdown, and the gap to the next open is consistent with the device "
-                 "being powered off during that period. "
-                 "Sort by timestamp and pair on Session ID to measure uptime.",
+        "notes": "The Session Start label for state 1 and the Session End label for 0 are an "
+                 "inference, not a sourced definition. It was drawn when the artifact was "
+                 "written from the record pattern on the four images listed in sample_data "
+                 "(dexter_ios18, hc_ios18_7, iphone12_ios18, iphone14plus_ios18), described "
+                 "then as a 0 record and a 1 record sharing a timestamp and a session "
+                 "identifier appearing once with each state. No per-image counts of that "
+                 "pattern were recorded and no known reboot was compared against the records, "
+                 "so the stored value is reported alongside the label in Session State (raw). "
+                 "Where an end has no start at the same timestamp, what happened in the gap "
+                 "before the next start is not established here; compare with another source "
+                 "such as the system logs. Sort by timestamp and pair on Session ID to see the "
+                 "interval between a session's start and end records.",
         "paths": ('*/streams/*/Device.BootSession/local/*',),
         "output_types": "standard",
         "artifact_icon": "power",
@@ -73,7 +78,7 @@ def get_biomeBootSession(context):
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
