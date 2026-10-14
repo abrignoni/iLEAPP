@@ -1,7 +1,9 @@
 # Architectural Decision Record: Media Management System
 
 ## Status
-Proposed
+Implemented. The implementation differs from this record in places: the check-in
+functions return a reference id string rather than a `MediaReference` object, and no media
+metadata is extracted yet. See [the technical specification](media_management_technical.md).
 
 ## Context
 We need a centralized system to manage media files (images, videos, audio) across different modules and across xLEAPP and LAVA projects. This system should handle metadata extraction, indexing, and provide a unified interface for modules to interact with media files, while avoiding duplication and maintaining references.
