@@ -171,11 +171,11 @@ check_in_media(file_path, name="", converted_file_path=False, force_type=None,
                force_extension=None, force_creation_date=None, force_modification_date=None)
 ```
 
-- `file_path` is the media file. It must be one of this artifact's files found, so the
-  artifact's `paths` must match the media files as well as the database. A path or partial
-  path both work. It is looked up the same way as `context.get_source_file_path`. If
-  nothing matches, the helper logs `No matching file found for "<file_path>"` and returns
-  `None`.
+- `file_path` is the media file: either a staged path the seeker returned, from this
+  artifact's files found or from its own `context.get_seeker().search()`, or a path or
+  partial path of one of this artifact's files found, looked up the same way as
+  `context.get_source_file_path`. If nothing matches, the helper logs
+  `No matching file found for "<file_path>"` and returns `None`.
 - `name` is the label stored with the reference. The copy in the report takes its
   extension from `force_extension`, else from `name` when the text after its last dot is
   four characters or fewer, else from the source file's name by the same rule, else from
