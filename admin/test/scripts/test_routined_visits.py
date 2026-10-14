@@ -85,7 +85,8 @@ class RoutinedVisitsTest(unittest.TestCase):
 
     def test_cloud_visits_with_place_address_and_device(self):
         path = self._database('Cloud-V2.sqlite', [
-            ('CREATE TABLE ZRTDEVICEMO (Z_PK INTEGER PRIMARY KEY, ZDEVICEMODEL, ZDEVICENAME)', ()),
+            ('CREATE TABLE ZRTDEVICEMO (Z_PK INTEGER PRIMARY KEY, ZDEVICECLASS, ZDEVICEMODEL, '
+             'ZDEVICENAME)', ()),
             ('CREATE TABLE ZRTMAPITEMMO (Z_PK INTEGER PRIMARY KEY, ZNAME, ZCATEGORY)', ()),
             ('CREATE TABLE ZRTADDRESSMO (Z_PK INTEGER PRIMARY KEY, ZMAPITEM, ZSUBTHOROUGHFARE, '
              'ZTHOROUGHFARE, ZLOCALITY, ZADMINISTRATIVEAREA, ZPOSTALCODE, ZCOUNTRY)', ()),
@@ -94,7 +95,7 @@ class RoutinedVisitsTest(unittest.TestCase):
              'ZCONFIDENCE, ZCREATIONDATE, ZENTRYDATE, ZEXITDATE, ZEXPIRATIONDATE, '
              'ZLOCATIONALTITUDE, ZLOCATIONLATITUDE, ZLOCATIONLONGITUDE, ZLOCATIONUNCERTAINTY, '
              'ZPLACECONFIDENCE)', ()),
-            ('INSERT INTO ZRTDEVICEMO VALUES (1, ?, NULL)', ('iPhone11,2',)),
+            ('INSERT INTO ZRTDEVICEMO VALUES (1, ?, ?, NULL)', ('iPhone', 'D321AP')),
             ('INSERT INTO ZRTMAPITEMMO VALUES (7, ?, ?)', ('Example Park', 'Park')),
             ('INSERT INTO ZRTADDRESSMO VALUES (1, 7, ?, ?, ?, ?, ?, ?)',
              ('12', 'Main St', 'Albany', 'New York', '12203', 'United States')),
@@ -113,8 +114,8 @@ class RoutinedVisitsTest(unittest.TestCase):
         self.assertEqual(named[0], _utc(ENTRY))
         self.assertEqual(named[8:10], ('Example Park', 'Park'))
         self.assertEqual(named[11:16], ('12 Main St', 'Albany', 'New York', '12203', 'United States'))
-        self.assertEqual(named[16], 'iPhone11,2')
-        self.assertIsNone(named[17])
+        self.assertEqual(named[16:18], ('iPhone', 'D321AP'))   # class and model as stored
+        self.assertIsNone(named[18])
         unnamed = rows[1]
         self.assertIsNone(unnamed[8])
         self.assertIsNone(unnamed[11])                 # no address -> empty, not ' '
