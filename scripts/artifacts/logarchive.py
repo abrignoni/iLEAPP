@@ -1626,6 +1626,46 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 | 0 rows; no 'Family Hotspot State' entry in the parsed log",
         },
     },
+    "logarchive_urlopens": {
+        "name": "logarchive URL and link opens",
+        "description": "Unified log lines matching three URL-open markers: UIOpenURLAction "
+                       "actions, openURLContexts scene calls, and launchservices reporting no "
+                       "registered handler for a URL scheme. Each row is one log line, not one open.",
+        "author": "@danjethh, @AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-10-14",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Each row is one log line, not one open. On hc_ios26_sysdiag three lines logged "
+                 "within 0.16 seconds appear to describe one Notes widget launch: a com.apple.chrono "
+                 "widget launch request carrying a UIOpenURLAction, SpringBoard sending "
+                 "UIOpenURLAction to the Notes scene, and MobileNotes receiving it. The Process "
+                 "Image Path column is the process that wrote the line, not always the app the URL "
+                 "was sent to: SpringBoard wrote 4 of the 5 rows on that image, and the receiving "
+                 "app is named in the message (an app<bundle id> or a sceneID starting with the "
+                 "bundle id); on the MobileNotes row it is also the writing process. "
+                 "The URL is logged unevenly. The chrono widget launch line held a URL in clear, "
+                 "with a non-http scheme; that message ended at 1,029 characters on a letter with "
+                 "no closing bracket, and if the line was longer, the rest is not in the parsed "
+                 "log. The other UIOpenURLAction lines held no URL. The openURLContexts lines "
+                 "(hc_ios17_2, written by Preferences as 'scene:openURLContexts:]: opening url "
+                 "context') and the launchservices line held <private> in place of the value. "
+                 "The launchservices line ('There is no registered handler for URL scheme', "
+                 "hickman_ios14_sysdiag, written by lsd) names neither the requesting process nor "
+                 "whether the request was an open or a check. openURLContexts is a UIKit method "
+                 "name and may match lines that are not opens on other images. -canOpenURL: lines "
+                 "are not matched by these markers. rodeo_ios17_sysdiag had no matching line. "
+                 "Trace ID held no value on any row.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "link",
+        "sample_data": {
+            "hickman_ios14_sysdiag": "iOS 14.3 | 1 row",
+            "hc_ios17_2": "iOS 17.2.1 | 2 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows; no matching line in the parsed log",
+            "hc_ios26_sysdiag": "iOS 26.6 | 5 rows",
+        },
+    },
 }
 
 import os
@@ -2272,6 +2312,11 @@ def logarchive_artifacts(context):
         OR (category LIKE 'WeatherWidget' AND event_message LIKE '%successfully built%')
         -- logarchive_family_hotspot
         OR event_message LIKE '%Family Hotspot State%'
+        -- logarchive_urlopens. Collected here as well as filtered in the dependent
+        -- artifact, or the rows never reach the table it reads.
+        OR event_message LIKE '%UIOpenURLAction%'
+        OR event_message LIKE '%openURLContexts%'
+        OR event_message LIKE '%no registered handler for URL scheme%'
     )
     '''
 
@@ -3104,4 +3149,13 @@ def logarchive_weather(context):
 def logarchive_family_hotspot(context):
     return _artifacts_table_records(context, '''
         event_message LIKE '%Family Hotspot State%'
+    ''')
+
+
+@artifact_processor
+def logarchive_urlopens(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%UIOpenURLAction%'
+        OR event_message LIKE '%openURLContexts%'
+        OR event_message LIKE '%no registered handler for URL scheme%'
     ''')
