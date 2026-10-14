@@ -217,9 +217,9 @@ def google_chat(context):
                 mediafilename = ', '.join(names)
                 media_refs = []
                 for name in names:
+                    pattern_name = re.sub(r'([*?[])', r'[\1]', name)
                     attachment = guid and context.get_seeker().search(
-                        f'*/{guid}/tmp/{re.sub(r"([*?[])", r"[\1]", name)}',
-                        return_on_first_hit=True)
+                        f'*/{guid}/tmp/{pattern_name}', return_on_first_hit=True)
                     media_ref = check_in_media(attachment, name=name) if attachment else None
                     if media_ref:
                         media_refs.append(media_ref)
