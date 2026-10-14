@@ -548,7 +548,9 @@ def get_app_id(plist_file, context) -> str:
                     f"{plist_file} not found in context")
             return ''
 
-        parts = Path(source_path_str).parts
+        # Read inside the extraction, without the examiner's folders, so no step below
+        # can take an identifier from the output or case folder.
+        parts = Path(context.get_relative_path(source_path_str)).parts
         bundle_id_candidate = ''
 
         # Priority 1 — the container UUID as iOS lays it out, .../Application/<UUID>/.

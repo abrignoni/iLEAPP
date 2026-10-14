@@ -85,6 +85,27 @@ GUID_RE = re.compile(
     r"[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}",
     re.IGNORECASE)
 
+
+def _container_guid(evidence_path):
+    """The app container GUID in a path inside the extraction, or '' when there is none.
+
+    The container as iOS lays it out, .../Application/<GUID>/. Taking the first match
+    anywhere in the path meant an output directory or case folder whose name looks like a
+    GUID could be picked instead, and the media lookup would then search a directory that
+    does not exist and quietly find nothing. The caller passes the path inside the
+    extraction, without the examiner's folders, so the fallback cannot take a GUID from
+    the output or case folder either: an iTunes backup stages app files under
+    .../Application/<bundle id>/, with no GUID in the path at all.
+    """
+    parts = os.path.normpath(evidence_path).split(os.sep)
+    for index in range(len(parts) - 1, 0, -1):
+        if GUID_RE.fullmatch(parts[index]) and parts[index - 1] == 'Application':
+            return parts[index]
+    for part in reversed(parts):
+        if GUID_RE.fullmatch(part):
+            return part
+    return ''
+
 def aa_flatten_dict_tu(
         v,
         listitem,
@@ -279,23 +300,10 @@ def google_chat(context):
             continue
 
         source_path = file_found
-        # The container as iOS lays it out, .../Application/<GUID>/. Taking the first
-        # match anywhere in the path meant an output directory or case folder whose
-        # name looks like a GUID could be picked instead, and the media lookup below
-        # would then search a directory that does not exist and quietly find nothing.
-        parts = os.path.normpath(file_found).split(os.sep)
-        guid = ''
-        for index in range(len(parts) - 1, 0, -1):
-            if GUID_RE.fullmatch(parts[index]) and parts[index - 1] == 'Application':
-                guid = parts[index]
-                break
-        else:
-            for part in reversed(parts):
-                if GUID_RE.fullmatch(part):
-                    guid = part
-                    break
+        evidence_path = context.get_relative_path(file_found)
+        guid = _container_guid(evidence_path)
         if not guid:
-            logfunc(f'Google Chat: no app container GUID in {file_found}; '
+            logfunc(f'Google Chat: no app container GUID in {evidence_path}; '
                     'attachments cannot be matched for this database')
         account_id = os.path.basename(os.path.dirname(file_found))
 
