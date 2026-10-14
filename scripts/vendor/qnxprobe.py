@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.65"
+QNXPROBE_VERSION = "1.66"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -13277,9 +13277,11 @@ def _lvm_vg_shape(vg):
             for k in ("start_extent", "extent_count", "stripe_count"):
                 num(seg, k, f"{name} {key}")
             need(isinstance(seg.get("type", ""), str), f"{name} {key} with a type that is not a string")
-            stripes = seg.get("stripes", [])
-            need(isinstance(stripes, list), f"{name} {key} with stripes that are not a list")
-            need(all(isinstance(x, (str, int)) for x in stripes), f"{name} {key} with stripes of another kind")
+            for listed in ("stripes", "mirrors"):
+                areas = seg.get(listed, [])
+                need(isinstance(areas, list), f"{name} {key} with {listed} that are not a list")
+                need(all(isinstance(x, (str, int)) for x in areas),
+                     f"{name} {key} with {listed} of another kind")
 
 
 def _lvm_shown(lvname, segs):
@@ -13303,11 +13305,23 @@ def _lvm_pv(fh, base, rsize):
 
 
 def lvm_volumes(fh, regions, ss=SECTOR):
-    """[(lv label, base, size, name)] for the linear logical volumes laid out
-    contiguously on one LVM2 physical volume among `regions` ([(label, base,
-    size)]), and {pv base: [lines]} saying, per physical volume, what its volume
-    group holds and why any logical volume was not read. `ss` is the disk's
-    sector size, the unit of the LBA in a name."""
+    """[(lv label, base, size, name)] for the logical volumes of the LVM2
+    physical volumes among `regions` ([(label, base, size)]) that this reads,
+    and {pv base: [lines]} saying, per physical volume, what its volume group
+    holds and why any logical volume was not read. A volume that is one run of
+    extents on one physical volume is a byte range of the image and its base is
+    that range's start; one that is split into runs or striped is read through
+    lvm_image(), and its base is where that places it, past the image's end.
+    `ss` is the disk's sector size, the unit of the LBA in a name."""
+    found, notes, _remap, _free = _lvm_scan(fh, regions, ss)
+    return found, notes
+
+
+def _lvm_scan(fh, regions, ss=SECTOR):
+    """(found, notes, remap, free) for lvm_volumes, lvm_image and volumes():
+    remap is [(key, LvmMap, label, name)] for each volume that needs a map,
+    free is {pv base: [(image offset, length)]} of the extents no logical
+    volume holds."""
     pvs = {}
     for _label, base, rsize in regions:
         pv = _lvm_pv(fh, base, rsize)
@@ -13339,25 +13353,94 @@ def lvm_volumes(fh, regions, ss=SECTOR):
         key = vg.get("id", name)
         if key not in groups or seqno > groups[key][2]:
             groups[key] = (name, vg, seqno)
-    found = []
+    found, remap, free = [], [], {}
+    virtual = getattr(fh, "lvm_virtual", None) or {}
     for name, vg, seqno in groups.values():
         home = [b for b, pv in pvs.items() if pv.vg and pv.vg[1].get("id") == vg.get("id")]
         try:
-            lines, lvs = _lvm_group(name, vg, seqno, by_uuid, ss)
+            lines, lvs, maps, spare = _lvm_group(name, vg, seqno, by_uuid, ss, virtual)
         except (TypeError, AttributeError, KeyError, ValueError) as exc:
             # _lvm_vg_shape refuses the shapes known to fail; anything it misses
             # is said here rather than costing the image its other volumes.
-            lines, lvs = [f"volume group {name}: its metadata could not be used "
-                          f"({type(exc).__name__}: {exc})"], []
+            lines, lvs, maps, spare = [f"volume group {name}: its metadata could not be used "
+                                       f"({type(exc).__name__}: {exc})"], [], [], {}
         found += lvs
+        remap += maps
+        for b, runs in spare.items():
+            free.setdefault(b, []).extend(runs)
         for b in home:
             notes[b] += lines
-    return found, notes
+    return found, notes, remap, free
 
 
-def _lvm_group(name, vg, seqno, by_uuid, ss):
-    """(report lines, [(lv label, base, size, name)]) for one volume group."""
-    found = []
+class LvmMap:
+    """Where each byte of a logical volume lies in the image. `segments` are in
+    the volume's order, each (start, size, chunk, bases): one run starting at
+    bases[0] when chunk is None, else striped in chunks of `chunk` bytes across
+    the runs that start at each of bases, as lvm2's striped segment type lays
+    them out (lib/striped/striped.c, dm-stripe: chunk i of the segment is on
+    stripe i mod n, in that stripe's row i div n)."""
+
+    def __init__(self, segments):
+        self.segments = segments
+        self.size = sum(s[1] for s in segments)
+        self._starts = [s[0] for s in segments]
+
+    def locate(self, off):
+        """(image offset, bytes that follow it there) for volume offset `off`."""
+        i = bisect.bisect_right(self._starts, off) - 1
+        start, size, chunk, bases = self.segments[i]
+        x = off - start
+        if chunk is None:
+            return bases[0] + x, size - x
+        c, within = divmod(x, chunk)
+        row, stripe = divmod(c, len(bases))
+        return bases[stripe] + row * chunk + within, min(chunk - within, size - x)
+
+    def image_runs(self, off, n):
+        """[(image offset, length)] for `n` bytes from volume offset `off`, the
+        runs that touch merged."""
+        out, end = [], min(off + n, self.size)
+        while off < end:
+            at, here = self.locate(off)
+            take = min(here, end - off)
+            if out and out[-1][0] + out[-1][1] == at:
+                out[-1] = (out[-1][0], out[-1][1] + take)
+            else:
+                out.append((at, take))
+            off += take
+        return out
+
+    def missing(self, size):
+        """Bytes of the volume that lie past `size`, the end of the image."""
+        lost = 0
+        for _start, seg, chunk, bases in self.segments:
+            per = seg if chunk is None else seg // len(bases)
+            for b in bases:
+                lost += max(0, min(per, b + per - size))
+        return lost
+
+    def describe(self):
+        """The map as records for a manifest: per segment, its place in the
+        volume and the image offset of each run it is on."""
+        return [{"volume_offset": start, "length": size,
+                 "image_offsets": list(bases),
+                 **({"stripe_size": chunk} if chunk is not None else {})}
+                for start, size, chunk, bases in self.segments]
+
+    def contiguous(self):
+        """The image offset the whole volume starts at, when it is one run."""
+        if len(self.segments) == 1 and self.segments[0][2] is None:
+            return self.segments[0][3][0]
+        return None
+
+
+def _lvm_group(name, vg, seqno, by_uuid, ss, virtual=None):
+    """(report lines, [(lv label, base, size, name)], [(key, LvmMap, label,
+    name)] of the volumes that need a map, {pv base: free runs}) for one volume
+    group. `virtual` maps a key to the base lvm_image() placed that volume at."""
+    virtual = virtual or {}
+    found, maps = [], []
     ext = vg.get("extent_size", 0) * SECTOR
     where = {}                       # pv name in the metadata -> (base, pe_start bytes, pe_count)
     for pvname, rec in (vg.get("physical_volumes") or {}).items():
@@ -13367,60 +13450,224 @@ def _lvm_group(name, vg, seqno, by_uuid, ss):
     pv_names = set(vg.get("physical_volumes") or {})
     lines = [f"volume group {name}, metadata seqno {seqno}, extent {human(ext)}, "
              f"{len(pv_names)} physical volume(s), {len(where)} of them in this image"]
+    used = collections.defaultdict(list)     # pv name -> [(first extent, extents)]
     for lvname, lv in (vg.get("logical_volumes") or {}).items():
-        if not isinstance(lv, dict) or "VISIBLE" not in (lv.get("status") or []):
+        for key, seg in lv.items():
+            if not (key.startswith("segment") and isinstance(seg, dict)):
+                continue
+            # lvm2 writes a segment's areas on physical volumes as "pvN", extent
+            # pairs (export.c out_areas): a striped segment under stripes, each
+            # area holding its share of the extents, and a mirror (a pvmove in
+            # progress among them, mirrored.c) under mirrors, each area holding
+            # them all. Areas that name another logical volume are counted there.
+            count = seg.get("extent_count", 0)
+            for listed, per in (("stripes", count // max(1, seg.get("stripe_count", 1) or 1)),
+                                ("mirrors", count)):
+                areas = seg.get(listed) or []
+                for i in range(0, len(areas) - 1, 2):
+                    if areas[i] in pv_names and isinstance(areas[i + 1], int):
+                        used[areas[i]].append((areas[i + 1], per))
+        if "VISIBLE" not in (lv.get("status") or []):
             continue                 # an internal volume (a pool's data, a mirror's image)
         segs = sorted((v for k, v in lv.items() if k.startswith("segment") and isinstance(v, dict)),
                       key=lambda s: s.get("start_extent", 0))
         shown = _lvm_shown(lvname, segs)
-        why, run = _lvm_linear_run(segs, where, pv_names, ext)
+        why, lmap = _lvm_layout(segs, where, pv_names, ext)
         total = sum(s.get("extent_count", 0) for s in segs if isinstance(s.get("extent_count"), int)) * ext
         if why:
             lines.append(f"logical volume {shown}, {human(total)}: not read ({why})")
             continue
-        lbase, lsize = run
         label = f"LVM {name}/{lvname}"
-        lines.append(f"logical volume {lvname}, {human(lsize)}: read as {label}")
-        stem = f"lvm_lba{lbase // ss}"
+        first = lmap.locate(0)[0]
+        stem = f"lvm_lba{first // ss}"
         suffix = sanitize_volume_label(f"{name}_{lvname}", 40)
-        found.append((label, lbase, lsize, f"{stem}_{suffix}" if suffix else stem))
-    return lines, found
+        vname = f"{stem}_{suffix}" if suffix else stem
+        base = lmap.contiguous()
+        if base is not None:
+            lines.append(f"logical volume {lvname}, {human(lmap.size)}: read as {label}")
+            found.append((label, base, lmap.size, vname))
+            continue
+        key = (vg.get("id", name), lvname)
+        how = _lvm_shape_words(lmap)
+        maps.append((key, lmap, label, vname))
+        if key in virtual:
+            lines.append(f"logical volume {lvname}, {human(lmap.size)}: {how}, read as {label} "
+                         "through a map of its runs")
+            found.append((label, virtual[key], lmap.size, vname))
+        else:
+            lines.append(f"logical volume {lvname}, {human(lmap.size)}: not read here ({how}; "
+                         "lvm_image() reads it through a map of its runs)")
+    spare = {}
+    for pvname, (pv_base, pe_start, pe_count) in where.items():
+        taken = sorted(used.get(pvname, []))
+        runs, at = [], 0
+        for first, count in taken + [(pe_count, 0)]:
+            if first > at:
+                runs.append((pv_base + pe_start + at * ext, (first - at) * ext))
+            at = max(at, first + count)
+        if runs:
+            spare[pv_base] = runs
+            lines.append(f"{sum(n for _o, n in runs) // ext if ext else 0:,} extent(s) of "
+                         f"{pvname}, the physical volume at byte {pv_base:,}, allocated to no "
+                         "logical volume")
+    return lines, found, maps, spare
 
 
-def _lvm_linear_run(segs, where, pv_names, ext):
-    """(why not, None) or (None, (byte base, byte size)) for an LV's segments.
+def _lvm_shape_words(lmap):
+    """How a volume that needs a map is laid out, in a few words."""
+    striped = [s for s in lmap.segments if s[2] is not None]
+    if striped:
+        return (f"striped across {len(striped[0][3])} physical volumes in "
+                f"{human(striped[0][2])} stripes")
+    return f"in {len(lmap.segments)} separate runs of extents"
+
+
+def _lvm_layout(segs, where, pv_names, ext):
+    """(why not, None) or (None, LvmMap) for an LV's segments: linear and
+    striped segments whose every run is on a physical volume in the image.
     `where` maps a physical volume's name in the metadata to (base, pe_start
     bytes, pe_count) for those in the image; `pv_names` names every one."""
     if not segs:
         return "no segments", None
-    start, pv, at = 0, None, None
+    out, start = [], 0
     for seg in segs:
         kind = seg.get("type", "")
         if kind != "striped":
             return f"a {kind or 'untyped'} segment", None
-        if seg.get("stripe_count", 1) != 1:
-            return f"striped across {seg.get('stripe_count')} physical volumes", None
         stripes = seg.get("stripes") or []
-        count = seg.get("extent_count", 0)
-        if (len(stripes) != 2 or not isinstance(stripes[1], int) or not isinstance(count, int)
-                or not isinstance(seg.get("start_extent", 0), int)):
+        count, n = seg.get("extent_count", 0), seg.get("stripe_count", 1)
+        if (not isinstance(n, int) or n < 1 or len(stripes) != 2 * n
+                or not all(isinstance(stripes[i], int) for i in range(1, len(stripes), 2))
+                or not isinstance(count, int) or not isinstance(seg.get("start_extent", 0), int)):
             return "a segment's extents do not read", None
-        pvname, pe = stripes
-        if pvname not in pv_names:
-            return f"its extents are on {pvname}, which is not a physical volume of the group", None
-        if pvname not in where:
-            return f"on {pvname}, a physical volume not in this image", None
         if seg.get("start_extent", 0) != start:
             return "its segments leave a gap in the volume", None
-        if pv is not None and (pvname != pv or pe != at):
-            return "its extents are not one run on one physical volume", None
-        pv, at = pvname, pe + count
+        chunk = None
+        if n > 1:
+            chunk = seg.get("stripe_size", 0) * SECTOR
+            if not chunk or count % n or (count // n * ext) % chunk:
+                return "a striped segment whose stripes do not divide its extents", None
+        bases = []
+        for i in range(0, 2 * n, 2):
+            pvname, pe = stripes[i], stripes[i + 1]
+            if pvname not in pv_names:
+                return f"its extents are on {pvname}, which is not a physical volume of the group", None
+            if pvname not in where:
+                return f"on {pvname}, a physical volume not in this image", None
+            pv_base, pe_start, pe_count = where[pvname]
+            if pe_count and pe + count // n > pe_count:
+                return f"its extents run past the {pe_count:,} its physical volume holds", None
+            bases.append(pv_base + pe_start + pe * ext)
+        size = count * ext
+        if (chunk is None and out and out[-1][2] is None
+                and out[-1][3][0] + out[-1][1] == bases[0]):
+            p_start, p_size, _c, p_bases = out[-1]
+            out[-1] = (p_start, p_size + size, None, p_bases)    # one run lvm2 keeps as two segments
+        else:
+            out.append((start * ext, size, chunk, bases))
         start += count
-    pv_base, pe_start, pe_count = where[pv]
-    if pe_count and at > pe_count:
-        return f"its extents run past the {pe_count:,} its physical volume holds", None
-    first = segs[0]["stripes"][1]
-    return None, (pv_base + pe_start + first * ext, start * ext)
+    return None, LvmMap(out)
+
+
+class LvmImage:
+    """An image read through read_at() with the logical volumes that need a map
+    (split into runs, or striped) placed past its end, each at the base in
+    ``lvm_virtual`` ({(volume group id, name): base}), read through its LvmMap.
+    ``size`` stays the image's own, so nothing reads the placed volumes as part
+    of the disk; an offset at or past it belongs to a placed volume and is
+    translated (lvm_map_for) wherever one is reported. Any other attribute is the
+    image's own."""
+
+    def __init__(self, fh, size, placed):
+        self._fh, self.size = fh, size
+        self.lvm_virtual = {key: base for key, (base, _m) in placed.items()}
+        self._spans = sorted((base, base + m.size, m) for base, m in placed.values())
+        self._pos = 0
+
+    def __getattr__(self, name):
+        return getattr(self._fh, name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    def close(self):
+        self._fh.close()
+
+    def lvm_map_for(self, base):
+        """The LvmMap of the volume placed at `base`, else None."""
+        return next((m for b, _e, m in self._spans if b == base), None)
+
+    def seek(self, off, whence=0):
+        self._pos = off if whence == 0 else self._pos + off if whence == 1 else self.size + off
+        return self._pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        if self._pos < self.size:
+            want = self.size - self._pos if n is None or n < 0 else min(n, self.size - self._pos)
+            self._fh.seek(self._pos)
+            got = self._fh.read(want)
+            self._pos += len(got)
+            return got
+        span = next((s for s in self._spans if s[0] <= self._pos < s[1]), None)
+        if span is None:
+            return b""
+        start, end, lmap = span
+        want = end - self._pos if n is None or n < 0 else min(n, end - self._pos)
+        out = bytearray()
+        for at, length in lmap.image_runs(self._pos - start, want):
+            self._fh.seek(at)
+            got = self._fh.read(length)
+            out += got
+            if len(got) < length:
+                break
+        self._pos += len(out)
+        return bytes(out)
+
+
+def lvm_image(fh, size=None):
+    """The image with each logical volume that needs a map (split into runs, or
+    striped) readable past its end (LvmImage), or the image unchanged when there
+    is none. volumes() and main() call it, so their volumes include those, and
+    a placed volume's base is valid only through the handle it returns (calling
+    it again on that handle returns it unchanged). Apply it after
+    unlock_bitlocker() and unlock_apfs(): their wrappers read only up to the
+    image's own size, so wrapping this one inside them hides every placed volume,
+    and a BitLocker or APFS volume inside a mapped logical volume is not opened."""
+    if getattr(fh, "lvm_virtual", None) is not None:
+        return fh
+    if size is None:
+        size = image_size(fh)
+    regions, _names, containers, protective = partition_regions(fh, size)
+    ss = disk_sector_size(fh)
+    _found, _notes, remap, _free = _lvm_scan(
+        fh, [r for r in regions if r[0] not in containers and r[0] not in protective
+             and not r[0].startswith("LVM ")], ss)
+    if not remap:
+        return fh
+    # Past anything the image can describe: its end, and the end of every region
+    # its tables name (on a partial image those reach past the file, and a read
+    # there has to come back empty, not with a placed volume's data), and never
+    # below 2**60 bytes, rounded up to a GiB and a GiB further, each volume then
+    # starting on a MiB.
+    reach = max([size, 1 << 60] + [b + (n or 0) for _l, b, n in regions])
+    at = ((reach + (1 << 30) - 1) >> 30 << 30) + (1 << 30)
+    placed = {}
+    for key, lmap, _label, _name in remap:
+        placed[key] = (at, lmap)
+        at = (at + lmap.size + (1 << 20) - 1) >> 20 << 20
+    return LvmImage(fh, size, placed)
+
+
+def lvm_free_extents(fh, regions, ss=SECTOR):
+    """{pv base: [(image offset, length)]} of each LVM2 physical volume's extents
+    that no logical volume, hidden ones included, is allocated."""
+    return _lvm_scan(fh, regions, ss)[3]
 
 
 def identify_lvm(fh, base, size=None):
@@ -13580,16 +13827,16 @@ def _lvm_hostile_checks(disk, whole, regions, want, paths, parts, m_off, r_off):
             "stripes": ["pv0", 5]},
            {"type": "striped", "stripe_count": 1, "start_extent": 2, "extent_count": 1,
             "stripes": ["pv0", 7]}]
-    out.append(("a volume in two touching runs is read from its first extent",
-                _lvm_linear_run(two, {"pv0": (1000, 100, 20)}, {"pv0"}, 10)
-                == (None, (1000 + 100 + 50, 30))))
+    two_map = _lvm_layout(two, {"pv0": (1000, 100, 20)}, {"pv0"}, 10)[1]
+    out.append(("a volume in two touching runs is one run, from its first extent",
+                two_map is not None and two_map.contiguous() == 1000 + 100 + 50 and two_map.size == 30))
     out.append(("a volume whose extents are on something that is not one of the group's "
                 "physical volumes (a move in progress) says so",
                 "not a physical volume of the group"
-                in (_lvm_linear_run([dict(two[0], stripes=["pvmove0", 0])], {"pv0": (0, 0, 9)},
-                                    {"pv0"}, 10)[0] or "")))
+                in (_lvm_layout([dict(two[0], stripes=["pvmove0", 0])], {"pv0": (0, 0, 9)},
+                                {"pv0"}, 10)[0] or "")))
     out.append(("a volume that runs past its physical volume's extents is not read",
-                "run past" in (_lvm_linear_run(two, {"pv0": (0, 0, 6)}, {"pv0"}, 10)[0] or "")))
+                "run past" in (_lvm_layout(two, {"pv0": (0, 0, 6)}, {"pv0"}, 10)[0] or "")))
     # Metadata that parses but holds a value of the wrong kind where lvm2 writes
     # a number, a section, a string or a list: that copy is refused, the other
     # physical volume's copy gives every volume, and nothing else is lost.
@@ -13654,6 +13901,92 @@ def _lvm_hostile_checks(disk, whole, regions, want, paths, parts, m_off, r_off):
         octal = True
     out.append(("a number with a leading zero, which lvm2 would read as octal, is refused",
                 octal))
+    two_runs = LvmMap([(0, 10, None, [100]), (10, 10, None, [110])])
+    out.append(("runs that touch in the image are given as one", two_runs.image_runs(0, 20) == [(100, 20)]))
+    cut = LvmMap([(0, 8, 2, [0, 100])])
+    out.append(("bytes of a striped volume past the image's end are counted per stripe",
+                cut.missing(102) == 2 and cut.missing(200) == 0))
+    stripe = {"type": "striped", "stripe_count": 2, "start_extent": 0, "stripe_size": 2,
+              "stripes": ["pv0", 0, "pv1", 0]}
+    out.append(("a striped segment whose stripes do not divide its extents is not read",
+                "do not divide" in (_lvm_layout([dict(stripe, extent_count=9)],
+                                                {"pv0": (0, 0, 9), "pv1": (0, 0, 9)},
+                                                {"pv0", "pv1"}, 1024)[0] or "")))
+    out.append(("each stripe's extents are checked against its own physical volume",
+                _lvm_layout([dict(stripe, extent_count=10)], {"pv0": (0, 0, 6), "pv1": (0, 0, 6)},
+                            {"pv0", "pv1"}, 1024)[0] is None))
+    wimg = lvm_image(io.BytesIO(disk), len(disk))
+    wimg.seek(len(disk) - 4)
+    tail = wimg.read(64)
+    out.append(("a read that runs off the image's end stops there, and does not run on into a "
+                "volume placed past it", len(tail) == 4 and wimg.read(64) == b""
+                and min(wimg.lvm_virtual.values()) >= len(disk) + (1 << 30)))
+    # A partial image: a GPT entry that names a partition 2 GiB in, past the end
+    # of this 64 MiB file, the shape of a disk bigger than its acquisition. Its
+    # place must read as missing, not as a placed volume's data.
+    far = bytearray(disk)
+    n_ent, ent_sz = struct.unpack_from("<II", far, SECTOR + 80)
+    arr = 2 * SECTOR
+    e3 = arr + 2 * ent_sz
+    far[e3:e3 + ent_sz] = far[arr:arr + ent_sz]                 # entry 1's type and name
+    far[e3 + 16:e3 + 32] = uuid.UUID(int=3).bytes_le
+    struct.pack_into("<QQ", far, e3 + 32, 4194304, 4194304 + 4194303)
+    struct.pack_into("<I", far, SECTOR + 88, binascii.crc32(bytes(far[arr:arr + n_ent * ent_sz])))
+    hsize = struct.unpack_from("<I", far, SECTOR + 12)[0]
+    struct.pack_into("<I", far, SECTOR + 16, 0)
+    struct.pack_into("<I", far, SECTOR + 16, binascii.crc32(bytes(far[SECTOR:SECTOR + hsize])))
+    fvols = volumes(io.BytesIO(bytes(far)), len(far))
+    third = [v for v in fvols if v["label"].startswith("GPT part 3")]
+    fwrap = lvm_image(io.BytesIO(bytes(far)), len(far))
+    out.append(("on a partial image whose table names a partition past the file, that "
+                "partition reads as missing, and the mapped volumes are placed past it",
+                len(third) == 1 and not third[0].get("walker")
+                and third[0].get("missing_past_end") == 4194304 * SECTOR
+                and min(fwrap.lvm_virtual.values()) > (4194304 + 4194304) * SECTOR
+                and min(fwrap.lvm_virtual.values()) >= 1 << 60))
+
+    # A pvmove in progress: lvm2 moves the volume's extents through a hidden
+    # mirror segment, whose areas are under mirrors, each holding all of them.
+    moving = {"extent_size": 2048, "physical_volumes": {"pv0": {"id": "a", "pe_start": 2048,
+                                                                "pe_count": 10}},
+              "logical_volumes": {
+                  "lv1": {"status": ["READ", "VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 5, "type": "striped",
+                      "stripe_count": 1, "stripes": ["pvmove0", 0]}},
+                  "pvmove0": {"status": ["READ"], "segment1": {
+                      "start_extent": 0, "extent_count": 5, "type": "mirror",
+                      "mirror_count": 2, "mirrors": ["pv0", 0, "pv0", 5]}}}}
+    _vl, _vf, _vm, mspare = _lvm_group("vg", moving, 1, {"a": (0, None)}, SECTOR)
+    # Two stripes of 4 extents each on two 4-extent volumes, and an allocation
+    # that overlaps another: what is left free is what neither covers.
+    halves = {"extent_size": 2048, "physical_volumes": {
+                  "pv0": {"id": "a", "pe_start": 0, "pe_count": 4},
+                  "pv1": {"id": "b", "pe_start": 0, "pe_count": 6}},
+              "logical_volumes": {
+                  "s": {"status": ["VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 4, "type": "striped", "stripe_count": 2,
+                      "stripe_size": 128, "stripes": ["pv0", 0, "pv1", 0]}},
+                  "o1": {"status": ["VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 4, "type": "striped",
+                      "stripe_count": 1, "stripes": ["pv1", 0]}},
+                  "o2": {"status": ["VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 1, "type": "striped",
+                      "stripe_count": 1, "stripes": ["pv1", 1]}}}}
+    _hl, _hf, _hm, hspare = _lvm_group("vg", halves, 1, {"a": (0, None), "b": (1 << 30, None)}, SECTOR)
+    mib = 1 << 20
+    out.append(("a pvmove's mirrored extents, and each stripe's share of a striped one, count "
+                "as held, and allocations that overlap leave free only what neither holds",
+                mspare == {} and hspare == {0: [(2 * mib, 2 * mib)], 1 << 30: [((1 << 30) + 4 * mib, 2 * mib)]}))
+
+    # Cut the image at 30 MiB: the striped volume's run on the second physical
+    # volume starts there, so 2 MiB of it is missing, and the split one is whole.
+    cutv = {v["label"]: v for v in volumes(io.BytesIO(disk[:30 << 20]), 30 << 20)}
+    out.append(("on an image cut short, a mapped volume's missing bytes are those its map "
+                "puts past the cut, and it has no LBA",
+                cutv.get("LVM fixvg/striped", {}).get("missing_past_end") == 2 * mib
+                and cutv.get("LVM fixvg/data", {}).get("missing_past_end") == 0
+                and cutv["LVM fixvg/data"].get("lba", 0) is None
+                and cutv["LVM fixvg/striped"].get("lba", 0) is None))
     del r_off
     return out
 
@@ -13696,7 +14029,7 @@ def _lvm_self_checks():
     for s in report["segments"]["report"][0]["seg"]:
         if not s["lv_name"].startswith("["):        # lvs -a shows a hidden volume in brackets
             segs[s["lv_name"]].append(s)
-    want, declined = set(), set()
+    want, declined, mapped = set(), set(), {}
     for lv, ss in segs.items():
         ext = int(ss[0]["vg_extent_size"].rstrip("B"))
         ss.sort(key=lambda s: int(s["seg_start_pe"]))
@@ -13710,6 +14043,12 @@ def _lvm_self_checks():
                       (spans[-1][1] - spans[0][0] + 1) * ext))
         else:
             declined.add(lv)
+            if all(s["segtype"] in ("linear", "striped") for s in ss):
+                # Where lvm2 says its extents are, as image byte ranges.
+                mapped[lv] = sorted((parts[r.split(":")[0][-1]] + pe_start[r.split(":")[0][-1]]
+                                     + a * ext, (b - a + 1) * ext)
+                                    for r in runs for a, b in [tuple(int(x) for x in
+                                                                     r.split(":")[1].split("-"))])
     fh = io.BytesIO(disk)
     regions = partition_regions(fh, len(disk))[0]
     found, notes = lvm_volumes(fh, [r for r in regions if not r[0].startswith("MBR")])
@@ -13720,18 +14059,50 @@ def _lvm_self_checks():
     lines = [ln for ls in notes.values() for ln in ls]
     not_read = {ln.split()[2].rstrip(",") for ln in lines if ": not read (" in ln}
     reasons = " ".join(ln for ln in lines if ": not read (" in ln)
-    out.append(("the volumes lvm2 split into two runs, striped or mirrored are listed as not "
-                "read, each with why", not_read == declined == {"data", "striped", "mirror"}
-                and "not one run" in reasons and "striped across 2" in reasons
-                and "a raid1 segment" in reasons))
+    here = " ".join(ln for ln in lines if ": not read here (" in ln)
+    out.append(("without lvm_image(), the volumes lvm2 split into two runs or striped are not "
+                "read here and say how they are laid out, and the mirror is not read",
+                declined == {"data", "striped", "mirror"} and not_read == {"mirror"}
+                and "a raid1 segment" in reasons and "in 2 separate runs of extents" in here
+                and "striped across 2 physical volumes in 64.0 KiB stripes" in here))
+
+    # Through lvm_image() the split and the striped volume are read, each
+    # through a map that puts every byte where lvm2's report says its extents
+    # are; their bases are past the image's end, where nothing on the disk is.
+    wfh = lvm_image(io.BytesIO(disk), len(disk))
+    wfound, wnotes = lvm_volumes(wfh, [r for r in regions if not r[0].startswith("MBR")])
+    placed = {lab.split("/")[1]: (b, n) for lab, b, n, _name in wfound if b >= len(disk)}
+    def covered(lmap):
+        spans = sorted(lmap.image_runs(0, lmap.size))
+        merged = []
+        for at, n in spans:
+            if merged and merged[-1][0] + merged[-1][1] == at:
+                merged[-1] = (merged[-1][0], merged[-1][1] + n)
+            else:
+                merged.append((at, n))
+        return merged
+    maps_ok = set(placed) == set(mapped) == {"data", "striped"} and all(
+        covered(wfh.lvm_map_for(placed[lv][0])) == mapped[lv] for lv in mapped)
+    sm = wfh.lvm_map_for(placed["striped"][0]) if "striped" in placed else None
+    out.append(("through lvm_image() the split and the striped volume are read, their maps "
+                "covering exactly the extents lvm2's report gives each, the striped one in the "
+                "64 KiB stripes make_lvm_fixtures.sh asks lvm2 for",
+                maps_ok and sm is not None and sm.segments[0][2] == 64 << 10
+                and sm.image_runs(0, 64 << 10) == [(mapped["striped"][0][0], 64 << 10)]
+                and sm.image_runs(64 << 10, 64 << 10) == [(mapped["striped"][1][0], 64 << 10)]
+                and {(a, b, c) for a, b, c, _n in wfound if b < len(disk)} == want))
+    wlines = [ln for ls in wnotes.values() for ln in ls]
+    out.append(("then only the mirror is listed as not read",
+                {ln.split()[2].rstrip(",") for ln in wlines if ": not read" in ln} == {"mirror"}))
     out.append(("the mirror's hidden image and metadata legs are not listed, though each is "
                 "one run on one physical volume",
                 not any("rimage" in ln or "rmeta" in ln for ln in lines)
                 and not any("rimage" in f[0] or "rmeta" in f[0] for f in found)))
     pv_notes = [v.get("note", "") for v in volumes(io.BytesIO(disk), len(disk)) if v["kind"] == "lvm2 pv"]
-    out.append(("each physical volume's note in volumes() names the volumes not read and why",
-                len(pv_notes) == 2 and all(f"{lv}, " in n for n in pv_notes for lv in sorted(declined))
-                and all("striped across 2" in n and "a raid1 segment" in n for n in pv_notes)))
+    out.append(("each physical volume's note in volumes() names the volume not read and why, "
+                "and not the ones read through a map",
+                len(pv_notes) == 2 and all("mirror, 2.0 MiB (a raid1 segment)" in n for n in pv_notes)
+                and not any("data, " in n or "striped, " in n for n in pv_notes)))
     out.append(("both physical volumes name the volume group and both of its physical volumes",
                 sum("2 of them in this image" in ln for ln in lines) == 2))
 
@@ -13746,7 +14117,8 @@ def _lvm_self_checks():
             elif mode & S_IFMT == S_IFREG:
                 yield rel, hashlib.sha256(b"".join(w.read_file(child, size))).hexdigest()
 
-    for img, tree in ((disk, {"LVM fixvg/root": "root", "LVM fixvg/onb": "onb"}),
+    for img, tree in ((disk, {"LVM fixvg/root": "root", "LVM fixvg/onb": "onb",
+                              "LVM fixvg/data": "data", "LVM fixvg/striped": "striped"}),
                       (whole, {"LVM wholevg/root": "root"})):
         vols = volumes(io.BytesIO(img), len(img))
         seen = {v["label"] for v in vols}
@@ -13775,15 +14147,89 @@ def _lvm_self_checks():
         with open(path, "wb") as f:
             f.write(disk)
         buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            main(path)
+        records = []
+        with zipfile.ZipFile(io.BytesIO(), "w") as zmem, contextlib.redirect_stdout(buf):
+            main(path, extract="(memory)", zf=zmem, manifest=records)
         text = buf.getvalue()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-    out.append(("the report lists each logical volume read, identified as ext4 where it is",
+    by_vol = {r.get("volume", ""): r for r in records}
+    rec_data = next((r for v, r in by_vol.items() if "_fixvg_data" in v), {})
+    rec_root = next((r for v, r in by_vol.items() if "_fixvg_root" in v), {})
+    out.append(("volumes.json gives a volume read through a map no offset or LBA, and the image "
+                "offset of each of its runs where lvm2's report puts them",
+                rec_data.get("offset_bytes", 0) is None and rec_data.get("lba", 0) is None
+                and [(m["image_offsets"][0], m["length"]) for m in rec_data.get("lvm_map", [])]
+                == mapped.get("data")
+                and rec_root.get("offset_bytes") == [b for lab, b, _n in want if lab == "LVM fixvg/root"][0]
+                and "lvm_map" not in rec_root))
+    out.append(("the report lists each logical volume read, identified as ext4 where it is, "
+                "and gives the runs of the split one where lvm2's report puts them",
                 all(f"{lab}   " in text for lab, _b, _n in want)
                 and "LVM fixvg/root   6.0 MiB   ->  ext4" in text
+                and "LVM fixvg/data   6.0 MiB   ->  ext4" in text
+                and "LVM fixvg/striped   4.0 MiB   ->  ext4" in text
+                and ", ".join(f"{n:,} bytes at {o:,}" for o, n in mapped.get("data", [])) in text
                 and "->  lvm2 pv" in text))
+
+    # Free space: each physical volume's extents no logical volume holds, hidden
+    # ones included, are written at their own offsets; and a reader's free runs
+    # inside a volume read through a map become the runs of the image they are.
+    # lvm2 sizes a physical volume as (its size - pe_start) / extent size extents.
+    top = tempfile.mkdtemp(prefix="qnxprobe-lvm-")
+    # A folder of its own: the build workflow keeps the self-test's temp folder
+    # and counts the images in it, and these .bin files are not images.
+    tmp = os.path.join(top, "unallocated")
+    os.makedirs(tmp, exist_ok=True)
+    try:
+        fvols = volumes(io.BytesIO(disk), len(disk))
+        ext_b = 1 << 20
+        spare_want = {}
+        for pv in ("1", "2"):
+            part = [p for p in report["parts"]["partitiontable"]["partitions"] if p["node"][-1] == pv][0]
+            count = (part["size"] * SECTOR - pe_start[pv]) // ext_b
+            taken = set()
+            for sg in report["segments"]["report"][0]["seg"]:
+                for r in sg["seg_pe_ranges"].split():
+                    if r.split(":")[0].endswith("p" + pv):
+                        a, b = (int(x) for x in r.split(":")[1].split("-"))
+                        taken.update(range(a, b + 1))
+            free = [e for e in range(count) if e not in taken]
+            spare_want[parts[pv]] = sorted({(parts[pv] + pe_start[pv] + e * ext_b, ext_b) for e in free})
+        striped_vol = [v for v in fvols if v["label"] == "LVM fixvg/striped"][0]
+
+        class _Free:                                   # a reader that reports two chunks free
+            def free_extents(self):
+                return [(striped_vol["base"], 128 << 10)]
+        recs = write_unallocated(io.BytesIO(disk), len(disk),
+                                 [v for v in fvols if v["kind"] == "lvm2 pv"]
+                                 + [dict(striped_vol, walker=_Free(), name="striped_free")],
+                                 tmp, "lvm-fixture.img", say=lambda *a: None)
+        maps = {}
+        for name in os.listdir(tmp):
+            if name.endswith(".tsv"):
+                rows = open(os.path.join(tmp, name), encoding="utf-8").read().splitlines()[1:]
+                maps[name] = [tuple(int(x) for x in r.split("\t")[1:]) for r in rows]
+        def merged(runs):
+            out_ = []
+            for at, n in sorted(runs):
+                if out_ and out_[-1][0] + out_[-1][1] == at:
+                    out_[-1] = (out_[-1][0], out_[-1][1] + n)
+                else:
+                    out_.append((at, n))
+            return out_
+        pv_ok = all(merged(maps.get(f"lvm-fixture.img.{v['name']}.unallocated.tsv", []))
+                    == merged(spare_want[v["base"]])
+                    for v in fvols if v["kind"] == "lvm2 pv")
+        stripe_ok = maps.get("lvm-fixture.img.striped_free.unallocated.tsv") == [
+            (mapped["striped"][0][0], 64 << 10), (mapped["striped"][1][0], 64 << 10)]
+        out.append(("free space: each physical volume's unallocated extents, as lvm2's report "
+                    "leaves them, and a mapped volume's free runs at their places in the image",
+                    pv_ok and stripe_ok and any(spare_want.values())
+                    and all(r.get("offset_bytes") is None and r.get("lvm_map") == striped_vol["lvm_map"].describe()
+                            for r in recs if r["volume"] == "striped_free")))
+    finally:
+        shutil.rmtree(top, ignore_errors=True)
 
     # Metadata that wraps past the end of its area continues just after the
     # area's header (format-text.c). Move the first PV's text to straddle the end.
@@ -13849,7 +14295,7 @@ def _lvm_self_checks():
                 lvm_config('a = 1\t# Wed Oct 14 10:00:31 2026\nb {\nc = "x" # 7\n}\n')
                 == {"a": 1, "b": {"c": "x"}}))
     out.append(("a volume whose segments leave a gap in it is not read",
-                _lvm_linear_run([{"type": "striped", "stripe_count": 1, "start_extent": 0,
+                _lvm_layout([{"type": "striped", "stripe_count": 1, "start_extent": 0,
                                   "extent_count": 2, "stripes": ["pv0", 0]},
                                  {"type": "striped", "stripe_count": 1, "start_extent": 3,
                                   "extent_count": 1, "stripes": ["pv0", 2]}],
@@ -14548,10 +14994,18 @@ def volumes(fh, size=None):
     """
     if size is None:
         size = image_size(fh)
+    # The logical volumes that need a map (split into runs, or striped) are read
+    # through one, placed past the image's end (lvm_image); a placed volume is
+    # not "past the end" of anything, and its own map says what it misses.
+    fh = lvm_image(fh, size)
     regions, names, containers, protective = partition_regions(fh, size)
     ss = disk_sector_size(fh)
+    placed = set((getattr(fh, "lvm_virtual", None) or {}).values())
     missing = {start: gap for _lab, start, _rs, gap in
-               short_regions(size, regions, skip=protective)}
+               short_regions(size, [r for r in regions if r[1] not in placed], skip=protective)}
+    for b in placed:
+        missing[b] = fh.lvm_map_for(b).missing(size)
+    lvm_spare = None
     out, qnx6_labels = [], set()
 
     for label, base, rsize in regions:
@@ -14618,6 +15072,13 @@ def volumes(fh, size=None):
                 vol["note"] = ("an LVM2 physical volume: each logical volume read from it "
                                "is listed as a volume of its own"
                                + ("; not read: " + "; ".join(skipped) if skipped else ""))
+                # Its extents no logical volume holds are its free space
+                # (write_unallocated), at their own offsets in the image.
+                if lvm_spare is None:
+                    lvm_spare = lvm_free_extents(fh, [r for r in regions if not r[0].startswith("LVM ")
+                                                      and r[0] not in containers
+                                                      and r[0] not in protective], ss)
+                vol["free_extents"] = list(lvm_spare.get(base, []))
             elif kind:
                 vol["walker"] = walker_for(kind, fh, base, rsize)
                 if vol["walker"] is None:
@@ -14635,6 +15096,13 @@ def volumes(fh, size=None):
         if wnote and "note" not in vol:
             vol["note"] = wnote
         out.append(vol)
+    # A volume read through a map has no single place on the disk: its base is
+    # where lvm_image() put it, so it has no LBA, and the map says where each
+    # run of it is in the image.
+    for vol in out:
+        if vol.get("base") in placed:
+            vol["lba"] = None
+            vol["lvm_map"] = fh.lvm_map_for(vol["base"])
     return out
 
 
@@ -14694,10 +15162,15 @@ def write_unallocated(fh, size, vols, out_dir, image_name, only=None, say=print)
             continue
         rec = {"image": image_name, "volume": name, "label": vol.get("label", ""),
                "filesystem": vol.get("kind"), "lba": vol.get("lba"),
-               "offset_bytes": vol.get("base")}
+               "offset_bytes": None if vol.get("lvm_map") is not None else vol.get("base")}
+        if vol.get("lvm_map") is not None:
+            rec["lvm_map"] = vol["lvm_map"].describe()
         records.append(rec)
         w = vol.get("walker")
         fn = getattr(w, "free_extents", None)
+        if fn is None and vol.get("free_extents") is not None:
+            # An LVM2 physical volume: the extents no logical volume holds.
+            fn = lambda spare=vol["free_extents"]: list(spare)        # noqa: E731
         if fn is None:
             rec["status"] = ("not written: " + (vol.get("note") or "no reader for this volume")
                              if w is None else
@@ -14710,6 +15183,13 @@ def write_unallocated(fh, size, vols, out_dir, image_name, only=None, say=print)
             rec["status"] = f"not written: the allocation map could not be read ({exc})"
             say(f"    {vol.get('label') or name}: {rec['status']}")
             continue
+        lmap = vol.get("lvm_map")
+        if lmap is not None:
+            # A logical volume read through a map: its reader's runs are offsets
+            # in the volume, placed past the image's end, so each becomes the
+            # runs of the image it lies on.
+            runs = [run for off, n in runs
+                    for run in lmap.image_runs(off - vol["base"], n)]
         reported = sum(n for _o, n in runs)
         rec["runs_reported"], rec["bytes_reported"] = len(runs), reported
         if not runs:
@@ -14729,6 +15209,13 @@ def write_unallocated(fh, size, vols, out_dir, image_name, only=None, say=print)
             say(f"    {vol.get('label') or name}: {rec['status']}")
             continue
         notes = []
+        if vol.get("kind") == "lvm2 pv":
+            notes.append("the volume group's extents on this physical volume that no logical "
+                         "volume holds; the label and metadata before the first extent, and "
+                         "any space past the last, are not included")
+        if lmap is not None:
+            notes.append("a logical volume read through a map of its runs; the runs written "
+                         "are where its free space lies in the image")
         if vol.get("kind") == "apfs":
             notes.append("free space belongs to the APFS container, not to one volume")
             try:
@@ -14821,6 +15308,9 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
     # An encrypted APFS volume the passwords (as a password or its personal recovery
     # key) open is read decrypted; the rest stay locked and the report says why.
     image, apfs_found = unlock_apfs(image, None, passwords)
+    # The LVM2 logical volumes that need a map (split into runs, or striped) are
+    # read through one, placed past the image's end (lvm_image).
+    image = lvm_image(image)
     size = image_size(image)
     print("=" * 78)
     print(path)
@@ -14852,6 +15342,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
     candidates, regions, sized_regions, triage = [], [], [], []
     containers, protective = set(), set()
     vol_names = {}                    # byte offset -> canonical extract name
+    first_record = len(manifest) if manifest is not None else 0
     with image as fh:
         # The GPT is read before the MBR is reported, because the sector size
         # its header was found at is the unit of every LBA on this disk,
@@ -14952,7 +15443,12 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
         if lvs:
             print(f"\n  LVM      {len(lvs)} logical volume(s) read from LVM2 physical volumes")
             for label, base, rsize, name in lvs:
-                print(f"    {label[len('LVM '):]:<26} {human(rsize):>10}  at byte {base:,}")
+                lmap = getattr(fh, "lvm_map_for", lambda _b: None)(base)
+                where = (f"at byte {base:,}" if lmap is None else
+                         f"{_lvm_shape_words(lmap)}, read through a map: "
+                         + ", ".join(f"{n:,} bytes at {o:,}" for o, n in lmap.image_runs(0, lmap.size)[:4])
+                         + (" ..." if len(lmap.image_runs(0, lmap.size)) > 4 else ""))
+                print(f"    {label[len('LVM '):]:<26} {human(rsize):>10}  {where}")
                 sized_regions.append((label, base, rsize))
                 regions.append((label, base))
                 vol_names[base] = name
@@ -14967,9 +15463,19 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
         # the 28.8 GiB storage volume walked to 0 files with nothing raised.
         # Say so here, before any volume is reported as empty.
         short_by = {}                 # region start -> bytes past the end of the file
-        short = short_regions(size, sized_regions, skip=protective)
+        # A logical volume read through a map is placed past the end on purpose;
+        # what it misses is what its map puts past the end (LvmMap.missing).
+        placed = set((getattr(fh, "lvm_virtual", None) or {}).values())
+        placed_labels = {lab for lab, st, _rs in sized_regions if st in placed}
+        for st in placed:
+            if fh.lvm_map_for(st).missing(size):
+                short_by[st] = fh.lvm_map_for(st).missing(size)
+        short = short_regions(size, sized_regions, skip=set(protective) | placed_labels)
+        short += [(lab, st, rs, short_by[st]) for lab, st, rs in sized_regions
+                  if lab in placed_labels and short_by.get(st)]
         if short:
-            reach = max(st + rs for lab, st, rs in sized_regions if lab not in protective)
+            reach = max(st + rs for lab, st, rs in sized_regions
+                        if lab not in protective and lab not in placed_labels)
             print("\n  IMAGE IS SHORTER THAN ITS PARTITION TABLE")
             print(f"    the file holds {human(size)}; the partitions it describes "
                   f"reach {human(reach)}")
@@ -14988,6 +15494,8 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
 
         def missing_past_end(base, declared_end=None):
             """Bytes of the volume at base that lie past the end of the file."""
+            if base in placed:
+                return short_by.get(base, 0)   # a placed volume's own map says (LvmMap.missing)
             missing = short_by.get(base, 0)
             if declared_end is not None:
                 missing = max(missing, declared_end - size)
@@ -15427,6 +15935,13 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                   " on this evidence.")
         else:
             print("  VERDICT: no QNX6 superblock found.")
+    # A logical volume read through a map has no one offset on the disk: its
+    # record in volumes.json says where each run of it is instead.
+    for rec in (manifest or [])[first_record:]:
+        lmap = getattr(image, "lvm_map_for", lambda _b: None)(rec.get("offset_bytes"))
+        if lmap is not None:
+            rec["offset_bytes"], rec["lba"] = None, None
+            rec["lvm_map"] = lmap.describe()
     print()
 
 
@@ -22877,8 +23392,8 @@ if __name__ == "__main__":
                     "APFS filesystems, the Linux flash filesystems SquashFS, JFFS2, "
                     "UBI/UBIFS and YAFFS1/YAFFS2, QNX IFS boot images, and the U-Boot "
                     "environment and Belkin libnvram stores a flash chip carries, out of "
-                    "raw disk images and flash dumps, the linear logical volumes of an "
-                    "LVM2 physical volume included: identify each by its own "
+                    "raw disk images and flash dumps, the linear and striped logical "
+                    "volumes of an LVM2 physical volume included: identify each by its own "
                     "on-disk structure rather "
                     "than trusting a partition type byte, list, and extract to a "
                     "zip with a provenance manifest. No mounting, no admin "

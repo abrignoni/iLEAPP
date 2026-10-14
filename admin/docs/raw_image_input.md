@@ -35,8 +35,10 @@ fewer bytes than the file records and the file was not staged.
 Since 1.65, the linear logical volumes of an LVM2 physical volume, each one run of extents
 on one physical volume in the image, are searched as volumes of their own, named
 `lvm_lba<first sector>_<group>_<volume>`. The physical volume's line in the run log
-names any logical volume that is not read (split into separate runs, striped, RAID,
-thin, a snapshot, or on a physical volume missing from the image) and why.
+names any logical volume that is not read (RAID, mirrored, thin, a snapshot, or one
+with a run on a physical volume missing from the image) and why. Since 1.66, a
+logical volume split into separate runs of extents, or striped, is searched too,
+read through a map of its runs; its name counts the first sector of its first run.
 
 ## Where the pieces are
 
