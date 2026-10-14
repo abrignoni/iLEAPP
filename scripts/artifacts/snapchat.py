@@ -44,13 +44,13 @@ __artifacts_v2__ = {
                  "which the schema comments describe as the local media reference kept when the "
                  "message originates from the device. It is blank when that field is NULL, its archive "
                  "does not decode, or the archive holds no MEDIA_ID string. On the tested images it was "
-                 "filled on 11 rows, all Outgoing; 7 of those values appear in the External Key column of "
-                 "Snapchat - Chat Media, and the Media column showed a file on 3 of the 11 rows.\n"
+                 "filled on 14 rows, all Outgoing; 9 of those values appear in the External Key column of "
+                 "Snapchat - Chat Media, and the Media column showed a file on 4 of the 14 rows.\n"
                  "Created On Device is the stored created_on_device value, YES for a stored non-zero "
                  "value and NO for 0; only 0 and 1 were seen on the tested images. The schema "
                  "declares it NOT NULL with the comment that it is set to true if the message was "
                  "created on this device. It was present in the four iOS 18 images tested and "
-                 "absent from the six iOS 15 to 17 images checked, where the column is blank. On the "
+                 "absent from the eight iOS 14 to 17 images checked, where the column is blank. On the "
                  "tested images every YES row was Outgoing (18 rows), while 5 Outgoing rows read NO "
                  "(4 on dexter_ios18, 1 on iphone12_ios18), so an Outgoing message was not always "
                  "created on this device. Why those rows read NO is not established here.\n"
@@ -88,9 +88,9 @@ __artifacts_v2__ = {
                            "hexordia_ios1651": "iOS 16.5.1 | 65 rows (all Live; 2 with media; Local Media ID on 4; no created_on_device column)",
                            "magnet_ios16": "iOS 16.1.1 | 7 rows (all Live; no created_on_device column; none with media, its 6 conversation cache entries have no file)",
                            "felix23_ios16": "iOS 16.5 | 0 rows (conversation_message table empty)",
-                           "hickman_ios15": "iOS 15.3.1 | 18 rows (all Live; 6 with media)",
+                           "hickman_ios15": "iOS 15.3.1 | 18 rows (all Live; 6 with media; Local Media ID on 2; no created_on_device column)",
                            "jess_ios15": "iOS 15.0.2 | 2 rows (all Live; 1 with media; no created_on_device column)",
-                           "hickman_ios14": "iOS 14.3 | 22 rows (all Live; schema lacks quoted_server_message_id; none with media, cache_controller.db has no conversation entries)",
+                           "hickman_ios14": "iOS 14.3 | 22 rows (all Live; schema lacks quoted_server_message_id; Local Media ID on 1; no created_on_device column; none with media, cache_controller.db has no conversation entries)",
                            "hickman_ios13": "iOS 13.3.1 | 0 rows (conversation_message table empty)",
                            "ctf2020_ios12": "iOS 12.4 | 0 rows (conversation_message table empty)",
                            "iphone14plus_ios18": "iOS 18.0 | no Snapchat arroyo.db found",
