@@ -4,16 +4,22 @@ __artifacts_v2__ = {
         "description": "Bumble chat messages read from the app's Chat.sqlite database",
         "author": "@KevinPagano3",
         "creation_date": "2022-04-16",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Bumble",
         "notes": "One row per database2 entry that decodes to a plist with a self.dateCreated value "
                  "and has a row in secondaryIndex_isReadIndex; entries without either are not "
                  "listed. Only the first Chat.sqlite matched is read. Created Timestamp and "
                  "Modified Timestamp are the entry's self.dateCreated and self.dateModified values "
-                 "read as Unix seconds and shown in UTC. Message Direction and Message Read come "
+                 "read as Unix timestamps, with the unit taken from the value's size, and shown "
+                 "in UTC. On abe_ios16 and jess_ios15 Modified Timestamp was equal to Created "
+                 "Timestamp on every row; both are kept because they are read from separate "
+                 "keys. Message Direction and Message Read come "
                  "from the isIncoming and isRead columns of that index, shown as Incoming or "
-                 "Outgoing and as Yes or blank. What sets isRead is not established.",
+                 "Outgoing and as Yes or blank. What sets isRead is not established. "
+                 "Collection is the entry's collection value in database2, shown as stored; "
+                 "the conversation view groups messages by it. What the value identifies is "
+                 "not established.",
         "paths": ('**/Library/Caches/Chat.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -105,7 +111,7 @@ def bumbleMessages(context):
     SELECT
         database2.data,
         CASE secondaryIndex_isReadIndex.isIncoming WHEN 0 THEN 'Outgoing' WHEN 1 THEN 'Incoming' END,
-        collection,
+        database2.collection,
         CASE secondaryIndex_isReadIndex.isRead WHEN 0 THEN '' WHEN 1 THEN 'Yes' END
     FROM database2
     JOIN secondaryIndex_isReadIndex ON database2.rowid = secondaryIndex_isReadIndex.rowid
@@ -116,14 +122,12 @@ def bumbleMessages(context):
             continue
         data_list.append((convert_unix_ts_to_utc(plist['self.dateCreated']),
                           convert_unix_ts_to_utc(plist.get('self.dateModified')),
-                          row[1], #Message Direction
-                          plist.get('self.fromPersonUid', ''), 
-                          row[2], #Collection
+                          row[1],  # Message Direction
+                          plist.get('self.fromPersonUid', ''),
+                          row[2],  # Collection
                           plist.get('self.messageText', ''),
                           plist.get('self.toPersonUid', ''),
-                          row[3], #Message Read
-                         ))
-                          
+                          row[3]))  # Message Read
 
     return data_headers, data_list, context.get_relative_path(source_path)
 
