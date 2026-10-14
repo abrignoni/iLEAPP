@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.63"
+QNXPROBE_VERSION = "1.65"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -13039,6 +13039,825 @@ def unlock_apfs(fh, size=None, passwords=()):
     return (ApfsImage(fh, found) if found else fh), found
 
 
+# ---------------------------------------------------------------------------
+# LVM2 physical volumes and their linear logical volumes
+# ---------------------------------------------------------------------------
+# The layout is lvm2's own (github.com/lvmteam/lvm2 at tag v2_03_43, commit
+# 7b0bce6909611966bdc1e17c2408e1ec3b0f8c17): a label in one of the first four
+# 512-byte sectors (lib/label/label.h, "LABELONE", struct label_header) whose
+# contents are a pv_header (lib/format_text/layout.h): the PV's id, its size, a
+# zero-ended list of data areas and a zero-ended list of metadata areas. A
+# metadata area starts with an mda_header (magic " LVM2 x[5A%r0N*>") whose first
+# raw_locn is the committed metadata text, a circular buffer that wraps past the
+# end of the area back to just after the header (format-text.c
+# _vg_read_raw_area). Every checksum is lvm2's calc_crc (lib/misc/crc.c): the
+# CRC-32 table step from 0xf597a6cf, with no inversion before or after. The text
+# is lvm2's configuration syntax (export.c writes it): sections in braces,
+# "key = value", strings, integers and bracketed lists, # comments.
+#
+# A logical volume is read only when it is linear and its extents lie one after
+# another on one physical volume in this image: it is then a byte range of the
+# image like a partition, and is walked as one, at its true offset. Any other
+# (split into separate runs, striped, mirrored, thin, a snapshot, a cache, or on
+# a physical volume not in this image) is listed with why it was not read.
+
+LVM_LABEL_ID = b"LABELONE"
+LVM2_LABEL = b"LVM2 001"
+LVM_FMTT_MAGIC = b" LVM2 x[5A%r0N*>"
+LVM_INITIAL_CRC = 0xf597a6cf
+LVM_MDA_HEADER_SIZE = 512
+LVM_RAW_LOCN_IGNORED = 0x1
+LVM_MAX_SECTION_DEPTH = 128            # libdm-config.c MAX_SECTION_DEPTH
+
+
+def lvm_crc(data, initial=LVM_INITIAL_CRC):
+    """lvm2's calc_crc: the CRC-32 table step with no inversion either side."""
+    return (~binascii.crc32(data, ~initial & 0xffffffff)) & 0xffffffff
+
+
+# Whitespace and comments, a comment running to the end of its line: a pattern
+# that let one stop short would hand its last digits to the next token (a
+# trailing "# ... 2026" read as a value), and one whose pieces could split a
+# run of "#" two ways would backtrack exponentially on a long one.
+_LVM_SKIP = r'(?:\s|#[^\n]*(?:\n|$))*'
+_LVM_TOKEN = re.compile(_LVM_SKIP + r'(?:("(?:[^"\\]|\\.)*")|([-+]?\d+(?![\w.])|[\w.+-]+)|([={}\[\],]))')
+_LVM_REST = re.compile(_LVM_SKIP)
+
+
+def _lvm_tokens(text):
+    pos, out = 0, []
+    while True:
+        m = _LVM_TOKEN.match(text, pos)
+        if not m or m.end() == pos:
+            break
+        pos = m.end()
+        s, word, punct = m.groups()
+        if s is not None:
+            # dm_unescape_double_quotes undoes only \" and \\.
+            out.append(("s", re.sub(r'\\(["\\])', r"\1", s[1:-1])))
+        elif word is not None:
+            if re.fullmatch(r"[-+]?0\d+", word):
+                # lvm2 reads numbers with strtoll(..., 0), so a leading zero is
+                # octal; lvm2 never writes one, and it is refused, not misread.
+                raise ValueError(f"a number with a leading zero ({word}) in LVM metadata")
+            out.append(("i", int(word)) if re.fullmatch(r"[-+]?\d+", word) else ("w", word))
+        elif punct is not None:
+            out.append(("p", punct))
+    if _LVM_REST.match(text, pos).end() != len(text):
+        raise ValueError(f"LVM metadata text does not parse near byte {pos}")
+    return out
+
+
+def lvm_config(text):
+    """lvm2 metadata text as nested dicts: a section is a dict, a list a list,
+    a string a str and a number an int. Raises ValueError for text that does
+    not parse, never anything else."""
+    toks, i = _lvm_tokens(text), 0
+
+    def take():
+        nonlocal i
+        if i >= len(toks):
+            raise ValueError("LVM metadata text ends inside a value or section")
+        i += 1
+        return toks[i - 1]
+
+    def peek():
+        if i >= len(toks):
+            raise ValueError("LVM metadata text ends inside a value or section")
+        return toks[i]
+
+    def value():
+        kind, v = take()
+        if (kind, v) == ("p", "["):
+            items = []
+            while peek() != ("p", "]"):
+                if peek() == ("p", ","):
+                    take()
+                    continue
+                items.append(value())
+            take()
+            return items
+        if kind in ("s", "i"):
+            return v
+        raise ValueError(f"unexpected {v!r} in LVM metadata")
+
+    def section(end, depth):
+        if depth > LVM_MAX_SECTION_DEPTH:
+            raise ValueError("LVM metadata sections nest too deep")
+        out = {}
+        while i < len(toks) if end is None else peek() != end:
+            kind, key = take()
+            if kind != "w":
+                raise ValueError(f"unexpected {key!r} in LVM metadata")
+            nxt = take()
+            if nxt == ("p", "{"):
+                out[key] = section(("p", "}"), depth + 1)
+                take()
+            elif nxt == ("p", "="):
+                out[key] = value()
+            else:
+                raise ValueError(f"expected = or {{ after {key!r} in LVM metadata")
+        return out
+
+    return section(None, 0)
+
+
+class LvmPv:
+    """The label, pv_header and newest readable metadata of an LVM2 physical
+    volume at `base`. A label is accepted as lvm2 accepts it (label.c
+    _find_lvm_header): "LABELONE" in one of the first four sectors, naming that
+    sector and passing its checksum, and of type "LVM2 001"; a label that fails
+    is passed over and the next sector tried. Raises ValueError when none is
+    accepted. `mda_ok` counts the metadata area headers that check out."""
+
+    def __init__(self, fh, base, size=None):   # pylint: disable=unused-argument
+        # size is taken for the same signature as the identifiers; the label
+        # and the pv_header say where everything is.
+        self.base = base
+        self.problems = []
+        for sector in range(4):
+            raw = read_at(fh, base + sector * SECTOR, SECTOR)
+            if len(raw) < SECTOR or raw[:8] != LVM_LABEL_ID:
+                continue
+            sector_xl, crc_xl, offset_xl = struct.unpack_from("<QII", raw, 8)
+            if sector_xl != sector or lvm_crc(raw[20:]) != crc_xl or raw[24:32] != LVM2_LABEL:
+                continue
+            if 32 <= offset_xl <= SECTOR - 72:
+                break
+        else:
+            raise ValueError("no LVM2 label lvm2 would accept in the first four sectors")
+        self.label_sector = sector
+        self.uuid = raw[offset_xl:offset_xl + 32].decode("ascii", "replace")
+        self.device_size, = struct.unpack_from("<Q", raw, offset_xl + 32)
+        pos, lists = offset_xl + 40, ([], [])
+        for which in (0, 1):
+            while pos + 16 <= SECTOR:
+                off, n = struct.unpack_from("<QQ", raw, pos)
+                pos += 16
+                if not off:                # lvm2 ends each list on a zero offset
+                    break
+                lists[which].append((off, n))
+        self.data_areas, self.metadata_areas = lists
+        self.mda_ok = 0
+        self.vg = None                 # (vg name, vg section, seqno) of the newest copy
+        for off, n in self.metadata_areas:
+            try:
+                found = self._metadata(fh, off, n)
+            except ValueError as exc:
+                self.problems.append(f"metadata area at byte {off:,}: {exc}")
+                continue
+            if found and (self.vg is None or found[2] > self.vg[2]):
+                self.vg = found
+
+    def _metadata(self, fh, off, _n):
+        head = read_at(fh, self.base + off, LVM_MDA_HEADER_SIZE)
+        if len(head) < LVM_MDA_HEADER_SIZE:
+            raise ValueError("header past the end of the image")
+        crc_xl, magic, _version, start, size = struct.unpack_from("<I16sIQQ", head, 0)
+        if magic != LVM_FMTT_MAGIC:
+            raise ValueError("no metadata area magic")
+        if lvm_crc(head[4:]) != crc_xl:
+            raise ValueError("metadata area header checksum does not match")
+        if start != off or size < LVM_MDA_HEADER_SIZE:
+            raise ValueError("metadata area header disagrees with the pv_header")
+        self.mda_ok += 1
+        r_off, r_size, checksum, flags = struct.unpack_from("<QQII", head, 40)
+        if not r_off and not r_size:
+            return None                # an area with no metadata written yet
+        if flags & LVM_RAW_LOCN_IGNORED:
+            return None                # lvm2 keeps this copy but does not use it
+        if r_off >= size or r_size > size - LVM_MDA_HEADER_SIZE:
+            raise ValueError("metadata location outside the area")
+        wrap = max(0, r_off + r_size - size)
+        text = read_at(fh, self.base + off + r_off, r_size - wrap)
+        if wrap:
+            text += read_at(fh, self.base + off + LVM_MDA_HEADER_SIZE, wrap)
+        if lvm_crc(text) != checksum:
+            raise ValueError("metadata text checksum does not match")
+        cfg = lvm_config(text.split(b"\0", 1)[0].decode("utf-8", "replace"))
+        vgs = [(k, v) for k, v in cfg.items() if isinstance(v, dict)]
+        if len(vgs) != 1:
+            raise ValueError(f"{len(vgs)} volume group sections in the metadata text")
+        name, vg = vgs[0]
+        _lvm_vg_shape(vg)
+        return name, vg, vg.get("seqno", 0)
+
+
+def _lvm_vg_shape(vg):
+    """Raise ValueError unless the volume group section has the shape lvm2
+    writes: numbers where it writes numbers, sections where it writes sections,
+    a list of words for a status. A copy that does not is refused like one whose
+    checksum fails, so nothing later meets a value of the wrong kind."""
+    def need(cond, what):
+        if not cond:
+            raise ValueError(f"the volume group metadata has {what}")
+
+    def num(sec, key, where):
+        need(isinstance(sec.get(key, 0), int), f"a {key} that is not a number in {where}")
+
+    num(vg, "seqno", "the volume group")
+    num(vg, "extent_size", "the volume group")
+    need(isinstance(vg.get("id", ""), str), "an id that is not a string")
+    for key in ("physical_volumes", "logical_volumes"):
+        need(isinstance(vg.get(key, {}), dict), f"a {key} that is not a section")
+    for name, pv in (vg.get("physical_volumes") or {}).items():
+        need(isinstance(pv, dict), f"physical volume {name} that is not a section")
+        need(isinstance(pv.get("id", ""), str), f"physical volume {name} with an id that is not a string")
+        for key in ("pe_start", "pe_count"):
+            num(pv, key, f"physical volume {name}")
+    for name, lv in (vg.get("logical_volumes") or {}).items():
+        need(isinstance(lv, dict), f"logical volume {name} that is not a section")
+        status = lv.get("status", [])
+        need(isinstance(status, list) and all(isinstance(x, str) for x in status),
+             f"logical volume {name} with a status that is not a list of words")
+        for key, seg in lv.items():
+            if not key.startswith("segment") or key == "segment_count":
+                continue
+            need(isinstance(seg, dict), f"{name} {key} that is not a section")
+            for k in ("start_extent", "extent_count", "stripe_count"):
+                num(seg, k, f"{name} {key}")
+            need(isinstance(seg.get("type", ""), str), f"{name} {key} with a type that is not a string")
+            stripes = seg.get("stripes", [])
+            need(isinstance(stripes, list), f"{name} {key} with stripes that are not a list")
+            need(all(isinstance(x, (str, int)) for x in stripes), f"{name} {key} with stripes of another kind")
+
+
+def _lvm_shown(lvname, segs):
+    """The name lvm2 shows for a logical volume: a snapshot's visible volume is
+    stored as snapshotN with its segment naming the volume (cow_store) lvs lists."""
+    if segs and segs[0].get("type") == "snapshot" and segs[0].get("cow_store"):
+        return f"{segs[0]['cow_store']} (stored as {lvname})"
+    return lvname
+
+
+def _lvm_id(text):
+    return str(text).replace("-", "")
+
+
+def _lvm_pv(fh, base, rsize):
+    """An LvmPv for a region with a label lvm2 accepts, else None."""
+    try:
+        return LvmPv(fh, base, rsize)
+    except ValueError:
+        return None
+
+
+def lvm_volumes(fh, regions, ss=SECTOR):
+    """[(lv label, base, size, name)] for the linear logical volumes laid out
+    contiguously on one LVM2 physical volume among `regions` ([(label, base,
+    size)]), and {pv base: [lines]} saying, per physical volume, what its volume
+    group holds and why any logical volume was not read. `ss` is the disk's
+    sector size, the unit of the LBA in a name."""
+    pvs = {}
+    for _label, base, rsize in regions:
+        pv = _lvm_pv(fh, base, rsize)
+        if pv is not None:
+            pvs[base] = pv
+    # A label with no metadata area header that checks out behind it counts only
+    # when a volume group read from another physical volume names its id, the
+    # way lvm2 still uses such a physical volume: a stray label alone does not
+    # turn a region into a physical volume.
+    named = {_lvm_id(rec.get("id", "")) for pv in pvs.values() if pv.vg
+             for rec in (pv.vg[1].get("physical_volumes") or {}).values() if isinstance(rec, dict)}
+    pvs = {b: pv for b, pv in pvs.items() if pv.mda_ok or _lvm_id(pv.uuid) in named}
+    notes = {base: [f"LVM2 physical volume, id {pv.uuid}"] + pv.problems
+             for base, pv in pvs.items()}
+    by_uuid = {}
+    for base, pv in pvs.items():
+        key = _lvm_id(pv.uuid)
+        if key in by_uuid:
+            notes[base].append(f"the same physical volume id as the one at byte "
+                               f"{by_uuid[key][0]:,}; that one is used")
+            continue
+        by_uuid[key] = (base, pv)
+    groups = {}
+    for base, pv in pvs.items():
+        if pv.vg is None:
+            notes[base].append("no volume group metadata read on it")
+            continue
+        name, vg, seqno = pv.vg
+        key = vg.get("id", name)
+        if key not in groups or seqno > groups[key][2]:
+            groups[key] = (name, vg, seqno)
+    found = []
+    for name, vg, seqno in groups.values():
+        home = [b for b, pv in pvs.items() if pv.vg and pv.vg[1].get("id") == vg.get("id")]
+        try:
+            lines, lvs = _lvm_group(name, vg, seqno, by_uuid, ss)
+        except (TypeError, AttributeError, KeyError, ValueError) as exc:
+            # _lvm_vg_shape refuses the shapes known to fail; anything it misses
+            # is said here rather than costing the image its other volumes.
+            lines, lvs = [f"volume group {name}: its metadata could not be used "
+                          f"({type(exc).__name__}: {exc})"], []
+        found += lvs
+        for b in home:
+            notes[b] += lines
+    return found, notes
+
+
+def _lvm_group(name, vg, seqno, by_uuid, ss):
+    """(report lines, [(lv label, base, size, name)]) for one volume group."""
+    found = []
+    ext = vg.get("extent_size", 0) * SECTOR
+    where = {}                       # pv name in the metadata -> (base, pe_start bytes, pe_count)
+    for pvname, rec in (vg.get("physical_volumes") or {}).items():
+        hit = by_uuid.get(_lvm_id(rec.get("id", "")))
+        if hit:
+            where[pvname] = (hit[0], rec.get("pe_start", 0) * SECTOR, rec.get("pe_count", 0))
+    pv_names = set(vg.get("physical_volumes") or {})
+    lines = [f"volume group {name}, metadata seqno {seqno}, extent {human(ext)}, "
+             f"{len(pv_names)} physical volume(s), {len(where)} of them in this image"]
+    for lvname, lv in (vg.get("logical_volumes") or {}).items():
+        if not isinstance(lv, dict) or "VISIBLE" not in (lv.get("status") or []):
+            continue                 # an internal volume (a pool's data, a mirror's image)
+        segs = sorted((v for k, v in lv.items() if k.startswith("segment") and isinstance(v, dict)),
+                      key=lambda s: s.get("start_extent", 0))
+        shown = _lvm_shown(lvname, segs)
+        why, run = _lvm_linear_run(segs, where, pv_names, ext)
+        total = sum(s.get("extent_count", 0) for s in segs if isinstance(s.get("extent_count"), int)) * ext
+        if why:
+            lines.append(f"logical volume {shown}, {human(total)}: not read ({why})")
+            continue
+        lbase, lsize = run
+        label = f"LVM {name}/{lvname}"
+        lines.append(f"logical volume {lvname}, {human(lsize)}: read as {label}")
+        stem = f"lvm_lba{lbase // ss}"
+        suffix = sanitize_volume_label(f"{name}_{lvname}", 40)
+        found.append((label, lbase, lsize, f"{stem}_{suffix}" if suffix else stem))
+    return lines, found
+
+
+def _lvm_linear_run(segs, where, pv_names, ext):
+    """(why not, None) or (None, (byte base, byte size)) for an LV's segments.
+    `where` maps a physical volume's name in the metadata to (base, pe_start
+    bytes, pe_count) for those in the image; `pv_names` names every one."""
+    if not segs:
+        return "no segments", None
+    start, pv, at = 0, None, None
+    for seg in segs:
+        kind = seg.get("type", "")
+        if kind != "striped":
+            return f"a {kind or 'untyped'} segment", None
+        if seg.get("stripe_count", 1) != 1:
+            return f"striped across {seg.get('stripe_count')} physical volumes", None
+        stripes = seg.get("stripes") or []
+        count = seg.get("extent_count", 0)
+        if (len(stripes) != 2 or not isinstance(stripes[1], int) or not isinstance(count, int)
+                or not isinstance(seg.get("start_extent", 0), int)):
+            return "a segment's extents do not read", None
+        pvname, pe = stripes
+        if pvname not in pv_names:
+            return f"its extents are on {pvname}, which is not a physical volume of the group", None
+        if pvname not in where:
+            return f"on {pvname}, a physical volume not in this image", None
+        if seg.get("start_extent", 0) != start:
+            return "its segments leave a gap in the volume", None
+        if pv is not None and (pvname != pv or pe != at):
+            return "its extents are not one run on one physical volume", None
+        pv, at = pvname, pe + count
+        start += count
+    pv_base, pe_start, pe_count = where[pv]
+    if pe_count and at > pe_count:
+        return f"its extents run past the {pe_count:,} its physical volume holds", None
+    first = segs[0]["stripes"][1]
+    return None, (pv_base + pe_start + first * ext, start * ext)
+
+
+def identify_lvm(fh, base, size=None):
+    """("lvm2 pv", lines) for an LVM2 physical volume at base, else None: a
+    label lvm2 accepts, and either a metadata area header that checks out or a
+    volume group elsewhere in the image that names it (lvm_volumes)."""
+    pv = _lvm_pv(fh, base, size)
+    if pv is None:
+        return None
+    # The volume group may span other physical volumes in the same image, so
+    # its logical volumes are judged against every region the partition tables
+    # give (table_regions reads only the tables, never a filesystem, so this
+    # cannot come back here).
+    try:
+        regions = [r for r in table_regions(fh)[0] if r[1] != base]
+    except Exception:                              # pylint: disable=broad-except
+        regions = []
+    _found, notes = lvm_volumes(fh, [("pv", base, size or 0)] + regions)
+    if base not in notes:
+        return None
+    return "lvm2 pv", notes[base][1:] + [f"id {pv.uuid}"]
+
+
+def _lvm_older_copy(disk, pv_at, m_off):
+    """The fixture with the physical volume at pv_at holding an older metadata
+    copy: seqno 1 and no volume onb, its checksums made good."""
+    h = bytearray(disk[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+    o, n = struct.unpack_from("<QQ", h, 40)
+    t = disk[pv_at + m_off + o:pv_at + m_off + o + n].split(b"\0", 1)[0].decode()
+    cut = t.index("\nonb {")
+    end = t.index("\n}\n}\n", t.index("segment1 {", cut)) + 5    # the segment's brace, then onb's
+    stale = re.sub(r"seqno = \d+", "seqno = 1", t[:cut] + t[end:], count=1).encode()
+    out = bytearray(disk)
+    out[pv_at + m_off + o:pv_at + m_off + o + len(stale)] = stale
+    struct.pack_into("<QQI", h, 40, o, len(stale), lvm_crc(stale))
+    struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+    out[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = h
+    return bytes(out)
+
+
+def _lvm_hostile_checks(disk, whole, regions, want, paths, parts, m_off, r_off):
+    """The checks the review asked for: inputs lvm2 would refuse, damaged and
+    crafted metadata, and the cases the fixtures alone do not reach."""
+    import io
+    out = []
+    lvm_regions = [r for r in regions if not r[0].startswith("MBR")]
+    pv1 = parts["1"]
+
+    def with_header(img, pv_at, change):
+        h = bytearray(img[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+        change(h)
+        b = bytearray(img)
+        b[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = h
+        return bytes(b)
+
+    # The whole-disk volume's extents start 3 MiB in, at the pe_start lvm2
+    # reports, where the 1 MiB extent size would put them elsewhere.
+    wpe = int(json.load(open(paths["lvm-wholedisk.pvs.json"], encoding="utf-8"))
+              ["pvs"]["report"][0]["pv"][0]["pe_start"].rstrip("B"))
+    wfound, _wn = lvm_volumes(io.BytesIO(whole), [("whole image", 0, len(whole))])
+    out.append((f"the whole-disk volume starts at the pe_start lvm2 reports ({wpe:,} bytes), "
+                "not at the extent size", wpe == 3 << 20 and [b for _l, b, _s, _n in wfound] == [wpe]))
+
+    # A metadata area header changed after lvm2 wrote it, with its checksum left.
+    bad = with_header(disk, pv1, lambda h: h.__setitem__(200, h[200] ^ 0xFF))
+    bf, bn = lvm_volumes(io.BytesIO(bad), lvm_regions)
+    out.append(("a metadata area header that fails its checksum is reported and the other "
+                "physical volume's copy is used",
+                {(a, b, c) for a, b, c, _n in bf} == want
+                and any("metadata area header checksum does not match" in ln for ln in bn[pv1])))
+
+    # A copy lvm2 marks ignored (RAW_LOCN_IGNORED) is not used.
+    def ignore(h):
+        o, n, c, f = struct.unpack_from("<QQII", h, 40)
+        struct.pack_into("<QQII", h, 40, o, n, c, f | LVM_RAW_LOCN_IGNORED)
+        struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+    ign = with_header(disk, pv1, ignore)
+    ipv = LvmPv(io.BytesIO(ign), pv1)
+    igf, _ign = lvm_volumes(io.BytesIO(ign), lvm_regions)
+    out.append(("a metadata copy lvm2 marks ignored is not used, and the other copy is",
+                ipv.vg is None and not ipv.problems and {(a, b, c) for a, b, c, _n in igf} == want))
+
+    # A label is accepted only as lvm2 accepts it: one that names another sector,
+    # or fails its checksum, is passed over, and the next sector's is taken.
+    label = disk[pv1 + SECTOR:pv1 + 2 * SECTOR]
+    moved = bytearray(disk)
+    moved[pv1 + SECTOR:pv1 + 2 * SECTOR] = bytes(SECTOR)
+    moved[pv1 + 2 * SECTOR:pv1 + 3 * SECTOR] = label              # still says sector 1
+    wrong_sector = _lvm_pv(io.BytesIO(bytes(moved)), pv1, None)
+    fixed = bytearray(label)
+    struct.pack_into("<Q", fixed, 8, 2)
+    struct.pack_into("<I", fixed, 16, lvm_crc(bytes(fixed[20:])))
+    moved[pv1 + 2 * SECTOR:pv1 + 3 * SECTOR] = fixed
+    right_sector = _lvm_pv(io.BytesIO(bytes(moved)), pv1, None)
+    flipped = bytearray(disk)
+    flipped[pv1 + SECTOR + 40] ^= 0x01
+    out.append(("a label naming another sector, or failing its checksum, is passed over as "
+                "lvm2 passes it over, and a good one in the next sector is taken",
+                wrong_sector is None and _lvm_pv(io.BytesIO(bytes(flipped)), pv1, None) is None
+                and right_sector is not None and right_sector.label_sector == 2))
+
+    # A stray label with no metadata area behind it does not hide the
+    # filesystem the region holds.
+    ext_fix = os.path.join(os.path.dirname(paths["lvm-fixture.sha256"]), "ext4-sparse.img.gz")
+    if os.path.isfile(ext_fix):
+        import gzip
+        with gzip.open(ext_fix, "rb") as gz:
+            ext = bytearray(gz.read())
+        ext[SECTOR:2 * SECTOR] = label
+        kind = identify_fs(io.BytesIO(bytes(ext)), 0, len(ext))[0]
+        out.append(("an ext4 volume with a stray LVM label and no metadata area behind it is "
+                    f"still ext4 (read as {kind})", kind == "ext4"))
+    else:
+        out.append(("the ext4-sparse fixture is beside this script for the stray-label check", False))
+
+    # Crafted metadata text, with its checksums made good, is refused as a
+    # problem and costs nothing else: every other partition is still listed.
+    for text in (b"fixvg {\nseqno = 99\nx = [\n", b"a {" * 2000,
+                 b"a = 1\n" + b"#" * 60 + b"\n;"):
+        def craft(h, text=text):
+            o, _n, _c, f = struct.unpack_from("<QQII", h, 40)
+            struct.pack_into("<QQII", h, 40, o, len(text), lvm_crc(text), f)
+            struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+        o = struct.unpack_from("<Q", disk, pv1 + m_off + 40)[0]
+        img = bytearray(with_header(disk, pv1, craft))
+        img[pv1 + m_off + o:pv1 + m_off + o + len(text)] = text
+        started = time.time()
+        try:
+            vols = volumes(io.BytesIO(bytes(img)), len(img))
+            fine = {v["label"] for v in vols} >= {"GPT part 1 lvm-a", "GPT part 2 lvm-b"}
+            cpv = LvmPv(io.BytesIO(bytes(img)), pv1)
+            fine = fine and cpv.vg is None and any("metadata area" in p for p in cpv.problems)
+        except Exception:                            # pylint: disable=broad-except
+            fine = False
+        took = time.time() - started
+        out.append((f"crafted metadata text ({text[:18]!r}...) is refused as a problem in "
+                    f"{took:.2f}s and every partition is still listed", fine and took < 60))
+
+    # A whole-disk physical volume is identified without the reader calling
+    # itself: count the calls volumes() makes to partition_regions.
+    calls = [0]
+    real = globals()["partition_regions"]
+
+    def counting(*a, **k):
+        calls[0] += 1
+        return real(*a, **k)
+    globals()["partition_regions"] = counting
+    try:
+        volumes(io.BytesIO(whole), len(whole))
+    finally:
+        globals()["partition_regions"] = real
+    out.append((f"a whole-disk physical volume is listed with {calls[0]} call(s) to "
+                "partition_regions, not one per recursion level", calls[0] <= 2))
+
+    # Segments lvm2 keeps apart though they touch: the volume starts at the first.
+    two = [{"type": "striped", "stripe_count": 1, "start_extent": 0, "extent_count": 2,
+            "stripes": ["pv0", 5]},
+           {"type": "striped", "stripe_count": 1, "start_extent": 2, "extent_count": 1,
+            "stripes": ["pv0", 7]}]
+    out.append(("a volume in two touching runs is read from its first extent",
+                _lvm_linear_run(two, {"pv0": (1000, 100, 20)}, {"pv0"}, 10)
+                == (None, (1000 + 100 + 50, 30))))
+    out.append(("a volume whose extents are on something that is not one of the group's "
+                "physical volumes (a move in progress) says so",
+                "not a physical volume of the group"
+                in (_lvm_linear_run([dict(two[0], stripes=["pvmove0", 0])], {"pv0": (0, 0, 9)},
+                                    {"pv0"}, 10)[0] or "")))
+    out.append(("a volume that runs past its physical volume's extents is not read",
+                "run past" in (_lvm_linear_run(two, {"pv0": (0, 0, 6)}, {"pv0"}, 10)[0] or "")))
+    # Metadata that parses but holds a value of the wrong kind where lvm2 writes
+    # a number, a section, a string or a list: that copy is refused, the other
+    # physical volume's copy gives every volume, and nothing else is lost.
+    o = struct.unpack_from("<Q", disk, pv1 + m_off + 40)[0]
+    n = struct.unpack_from("<Q", disk, pv1 + m_off + 48)[0]
+    good = disk[pv1 + m_off + o:pv1 + m_off + o + n].split(b"\0", 1)[0].decode()
+    shapes = [("physical_volumes {", "physical_volumes = 5\nphysical_volumes_x {"),
+              ("pv0 {", "pv0 = 5\npv0_x {"),
+              ("logical_volumes {", "logical_volumes = [1]\nlogical_volumes_x {"),
+              ("seqno = ", 'seqno = "9"\nseqno_x = '),
+              ("extent_size = 2048", 'extent_size = "big"'),
+              ('status = ["READ", "WRITE", "VISIBLE"]', "status = 5"),
+              ("start_extent = 0", 'start_extent = "0"'),
+              ("pe_start = 2048", 'pe_start = "a"')]
+    held = []
+    for old_text, new_text in shapes:
+        text = good.replace(old_text, new_text, 1).encode()
+        def craft_shape(h, text=text):
+            o2, _n2, _c2, f2 = struct.unpack_from("<QQII", h, 40)
+            struct.pack_into("<QQII", h, 40, o2, len(text), lvm_crc(text), f2)
+            struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+        img = bytearray(with_header(disk, pv1, craft_shape))
+        img[pv1 + m_off + o:pv1 + m_off + o + len(text)] = text
+        try:
+            sf, _sn = lvm_volumes(io.BytesIO(bytes(img)), lvm_regions)
+            cpv = LvmPv(io.BytesIO(bytes(img)), pv1)
+            held.append(good != text.decode() and cpv.vg is None
+                        and any("metadata has" in p for p in cpv.problems)
+                        and {(a, b, c) for a, b, c, _n in sf} == want
+                        and len(volumes(io.BytesIO(bytes(img)), len(img))) >= 6)
+        except Exception:                            # pylint: disable=broad-except
+            held.append(False)
+    out.append((f"metadata that parses with a value of the wrong kind is refused and the "
+                f"other copy is used ({sum(held)} of {len(shapes)} shapes)", all(held)))
+
+    # Two partitions with the same physical volume id (a cloned disk): the first
+    # is used and the second says so.
+    twin = bytearray(disk)
+    p2 = parts["2"]
+    twin[p2:p2 + (20 << 20)] = disk[pv1:pv1 + (20 << 20)]
+    tf, tn = lvm_volumes(io.BytesIO(bytes(twin)), lvm_regions)
+    root = [b for lab, b, _s, _n in tf if lab == "LVM fixvg/root"]
+    want_root = [b for lab, b, _s in want if lab == "LVM fixvg/root"]
+    out.append(("a second partition with the same physical volume id is named and the "
+                "first is used", root == want_root
+                and any("same physical volume id" in ln for ln in tn.get(p2, []))))
+    out.append(("a snapshot is shown by the volume lvm2 lists for it",
+                _lvm_shown("snapshot0", [{"type": "snapshot", "cow_store": "snap1"}])
+                == "snap1 (stored as snapshot0)"
+                and _lvm_shown("root", [{"type": "striped"}]) == "root"))
+    named4k, _n4 = lvm_volumes(io.BytesIO(disk), lvm_regions, 4096)
+    out.append(("a logical volume's name counts the disk's sector size, as the partition "
+                "names do", {nm for _l, _b, _s, nm in named4k}
+                == {f"lvm_lba{b // 4096}_{sanitize_volume_label('fixvg_' + l.split('/')[1], 40)}"
+                    for l, b, _s in want}))
+    out.append(("a quoted string undoes only \\\" and \\\\, as lvm2 does",
+                lvm_config('a = "x\\ny\\"z\\\\"') == {"a": 'x\\ny"z\\'}))
+    try:
+        lvm_config("a = 010")
+        octal = False
+    except ValueError:
+        octal = True
+    out.append(("a number with a leading zero, which lvm2 would read as octal, is refused",
+                octal))
+    del r_off
+    return out
+
+
+def _lvm_self_checks():
+    """[(label, passed)] for the LVM2 reader, from the fixtures lvm2 wrote. A
+    absent fixture is one failed check that names it, not a silent skip."""
+    import contextlib
+    import gzip
+    import hashlib
+    import io
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    paths = {n: os.path.join(here, n) for n in ("lvm-fixture.img.gz", "lvm-wholedisk.img.gz",
+                                                "lvm-fixture.lvs.json", "lvm-fixture.sha256",
+                                                "lvm-wholedisk.pvs.json")}
+    absent = [n for n, p in paths.items() if not os.path.isfile(p)]
+    if absent:
+        # A frozen executable has no fixtures beside it: say so, as the other
+        # fixture checks do, rather than fail.
+        return [(f"the LVM fixtures are not beside this script ({', '.join(absent)}), so the "
+                 "LVM2 reader was not checked against them", None)]
+    out = []
+    with gzip.open(paths["lvm-fixture.img.gz"], "rb") as gz:
+        disk = gz.read()
+    with gzip.open(paths["lvm-wholedisk.img.gz"], "rb") as gz:
+        whole = gz.read()
+    report = json.load(open(paths["lvm-fixture.lvs.json"], encoding="utf-8"))
+    hashes = {}
+    with open(paths["lvm-fixture.sha256"], encoding="utf-8") as lf:
+        for line in lf:
+            h, name = line.rstrip("\n").split("  ", 1)
+            hashes[name] = h
+
+    # What lvm2 says: a volume is readable when its segments are linear and
+    # their extents follow one another on one partition.
+    parts = {p["node"][-1]: p["start"] * SECTOR
+             for p in report["parts"]["partitiontable"]["partitions"]}
+    pe_start = {pv["pv_name"][-1]: int(pv["pe_start"].rstrip("B")) for pv in report["pvs"]["report"][0]["pv"]}
+    segs = collections.defaultdict(list)
+    for s in report["segments"]["report"][0]["seg"]:
+        if not s["lv_name"].startswith("["):        # lvs -a shows a hidden volume in brackets
+            segs[s["lv_name"]].append(s)
+    want, declined = set(), set()
+    for lv, ss in segs.items():
+        ext = int(ss[0]["vg_extent_size"].rstrip("B"))
+        ss.sort(key=lambda s: int(s["seg_start_pe"]))
+        runs = [r for s in ss for r in s["seg_pe_ranges"].split()]
+        pvs = {r.split(":")[0][-1] for r in runs}
+        spans = [tuple(int(x) for x in r.split(":")[1].split("-")) for r in runs]
+        joined = all(spans[i][1] + 1 == spans[i + 1][0] for i in range(len(spans) - 1))
+        if all(s["segtype"] == "linear" for s in ss) and len(pvs) == 1 and joined:
+            pv = pvs.pop()
+            want.add((f"LVM fixvg/{lv}", parts[pv] + pe_start[pv] + spans[0][0] * ext,
+                      (spans[-1][1] - spans[0][0] + 1) * ext))
+        else:
+            declined.add(lv)
+    fh = io.BytesIO(disk)
+    regions = partition_regions(fh, len(disk))[0]
+    found, notes = lvm_volumes(fh, [r for r in regions if not r[0].startswith("MBR")])
+    got = {(lab, b, n) for lab, b, n, _name in found}
+    out.append((f"the logical volumes read from lvm-fixture are the ones lvm2's own report "
+                f"lays out as one run on one physical volume, at the offsets and sizes it gives "
+                f"({len(got)} of {len(want)})", got == want and len(want) == 4))
+    lines = [ln for ls in notes.values() for ln in ls]
+    not_read = {ln.split()[2].rstrip(",") for ln in lines if ": not read (" in ln}
+    reasons = " ".join(ln for ln in lines if ": not read (" in ln)
+    out.append(("the volumes lvm2 split into two runs, striped or mirrored are listed as not "
+                "read, each with why", not_read == declined == {"data", "striped", "mirror"}
+                and "not one run" in reasons and "striped across 2" in reasons
+                and "a raid1 segment" in reasons))
+    out.append(("the mirror's hidden image and metadata legs are not listed, though each is "
+                "one run on one physical volume",
+                not any("rimage" in ln or "rmeta" in ln for ln in lines)
+                and not any("rimage" in f[0] or "rmeta" in f[0] for f in found)))
+    pv_notes = [v.get("note", "") for v in volumes(io.BytesIO(disk), len(disk)) if v["kind"] == "lvm2 pv"]
+    out.append(("each physical volume's note in volumes() names the volumes not read and why",
+                len(pv_notes) == 2 and all(f"{lv}, " in n for n in pv_notes for lv in sorted(declined))
+                and all("striped across 2" in n and "a raid1 segment" in n for n in pv_notes)))
+    out.append(("both physical volumes name the volume group and both of its physical volumes",
+                sum("2 of them in this image" in ln for ln in lines) == 2))
+
+    def walk_hashes(w, node, path=""):
+        for name, child in w.listdir(node):
+            if name in (".", "..", "lost+found"):
+                continue
+            mode, size = w.entry(child)[:2]
+            rel = f"{path}/{name}" if path else name
+            if mode & S_IFMT == S_IFDIR:
+                yield from walk_hashes(w, child, rel)
+            elif mode & S_IFMT == S_IFREG:
+                yield rel, hashlib.sha256(b"".join(w.read_file(child, size))).hexdigest()
+
+    for img, tree in ((disk, {"LVM fixvg/root": "root", "LVM fixvg/onb": "onb"}),
+                      (whole, {"LVM wholevg/root": "root"})):
+        vols = volumes(io.BytesIO(img), len(img))
+        seen = {v["label"] for v in vols}
+        out.append((f"volumes() lists {', '.join(sorted(tree))} with a walker",
+                    all(any(v["label"] == lab and v.get("walker") for v in vols) for lab in tree)
+                    and set(tree) <= seen))
+        for v in vols:
+            if v["label"] not in tree:
+                continue
+            top = tree[v["label"]]
+            try:
+                gotf = {f"{top}/{p}": h for p, h in walk_hashes(v["walker"], v["walker"].root)}
+            except Exception:                        # pylint: disable=broad-except
+                gotf = {}
+            wantf = {k: h for k, h in hashes.items() if k.startswith(top + "/")}
+            out.append((f"every file of {v['label']} ({v['kind']}) matches what sha256sum "
+                        f"recorded over its source tree ({len(gotf)} of {len(wantf)})",
+                        bool(wantf) and gotf == wantf))
+
+    # The report main() prints names each logical volume read, with its kind.
+    import shutil
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix="qnxprobe-lvm-")       # the form the CI fixture step replaces
+    try:
+        path = os.path.join(tmp, "lvm-fixture.img")
+        with open(path, "wb") as f:
+            f.write(disk)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            main(path)
+        text = buf.getvalue()
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    out.append(("the report lists each logical volume read, identified as ext4 where it is",
+                all(f"{lab}   " in text for lab, _b, _n in want)
+                and "LVM fixvg/root   6.0 MiB   ->  ext4" in text
+                and "->  lvm2 pv" in text))
+
+    # Metadata that wraps past the end of its area continues just after the
+    # area's header (format-text.c). Move the first PV's text to straddle the end.
+    pv_at = parts["1"]
+    mda = struct.unpack_from("<QQ", disk, pv_at + SECTOR + 32 + 40 + 16 * 2)
+    m_off, m_size = mda
+    head = bytearray(disk[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+    r_off, r_size, csum, flags = struct.unpack_from("<QQII", head, 40)
+    text_b = disk[pv_at + m_off + r_off:pv_at + m_off + r_off + r_size]
+    wrapped = bytearray(disk)
+    new_off = m_size - r_size // 2
+    first = m_size - new_off
+    wrapped[pv_at + m_off + new_off:pv_at + m_off + m_size] = text_b[:first]
+    wrapped[pv_at + m_off + LVM_MDA_HEADER_SIZE:pv_at + m_off + LVM_MDA_HEADER_SIZE + r_size - first] = text_b[first:]
+    struct.pack_into("<QQII", head, 40, new_off, r_size, csum, flags)
+    struct.pack_into("<I", head, 0, lvm_crc(bytes(head[4:])))
+    wrapped[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = head
+    try:
+        wpv = LvmPv(io.BytesIO(bytes(wrapped)), pv_at)
+        wrap_ok = wpv.vg is not None and wpv.vg[0] == "fixvg" and not wpv.problems
+    except ValueError:
+        wrap_ok = False
+    out.append(("metadata text that wraps past the end of its area is read from the area's "
+                "start, just after its header", wrap_ok))
+
+    # A damaged copy on one physical volume: the other's copy still gives the
+    # volume group, and the damage is said.
+    bad = bytearray(disk)
+    bad[pv_at + m_off + r_off + 10] ^= 0xFF
+    bfound, bnotes = lvm_volumes(io.BytesIO(bytes(bad)), [r for r in regions if not r[0].startswith("MBR")])
+    out.append(("a metadata copy whose checksum fails is reported, and the other physical "
+                "volume's copy still gives every volume",
+                {(a, b, c) for a, b, c, _n in bfound} == want
+                and any("metadata text checksum does not match" in ln for ln in bnotes[pv_at])))
+    # An older copy of the metadata (a lower seqno, without the volume onb) on
+    # either physical volume: the newest copy, on the other, decides, whichever
+    # of the two is read first.
+    for which in ("1", "2"):
+        older = _lvm_older_copy(disk, parts[which], m_off)
+        ofound, _on = lvm_volumes(io.BytesIO(older), [r for r in regions if not r[0].startswith("MBR")])
+        spv = LvmPv(io.BytesIO(older), parts[which])
+        out.append((f"an older metadata copy (seqno 1, without onb) on physical volume {which} "
+                    "gives way to the newest on the other",
+                    spv.vg is not None and spv.vg[2] == 1
+                    and {(a, b, c) for a, b, c, _n in ofound} == want))
+    # A physical volume never added to a volume group has an area with no
+    # metadata in it: no volume group, and nothing wrong to report.
+    empty = bytearray(disk)
+    eh = bytearray(disk[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+    eh[40:64] = bytes(24)
+    struct.pack_into("<I", eh, 0, lvm_crc(bytes(eh[4:])))
+    empty[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = eh
+    epv = LvmPv(io.BytesIO(bytes(empty)), pv_at)
+    out.append(("a physical volume whose metadata area holds nothing yet has no volume group "
+                "and no problem", epv.vg is None and not epv.problems))
+    try:
+        lvm_config("a = 1\n;")
+        junk_ok = False
+    except ValueError:
+        junk_ok = True
+    out.append(("text left over that is no token is refused, not dropped", junk_ok))
+    out.append(("a comment after a value, its last word a number, is not read as a value",
+                lvm_config('a = 1\t# Wed Oct 14 10:00:31 2026\nb {\nc = "x" # 7\n}\n')
+                == {"a": 1, "b": {"c": "x"}}))
+    out.append(("a volume whose segments leave a gap in it is not read",
+                _lvm_linear_run([{"type": "striped", "stripe_count": 1, "start_extent": 0,
+                                  "extent_count": 2, "stripes": ["pv0", 0]},
+                                 {"type": "striped", "stripe_count": 1, "start_extent": 3,
+                                  "extent_count": 1, "stripes": ["pv0", 2]}],
+                                {"pv0": (0, 0, 0)}, {"pv0"}, 1 << 20)[0]
+                == "its segments leave a gap in the volume"))
+    return out + _lvm_hostile_checks(disk, whole, regions, want, paths, parts, m_off, r_off)
+
+
 def identify_fs(fh, base, size=None):
     """Return (name, [detail lines]) for whatever sits at this partition.
 
@@ -13070,6 +13889,14 @@ def identify_fs(fh, base, size=None):
         found = ident(fh, base, size)
         if found:
             return found
+
+    # An LVM2 physical volume: a label lvm2 itself would accept (the sector it
+    # names and its checksum must hold), and either a metadata area header that
+    # checks out or a volume group elsewhere in the image that names it. Its logical volumes are regions of their own (lvm_volumes), so the
+    # PV itself is reported, not walked.
+    found = identify_lvm(fh, base, size)
+    if found:
+        return found
 
     # BitLocker before the rest: its header is a FAT32 boot sector in all but its
     # signature and identifier (so identify_fat would take it for an empty FAT32
@@ -13602,16 +14429,10 @@ def raw_flash_layout(fh, size):
     return [] if kind else flash_regions(fh, size)
 
 
-def partition_regions(fh, size):
-    """(regions, names, containers, protective) for an image, as main() sees them.
-
-    regions is [(label, base, size)] in report order: MBR primaries, then the
-    logical volumes found by walking the EBR chain, then GPT entries, or the
-    whole image as one region when no table is present. names maps a region's
-    byte offset to the directory an extraction uses (volume_name); containers
-    holds the labels of extended partition containers, which hold the logical
-    volumes and are not themselves volumes; protective holds the 0xEE entry a
-    GPT disk carries in its MBR.
+def table_regions(fh):
+    """(regions, names, containers, protective, sector size) from the image's
+    partition tables alone: MBR primaries, the logical volumes of the EBR chain
+    and GPT entries. Reads no filesystem, so an identifier may call it.
     """
     regions, names = [], {}
     containers, protective = set(), set()
@@ -13652,6 +14473,21 @@ def partition_regions(fh, size):
             sz = (last - first + 1) * ss
             regions.append((f"GPT part {idx} {name[:20]}", first * ss, sz))
             names[first * ss] = volume_name(idx, first, name)
+    return regions, names, containers, protective, ss
+
+
+def partition_regions(fh, size):
+    """(regions, names, containers, protective) for an image, as main() sees them.
+
+    regions is [(label, base, size)] in report order: MBR primaries, then the
+    logical volumes found by walking the EBR chain, then GPT entries, or the
+    whole image as one region when no table is present. names maps a region's
+    byte offset to the directory an extraction uses (volume_name); containers
+    holds the labels of extended partition containers, which hold the logical
+    volumes and are not themselves volumes; protective holds the 0xEE entry a
+    GPT disk carries in its MBR.
+    """
+    regions, names, containers, protective, ss = table_regions(fh)
     if not regions:
         flash = raw_flash_layout(fh, size)
         for label, base, rsize in flash:
@@ -13660,6 +14496,13 @@ def partition_regions(fh, size):
         if not flash:
             regions.append(("whole image", 0, size))
             names[0] = volume_name(None, 0)
+    # The linear logical volumes of any LVM2 physical volume among them are
+    # regions too, each a byte range of the image (lvm_volumes).
+    lvs, _notes = lvm_volumes(fh, [r for r in regions
+                                   if r[0] not in containers and r[0] not in protective], ss)
+    for label, base, rsize, name in lvs:
+        regions.append((label, base, rsize))
+        names[base] = name
     return regions, names, containers, protective
 
 
@@ -13767,6 +14610,14 @@ def volumes(fh, size=None):
                 vol["walker"] = ExtWalker(fh, base)
             elif kind == "QNX IFS boot image":
                 vol["walker"] = IfsWalker(fh, base)
+            elif kind == "lvm2 pv":
+                # The logical volumes not read are said here too, where a caller
+                # that prints only the note (the LEAPP run log) will show them.
+                skipped = [ln[len("logical volume "):].replace(": not read (", " (", 1) for ln in lines
+                           if ln.startswith("logical volume ") and ": not read (" in ln]
+                vol["note"] = ("an LVM2 physical volume: each logical volume read from it "
+                               "is listed as a volume of its own"
+                               + ("; not read: " + "; ".join(skipped) if skipped else ""))
             elif kind:
                 vol["walker"] = walker_for(kind, fh, base, rsize)
                 if vol["walker"] is None:
@@ -14092,6 +14943,19 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                 sized_regions.append(("whole image", 0, size))
                 regions.append(("whole image", 0))
                 vol_names[0] = volume_name(None, 0)
+
+        # An LVM2 physical volume's linear logical volumes, each one run of
+        # extents on one physical volume here, are byte ranges of the image like
+        # partitions, so they are reported and read as regions of their own.
+        lvs, _notes = lvm_volumes(fh, [r for r in sized_regions
+                                       if r[0] not in containers and r[0] not in protective], ss)
+        if lvs:
+            print(f"\n  LVM      {len(lvs)} logical volume(s) read from LVM2 physical volumes")
+            for label, base, rsize, name in lvs:
+                print(f"    {label[len('LVM '):]:<26} {human(rsize):>10}  at byte {base:,}")
+                sized_regions.append((label, base, rsize))
+                regions.append((label, base))
+                vol_names[base] = name
 
         # A partition table describes a whole disk and the file may hold only
         # the front of it. FTK Imager and its peers split a raw image into
@@ -19319,6 +20183,22 @@ def self_test():
                   + (f", {emiss} missing" if emiss else "")
                   + (f", {ediff} different" if ediff else "") + ")" + ebroke)
 
+        # LVM2: lvm2's own tools wrote the fixtures, and lvm2's own report (lvs,
+        # pvs, saved beside them as lvm-fixture.lvs.json) is the layout they are
+        # checked against; the file hashes come from sha256sum over the source
+        # trees (tools/make_lvm_fixtures.sh).
+        try:
+            lvm_checks = _lvm_self_checks()
+        except Exception as exc:                     # pylint: disable=broad-except
+            lvm_checks = [(f"the LVM2 checks ran ({type(exc).__name__}: {exc})", False)]
+        for label, cond in lvm_checks:
+            if cond is None:
+                print(f"  [SKIP] {label}")
+                continue
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
         # GPT at 512 and 4096 bytes a sector. A 4Kn drive or a UFS LUN image
         # keeps its GPT header at byte 4096 and counts every LBA in 4096-byte
         # sectors; read as 512 it shows no partition table at all. The same
@@ -21997,7 +22877,8 @@ if __name__ == "__main__":
                     "APFS filesystems, the Linux flash filesystems SquashFS, JFFS2, "
                     "UBI/UBIFS and YAFFS1/YAFFS2, QNX IFS boot images, and the U-Boot "
                     "environment and Belkin libnvram stores a flash chip carries, out of "
-                    "raw disk images and flash dumps: identify each by its own "
+                    "raw disk images and flash dumps, the linear logical volumes of an "
+                    "LVM2 physical volume included: identify each by its own "
                     "on-disk structure rather "
                     "than trusting a partition type byte, list, and extract to a "
                     "zip with a provenance manifest. No mounting, no admin "
