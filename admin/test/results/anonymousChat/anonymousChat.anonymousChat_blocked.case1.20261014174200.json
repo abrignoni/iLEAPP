@@ -9,16 +9,16 @@
     "total_data_size_bytes": 158,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\anonymousChat\\testdata.anonymousChat.anonymousChat_blocked.case1.zip",
-    "start_time": "2026-09-13T00:32:15.852327+00:00",
-    "end_time": "2026-09-13T00:32:15.900329+00:00",
-    "run_time_seconds": 0.0009992122650146484,
+    "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_blocked.case1.zip",
+    "start_time": "2026-10-14T17:42:00.879534+00:00",
+    "end_time": "2026-10-14T17:42:00.896146+00:00",
+    "run_time_seconds": 0.0005469322204589844,
     "last_commit": {
-      "hash": "deffba633ac65c8783ae9fb31289cfd07ce8c714",
+      "hash": "0344668234d15268347123c40cc2de147c186acf",
       "author_name": "Darren",
-      "author_email": "N/A",
-      "date": "2026-09-13T01:28:11+01:00",
-      "message": "Address Anonymous Chat maintainer review"
+      "author_email": "19848044+darren33@users.noreply.github.com",
+      "date": "2026-10-08T19:09:49+01:00",
+      "message": "Prevent filename-only Anonymous Chat media joins"
     }
   },
   "headers": [

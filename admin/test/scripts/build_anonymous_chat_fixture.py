@@ -1,24 +1,30 @@
-"""Build a shareable Anonymous Chat iLEAPP test fixture.
+"""Build a synthetic Anonymous Chat & Fun extraction for iLEAPP tests.
 
-The fixture contains synthetic SQLite/plist/JSON metadata only.  It contains no
-casework and no media payloads.  Media-manager behavior is covered separately by
-the metadata-only smoke test, where the manager is mocked.
+Every value is invented. The images are 1x1 PNGs written here. The layout follows
+the paths the module reads; the field values do not come from a real device.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import plistlib
 import sqlite3
+import struct
 import zipfile
+import zlib
+from contextlib import closing
 from pathlib import Path
 
 
 DATA_UUID = '11111111-1111-4111-8111-111111111111'
 BUNDLE_UUID = '22222222-2222-4222-8222-222222222222'
-PHOTO_UUID = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'
 BASE_TIME = 1770000000
+CACHED_URL = 'https://example.invalid/synthetic/photo.png'
+UNCACHED_URL = 'https://example.invalid/synthetic/missing.jpg'
+UNREFERENCED_URL = 'https://example.invalid/synthetic/never-stored.png'
+SDIMAGECACHE = 'Library/Caches/com.hackemist.SDImageCache/default'
 
 DATA_ROOT = Path(
     'private/var/mobile/Containers/Data/Application'
@@ -26,6 +32,21 @@ DATA_ROOT = Path(
 BUNDLE_ROOT = Path(
     'private/var/containers/Bundle/Application'
 ) / BUNDLE_UUID
+
+
+def png(tag: int) -> bytes:
+    """A valid 1x1 RGB PNG whose single pixel is (tag, 0, 0)."""
+    def chunk(kind, data):
+        return (struct.pack('>I', len(data)) + kind + data +
+                struct.pack('>I', zlib.crc32(kind + data)))
+    return (b'\x89PNG\r\n\x1a\n' +
+            chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0)) +
+            chunk(b'IDAT', zlib.compress(bytes([0, tag, 0, 0]))) + chunk(b'IEND', b''))
+
+
+def cache_name(url: str) -> str:
+    """SDWebImage's default disk-cache file name: MD5 of the URL plus its extension."""
+    return hashlib.md5(url.encode('utf-8')).hexdigest() + '.' + url.rsplit('.', 1)[1]
 
 
 def write_plist(path: Path, values: dict) -> None:
@@ -36,7 +57,7 @@ def write_plist(path: Path, values: dict) -> None:
 
 def build_database(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(path) as db:
+    with closing(sqlite3.connect(path)) as db:
         db.executescript(
             '''
             CREATE TABLE conversations (
@@ -118,8 +139,8 @@ def build_database(path: Path) -> None:
                 (
                     'message-1', 'conversation-1', 'UUID-OUT',
                     'Synthetic outgoing message',
-                    'https://example.invalid/synthetic/photo.png',
-                    'image/png', 'image', 1234, None, 'cache', '1', None,
+                    CACHED_URL,
+                    'image/png', 'image', len(png(1)), None, 'cache', '1', None,
                     None, None, None, None, None,
                     BASE_TIME, 0, 'local.synthetic', BASE_TIME,
                 ),
@@ -131,12 +152,10 @@ def build_database(path: Path) -> None:
                     BASE_TIME + 1, 1, 'remote.synthetic', BASE_TIME + 1,
                 ),
                 (
-                    'message-3', 'conversation-1', 'UUID-PHOTO',
-                    'Synthetic Photos-linked metadata message',
-                    None, 'image/png', 'image', 5678, None, 'photos', '1', None,
-                    None, None, None, json.dumps({
-                        'media_id': f'ph://{PHOTO_UUID}/L0/001',
-                    }, separators=(',', ':')), None,
+                    'message-3', 'conversation-1', 'UUID-MEDIA',
+                    'Synthetic media message with no cached file',
+                    UNCACHED_URL, 'image/jpeg', 'image', 5678, None, 'cache', '1', None,
+                    None, None, None, None, None,
                     BASE_TIME + 2, 1, 'remote.synthetic', BASE_TIME + 2,
                 ),
             ],
@@ -147,8 +166,9 @@ def build_database(path: Path) -> None:
         )
         db.execute(
             'INSERT INTO media VALUES (?, ?, ?, ?)',
-            (f'ph://{PHOTO_UUID}/L0/001', 'SYNTH001.PNG', None, BASE_TIME + 2),
+            ('media-1', 'SYNTH001.PNG', None, BASE_TIME + 2),
         )
+        db.commit()
 
 
 def build_fixture(output_root: Path) -> Path:
@@ -205,16 +225,19 @@ def build_fixture(output_root: Path) -> Path:
         },
     )
 
-    photos_path = output_root / 'private/var/mobile/Media/PhotoData/Photos.sqlite'
-    photos_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(photos_path) as db:
-        db.execute(
-            'CREATE TABLE ZASSET (ZUUID TEXT, ZDIRECTORY TEXT, ZFILENAME TEXT)'
-        )
-        db.execute(
-            'INSERT INTO ZASSET VALUES (?, ?, ?)',
-            (PHOTO_UUID, 'DCIM/100APPLE', 'SYNTH001.PNG'),
-        )
+    media = {
+        # Linked: named for message-1's stored URL.
+        DATA_ROOT / SDIMAGECACHE / cache_name(CACHED_URL): png(1),
+        # In the cache, but no message stores its URL.
+        DATA_ROOT / SDIMAGECACHE / cache_name(UNREFERENCED_URL): png(2),
+        # Same size as the linked file, outside the cache: must never be linked.
+        DATA_ROOT / 'Documents/decoy.png': png(3),
+        # Ships inside the app bundle: must never be reported.
+        BUNDLE_ROOT / 'AnonimChat.app/icon.png': png(4),
+    }
+    for relative, payload in media.items():
+        (output_root / relative).parent.mkdir(parents=True, exist_ok=True)
+        (output_root / relative).write_bytes(payload)
 
     with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
         for path in sorted(output_root.rglob('*')):

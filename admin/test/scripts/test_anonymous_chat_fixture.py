@@ -1,8 +1,9 @@
-"""Prove sample archives match a fresh metadata-only build, without case inputs."""
+"""Prove the committed test-case archives match a fresh build of the synthetic fixture."""
 
 import importlib.util
 import sqlite3
 import tempfile
+from contextlib import closing
 import unittest
 import zipfile
 from pathlib import Path
@@ -19,7 +20,7 @@ def sqlite_snapshot(payload, root, name):
     """Compare SQLite schema/data while ignoring version-specific header bytes."""
     path = root / name.replace('/', '_').replace('\\', '_')
     path.write_bytes(payload)
-    with sqlite3.connect(path) as db:
+    with closing(sqlite3.connect(path)) as db:
         tables = [row[0] for row in db.execute(
             "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name")]
         snapshot = []
@@ -37,8 +38,8 @@ class AnonymousChatFixtureTests(unittest.TestCase):
             generated = BUILDER.build_fixture(Path(root) / 'extraction')
             with zipfile.ZipFile(generated) as archive:
                 fresh = {name: archive.read(name) for name in archive.namelist()}
-            self.assertEqual(len(fresh), 8)
-            self.assertTrue(all(Path(name).suffix in ('.db', '.sqlite', '.json', '.plist')
+            self.assertEqual(len(fresh), 11)
+            self.assertTrue(all(Path(name).suffix in ('.db', '.json', '.plist', '.png')
                                 for name in fresh))
             case_dir = HERE.parent / 'cases/data/anonymousChat'
             if not case_dir.is_dir():
