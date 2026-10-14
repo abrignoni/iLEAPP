@@ -46,8 +46,7 @@ def routinedParkedCar(context):
     data_headers = (('Event DateTime', 'datetime'), ('Location DateTime', 'datetime'),
                     'Latitude', 'Longitude', 'Uncertainty (as stored)', 'Identifier',
                     'Vehicle Identifier', 'Notes', 'User Set Location (as stored)',
-                    'Usual Location (as stored)', 'Location Quality (as stored)', 'Table',
-                    'Source File')
+                    'Usual Location (as stored)', 'Location Quality (as stored)', 'Table')
     data_list = []
     sources = [str(f) for f in context.get_files_found() if str(f).endswith('.sqlite')]
     for db in sources:
@@ -63,5 +62,5 @@ def routinedParkedCar(context):
             '''))
             for r in rows:
                 data_list.append((_utc(r[0]), _utc(r[1]), r[2], r[3], r[4], r[5], r[6], r[7],
-                                  r[8], r[9], r[10], table, context.get_relative_path(db)))
+                                  r[8], r[9], r[10], table))
     return data_headers, data_list, '\n'.join(sources)
