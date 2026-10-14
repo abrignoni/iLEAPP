@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "module_name": "bumble",
+    "artifact_name": "Bumble - Account Details",
+    "function_name": "bumbleAccount",
+    "case_number": "abe_ios16",
+    "number_of_columns": 2,
+    "number_of_rows": 6,
+    "total_data_size_bytes": 198,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/bumble/testdata.bumble.bumbleAccount.abe_ios16.zip",
+    "start_time": "2026-10-14T18:32:16.546569+00:00",
+    "end_time": "2026-10-14T18:32:16.567884+00:00",
+    "run_time_seconds": 0.0009698867797851562,
+    "last_commit": {
+      "hash": "71ba77434a9d0b21f979a037001625d310407788",
+      "author_name": "Frahm",
+      "author_email": "christian.frahm@iacis.com",
+      "date": "2026-10-14T13:43:47-04:00",
+      "message": "Adapt bumble.py for LAVA conversation view (#2317)"
+    }
+  },
+  "headers": [
+    "Key",
+    "Value"
+  ],
+  "data": [
+    [
+      "User ID",
+      "zAhMACjE3NTQ1MzM2NTMAICDXvL4m21imwKptlspiN7BXt6854JXX56aBbVLoKGGw"
+    ],
+    [
+      "User Name",
+      "Abe"
+    ],
+    [
+      "Timestamp",
+      "2023-06-08 06:28:36+00:00"
+    ],
+    [
+      "Last Latitude",
+      34.24137876576038
+    ],
+    [
+      "Last Longitude",
+      -77.95110748234835
+    ],
+    [
+      "App Version",
+      "5.315.0"
+    ]
+  ]
+}
