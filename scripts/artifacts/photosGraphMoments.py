@@ -1,9 +1,10 @@
 __artifacts_v2__ = {
     "photosGraphMoments": {
         "name": "Photos Graph Moment Locations (photosgraph.kgdb)",
-        "description": "Moments (groups of photos) linked to a place in the Photos app's knowledge "
-                       "graph (photosgraph.kgdb): the moment's start and end times, coordinates and "
-                       "photo count, the place's address and coordinates, and the moment's identifier.",
+        "description": "Places the Photos app's knowledge graph (photosgraph.kgdb) links a moment "
+                       "(a group of photos) to: the time window, coordinates and photo count the link "
+                       "records, the place's name and coordinates, the moment's identifier, and the "
+                       "moment's located photos captured inside that window.",
         "author": "Heather Charpentier, Claude",
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-14",
@@ -11,49 +12,64 @@ __artifacts_v2__ = {
         "category": "Photos",
         "notes": "The graph is a generic store of nodes (things such as a moment or an address), "
                  "edges (links between two nodes) and named attributes on either (Attribute, "
-                 "NodeValue, EdgeValue). Each row is an edge that carries lat and lng attributes: "
-                 "times, coordinates and count are its utcs, utce, lat, lng and noa; the moment "
-                 "identifier is the lclid of the node it starts from; the address and its "
-                 "coordinates are the name, lat and lng of the node it points to. Column meanings "
-                 "come from the attribute names and from cross-checks, not from Apple documentation. "
-                 "utcs / utce are Unix seconds. Checked "
-                 "against the hc_ios18_7 extraction (iPhone XS, iOS 18.7.8): 6 edges carry lat / lng; "
-                 "for each, the source node's lclid equals a ZMOMENT.ZUUID in Photos.sqlite, utcs and "
-                 "utce equal that moment's ZSTARTDATE and ZENDDATE to the second, noa equals its "
-                 "ZCACHEDCOUNT and the number of located ZASSET rows in that window, and the edge "
-                 "coordinates equal its ZAPPROXIMATELATITUDE / LONGITUDE in 4 cases; in the other 2 "
-                 "the moment stores -180 (no location) and the graph edge carries coordinates. The "
-                 "target node's name was an address and its coordinates were within about 75 m of the "
-                 "edge's. The moments are groups of photos in the library, which may not have been "
-                 "taken on this device; a row does not establish that the device was at the location. "
-                 "Moment approximate locations are also reported per asset by the Photos "
-                 "REFforAssetAnalysis artifacts; this artifact adds the address and the coordinates "
-                 "where ZMOMENT has none. The Photos column lists, in capture order, the "
-                 "ZDIRECTORY / ZFILENAME of every ZASSET row in Photos.sqlite whose ZMOMENT is the "
-                 "ZMOMENT row with that identifier (ZMOMENT.ZUUID = lclid); it is empty when "
-                 "Photos.sqlite is not in the extraction. The Photo Media column attaches a listed "
-                 "photo only when exactly one file exists at its stored ZDIRECTORY / ZFILENAME inside "
-                 "the same Media folder as the Photos.sqlite being read, and that file's size equals "
-                 "the ZORIGINALFILESIZE Photos.sqlite stored for the photo; any other file is not "
-                 "attached and the Photo Check column names it and why. This matches by stored path "
-                 "and size; it does not prove the file's content, because no file hash is compared "
-                 "(ZORIGINALHASH was empty for every asset on the test image). A HEIC / HEIF still is "
-                 "attached as a JPEG copy made for the report, so a browser can show it, as the "
-                 "photosDbexif artifact does; the original file is not changed. On hc_ios18_7 every "
-                 "moment's identifier matched a ZMOMENT row, the number of photos listed equalled "
-                 "the graph's count, and all 18 listed files matched path and size and were "
-                 "attached. "
-                 "Not covered: edges and nodes without lat / lng (scenes, "
-                 "people, dates and the other graph labels) and the tombstone tables. Reference: "
-                 "Cellebrite, 'Was it actually there? Locations Cheat Sheet' (May 2026), Media: "
-                 "photosgraph.kgdb.",
+                 "NodeValue, EdgeValue). Each row is an edge that carries a lat attribute (every such "
+                 "edge on the extractions checked also carried lng): "
+                 "the times, coordinates and count are its utcs, utce (Unix seconds), lat, lng and noa; "
+                 "the moment identifier is the lclid of the node it starts from; the Address column is "
+                 "the name attribute of the node it points to and its coordinates are that node's lat "
+                 "and lng. No source says the name is an address: most names on the extractions "
+                 "checked carry a street number and some do not. Column meanings "
+                 "come from the attribute names and from cross-checks against Photos.sqlite, not from "
+                 "Apple documentation. A moment can link to more than one place, one row each, so a "
+                 "Moment Identifier can repeat. "
+                 "Checked on 19 extractions (iOS 15 to 26; 16 hold located edges, 3 hold no lat "
+                 "attribute and give no rows): 751 moments counted per extraction (745 distinct "
+                 "identifiers, 6 present in two extractions of the same device), 674 with one place, "
+                 "64 with two, 11 with three, 2 with four. Every edge's lclid matched a ZMOMENT.ZUUID and its utcs to utce "
+                 "window lay inside that moment's ZSTARTDATE to ZENDDATE; the window equalled the "
+                 "moment's span for 561 of the 674 one-place moments and for one edge in 3 of the 77 "
+                 "others (where the other place's window lies inside it). This is consistent with utcs "
+                 "and utce being the time span of the photos at that place rather than of the whole "
+                 "moment; no source states this. "
+                 "The Photos column lists, in capture order, the ZDIRECTORY / ZFILENAME of the "
+                 "moment's ZASSET rows whose ZDATECREATED falls inside the edge's utcs to utce window "
+                 "and whose ZLATITUDE is not -180 (the stored value the other iLEAPP Photos artifacts "
+                 "treat as no location; a source for what -180 marks was not found). This is a match "
+                 "on time, not a link the artifact reads from the store: no column read here names "
+                 "which photo belongs to which place. On the 19 "
+                 "extractions the photos listed this way equalled noa for 824 of 843 edges; for the "
+                 "other 19 the window held more located photos than noa (5 of them overlap another "
+                 "place's window in the same moment). When the counts differ the photos are listed but "
+                 "not attached, and Photo Check says so. "
+                 "When they agree, the Photo Media column attaches a listed photo only when exactly "
+                 "one file exists at its stored ZDIRECTORY / ZFILENAME (compared without regard to "
+                 "letter case) inside the same Media folder as "
+                 "the Photos.sqlite being read, and that file's size equals the ZORIGINALFILESIZE "
+                 "Photos.sqlite stored for it; any other photo is not attached and Photo Check names it "
+                 "and why. That match is by path and size and does not prove the file's content: no "
+                 "file hash is compared. A HEIC / HEIF still is attached as a JPEG copy made for the "
+                 "report, as the photosDbexif artifact does; the original file is not changed. The "
+                 "Photos columns are empty when Photos.sqlite is not in the extraction. "
+                 "The moments are groups of photos in the library, which may not have been taken on "
+                 "this device; a row does not establish that the device was at the place. Moment "
+                 "approximate locations are also reported per asset by the Photos REFforAssetAnalysis "
+                 "artifacts. Not covered: edges and nodes without lat / lng (scenes, people, dates "
+                 "and the other graph labels) and the tombstone tables. Reference: Cellebrite, 'Was it "
+                 "actually there? Locations Cheat Sheet' (May 2026), Media: photosgraph.kgdb.",
         "paths": ('*/PhotoData/Caches/GraphService/PhotosGraph/photosgraph.kgdb*',
                   '*/mobile/Media/PhotoData/Photos.sqlite*',
                   '*/mobile/Media/DCIM/*/*'),
         "output_types": ["html", "tsv", "lava", "kml", "timeline"],
         "artifact_icon": "photo",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 309 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 189 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
             "hc_ios18_7": "iOS 18.7.8 | 6 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | 195 rows",
         }
     }
 }
@@ -77,8 +93,8 @@ def _attach(path, name):
     so a browser can show it (as photosDbexif does); the original stays in the extraction."""
     if str(path).upper().endswith(('.HEIC', '.HEIF')):
         try:
-            with io.BytesIO() as buf:
-                Image.open(path).save(buf, format='JPEG')
+            with io.BytesIO() as buf, Image.open(path) as image:
+                image.save(buf, format='JPEG')
                 return check_in_embedded_media(path, buf.getvalue(), f'{name}.jpg',
                                                force_type='image/jpeg', force_extension='jpg')
         except (OSError, ValueError) as ex:
@@ -120,8 +136,13 @@ def _resolve(media_root, found, relative, stored_size):
     return hits[0], None
 
 
+NO_LOCATION = -180          # ZASSET.ZLATITUDE of a photo with no location
+COCOA_EPOCH = 978307200     # ZDATECREATED is seconds since 2001-01-01 UTC
+
+
 def _photos_by_moment(photos_db):
-    """{ZMOMENT.ZUUID: [(ZDIRECTORY/ZFILENAME, ZORIGINALFILESIZE), ...]} in capture order."""
+    """{ZMOMENT.ZUUID: [(ZDIRECTORY/ZFILENAME, ZORIGINALFILESIZE, capture time in Unix seconds,
+    located), ...]} in capture order."""
     out = {}
     if not photos_db or not (does_table_exist_in_db(photos_db, 'ZASSET')
                              and does_table_exist_in_db(photos_db, 'ZMOMENT')):
@@ -130,15 +151,26 @@ def _photos_by_moment(photos_db):
                  if does_table_exist_in_db(photos_db, 'ZADDITIONALASSETATTRIBUTES') else '')
     size_col = 'ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE' if size_join else 'NULL'
     rows = get_sqlite_db_records(photos_db, null_absent_columns(photos_db, f'''
-        SELECT ZMOMENT.ZUUID, ZASSET.ZDIRECTORY, ZASSET.ZFILENAME, {size_col}
+        SELECT ZMOMENT.ZUUID, ZASSET.ZDIRECTORY, ZASSET.ZFILENAME, {size_col},
+               ZASSET.ZDATECREATED, ZASSET.ZLATITUDE
         FROM ZASSET JOIN ZMOMENT ON ZMOMENT.Z_PK = ZASSET.ZMOMENT
         {size_join}
         ORDER BY ZASSET.ZDATECREATED, ZASSET.Z_PK
     '''))
-    for uuid, directory, filename, size in rows:
+    for uuid, directory, filename, size, created, latitude in rows:
         if uuid and filename:
-            out.setdefault(uuid, []).append((f'{directory}/{filename}' if directory else filename, size))
+            out.setdefault(uuid, []).append((
+                f'{directory}/{filename}' if directory else filename, size,
+                created + COCOA_EPOCH if created is not None else None,
+                latitude is not None and latitude != NO_LOCATION))
     return out
+
+
+def _in_window(entries, start, end):
+    """The located photos captured inside the edge's utcs to utce window (both ends included)."""
+    if start is None or end is None:
+        return []
+    return [e for e in entries if e[3] and e[2] is not None and start <= e[2] <= end]
 
 
 def _unix_utc(value):
@@ -170,7 +202,7 @@ def photosGraphMoments(context):
     data_headers = (('Start DateTime (utcs)', 'datetime'), ('End DateTime (utce)', 'datetime'),
                     'Latitude', 'Longitude', 'Photo Count (noa, as stored)', 'Address (as stored)',
                     'Address Latitude', 'Address Longitude', 'Moment Identifier (lclid)',
-                    'Relevance (as stored)', 'Photos (from Photos.sqlite)', 'Photo Check',
+                    'Relevance (as stored)', 'Photos in Window (from Photos.sqlite)', 'Photo Check',
                     ('Photo Media', 'media'))
     data_list = []
     found = [str(f) for f in context.get_files_found()]
@@ -179,14 +211,26 @@ def photosGraphMoments(context):
     photos = _photos_by_moment(photos_db)
     media_root = _media_root(photos_db) if photos_db else None
 
-    def media(entries):
-        """(media refs or None, check text) for one moment's photos."""
+    attached = {}               # one check-in (and HEIC conversion) per photo across rows
+
+    def media(entries, noa):
+        """(media refs or None, check text) for the photos listed on one row."""
+        if not photos_db:
+            return None, None
+        if noa is None:
+            return None, (f'located photos in the window: {len(entries)}, the graph records no count; '
+                          'not attached')
+        if len(entries) != noa:
+            return None, (f'located photos in the window: {len(entries)}, the graph counts {noa}; '
+                          'not attached because the counts differ')
         if not entries:
             return None, None
         refs, problems = [], []
-        for relative, stored_size in entries:
-            path, reason = _resolve(media_root, found, relative, stored_size)
-            ref = _attach(path, relative) if path else None
+        for relative, stored_size, _created, _located in entries:
+            if relative not in attached:
+                path, reason = _resolve(media_root, found, relative, stored_size)
+                attached[relative] = (_attach(path, relative) if path else None, reason)
+            ref, reason = attached[relative]
             if ref:
                 refs.append(ref)
             else:
@@ -217,8 +261,9 @@ def photosGraphMoments(context):
                 edge = _values(db, 'EdgeValue', edge_id, edge_wanted)
                 moment = _values(db, 'NodeValue', source_node, node_wanted)
                 place = _values(db, 'NodeValue', target_node, node_wanted)
-                entries = photos.get(moment.get('lclid'), [])
-                refs, check = media(entries)
+                entries = _in_window(photos.get(moment.get('lclid'), []),
+                                     edge.get('utcs'), edge.get('utce'))
+                refs, check = media(entries, edge.get('noa'))
                 data_list.append((_unix_utc(edge.get('utcs')), _unix_utc(edge.get('utce')),
                                   edge.get('lat'), edge.get('lng'), edge.get('noa'),
                                   place.get('name'), place.get('lat'), place.get('lng'),

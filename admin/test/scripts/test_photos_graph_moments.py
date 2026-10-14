@@ -82,12 +82,16 @@ class PhotosGraphMomentsTest(unittest.TestCase):
         return _write(folder / 'Photos.sqlite', [
             ('CREATE TABLE ZMOMENT (Z_PK INTEGER PRIMARY KEY, ZUUID TEXT)', ()),
             ('CREATE TABLE ZASSET (Z_PK INTEGER PRIMARY KEY, ZMOMENT INTEGER, ZDATECREATED REAL, '
-             'ZDIRECTORY TEXT, ZFILENAME TEXT)', ()),
+             'ZDIRECTORY TEXT, ZFILENAME TEXT, ZLATITUDE REAL)', ()),
             ('INSERT INTO ZMOMENT VALUES (1, ?)', ('MOMENT-UUID-1',)),
             ('INSERT INTO ZMOMENT VALUES (2, ?)', ('OTHER',)),
-            ('INSERT INTO ZASSET VALUES (2, 1, ?, ?, ?)', (END - COCOA, 'DCIM/100APPLE', 'IMG_0002.HEIC')),
-            ('INSERT INTO ZASSET VALUES (1, 1, ?, ?, ?)', (START - COCOA, 'DCIM/100APPLE', 'IMG_0001.MOV')),
-            ('INSERT INTO ZASSET VALUES (3, 2, ?, ?, ?)', (START - COCOA, 'DCIM/100APPLE', 'IMG_0009.JPG')),
+            ('INSERT INTO ZASSET VALUES (2, 1, ?, ?, ?, 42.68)', (END - COCOA, 'DCIM/100APPLE', 'IMG_0002.HEIC')),
+            ('INSERT INTO ZASSET VALUES (1, 1, ?, ?, ?, 42.68)', (START - COCOA, 'DCIM/100APPLE', 'IMG_0001.MOV')),
+            ('INSERT INTO ZASSET VALUES (3, 2, ?, ?, ?, 42.68)', (START - COCOA, 'DCIM/100APPLE', 'IMG_0009.JPG')),
+            # same moment, no location (-180): never listed
+            ('INSERT INTO ZASSET VALUES (4, 1, ?, ?, ?, -180)', (START + 1 - COCOA, 'DCIM/100APPLE', 'IMG_0003.JPG')),
+            # same moment, located, captured after the window: belongs to no listed place
+            ('INSERT INTO ZASSET VALUES (5, 1, ?, ?, ?, 42.68)', (END + 60 - COCOA, 'DCIM/100APPLE', 'IMG_0004.JPG')),
         ])
 
     def test_moment_with_address_and_photos(self):
@@ -100,7 +104,7 @@ class PhotosGraphMomentsTest(unittest.TestCase):
         self.assertEqual(row[1], datetime.fromtimestamp(END, tz=timezone.utc))
         self.assertEqual(row[2:6], (42.6840, -73.8185, 2, '1 Example Rd, Albany'))
         self.assertEqual(row[6:9], (42.6847, -73.8186, 'MOMENT-UUID-1'))
-        # photos of that moment only, in capture order
+        # located photos of that moment inside the edge's window only, in capture order
         self.assertEqual(row[10], 'DCIM/100APPLE/IMG_0001.MOV, DCIM/100APPLE/IMG_0002.HEIC')
         # no DCIM files in the extraction: nothing attached, and the check says which and why
         self.assertEqual(row[11], '0 of 2 attached (path and size match Photos.sqlite); not attached: '
@@ -116,6 +120,29 @@ class PhotosGraphMomentsTest(unittest.TestCase):
         self.assertIsNone(rows[0][10])
         self.assertIsNone(rows[0][11])
         self.assertEqual(source, str(graph))
+
+    def test_two_places_split_by_window_and_count(self):
+        graph, photos = self._graph(), self._photos()
+        # a second place for the same moment: its window holds IMG_0004 only, but the graph
+        # counts 2 there, so the photo is listed and not attached
+        _write(graph, [
+            ('INSERT INTO Node VALUES (40, NULL, NULL, NULL)', ()),
+            ('INSERT INTO NodeValue VALUES (40, 7, NULL, NULL, ?, 3)', ('2 Other St, Troy',)),
+            ('INSERT INTO Edge VALUES (102, NULL, 10, 40)', ()),
+            ('INSERT INTO EdgeValue VALUES (102, 1, NULL, 42.73, NULL, 2)', ()),
+            ('INSERT INTO EdgeValue VALUES (102, 2, NULL, -73.69, NULL, 2)', ()),
+            ('INSERT INTO EdgeValue VALUES (102, 3, NULL, ?, NULL, 2)', (END + 30,)),
+            ('INSERT INTO EdgeValue VALUES (102, 4, NULL, ?, NULL, 2)', (END + 90,)),
+            ('INSERT INTO EdgeValue VALUES (102, 5, 2, NULL, NULL, 1)', ()),
+        ])
+        _headers, rows, _source = photosGraphMoments.__wrapped__(_Context([graph, photos]))
+        self.assertEqual([r[5] for r in rows], ['1 Example Rd, Albany', '2 Other St, Troy'])
+        self.assertEqual([r[8] for r in rows], ['MOMENT-UUID-1', 'MOMENT-UUID-1'])
+        self.assertEqual(rows[0][10], 'DCIM/100APPLE/IMG_0001.MOV, DCIM/100APPLE/IMG_0002.HEIC')
+        self.assertEqual(rows[1][10], 'DCIM/100APPLE/IMG_0004.JPG')
+        self.assertEqual(rows[1][11], 'located photos in the window: 1, the graph counts 2; '
+                                      'not attached because the counts differ')
+        self.assertIsNone(rows[1][12])
 
     def test_not_a_graph(self):
         path = _write(self.root / 'photosgraph.kgdb', [('CREATE TABLE Other (x)', ())])
