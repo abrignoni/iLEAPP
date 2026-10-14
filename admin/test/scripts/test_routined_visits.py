@@ -31,9 +31,6 @@ class _Context:
         # the seeker hands the sidecars over too; the artifacts must skip them
         return [self.path, self.path + '-wal', self.path + '-shm']
 
-    def get_relative_path(self, path):
-        return Path(path).name
-
 
 class RoutinedVisitsTest(unittest.TestCase):
     def setUp(self):
@@ -76,7 +73,6 @@ class RoutinedVisitsTest(unittest.TestCase):
         self.assertEqual(first[9], 3)                  # type as stored
         self.assertIsNone(second[1])                   # no exit stays empty
         self.assertEqual(second[9], 1)
-        self.assertEqual(first[-1], 'Cache.sqlite')
 
     def test_cache_visits_missing_table(self):
         path = self._database('Cache.sqlite', [('CREATE TABLE ZRTCLLOCATIONMO (Z_PK)', ())])

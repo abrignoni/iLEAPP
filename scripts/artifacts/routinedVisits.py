@@ -96,7 +96,7 @@ def routinedCacheVisits(context):
     data_headers = (('Entry DateTime', 'datetime'), ('Exit DateTime', 'datetime'),
                     ('Detection DateTime', 'datetime'), ('Location DateTime', 'datetime'),
                     'Latitude', 'Longitude', 'Uncertainty (as stored)', 'Confidence (as stored)',
-                    'Data Point Count', 'Type (as stored)', 'Source (as stored)', 'Source File')
+                    'Data Point Count', 'Type (as stored)', 'Source (as stored)')
     data_list = []
     sources = _sqlite_sources(context.get_files_found())
     for db in sources:
@@ -111,8 +111,7 @@ def routinedCacheVisits(context):
         '''))
         for r in rows:
             data_list.append((_utc(r[0]), _utc(r[1]), _utc(r[2]), _utc(r[3]),
-                              r[4], r[5], r[6], r[7], r[8], r[9], r[10],
-                              context.get_relative_path(db)))
+                              r[4], r[5], r[6], r[7], r[8], r[9], r[10]))
     return data_headers, data_list, '\n'.join(sources)
 
 
@@ -124,7 +123,7 @@ def routinedCloudVisits(context):
                     'Place Name', 'Place Category', 'Custom Label', 'Street', 'City', 'State',
                     'Postal Code', 'Country', 'Device Class (as stored)', 'Device Model (as stored)',
                     'Device Name',
-                    'Confidence (as stored)', 'Place Confidence (as stored)', 'Source File')
+                    'Confidence (as stored)', 'Place Confidence (as stored)')
     data_list = []
     sources = _sqlite_sources(context.get_files_found())
     for db in sources:
@@ -150,6 +149,5 @@ def routinedCloudVisits(context):
             street = r[11] or None
             data_list.append((_utc(r[0]), _utc(r[1]), _utc(r[2]), _utc(r[3]),
                               r[4], r[5], r[6], r[7], r[8], r[9], r[10], street,
-                              r[12], r[13], r[14], r[15], r[16], r[17], r[18], r[19], r[20],
-                              context.get_relative_path(db)))
+                              r[12], r[13], r[14], r[15], r[16], r[17], r[18], r[19], r[20]))
     return data_headers, data_list, '\n'.join(sources)
