@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts account information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts session information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Reads the key and value lines of the Waze Documents/session file. Only the keys "
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts track GPS quality information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-27",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Read from GPS_QUALITY entries in the spdlog.*logdata files under the Waze "
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
         "description": 'Reports supported rows selected from the PLACES table in the selected Waze user.db. The query applies no search-event filter; a row alone does not establish a search, navigation, visit, or user interaction.',
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2024-02-02",
-        "last_update_date": '2026-10-07',
+        "last_update_date": '2026-10-14',
         "requirements": "none",
         "category": "Waze",
         "notes": "Every row of the PLACES table in user.db is reported with no filter. The module's own documentation says the table includes searched and referenced places, so a row is not by itself a record of a search. Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html (in Italian). Original contribution and Waze research credited to Django Faiola (@djangofaiola). Artifact naming was neutralized to match the existing all-PLACES query; no native value, header, SQL, filter, date conversion, source selection, or row multiplicity was changed. Existing per-record error skips and database error handling are unchanged. Coordinate scaling, Residential Status labels, date meanings, source-state association and other Waze research remain outside this change. Historical sample_data entries are retained and are not fresh validation.",
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts recent locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Type shows a label this module assigns to the stored RECENTS.type integer (0 "
@@ -133,7 +133,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts favorite locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Type shows a label this module assigns to the stored type integer, which is "
@@ -158,7 +158,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts shared locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
@@ -179,7 +179,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts the EVENTS_PLACES table and its linked place records.",
         "author": "@djangofaiola",
         "creation_date": "2026-06-13",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Type shows a label this module assigns to the stored EVENTS_PLACES.type integer "
@@ -206,7 +206,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts text-to-speech navigation information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-19",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Waze",
         "notes": "Reads the text, type and update time of each row in the tables whose name "
@@ -548,7 +548,9 @@ def get_app_id(plist_file, context) -> str:
                     f"{plist_file} not found in context")
             return ''
 
-        parts = Path(source_path_str).parts
+        # Read inside the extraction, without the examiner's folders, so no step below
+        # can take an identifier from the output or case folder.
+        parts = Path(context.get_relative_path(source_path_str)).parts
         bundle_id_candidate = ''
 
         # Priority 1 — the container UUID as iOS lays it out, .../Application/<UUID>/.

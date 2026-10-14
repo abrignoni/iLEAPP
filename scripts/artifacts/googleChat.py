@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Messages from the first Google Chat dynamite.db matched",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Google Chats",
         "notes": "Only the first dynamite.db matched is read, so a second account's database is "
@@ -18,7 +18,17 @@ __artifacts_v2__ = {
                  "User are read from the reactions protobuf by field position; the positions were "
                  "not sourced. One reaction and one user are read. Where the stored value holds "
                  "more than one of either, neither is reported and the cells are blank, so a blank "
-                 "cell does not establish that a message had no reaction.",
+                 "cell does not establish that a message had no reaction. Filename is the value "
+                 "read from field 10.3 of each entry of the message's annotation protobuf, by "
+                 "field position, and treated as an attachment name; neither the position nor "
+                 "that meaning was sourced, and annotation entries without that field are not "
+                 "reported. Where a message holds several, the names are joined with a comma and "
+                 "Media holds one item per file found. Media shows the file of that name "
+                 "in the app container's tmp folder when the extraction holds it, so a Filename "
+                 "with a blank Media means no file of that name was found there. The container is "
+                 "the GUID-named folder in the database's path inside the extraction; where the "
+                 "path holds none, as in an iTunes backup, which stages app files under the "
+                 "bundle id, no attachment is looked for and Media is blank.",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',
                   '*/Documents/user_accounts/*/tmp/*'),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]
@@ -56,203 +66,50 @@ from scripts.ilapfuncs import (
     logfunc,
 )
 
-_FLATTEN_ERRORS = (TypeError, AttributeError, KeyError, ValueError)
 _DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError, IndexError, AttributeError)
-
-
-class Tuppsub(tuple):
-    pass
-
-
-class ProtectedTuple(tuple):
-    pass
-
-
-class ProtectedList(list):
-    pass
-
-
-class ProtectedDict(dict):
-    pass
-
-
-class ProtectedSet(set):
-    pass
-
 
 
 GUID_RE = re.compile(
     r"[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}",
     re.IGNORECASE)
 
-def aa_flatten_dict_tu(
-        v,
-        listitem,
-        forbidden=(list, tuple, set, frozenset),
-        allowed=(
-                str,
-                int,
-                float,
-                complex,
-                bool,
-                bytes,
-                type(None),
-                ProtectedTuple,
-                ProtectedList,
-                ProtectedDict,
-                ProtectedSet,
-                Tuppsub,
-        ),
-):
-    if isinstance(v, dict) or (
-            hasattr(v, "items") and hasattr(v, "keys")
-    ):  # we check right away if it is a dict or something similar (with keys/items). If we miss something, we will
-        # only get the keys back.
-        for k, v2 in v.items():
-            newtu = listitem + (k,)  # we accumulate all keys in a tuple
-            # and check if there are more dicts (nested) in this dict
-            yield from aa_flatten_dict_tu(
-                v2, listitem=newtu, forbidden=forbidden, allowed=allowed
-            )
-    elif isinstance(
-            v, forbidden
-    ):  # if we have an iterable without keys (list, tuple, set, frozenset) we have to enumerate them to be able to
-        # access the original dict values later: di['blabla'][0] instead of di['blabla']
-        for indi, v2 in enumerate(v):
-            if isinstance(v2, allowed):
-                yield v2, listitem
-            #  if the value is not in our allowed data types, we have to check if it is an iterable
-            else:
-                yield from aa_flatten_dict_tu(
-                    v2,
-                    listitem=(listitem + (indi,)),
-                    forbidden=forbidden,
-                    allowed=allowed,
-                )
-    elif isinstance(v, allowed):
-        #  if the datatype is allowed, we yield it
-        yield Tuppsub((v, listitem))
-    # Brute force to check if we have an iterable. We have to get all iterables!
-    else:
-        try:
-            for indi2, v2 in enumerate(v):
-                try:
-                    if isinstance(v2, allowed):
-                        yield v2, listitem
-                    else:
-                        yield aa_flatten_dict_tu(
-                            v2,
-                            listitem=(listitem + (indi2,)),
-                            forbidden=forbidden,
-                            allowed=allowed,
-                        )
-                except _FLATTEN_ERRORS:
-                    # if there is an exception, it is probably not an iterable, so we yield it
-                    yield v2, listitem
-        except _FLATTEN_ERRORS:
-            # if there is an exception, it is probably not an iterable, so we yield it
-            yield v, listitem
+
+def _container_guid(evidence_path):
+    """The app container GUID in a path inside the extraction, or '' when there is none.
+
+    The container as iOS lays it out, .../Application/<GUID>/. Taking the first match
+    anywhere in the path meant an output directory or case folder whose name looks like a
+    GUID could be picked instead, and the media lookup would then search a directory that
+    does not exist and quietly find nothing. The caller passes the path inside the
+    extraction, without the examiner's folders, so the fallback cannot take a GUID from
+    the output or case folder either: an iTunes backup stages app files under
+    .../Application/<bundle id>/, with no GUID in the path at all.
+    """
+    parts = os.path.normpath(evidence_path).split(os.sep)
+    for index in range(len(parts) - 1, 0, -1):
+        if GUID_RE.fullmatch(parts[index]) and parts[index - 1] == 'Application':
+            return parts[index]
+    for part in reversed(parts):
+        if GUID_RE.fullmatch(part):
+            return part
+    return ''
 
 
-def fla_tu(
-        item,
-        walkthrough=(),  # accumulate nested keys
-        forbidden=(list, tuple, set, frozenset),  # forbidden to yield, need to be flattened
-        allowed=(  # Data types we don't want to touch!
-                str,
-                int,
-                float,
-                complex,
-                bool,
-                bytes,
-                type(None),
-                ProtectedTuple,  #
-                ProtectedList,
-                ProtectedDict,
-                ProtectedSet,
-                Tuppsub  # This is the secret - Inherit from tuple and exclude it from being flattened -
-                # ProtectedTuple does the same thing
-        ),
-        dict_variation=(
-        # we don't check with isinstance(), rather with type(), that way we don't have to import collections.
-                "collections.defaultdict",
-                "collections.UserDict",
-                "collections.OrderedDict",
-        ),
-):
-    if isinstance(item, allowed):  # allowed items, so let's yield them
-        yield item, walkthrough
-    elif isinstance(item, forbidden):
-        for ini, xaa in enumerate(item):
-            try:
-                yield from fla_tu(
-                    xaa,
-                    walkthrough=(walkthrough + (ini,)),
-                    forbidden=forbidden,
-                    allowed=allowed,
-                    dict_variation=dict_variation,
-                )  # if we have an iterable, we check recursively for other iterables
-            except _FLATTEN_ERRORS:
-                yield xaa, Tuppsub(
-                    (walkthrough + Tuppsub((ini,)))
-                )  # we just yield the value (value, (key1,key2,...))  because it is probably not an iterable
-    elif isinstance(
-            item, dict
-    ):  # we need to pass dicts to aa_flatten_dict_tu(), they need a special treatment, 
-        # if not, we only get the keys from the dict back
-        yield from aa_flatten_dict_tu(
-            item, listitem=walkthrough, forbidden=forbidden, allowed=allowed
-        )
-    # let's try to catch all different dict variations by using ( hasattr(item, "items") and hasattr(item, "keys").
-    # If we dont pass it to aa_flatten_dict_tu(), we only get the keys back.
-    #
-    # -> (hasattr(item, "items") and hasattr(item, "keys") -> Maybe better here:     elif isinstance( item, dict ):
-    elif (str(type(item)) in dict_variation) or (
-            hasattr(item, "items") and hasattr(item, "keys")
-    ):
-        yield from aa_flatten_dict_tu(
-            dict(item), listitem=walkthrough, forbidden=forbidden, allowed=allowed
-        )
-    # isinstance(item, pd.DataFrame) maybe better?
-    elif "DataFrame" in str(type(item)):
-        yield from aa_flatten_dict_tu(
-            item.copy().to_dict(),
-            # pandas needs to be converted to dict first, if not, we only get the columns back. Copying might not be
-            # necessary
-            listitem=walkthrough,
-            forbidden=forbidden,
-            allowed=allowed,
-        )
-    # # many iterables are hard to identify using isinstance() / type(), so we have to use brute force to check if it is
-    # an iterable. If one iterable escapes, we are screwed!
-    else:
-        try:
-            for ini2, xaa in enumerate(item):
-                try:
-                    if isinstance(xaa, allowed):  # yield only for allowed data types
-                        yield xaa, Tuppsub(
-                            (walkthrough + (ini2,))
-                        )  # yields (value, (key1,key2,...)) -> always same format -> first value, then all keys in
-                        # another tuple
-                    else:  # if it is not in the allowed data types, we check recursively for other iterables
-                        yield from fla_tu(
-                            xaa,
-                            walkthrough=Tuppsub(
-                                (walkthrough + Tuppsub(ini2, ))
-                            ),  # yields (value, (key1,key2,...))
-                            forbidden=forbidden,
-                            allowed=allowed,
-                            dict_variation=dict_variation,
-                        )
-                except _FLATTEN_ERRORS:
-                    yield xaa, Tuppsub(
-                        (walkthrough + (ini2,))
-                    )  # in case of an exception, we yield  (value, (key1,key2,...))
-        except _FLATTEN_ERRORS:
-            yield item, Tuppsub(
-                (walkthrough + Tuppsub(item, ))
-            )  # in case of an exception, we yield  (value, (key1,key2,...))
+def _attachment_names(annotations):
+    """The attachment file names in a decoded annotation field, in stored order.
 
+    The name is read from field 10.3 of each annotation, by position; the position was not
+    sourced. Annotations without it are skipped.
+    """
+    if not isinstance(annotations, list):
+        annotations = [annotations]
+    names = []
+    for annotation in annotations:
+        attachment = annotation.get('10') if isinstance(annotation, dict) else None
+        name = attachment.get('3') if isinstance(attachment, dict) else None
+        if isinstance(name, bytes):
+            names.append(name.decode('utf-8', 'replace'))
+    return names
 
 @artifact_processor
 def google_chat(context):
@@ -279,23 +136,10 @@ def google_chat(context):
             continue
 
         source_path = file_found
-        # The container as iOS lays it out, .../Application/<GUID>/. Taking the first
-        # match anywhere in the path meant an output directory or case folder whose
-        # name looks like a GUID could be picked instead, and the media lookup below
-        # would then search a directory that does not exist and quietly find nothing.
-        parts = os.path.normpath(file_found).split(os.sep)
-        guid = ''
-        for index in range(len(parts) - 1, 0, -1):
-            if GUID_RE.fullmatch(parts[index]) and parts[index - 1] == 'Application':
-                guid = parts[index]
-                break
-        else:
-            for part in reversed(parts):
-                if GUID_RE.fullmatch(part):
-                    guid = part
-                    break
+        evidence_path = context.get_relative_path(file_found)
+        guid = _container_guid(evidence_path)
         if not guid:
-            logfunc(f'Google Chat: no app container GUID in {file_found}; '
+            logfunc(f'Google Chat: no app container GUID in {evidence_path}; '
                     'attachments cannot be matched for this database')
         account_id = os.path.basename(os.path.dirname(file_found))
 
@@ -365,26 +209,24 @@ def google_chat(context):
                     logfunc(f'Google Chat: could not decode media reference for message '
                             f'{row[7]}: {ex}')
                     protostuff = {'1': {}}
-                aggregator = []
-                if isinstance(protostuff['1'], list):
-                    nested_whatever = list(fla_tu(protostuff['1']))
-                    for x in nested_whatever:
-                        if isinstance(x[0], bytes):
-                            aggregator.append(x[0].decode())
-                    mediafilename = 'Group List'
-                    media_ref_id = ", ".join(aggregator)
-                else:
-                    checkkeyten = (protostuff['1'].get('10'))
-                    if checkkeyten is not None:
-                        mediafilename = (protostuff['1']['10']['3'])
-                        mediafilename = (mediafilename.decode())
-                        attachment = context.get_seeker().search(
-                            '*/' + guid + '/tmp/' + mediafilename, return_on_first_hit=True)
-
-                        if attachment:
-                            media_ref_id = check_in_media(attachment, name=mediafilename)
-                    else:
-                        mediafilename = ''
+                # Field 1 holds one annotation, or a list of them when there are several.
+                # Each list entry is read the same way as a single annotation. A list used to
+                # be labelled 'Group List', with every string in it put in the Media column,
+                # where nothing could show it, and an attachment in it was never looked for.
+                names = _attachment_names(protostuff.get('1'))
+                mediafilename = ', '.join(names)
+                media_refs = []
+                for name in names:
+                    pattern_name = re.sub(r'([*?[])', r'[\1]', name)
+                    attachment = guid and context.get_seeker().search(
+                        f'*/{guid}/tmp/{pattern_name}', return_on_first_hit=True)
+                    media_ref = check_in_media(attachment, name=name) if attachment else None
+                    if media_ref:
+                        media_refs.append(media_ref)
+                if len(media_refs) == 1:
+                    media_ref_id = media_refs[0]
+                elif media_refs:
+                    media_ref_id = media_refs
 
             timestamp = convert_ts_human_to_utc(row[0]) if row[0] else row[0]
 

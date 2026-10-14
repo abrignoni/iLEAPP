@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "data.sqlite (xyz.hypertornado.calculator)",
         "author": "John Hyla",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-14",
         "requirements": "none",
         "category": "Secret Calculator Photo Album",
         "notes": (
@@ -49,7 +49,7 @@ import plistlib
 import re
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, check_in_media,
-                               is_platform_windows, logfunc)
+                               logfunc)
 
 _BUNDLE_ID = 'xyz.hypertornado.calculator'
 _QUERY = '''
@@ -115,9 +115,8 @@ def secretCalculatorPhotoAlbum(context):
     source = ''
     rows = []
     staged = []
-    files_found = context.get_files_found()
 
-    for file_found in list(files_found):
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         try:
             with open(file_found, 'rb') as fp:
@@ -127,11 +126,12 @@ def secretCalculatorPhotoAlbum(context):
         if plist.get('MCMMetadataIdentifier') != _BUNDLE_ID:
             continue
 
-        split_on = '\\private\\' if is_platform_windows() else '/private/'
-        parts = str(pathlib.Path(file_found).parent).split(split_on, 1)
-        if len(parts) < 2:
-            continue
-        container = parts[1].replace('\\', '/')
+        # The container's path inside the extraction. Splitting the staged path at its first
+        # '/private/' found the examiner's own folders instead whenever the report sat under
+        # one, as macOS /private/tmp and /private/var/folders do, and the database was then
+        # looked for in a container that does not exist.
+        container = pathlib.PureWindowsPath(
+            context.get_relative_path(file_found)).parent.as_posix()
 
         db_file = seeker.search(f'**{container}/Library/data.sqlite', return_on_first_hit=True)
         if not db_file:
@@ -143,9 +143,6 @@ def secretCalculatorPhotoAlbum(context):
             staged.append(_stored_file(seeker, container, row[2]))
         source = context.get_relative_path(file_found)
 
-    # check_in_media resolves a file through the artifact's found files, so the files this
-    # artifact staged itself are added before the first one is checked in.
-    files_found.extend(media_file for media_file in staged if media_file)
     for (date, album, album_date, stored_path, is_video), media_file in zip(rows, staged):
         media_ref = check_in_media(media_file) if media_file else None
         filename = context.get_relative_path(media_file) if media_file else ''
