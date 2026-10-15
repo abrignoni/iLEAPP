@@ -1,9 +1,9 @@
 """Tests for scripts/artifacts/anonymousChat.py on synthetic data.
 
 These prove the module's own rules (container scoping, the SDWebImage cache-name
-link, the account keys it reads) and that folder, zip and tar input give the same
-rows. They cannot prove what the real app stores: every value comes from
-build_anonymous_chat_fixture.py.
+link, the account keys it reads), compare folder/ZIP/TAR inputs, and exercise the
+iTunes AppDomain fallback using a generated synthetic backup. They cannot prove
+what the real app stores: every value comes from build_anonymous_chat_fixture.py.
 
 Run from an iLEAPP checkout:
     python -m unittest discover -s admin/test/scripts -p "test_anonymous_chat*.py"

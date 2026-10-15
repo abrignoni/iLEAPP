@@ -17,7 +17,9 @@ __artifacts_v2__ = {
                  'AppDomain, where the bundle ID takes the place of the container UUID. '
                  'In an iTunes backup, the app database path can identify its AppDomain even '
                  'when container metadata and preference plists are absent; this artifact does '
-                 'not read the database contents. '
+                 'not read the database contents. The AppDomain fallback is covered by a '
+                 'generated synthetic iTunes backup regression test; no device-derived case '
+                 'data is committed. '
                  'Application name, version, build and store fields come from the bundle container\'s Info.plist '
                  'and iTunesMetadata.plist and are blank for data containers.',
         'paths': (

@@ -246,6 +246,20 @@ def build_fixture(output_root: Path) -> Path:
     return archive
 
 
+def build_appdomain_archive(output_archive: Path) -> Path:
+    """Create a path-only AppDomain fixture; Application Info does not read database bytes."""
+    output_archive = output_archive.resolve()
+    output_archive.parent.mkdir(parents=True, exist_ok=True)
+    if output_archive.exists():
+        raise FileExistsError(f'Refusing to replace an existing archive: {output_archive}')
+
+    appdomain_root = DATA_ROOT.parent / 'com.anonimchat.app'
+    member = appdomain_root / 'Library/LocalDatabase/anonimchat.db'
+    with zipfile.ZipFile(output_archive, 'x', compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr(member.as_posix(), b'')
+    return output_archive
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -253,10 +267,19 @@ def main() -> None:
         type=Path,
         default=Path(__file__).parent / 'testdata' / 'anonymousChat_synthetic_extraction',
     )
+    parser.add_argument(
+        '--appdomain-archive',
+        type=Path,
+        help='write a synthetic ZIP with files under the reconstructed AppDomain path',
+    )
     args = parser.parse_args()
-    archive = build_fixture(args.output_root)
+    if args.appdomain_archive:
+        archive = build_appdomain_archive(args.appdomain_archive)
+    else:
+        archive = build_fixture(args.output_root)
     print(f'Created synthetic extraction archive: {archive}')
-    print(f'Fixture root: {args.output_root}')
+    if not args.appdomain_archive:
+        print(f'Fixture root: {args.output_root}')
 
 
 if __name__ == '__main__':
