@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "alarms": {
         "name": "Alarms",
-        "description": "Extraction of alarms set",
+        "description": "Alarms in com.apple.mobiletimerd.plist, disabled and sleep alarms included",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
         "last_update_date": "2026-10-15",
