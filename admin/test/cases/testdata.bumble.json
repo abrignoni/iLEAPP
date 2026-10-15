@@ -1,0 +1,48 @@
+{
+  "abe_ios16": {
+    "description": "Cellebrite CTF 2023 Abe public iOS 16.5 subset: the Bumble container's Library/Caches/Chat.sqlite and Documents/yap-database.sqlite, each with its -wal and -shm.",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-14T14:31:51.841036",
+      "last_commit": {
+        "hash": "71ba77434a9d0b21f979a037001625d310407788",
+        "author_name": "Frahm",
+        "author_email": "christian.frahm@iacis.com",
+        "date": "2026-10-14T13:43:47-04:00",
+        "message": "Adapt bumble.py for LAVA conversation view (#2317)"
+      }
+    },
+    "artifacts": {
+      "bumbleMessages": {
+        "search_patterns": [
+          "**/Library/Caches/Chat.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bumbleAccount": {
+        "search_patterns": [
+          "**/Documents/yap-database.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "abe_ios16",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "16.5",
+      "device_model": "iPhone X",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  }
+}

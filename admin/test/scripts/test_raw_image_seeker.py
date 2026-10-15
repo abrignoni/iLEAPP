@@ -627,6 +627,55 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertEqual(differ, [])
         self.assertEqual(len(seeker.stream_list), 28)
 
+    # ---- NTFS directory indexes --------------------------------------------------
+    #
+    # A directory whose file name index has grown into an $INDEX_ALLOCATION attribute
+    # gives it as ``<directory>:$I30``. It is not a stream: only a pattern that ends
+    # ``:$I30`` reaches it, so ``*:*`` above still stages exactly the 28 streams.
+
+    def test_directory_indexes_are_staged_only_for_a_pattern_that_ends_in_their_name(self):
+        seeker = self._seeker(self.ntfs)
+        self.assertEqual(len(seeker.index_list), 5)
+        self.assertTrue(all(name.endswith(':$I30') for name in seeker.index_list))
+        self.assertIn('lba0/:$I30', seeker.index_list)
+        self.assertIn('lba0/many:$I30', seeker.index_list)
+        self.assertTrue(set(seeker.index_list).isdisjoint(seeker.name_list))
+        self.assertTrue(set(seeker.index_list).isdisjoint(seeker.stream_list))
+        for pattern in ('*', '*:*', '*/many*', '*:$I3*'):
+            sources = [seeker.file_infos[path].source_path for path in seeker.search(pattern)]
+            self.assertEqual([s for s in sources if s.endswith(':$I30')], [], pattern)
+        staged = seeker.search('*:$I30')
+        self.assertEqual(sorted(seeker.file_infos[path].source_path for path in staged),
+                         sorted(seeker.index_list))
+        for path in staged:
+            self.assertNotIn(':', os.path.basename(path))
+            with open(path, 'rb') as handle:
+                data = handle.read()
+            self.assertTrue(data and len(data) % 4096 == 0, path)
+            self.assertEqual({data[offset:offset + 4] for offset in range(0, len(data), 4096)}, {b'INDX'})
+        one = seeker.search('*/many:$I30')
+        self.assertEqual([seeker.file_infos[path].source_path for path in one], ['lba0/many:$I30'])
+        self.assertEqual(os.path.getsize(one[0]), 94208)
+        self.assertIn('5 directories can give their index, to a pattern that asks for it (*:$I30)',
+                      self.log.text())
+
+    def test_a_stream_named_like_an_index_is_still_reached(self):
+        # A pattern that ends ':$I30' is handed the indexes besides the streams it names.
+        seeker = self._seeker(self.streams)
+        self.assertEqual(seeker.index_list, ['lba0/:$I30'])
+        real = next(name for name in seeker.stream_list if name.endswith(':rootstream'))
+        seeker.stream_list.append('lba0/odd:$I30')
+        seeker._entries['lba0/odd:$I30'] = seeker._entries[real]      # pylint: disable=protected-access
+        found = sorted(seeker.file_infos[path].source_path for path in seeker.search('*:$I30'))
+        self.assertEqual(found, ['lba0/:$I30', 'lba0/odd:$I30'])
+
+    def test_a_reader_without_directory_indexes_lists_none(self):
+        with mock.patch.object(raw_image.qnxprobe.NtfsWalker, 'directory_index', None):
+            seeker = self._seeker(self.ntfs)
+        self.assertEqual(seeker.index_list, [])
+        self.assertEqual(seeker.search('*:$I30'), [])
+        self.assertNotIn('can give their index', self.log.text())
+
     def test_a_pattern_that_names_no_stream_is_never_handed_one(self):
         seeker = self._seeker(self.streams)
         everything = seeker.search('*')
@@ -1439,6 +1488,7 @@ BITLOCKER_RECOVERY = '111111-222222-333333-444444-555555-666666-000011-000022'
 # values made for it.
 APFS_PASSWORD = 'qnxprobe-apfs-convert'
 APFS_HINT = 'the qnxprobe conversion test'
+LUKS_PASSPHRASE = 'correct horse battery staple'     # the test value tools/make_luks_fixtures.sh in qnxprobe gives
 
 try:
     import tkinter  # noqa: F401  pylint: disable=unused-import
@@ -1804,6 +1854,95 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         with mock.patch.object(simpledialog, 'askstring', lambda *a, **kw: None):
             keys = raw_image.ask_image_keys(None, self.apfs)
         self.assertEqual(keys.apfs_secrets, [])
+
+    def _luks_members(self, keys):
+        data = tempfile.mkdtemp(prefix='raw_image_data_')     # one folder per seeker
+        self.addCleanup(shutil.rmtree, data, True)
+        image = os.path.join(self.work, 'luks1-cbc.img')
+        if not os.path.exists(image):
+            with gzip.open(FIXTURES / 'luks1-cbc.img.gz', 'rb') as src, open(image, 'wb') as dst:
+                shutil.copyfileobj(src, dst)
+        seeker = FileSeekerRaw(image, data, password=keys)
+        self.addCleanup(seeker.cleanup)
+        return seeker, image, [m for m in seeker.name_list if not m.endswith('/')]
+
+    def test_a_luks_container_opens_with_its_passphrase(self):
+        """A LUKS1 container cryptsetup wrote (qnxprobe's tests/fixtures): with its
+        passphrase, as the image's password or as a LUKS one, every file of the ext4
+        inside stages with the hash sha256sum recorded over the tree; without it, or
+        with a wrong one, the container is named locked and holds no members."""
+        hashes = _hash_list(FIXTURES / 'luks-fixture.sha256')
+        _seeker, _image, files = self._luks_members(None)
+        self.assertEqual(files, [])
+        self.assertIn('LUKS-encrypted and not read: give its passphrase', self.log.text())
+        for keys in (raw_image.ImageKeys(password=LUKS_PASSPHRASE),
+                     raw_image.ImageKeys(luks_secrets=[LUKS_PASSPHRASE])):
+            seeker, _image, files = self._luks_members(keys)
+            for rel, digest in hashes.items():
+                staged = seeker.search(f'*/{rel}')
+                self.assertEqual(len(staged), 1, rel)
+                self.assertEqual(_sha256(staged[0]), digest, rel)
+        _seeker, _image, files = self._luks_members(raw_image.ImageKeys(password='not it'))
+        self.assertEqual(files, [])
+
+    def test_the_command_line_takes_a_luks_passphrase_and_says_what_stays_locked(self):
+        _seeker, image, _files = self._luks_members(None)
+        with mock.patch.object(raw_image.sys, 'stdin', None), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(image)
+        self.assertIn('stays locked and its files are not searched', err.getvalue())
+        self.assertIn('Give its passphrase with --image_password_file', err.getvalue())
+
+        class Terminal:
+            @staticmethod
+            def isatty():
+                return True
+        answers = iter(['not it', LUKS_PASSPHRASE])
+        prompts = []
+
+        def getpass(prompt):
+            prompts.append(prompt)
+            return next(answers)
+        with mock.patch.object(raw_image.sys, 'stdin', Terminal()), \
+                mock.patch.object(raw_image.getpass, 'getpass', getpass), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(image)
+        self.assertEqual(keys.luks_secrets, [LUKS_PASSPHRASE])
+        self.assertIn('That does not open it.', err.getvalue())
+        self.assertIn('is a LUKS container', prompts[0])
+
+    @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
+    def test_the_gui_asks_for_a_luks_passphrase(self):
+        from tkinter import simpledialog  # pylint: disable=import-outside-toplevel
+        _seeker, image, _files = self._luks_members(None)
+        answers = iter(['not it', LUKS_PASSPHRASE])
+        prompts = []
+
+        def askstring(_title, prompt, **_kw):
+            prompts.append(prompt)
+            return next(answers)
+        with mock.patch.object(simpledialog, 'askstring', askstring):
+            keys = raw_image.ask_image_keys(None, image)
+        self.assertEqual(keys.luks_secrets, [LUKS_PASSPHRASE])
+        self.assertTrue(prompts[1].startswith('That does not open it.'))
+
+    def test_an_lvm_physical_volume_offers_its_unallocated_extents(self):
+        """A disk lvm2 made one whole physical volume (qnxprobe's tests/fixtures), whose
+        extents start 3 MiB in, 1 MiB each, the one logical volume holding the first 8 of
+        its 13: the other 5 are its free space, and staged they are those bytes of the
+        disk."""
+        image = os.path.join(self.work, 'lvm-wholedisk.img')
+        with gzip.open(FIXTURES / 'lvm-wholedisk.img.gz', 'rb') as src, open(image, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+        seeker = self._seeker(image)
+        self.assertEqual(seeker.free_list,
+                         ['lba0/$Unallocated/lvm-wholedisk.img.lba0.unallocated.bin'])
+        staged = seeker.search('*.unallocated.bin')
+        self.assertEqual(len(staged), 1)
+        mib = 1 << 20
+        with open(image, 'rb') as disk, open(staged[0], 'rb') as got:
+            disk.seek(11 * mib)
+            self.assertEqual(got.read(), disk.read(5 * mib))
 
     @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
     def test_the_gui_asks_for_a_private_key_and_a_bitlocker_startup_key(self):

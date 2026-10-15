@@ -62,6 +62,17 @@ Windows leaves in front of them, and a stream that stores nothing
 (``$BadClus:$Bad``) is not listed at all. Streams need qnxprobe 1.37 or later;
 with an older vendored copy there are simply none.
 
+A directory's file name index that has grown into an ``$INDEX_ALLOCATION``
+attribute is a member as well, named ``<directory>:$I30`` and ``:$I30`` on the
+root directory, unless the record also holds a ``$DATA`` stream of that name,
+which then reads as the stream. It is not an alternate data stream and is kept apart from them, in
+``index_list``: it is matched only by a pattern whose last segment ends ``:$I30``,
+which is handed the indexes besides what it was handed before, so a pattern that
+does not end that way, ``*:*`` included, is handed exactly what it was.
+What is staged is the attribute as the volume stores it, one index block after
+another with their update sequence arrays not applied. Directory indexes need
+qnxprobe 1.63 or later; with an older vendored copy there are none.
+
 This file is shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP and is kept
 byte-identical across them. It names nothing specific to a platform; the
 platform is in the artifacts.
@@ -160,19 +171,21 @@ class ImageKeys:
     sealed to a certificate; ``bitlocker_secrets`` are further passwords or recovery
     passwords and ``bitlocker_keys`` the paths of startup key (.BEK) files, for
     BitLocker; ``apfs_secrets`` are further passwords or personal recovery keys, for
-    APFS. Nothing here is written anywhere; it lasts as long as the run.
+    APFS; ``luks_secrets`` are further passphrases, for LUKS. Nothing here is written
+    anywhere; it lasts as long as the run.
     """
 
     __slots__ = ('password', 'private_key', 'bitlocker_secrets', 'bitlocker_keys',
-                 'apfs_secrets')
+                 'apfs_secrets', 'luks_secrets')
 
     def __init__(self, password=None, private_key=None, bitlocker_secrets=(),
-                 bitlocker_keys=(), apfs_secrets=()):
+                 bitlocker_keys=(), apfs_secrets=(), luks_secrets=()):
         self.password = password
         self.private_key = private_key
         self.bitlocker_secrets = list(bitlocker_secrets)
         self.bitlocker_keys = list(bitlocker_keys)
         self.apfs_secrets = list(apfs_secrets)
+        self.luks_secrets = list(luks_secrets)
 
     def bitlocker_passwords(self):
         """Every secret to try on a BitLocker volume, the image's password first."""
@@ -181,6 +194,10 @@ class ImageKeys:
     def apfs_passwords(self):
         """Every secret to try on an encrypted APFS volume, the image's password first."""
         return ([self.password] if self.password else []) + self.apfs_secrets
+
+    def luks_passwords(self):
+        """Every passphrase to try on a LUKS container, the image's password first."""
+        return ([self.password] if self.password else []) + self.luks_secrets
 
 
 def needs_password(path):
@@ -326,6 +343,35 @@ def _unlock_apfs(path, keys, ask):
     return left
 
 
+def _unlock_luks(path, keys, ask):
+    """Try ``keys`` on each LUKS container in the image at ``path`` and offer every
+    container they leave locked to ``ask(luks, wrong)`` until it opens: ``ask`` returns a
+    passphrase, or None to leave it locked. What opens a container is added to ``keys``.
+    Returns the containers still locked that a passphrase could have opened, as
+    (label, locked note) pairs. Logical evidence holds no volumes."""
+    logical = open_logical(path, keys)
+    if logical is not None:
+        logical.close()
+        return []
+    left = []
+    with qnxprobe.open_image(path, password=keys.password,
+                             private_key=keys.private_key) as image:
+        _fh, found = qnxprobe.unlock_luks(image, qnxprobe.image_size(image),
+                                          keys.luks_passwords())
+        for luks in found:
+            wrong = False
+            while luks.mk is None and not luks.why:
+                answer = ask(luks, wrong)
+                if not answer:
+                    break
+                if luks.unlock([answer]):
+                    keys.luks_secrets.append(answer)
+                wrong = luks.mk is None
+            if luks.mk is None and not luks.why:
+                left.append((luks.label, luks.locked_note()))
+    return left
+
+
 def _apfs_prompt(lock, name, wrong):
     """What an encrypted APFS volume's prompt says, the hint it stores included."""
     return (('That does not open it. ' if wrong else '')
@@ -441,6 +487,23 @@ def cli_image_keys(path, password_file=None, password_env=None, private_key=None
             print(f'{label} of {name} stays locked and its files are not searched ({note}). '
                   f'Give its password or personal recovery key with --image_password_file '
                   f'or --image_password_env.', file=sys.stderr)
+        luks_tries = {}
+
+        def ask_luks(luks, wrong):
+            if not at_terminal:
+                return None
+            if wrong:
+                print('That does not open it.', file=sys.stderr)
+            luks_tries[luks.base] = luks_tries.get(luks.base, 0) + 1
+            if luks_tries[luks.base] > 3:
+                return None
+            return getpass.getpass(f'{luks.label} of {name} is a LUKS container. Its '
+                                   f'passphrase (empty leaves it locked): ') or None
+
+        for label, note in _unlock_luks(path, keys, ask_luks):
+            print(f'{label} of {name} stays locked and its files are not searched ({note}). '
+                  f'Give its passphrase with --image_password_file or --image_password_env.',
+                  file=sys.stderr)
     except _open_errors() as exc:
         raise ValueError(f'{name} could not be opened: {exc}') from None
     return keys
@@ -510,6 +573,14 @@ def ask_image_keys(parent, path):
                                           show='*', parent=parent)
 
         _unlock_apfs(path, keys, ask_apfs)
+
+        def ask_luks(luks, wrong):
+            return simpledialog.askstring(
+                'LUKS container', ('That does not open it. ' if wrong else '')
+                + f'{luks.label} of {name} is a LUKS container. Its passphrase:',
+                show='*', parent=parent)
+
+        _unlock_luks(path, keys, ask_luks)
     except _open_errors() as exc:
         messagebox.showerror('Error', f'{name} could not be opened:\n{exc}', parent=parent)
         return None
@@ -521,6 +592,13 @@ def names_a_stream(filepattern):
     asks for an NTFS alternate data stream (``*:Zone.Identifier``,
     ``*/$Extend/$UsnJrnl:$J``). Only such a pattern is matched against streams."""
     return ':' in filepattern.replace('\\', '/').rpartition('/')[2]
+
+
+def names_a_directory_index(filepattern):
+    """True when a pattern's last segment ends ``:$I30``, which is how a pattern asks
+    for a directory's index allocation (``*:$I30``). Only such a pattern is matched
+    against directory indexes."""
+    return filepattern.replace('\\', '/').rpartition('/')[2].endswith(':$I30')
 
 
 FREE_SPACE_FOLDER = '$Unallocated'
@@ -675,6 +753,7 @@ class FileSeekerRaw(FileSeekerBase):
         self.file_infos = {}
         self.name_list = []
         self.stream_list = []
+        self.index_list = []
         self.free_list = []
         self.volumes = []
         self._free = {}
@@ -739,6 +818,10 @@ class FileSeekerRaw(FileSeekerBase):
             self._image, size, keys.bitlocker_passwords(), keys.bitlocker_keys)
         self._image, _apfs_found = qnxprobe.unlock_apfs(self._image, size,
                                                          keys.apfs_passwords())
+        # A LUKS container a passphrase opens reads as what it holds, a region of
+        # its own; one none opens is listed with the reason.
+        self._image, _luks_found = qnxprobe.unlock_luks(self._image, size,
+                                                        keys.luks_passwords())
         self.volumes = qnxprobe.volumes(self._image, size)
         if not self.volumes:
             logfunc('  no partition table and no filesystem the reader knows: '
@@ -783,7 +866,10 @@ class FileSeekerRaw(FileSeekerBase):
                         f'pattern that names one')
         image_name = os.path.basename(self.image_path)
         for vol in self.volumes:
-            if getattr(vol.get('walker'), 'free_extents', None) is None:
+            # a filesystem that reports its free space, or an LVM2 physical volume,
+            # whose extents no logical volume holds are its free space
+            if (getattr(vol.get('walker'), 'free_extents', None) is None
+                    and vol.get('free_extents') is None):
                 continue
             member = (f"{vol['name']}/{FREE_SPACE_FOLDER}/"
                       f"{image_name}.{vol['name']}{FREE_SPACE_SUFFIX}")
@@ -792,6 +878,9 @@ class FileSeekerRaw(FileSeekerBase):
         if self.free_list:
             logfunc(f'  {len(self.free_list):,} volumes can give their free space, to a '
                     f'pattern that asks for it (*{FREE_SPACE_SUFFIX})')
+        if self.index_list:
+            logfunc(f'  {len(self.index_list):,} directories can give their index, to a '
+                    f'pattern that asks for it (*:$I30)')
         logfunc(f'File listing complete - {len(self.name_list):,} members'
                 + (f' and {len(self.stream_list):,} streams' if self.stream_list else ''))
 
@@ -977,6 +1066,17 @@ class FileSeekerRaw(FileSeekerBase):
             name = f'{member}:{name}'
             self.stream_list.append(name)
             self._entries[name] = _Entry(walker, stream_node, size or 0, mtime or 0, reading)
+        # A directory's $I30 index allocation, where the reader offers it (qnxprobe 1.63
+        # or later): a member of its own kind, counted apart from the streams.
+        index_of = getattr(walker, 'directory_index', None)
+        if index_of is not None:
+            try:
+                for name, index_node, size in index_of(node):
+                    name = f'{member}:{name}'
+                    self.index_list.append(name)
+                    self._entries[name] = _Entry(walker, index_node, size or 0, mtime or 0, reading)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logfunc(f'Could not list the directory index of {member}: {exc}')
         return len(found)
 
     @staticmethod
@@ -1035,6 +1135,8 @@ class FileSeekerRaw(FileSeekerBase):
         members = self.name_list
         if self.stream_list and names_a_stream(filepattern):
             members = self.name_list + self.stream_list
+        if self.index_list and names_a_directory_index(filepattern):
+            members = members + self.index_list
         if self.free_list and names_free_space(filepattern):
             members = members + self.free_list
         if names_deleted(filepattern):

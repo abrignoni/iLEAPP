@@ -2,6 +2,8 @@
 
 This guide outlines the process of updating existing xLEAPP modules to use the new automatic output generator. This update simplifies module code and ensures consistent output across all artifacts.
 
+The helper functions used below (file lookup, SQLite, media, timestamps, device info) are described in [Helper functions for artifact modules](helper_functions.md).
+
 ## Key Changes
 
 1. Update the `__artifacts_v2__` block
@@ -192,7 +194,9 @@ If your artifact processes or references media files (images, videos, audio), us
 - `check_in_media()`: For media files located on the filesystem within the extraction.
 - `check_in_embedded_media()`: For media content extracted as binary data (e.g., from a database BLOB).
 
-Both functions will copy/link the media to a central data location in the report, add entries to the LAVA database for media items and their references, and return a `media_ref_id` (a string). This ID is what you'll put in your `data_list`.
+Both functions will copy/link the media to a central data location in the report, add entries to the LAVA database for media items and their references, and return a `media_ref_id` (a string). This ID is what you'll put in your `data_list`. They return `None` when nothing was checked in.
+
+Both need the context that `@artifact_processor` sets up. `check_in_media` only finds files in this artifact's files found, so the artifact's `paths` must match the media files too. See [Checking in media](helper_functions.md#checking-in-media) for every option.
 
 **Steps:**
 
@@ -200,31 +204,24 @@ Both functions will copy/link the media to a central data location in the report
 
     * **For files on disk (`check_in_media`):**
         ```python
-        current_file_path = "**/path/to/image.jpg" # dummy for example
-        media_file_on_disk = context.get_source_file_path(current_file_path) 
-
-        if media_file_on_disk: 
-            media_ref_id = check_in_media(
-                file_path=media_file_on_disk,
-                name='if-different-than-name-in-path' # optional
-            )
-            if media_ref_id:
-                data_list.append((timestamp_column, text_column, media_ref_id))
+        media_ref_id = check_in_media(
+            file_path='path/to/image.jpg',  # dummy for example; a path or partial path
+            name='if-different-than-name-in-path' # optional
+        )
+        # Keep the row when the media is missing: the cell is blank, the record still shows.
+        data_list.append((timestamp_column, text_column, media_ref_id))
         ```
 
     * **For embedded binary data (`check_in_embedded_media`):**
         ```python
-        original_source_path_of_db = "*/path/to/sqlite.db" # dummy for example
-        binary_image_data = db.msg_record.imagedata # dummy for example
-
-        if binary_image_data and original_source_path_of_db:
+        # db_path is the database file from context.get_files_found()
+        for record in get_sqlite_db_records(db_path, 'SELECT sent, image, image_name FROM messages'):
             media_ref_id = check_in_embedded_media(
-                source_file=original_source_path_of_db,
-                data=binary_image_data,
-                name=db.msg_record.imagename # optional but good idea if name is available
+                source_file=db_path,       # the file the bytes came from
+                data=record[1],            # the bytes; empty or None returns None
+                name=record[2]             # optional but good idea if name is available
             )
-            if media_ref_id:
-                data_list.append((timestamp_column, description_column, media_ref_id))
+            data_list.append((convert_unix_ts_to_utc(record[0]), media_ref_id))
         ```
 
 2. **Update `data_headers`**: Mark the column containing `media_ref_id` with the type `'media'`.

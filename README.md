@@ -114,6 +114,7 @@ Artifact modules live in `scripts/artifacts/` and are loaded dynamically at runt
 **Additional references:**
 
 - [Artifact Info Block Structure](admin/docs/artifact_info_block.md)
+- [Helper Functions for Artifact Modules](admin/docs/helper_functions.md)
 - [Updating Modules for Automatic Output Generation](admin/docs/module_updates.md)
 - [Updating Complex Modules to Include LAVA Output](admin/docs/module_updates_advanced.md)
 - [Testing Modules](admin/docs/testing/readme.md)

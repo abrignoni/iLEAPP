@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "module_name": "anonymousChat",
+    "artifact_name": "Anonymous Chat & Fun - Blocked Users",
+    "function_name": "anonymousChat_blocked",
+    "case_number": "case1",
+    "number_of_columns": 4,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 158,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_blocked.case1.zip",
+    "start_time": "2026-10-14T17:53:19.806166+00:00",
+    "end_time": "2026-10-14T17:53:19.823747+00:00",
+    "run_time_seconds": 0.0007047653198242188,
+    "last_commit": {
+      "hash": "8011c9a391bd3b34b9b15b1a35b346a9db1fcaaf",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-14T13:45:26-04:00",
+      "message": "Slim the Anonymous Chat module onto files_found"
+    }
+  },
+  "headers": [
+    "Block ID",
+    "From Username",
+    "To Username",
+    "Source"
+  ],
+  "data": [
+    [
+      "block-1",
+      "local.synthetic",
+      "blocked.synthetic",
+      "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
+    ]
+  ]
+}

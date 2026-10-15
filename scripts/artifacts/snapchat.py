@@ -9,13 +9,15 @@ __artifacts_v2__ = {
                        "message_content protobuf on rows where content_type is 1. WAL frames are not parsed, "
                        "so absence of a message here is not evidence it did not exist. Cached media that "
                        "cache_controller.db links to a message is shown in the Media column when its format is "
-                       "recognised.",
-        "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-16", "last_update_date": "2026-10-09",
+                       "recognised. Local Media ID is decoded from the message's local_message_references "
+                       "archive when the MEDIA_ID value is present, and Created On Device reports the app's "
+                       "created_on_device flag where the database has that column.",
+        "author": "@AlexisBrignoni, Claude, @segumarc",
+        "creation_date": "2026-08-16", "last_update_date": "2026-10-14",
         "requirements": "blackboxprotobuf, nska_deserialize", "category": "Snapchat",
         "notes": "iOS Snapchat keeps conversations in Documents/user_scoped/<account "
                  "hash>/arroyo/arroyo.db; the schema ships the developers' own column comments, and the "
-                 "one relied on is paraphrased in the Message Direction paragraph.\n"
+                 "ones relied on are paraphrased where they are used.\n"
                  "Record Origin. Live rows come back from a normal read. Recovered rows do not: they sit "
                  "in the database file as of its last checkpoint and are gone once the write-ahead log "
                  "is applied. Recovery Method and Recovery Location are filled in only on Recovered "
@@ -38,6 +40,20 @@ __artifacts_v2__ = {
                  "a recognised image, video or audio format; on the tested images 38 of the 39 non-empty "
                  "cached files were, with no decryption needed. Snapchat - Chat Media lists every entry, "
                  "including those with no file on disk.\n"
+                 "Local Media ID is the MEDIA_ID from the message's local_message_references archive, "
+                 "which the schema comments describe as the local media reference kept when the "
+                 "message originates from the device. It is blank when that field is NULL, its archive "
+                 "does not decode, or the archive holds no MEDIA_ID string. On the tested images it was "
+                 "filled on 14 rows, all Outgoing; 9 of those values appear in the External Key column of "
+                 "Snapchat - Chat Media, and the Media column showed a file on 4 of the 14 rows.\n"
+                 "Created On Device is the stored created_on_device value, YES for a stored non-zero "
+                 "value and NO for 0; only 0 and 1 were seen on the tested images. The schema "
+                 "declares it NOT NULL with the comment that it is set to true if the message was "
+                 "created on this device. It was present in the four iOS 18 images tested and "
+                 "absent from the eight iOS 14 to 17 images checked, where the column is blank. On the "
+                 "tested images every YES row was Outgoing (18 rows), while 5 Outgoing rows read NO "
+                 "(4 on dexter_ios18, 1 on iphone12_ios18), so an Outgoing message was not always "
+                 "created on this device. Why those rows read NO is not established here.\n"
                  "Message Direction compares sender_id against the local account id from user_id in the "
                  "app's Documents/user.plist, else the single distinct sender of rows where "
                  "local_message_content_id is set (the schema comments describe that column as nullable "
@@ -62,19 +78,19 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Documents/com.snap.file_manager_*_SCContent_*/*'),
         "output_types": "standard", "artifact_icon": "message",
         "sample_data": {
-                           "iphone11_ios17": "iOS 17.3 | 17 rows (all Live; 2 with media)",
-                           "otto_ios17": "iOS 17.5.1 | 71 rows (59 Live, 12 Recovered; 4 with media)",
-                           "dexter_ios18": "iOS 18.3.2 | 33 rows (31 Live, 2 Recovered; 5 with media)",
-                           "iphone12_ios18": "iOS 18.7 | 22 rows (15 Live, 7 Recovered; 1 with media)",
-                           "hc_ios18_7": "iOS 18.7.8 | 26 rows (all Live; 2 with media)",
-                           "iphone14plus_ios18_mvs2025": "iOS 18.0 | 7 rows (all Live; 2 with media)",
-                           "abe_ios16": "iOS 16.5 | 198 rows (all Live; 7 with media)",
-                           "hexordia_ios1651": "iOS 16.5.1 | 65 rows (all Live; 2 with media)",
-                           "magnet_ios16": "iOS 16.1.1 | 7 rows (all Live; none with media, its 6 conversation cache entries have no file)",
+                           "iphone11_ios17": "iOS 17.3 | 17 rows (all Live; 2 with media; Local Media ID on 2; no created_on_device column)",
+                           "otto_ios17": "iOS 17.5.1 | 71 rows (59 Live, 12 Recovered; 4 with media; no created_on_device column)",
+                           "dexter_ios18": "iOS 18.3.2 | 33 rows (31 Live, 2 Recovered; 5 with media; Local Media ID on 4; Created On Device 10 YES, 23 NO)",
+                           "iphone12_ios18": "iOS 18.7 | 22 rows (15 Live, 7 Recovered; 1 with media; Created On Device 7 YES, 15 NO)",
+                           "hc_ios18_7": "iOS 18.7.8 | 26 rows (all Live; 2 with media; Local Media ID on 1; Created On Device 1 YES, 25 NO)",
+                           "iphone14plus_ios18_mvs2025": "iOS 18.0 | 7 rows (all Live; 2 with media; Created On Device 0 YES, 7 NO)",
+                           "abe_ios16": "iOS 16.5 | 198 rows (all Live; 7 with media; no created_on_device column)",
+                           "hexordia_ios1651": "iOS 16.5.1 | 65 rows (all Live; 2 with media; Local Media ID on 4; no created_on_device column)",
+                           "magnet_ios16": "iOS 16.1.1 | 7 rows (all Live; no created_on_device column; none with media, its 6 conversation cache entries have no file)",
                            "felix23_ios16": "iOS 16.5 | 0 rows (conversation_message table empty)",
-                           "hickman_ios15": "iOS 15.3.1 | 18 rows (all Live; 6 with media)",
-                           "jess_ios15": "iOS 15.0.2 | 2 rows (all Live; 1 with media)",
-                           "hickman_ios14": "iOS 14.3 | 22 rows (all Live; schema lacks quoted_server_message_id; none with media, cache_controller.db has no conversation entries)",
+                           "hickman_ios15": "iOS 15.3.1 | 18 rows (all Live; 6 with media; Local Media ID on 2; no created_on_device column)",
+                           "jess_ios15": "iOS 15.0.2 | 2 rows (all Live; 1 with media; no created_on_device column)",
+                           "hickman_ios14": "iOS 14.3 | 22 rows (all Live; schema lacks quoted_server_message_id; Local Media ID on 1; no created_on_device column; none with media, cache_controller.db has no conversation entries)",
                            "hickman_ios13": "iOS 13.3.1 | 0 rows (conversation_message table empty)",
                            "ctf2020_ios12": "iOS 12.4 | 0 rows (conversation_message table empty)",
                            "iphone14plus_ios18": "iOS 18.0 | no Snapchat arroyo.db found",
@@ -1095,7 +1111,9 @@ def _log_wal_extent(files_found):
 
 
 _MESSAGE_COLUMNS = ('creation_timestamp', 'read_timestamp', 'sender_id', 'content_type',
-                    'message_content', 'message_state_type', 'is_saved', 'is_viewed_by_user',
+                    'message_content', 'local_message_references', 'created_on_device',
+                    'message_state_type',
+                    'is_saved', 'is_viewed_by_user',
                     'remote_media_count', 'quoted_server_message_id',
                     'client_conversation_id', 'client_message_id', 'server_message_id')
 
@@ -1107,16 +1125,16 @@ def _message_sql(source_path):
 
 # conversation_message key (client_conversation_id, client_message_id), as offsets into
 # _MESSAGE_COLUMNS.
-_MESSAGE_KEY = (10, 11)
+_MESSAGE_KEY = (12, 13)
 
 _MESSAGE_HEADERS = (('Creation Timestamp', 'datetime'), ('Read Timestamp', 'datetime'),
                     'Message Direction', 'Sender Username', 'Message Text',
-                    ('Media', 'media'), 'Record Origin',
+                    ('Media', 'media'), 'Created On Device', 'Record Origin',
                     'Sender Display Name', 'Sender ID',
                     'Conversation Participants', 'Content Type (as stored)',
                     'Message State Type', 'Is Saved', 'Is Viewed By User',
                     'Remote Media Count', 'Quoted Server Message ID',
-                    'Conversation ID', 'Client Message ID', 'Server Message ID',
+                    'Conversation ID', 'Client Message ID', 'Server Message ID', 'Local Media ID',
                     'Recovery Method', 'Recovery Location')
 
 _CONVERSATION_HEADERS = (('Creation Timestamp', 'datetime'), ('Last Updated Timestamp', 'datetime'),
@@ -1161,21 +1179,25 @@ def _message_rows(rows, friends, participants, local_user_id, provenance, media)
     origin, method, location = provenance
     data_list = []
     for row in rows:
-        (created, read, sender_id, content_type, blob, state, saved, viewed,
-         media_count, quoted_id, conversation_id, client_message_id, server_message_id) = row
+        (created, read, sender_id, content_type, blob, local_message_references,
+         created_on_device, state, saved, viewed, media_count, quoted_id, conversation_id,
+         client_message_id, server_message_id) = row
         text = _pb_text(_decode(blob), '4', '4', '2', '1') if content_type == 1 else ''
         if not local_user_id or not sender_id:
             direction = ''
         else:
             direction = 'Outgoing' if sender_id == local_user_id else 'Incoming'
         references = media(conversation_id, client_message_id, server_message_id)
+        local_media_id = _local_reference_media_id(local_message_references)
         data_list.append((
             _ms_to_utc(created), _ms_to_utc(read),
-            direction, _friend_name(friends, sender_id), text, references or '', origin,
+            direction, _friend_name(friends, sender_id), text, references or '',
+            _yes_no_blank(created_on_device), origin,
             _friend_name(friends, sender_id, 1), sender_id,
             participants.get(conversation_id, ('', ''))[1], content_type,
             state, _yes_no_blank(saved), _yes_no_blank(viewed), media_count, quoted_id,
-            conversation_id, client_message_id, server_message_id, method, location))
+            conversation_id, client_message_id, server_message_id, local_media_id, method,
+            location))
     return data_list
 
 

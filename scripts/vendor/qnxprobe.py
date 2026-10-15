@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.62"
+QNXPROBE_VERSION = "1.67"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -4011,6 +4011,26 @@ class NtfsWalker:
             joined.runs.extend(a.runs)
         return joined
 
+    def _index_allocation(self, num):
+        """The $INDEX_ALLOCATION attribute of a directory's file name index ($I30),
+        with the runs of every piece joined as _data_attr() joins a $DATA's, or
+        None when the record has none: a directory whose index still fits in its
+        $INDEX_ROOT, and every file."""
+        parts = [a for a in self._record(num)
+                 if a.type == NTFS_INDEX_ALLOCATION and a.name == "$I30" and not a.resident]
+        if not parts:
+            return None
+        parts.sort(key=lambda a: a.start_vcn)
+        head = parts[0]
+        joined = _NtfsAttr(NTFS_INDEX_ALLOCATION, "$I30", head.flags, False)
+        joined.comp_unit = head.comp_unit
+        joined.alloc_size = max(a.alloc_size for a in parts)
+        joined.data_size = max(a.data_size for a in parts)
+        joined.init_size = max(a.init_size for a in parts)
+        for a in parts:
+            joined.runs.extend(a.runs)
+        return joined
+
     def _cluster_in_use(self, lcn):
         """True when this cluster is marked allocated in $Bitmap. The bitmap is
         read once and kept: a deleted-file sweep asks about many clusters."""
@@ -4625,6 +4645,28 @@ class NtfsWalker:
                 out.append((a.name, ref, got[2]))
         return out
 
+    def directory_index(self, num):
+        """[("$I30", NtfsStreamRef, size)] for a directory whose file name index
+        has grown into an $INDEX_ALLOCATION attribute, and [] for any other
+        record. The NtfsStreamRef is the node read_file(), entry() and stamps()
+        take, as for a stream, and ``size`` is what read_file() returns.
+
+        The index is not an alternate data stream and streams() does not list
+        it: a caller asks for it here. What is read is the attribute as the
+        volume stores it, one index block after another (``idx_size`` bytes
+        each, starting "INDX"), with the update sequence array of each block
+        not applied. That is the form in which the space past a block's last
+        entry still holds entries NTFS has since removed, which is what a caller
+        reads this for; listdir() is what lists the directory.
+
+        A record that holds a $DATA stream named $I30 gives [], since that name
+        then reads as the stream."""
+        if isinstance(num, NtfsStreamRef) or self._data_attr(num, "$I30") is not None:
+            return []
+        ref = NtfsStreamRef(num, "$I30")
+        got = self._stream(ref)
+        return [] if got is None else [("$I30", ref, got[2])]
+
     def front_hole(self, ref):
         """The bytes of hole read_file() skips at the front of this stream, 0
         when it starts with stored data, None when there is no such stream or
@@ -4640,6 +4682,8 @@ class NtfsWalker:
         if not ref.name:
             return None                         # the unnamed stream is the file itself
         data = self._data_attr(ref.record, ref.name)
+        if data is None and ref.name == "$I30":
+            data = self._index_allocation(ref.record)      # see directory_index()
         if data is None:
             return None
         if data.resident:
@@ -12995,6 +13039,2187 @@ def unlock_apfs(fh, size=None, passwords=()):
     return (ApfsImage(fh, found) if found else fh), found
 
 
+# ---------------------------------------------------------------------------
+# LUKS1 and LUKS2
+# ---------------------------------------------------------------------------
+# The layouts are cryptsetup's (gitlab.com/cryptsetup/cryptsetup, docs/
+# on-disk-format.pdf for LUKS1 and docs/on-disk-format-luks2.pdf for LUKS2).
+# LUKS1 is a big-endian header: the cipher name and mode, the hash, the payload
+# offset in sectors, the master key's length, a PBKDF2 digest of the master key
+# (its salt and iterations), and eight keyslots of 48 bytes from byte 208, each
+# active or not, with its PBKDF2 iterations and salt, the offset of its key
+# material in sectors and its anti-forensic stripe count. LUKS2 is a binary
+# header, twice (the second at the first's size), each with a SHA checksum over
+# itself and its JSON area, the copy with the higher sequence id in force; the
+# JSON names the keyslots (their KDF, PBKDF2 or Argon2, their anti-forensic
+# split, and the area their key material is in, with the cipher it is encrypted
+# with), the digests that confirm a master key, and the data segments.
+#
+# A passphrase opens a keyslot: the KDF gives the key the slot's material is
+# encrypted with, in 512-byte sectors numbered from 0; the material is the
+# master key split into stripes (AF, luks1 style: each stripe XORed into a
+# running block that is diffused with the hash, the last stripe XORed on top);
+# the master key is right when its PBKDF2 digest matches the one stored. The
+# data is then decrypted sector by sector, its IV the sector number, counted
+# from the start of the data in 512-byte units (dm-crypt's default; a LUKS2
+# segment's larger sector_size changes how much one IV covers, not its units).
+#
+# Read: AES in XTS (plain64, plain) and CBC (essiv:<hash>, plain64, plain);
+# PBKDF2 with the hashes hashlib has; Argon2i and Argon2id when argon2-cffi is
+# installed. Not read: other ciphers, a LUKS2 header kept apart from the data
+# (detached), a keyslot type other than luks2, and a volume still being
+# re-encrypted. AES needs pycryptodome, as BitLocker does.
+
+try:
+    from argon2 import low_level as _ARGON2                    # argon2-cffi
+except ImportError:
+    _ARGON2 = None
+
+LUKS_MAGIC = b"LUKS\xba\xbe"
+LUKS_MAX_KEY_BYTES = 128             # a 512-bit XTS key is 64; nothing cryptsetup writes is longer
+LUKS_MAX_STRIPES = 65536             # cryptsetup writes 4000
+LUKS_MAX_PBKDF2 = 50_000_000         # benchmarks give single millions
+LUKS_MAX_ARGON2_KIB = 4 * 1024 * 1024    # cryptsetup's --pbkdf-memory maximum
+
+
+def _luks_cipher_problem(spec):
+    """Why a LUKS cipher spec is not one this reads, else ''."""
+    parts = (spec or "").lower().split("-", 1)
+    if len(parts) != 2 or parts[0] != "aes":
+        return f"its {spec or 'unnamed'} cipher is not one this reads (only AES)"
+    mode = parts[1]
+    if mode in ("xts-plain64", "xts-plain", "cbc-plain64", "cbc-plain") or mode.startswith("cbc-essiv:"):
+        return ""
+    return f"its {spec} mode is not one this reads"
+
+
+def _luks2_shape(meta):
+    """Raise ValueError unless the LUKS2 JSON has the shape cryptsetup writes."""
+    def need(cond, what):
+        if not cond:
+            raise ValueError(f"its LUKS2 metadata has {what}")
+    need(isinstance(meta, dict), "no object at its top")
+    for key in ("keyslots", "segments", "digests"):
+        need(isinstance(meta.get(key), dict), f"{key} that are not an object")
+    for kid, ks in meta["keyslots"].items():
+        need(isinstance(ks, dict), f"keyslot {kid} that is not an object")
+        if ks.get("type") != "luks2":
+            continue
+        for part in ("kdf", "af", "area"):
+            need(isinstance(ks.get(part), dict), f"keyslot {kid} with no {part} object")
+        kdf = ks["kdf"]
+        need(isinstance(kdf.get("salt"), str), f"keyslot {kid} with no salt")
+        fields = (("iterations", "hash") if kdf.get("type") == "pbkdf2" else ("time", "memory", "cpus"))
+        for f in fields:
+            need(f in kdf, f"keyslot {kid} with no {f}")
+        for f in ("offset", "encryption", "key_size"):
+            need(f in ks["area"], f"keyslot {kid} whose area has no {f}")
+        need(str(ks.get("key_size", "")).isdigit() and str(ks["area"]["key_size"]).isdigit()
+             and str(ks["area"]["offset"]).isdigit() and str(ks["af"].get("stripes", "")).isdigit(),
+             f"keyslot {kid} with a size, offset or stripe count that is not a number")
+    for sid, sg in meta["segments"].items():
+        need(isinstance(sg, dict), f"segment {sid} that is not an object")
+        if sg.get("type") == "crypt":
+            need(str(sg.get("offset", "")).isdigit() and (sg.get("size") == "dynamic"
+                                                         or str(sg.get("size", "")).isdigit())
+                 and isinstance(sg.get("encryption"), str),
+                 f"segment {sid} with an offset, size or cipher that does not read")
+    for did, dg in meta["digests"].items():
+        need(isinstance(dg, dict) and isinstance(dg.get("keyslots", []), list),
+             f"digest {did} that does not read")
+        if dg.get("type") == "pbkdf2":
+            need(str(dg.get("iterations", "")).isdigit() and isinstance(dg.get("salt"), str)
+                 and isinstance(dg.get("digest"), str), f"digest {did} that does not read")
+LUKS_CHUNK = 65536
+LUKS_CACHE_CHUNKS = 256
+
+
+def _luks_af_merge(material, key_bytes, stripes, hash_name):
+    """The master key from its anti-forensic split (luks1 AF: af.c AF_merge)."""
+    import hashlib                                  # pylint: disable=import-outside-toplevel
+
+    def diffuse(block):
+        size = hashlib.new(hash_name).digest_size
+        out = bytearray()
+        for i in range(-(-len(block) // size)):
+            piece = block[i * size:(i + 1) * size]
+            out += hashlib.new(hash_name, struct.pack(">I", i) + piece).digest()[:len(piece)]
+        return bytes(out)
+    d = bytes(key_bytes)
+    for i in range(stripes - 1):
+        stripe = material[i * key_bytes:(i + 1) * key_bytes]
+        d = diffuse(bytes(a ^ b for a, b in zip(d, stripe)))
+    last = material[(stripes - 1) * key_bytes:stripes * key_bytes]
+    return bytes(a ^ b for a, b in zip(d, last))
+
+
+class _LuksCipher:
+    """One LUKS cipher spec (cipher-mode-iv, as cryptsetup names them) with its
+    key: decrypt() takes whole sectors and the IV number of the first. Raises
+    ValueError for a spec this does not read."""
+
+    def __init__(self, spec, key):
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        if _BDE_AES is None:
+            raise ValueError("AES needs the pycryptodome package")
+        parts = spec.lower().split("-", 1)
+        if len(parts) != 2 or parts[0] != "aes":
+            raise ValueError(f"the {spec} cipher is not one this reads (only AES)")
+        mode = parts[1]
+        self.spec = spec
+        if mode in ("xts-plain64", "xts-plain"):
+            half = len(key) // 2
+            self.kind = "xts"
+            self.pair = (_BDE_AES.new(key[:half], _BDE_AES.MODE_ECB),
+                         _BDE_AES.new(key[half:], _BDE_AES.MODE_ECB))
+            self.wrap = mode.endswith("-plain")
+        elif mode in ("cbc-plain64", "cbc-plain") or mode.startswith("cbc-essiv:"):
+            self.kind = "cbc"
+            self.key = key
+            self.essiv = None
+            if mode.startswith("cbc-essiv:"):
+                hname = mode.split(":", 1)[1]
+                if hname not in hashlib.algorithms_available:
+                    raise ValueError(f"the ESSIV hash {hname} is not available here")
+                self.essiv = _BDE_AES.new(hashlib.new(hname, key).digest(), _BDE_AES.MODE_ECB)
+            self.wrap = mode == "cbc-plain"
+        else:
+            raise ValueError(f"the {spec} mode is not one this reads")
+
+    def decrypt(self, data, first, unit=512, iv_unit=512):
+        """Whole `unit`-byte sectors; sector i's IV is first + i * unit / iv_unit."""
+        n = len(data) // unit
+        step = unit // iv_unit
+        if self.kind == "xts":
+            if step == 1 and not self.wrap:
+                return _xts_crypt(self.pair, data[:n * unit], first, unit)
+            out = bytearray()
+            for i in range(n):
+                iv = first + i * step
+                out += _xts_crypt(self.pair, data[i * unit:(i + 1) * unit],
+                                  iv & 0xFFFFFFFF if self.wrap else iv, unit)
+            return bytes(out)
+        out = bytearray()
+        for i in range(n):
+            iv = first + i * step
+            if self.wrap:
+                iv &= 0xFFFFFFFF
+            ivb = iv.to_bytes(16, "little")
+            if self.essiv is not None:
+                ivb = self.essiv.encrypt(ivb)
+            out += _BDE_AES.new(self.key, _BDE_AES.MODE_CBC, ivb).decrypt(data[i * unit:(i + 1) * unit])
+        return bytes(out)
+
+
+class Luks:
+    """A LUKS1 or LUKS2 container at base in fh: its header, read before any
+    passphrase is given, and once unlock() finds one, its data in plaintext.
+    Luks.open() returns None for anything that is not LUKS."""
+
+    @classmethod
+    def open(cls, fh, base, size=None):
+        head = read_at(fh, base, 4096)
+        if len(head) < 1024 or head[:6] != LUKS_MAGIC:
+            return None
+        if size is None:
+            size = image_size(fh) - base
+        return cls(fh, base, size, head)
+
+    def __init__(self, fh, base, size, head):
+        # Everything lines(), summary() and unlock() read has a value before the
+        # header is parsed, so a header that does not parse leaves a container
+        # that is reported as not read, and why, rather than an exception.
+        self.fh, self.base, self.size = fh, base, size
+        self.version = struct.unpack_from(">H", head, 6)[0]
+        self.mk, self.why, self.tried, self.unlocked_by = None, "", [], None
+        self.label, self.problems, self.uuid, self.cipher, self.hash = "LUKS", [], "", "", ""
+        self.offset, self.data_size, self.sector_size, self.iv_tweak = 0, 0, SECTOR, 0
+        self.key_bytes, self.keyslots, self.digests = 0, [], []
+        self._cache = collections.OrderedDict()
+        self._cipher = None
+        try:
+            if self.version == 1:
+                self._luks1(head)
+            elif self.version == 2:
+                self._luks2()
+            else:
+                raise ValueError(f"LUKS version {self.version}")
+            self.data_size = max(0, self.size - self.offset) if self.data_size is None else self.data_size
+            unread = _luks_cipher_problem(self.cipher)
+            if unread:
+                raise ValueError(unread)
+        except Exception as exc:                       # pylint: disable=broad-except
+            self.keyslots, self.digests, self.data_size = [], [], 0
+            self.why = f"its header does not read ({type(exc).__name__}: {exc})" \
+                if not isinstance(exc, ValueError) else str(exc)
+
+    def _luks1(self, h):
+        name = h[8:40].split(b"\0")[0].decode("ascii", "replace")
+        mode = h[40:72].split(b"\0")[0].decode("ascii", "replace")
+        self.hash = h[72:104].split(b"\0")[0].decode("ascii", "replace")
+        payload, self.key_bytes = struct.unpack_from(">II", h, 104)
+        self.mk_digest, self.mk_salt = h[112:132], h[132:164]
+        self.mk_iterations, = struct.unpack_from(">I", h, 164)
+        self.uuid = h[168:208].split(b"\0")[0].decode("ascii", "replace")
+        self.cipher = f"{name}-{mode}"
+        self.offset, self.data_size, self.sector_size = payload * SECTOR, None, SECTOR
+        self.keyslots = []
+        for i in range(8):
+            active, iters = struct.unpack_from(">II", h, 208 + 48 * i)
+            salt = h[208 + 48 * i + 8:208 + 48 * i + 40]
+            off, stripes = struct.unpack_from(">II", h, 208 + 48 * i + 40)
+            if active == 0x00AC71F3:
+                self.keyslots.append(dict(id=str(i), kdf=dict(type="pbkdf2", hash=self.hash,
+                                                             iterations=iters, salt=salt),
+                                          offset=off * SECTOR, stripes=stripes, af_hash=self.hash,
+                                          cipher=self.cipher, key_bytes=self.key_bytes,
+                                          kdf_bytes=self.key_bytes))
+        self.digests = [dict(hash=self.hash, iterations=self.mk_iterations, salt=self.mk_salt,
+                             digest=self.mk_digest, keyslots=None)]
+
+    def _luks2(self):
+        import base64                               # pylint: disable=import-outside-toplevel
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        # The second copy is at the first's size; when the first does not give a
+        # size that reads, cryptsetup looks for the second at fixed offsets
+        # (luks2_disk_metadata.c, LUKS2_HDR2_OFFSETS), and so does this.
+        first = read_at(self.fh, self.base, 4096)
+        hdr_size, = struct.unpack_from(">Q", first, 8)
+        places = [0]
+        if 16384 <= hdr_size <= 4 << 20:
+            places.append(hdr_size)
+        places += [o for o in (0x4000, 0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000,
+                               0x200000, 0x400000) if o not in places]
+        best_seq, best_raw, best_size = -1, None, 0
+        for at in places:
+            head = read_at(self.fh, self.base + at, 512)
+            if len(head) < 512 or head[:6] not in (LUKS_MAGIC, b"SKUL\xba\xbe"):
+                continue
+            size, seqid = struct.unpack_from(">QQ", head, 8)
+            stored_at, = struct.unpack_from(">Q", head, 256)
+            if not 16384 <= size <= 4 << 20 or stored_at != at:
+                self.problems.append(f"the header copy at byte {at:,} names another size or place")
+                continue
+            raw = read_at(self.fh, self.base + at, size)
+            alg = raw[72:104].split(b"\0")[0].decode("ascii", "replace")
+            if alg not in hashlib.algorithms_available:
+                self.problems.append(f"header copy at byte {at:,}: checksum {alg} not available")
+                continue
+            body = bytearray(raw)
+            body[448:512] = bytes(64)
+            digest = hashlib.new(alg, bytes(body)).digest()
+            if len(raw) < size or raw[448:448 + len(digest)] != digest:
+                self.problems.append(f"the header copy at byte {at:,} fails its checksum")
+                continue
+            if best_raw is None or seqid > best_seq:
+                best_seq, best_raw, best_size = seqid, raw, size
+        if best_raw is None:
+            raise ValueError("no LUKS2 header copy passes its checksum")
+        raw = best_raw
+        self.uuid = raw[168:208].split(b"\0")[0].decode("ascii", "replace")
+        self.label = raw[24:72].split(b"\0")[0].decode("utf-8", "replace") or "LUKS"
+        meta = json.loads(raw[4096:best_size].split(b"\0", 1)[0])
+        _luks2_shape(meta)
+        if meta.get("requirements", {}).get("mandatory"):
+            raise ValueError("its header names requirements this does not meet "
+                             f"({', '.join(map(str, meta['requirements']['mandatory']))})")
+        segs = meta["segments"]
+        if len(segs) != 1 or any(sg.get("type") != "crypt" for sg in segs.values()):
+            raise ValueError("a volume being re-encrypted, or with more than one data segment")
+        seg = next(iter(segs.values()))
+        if seg.get("integrity"):
+            raise ValueError("its data carries dm-integrity, which this does not read")
+        self.cipher = seg["encryption"]
+        self.offset = int(seg["offset"])
+        self.data_size = None if seg["size"] == "dynamic" else int(seg["size"])
+        self.sector_size = int(seg.get("sector_size", 512))
+        if self.sector_size not in (512, 1024, 2048, 4096):
+            raise ValueError(f"a sector size of {self.sector_size}")
+        self.iv_tweak = int(seg.get("iv_tweak", 0))
+        b64 = base64.b64decode
+        for kid, ks in sorted(meta["keyslots"].items(), key=lambda kv: int(kv[0])):
+            if ks.get("type") != "luks2" or ks.get("af", {}).get("type") != "luks1":
+                self.problems.append(f"keyslot {kid} is of a type this does not read")
+                continue
+            kdf = dict(ks["kdf"])
+            kdf["salt"] = b64(kdf["salt"])
+            # The key the keyslot's material is encrypted with is the area's own
+            # length (luks2_keyslot_luks2.c), which need not be the volume key's.
+            self.keyslots.append(dict(id=kid, kdf=kdf, offset=int(ks["area"]["offset"]),
+                                      stripes=int(ks["af"]["stripes"]), af_hash=ks["af"]["hash"],
+                                      cipher=ks["area"]["encryption"], key_bytes=int(ks["key_size"]),
+                                      kdf_bytes=int(ks["area"]["key_size"])))
+        self.digests = [dict(hash=d["hash"], iterations=int(d["iterations"]), salt=b64(d["salt"]),
+                             digest=b64(d["digest"]), keyslots=set(d["keyslots"]))
+                        for d in meta["digests"].values() if d.get("type") == "pbkdf2"]
+        self.key_bytes = self.keyslots[0]["key_bytes"] if self.keyslots else 0
+
+    def _derive(self, kdf, password, length):
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        # Costs past cryptsetup's own limits (its --pbkdf-memory maximum of 4 GiB,
+        # and time and iteration counts no benchmark gives) are refused rather than
+        # run: a crafted keyslot could otherwise hang the reader or exhaust memory.
+        if kdf["type"] == "pbkdf2":
+            if not 0 < int(kdf["iterations"]) <= LUKS_MAX_PBKDF2:
+                raise ValueError(f"a PBKDF2 iteration count of {kdf['iterations']}, past what this runs")
+            return hashlib.pbkdf2_hmac(kdf["hash"], password, kdf["salt"], int(kdf["iterations"]), length)
+        if kdf["type"] in ("argon2i", "argon2id"):
+            if not (0 < int(kdf["memory"]) <= LUKS_MAX_ARGON2_KIB and 0 < int(kdf["time"]) <= 1000
+                    and 0 < int(kdf["cpus"]) <= 64):
+                raise ValueError("Argon2 costs past cryptsetup's own limits")
+            if _ARGON2 is None:
+                raise ValueError("its Argon2 keyslot needs the argon2-cffi package")
+            kind = _ARGON2.Type.ID if kdf["type"] == "argon2id" else _ARGON2.Type.I
+            return _ARGON2.hash_secret_raw(password, kdf["salt"], int(kdf["time"]), int(kdf["memory"]),
+                                           int(kdf["cpus"]), length, kind, 19)
+        raise ValueError(f"the {kdf['type']} key derivation is not one this reads")
+
+    def _try(self, slot, password):
+        """The master key a passphrase opens in a keyslot, else None."""
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        kb, stripes = slot["key_bytes"], slot["stripes"]
+        if not (0 < kb <= LUKS_MAX_KEY_BYTES and 0 < slot["kdf_bytes"] <= LUKS_MAX_KEY_BYTES
+                and 0 < stripes <= LUKS_MAX_STRIPES):
+            raise ValueError(f"keyslot {slot['id']} has a key size or stripe count past what "
+                             "cryptsetup writes")
+        length = -(-kb * stripes // SECTOR) * SECTOR
+        material = read_at(self.fh, self.base + slot["offset"], length)
+        if len(material) < length:
+            raise ValueError("its key material lies past the end of the image")
+        key = self._derive(slot["kdf"], password, slot["kdf_bytes"])
+        plain = _LuksCipher(slot["cipher"], key).decrypt(material, 0)
+        mk = _luks_af_merge(plain, kb, stripes, slot["af_hash"])
+        for d in self.digests:
+            listed = d["keyslots"] or ()
+            if d["keyslots"] is not None and slot["id"] not in listed:
+                continue
+            if not 0 < d["iterations"] <= LUKS_MAX_PBKDF2:
+                raise ValueError(f"a digest iteration count of {d['iterations']}, past what this runs")
+            if hashlib.pbkdf2_hmac(d["hash"], mk, d["salt"], d["iterations"], len(d["digest"])) == d["digest"]:
+                return mk
+        return None
+
+    def unlock(self, passwords):
+        """Try each passphrase on each keyslot; True once one opens the volume."""
+        if self.mk is not None:
+            return True
+        if not self.keyslots:
+            self.why = self.why or "no keyslot this reads"
+            return False
+        for pw in passwords:
+            pwb = pw.encode("utf-8") if isinstance(pw, str) else pw
+            for slot in self.keyslots:
+                try:
+                    mk = self._try(slot, pwb)
+                except Exception as exc:                   # pylint: disable=broad-except
+                    # a keyslot this cannot use is said, and the next one tried
+                    self.why = (str(exc) if isinstance(exc, ValueError)
+                                else f"keyslot {slot['id']}: {type(exc).__name__}: {exc}")
+                    continue
+                self.tried.append(slot["id"])
+                if mk is not None:
+                    try:
+                        self._cipher = _LuksCipher(self.cipher, mk)
+                    except ValueError as exc:
+                        self.why = str(exc)
+                        return False
+                    self.mk, self.unlocked_by, self.why = mk, f"keyslot {slot['id']}", ""
+                    return True
+        return False
+
+    def read(self, off, n):
+        """n plaintext bytes at data offset off (short at the end of the data)."""
+        out, pos, end = bytearray(), off, min(off + n, self.data_size)
+        while pos < end:
+            ci = pos // LUKS_CHUNK
+            chunk = self._cache.get(ci)
+            if chunk is None:
+                start = ci * LUKS_CHUNK
+                raw = read_at(self.fh, self.base + self.offset + start,
+                              min(LUKS_CHUNK, self.data_size - start))
+                whole = len(raw) - len(raw) % self.sector_size
+                tweak = getattr(self, "iv_tweak", 0)
+                chunk = self._cipher.decrypt(raw[:whole], tweak + start // SECTOR, self.sector_size)
+                self._cache[ci] = chunk
+                if len(self._cache) > LUKS_CACHE_CHUNKS:
+                    self._cache.popitem(last=False)
+            else:
+                self._cache.move_to_end(ci)
+            s = pos - ci * LUKS_CHUNK
+            take = min(len(chunk) - s, end - pos)
+            if take <= 0:
+                break
+            out += chunk[s:s + take]
+            pos += take
+        return bytes(out)
+
+    def lines(self):
+        return [f"LUKS{self.version}, {self.cipher}, {self.key_bytes * 8}-bit key, "
+                f"data at byte {self.offset:,}" + (f", {self.sector_size}-byte sectors"
+                                                   if self.sector_size != SECTOR else ""),
+                f"{len(self.keyslots)} keyslot(s) in use; uuid {self.uuid}"] + self.problems
+
+    def summary(self):
+        return (f"LUKS{self.version} {self.cipher}, opened with {self.unlocked_by}"
+                if self.mk is not None else f"LUKS{self.version}, locked")
+
+    def locked_note(self):
+        if self.why:
+            return f"LUKS-encrypted and not read: {self.why}"
+        if self.tried:
+            return "LUKS-encrypted and not read: no passphrase given opens a keyslot"
+        return "LUKS-encrypted and not read: give its passphrase"
+
+
+class LuksImage:
+    """An image read through read_at() with its opened LUKS volumes' data
+    decrypted in place, at the data's own offset, so identify_fs() and every
+    walker read the plaintext there. ``luks`` maps each opened container's base to
+    its Luks object, ``luks_found`` lists every one; anything else is the
+    image's own attribute."""
+
+    def __init__(self, fh, opened, found=()):
+        self._fh, self.luks, self.luks_found = fh, dict(opened), list(found)
+        self.size = image_size(fh)
+        self._spans = sorted((b + lk.offset, b + lk.offset + lk.data_size, lk)
+                             for b, lk in self.luks.items())
+        self._pos = 0
+
+    def __getattr__(self, name):
+        return getattr(self._fh, name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    def close(self):
+        self._fh.close()
+
+    def seek(self, off, whence=0):
+        self._pos = off if whence == 0 else self._pos + off if whence == 1 else self.size + off
+        return self._pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        end = self.size if n is None or n < 0 else min(self.size, self._pos + n)
+        out = bytearray()
+        while self._pos < end:
+            span = next((s for s in self._spans if s[0] <= self._pos < s[1]), None)
+            if span is not None:
+                take = min(end, span[1]) - self._pos
+                got = span[2].read(self._pos - span[0], take)
+            else:
+                nxt = min([s[0] for s in self._spans if s[0] > self._pos] + [end])
+                self._fh.seek(self._pos)
+                got = self._fh.read(nxt - self._pos)
+            if not got:
+                break
+            out += got
+            self._pos += len(got)
+        return bytes(out)
+
+
+def unlock_luks(fh, size=None, passwords=()):
+    """Find the LUKS containers in an opened image and open those a passphrase
+    opens. Returns (fh, found): fh is a LuksImage when there is any LUKS container
+    (``luks`` holds the opened ones, ``luks_found`` every one), else the image
+    unchanged; found holds one Luks per container, opened or not. Apply it
+    before lvm_image(), so a physical volume inside a LUKS container is seen."""
+    if size is None:
+        size = image_size(fh)
+    regions, _names, containers, protective = partition_regions(fh, size)
+    found, opened = [], {}
+    for label, base, rsize in regions:
+        if label in containers or label in protective:
+            continue
+        lk = Luks.open(fh, base, rsize)
+        if lk is None:
+            continue
+        lk.label = label
+        if lk.mk is None and not lk.why and lk.unlock(passwords):
+            opened[base] = lk
+        found.append(lk)
+    if not found:
+        return fh, found
+    return LuksImage(fh, opened, found), found
+
+
+def identify_luks(fh, base, size=None):
+    """("luks", lines) for a LUKS container at base, else None."""
+    head = read_at(fh, base, 8)
+    if head[:6] != LUKS_MAGIC:
+        return None
+    opened = getattr(fh, "luks", {}).get(base)
+    lk = opened or next((x for x in getattr(fh, "luks_found", ()) if x.base == base), None) \
+        or Luks.open(fh, base, size)
+    if lk is None:
+        return None
+    return "luks", ([lk.summary()] + lk.lines())
+
+
+# ---------------------------------------------------------------------------
+# LVM2 physical volumes and their linear logical volumes
+# ---------------------------------------------------------------------------
+# The layout is lvm2's own (github.com/lvmteam/lvm2 at tag v2_03_43, commit
+# 7b0bce6909611966bdc1e17c2408e1ec3b0f8c17): a label in one of the first four
+# 512-byte sectors (lib/label/label.h, "LABELONE", struct label_header) whose
+# contents are a pv_header (lib/format_text/layout.h): the PV's id, its size, a
+# zero-ended list of data areas and a zero-ended list of metadata areas. A
+# metadata area starts with an mda_header (magic " LVM2 x[5A%r0N*>") whose first
+# raw_locn is the committed metadata text, a circular buffer that wraps past the
+# end of the area back to just after the header (format-text.c
+# _vg_read_raw_area). Every checksum is lvm2's calc_crc (lib/misc/crc.c): the
+# CRC-32 table step from 0xf597a6cf, with no inversion before or after. The text
+# is lvm2's configuration syntax (export.c writes it): sections in braces,
+# "key = value", strings, integers and bracketed lists, # comments.
+#
+# A logical volume is read only when it is linear and its extents lie one after
+# another on one physical volume in this image: it is then a byte range of the
+# image like a partition, and is walked as one, at its true offset. Any other
+# (split into separate runs, striped, mirrored, thin, a snapshot, a cache, or on
+# a physical volume not in this image) is listed with why it was not read.
+
+LVM_LABEL_ID = b"LABELONE"
+LVM2_LABEL = b"LVM2 001"
+LVM_FMTT_MAGIC = b" LVM2 x[5A%r0N*>"
+LVM_INITIAL_CRC = 0xf597a6cf
+LVM_MDA_HEADER_SIZE = 512
+LVM_RAW_LOCN_IGNORED = 0x1
+LVM_MAX_SECTION_DEPTH = 128            # libdm-config.c MAX_SECTION_DEPTH
+
+
+def lvm_crc(data, initial=LVM_INITIAL_CRC):
+    """lvm2's calc_crc: the CRC-32 table step with no inversion either side."""
+    return (~binascii.crc32(data, ~initial & 0xffffffff)) & 0xffffffff
+
+
+# Whitespace and comments, a comment running to the end of its line: a pattern
+# that let one stop short would hand its last digits to the next token (a
+# trailing "# ... 2026" read as a value), and one whose pieces could split a
+# run of "#" two ways would backtrack exponentially on a long one.
+_LVM_SKIP = r'(?:\s|#[^\n]*(?:\n|$))*'
+_LVM_TOKEN = re.compile(_LVM_SKIP + r'(?:("(?:[^"\\]|\\.)*")|([-+]?\d+(?![\w.])|[\w.+-]+)|([={}\[\],]))')
+_LVM_REST = re.compile(_LVM_SKIP)
+
+
+def _lvm_tokens(text):
+    pos, out = 0, []
+    while True:
+        m = _LVM_TOKEN.match(text, pos)
+        if not m or m.end() == pos:
+            break
+        pos = m.end()
+        s, word, punct = m.groups()
+        if s is not None:
+            # dm_unescape_double_quotes undoes only \" and \\.
+            out.append(("s", re.sub(r'\\(["\\])', r"\1", s[1:-1])))
+        elif word is not None:
+            if re.fullmatch(r"[-+]?0\d+", word):
+                # lvm2 reads numbers with strtoll(..., 0), so a leading zero is
+                # octal; lvm2 never writes one, and it is refused, not misread.
+                raise ValueError(f"a number with a leading zero ({word}) in LVM metadata")
+            out.append(("i", int(word)) if re.fullmatch(r"[-+]?\d+", word) else ("w", word))
+        elif punct is not None:
+            out.append(("p", punct))
+    if _LVM_REST.match(text, pos).end() != len(text):
+        raise ValueError(f"LVM metadata text does not parse near byte {pos}")
+    return out
+
+
+def lvm_config(text):
+    """lvm2 metadata text as nested dicts: a section is a dict, a list a list,
+    a string a str and a number an int. Raises ValueError for text that does
+    not parse, never anything else."""
+    toks, i = _lvm_tokens(text), 0
+
+    def take():
+        nonlocal i
+        if i >= len(toks):
+            raise ValueError("LVM metadata text ends inside a value or section")
+        i += 1
+        return toks[i - 1]
+
+    def peek():
+        if i >= len(toks):
+            raise ValueError("LVM metadata text ends inside a value or section")
+        return toks[i]
+
+    def value():
+        kind, v = take()
+        if (kind, v) == ("p", "["):
+            items = []
+            while peek() != ("p", "]"):
+                if peek() == ("p", ","):
+                    take()
+                    continue
+                items.append(value())
+            take()
+            return items
+        if kind in ("s", "i"):
+            return v
+        raise ValueError(f"unexpected {v!r} in LVM metadata")
+
+    def section(end, depth):
+        if depth > LVM_MAX_SECTION_DEPTH:
+            raise ValueError("LVM metadata sections nest too deep")
+        out = {}
+        while i < len(toks) if end is None else peek() != end:
+            kind, key = take()
+            if kind != "w":
+                raise ValueError(f"unexpected {key!r} in LVM metadata")
+            nxt = take()
+            if nxt == ("p", "{"):
+                out[key] = section(("p", "}"), depth + 1)
+                take()
+            elif nxt == ("p", "="):
+                out[key] = value()
+            else:
+                raise ValueError(f"expected = or {{ after {key!r} in LVM metadata")
+        return out
+
+    return section(None, 0)
+
+
+class LvmPv:
+    """The label, pv_header and newest readable metadata of an LVM2 physical
+    volume at `base`. A label is accepted as lvm2 accepts it (label.c
+    _find_lvm_header): "LABELONE" in one of the first four sectors, naming that
+    sector and passing its checksum, and of type "LVM2 001"; a label that fails
+    is passed over and the next sector tried. Raises ValueError when none is
+    accepted. `mda_ok` counts the metadata area headers that check out."""
+
+    def __init__(self, fh, base, size=None):   # pylint: disable=unused-argument
+        # size is taken for the same signature as the identifiers; the label
+        # and the pv_header say where everything is.
+        self.base = base
+        self.problems = []
+        for sector in range(4):
+            raw = read_at(fh, base + sector * SECTOR, SECTOR)
+            if len(raw) < SECTOR or raw[:8] != LVM_LABEL_ID:
+                continue
+            sector_xl, crc_xl, offset_xl = struct.unpack_from("<QII", raw, 8)
+            if sector_xl != sector or lvm_crc(raw[20:]) != crc_xl or raw[24:32] != LVM2_LABEL:
+                continue
+            if 32 <= offset_xl <= SECTOR - 72:
+                break
+        else:
+            raise ValueError("no LVM2 label lvm2 would accept in the first four sectors")
+        self.label_sector = sector
+        self.uuid = raw[offset_xl:offset_xl + 32].decode("ascii", "replace")
+        self.device_size, = struct.unpack_from("<Q", raw, offset_xl + 32)
+        pos, lists = offset_xl + 40, ([], [])
+        for which in (0, 1):
+            while pos + 16 <= SECTOR:
+                off, n = struct.unpack_from("<QQ", raw, pos)
+                pos += 16
+                if not off:                # lvm2 ends each list on a zero offset
+                    break
+                lists[which].append((off, n))
+        self.data_areas, self.metadata_areas = lists
+        self.mda_ok = 0
+        self.vg = None                 # (vg name, vg section, seqno) of the newest copy
+        for off, n in self.metadata_areas:
+            try:
+                found = self._metadata(fh, off, n)
+            except ValueError as exc:
+                self.problems.append(f"metadata area at byte {off:,}: {exc}")
+                continue
+            if found and (self.vg is None or found[2] > self.vg[2]):
+                self.vg = found
+
+    def _metadata(self, fh, off, _n):
+        head = read_at(fh, self.base + off, LVM_MDA_HEADER_SIZE)
+        if len(head) < LVM_MDA_HEADER_SIZE:
+            raise ValueError("header past the end of the image")
+        crc_xl, magic, _version, start, size = struct.unpack_from("<I16sIQQ", head, 0)
+        if magic != LVM_FMTT_MAGIC:
+            raise ValueError("no metadata area magic")
+        if lvm_crc(head[4:]) != crc_xl:
+            raise ValueError("metadata area header checksum does not match")
+        if start != off or size < LVM_MDA_HEADER_SIZE:
+            raise ValueError("metadata area header disagrees with the pv_header")
+        self.mda_ok += 1
+        r_off, r_size, checksum, flags = struct.unpack_from("<QQII", head, 40)
+        if not r_off and not r_size:
+            return None                # an area with no metadata written yet
+        if flags & LVM_RAW_LOCN_IGNORED:
+            return None                # lvm2 keeps this copy but does not use it
+        if r_off >= size or r_size > size - LVM_MDA_HEADER_SIZE:
+            raise ValueError("metadata location outside the area")
+        wrap = max(0, r_off + r_size - size)
+        text = read_at(fh, self.base + off + r_off, r_size - wrap)
+        if wrap:
+            text += read_at(fh, self.base + off + LVM_MDA_HEADER_SIZE, wrap)
+        if lvm_crc(text) != checksum:
+            raise ValueError("metadata text checksum does not match")
+        cfg = lvm_config(text.split(b"\0", 1)[0].decode("utf-8", "replace"))
+        vgs = [(k, v) for k, v in cfg.items() if isinstance(v, dict)]
+        if len(vgs) != 1:
+            raise ValueError(f"{len(vgs)} volume group sections in the metadata text")
+        name, vg = vgs[0]
+        _lvm_vg_shape(vg)
+        return name, vg, vg.get("seqno", 0)
+
+
+def _lvm_vg_shape(vg):
+    """Raise ValueError unless the volume group section has the shape lvm2
+    writes: numbers where it writes numbers, sections where it writes sections,
+    a list of words for a status. A copy that does not is refused like one whose
+    checksum fails, so nothing later meets a value of the wrong kind."""
+    def need(cond, what):
+        if not cond:
+            raise ValueError(f"the volume group metadata has {what}")
+
+    def num(sec, key, where):
+        need(isinstance(sec.get(key, 0), int), f"a {key} that is not a number in {where}")
+
+    num(vg, "seqno", "the volume group")
+    num(vg, "extent_size", "the volume group")
+    need(isinstance(vg.get("id", ""), str), "an id that is not a string")
+    for key in ("physical_volumes", "logical_volumes"):
+        need(isinstance(vg.get(key, {}), dict), f"a {key} that is not a section")
+    for name, pv in (vg.get("physical_volumes") or {}).items():
+        need(isinstance(pv, dict), f"physical volume {name} that is not a section")
+        need(isinstance(pv.get("id", ""), str), f"physical volume {name} with an id that is not a string")
+        for key in ("pe_start", "pe_count"):
+            num(pv, key, f"physical volume {name}")
+    for name, lv in (vg.get("logical_volumes") or {}).items():
+        need(isinstance(lv, dict), f"logical volume {name} that is not a section")
+        status = lv.get("status", [])
+        need(isinstance(status, list) and all(isinstance(x, str) for x in status),
+             f"logical volume {name} with a status that is not a list of words")
+        for key, seg in lv.items():
+            if not key.startswith("segment") or key == "segment_count":
+                continue
+            need(isinstance(seg, dict), f"{name} {key} that is not a section")
+            for k in ("start_extent", "extent_count", "stripe_count"):
+                num(seg, k, f"{name} {key}")
+            need(isinstance(seg.get("type", ""), str), f"{name} {key} with a type that is not a string")
+            for listed in ("stripes", "mirrors", "raids"):
+                areas = seg.get(listed, [])
+                need(isinstance(areas, list), f"{name} {key} with {listed} that are not a list")
+                need(all(isinstance(x, (str, int)) for x in areas),
+                     f"{name} {key} with {listed} of another kind")
+
+
+def _lvm_shown(lvname, segs):
+    """The name lvm2 shows for a logical volume: a snapshot's visible volume is
+    stored as snapshotN with its segment naming the volume (cow_store) lvs lists."""
+    if segs and segs[0].get("type") == "snapshot" and segs[0].get("cow_store"):
+        return f"{segs[0]['cow_store']} (stored as {lvname})"
+    return lvname
+
+
+def _lvm_id(text):
+    return str(text).replace("-", "")
+
+
+def _lvm_pv(fh, base, rsize):
+    """An LvmPv for a region with a label lvm2 accepts, else None."""
+    try:
+        return LvmPv(fh, base, rsize)
+    except ValueError:
+        return None
+
+
+def lvm_volumes(fh, regions, ss=SECTOR):
+    """[(lv label, base, size, name)] for the logical volumes of the LVM2
+    physical volumes among `regions` ([(label, base, size)]) that this reads,
+    and {pv base: [lines]} saying, per physical volume, what its volume group
+    holds and why any logical volume was not read. A volume that is one run of
+    extents on one physical volume is a byte range of the image and its base is
+    that range's start; one that is split into runs or striped is read through
+    lvm_image(), and its base is where that places it, past the image's end.
+    `ss` is the disk's sector size, the unit of the LBA in a name."""
+    found, notes, _remap, _free = _lvm_scan(fh, regions, ss)
+    return found, notes
+
+
+def _lvm_scan(fh, regions, ss=SECTOR):
+    """(found, notes, remap, free) for lvm_volumes, lvm_image and volumes():
+    remap is [(key, LvmMap, label, name)] for each volume that needs a map,
+    free is {pv base: [(image offset, length)]} of the extents no logical
+    volume holds."""
+    pvs = {}
+    for _label, base, rsize in regions:
+        pv = _lvm_pv(fh, base, rsize)
+        if pv is not None:
+            pvs[base] = pv
+    # A label with no metadata area header that checks out behind it counts only
+    # when a volume group read from another physical volume names its id, the
+    # way lvm2 still uses such a physical volume: a stray label alone does not
+    # turn a region into a physical volume.
+    named = {_lvm_id(rec.get("id", "")) for pv in pvs.values() if pv.vg
+             for rec in (pv.vg[1].get("physical_volumes") or {}).values() if isinstance(rec, dict)}
+    pvs = {b: pv for b, pv in pvs.items() if pv.mda_ok or _lvm_id(pv.uuid) in named}
+    notes = {base: [f"LVM2 physical volume, id {pv.uuid}"] + pv.problems
+             for base, pv in pvs.items()}
+    by_uuid = {}
+    for base, pv in pvs.items():
+        key = _lvm_id(pv.uuid)
+        if key in by_uuid:
+            notes[base].append(f"the same physical volume id as the one at byte "
+                               f"{by_uuid[key][0]:,}; that one is used")
+            continue
+        by_uuid[key] = (base, pv)
+    groups = {}
+    for base, pv in pvs.items():
+        if pv.vg is None:
+            notes[base].append("no volume group metadata read on it")
+            continue
+        name, vg, seqno = pv.vg
+        key = vg.get("id", name)
+        if key not in groups or seqno > groups[key][2]:
+            groups[key] = (name, vg, seqno)
+    found, remap, free = [], [], {}
+    virtual = getattr(fh, "lvm_virtual", None) or {}
+    for name, vg, seqno in groups.values():
+        home = [b for b, pv in pvs.items() if pv.vg and pv.vg[1].get("id") == vg.get("id")]
+        try:
+            lines, lvs, maps, spare = _lvm_group(name, vg, seqno, by_uuid, ss, virtual)
+        except (TypeError, AttributeError, KeyError, ValueError) as exc:
+            # _lvm_vg_shape refuses the shapes known to fail; anything it misses
+            # is said here rather than costing the image its other volumes.
+            lines, lvs, maps, spare = [f"volume group {name}: its metadata could not be used "
+                                       f"({type(exc).__name__}: {exc})"], [], [], {}
+        found += lvs
+        remap += maps
+        for b, runs in spare.items():
+            free.setdefault(b, []).extend(runs)
+        for b in home:
+            notes[b] += lines
+    return found, notes, remap, free
+
+
+class LvmMap:
+    """Where each byte of a logical volume lies in the image. `segments` are in
+    the volume's order, each (start, size, chunk, bases): one run starting at
+    bases[0] when chunk is None, else striped in chunks of `chunk` bytes across
+    the runs that start at each of bases, as lvm2's striped segment type lays
+    them out (lib/striped/striped.c, dm-stripe: chunk i of the segment is on
+    stripe i mod n, in that stripe's row i div n)."""
+
+    def __init__(self, segments):
+        self.segments = segments
+        self.size = sum(s[1] for s in segments)
+        self.copy_name = self.copy_kind = None     # set for a RAID1 or mirror copy (_lvm_copy)
+        self._starts = [s[0] for s in segments]
+
+    def locate(self, off):
+        """(image offset, bytes that follow it there) for volume offset `off`."""
+        i = bisect.bisect_right(self._starts, off) - 1
+        start, size, chunk, bases = self.segments[i]
+        x = off - start
+        if chunk is None:
+            return bases[0] + x, size - x
+        c, within = divmod(x, chunk)
+        row, stripe = divmod(c, len(bases))
+        return bases[stripe] + row * chunk + within, min(chunk - within, size - x)
+
+    def image_runs(self, off, n):
+        """[(image offset, length)] for `n` bytes from volume offset `off`, the
+        runs that touch merged."""
+        out, end = [], min(off + n, self.size)
+        while off < end:
+            at, here = self.locate(off)
+            take = min(here, end - off)
+            if out and out[-1][0] + out[-1][1] == at:
+                out[-1] = (out[-1][0], out[-1][1] + take)
+            else:
+                out.append((at, take))
+            off += take
+        return out
+
+    def missing(self, size):
+        """Bytes of the volume that lie past `size`, the end of the image."""
+        lost = 0
+        for _start, seg, chunk, bases in self.segments:
+            per = seg if chunk is None else seg // len(bases)
+            for b in bases:
+                lost += max(0, min(per, b + per - size))
+        return lost
+
+    def describe(self):
+        """The map as records for a manifest: per segment, its place in the
+        volume and the image offset of each run it is on."""
+        return [{"volume_offset": start, "length": size,
+                 "image_offsets": list(bases),
+                 **({"stripe_size": chunk} if chunk is not None else {})}
+                for start, size, chunk, bases in self.segments]
+
+    def contiguous(self):
+        """The image offset the whole volume starts at, when it is one run."""
+        if len(self.segments) == 1 and self.segments[0][2] is None:
+            return self.segments[0][3][0]
+        return None
+
+
+def _lvm_group(name, vg, seqno, by_uuid, ss, virtual=None):
+    """(report lines, [(lv label, base, size, name)], [(key, LvmMap, label,
+    name)] of the volumes that need a map, {pv base: free runs}) for one volume
+    group. `virtual` maps a key to the base lvm_image() placed that volume at."""
+    virtual = virtual or {}
+    found, maps = [], []
+    ext = vg.get("extent_size", 0) * SECTOR
+    where = {}                       # pv name in the metadata -> (base, pe_start bytes, pe_count)
+    for pvname, rec in (vg.get("physical_volumes") or {}).items():
+        hit = by_uuid.get(_lvm_id(rec.get("id", "")))
+        if hit:
+            where[pvname] = (hit[0], rec.get("pe_start", 0) * SECTOR, rec.get("pe_count", 0))
+    pv_names = set(vg.get("physical_volumes") or {})
+    lines = [f"volume group {name}, metadata seqno {seqno}, extent {human(ext)}, "
+             f"{len(pv_names)} physical volume(s), {len(where)} of them in this image"]
+    used = collections.defaultdict(list)     # pv name -> [(first extent, extents)]
+    for lvname, lv in (vg.get("logical_volumes") or {}).items():
+        for key, seg in lv.items():
+            if not (key.startswith("segment") and isinstance(seg, dict)):
+                continue
+            # lvm2 writes a segment's areas on physical volumes as "pvN", extent
+            # pairs (export.c out_areas): a striped segment under stripes, each
+            # area holding its share of the extents, and a mirror (a pvmove in
+            # progress among them, mirrored.c) under mirrors, each area holding
+            # them all. Areas that name another logical volume are counted there.
+            count = seg.get("extent_count", 0)
+            for listed, per in (("stripes", count // max(1, seg.get("stripe_count", 1) or 1)),
+                                ("mirrors", count)):
+                areas = seg.get(listed) or []
+                for i in range(0, len(areas) - 1, 2):
+                    if areas[i] in pv_names and isinstance(areas[i + 1], int):
+                        used[areas[i]].append((areas[i + 1], per))
+        if "VISIBLE" not in (lv.get("status") or []):
+            continue                 # an internal volume (a pool's data, a mirror's image)
+        segs = sorted((v for k, v in lv.items() if k.startswith("segment") and isinstance(v, dict)),
+                      key=lambda s: s.get("start_extent", 0))
+        shown = _lvm_shown(lvname, segs)
+        why, lmap = _lvm_layout(segs, where, pv_names, ext, vg.get("logical_volumes") or {})
+        total = sum(s.get("extent_count", 0) for s in segs if isinstance(s.get("extent_count"), int)) * ext
+        if why:
+            lines.append(f"logical volume {shown}, {human(total)}: not read ({why})")
+            continue
+        label = f"LVM {name}/{lvname}"
+        first = lmap.locate(0)[0]
+        stem = f"lvm_lba{first // ss}"
+        suffix = sanitize_volume_label(f"{name}_{lvname}", 40)
+        vname = f"{stem}_{suffix}" if suffix else stem
+        base = lmap.contiguous()
+        if base is not None:
+            how = (f" ({_lvm_shape_words(lmap)})" if getattr(lmap, "copy_name", None) else "")
+            lines.append(f"logical volume {lvname}, {human(lmap.size)}: read as {label}{how}")
+            found.append((label, base, lmap.size, vname))
+            continue
+        key = (vg.get("id", name), lvname)
+        how = _lvm_shape_words(lmap)
+        maps.append((key, lmap, label, vname))
+        if key in virtual:
+            lines.append(f"logical volume {lvname}, {human(lmap.size)}: {how}, read as {label} "
+                         "through a map of its runs")
+            found.append((label, virtual[key], lmap.size, vname))
+        else:
+            lines.append(f"logical volume {lvname}, {human(lmap.size)}: not read here ({how}; "
+                         "lvm_image() reads it through a map of its runs)")
+    spare = {}
+    for pvname, (pv_base, pe_start, pe_count) in where.items():
+        taken = sorted(used.get(pvname, []))
+        runs, at = [], 0
+        for first, count in taken + [(pe_count, 0)]:
+            if first > at:
+                runs.append((pv_base + pe_start + at * ext, (first - at) * ext))
+            at = max(at, first + count)
+        if runs:
+            spare[pv_base] = runs
+            lines.append(f"{sum(n for _o, n in runs) // ext if ext else 0:,} extent(s) of "
+                         f"{pvname}, the physical volume at byte {pv_base:,}, allocated to no "
+                         "logical volume")
+    return lines, found, maps, spare
+
+
+def _lvm_copy(seg, where, pv_names, ext, lvs, depth):
+    """A RAID1 or mirror segment, read from the first copy whose extents are all
+    in the image. lvm2 lists a raid1 segment's copies under raids, metadata and
+    image volume in turn (raid.c, out_areas "raid"), and a mirror's under
+    mirrors, each with its first extent (mirrored.c, out_areas "mirror"). Every
+    copy holds the volume's data from its start, unless the segment records a
+    data_offset (raid.c, written while a reshape moves the data), which is not
+    read. Which copies are in sync lives in the RAID metadata, not read here; a
+    copy that fell out of sync is read as it is."""
+    if depth > 4:
+        return "copies nested too deep", None
+    kind = seg["type"]
+    if seg.get("data_offset"):
+        return f"a {kind} segment with a data offset (written while a reshape moves its data)", None
+    if kind == "raid1":
+        listed = seg.get("raids") or []
+        names = [(listed[i], 0) for i in range(1, len(listed), 2)]
+    else:
+        listed = seg.get("mirrors") or []
+        names = [(listed[i], listed[i + 1]) for i in range(0, len(listed) - 1, 2)]
+    size = seg.get("extent_count", 0) * ext
+    reasons = []
+    for name, first in names:
+        copy = lvs.get(name) if isinstance(name, str) else None
+        if not isinstance(copy, dict) or first:
+            reasons.append(f"{name}: not a copy this reads")
+            continue
+        csegs = sorted((v for k, v in copy.items() if k.startswith("segment") and isinstance(v, dict)),
+                       key=lambda c: c.get("start_extent", 0))
+        why, cmap = _lvm_layout(csegs, where, pv_names, ext, lvs, depth + 1)
+        if why or cmap.size < size:
+            reasons.append(f"{name}: {why or 'shorter than the volume'}")
+            continue
+        segs_out, left = [], size
+        for start, length, chunk, bases in cmap.segments:
+            if left <= 0:
+                break
+            segs_out.append((start, min(length, left), chunk, bases))
+            left -= length
+        lmap = LvmMap(segs_out)
+        lmap.copy_name, lmap.copy_kind = name, kind
+        return None, lmap
+    return f"a {kind} volume none of whose copies is read ({'; '.join(reasons) or 'none listed'})", None
+
+
+def _lvm_shape_words(lmap):
+    """How a volume that needs a map is laid out, in a few words."""
+    if getattr(lmap, "copy_name", None):
+        return f"{lmap.copy_kind}, read from its copy {lmap.copy_name}"
+    striped = [s for s in lmap.segments if s[2] is not None]
+    if striped:
+        return (f"striped across {len(striped[0][3])} physical volumes in "
+                f"{human(striped[0][2])} stripes")
+    return f"in {len(lmap.segments)} separate runs of extents"
+
+
+def _lvm_layout(segs, where, pv_names, ext, lvs=None, depth=0):
+    """(why not, None) or (None, LvmMap) for an LV's segments: linear and
+    striped segments whose every run is on a physical volume in the image, or a
+    RAID1 or mirror volume, read from the first of its copies that is.
+    `where` maps a physical volume's name in the metadata to (base, pe_start
+    bytes, pe_count) for those in the image; `pv_names` names every one; `lvs`
+    is the volume group's logical_volumes, where the copies are."""
+    if not segs:
+        return "no segments", None
+    if len(segs) == 1 and segs[0].get("type") in ("raid1", "mirror") and lvs is not None:
+        return _lvm_copy(segs[0], where, pv_names, ext, lvs, depth)
+    out, start = [], 0
+    for seg in segs:
+        kind = seg.get("type", "")
+        if kind != "striped":
+            return f"a {kind or 'untyped'} segment", None
+        stripes = seg.get("stripes") or []
+        count, n = seg.get("extent_count", 0), seg.get("stripe_count", 1)
+        if (not isinstance(n, int) or n < 1 or len(stripes) != 2 * n
+                or not all(isinstance(stripes[i], int) for i in range(1, len(stripes), 2))
+                or not isinstance(count, int) or not isinstance(seg.get("start_extent", 0), int)):
+            return "a segment's extents do not read", None
+        if seg.get("start_extent", 0) != start:
+            return "its segments leave a gap in the volume", None
+        chunk = None
+        if n > 1:
+            chunk = seg.get("stripe_size", 0) * SECTOR
+            if not chunk or count % n or (count // n * ext) % chunk:
+                return "a striped segment whose stripes do not divide its extents", None
+        bases = []
+        for i in range(0, 2 * n, 2):
+            pvname, pe = stripes[i], stripes[i + 1]
+            if pvname not in pv_names:
+                return f"its extents are on {pvname}, which is not a physical volume of the group", None
+            if pvname not in where:
+                return f"on {pvname}, a physical volume not in this image", None
+            pv_base, pe_start, pe_count = where[pvname]
+            if pe_count and pe + count // n > pe_count:
+                return f"its extents run past the {pe_count:,} its physical volume holds", None
+            bases.append(pv_base + pe_start + pe * ext)
+        size = count * ext
+        if (chunk is None and out and out[-1][2] is None
+                and out[-1][3][0] + out[-1][1] == bases[0]):
+            p_start, p_size, _c, p_bases = out[-1]
+            out[-1] = (p_start, p_size + size, None, p_bases)    # one run lvm2 keeps as two segments
+        else:
+            out.append((start * ext, size, chunk, bases))
+        start += count
+    return None, LvmMap(out)
+
+
+class LvmImage:
+    """An image read through read_at() with the logical volumes that need a map
+    (split into runs, or striped) placed past its end, each at the base in
+    ``lvm_virtual`` ({(volume group id, name): base}), read through its LvmMap.
+    ``size`` stays the image's own, so nothing reads the placed volumes as part
+    of the disk; an offset at or past it belongs to a placed volume and is
+    translated (lvm_map_for) wherever one is reported. Any other attribute is the
+    image's own."""
+
+    def __init__(self, fh, size, placed):
+        self._fh, self.size = fh, size
+        self.lvm_virtual = {key: base for key, (base, _m) in placed.items()}
+        self._spans = sorted((base, base + m.size, m) for base, m in placed.values())
+        self._pos = 0
+
+    def __getattr__(self, name):
+        return getattr(self._fh, name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    def close(self):
+        self._fh.close()
+
+    def lvm_map_for(self, base):
+        """The LvmMap of the volume placed at `base`, else None."""
+        return next((m for b, _e, m in self._spans if b == base), None)
+
+    def seek(self, off, whence=0):
+        self._pos = off if whence == 0 else self._pos + off if whence == 1 else self.size + off
+        return self._pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        if self._pos < self.size:
+            want = self.size - self._pos if n is None or n < 0 else min(n, self.size - self._pos)
+            self._fh.seek(self._pos)
+            got = self._fh.read(want)
+            self._pos += len(got)
+            return got
+        span = next((s for s in self._spans if s[0] <= self._pos < s[1]), None)
+        if span is None:
+            return b""
+        start, end, lmap = span
+        want = end - self._pos if n is None or n < 0 else min(n, end - self._pos)
+        out = bytearray()
+        for at, length in lmap.image_runs(self._pos - start, want):
+            self._fh.seek(at)
+            got = self._fh.read(length)
+            out += got
+            if len(got) < length:
+                break
+        self._pos += len(out)
+        return bytes(out)
+
+
+def lvm_image(fh, size=None):
+    """The image with each logical volume that needs a map (split into runs, or
+    striped) readable past its end (LvmImage), or the image unchanged when there
+    is none. volumes() and main() call it, so their volumes include those, and
+    a placed volume's base is valid only through the handle it returns (calling
+    it again on that handle returns it unchanged). Apply it after
+    unlock_bitlocker() and unlock_apfs(): their wrappers read only up to the
+    image's own size, so wrapping this one inside them hides every placed volume,
+    and a BitLocker or APFS volume inside a mapped logical volume is not opened."""
+    if getattr(fh, "lvm_virtual", None) is not None:
+        return fh
+    if size is None:
+        size = image_size(fh)
+    regions, _names, containers, protective = partition_regions(fh, size)
+    ss = disk_sector_size(fh)
+    _found, _notes, remap, _free = _lvm_scan(
+        fh, [r for r in regions if r[0] not in containers and r[0] not in protective
+             and not r[0].startswith("LVM ")], ss)
+    if not remap:
+        return fh
+    # Past anything the image can describe: its end, and the end of every region
+    # its tables name (on a partial image those reach past the file, and a read
+    # there has to come back empty, not with a placed volume's data), and never
+    # below 2**60 bytes, rounded up to a GiB and a GiB further, each volume then
+    # starting on a MiB.
+    reach = max([size, 1 << 60] + [b + (n or 0) for _l, b, n in regions])
+    at = ((reach + (1 << 30) - 1) >> 30 << 30) + (1 << 30)
+    placed = {}
+    for key, lmap, _label, _name in remap:
+        placed[key] = (at, lmap)
+        at = (at + lmap.size + (1 << 20) - 1) >> 20 << 20
+    return LvmImage(fh, size, placed)
+
+
+def lvm_free_extents(fh, regions, ss=SECTOR):
+    """{pv base: [(image offset, length)]} of each LVM2 physical volume's extents
+    that no logical volume, hidden ones included, is allocated."""
+    return _lvm_scan(fh, regions, ss)[3]
+
+
+def identify_lvm(fh, base, size=None):
+    """("lvm2 pv", lines) for an LVM2 physical volume at base, else None: a
+    label lvm2 accepts, and either a metadata area header that checks out or a
+    volume group elsewhere in the image that names it (lvm_volumes)."""
+    pv = _lvm_pv(fh, base, size)
+    if pv is None:
+        return None
+    # The volume group may span other physical volumes in the same image, so
+    # its logical volumes are judged against every region the partition tables
+    # give (table_regions reads only the tables, never a filesystem, so this
+    # cannot come back here).
+    try:
+        regions = [r for r in table_regions(fh)[0] if r[1] != base]
+    except Exception:                              # pylint: disable=broad-except
+        regions = []
+    _found, notes = lvm_volumes(fh, [("pv", base, size or 0)] + regions)
+    if base not in notes:
+        return None
+    return "lvm2 pv", notes[base][1:] + [f"id {pv.uuid}"]
+
+
+def _luks2_rewritten(img, change, both=True):
+    """A LUKS2 image whose JSON metadata `change(meta)` has edited, its checksum
+    made good in both header copies (or only the first when `both` is False)."""
+    import hashlib
+    out = bytearray(img)
+    size, = struct.unpack_from(">Q", out, 8)
+    for at in ((0, size) if both else (0,)):
+        meta = json.loads(bytes(out[at + 4096:at + size]).split(b"\0", 1)[0])
+        change(meta)
+        text = json.dumps(meta).encode()
+        out[at + 4096:at + size] = text + bytes(size - 4096 - len(text))
+        alg = out[at + 72:at + 104].split(b"\0")[0].decode()
+        body = bytearray(out[at:at + size])
+        body[448:512] = bytes(64)
+        digest = hashlib.new(alg, bytes(body)).digest()
+        out[at + 448:at + 448 + len(digest)] = digest
+    return bytes(out)
+
+
+def _luks_hostile_checks(images, p1, p2, want, walk):
+    """Damaged and crafted LUKS headers cost nothing but that container, keyslot
+    and digest rules hold, and the paths the fixtures alone do not reach."""
+    import io
+    out = []
+    l2 = images["luks2-pbkdf2"]
+
+    def state(img):
+        """(volumes() ran, the container's note), never raising."""
+        try:
+            vols = volumes(io.BytesIO(img), len(img))
+            luks = [v for v in vols if v["kind"] == "luks"]
+            return True, (luks[0].get("note", "") if luks else "")
+        except Exception as exc:                       # pylint: disable=broad-except
+            return False, f"{type(exc).__name__}: {exc}"
+
+    both_bad = bytearray(l2)
+    size, = struct.unpack_from(">Q", both_bad, 8)
+    both_bad[4096 + 10] ^= 1
+    both_bad[size + 4096 + 10] ^= 1
+    ok1, note1 = state(bytes(both_bad))
+    v3 = bytearray(images["luks1-cbc"])
+    struct.pack_into(">H", v3, 6, 3)
+    ok2, note2 = state(bytes(v3))
+    out.append(("a LUKS2 container with both header copies damaged, and a header of an "
+                "unknown version, are listed as not read, and nothing else is lost",
+                ok1 and "no LUKS2 header copy passes" in note1 and ok2 and "LUKS version 3" in note2))
+
+    crafted = {
+        "a kdf without iterations": lambda m: m["keyslots"]["0"]["kdf"].pop("iterations"),
+        "keyslots as a list": lambda m: m.__setitem__("keyslots", []),
+        "a segment size that is not a number": lambda m: m["segments"]["0"].__setitem__("size", "abc"),
+        "a data segment with dm-integrity": lambda m: m["segments"]["0"].__setitem__(
+            "integrity", {"type": "hmac(sha256)"}),
+        "a serpent cipher": lambda m: m["segments"]["0"].__setitem__("encryption", "serpent-xts-plain64"),
+    }
+    held = []
+    for what, change in crafted.items():
+        img = _luks2_rewritten(l2, change)
+        ok, note = state(img)
+        lk = Luks.open(io.BytesIO(img), 0, len(img))
+        held.append((what, ok and lk.why != "" and not lk.unlock([p1]) and "give its passphrase" not in note))
+    out.append(("crafted LUKS2 metadata (" + ", ".join(w for w, _h in held) + ") is refused as not "
+                "read, with why, before any passphrase is asked for",
+                all(h for _w, h in held)
+                and "dm-integrity" in Luks.open(io.BytesIO(_luks2_rewritten(l2, crafted["a data segment with dm-integrity"])), 0, len(l2)).why
+                and "only AES" in Luks.open(io.BytesIO(_luks2_rewritten(l2, crafted["a serpent cipher"])), 0, len(l2)).why))
+
+    huge = _luks2_rewritten(images["luks2-argon2id"], lambda m: m["keyslots"]["0"]["kdf"].update(
+        memory=2 ** 32 - 1)) if _ARGON2 is not None else None
+    if huge is not None:
+        started = time.time()
+        lk = Luks.open(io.BytesIO(huge), 0, len(huge))
+        lk.unlock([p1])
+        out.append(("an Argon2 keyslot asking for more memory than cryptsetup allows is refused, "
+                    f"not run ({time.time() - started:.2f}s)",
+                    lk.mk is None and "past cryptsetup's own limits" in lk.why
+                    and time.time() - started < 30))
+        # a digest applies to the keyslots it lists: limited to the second keyslot,
+        # the first keyslot's passphrase no longer opens, the second's still does
+        only1 = _luks2_rewritten(images["luks2-argon2id"],
+                                 lambda m: m["digests"]["0"].__setitem__("keyslots", ["1"]))
+        a, b = Luks.open(io.BytesIO(only1), 0, len(only1)), Luks.open(io.BytesIO(only1), 0, len(only1))
+        out.append(("a digest confirms only the keyslots it lists",
+                    not a.unlock([p1]) and b.unlock([p2]) and b.unlocked_by == "keyslot 1"))
+
+    # A header copy records where it sits (hdr_offset, which cryptsetup checks):
+    # a primary that names another place, its checksum made good, is passed over.
+    import hashlib
+    moved = bytearray(l2)
+    struct.pack_into(">Q", moved, 256, 4096)
+    alg = moved[72:104].split(b"\0")[0].decode()
+    body = bytearray(moved[:size])
+    body[448:512] = bytes(64)
+    dg = hashlib.new(alg, bytes(body)).digest()
+    moved[448:448 + len(dg)] = dg
+    mlk = Luks.open(io.BytesIO(bytes(moved)), 0, len(moved))
+    out.append(("a header copy that records another place than its own is passed over for the "
+                "second copy", mlk.unlock([p1]) and any("names another size or place" in p
+                                                         for p in mlk.problems)))
+
+    # The key a keyslot's material is encrypted with is as long as the keyslot's
+    # area says, which need not be the volume key's length.
+    shorter = _luks2_rewritten(l2, lambda m: m["keyslots"]["0"]["area"].__setitem__("key_size", 16))
+    lengths = []
+    lk = Luks.open(io.BytesIO(shorter), 0, len(shorter))
+    real = lk._derive                                   # pylint: disable=protected-access
+
+    def recorded(kdf, password, length):
+        lengths.append(length)
+        return real(kdf, password, length)
+    lk._derive = recorded                               # pylint: disable=protected-access
+    lk.unlock([p1])
+    out.append(("a keyslot's key is derived at its area's key size (16 here), not the volume "
+                "key's (32)", lengths == [16]))
+
+    # plain counts the IV in 32 bits and wraps; plain64 does not
+    block = bytes(range(256)) * 2
+    key = bytes(range(64))
+    wraps = []
+    for spec, k in (("aes-xts-plain", key), ("aes-cbc-plain", key[:32])):
+        c = _LuksCipher(spec, k)
+        c64 = _LuksCipher(spec + "64", k)
+        wraps.append(c.decrypt(block, 1 << 32) == c.decrypt(block, 0)
+                     and c64.decrypt(block, 1 << 32) != c64.decrypt(block, 0))
+    out.append(("the plain IV wraps at 32 bits and plain64 does not, in XTS and in CBC", all(wraps)))
+
+    # iv_tweak shifts every sector's IV
+    lk = Luks.open(io.BytesIO(l2), 0, len(l2))
+    if lk.unlock([p1]):
+        raw = l2[lk.offset:lk.offset + 4096]
+        lk.iv_tweak, lk._cache = 40, collections.OrderedDict()     # pylint: disable=protected-access
+        out.append(("a LUKS2 segment's iv_tweak is added to every sector's IV",
+                    lk.read(0, 4096) == lk._cipher.decrypt(raw, 40, 4096)))   # pylint: disable=protected-access
+
+    # A LUKS container inside a logical volume: lvm-wholedisk's one volume holds
+    # luks1-cbc here, written over it, and what it holds is found and read.
+    import gzip
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    whole_gz = os.path.join(here, "lvm-wholedisk.img.gz")
+    if os.path.isfile(whole_gz):
+        with gzip.open(whole_gz, "rb") as gz:
+            nested = bytearray(gz.read())
+        inner = images["luks1-cbc"]
+        nested[3 << 20:(3 << 20) + len(inner)] = inner
+        fh, found = unlock_luks(io.BytesIO(bytes(nested)), len(nested), [p1])
+        vols = volumes(fh, len(nested))
+        inside = [v for v in vols if v["label"] == "LUKS LVM wholevg/root"]
+        got = dict(walk(inside[0]["walker"], inside[0]["walker"].root)) if inside and inside[0].get("walker") else {}
+        out.append(("a LUKS container inside a logical volume is opened and what it holds is "
+                    "listed, read and marked as read decrypted",
+                    len(found) == 1 and got == want and inside[0].get("encryption", "").startswith("LUKS1")))
+    return out
+
+
+def _luks_self_checks():
+    """[(label, passed or None for a skip)] for the LUKS reader, from the images
+    cryptsetup wrote (tools/make_luks_fixtures.sh), its own luksDump of each, and
+    sha256sum over the tree each holds."""
+    import gzip
+    import hashlib
+    import io
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    names = ("luks2-argon2id", "luks2-pbkdf2", "luks1-xts", "luks1-cbc")
+    need = [f"{n}.img.gz" for n in names] + ["luks-fixtures.json", "luks-fixture.sha256"]
+    absent = [n for n in need if not os.path.isfile(os.path.join(here, n))]
+    if absent:
+        return [(f"the LUKS fixtures are not beside this script ({', '.join(absent)}), so the "
+                 "LUKS reader was not checked against them", None)]
+    if _BDE_AES is None:
+        return [("LUKS volumes open with their passphrases (needs the pycryptodome package)", None)]
+    meta = json.load(open(os.path.join(here, "luks-fixtures.json"), encoding="utf-8"))
+    p1, p2 = meta["passphrases"]
+    want = {}
+    with open(os.path.join(here, "luks-fixture.sha256"), encoding="utf-8") as lf:
+        for line in lf:
+            h, name = line.rstrip("\n").split("  ", 1)
+            want[name] = h
+
+    def walk(w, node, path=""):
+        for name, child in w.listdir(node):
+            if name in (".", "..", "lost+found"):
+                continue
+            mode, size = w.entry(child)[:2]
+            rel = f"{path}/{name}" if path else name
+            if mode & S_IFMT == S_IFDIR:
+                yield from walk(w, child, rel)
+            elif mode & S_IFMT == S_IFREG:
+                yield rel, hashlib.sha256(b"".join(w.read_file(child, size))).hexdigest()
+
+    out, images = [], {}
+    for n in names:
+        with gzip.open(os.path.join(here, f"{n}.img.gz"), "rb") as gz:
+            images[n] = gz.read()
+    for n in names:
+        if n == "luks2-argon2id" and _ARGON2 is None:
+            out.append((f"{n} opens with its passphrase (needs the argon2-cffi package)", None))
+            continue
+        img = images[n]
+        lk = Luks.open(io.BytesIO(img), 0, len(img))
+        dump = meta["images"][n]
+        if "luks2_metadata" in dump:
+            seg = dump["luks2_metadata"]["segments"]["0"]
+            header_ok = (lk.version == 2 and lk.cipher == seg["encryption"]
+                         and lk.offset == int(seg["offset"]) and lk.sector_size == seg["sector_size"]
+                         and len(lk.keyslots) == len(dump["luks2_metadata"]["keyslots"]))
+        else:
+            text = dump["luksDump"]
+
+            def field(key, text=text):
+                return re.search(rf"^{key}:\s*(.+)$", text, re.M).group(1).strip()
+            digest = re.search(r"MK digest:\s*((?:[0-9a-f]{2} ?){20})", text).group(1).replace(" ", "")
+            header_ok = (lk.version == 1 and lk.cipher == f"{field('Cipher name')}-{field('Cipher mode')}"
+                         and lk.offset == int(field("Payload offset")) * SECTOR
+                         and lk.key_bytes * 8 == int(field("MK bits")) and lk.mk_digest.hex() == digest
+                         and len(lk.keyslots) == text.count(": ENABLED"))
+        out.append((f"{n}: the header reads as cryptsetup's own luksDump gives it", header_ok))
+        fh, found = unlock_luks(io.BytesIO(img), len(img), ["not the passphrase", p1])
+        vols = volumes(fh, len(img))
+        data = [v for v in vols if v["label"].startswith("LUKS ")]
+        got = {}
+        if data and data[0].get("walker"):
+            got = dict(walk(data[0]["walker"], data[0]["walker"].root))
+        out.append((f"{n}: opened with its passphrase (a wrong one tried first), every file of "
+                    f"the filesystem inside matches what sha256sum recorded ({len(got)} of {len(want)})",
+                    len(found) == 1 and found[0].mk is not None and got == want))
+        wrong = Luks.open(io.BytesIO(img), 0, len(img))
+        out.append((f"{n}: a wrong passphrase leaves it locked, and the note says to give one",
+                    not wrong.unlock(["not the passphrase"]) and "no passphrase given opens"
+                    in wrong.locked_note()))
+    if _ARGON2 is not None:
+        img = images["luks2-argon2id"]
+        second = Luks.open(io.BytesIO(img), 0, len(img))
+        out.append(("luks2-argon2id: its second passphrase opens its second keyslot",
+                    second.unlock([p2]) and second.unlocked_by == "keyslot 1"))
+        # A primary header changed after cryptsetup wrote it fails its checksum, and
+        # the second copy, which passes, is read instead.
+        bad = bytearray(img)
+        bad[4096 + 10] ^= 0x01
+        fallback = Luks.open(io.BytesIO(bytes(bad)), 0, len(bad))
+        out.append(("luks2-argon2id: a primary header that fails its checksum is passed over for "
+                    "the second copy, and says so",
+                    fallback.unlock([p1]) and any("fails its checksum" in p for p in fallback.problems)))
+        # Of two copies that pass their checksums the one with the higher sequence
+        # id is in force: give the second copy a higher one and its own label.
+        newer = bytearray(img)
+        hdr = struct.unpack_from(">Q", newer, 8)[0]
+        seq = struct.unpack_from(">Q", newer, hdr + 16)[0]
+        struct.pack_into(">Q", newer, hdr + 16, seq + 1)
+        newer[hdr + 24:hdr + 72] = b"second copy".ljust(48, b"\0")
+        alg = newer[hdr + 72:hdr + 104].split(b"\0")[0].decode()
+        body = bytearray(newer[hdr:2 * hdr])
+        body[448:512] = bytes(64)
+        dg = hashlib.new(alg, bytes(body)).digest()
+        newer[hdr + 448:hdr + 448 + len(dg)] = dg
+        out.append(("luks2-argon2id: of two header copies that pass, the one with the higher "
+                    "sequence id is read", Luks.open(io.BytesIO(bytes(newer)), 0, len(newer)).label
+                    == "second copy" and second.label != "second copy"))
+    # Control: the IV of a 4096-byte LUKS2 sector counts 512-byte units. Counting
+    # it in 4096-byte units decrypts sector 0 the same and every later one wrong,
+    # so the files above could not have matched; check that it does differ.
+    img = images["luks2-pbkdf2"]
+    lk = Luks.open(io.BytesIO(img), 0, len(img))
+    if lk.unlock([p1]):
+        raw = img[lk.offset:lk.offset + 2 * 4096]
+        right = lk._cipher.decrypt(raw, 0, 4096)                    # pylint: disable=protected-access
+        wrong_units = lk._cipher.decrypt(raw, 0, 4096, 4096)        # pylint: disable=protected-access
+        out.append(("control: counting a 4096-byte sector's IV in 4096-byte units decrypts its "
+                    "first sector alike and the next one differently",
+                    right[:4096] == wrong_units[:4096] and right[4096:] != wrong_units[4096:]
+                    and right == lk.read(0, 2 * 4096)))
+    # The report main() prints, given the passphrase, names the filesystem inside.
+    import contextlib
+    import shutil
+    import tempfile
+    top = tempfile.mkdtemp(prefix="qnxprobe-luks-")
+    try:
+        path = os.path.join(top, "luks1-cbc.dd")
+        with open(path, "wb") as f:
+            f.write(images["luks1-cbc"])
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            main(path, passwords=["not the passphrase", p1])
+        text = buf.getvalue()
+    finally:
+        shutil.rmtree(top, ignore_errors=True)
+    out.append(("the report, given the passphrase, opens the container and names the "
+                "filesystem inside", "->  luks" in text and "LUKS whole image" in text
+                and "->  ext4" in text))
+    out += _luks_hostile_checks(images, p1, p2, want, walk)
+    # An image with no passphrase given: the container is listed, locked, with why.
+    img = images["luks1-cbc"]
+    locked = [v for v in volumes(io.BytesIO(img), len(img)) if v["kind"] == "luks"]
+    out.append(("a LUKS container with no passphrase given is listed as locked, with what "
+                "would open it", len(locked) == 1 and not locked[0].get("walker")
+                and "give its passphrase" in locked[0].get("note", "")))
+    return out
+
+
+def _lvm_older_copy(disk, pv_at, m_off):
+    """The fixture with the physical volume at pv_at holding an older metadata
+    copy: seqno 1 and no volume onb, its checksums made good."""
+    h = bytearray(disk[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+    o, n = struct.unpack_from("<QQ", h, 40)
+    t = disk[pv_at + m_off + o:pv_at + m_off + o + n].split(b"\0", 1)[0].decode()
+    cut = t.index("\nonb {")
+    end = t.index("\n}\n}\n", t.index("segment1 {", cut)) + 5    # the segment's brace, then onb's
+    stale = re.sub(r"seqno = \d+", "seqno = 1", t[:cut] + t[end:], count=1).encode()
+    out = bytearray(disk)
+    out[pv_at + m_off + o:pv_at + m_off + o + len(stale)] = stale
+    struct.pack_into("<QQI", h, 40, o, len(stale), lvm_crc(stale))
+    struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+    out[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = h
+    return bytes(out)
+
+
+def _lvm_hostile_checks(disk, whole, regions, want, paths, parts, m_off, r_off):
+    """The checks the review asked for: inputs lvm2 would refuse, damaged and
+    crafted metadata, and the cases the fixtures alone do not reach."""
+    import io
+    out = []
+    lvm_regions = [r for r in regions if not r[0].startswith("MBR")]
+    pv1 = parts["1"]
+
+    def with_header(img, pv_at, change):
+        h = bytearray(img[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+        change(h)
+        b = bytearray(img)
+        b[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = h
+        return bytes(b)
+
+    # The whole-disk volume's extents start 3 MiB in, at the pe_start lvm2
+    # reports, where the 1 MiB extent size would put them elsewhere.
+    wpe = int(json.load(open(paths["lvm-wholedisk.pvs.json"], encoding="utf-8"))
+              ["pvs"]["report"][0]["pv"][0]["pe_start"].rstrip("B"))
+    wfound, _wn = lvm_volumes(io.BytesIO(whole), [("whole image", 0, len(whole))])
+    out.append((f"the whole-disk volume starts at the pe_start lvm2 reports ({wpe:,} bytes), "
+                "not at the extent size", wpe == 3 << 20 and [b for _l, b, _s, _n in wfound] == [wpe]))
+
+    # A metadata area header changed after lvm2 wrote it, with its checksum left.
+    bad = with_header(disk, pv1, lambda h: h.__setitem__(200, h[200] ^ 0xFF))
+    bf, bn = lvm_volumes(io.BytesIO(bad), lvm_regions)
+    out.append(("a metadata area header that fails its checksum is reported and the other "
+                "physical volume's copy is used",
+                {(a, b, c) for a, b, c, _n in bf} == want
+                and any("metadata area header checksum does not match" in ln for ln in bn[pv1])))
+
+    # A copy lvm2 marks ignored (RAW_LOCN_IGNORED) is not used.
+    def ignore(h):
+        o, n, c, f = struct.unpack_from("<QQII", h, 40)
+        struct.pack_into("<QQII", h, 40, o, n, c, f | LVM_RAW_LOCN_IGNORED)
+        struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+    ign = with_header(disk, pv1, ignore)
+    ipv = LvmPv(io.BytesIO(ign), pv1)
+    igf, _ign = lvm_volumes(io.BytesIO(ign), lvm_regions)
+    out.append(("a metadata copy lvm2 marks ignored is not used, and the other copy is",
+                ipv.vg is None and not ipv.problems and {(a, b, c) for a, b, c, _n in igf} == want))
+
+    # A label is accepted only as lvm2 accepts it: one that names another sector,
+    # or fails its checksum, is passed over, and the next sector's is taken.
+    label = disk[pv1 + SECTOR:pv1 + 2 * SECTOR]
+    moved = bytearray(disk)
+    moved[pv1 + SECTOR:pv1 + 2 * SECTOR] = bytes(SECTOR)
+    moved[pv1 + 2 * SECTOR:pv1 + 3 * SECTOR] = label              # still says sector 1
+    wrong_sector = _lvm_pv(io.BytesIO(bytes(moved)), pv1, None)
+    fixed = bytearray(label)
+    struct.pack_into("<Q", fixed, 8, 2)
+    struct.pack_into("<I", fixed, 16, lvm_crc(bytes(fixed[20:])))
+    moved[pv1 + 2 * SECTOR:pv1 + 3 * SECTOR] = fixed
+    right_sector = _lvm_pv(io.BytesIO(bytes(moved)), pv1, None)
+    flipped = bytearray(disk)
+    flipped[pv1 + SECTOR + 40] ^= 0x01
+    out.append(("a label naming another sector, or failing its checksum, is passed over as "
+                "lvm2 passes it over, and a good one in the next sector is taken",
+                wrong_sector is None and _lvm_pv(io.BytesIO(bytes(flipped)), pv1, None) is None
+                and right_sector is not None and right_sector.label_sector == 2))
+
+    # A stray label with no metadata area behind it does not hide the
+    # filesystem the region holds.
+    ext_fix = os.path.join(os.path.dirname(paths["lvm-fixture.sha256"]), "ext4-sparse.img.gz")
+    if os.path.isfile(ext_fix):
+        import gzip
+        with gzip.open(ext_fix, "rb") as gz:
+            ext = bytearray(gz.read())
+        ext[SECTOR:2 * SECTOR] = label
+        kind = identify_fs(io.BytesIO(bytes(ext)), 0, len(ext))[0]
+        out.append(("an ext4 volume with a stray LVM label and no metadata area behind it is "
+                    f"still ext4 (read as {kind})", kind == "ext4"))
+    else:
+        out.append(("the ext4-sparse fixture is beside this script for the stray-label check", False))
+
+    # Crafted metadata text, with its checksums made good, is refused as a
+    # problem and costs nothing else: every other partition is still listed.
+    for text in (b"fixvg {\nseqno = 99\nx = [\n", b"a {" * 2000,
+                 b"a = 1\n" + b"#" * 60 + b"\n;"):
+        def craft(h, text=text):
+            o, _n, _c, f = struct.unpack_from("<QQII", h, 40)
+            struct.pack_into("<QQII", h, 40, o, len(text), lvm_crc(text), f)
+            struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+        o = struct.unpack_from("<Q", disk, pv1 + m_off + 40)[0]
+        img = bytearray(with_header(disk, pv1, craft))
+        img[pv1 + m_off + o:pv1 + m_off + o + len(text)] = text
+        started = time.time()
+        try:
+            vols = volumes(io.BytesIO(bytes(img)), len(img))
+            fine = {v["label"] for v in vols} >= {"GPT part 1 lvm-a", "GPT part 2 lvm-b"}
+            cpv = LvmPv(io.BytesIO(bytes(img)), pv1)
+            fine = fine and cpv.vg is None and any("metadata area" in p for p in cpv.problems)
+        except Exception:                            # pylint: disable=broad-except
+            fine = False
+        took = time.time() - started
+        out.append((f"crafted metadata text ({text[:18]!r}...) is refused as a problem in "
+                    f"{took:.2f}s and every partition is still listed", fine and took < 60))
+
+    # A whole-disk physical volume is identified without the reader calling
+    # itself: count the calls volumes() makes to partition_regions.
+    calls = [0]
+    real = globals()["partition_regions"]
+
+    def counting(*a, **k):
+        calls[0] += 1
+        return real(*a, **k)
+    globals()["partition_regions"] = counting
+    try:
+        volumes(io.BytesIO(whole), len(whole))
+    finally:
+        globals()["partition_regions"] = real
+    out.append((f"a whole-disk physical volume is listed with {calls[0]} call(s) to "
+                "partition_regions, not one per recursion level", calls[0] <= 2))
+
+    # Segments lvm2 keeps apart though they touch: the volume starts at the first.
+    two = [{"type": "striped", "stripe_count": 1, "start_extent": 0, "extent_count": 2,
+            "stripes": ["pv0", 5]},
+           {"type": "striped", "stripe_count": 1, "start_extent": 2, "extent_count": 1,
+            "stripes": ["pv0", 7]}]
+    two_map = _lvm_layout(two, {"pv0": (1000, 100, 20)}, {"pv0"}, 10)[1]
+    out.append(("a volume in two touching runs is one run, from its first extent",
+                two_map is not None and two_map.contiguous() == 1000 + 100 + 50 and two_map.size == 30))
+    out.append(("a volume whose extents are on something that is not one of the group's "
+                "physical volumes (a move in progress) says so",
+                "not a physical volume of the group"
+                in (_lvm_layout([dict(two[0], stripes=["pvmove0", 0])], {"pv0": (0, 0, 9)},
+                                {"pv0"}, 10)[0] or "")))
+    out.append(("a volume that runs past its physical volume's extents is not read",
+                "run past" in (_lvm_layout(two, {"pv0": (0, 0, 6)}, {"pv0"}, 10)[0] or "")))
+    # Metadata that parses but holds a value of the wrong kind where lvm2 writes
+    # a number, a section, a string or a list: that copy is refused, the other
+    # physical volume's copy gives every volume, and nothing else is lost.
+    o = struct.unpack_from("<Q", disk, pv1 + m_off + 40)[0]
+    n = struct.unpack_from("<Q", disk, pv1 + m_off + 48)[0]
+    good = disk[pv1 + m_off + o:pv1 + m_off + o + n].split(b"\0", 1)[0].decode()
+    shapes = [("physical_volumes {", "physical_volumes = 5\nphysical_volumes_x {"),
+              ("pv0 {", "pv0 = 5\npv0_x {"),
+              ("logical_volumes {", "logical_volumes = [1]\nlogical_volumes_x {"),
+              ("seqno = ", 'seqno = "9"\nseqno_x = '),
+              ("extent_size = 2048", 'extent_size = "big"'),
+              ('status = ["READ", "WRITE", "VISIBLE"]', "status = 5"),
+              ("start_extent = 0", 'start_extent = "0"'),
+              ("pe_start = 2048", 'pe_start = "a"')]
+    held = []
+    for old_text, new_text in shapes:
+        text = good.replace(old_text, new_text, 1).encode()
+        def craft_shape(h, text=text):
+            o2, _n2, _c2, f2 = struct.unpack_from("<QQII", h, 40)
+            struct.pack_into("<QQII", h, 40, o2, len(text), lvm_crc(text), f2)
+            struct.pack_into("<I", h, 0, lvm_crc(bytes(h[4:])))
+        img = bytearray(with_header(disk, pv1, craft_shape))
+        img[pv1 + m_off + o:pv1 + m_off + o + len(text)] = text
+        try:
+            sf, _sn = lvm_volumes(io.BytesIO(bytes(img)), lvm_regions)
+            cpv = LvmPv(io.BytesIO(bytes(img)), pv1)
+            held.append(good != text.decode() and cpv.vg is None
+                        and any("metadata has" in p for p in cpv.problems)
+                        and {(a, b, c) for a, b, c, _n in sf} == want
+                        and len(volumes(io.BytesIO(bytes(img)), len(img))) >= 6)
+        except Exception:                            # pylint: disable=broad-except
+            held.append(False)
+    out.append((f"metadata that parses with a value of the wrong kind is refused and the "
+                f"other copy is used ({sum(held)} of {len(shapes)} shapes)", all(held)))
+
+    # Two partitions with the same physical volume id (a cloned disk): the first
+    # is used and the second says so.
+    twin = bytearray(disk)
+    p2 = parts["2"]
+    twin[p2:p2 + (20 << 20)] = disk[pv1:pv1 + (20 << 20)]
+    tf, tn = lvm_volumes(io.BytesIO(bytes(twin)), lvm_regions)
+    root = [b for lab, b, _s, _n in tf if lab == "LVM fixvg/root"]
+    want_root = [b for lab, b, _s in want if lab == "LVM fixvg/root"]
+    out.append(("a second partition with the same physical volume id is named and the "
+                "first is used", root == want_root
+                and any("same physical volume id" in ln for ln in tn.get(p2, []))))
+    out.append(("a snapshot is shown by the volume lvm2 lists for it",
+                _lvm_shown("snapshot0", [{"type": "snapshot", "cow_store": "snap1"}])
+                == "snap1 (stored as snapshot0)"
+                and _lvm_shown("root", [{"type": "striped"}]) == "root"))
+    named4k, _n4 = lvm_volumes(io.BytesIO(disk), lvm_regions, 4096)
+    out.append(("a logical volume's name counts the disk's sector size, as the partition "
+                "names do", {nm for _l, _b, _s, nm in named4k}
+                == {f"lvm_lba{b // 4096}_{sanitize_volume_label('fixvg_' + l.split('/')[1], 40)}"
+                    for l, b, _s in want}))
+    out.append(("a quoted string undoes only \\\" and \\\\, as lvm2 does",
+                lvm_config('a = "x\\ny\\"z\\\\"') == {"a": 'x\\ny"z\\'}))
+    try:
+        lvm_config("a = 010")
+        octal = False
+    except ValueError:
+        octal = True
+    out.append(("a number with a leading zero, which lvm2 would read as octal, is refused",
+                octal))
+    two_runs = LvmMap([(0, 10, None, [100]), (10, 10, None, [110])])
+    out.append(("runs that touch in the image are given as one", two_runs.image_runs(0, 20) == [(100, 20)]))
+    cut = LvmMap([(0, 8, 2, [0, 100])])
+    out.append(("bytes of a striped volume past the image's end are counted per stripe",
+                cut.missing(102) == 2 and cut.missing(200) == 0))
+    stripe = {"type": "striped", "stripe_count": 2, "start_extent": 0, "stripe_size": 2,
+              "stripes": ["pv0", 0, "pv1", 0]}
+    out.append(("a striped segment whose stripes do not divide its extents is not read",
+                "do not divide" in (_lvm_layout([dict(stripe, extent_count=9)],
+                                                {"pv0": (0, 0, 9), "pv1": (0, 0, 9)},
+                                                {"pv0", "pv1"}, 1024)[0] or "")))
+    out.append(("each stripe's extents are checked against its own physical volume",
+                _lvm_layout([dict(stripe, extent_count=10)], {"pv0": (0, 0, 6), "pv1": (0, 0, 6)},
+                            {"pv0", "pv1"}, 1024)[0] is None))
+    wimg = lvm_image(io.BytesIO(disk), len(disk))
+    wimg.seek(len(disk) - 4)
+    tail = wimg.read(64)
+    out.append(("a read that runs off the image's end stops there, and does not run on into a "
+                "volume placed past it", len(tail) == 4 and wimg.read(64) == b""
+                and min(wimg.lvm_virtual.values()) >= len(disk) + (1 << 30)))
+    # A partial image: a GPT entry that names a partition 2 GiB in, past the end
+    # of this 64 MiB file, the shape of a disk bigger than its acquisition. Its
+    # place must read as missing, not as a placed volume's data.
+    far = bytearray(disk)
+    n_ent, ent_sz = struct.unpack_from("<II", far, SECTOR + 80)
+    arr = 2 * SECTOR
+    e3 = arr + 2 * ent_sz
+    far[e3:e3 + ent_sz] = far[arr:arr + ent_sz]                 # entry 1's type and name
+    far[e3 + 16:e3 + 32] = uuid.UUID(int=3).bytes_le
+    struct.pack_into("<QQ", far, e3 + 32, 4194304, 4194304 + 4194303)
+    struct.pack_into("<I", far, SECTOR + 88, binascii.crc32(bytes(far[arr:arr + n_ent * ent_sz])))
+    hsize = struct.unpack_from("<I", far, SECTOR + 12)[0]
+    struct.pack_into("<I", far, SECTOR + 16, 0)
+    struct.pack_into("<I", far, SECTOR + 16, binascii.crc32(bytes(far[SECTOR:SECTOR + hsize])))
+    fvols = volumes(io.BytesIO(bytes(far)), len(far))
+    third = [v for v in fvols if v["label"].startswith("GPT part 3")]
+    fwrap = lvm_image(io.BytesIO(bytes(far)), len(far))
+    out.append(("on a partial image whose table names a partition past the file, that "
+                "partition reads as missing, and the mapped volumes are placed past it",
+                len(third) == 1 and not third[0].get("walker")
+                and third[0].get("missing_past_end") == 4194304 * SECTOR
+                and min(fwrap.lvm_virtual.values()) > (4194304 + 4194304) * SECTOR
+                and min(fwrap.lvm_virtual.values()) >= 1 << 60))
+
+    # A pvmove in progress: lvm2 moves the volume's extents through a hidden
+    # mirror segment, whose areas are under mirrors, each holding all of them.
+    moving = {"extent_size": 2048, "physical_volumes": {"pv0": {"id": "a", "pe_start": 2048,
+                                                                "pe_count": 10}},
+              "logical_volumes": {
+                  "lv1": {"status": ["READ", "VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 5, "type": "striped",
+                      "stripe_count": 1, "stripes": ["pvmove0", 0]}},
+                  "pvmove0": {"status": ["READ"], "segment1": {
+                      "start_extent": 0, "extent_count": 5, "type": "mirror",
+                      "mirror_count": 2, "mirrors": ["pv0", 0, "pv0", 5]}}}}
+    _vl, _vf, _vm, mspare = _lvm_group("vg", moving, 1, {"a": (0, None)}, SECTOR)
+    # Two stripes of 4 extents each on two 4-extent volumes, and an allocation
+    # that overlaps another: what is left free is what neither covers.
+    halves = {"extent_size": 2048, "physical_volumes": {
+                  "pv0": {"id": "a", "pe_start": 0, "pe_count": 4},
+                  "pv1": {"id": "b", "pe_start": 0, "pe_count": 6}},
+              "logical_volumes": {
+                  "s": {"status": ["VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 4, "type": "striped", "stripe_count": 2,
+                      "stripe_size": 128, "stripes": ["pv0", 0, "pv1", 0]}},
+                  "o1": {"status": ["VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 4, "type": "striped",
+                      "stripe_count": 1, "stripes": ["pv1", 0]}},
+                  "o2": {"status": ["VISIBLE"], "segment1": {
+                      "start_extent": 0, "extent_count": 1, "type": "striped",
+                      "stripe_count": 1, "stripes": ["pv1", 1]}}}}
+    _hl, _hf, _hm, hspare = _lvm_group("vg", halves, 1, {"a": (0, None), "b": (1 << 30, None)}, SECTOR)
+    mib = 1 << 20
+    out.append(("a pvmove's mirrored extents, and each stripe's share of a striped one, count "
+                "as held, and allocations that overlap leave free only what neither holds",
+                mspare == {} and hspare == {0: [(2 * mib, 2 * mib)], 1 << 30: [((1 << 30) + 4 * mib, 2 * mib)]}))
+
+    # Cut the image at 30 MiB: the striped volume's run on the second physical
+    # volume starts there, so 2 MiB of it is missing, and the split one is whole.
+    cutv = {v["label"]: v for v in volumes(io.BytesIO(disk[:30 << 20]), 30 << 20)}
+    out.append(("on an image cut short, a mapped volume's missing bytes are those its map "
+                "puts past the cut, and it has no LBA",
+                cutv.get("LVM fixvg/striped", {}).get("missing_past_end") == 2 * mib
+                and cutv.get("LVM fixvg/data", {}).get("missing_past_end") == 0
+                and cutv["LVM fixvg/data"].get("lba", 0) is None
+                and cutv["LVM fixvg/striped"].get("lba", 0) is None))
+    # RAID1: lvm2's report puts the two copies on the two physical volumes; in
+    # this fixture they hold the same bytes, which is what makes either one the
+    # volume. With the first physical volume left out, the second copy is read.
+    report = json.load(open(paths["lvm-fixture.lvs.json"], encoding="utf-8"))
+    pe_start = {pv["pv_name"][-1]: int(pv["pe_start"].rstrip("B")) for pv in report["pvs"]["report"][0]["pv"]}
+    segs_all = report["segments"]["report"][0]["seg"]
+    def ext_range(name):
+        r = [x for x in segs_all if x["lv_name"] == f"[{name}]"][0]["seg_pe_ranges"]
+        dev, span = r.split(":")
+        a, b = (int(x) for x in span.split("-"))
+        pv = dev[-1]
+        return parts[pv] + pe_start[pv] + a * (1 << 20), (b - a + 1) << 20
+    (c0, n0), (c1, n1) = ext_range("mirror_rimage_0"), ext_range("mirror_rimage_1")
+    only2 = [r for r in lvm_regions if r[0].startswith("GPT part 2")]
+    o2found, _o2 = lvm_volumes(io.BytesIO(disk), only2)
+    mirror2 = [b for lab, b, _n, _nm in o2found if lab == "LVM fixvg/mirror"]
+    out.append(("a RAID1 volume's two copies hold the same bytes, and with the first copy's "
+                "physical volume missing the second is read",
+                n0 == n1 and disk[c0:c0 + n0] == disk[c1:c1 + n1] and mirror2 == [c1]))
+    longer = {"m_rimage_0": {"segment1": {"type": "striped", "stripe_count": 1, "start_extent": 0,
+                                          "extent_count": 3, "stripes": ["pv0", 0]}}}
+    cut_map = _lvm_layout([{"type": "raid1", "start_extent": 0, "extent_count": 2,
+                            "raids": ["m_rmeta_0", "m_rimage_0"]}], {"pv0": (0, 0, 9)}, {"pv0"},
+                          1 << 20, longer)[1]
+    out.append(("a RAID1 copy longer than its volume is read only to the volume's size",
+                cut_map is not None and cut_map.size == 2 << 20))
+    raid = {"type": "raid1", "start_extent": 0, "extent_count": 2, "data_offset": 2048,
+            "raids": ["m_rmeta_0", "m_rimage_0"]}
+    copy = {"m_rimage_0": {"segment1": {"type": "striped", "stripe_count": 1, "start_extent": 0,
+                                        "extent_count": 2, "stripes": ["pv0", 0]}}}
+    out.append(("a RAID1 segment with a data offset (written while a reshape moves its data) "
+                "is not read", "data offset" in (_lvm_layout([raid], {"pv0": (0, 0, 9)}, {"pv0"},
+                                                             1 << 20, copy)[0] or "")))
+    del r_off
+    return out
+
+
+def _lvm_self_checks():
+    """[(label, passed)] for the LVM2 reader, from the fixtures lvm2 wrote. A
+    absent fixture is one failed check that names it, not a silent skip."""
+    import contextlib
+    import gzip
+    import hashlib
+    import io
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    paths = {n: os.path.join(here, n) for n in ("lvm-fixture.img.gz", "lvm-wholedisk.img.gz",
+                                                "lvm-fixture.lvs.json", "lvm-fixture.sha256",
+                                                "lvm-wholedisk.pvs.json")}
+    absent = [n for n, p in paths.items() if not os.path.isfile(p)]
+    if absent:
+        # A frozen executable has no fixtures beside it: say so, as the other
+        # fixture checks do, rather than fail.
+        return [(f"the LVM fixtures are not beside this script ({', '.join(absent)}), so the "
+                 "LVM2 reader was not checked against them", None)]
+    out = []
+    with gzip.open(paths["lvm-fixture.img.gz"], "rb") as gz:
+        disk = gz.read()
+    with gzip.open(paths["lvm-wholedisk.img.gz"], "rb") as gz:
+        whole = gz.read()
+    report = json.load(open(paths["lvm-fixture.lvs.json"], encoding="utf-8"))
+    hashes = {}
+    with open(paths["lvm-fixture.sha256"], encoding="utf-8") as lf:
+        for line in lf:
+            h, name = line.rstrip("\n").split("  ", 1)
+            hashes[name] = h
+
+    # What lvm2 says: a volume is readable when its segments are linear and
+    # their extents follow one another on one partition.
+    parts = {p["node"][-1]: p["start"] * SECTOR
+             for p in report["parts"]["partitiontable"]["partitions"]}
+    pe_start = {pv["pv_name"][-1]: int(pv["pe_start"].rstrip("B")) for pv in report["pvs"]["report"][0]["pv"]}
+    segs = collections.defaultdict(list)
+    hidden = collections.defaultdict(list)
+    for s in report["segments"]["report"][0]["seg"]:
+        if not s["lv_name"].startswith("["):        # lvs -a shows a hidden volume in brackets
+            segs[s["lv_name"]].append(s)
+        else:
+            hidden[s["lv_name"].strip("[]")].append(s)
+    # A RAID1 volume is read from its first copy: lvm2's report lists its copies
+    # as its ranges, and each copy's own extents under the copy's name.
+    for lv, ss in segs.items():
+        if [x["segtype"] for x in ss] == ["raid1"]:
+            first = ss[0]["seg_pe_ranges"].split()[0].split(":")[0]
+            segs[lv] = [dict(x, lv_name=lv) for x in hidden[first]]
+    want, declined, mapped = set(), set(), {}
+    for lv, ss in segs.items():
+        ext = int(ss[0]["vg_extent_size"].rstrip("B"))
+        ss.sort(key=lambda s: int(s["seg_start_pe"]))
+        runs = [r for s in ss for r in s["seg_pe_ranges"].split()]
+        pvs = {r.split(":")[0][-1] for r in runs}
+        spans = [tuple(int(x) for x in r.split(":")[1].split("-")) for r in runs]
+        joined = all(spans[i][1] + 1 == spans[i + 1][0] for i in range(len(spans) - 1))
+        if all(s["segtype"] == "linear" for s in ss) and len(pvs) == 1 and joined:
+            pv = pvs.pop()
+            want.add((f"LVM fixvg/{lv}", parts[pv] + pe_start[pv] + spans[0][0] * ext,
+                      (spans[-1][1] - spans[0][0] + 1) * ext))
+        else:
+            declined.add(lv)
+            if all(s["segtype"] in ("linear", "striped") for s in ss):
+                # Where lvm2 says its extents are, as image byte ranges.
+                mapped[lv] = sorted((parts[r.split(":")[0][-1]] + pe_start[r.split(":")[0][-1]]
+                                     + a * ext, (b - a + 1) * ext)
+                                    for r in runs for a, b in [tuple(int(x) for x in
+                                                                     r.split(":")[1].split("-"))])
+    fh = io.BytesIO(disk)
+    regions = partition_regions(fh, len(disk))[0]
+    found, notes = lvm_volumes(fh, [r for r in regions if not r[0].startswith("MBR")])
+    got = {(lab, b, n) for lab, b, n, _name in found}
+    out.append((f"the logical volumes read from lvm-fixture are the ones lvm2's own report "
+                f"lays out as one run on one physical volume, at the offsets and sizes it gives "
+                f"({len(got)} of {len(want)})", got == want and len(want) == 5))
+    lines = [ln for ls in notes.values() for ln in ls]
+    not_read = {ln.split()[2].rstrip(",") for ln in lines if ": not read (" in ln}
+    reasons = " ".join(ln for ln in lines if ": not read (" in ln)
+    here = " ".join(ln for ln in lines if ": not read here (" in ln)
+    out.append(("without lvm_image(), the volumes lvm2 split into two runs or striped are not "
+                "read here and say how they are laid out, and the RAID1 one is read from its "
+                "first copy", declined == {"data", "striped"} and not_read == set() and not reasons
+                and "in 2 separate runs of extents" in here
+                and "striped across 2 physical volumes in 64.0 KiB stripes" in here
+                and any("logical volume mirror, " in ln and "raid1, read from its copy mirror_rimage_0" in ln
+                        for ln in lines)))
+
+    # Through lvm_image() the split and the striped volume are read, each
+    # through a map that puts every byte where lvm2's report says its extents
+    # are; their bases are past the image's end, where nothing on the disk is.
+    wfh = lvm_image(io.BytesIO(disk), len(disk))
+    wfound, wnotes = lvm_volumes(wfh, [r for r in regions if not r[0].startswith("MBR")])
+    placed = {lab.split("/")[1]: (b, n) for lab, b, n, _name in wfound if b >= len(disk)}
+    def covered(lmap):
+        spans = sorted(lmap.image_runs(0, lmap.size))
+        merged = []
+        for at, n in spans:
+            if merged and merged[-1][0] + merged[-1][1] == at:
+                merged[-1] = (merged[-1][0], merged[-1][1] + n)
+            else:
+                merged.append((at, n))
+        return merged
+    maps_ok = set(placed) == set(mapped) == {"data", "striped"} and all(
+        covered(wfh.lvm_map_for(placed[lv][0])) == mapped[lv] for lv in mapped)
+    sm = wfh.lvm_map_for(placed["striped"][0]) if "striped" in placed else None
+    out.append(("through lvm_image() the split and the striped volume are read, their maps "
+                "covering exactly the extents lvm2's report gives each, the striped one in the "
+                "64 KiB stripes make_lvm_fixtures.sh asks lvm2 for",
+                maps_ok and sm is not None and sm.segments[0][2] == 64 << 10
+                and sm.image_runs(0, 64 << 10) == [(mapped["striped"][0][0], 64 << 10)]
+                and sm.image_runs(64 << 10, 64 << 10) == [(mapped["striped"][1][0], 64 << 10)]
+                and {(a, b, c) for a, b, c, _n in wfound if b < len(disk)} == want))
+    wlines = [ln for ls in wnotes.values() for ln in ls]
+    out.append(("then no volume is listed as not read",
+                not any(": not read" in ln for ln in wlines)))
+    out.append(("the mirror's hidden image and metadata legs are not listed as volumes, though "
+                "each is one run on one physical volume",
+                not any(ln.startswith("logical volume mirror_r") for ln in lines)
+                and not any("rimage" in f[0] or "rmeta" in f[0] for f in found)))
+    pv_notes = [v.get("note", "") for v in volumes(io.BytesIO(disk), len(disk)) if v["kind"] == "lvm2 pv"]
+    out.append(("no physical volume's note in volumes() names a volume as not read, when every "
+                "one is read", len(pv_notes) == 2 and not any("not read" in n for n in pv_notes)))
+    out.append(("both physical volumes name the volume group and both of its physical volumes",
+                sum("2 of them in this image" in ln for ln in lines) == 2))
+
+    def walk_hashes(w, node, path=""):
+        for name, child in w.listdir(node):
+            if name in (".", "..", "lost+found"):
+                continue
+            mode, size = w.entry(child)[:2]
+            rel = f"{path}/{name}" if path else name
+            if mode & S_IFMT == S_IFDIR:
+                yield from walk_hashes(w, child, rel)
+            elif mode & S_IFMT == S_IFREG:
+                yield rel, hashlib.sha256(b"".join(w.read_file(child, size))).hexdigest()
+
+    for img, tree in ((disk, {"LVM fixvg/root": "root", "LVM fixvg/onb": "onb",
+                              "LVM fixvg/data": "data", "LVM fixvg/striped": "striped",
+                              "LVM fixvg/mirror": "mirror"}),
+                      (whole, {"LVM wholevg/root": "root"})):
+        vols = volumes(io.BytesIO(img), len(img))
+        seen = {v["label"] for v in vols}
+        out.append((f"volumes() lists {', '.join(sorted(tree))} with a walker",
+                    all(any(v["label"] == lab and v.get("walker") for v in vols) for lab in tree)
+                    and set(tree) <= seen))
+        for v in vols:
+            if v["label"] not in tree:
+                continue
+            top = tree[v["label"]]
+            try:
+                gotf = {f"{top}/{p}": h for p, h in walk_hashes(v["walker"], v["walker"].root)}
+            except Exception:                        # pylint: disable=broad-except
+                gotf = {}
+            wantf = {k: h for k, h in hashes.items() if k.startswith(top + "/")}
+            out.append((f"every file of {v['label']} ({v['kind']}) matches what sha256sum "
+                        f"recorded over its source tree ({len(gotf)} of {len(wantf)})",
+                        bool(wantf) and gotf == wantf))
+
+    # The report main() prints names each logical volume read, with its kind.
+    import shutil
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix="qnxprobe-lvm-")       # the form the CI fixture step replaces
+    try:
+        path = os.path.join(tmp, "lvm-fixture.img")
+        with open(path, "wb") as f:
+            f.write(disk)
+        buf = io.StringIO()
+        records = []
+        with zipfile.ZipFile(io.BytesIO(), "w") as zmem, contextlib.redirect_stdout(buf):
+            main(path, extract="(memory)", zf=zmem, manifest=records)
+        text = buf.getvalue()
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    by_vol = {r.get("volume", ""): r for r in records}
+    rec_data = next((r for v, r in by_vol.items() if "_fixvg_data" in v), {})
+    rec_root = next((r for v, r in by_vol.items() if "_fixvg_root" in v), {})
+    out.append(("volumes.json gives a volume read through a map no offset or LBA, and the image "
+                "offset of each of its runs where lvm2's report puts them",
+                rec_data.get("offset_bytes", 0) is None and rec_data.get("lba", 0) is None
+                and [(m["image_offsets"][0], m["length"]) for m in rec_data.get("lvm_map", [])]
+                == mapped.get("data")
+                and rec_root.get("offset_bytes") == [b for lab, b, _n in want if lab == "LVM fixvg/root"][0]
+                and "lvm_map" not in rec_root))
+    out.append(("the report lists each logical volume read, identified as ext4 where it is, "
+                "and gives the runs of the split one where lvm2's report puts them",
+                all(f"{lab}   " in text for lab, _b, _n in want)
+                and "LVM fixvg/root   6.0 MiB   ->  ext4" in text
+                and "LVM fixvg/data   6.0 MiB   ->  ext4" in text
+                and "LVM fixvg/striped   4.0 MiB   ->  ext4" in text
+                and ", ".join(f"{n:,} bytes at {o:,}" for o, n in mapped.get("data", [])) in text
+                and "->  lvm2 pv" in text))
+
+    # Free space: each physical volume's extents no logical volume holds, hidden
+    # ones included, are written at their own offsets; and a reader's free runs
+    # inside a volume read through a map become the runs of the image they are.
+    # lvm2 sizes a physical volume as (its size - pe_start) / extent size extents.
+    top = tempfile.mkdtemp(prefix="qnxprobe-lvm-")
+    # A folder of its own: the build workflow keeps the self-test's temp folder
+    # and counts the images in it, and these .bin files are not images.
+    tmp = os.path.join(top, "unallocated")
+    os.makedirs(tmp, exist_ok=True)
+    try:
+        fvols = volumes(io.BytesIO(disk), len(disk))
+        ext_b = 1 << 20
+        spare_want = {}
+        for pv in ("1", "2"):
+            part = [p for p in report["parts"]["partitiontable"]["partitions"] if p["node"][-1] == pv][0]
+            count = (part["size"] * SECTOR - pe_start[pv]) // ext_b
+            taken = set()
+            for sg in report["segments"]["report"][0]["seg"]:
+                for r in sg["seg_pe_ranges"].split():
+                    if r.split(":")[0].endswith("p" + pv):
+                        a, b = (int(x) for x in r.split(":")[1].split("-"))
+                        taken.update(range(a, b + 1))
+            free = [e for e in range(count) if e not in taken]
+            spare_want[parts[pv]] = sorted({(parts[pv] + pe_start[pv] + e * ext_b, ext_b) for e in free})
+        striped_vol = [v for v in fvols if v["label"] == "LVM fixvg/striped"][0]
+
+        class _Free:                                   # a reader that reports two chunks free
+            def free_extents(self):
+                return [(striped_vol["base"], 128 << 10)]
+        recs = write_unallocated(io.BytesIO(disk), len(disk),
+                                 [v for v in fvols if v["kind"] == "lvm2 pv"]
+                                 + [dict(striped_vol, walker=_Free(), name="striped_free")],
+                                 tmp, "lvm-fixture.img", say=lambda *a: None)
+        maps = {}
+        for name in os.listdir(tmp):
+            if name.endswith(".tsv"):
+                rows = open(os.path.join(tmp, name), encoding="utf-8").read().splitlines()[1:]
+                maps[name] = [tuple(int(x) for x in r.split("\t")[1:]) for r in rows]
+        def merged(runs):
+            out_ = []
+            for at, n in sorted(runs):
+                if out_ and out_[-1][0] + out_[-1][1] == at:
+                    out_[-1] = (out_[-1][0], out_[-1][1] + n)
+                else:
+                    out_.append((at, n))
+            return out_
+        pv_ok = all(merged(maps.get(f"lvm-fixture.img.{v['name']}.unallocated.tsv", []))
+                    == merged(spare_want[v["base"]])
+                    for v in fvols if v["kind"] == "lvm2 pv")
+        stripe_ok = maps.get("lvm-fixture.img.striped_free.unallocated.tsv") == [
+            (mapped["striped"][0][0], 64 << 10), (mapped["striped"][1][0], 64 << 10)]
+        out.append(("free space: each physical volume's unallocated extents, as lvm2's report "
+                    "leaves them, and a mapped volume's free runs at their places in the image",
+                    pv_ok and stripe_ok and any(spare_want.values())
+                    and all(r.get("offset_bytes") is None and r.get("lvm_map") == striped_vol["lvm_map"].describe()
+                            for r in recs if r["volume"] == "striped_free")))
+    finally:
+        shutil.rmtree(top, ignore_errors=True)
+
+    # Metadata that wraps past the end of its area continues just after the
+    # area's header (format-text.c). Move the first PV's text to straddle the end.
+    pv_at = parts["1"]
+    mda = struct.unpack_from("<QQ", disk, pv_at + SECTOR + 32 + 40 + 16 * 2)
+    m_off, m_size = mda
+    head = bytearray(disk[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+    r_off, r_size, csum, flags = struct.unpack_from("<QQII", head, 40)
+    text_b = disk[pv_at + m_off + r_off:pv_at + m_off + r_off + r_size]
+    wrapped = bytearray(disk)
+    new_off = m_size - r_size // 2
+    first = m_size - new_off
+    wrapped[pv_at + m_off + new_off:pv_at + m_off + m_size] = text_b[:first]
+    wrapped[pv_at + m_off + LVM_MDA_HEADER_SIZE:pv_at + m_off + LVM_MDA_HEADER_SIZE + r_size - first] = text_b[first:]
+    struct.pack_into("<QQII", head, 40, new_off, r_size, csum, flags)
+    struct.pack_into("<I", head, 0, lvm_crc(bytes(head[4:])))
+    wrapped[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = head
+    try:
+        wpv = LvmPv(io.BytesIO(bytes(wrapped)), pv_at)
+        wrap_ok = wpv.vg is not None and wpv.vg[0] == "fixvg" and not wpv.problems
+    except ValueError:
+        wrap_ok = False
+    out.append(("metadata text that wraps past the end of its area is read from the area's "
+                "start, just after its header", wrap_ok))
+
+    # A damaged copy on one physical volume: the other's copy still gives the
+    # volume group, and the damage is said.
+    bad = bytearray(disk)
+    bad[pv_at + m_off + r_off + 10] ^= 0xFF
+    bfound, bnotes = lvm_volumes(io.BytesIO(bytes(bad)), [r for r in regions if not r[0].startswith("MBR")])
+    out.append(("a metadata copy whose checksum fails is reported, and the other physical "
+                "volume's copy still gives every volume",
+                {(a, b, c) for a, b, c, _n in bfound} == want
+                and any("metadata text checksum does not match" in ln for ln in bnotes[pv_at])))
+    # An older copy of the metadata (a lower seqno, without the volume onb) on
+    # either physical volume: the newest copy, on the other, decides, whichever
+    # of the two is read first.
+    for which in ("1", "2"):
+        older = _lvm_older_copy(disk, parts[which], m_off)
+        ofound, _on = lvm_volumes(io.BytesIO(older), [r for r in regions if not r[0].startswith("MBR")])
+        spv = LvmPv(io.BytesIO(older), parts[which])
+        out.append((f"an older metadata copy (seqno 1, without onb) on physical volume {which} "
+                    "gives way to the newest on the other",
+                    spv.vg is not None and spv.vg[2] == 1
+                    and {(a, b, c) for a, b, c, _n in ofound} == want))
+    # A physical volume never added to a volume group has an area with no
+    # metadata in it: no volume group, and nothing wrong to report.
+    empty = bytearray(disk)
+    eh = bytearray(disk[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE])
+    eh[40:64] = bytes(24)
+    struct.pack_into("<I", eh, 0, lvm_crc(bytes(eh[4:])))
+    empty[pv_at + m_off:pv_at + m_off + LVM_MDA_HEADER_SIZE] = eh
+    epv = LvmPv(io.BytesIO(bytes(empty)), pv_at)
+    out.append(("a physical volume whose metadata area holds nothing yet has no volume group "
+                "and no problem", epv.vg is None and not epv.problems))
+    try:
+        lvm_config("a = 1\n;")
+        junk_ok = False
+    except ValueError:
+        junk_ok = True
+    out.append(("text left over that is no token is refused, not dropped", junk_ok))
+    out.append(("a comment after a value, its last word a number, is not read as a value",
+                lvm_config('a = 1\t# Wed Oct 14 10:00:31 2026\nb {\nc = "x" # 7\n}\n')
+                == {"a": 1, "b": {"c": "x"}}))
+    out.append(("a volume whose segments leave a gap in it is not read",
+                _lvm_layout([{"type": "striped", "stripe_count": 1, "start_extent": 0,
+                                  "extent_count": 2, "stripes": ["pv0", 0]},
+                                 {"type": "striped", "stripe_count": 1, "start_extent": 3,
+                                  "extent_count": 1, "stripes": ["pv0", 2]}],
+                                {"pv0": (0, 0, 0)}, {"pv0"}, 1 << 20)[0]
+                == "its segments leave a gap in the volume"))
+    return out + _lvm_hostile_checks(disk, whole, regions, want, paths, parts, m_off, r_off)
+
+
 def identify_fs(fh, base, size=None):
     """Return (name, [detail lines]) for whatever sits at this partition.
 
@@ -13026,6 +15251,20 @@ def identify_fs(fh, base, size=None):
         found = ident(fh, base, size)
         if found:
             return found
+
+    # A LUKS container: its magic at the start of the region. What it holds is
+    # read, once a passphrase opens it (unlock_luks), as a region of its own.
+    found = identify_luks(fh, base, size)
+    if found:
+        return found
+
+    # An LVM2 physical volume: a label lvm2 itself would accept (the sector it
+    # names and its checksum must hold), and either a metadata area header that
+    # checks out or a volume group elsewhere in the image that names it. Its logical volumes are regions of their own (lvm_volumes), so the
+    # PV itself is reported, not walked.
+    found = identify_lvm(fh, base, size)
+    if found:
+        return found
 
     # BitLocker before the rest: its header is a FAT32 boot sector in all but its
     # signature and identifier (so identify_fat would take it for an empty FAT32
@@ -13558,16 +15797,24 @@ def raw_flash_layout(fh, size):
     return [] if kind else flash_regions(fh, size)
 
 
-def partition_regions(fh, size):
-    """(regions, names, containers, protective) for an image, as main() sees them.
+def _luks_regions(fh, regions, names, ss):
+    """Add the data region of each opened LUKS container whose own region is among
+    ``regions`` and whose data is not yet; returns what was added."""
+    added = []
+    for base, lk in sorted((getattr(fh, "luks", None) or {}).items()):
+        data = base + lk.offset
+        if any(r[1] == base for r in regions) and not any(r[1] == data for r in regions):
+            region = (f"LUKS {lk.label}", data, lk.data_size)
+            regions.append(region)
+            names[data] = f"luks_lba{data // ss}"
+            added.append((region, lk))
+    return added
 
-    regions is [(label, base, size)] in report order: MBR primaries, then the
-    logical volumes found by walking the EBR chain, then GPT entries, or the
-    whole image as one region when no table is present. names maps a region's
-    byte offset to the directory an extraction uses (volume_name); containers
-    holds the labels of extended partition containers, which hold the logical
-    volumes and are not themselves volumes; protective holds the 0xEE entry a
-    GPT disk carries in its MBR.
+
+def table_regions(fh):
+    """(regions, names, containers, protective, sector size) from the image's
+    partition tables alone: MBR primaries, the logical volumes of the EBR chain
+    and GPT entries. Reads no filesystem, so an identifier may call it.
     """
     regions, names = [], {}
     containers, protective = set(), set()
@@ -13608,6 +15855,21 @@ def partition_regions(fh, size):
             sz = (last - first + 1) * ss
             regions.append((f"GPT part {idx} {name[:20]}", first * ss, sz))
             names[first * ss] = volume_name(idx, first, name)
+    return regions, names, containers, protective, ss
+
+
+def partition_regions(fh, size):
+    """(regions, names, containers, protective) for an image, as main() sees them.
+
+    regions is [(label, base, size)] in report order: MBR primaries, then the
+    logical volumes found by walking the EBR chain, then GPT entries, or the
+    whole image as one region when no table is present. names maps a region's
+    byte offset to the directory an extraction uses (volume_name); containers
+    holds the labels of extended partition containers, which hold the logical
+    volumes and are not themselves volumes; protective holds the 0xEE entry a
+    GPT disk carries in its MBR.
+    """
+    regions, names, containers, protective, ss = table_regions(fh)
     if not regions:
         flash = raw_flash_layout(fh, size)
         for label, base, rsize in flash:
@@ -13616,6 +15878,17 @@ def partition_regions(fh, size):
         if not flash:
             regions.append(("whole image", 0, size))
             names[0] = volume_name(None, 0)
+    # The data of each LUKS container unlock_luks() opened is a region too, at
+    # its own offset, read decrypted there (LuksImage); and the linear logical
+    # volumes of any LVM2 physical volume among them (lvm_volumes). A container
+    # can sit inside a logical volume, so its data is looked for again after.
+    _luks_regions(fh, regions, names, ss)
+    lvs, _notes = lvm_volumes(fh, [r for r in regions
+                                   if r[0] not in containers and r[0] not in protective], ss)
+    for label, base, rsize, name in lvs:
+        regions.append((label, base, rsize))
+        names[base] = name
+    _luks_regions(fh, regions, names, ss)
     return regions, names, containers, protective
 
 
@@ -13661,10 +15934,18 @@ def volumes(fh, size=None):
     """
     if size is None:
         size = image_size(fh)
+    # The logical volumes that need a map (split into runs, or striped) are read
+    # through one, placed past the image's end (lvm_image); a placed volume is
+    # not "past the end" of anything, and its own map says what it misses.
+    fh = lvm_image(fh, size)
     regions, names, containers, protective = partition_regions(fh, size)
     ss = disk_sector_size(fh)
+    placed = set((getattr(fh, "lvm_virtual", None) or {}).values())
     missing = {start: gap for _lab, start, _rs, gap in
-               short_regions(size, regions, skip=protective)}
+               short_regions(size, [r for r in regions if r[1] not in placed], skip=protective)}
+    for b in placed:
+        missing[b] = fh.lvm_map_for(b).missing(size)
+    lvm_spare = None
     out, qnx6_labels = [], set()
 
     for label, base, rsize in regions:
@@ -13723,6 +16004,35 @@ def volumes(fh, size=None):
                 vol["walker"] = ExtWalker(fh, base)
             elif kind == "QNX IFS boot image":
                 vol["walker"] = IfsWalker(fh, base)
+            elif kind == "luks":
+                lk = (getattr(fh, "luks", None) or {}).get(base) or next(
+                    (x for x in getattr(fh, "luks_found", ()) if x.base == base), None) \
+                    or Luks.open(fh, base, rsize)
+                vol["encryption"] = lk.summary() if lk else "LUKS"
+                if base in placed:
+                    # unlock_luks() reads the image's regions, and a volume read
+                    # through a map is not one of them
+                    vol["note"] = ("LUKS-encrypted and not read: it is inside a logical volume "
+                                   "read through a map, where a LUKS container is not opened")
+                else:
+                    vol["note"] = (f"a LUKS container, opened: its data is listed as LUKS {lk.label}"
+                                   if lk is not None and lk.mk is not None else
+                                   (lk.locked_note() if lk is not None else "LUKS-encrypted and not read"))
+            elif kind == "lvm2 pv":
+                # The logical volumes not read are said here too, where a caller
+                # that prints only the note (the LEAPP run log) will show them.
+                skipped = [ln[len("logical volume "):].replace(": not read (", " (", 1) for ln in lines
+                           if ln.startswith("logical volume ") and ": not read (" in ln]
+                vol["note"] = ("an LVM2 physical volume: each logical volume read from it "
+                               "is listed as a volume of its own"
+                               + ("; not read: " + "; ".join(skipped) if skipped else ""))
+                # Its extents no logical volume holds are its free space
+                # (write_unallocated), at their own offsets in the image.
+                if lvm_spare is None:
+                    lvm_spare = lvm_free_extents(fh, [r for r in regions if not r[0].startswith("LVM ")
+                                                      and r[0] not in containers
+                                                      and r[0] not in protective], ss)
+                vol["free_extents"] = list(lvm_spare.get(base, []))
             elif kind:
                 vol["walker"] = walker_for(kind, fh, base, rsize)
                 if vol["walker"] is None:
@@ -13740,6 +16050,16 @@ def volumes(fh, size=None):
         if wnote and "note" not in vol:
             vol["note"] = wnote
         out.append(vol)
+    # A volume read through a map has no single place on the disk: its base is
+    # where lvm_image() put it, so it has no LBA, and the map says where each
+    # run of it is in the image.
+    luks_data = {b + lk.offset: lk for b, lk in (getattr(fh, "luks", None) or {}).items()}
+    for vol in out:
+        if vol.get("base") in placed:
+            vol["lba"] = None
+            vol["lvm_map"] = fh.lvm_map_for(vol["base"])
+        if vol.get("base") in luks_data and vol.get("label", "").startswith("LUKS "):
+            vol["encryption"] = luks_data[vol["base"]].summary()   # read decrypted
     return out
 
 
@@ -13799,10 +16119,15 @@ def write_unallocated(fh, size, vols, out_dir, image_name, only=None, say=print)
             continue
         rec = {"image": image_name, "volume": name, "label": vol.get("label", ""),
                "filesystem": vol.get("kind"), "lba": vol.get("lba"),
-               "offset_bytes": vol.get("base")}
+               "offset_bytes": None if vol.get("lvm_map") is not None else vol.get("base")}
+        if vol.get("lvm_map") is not None:
+            rec["lvm_map"] = vol["lvm_map"].describe()
         records.append(rec)
         w = vol.get("walker")
         fn = getattr(w, "free_extents", None)
+        if fn is None and vol.get("free_extents") is not None:
+            # An LVM2 physical volume: the extents no logical volume holds.
+            fn = lambda spare=vol["free_extents"]: list(spare)        # noqa: E731
         if fn is None:
             rec["status"] = ("not written: " + (vol.get("note") or "no reader for this volume")
                              if w is None else
@@ -13815,6 +16140,13 @@ def write_unallocated(fh, size, vols, out_dir, image_name, only=None, say=print)
             rec["status"] = f"not written: the allocation map could not be read ({exc})"
             say(f"    {vol.get('label') or name}: {rec['status']}")
             continue
+        lmap = vol.get("lvm_map")
+        if lmap is not None:
+            # A logical volume read through a map: its reader's runs are offsets
+            # in the volume, placed past the image's end, so each becomes the
+            # runs of the image it lies on.
+            runs = [run for off, n in runs
+                    for run in lmap.image_runs(off - vol["base"], n)]
         reported = sum(n for _o, n in runs)
         rec["runs_reported"], rec["bytes_reported"] = len(runs), reported
         if not runs:
@@ -13834,6 +16166,13 @@ def write_unallocated(fh, size, vols, out_dir, image_name, only=None, say=print)
             say(f"    {vol.get('label') or name}: {rec['status']}")
             continue
         notes = []
+        if vol.get("kind") == "lvm2 pv":
+            notes.append("the volume group's extents on this physical volume that no logical "
+                         "volume holds; the label and metadata before the first extent, and "
+                         "any space past the last, are not included")
+        if lmap is not None:
+            notes.append("a logical volume read through a map of its runs; the runs written "
+                         "are where its free space lies in the image")
         if vol.get("kind") == "apfs":
             notes.append("free space belongs to the APFS container, not to one volume")
             try:
@@ -13926,6 +16265,12 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
     # An encrypted APFS volume the passwords (as a password or its personal recovery
     # key) open is read decrypted; the rest stay locked and the report says why.
     image, apfs_found = unlock_apfs(image, None, passwords)
+    # A LUKS container a passphrase opens is read decrypted, its data a region of
+    # its own; the rest stay locked and the report says why.
+    image, _luks_found = unlock_luks(image, None, passwords)
+    # The LVM2 logical volumes that need a map (split into runs, or striped) are
+    # read through one, placed past the image's end (lvm_image).
+    image = lvm_image(image)
     size = image_size(image)
     print("=" * 78)
     print(path)
@@ -13957,6 +16302,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
     candidates, regions, sized_regions, triage = [], [], [], []
     containers, protective = set(), set()
     vol_names = {}                    # byte offset -> canonical extract name
+    first_record = len(manifest) if manifest is not None else 0
     with image as fh:
         # The GPT is read before the MBR is reported, because the sector size
         # its header was found at is the unit of every LBA on this disk,
@@ -14049,6 +16395,35 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                 regions.append(("whole image", 0))
                 vol_names[0] = volume_name(None, 0)
 
+        # The data of each LUKS container a passphrase opened is a region of its
+        # own, at its offset, read decrypted there.
+        def luks_section():
+            added = _luks_regions(fh, sized_regions, vol_names, ss)
+            if added:
+                print(f"\n  LUKS     {len(added)} container(s) opened")
+            for (label, data, rsize), lk in added:
+                print(f"    {lk.label:<26} {human(rsize):>10}  data at byte {data:,}, {lk.summary()}")
+                regions.append((label, data))
+        luks_section()
+        # An LVM2 physical volume's linear logical volumes, each one run of
+        # extents on one physical volume here, are byte ranges of the image like
+        # partitions, so they are reported and read as regions of their own.
+        lvs, _notes = lvm_volumes(fh, [r for r in sized_regions
+                                       if r[0] not in containers and r[0] not in protective], ss)
+        if lvs:
+            print(f"\n  LVM      {len(lvs)} logical volume(s) read from LVM2 physical volumes")
+            for label, base, rsize, name in lvs:
+                lmap = getattr(fh, "lvm_map_for", lambda _b: None)(base)
+                where = (f"at byte {base:,}" if lmap is None else
+                         f"{_lvm_shape_words(lmap)}, read through a map: "
+                         + ", ".join(f"{n:,} bytes at {o:,}" for o, n in lmap.image_runs(0, lmap.size)[:4])
+                         + (" ..." if len(lmap.image_runs(0, lmap.size)) > 4 else ""))
+                print(f"    {label[len('LVM '):]:<26} {human(rsize):>10}  {where}")
+                sized_regions.append((label, base, rsize))
+                regions.append((label, base))
+                vol_names[base] = name
+            luks_section()          # a LUKS container inside a logical volume
+
         # A partition table describes a whole disk and the file may hold only
         # the front of it. FTK Imager and its peers split a raw image into
         # numbered segments (.001, .002, ...) and the first segment carries the
@@ -14059,9 +16434,19 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
         # the 28.8 GiB storage volume walked to 0 files with nothing raised.
         # Say so here, before any volume is reported as empty.
         short_by = {}                 # region start -> bytes past the end of the file
-        short = short_regions(size, sized_regions, skip=protective)
+        # A logical volume read through a map is placed past the end on purpose;
+        # what it misses is what its map puts past the end (LvmMap.missing).
+        placed = set((getattr(fh, "lvm_virtual", None) or {}).values())
+        placed_labels = {lab for lab, st, _rs in sized_regions if st in placed}
+        for st in placed:
+            if fh.lvm_map_for(st).missing(size):
+                short_by[st] = fh.lvm_map_for(st).missing(size)
+        short = short_regions(size, sized_regions, skip=set(protective) | placed_labels)
+        short += [(lab, st, rs, short_by[st]) for lab, st, rs in sized_regions
+                  if lab in placed_labels and short_by.get(st)]
         if short:
-            reach = max(st + rs for lab, st, rs in sized_regions if lab not in protective)
+            reach = max(st + rs for lab, st, rs in sized_regions
+                        if lab not in protective and lab not in placed_labels)
             print("\n  IMAGE IS SHORTER THAN ITS PARTITION TABLE")
             print(f"    the file holds {human(size)}; the partitions it describes "
                   f"reach {human(reach)}")
@@ -14080,6 +16465,8 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
 
         def missing_past_end(base, declared_end=None):
             """Bytes of the volume at base that lie past the end of the file."""
+            if base in placed:
+                return short_by.get(base, 0)   # a placed volume's own map says (LvmMap.missing)
             missing = short_by.get(base, 0)
             if declared_end is not None:
                 missing = max(missing, declared_end - size)
@@ -14305,6 +16692,9 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                                               for k, _i in bl.protectors):
                             print("        (give a password or recovery password with --password-file "
                                   "or --password-env, a startup key with --bitlocker-key)")
+                if kind == "luks" and not any(lk.base == b and lk.mk is not None
+                                              for lk in getattr(fh, "luks_found", ())):
+                    print("        (give its passphrase with --password-file or --password-env)")
                 if kind == "apfs" and any(lk.base == b and lk.vek is None and not lk.why
                                           and not lk.tried for lk in apfs_found):
                     print("        (give an encrypted volume's password or personal recovery "
@@ -14519,6 +16909,13 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                   " on this evidence.")
         else:
             print("  VERDICT: no QNX6 superblock found.")
+    # A logical volume read through a map has no one offset on the disk: its
+    # record in volumes.json says where each run of it is instead.
+    for rec in (manifest or [])[first_record:]:
+        lmap = getattr(image, "lvm_map_for", lambda _b: None)(rec.get("offset_bytes"))
+        if lmap is not None:
+            rec["offset_bytes"], rec["lba"] = None, None
+            rec["lvm_map"] = lmap.describe()
     print()
 
 
@@ -15023,6 +17420,71 @@ def _ntfs_streams_check(image_gz, listing, break_it=None):
     missing = sum(1 for p in want if p not in have)
     extra = sum(1 for p in have if p not in want)
     return matched, len(want), missing, extra, different, failures
+
+
+def _ntfs_directory_index_check(image_gz, break_it=None):
+    """Read every directory's $I30 index allocation through directory_index()
+    and check it is the index: whole blocks that start "INDX" and, once fixed
+    up, hold with the directory's $INDEX_ROOT exactly the entries listdir()
+    gives. ``break_it`` takes the walker and returns one with the call broken,
+    for the control that proves the check can fail.
+
+    Returns (directories with an index allocation, directories, failures).
+    """
+    import gzip, io
+    with gzip.open(image_gz, "rb") as gz:
+        img = io.BytesIO(gz.read())
+    w = NtfsWalker(img, 0)
+    if break_it is not None:
+        w = break_it(w)
+    failures, dirs, held = [], 0, 0
+    stack, seen = [(w.root, "")], set()
+    while stack:
+        node, path = stack.pop()
+        if node in seen:
+            continue
+        seen.add(node)
+        dirs += 1
+        listed = w.listdir(node)
+        for name, child in listed:
+            ent = w.entry(child)
+            if ent and ent[0] & S_IFMT == S_IFDIR:
+                stack.append((child, f"{path}/{name}"))
+            elif w.directory_index(child):
+                failures.append(f"{path}/{name}: a file gave a directory index")
+        if any(name == "$I30" for name, _ref, _size in w.streams(node)):
+            failures.append(f"{path or '/'}: streams() lists the index")
+        got = w.directory_index(node)
+        if not got:
+            continue
+        held += 1
+        (name, ref, size), = got
+        data = b"".join(w.read_file(ref, size))
+        if name != "$I30" or len(data) != size or not size or size % w.idx_size:
+            failures.append(f"{path or '/'}: {len(data)} bytes read of {size}, in blocks "
+                            f"of {w.idx_size}")
+            continue
+        out, got_names = [], set()
+        for a in w._record(node):                    # pylint: disable=protected-access
+            if a.type == NTFS_INDEX_ROOT and a.name == "$I30" and len(a.value) >= 0x20:
+                w._index_entries(a.value, 0x10, out, got_names)   # pylint: disable=protected-access
+        for off in range(0, size, w.idx_size):
+            raw = data[off:off + w.idx_size]
+            if raw[:4] != NTFS_INDX:
+                failures.append(f"{path or '/'}: the block at {off} does not start INDX")
+                continue
+            block = _ntfs_fixup(raw, w.bps, NTFS_INDX)
+            if block and len(block) >= 0x28:
+                w._index_entries(block, 0x18, out, got_names)     # pylint: disable=protected-access
+        if sorted(out) != sorted(listed):
+            failures.append(f"{path or '/'}: the blocks hold {len(out)} entries, listdir() "
+                            f"gives {len(listed)}")
+        ent = w.entry(ref)
+        if not ent or ent[1] != size:
+            failures.append(f"{path or '/'}: entry() gives {ent and ent[1]}, not {size}")
+        if w.stamps(ref) != w.stamps(node):
+            failures.append(f"{path or '/'}: stamps() is not its directory's")
+    return held, dirs, failures
 
 
 def _ntfs_times_check(image_gz):
@@ -19210,6 +21672,26 @@ def self_test():
                   + (f", {emiss} missing" if emiss else "")
                   + (f", {ediff} different" if ediff else "") + ")" + ebroke)
 
+        # LVM2: lvm2's own tools wrote the fixtures, and lvm2's own report (lvs,
+        # pvs, saved beside them as lvm-fixture.lvs.json) is the layout they are
+        # checked against; the file hashes come from sha256sum over the source
+        # trees (tools/make_lvm_fixtures.sh).
+        try:
+            lvm_checks = _lvm_self_checks()
+        except Exception as exc:                     # pylint: disable=broad-except
+            lvm_checks = [(f"the LVM2 checks ran ({type(exc).__name__}: {exc})", False)]
+        try:
+            lvm_checks += _luks_self_checks()
+        except Exception as exc:                     # pylint: disable=broad-except
+            lvm_checks += [(f"the LUKS checks ran ({type(exc).__name__}: {exc})", False)]
+        for label, cond in lvm_checks:
+            if cond is None:
+                print(f"  [SKIP] {label}")
+                continue
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
         # GPT at 512 and 4096 bytes a sector. A 4Kn drive or a UFS LUN image
         # keeps its GPT header at byte 4096 and counts every LBA in 4096-byte
         # sectors; read as 512 it shows no partition table at all. The same
@@ -19701,6 +22183,41 @@ def self_test():
                 return None if data is None else (data, 0, data.data_size)
             w._stream = _stream                      # pylint: disable=protected-access
             return w
+
+        # A directory's $I30 index allocation, read through directory_index(): the
+        # same fixture as the walk above, five of whose nine directories have
+        # grown one, then the same check with the call finding none.
+        idx_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "tests", "fixtures", "ntfs-fixture.img.gz")
+
+        def _no_index_allocation(w):
+            """The walker, finding no $INDEX_ALLOCATION on any record."""
+            w._index_allocation = lambda num: None   # pylint: disable=protected-access
+            return w
+
+        if os.path.isfile(idx_fix):
+            try:
+                iheld, idirs, ifail = _ntfs_directory_index_check(idx_fix)
+            except Exception as exc:                 # pylint: disable=broad-except
+                iheld = idirs = 0
+                ifail = [f"the check raised {type(exc).__name__}: {exc}"]
+            icond = iheld == 5 and idirs == 9 and not ifail
+            if not icond:
+                ok = False
+            print(f"  [{'PASS' if icond else 'FAIL'}] directory_index() reads the $I30 index "
+                  f"allocation of each NTFS fixture directory that has one as whole INDX "
+                  f"blocks holding, with the index root, the entries listdir() gives, and "
+                  f"streams() does not list it ({iheld} of {idirs} directories"
+                  + (f"; {ifail[0]}" if ifail else "") + ")")
+            try:
+                bheld = _ntfs_directory_index_check(idx_fix, break_it=_no_index_allocation)[0]
+            except Exception:                        # pylint: disable=broad-except
+                bheld = -1
+            if bheld != 0:
+                ok = False
+            print(f"  [{'PASS' if bheld == 0 else 'FAIL'}] control: a walker that finds no "
+                  f"$INDEX_ALLOCATION gives no directory index, so the check above can "
+                  f"fail ({bheld} given)")
 
         if os.path.isfile(ads_fix) and os.path.isfile(ads_want):
             try:
@@ -21853,7 +24370,8 @@ if __name__ == "__main__":
                     "APFS filesystems, the Linux flash filesystems SquashFS, JFFS2, "
                     "UBI/UBIFS and YAFFS1/YAFFS2, QNX IFS boot images, and the U-Boot "
                     "environment and Belkin libnvram stores a flash chip carries, out of "
-                    "raw disk images and flash dumps: identify each by its own "
+                    "raw disk images and flash dumps, the linear and striped logical "
+                    "volumes of an LVM2 physical volume included: identify each by its own "
                     "on-disk structure rather "
                     "than trusting a partition type byte, list, and extract to a "
                     "zip with a provenance manifest. No mounting, no admin "
@@ -21902,13 +24420,13 @@ if __name__ == "__main__":
     ap.add_argument("--password-file", metavar="FILE", action="append", default=[],
                     help="for an encrypted image (an Apple disk image, an AD-encrypted "
                          "FTK Imager acquisition or an encrypted AFF), a BitLocker "
-                         "volume or an encrypted APFS volume: a password or "
+                         "volume, an encrypted APFS volume or a LUKS container: a password or "
                          "recovery password (for APFS, the personal recovery key), the "
                          "first line of FILE. Repeatable; each opens with the first one "
                          "that opens it")
     ap.add_argument("--password-env", metavar="NAME", action="append", default=[],
-                    help="for an encrypted image, a BitLocker volume or an encrypted "
-                         "APFS volume: a password, "
+                    help="for an encrypted image, a BitLocker volume, an encrypted "
+                         "APFS volume or a LUKS container: a password, "
                          "from the environment variable NAME. Repeatable. Without either, "
                          "qnxprobe asks at a terminal for an encrypted image's password. "
                          "A password is never taken as an argument, which would show in "
