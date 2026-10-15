@@ -18,6 +18,7 @@ Functions:
     lava_add_module: Adds module information to the LAVA data.
     lava_create_sqlite_table: Creates a SQLite table for artifact data.
     lava_insert_sqlite_data: Inserts data rows into a SQLite table.
+    lava_blank_invalid_media_refs: Logs and blanks media column values that are not media references.
     lava_iter_artifact_rows: Streams stored artifact rows back from LAVA.
     lava_get_media_item: Retrieves media item information from database.
     lava_insert_sqlite_media_item: Inserts media item metadata into database.
@@ -50,6 +51,9 @@ lava_json_name = '_lava_data.lava'
 lava_db_path = None
 _QUEUE_STOP = object()
 LAVA_SCHEMA_VERSION = 2
+# How many distinct invalid media references are logged per artifact before the rest are not.
+_INVALID_MEDIA_REF_LOG_LIMIT = 5
+_invalid_media_refs_logged = {}
 
 
 def sanitize_sql_name(name):
@@ -321,6 +325,7 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None):
 
     lava_db_path = os.path.join(output_path, lava_db_name)
     lava_db = sqlite3.connect(lava_db_path)
+    _invalid_media_refs_logged.clear()
 
     cursor = lava_db.cursor()
     cursor.execute('''CREATE TABLE _artifact_search_patterns (
@@ -621,6 +626,72 @@ def lava_create_sqlite_table(table_name, data):
     return sanitized_table_name, column_map, object_columns
 
 
+def _log_invalid_media_ref(label, ref):
+    """Log one invalid media reference, at most _INVALID_MEDIA_REF_LOG_LIMIT per label."""
+    # ilapfuncs imports this module, so logfunc is imported when it is first needed.
+    from scripts.ilapfuncs import logfunc  # pylint: disable=import-outside-toplevel
+
+    shown = repr(ref)
+    if len(shown) > 80:
+        shown = shown[:77] + '...'
+    logged = _invalid_media_refs_logged.setdefault(label, set())
+    if shown in logged or len(logged) > _INVALID_MEDIA_REF_LOG_LIMIT:
+        return
+    logged.add(shown)
+    if len(logged) > _INVALID_MEDIA_REF_LOG_LIMIT:
+        logfunc(f"{label}: more media column values are not media references; not logging the rest")
+    else:
+        logfunc(f"{label}: media column value {shown} is not a reference from check_in_media; left blank")
+
+
+def lava_blank_invalid_media_refs(rows, media_indexes, label):
+    """
+    Yield rows with the media column values that are not media references removed.
+
+    A media column holds the IDs that check_in_media and check_in_embedded_media return.
+    Any other value (a file name, an ID from the source database) has no row in
+    _lava_media_references, so neither LAVA nor the HTML report can resolve it. Each such
+    value is logged and removed: a single value becomes None, and a list keeps only the
+    references that exist, or becomes None when none do.
+
+    Args:
+        rows (iterable): Rows of the artifact, each a sequence of values.
+        media_indexes (iterable): Positions of the media columns in a row.
+        label (str): Name used in the log message, normally the artifact name.
+    Yields:
+        tuple or the original row: The row, as a new tuple when a value was removed.
+    """
+    media_indexes = list(media_indexes)
+    known = {}
+
+    def is_reference(ref):
+        if not isinstance(ref, str):
+            return False
+        if ref not in known:
+            known[ref] = lava_get_media_references(ref) is not None
+        return known[ref]
+
+    for row in rows:
+        checked_row = None
+        for idx in media_indexes:
+            cell = row[idx]
+            if not cell:
+                continue
+            refs = cell if isinstance(cell, list) else [cell]
+            invalid = [ref for ref in refs if not is_reference(ref)]
+            if not invalid:
+                continue
+            for ref in invalid:
+                _log_invalid_media_ref(label, ref)
+            if checked_row is None:
+                checked_row = list(row)
+            if isinstance(cell, list):
+                checked_row[idx] = [ref for ref in refs if is_reference(ref)] or None
+            else:
+                checked_row[idx] = None
+        yield row if checked_row is None else tuple(checked_row)
+
+
 # column_map is unused here but is part of the established call signature: every caller
 # receives it from lava_create_sqlite_table and passes it straight through, so dropping
 # the parameter would mean touching every artifact that writes to LAVA.
@@ -632,7 +703,8 @@ def lava_insert_sqlite_data(
         column_map,  # pylint: disable=unused-argument
         batch_size=10000,
         async_write=False,
-        queue_size=5000):
+        queue_size=5000,
+        label=None):
     """
     Insert data into a SQLite database table with automatic column sanitization and type conversion.
     This function handles the insertion of multiple rows of data into a specified SQLite table,
@@ -651,6 +723,8 @@ def lava_insert_sqlite_data(
         batch_size (int): Maximum rows to insert per SQLite executemany call.
         async_write (bool): If True, prepare and insert rows on a writer thread.
         queue_size (int): Maximum rows waiting for the async writer.
+        label (str): Name used when logging a media column value that is not a media
+                     reference (see lava_blank_invalid_media_refs). Defaults to table_name.
     Returns:
         int: Number of rows inserted.
     """
@@ -668,6 +742,12 @@ def lava_insert_sqlite_data(
     query = f"INSERT INTO {quote_sql_name(table_name)} ({quoted_columns}) VALUES ({placeholders})"
 
     column_types = [object_columns.get(column) for column in sanitized_columns]
+
+    # Checked here, before any writer thread, so every LAVA write is covered, streamed
+    # rows included. The lookup needs lava_db, which belongs to this thread.
+    media_indexes = [index for index, column_type in enumerate(column_types) if column_type == 'media']
+    if media_indexes:
+        data = lava_blank_invalid_media_refs(data, media_indexes, label or table_name)
 
     def prepare_row(row):
         if isinstance(row, sqlite3.Row):

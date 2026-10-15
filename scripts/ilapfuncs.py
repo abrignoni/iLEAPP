@@ -67,7 +67,8 @@ from scripts.html_safe import esc, safe_local_path
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_iter_artifact_rows, \
     lava_get_media_item, \
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
-    lava_get_full_media_info, lava_update_record_count, bind_dates_as_text, _python_text
+    lava_get_full_media_info, lava_update_record_count, bind_dates_as_text, _python_text, \
+    lava_blank_invalid_media_refs
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -760,6 +761,12 @@ def artifact_processor(func):
 
                 # Check if headers contains a 'media' type
                 media_header_info = get_media_header_info(data_headers)
+                if media_header_info and not is_artifact_result:
+                    # Streamed rows are checked as they are written to LAVA
+                    checked_list = list(lava_blank_invalid_media_refs(data_list, media_header_info, artifact_name))
+                    if html_data_list is data_list:
+                        html_data_list = checked_list
+                    data_list = txt_data_list = checked_list
                 needs_text_or_html_data = any(
                     check_output_types(output_type, output_types)
                     for output_type in ('html', 'tsv', 'timeline', 'kml')
@@ -799,6 +806,7 @@ def artifact_processor(func):
                         column_map,
                         async_write=getattr(data_list, 'async_write', False),
                         queue_size=getattr(data_list, 'queue_size', 5000),
+                        label=artifact_name,
                     )
                     if is_artifact_result:
                         data_list.set_row_count(inserted_count)
