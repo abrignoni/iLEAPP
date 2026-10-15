@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        'app\'s own plists or the backup domain name.',
         'author': '@darren33',
         'creation_date': '2026-09-11',
-        'last_update_date': '2026-10-14',
+        'last_update_date': '2026-10-15',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'One row per container that names com.anonimchat.app: a bundle or data '
@@ -15,11 +15,15 @@ __artifacts_v2__ = {
                  'Library/Preferences/com.anonimchat.app.plist, a bundle container whose '
                  'Info.plist or iTunesMetadata.plist names the bundle ID, or an iTunes backup '
                  'AppDomain, where the bundle ID takes the place of the container UUID. '
+                 'In an iTunes backup, the app database path can identify its AppDomain even '
+                 'when container metadata and preference plists are absent; this artifact does '
+                 'not read the database contents. '
                  'Application name, version, build and store fields come from the bundle container\'s Info.plist '
                  'and iTunesMetadata.plist and are blank for data containers.',
         'paths': (
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
+            '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist',

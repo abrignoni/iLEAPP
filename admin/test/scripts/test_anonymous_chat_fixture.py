@@ -14,6 +14,9 @@ BUILDER_PATH = HERE / 'build_anonymous_chat_fixture.py'
 SPEC = importlib.util.spec_from_file_location('anonymous_chat_fixture_builder', BUILDER_PATH)
 BUILDER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILDER)
+CASE_DIR = HERE.parent / 'cases/data/anonymousChat'
+# Built by build_appdomain_archive(), not build_fixture(); checked on its own below.
+APPDOMAIN_SAMPLE = 'testdata.anonymousChat.anonymousChat_appInfo.case2.zip'
 
 
 def sqlite_snapshot(payload, root, name):
@@ -41,10 +44,10 @@ class AnonymousChatFixtureTests(unittest.TestCase):
             self.assertEqual(len(fresh), 11)
             self.assertTrue(all(Path(name).suffix in ('.db', '.json', '.plist', '.png')
                                 for name in fresh))
-            case_dir = HERE.parent / 'cases/data/anonymousChat'
-            if not case_dir.is_dir():
+            if not CASE_DIR.is_dir():
                 self.skipTest('The runtime-contract sparse checkout omits case archives')
-            samples = sorted(case_dir.glob('*.zip'))
+            samples = sorted(path for path in CASE_DIR.glob('*.zip')
+                             if path.name != APPDOMAIN_SAMPLE)
             self.assertEqual(len(samples), 6)
             with tempfile.TemporaryDirectory(prefix='anonymouschat-synthetic-sqlite-') as sql_root:
                 sql_root = Path(sql_root)
@@ -62,6 +65,17 @@ class AnonymousChatFixtureTests(unittest.TestCase):
                                     name)
                             else:
                                 self.assertEqual(archive.read(name), fresh[name], name)
+
+    def test_appdomain_sample_matches_a_fresh_appdomain_build(self):
+        sample = CASE_DIR / APPDOMAIN_SAMPLE
+        if not sample.is_file():
+            self.skipTest('The runtime-contract sparse checkout omits case archives')
+        with tempfile.TemporaryDirectory(prefix='anonymouschat-synthetic-appdomain-') as root:
+            generated = BUILDER.build_appdomain_archive(Path(root) / 'appdomain.zip')
+            with zipfile.ZipFile(generated) as fresh, zipfile.ZipFile(sample) as archive:
+                self.assertEqual(archive.namelist(), fresh.namelist())
+                for name in archive.namelist():
+                    self.assertEqual(archive.read(name), fresh.read(name), name)
 
     def test_manifest_json_is_written_with_lf_bytes(self):
         with tempfile.TemporaryDirectory(prefix='anonymouschat-synthetic-manifest-') as root:
