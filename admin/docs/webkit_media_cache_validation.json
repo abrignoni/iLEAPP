@@ -1,0 +1,351 @@
+{
+  "version": "0.1.1",
+  "validated_date_utc": "2026-10-15",
+  "base_ileapp_commit": "4ed4bc79a4d9df47fe6511c1c6ff313051c74fbf",
+  "runtime": {
+    "python": "3.12.14",
+    "platform": "Linux",
+    "native_build_created": false
+  },
+  "public_run": {
+    "report_rows": 11,
+    "cache_files": 10,
+    "recovered": 6,
+    "timeline_events": [
+      {
+        "timestamp": "2023-01-02 12:43:03.162710+00:00",
+        "activity": "WebKit MediaCache - Repository Last Modified",
+        "fields": {
+          "Timestamp": "2023-01-02 12:43:03.162710+00:00",
+          "Event Type": "Repository lastmodtime (Cocoa interpretation)",
+          "Raw lastmodtime": "694356183.16271",
+          "Source File": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/diskcacherepository.plist",
+          "Source SHA256": "331500144de12ad2cb9107d8ecf203e65b311dcdd7d70815ca17a8f776ad781e",
+          "Identifier": "com.google.chrome.ios",
+          "Container GUID": "0B468A6F-8837-4A85-BF4D-1EF523683946",
+          "Web Data Store": "",
+          "Acquired Cache Files": "5",
+          "Repository References": "5",
+          "Provenance File": "_HTML/Browser/webkit_media_cache/repositories/d7df9f0a9a88c23f8943d49d.json",
+          "Interpretation": "Repository-level timestamp; not an individual resource request or playback time"
+        }
+      },
+      {
+        "timestamp": "2022-11-27 20:27:11.190088+00:00",
+        "activity": "WebKit MediaCache - Repository Last Modified",
+        "fields": {
+          "Timestamp": "2022-11-27 20:27:11.190088+00:00",
+          "Event Type": "Repository lastmodtime (Cocoa interpretation)",
+          "Raw lastmodtime": "691273631.190088",
+          "Source File": "private/var/mobile/Containers/Data/Application/C80099EA-E198-487A-B7D2-1A628C197FC5/tmp/WebKit/MediaCache/diskcacherepository.plist",
+          "Source SHA256": "09df6fdbfc755bb354b7fbed68b324c51619f9973b7bf26bd1aa468b2b38af81",
+          "Identifier": "com.google.ios.youtube",
+          "Container GUID": "C80099EA-E198-487A-B7D2-1A628C197FC5",
+          "Web Data Store": "",
+          "Acquired Cache Files": "0",
+          "Repository References": "0",
+          "Provenance File": "_HTML/Browser/webkit_media_cache/repositories/c948542bf92b6a43d9978073.json",
+          "Interpretation": "Repository-level timestamp; not an individual resource request or playback time"
+        }
+      },
+      {
+        "timestamp": "2022-12-23 16:41:16.550963+00:00",
+        "activity": "WebKit MediaCache - Repository Last Modified",
+        "fields": {
+          "Timestamp": "2022-12-23 16:41:16.550963+00:00",
+          "Event Type": "Repository lastmodtime (Cocoa interpretation)",
+          "Raw lastmodtime": "693506476.550963",
+          "Source File": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/diskcacherepository.plist",
+          "Source SHA256": "43d603fd9e87dbe631281b1c278f680ff4ff293ecd90a6224980f4f689732280",
+          "Identifier": "com.google.Gmail",
+          "Container GUID": "EB34091F-0B46-40D7-B021-DCC5CFB36F50",
+          "Web Data Store": "SafariViewService",
+          "Acquired Cache Files": "5",
+          "Repository References": "5",
+          "Provenance File": "_HTML/Browser/webkit_media_cache/repositories/a4b19dbe3f9ee4611124135e.json",
+          "Interpretation": "Repository-level timestamp; not an individual resource request or playback time"
+        }
+      }
+    ],
+    "verified_media": [
+      {
+        "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-T7NDJi",
+        "output": "media/084262a5cd8669c8f74050fd286e4c80d2b364a4.mp4",
+        "sha256": "b1f1e17f0d9f930033c0075d24d99fa0e70855d3ade3708da62b2f729508897f",
+        "full_decode_exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-hITSED",
+        "output": "media/f2d90aaf88f883bc0c0dc24f392adeb2742d28b4.mp4",
+        "sha256": "5228423a7e37351858a630b059ff0238c5aa07bbbaf7a100324c1e9a6f3fc5dd",
+        "full_decode_exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-lbKrHx",
+        "output": "media/bfb258809336f251a7332314c15ed567479e53e1.mp4",
+        "sha256": "a93633c49f81d3df0a2a089474dd98146ddac63df3b3eef266e818d4763fe1ee",
+        "full_decode_exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-zbltAk",
+        "output": "media/abdca99b8ba5c56ea89d402b98622f28200c71ff.mp4",
+        "sha256": "29ae9d9a7eaf626e58113a4c8e796348aa1f5f59c514cbb72701d74a3330ba5a",
+        "full_decode_exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/CachedMedia-HlFTs5",
+        "output": "media/a46489457f3b68a5dc47a313e8348b7115daed49.mp4",
+        "sha256": "02972e030468031d896eed1a25883bba63525eb433c1c6662d4901cf48b49fd6",
+        "full_decode_exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/CachedMedia-bW900p",
+        "output": "media/5350233598143519c696661ef4d84288f5d5aa91.m4a",
+        "sha256": "4b4a165585bba9da803f7be0c0f06ea2b97bc1c61b4bf6921ad44e8c6369bf2f",
+        "full_decode_exit_code": 0,
+        "stderr": ""
+      }
+    ],
+    "original_full_archive_hash_verified": false,
+    "prior_output_hashes_match": true
+  },
+  "scaling": {
+    "public": {
+      "rows": 11,
+      "media": 6,
+      "timeline_events": 3
+    },
+    "controlled_two_roots": {
+      "rows": 22,
+      "media": 12,
+      "timeline_events": 6
+    }
+  },
+  "checks": {
+    "module_tests": {
+      "run": 35,
+      "failures": 0
+    },
+    "full_unittest_suite": {
+      "run": 1220,
+      "skipped": 47,
+      "failures": 0
+    },
+    "new_fixture_comparisons": {
+      "passed": 3,
+      "failed": 0
+    },
+    "global_fixture_comparisons": {
+      "passed": 191,
+      "failed": 1,
+      "known_failure_excluded": 1,
+      "failure": "groupMe.groupMeMessages.josh_ios17_ffs",
+      "failure_reproduced_on_unchanged_base": true,
+      "known_failure": "twitterX.twitterDirectMessages.josh_ios17_ffs",
+      "known_failure_registry_changed": false
+    },
+    "pylint_new_files": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "strict_report_checker_findings": 0,
+    "scaling_report_checker_findings": 0,
+    "fresh_source_without_git": {
+      "module_tests_passed": 35,
+      "fixture_comparisons_passed": 3,
+      "note": "Existing Git metadata helpers print a no-repository warning; tests and comparisons succeed."
+    },
+    "source_checks": [
+      {
+        "check": "check_claim_language",
+        "exit_code": 0
+      },
+      {
+        "check": "check_artifact_descriptions",
+        "exit_code": 0
+      },
+      {
+        "check": "check_conversation_column_order",
+        "exit_code": 0
+      },
+      {
+        "check": "check_artifact_paths",
+        "exit_code": 0
+      },
+      {
+        "check": "check_container_markers",
+        "exit_code": 0
+      },
+      {
+        "check": "check_html_safety",
+        "exit_code": 0
+      },
+      {
+        "check": "check_report_local_paths",
+        "exit_code": 0
+      },
+      {
+        "check": "check_source_path",
+        "exit_code": 0
+      },
+      {
+        "check": "check_source_file_column",
+        "exit_code": 0
+      }
+    ]
+  },
+  "validation_boundaries": [
+    "Experimental inferred layout, not a published producer specification",
+    "Positive original media evidence from one public iOS 16.1.1 image in two app containers",
+    "iOS 14.4 repositories are empty, not positive media-layout validation",
+    "No partial-media export or missing initialization synthesis",
+    "No individual playback timestamps or click attribution",
+    "Repository lastmodtime uses an explicitly labelled Cocoa epoch interpretation",
+    "No independently acquired second positive image or controlled creation/deletion study",
+    "No native Windows/macOS build, CI result or full Python runtime matrix claimed",
+    "Original archive members verified selectively; whole source archive hashes not verified"
+  ],
+  "input_members": [
+    {
+      "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/.com.apple.mobile_container_manager.metadata.plist",
+      "sha256": "63cdacc2db9ec25b747fe91954fd305386caa9cab39d550417e7f94c2bf2021b",
+      "crc32": "94729361",
+      "bytes": 536
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-T7NDJi",
+      "sha256": "224ff9b453e013b4d808590f905360cf2b9f46ee2371578f270c1e39970171b0",
+      "crc32": "6b206df6",
+      "bytes": 401408
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-U6m0QB",
+      "sha256": "3050a6c4141e90473b0977dd298fc9102064c8f0dee19b2a50d98d2aa8336976",
+      "crc32": "3d101a16",
+      "bytes": 10943
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-hITSED",
+      "sha256": "f089a3d96ba22b41b8b86dbc0cac7edf04de0012f71eca8477588ffeabb19cf4",
+      "crc32": "f4179459",
+      "bytes": 401408
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-lbKrHx",
+      "sha256": "b43cd4e6cf41309071168b65a94abff2a7fba57cfbdc0e4c0ac19fb3667ee4c1",
+      "crc32": "5513401f",
+      "bytes": 57344
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/CachedMedia-zbltAk",
+      "sha256": "cbc63280d01b95dbdd5516a4f9d2a383688512b5b8841b6cc74c9c767728291c",
+      "crc32": "326faf1a",
+      "bytes": 122880
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/0B468A6F-8837-4A85-BF4D-1EF523683946/tmp/WebKit/MediaCache/diskcacherepository.plist",
+      "sha256": "331500144de12ad2cb9107d8ecf203e65b311dcdd7d70815ca17a8f776ad781e",
+      "crc32": "97b794c7",
+      "bytes": 1346
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/C80099EA-E198-487A-B7D2-1A628C197FC5/.com.apple.mobile_container_manager.metadata.plist",
+      "sha256": "3424e9c578d115de8fe27bdacafd3460e74e943aca4e6443123732d0259670f8",
+      "crc32": "9d1806a9",
+      "bytes": 537
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/C80099EA-E198-487A-B7D2-1A628C197FC5/tmp/WebKit/MediaCache/diskcacherepository.plist",
+      "sha256": "09df6fdbfc755bb354b7fbed68b324c51619f9973b7bf26bd1aa468b2b38af81",
+      "crc32": "96fec7bc",
+      "bytes": 167
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/.com.apple.mobile_container_manager.metadata.plist",
+      "sha256": "45d5f721fe4f21922a48df3cc7e996ed18165f9f4129064515e612a1cced24d2",
+      "crc32": "f897a40a",
+      "bytes": 531
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/CachedMedia-396Di8",
+      "sha256": "9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47",
+      "crc32": "d8f49994",
+      "bytes": 8192
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/CachedMedia-HlFTs5",
+      "sha256": "491bfcf4963d2062fb51877b8fa63b4ecae8eef6731dd021beaad3b543584dec",
+      "crc32": "ef12506c",
+      "bytes": 14950400
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/CachedMedia-Zn4bvr",
+      "sha256": "9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47",
+      "crc32": "d8f49994",
+      "bytes": 8192
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/CachedMedia-bW900p",
+      "sha256": "75aa67ee8e747f1b9f1addd86e1b70c0911be7dec80e99db33843223b369adb3",
+      "crc32": "b2286d74",
+      "bytes": 24576
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/CachedMedia-lcdhDc",
+      "sha256": "9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47",
+      "crc32": "d8f49994",
+      "bytes": 8192
+    },
+    {
+      "source": "private/var/mobile/Containers/Data/Application/EB34091F-0B46-40D7-B021-DCC5CFB36F50/SystemData/com.apple.SafariViewService/Library/WebKit/WebsiteData/MediaCache/diskcacherepository.plist",
+      "sha256": "43d603fd9e87dbe631281b1c278f680ff4ff293ecd90a6224980f4f689732280",
+      "crc32": "b5e54343",
+      "bytes": 2474
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "admin/test/cases/data/webkitMediaCache/testdata.webkitMediaCache.webkit_media_cache.caseios14_empty.zip",
+      "bytes": 874,
+      "sha256": "f65c78394c50ad7367f9825619d4f5bd6bec21bc069d12a94857adc1c350841e"
+    },
+    {
+      "path": "admin/test/cases/data/webkitMediaCache/testdata.webkitMediaCache.webkit_media_cache.casepublic_ios16.zip",
+      "bytes": 1054260,
+      "sha256": "d46e9f23f6b52c201d6114b54a4f142509a2c7d750c4dcf6389c0ab5554d46f7"
+    },
+    {
+      "path": "admin/test/cases/data/webkitMediaCache/testdata.webkitMediaCache.webkit_media_cache.casesynthetic.zip",
+      "bytes": 184892,
+      "sha256": "247c24b225aa672f3c51ed4533b8121e27844bf995a066c4eae50ae042d9c792"
+    }
+  ],
+  "manual_validation": {
+    "date": "2026-10-15",
+    "tested_version": "0.1.0",
+    "source": "Contributor confirmation in conversation",
+    "result": "Full MVS 2023 iOS source ZIP run confirmed successful",
+    "independent_report_count_verification": false
+  },
+  "review": {
+    "date": "2026-10-15",
+    "base_commit_rechecked_unchanged": true,
+    "changes_since_0_1_0": "I/O exceptions now retain their type and errno without examiner-local filenames; four regression tests added. Successful reconstruction algorithm unchanged.",
+    "public_derivative_hashes_unchanged": 6,
+    "public_report_rows": 11,
+    "repository_events": 3,
+    "strict_checker_findings": 0,
+    "future_work_not_claimed": [
+      "Second positive independently acquired image",
+      "Partial resource export",
+      "Additional cache layouts",
+      "Controlled creation/deletion lifecycle study",
+      "Individual playback timestamps"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "leapp": "ileapp",
+  "format_version": 1,
+  "plugins": [
+    "webkit_media_cache"
+  ]
+}

@@ -1,0 +1,44 @@
+WebKit Media Cache – iLEAPP-Version 0.1.1 für den PR
+
+1. Die Ordner „scripts“ und „admin“ aus dem Paket mit den gleichnamigen Ordnern
+   deiner aktuellen iLEAPP-Quellkopie zusammenführen. Bestehende Ordner behalten.
+   Beide Python-Dateien gehören dazu:
+     scripts/artifacts/webkitMediaCache.py
+     scripts/webkit_media_cache.py
+
+2. Deine iLEAPP-Quellversion wie gewohnt starten. In der Auswahl „Browser“ den
+   Eintrag „WebKit - Media Cache“ aktivieren. Alternativ das beiliegende Profil
+   admin/docs/webkit_media_cache.ilprofile verwenden.
+
+3. Das vollständige FFS-ZIP oder einen entpackten Dateisystemordner auswählen.
+   Cache-Dateien, diskcacherepository.plist und die Container-Metadaten müssen
+   ihre ursprünglichen relativen Verzeichnisse behalten.
+
+4. Bericht öffnen: „WebKit - Media Cache“. Die erste Spalte zeigt Video/Audio;
+   weitere Spalten enthalten Status, URL, App-/Dienstzuordnung, Repositoryzeit,
+   Quellen, Größen und Hashwerte. Nicht rekonstruierbare Dateien bleiben sichtbar.
+
+5. „Provenance File“ verweist auf JSON mit der vollständigen Blockzuordnung.
+   „Recovered File“ zeigt den erhaltenen Medienexport im Berichtverzeichnis.
+   Die normalen media/-Dateien sind auch mit LAVA verknüpft.
+
+6. In _Timeline/tl.db werden gültige Repositoryzeiten einmal pro Index erfasst.
+   Sie sind KEINE individuellen Wiedergabezeitpunkte. Es braucht keinen zweiten
+   Auswahlpunkt und keinen zusätzlichen Rekonstruktionslauf.
+
+Öffentlicher iOS-16-Prüflauf:
+   10 Cache-Dateien, 3 Indizes, 3 Metadaten-Dateien
+   11 Berichtszeilen, 6 Medien (5 Videos + 1 Audio), 3 Indexereignisse
+   3 Null-Dateien und 1 nicht unterstütztes Layout bleiben ohne Medienexport.
+
+Der Parser selbst benötigt kein FFmpeg und keine neuen Abhängigkeiten.
+Die Formatunterstützung ist in dieser ersten Fassung experimentell. Lückenhafte
+Ressourcen werden dokumentiert, aber noch nicht als Teilclips exportiert.
+
+Für Quelltests die vorhandene iLEAPP-Python-Umgebung benutzen, z. B. unter Windows
+venv\Scripts\python.exe statt eines anderen parallel installierten Interpreters.
+Ein bereits kompiliertes iLEAPP-Programm enthält das neue Modul erst nach einem
+neuen Build. Das Paket ist ein Quellmodul zum Testen, kein neues Programm-Release.
+
+Die ausführliche englische Formaterklärung und Prüfgrenzen stehen in
+admin/docs/webkit_media_cache.md. Ein Pull Request wurde noch nicht veröffentlicht.
