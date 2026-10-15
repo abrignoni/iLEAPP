@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "alarms": {
         "name": "Alarms",
-        "description": "Extraction of alarms set",
+        "description": "Alarms in com.apple.mobiletimerd.plist, disabled and sleep alarms included",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
         "last_update_date": "2026-10-15",
@@ -49,7 +49,7 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_
 from datetime import datetime as _dt
 
 def _safe_plist_date(value):
-    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    """Convert plist <date> objects to UTC; pass anything else, None included, through unchanged."""
     return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
 
 
@@ -112,12 +112,12 @@ def _alarm_row(alarm, is_sleep_list):
     bedtime = _hour_minute(alarms_dict.get('MTAlarmBedtimeHour'),
                            alarms_dict.get('MTAlarmBedtimeMinute')) if is_sleep_list else ''
 
-    return (_safe_plist_date(alarms_dict.get('MTAlarmFireDate', '')),
+    return (_safe_plist_date(alarms_dict.get('MTAlarmFireDate')),
+            _safe_plist_date(alarms_dict.get('MTAlarmDismissDate')),
+            _safe_plist_date(alarms_dict.get('MTAlarmLastModifiedDate')),
             _hour_minute(alarms_dict.get('MTAlarmHour'), alarms_dict.get('MTAlarmMinute')),
             alarms_dict.get('MTAlarmTitle', ''),
             alarms_dict.get('MTAlarmEnabled', ''),
-            _safe_plist_date(alarms_dict.get('MTAlarmDismissDate', '')),
-            _safe_plist_date(alarms_dict.get('MTAlarmLastModifiedDate', '')),
             repeat_schedule,
             decode_alarm_sound(alarms_dict),
             alarms_dict.get('MTAlarmIsSleep', ''),
@@ -149,11 +149,11 @@ def alarms(context):
 
     data_headers = (
         ('Fire Date', 'datetime'),
+        ('Dismiss Date', 'datetime'),
+        ('Last Modified', 'datetime'),
         'Alarm Time',
         'Alarm Title',
         'Alarm Enabled',
-        ('Dismiss Date', 'datetime'),
-        ('Last Modified', 'datetime'),
         'Repeat Schedule',
         'Alarm Sound',
         'Is Sleep Alarm',

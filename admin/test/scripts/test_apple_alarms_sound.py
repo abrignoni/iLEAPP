@@ -12,6 +12,7 @@ import plistlib
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
@@ -85,8 +86,8 @@ class TestAppleAlarmsSound(unittest.TestCase):
         self.assertEqual(len(data_list), 2)
         regular, sleep_row = data_list
         self.assertEqual(regular[10], '')
-        self.assertEqual(sleep_row[1], '06:05')
-        self.assertEqual(sleep_row[2], '')
+        self.assertEqual(sleep_row[3], '06:05')
+        self.assertEqual(sleep_row[4], '')
         self.assertEqual(sleep_row[6], 'Monday, Tuesday, Wednesday, Thursday, Friday')
         self.assertEqual(sleep_row[7], '')
         self.assertIs(sleep_row[8], True)
@@ -102,8 +103,27 @@ class TestAppleAlarmsSound(unittest.TestCase):
         """An alarm without schedule, state or time keys still yields its row."""
         data_list = self._run_plist({'MTAlarms': {'MTAlarms': [{'$MTAlarm': {}}]}})
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][1], '')
+        self.assertEqual(data_list[0][3], '')
         self.assertEqual(data_list[0][6], '')
+
+    def test_missing_dates_are_none_not_empty_strings(self):
+        """Fire Date, Dismiss Date and Last Modified are datetime columns, the first three.
+        A missing date must reach LAVA as NULL, not as an empty string in an INTEGER column."""
+        data_list = self._run_plist({'MTAlarms': {'MTAlarms': [{'$MTAlarm': {}}]}})
+        self.assertEqual(len(data_list), 1)
+        self.assertEqual(data_list[0][:3], (None, None, None))
+
+    def test_dates_lead_the_row(self):
+        """Every timestamp sits directly after Fire Date."""
+        fire = datetime(2026, 1, 2, 6, 5, tzinfo=timezone.utc)
+        dismiss = datetime(2026, 1, 2, 6, 6, tzinfo=timezone.utc)
+        modified = datetime(2026, 1, 1, 22, 0, tzinfo=timezone.utc)
+        alarm = _alarm({'MTSoundToneID': 'system:Arpeggio'})
+        alarm.update({'MTAlarmFireDate': fire.replace(tzinfo=None),
+                      'MTAlarmDismissDate': dismiss.replace(tzinfo=None),
+                      'MTAlarmLastModifiedDate': modified.replace(tzinfo=None)})
+        data_list = self._run_plist({'MTAlarms': {'MTAlarms': [{'$MTAlarm': alarm}]}})
+        self.assertEqual(data_list[0][:4], (fire, dismiss, modified, '05:35'))
 
 
 if __name__ == '__main__':
