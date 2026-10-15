@@ -72,8 +72,8 @@ class TestAppleAlarmsSound(unittest.TestCase):
         return data_list
 
     def test_sleep_alarms_list_is_reported(self):
-        """iOS 14 and later keep sleep alarms in the MTSleepAlarms list, with no title,
-        no MTAlarmBedtimeFireDate and a sound with no tone or media item."""
+        """In the registered images from iOS 14.3 on, sleep alarms sit in the MTSleepAlarms
+        list, with no title, no MTAlarmBedtimeFireDate and a sound with no tone or media item."""
         sleep = {'MTAlarmHour': 6, 'MTAlarmMinute': 5,
                  'MTAlarmBedtimeHour': 22, 'MTAlarmBedtimeMinute': 30,
                  'MTAlarmEnabled': True, 'MTAlarmRepeatSchedule': 31,
@@ -93,7 +93,7 @@ class TestAppleAlarmsSound(unittest.TestCase):
         self.assertEqual(sleep_row[10], '22:30')
 
     def test_plist_without_sleep_list_still_reports_alarms(self):
-        """iOS 12 stores no MTSleepAlarms key at all."""
+        """The registered iOS 12.4 and 13.3.1 images store no MTSleepAlarms key."""
         data_list = self._run_plist({'MTAlarms': {
             'MTAlarms': [{'$MTAlarm': _alarm({'MTSoundToneID': 'system:Arpeggio'})}]}})
         self.assertEqual(len(data_list), 1)

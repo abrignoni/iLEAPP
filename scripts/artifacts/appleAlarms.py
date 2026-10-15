@@ -11,14 +11,16 @@ __artifacts_v2__ = {
                  "Alarm Title is blank when no MTAlarmTitle is stored; no sleep alarm in the "
                  "checked images stored one. Alarm Time and Bedtime are HH:MM text built from "
                  "MTAlarmHour and MTAlarmMinute, and from MTAlarmBedtimeHour and "
-                 "MTAlarmBedtimeMinute, as stored; no date or time zone is stored with them. "
-                 "Bedtime is filled only for rows from MTSleepAlarms, and its meaning is taken "
-                 "from the key names, not compared with the device's display. Sleep alarm sounds "
-                 "in the checked images held a sound type and volume but no tone or media item ID,"
-                 " so Alarm Sound is blank for them. The Repeat Schedule labels (1 Monday, 2 "
-                 "Tuesday, 4 Wednesday, 8 Thursday, 16 Friday, 32 Saturday, 64 Sunday, 127 Every "
-                 "Day, 0 Never) are assigned by this module and are not vendor-documented. The "
-                 "comparison they were derived from is not recorded here.",
+                 "MTAlarmBedtimeMinute. The stored values are integers; the module zero-pads them "
+                 "and joins them with a colon, and attaches no date or time zone. Some sleep alarm"
+                 " items also carry MTAlarmDay, MTAlarmMonth and MTAlarmYear keys, which this "
+                 "module does not read. Bedtime is filled only for rows from MTSleepAlarms, and "
+                 "its meaning is taken from the key names, not compared with the device's display."
+                 " Sleep alarm sounds in the checked images held a sound type and volume but no "
+                 "tone or media item ID, so Alarm Sound is blank for them. The Repeat Schedule "
+                 "labels (1 Monday, 2 Tuesday, 4 Wednesday, 8 Thursday, 16 Friday, 32 Saturday, 64"
+                 " Sunday, 127 Every Day, 0 Never) are assigned by this module and are not vendor-"
+                 "documented. The comparison they were derived from is not recorded here.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",
