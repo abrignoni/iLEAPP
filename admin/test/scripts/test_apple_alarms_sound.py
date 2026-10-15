@@ -53,7 +53,7 @@ class TestAppleAlarmsSound(unittest.TestCase):
                                'MTSoundToneID': 'system:Arpeggio',
                                'MTSoundVibrationID': 'SOS'})
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][7], 'system:Arpeggio')
+        self.assertEqual(data_list[0][12], 'system:Arpeggio')
 
     def test_song_alarm_reports_the_media_item(self):
         """A song alarm has no MTSoundToneID and used to raise KeyError."""
@@ -61,7 +61,7 @@ class TestAppleAlarmsSound(unittest.TestCase):
                                'MTSoundMediaItemID': 5999271,
                                'MTSoundVibrationID': 'SOS'})
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][7], 'media item: 5999271')
+        self.assertEqual(data_list[0][12], 'media item: 5999271')
 
     def _run_plist(self, plist):
         with tempfile.TemporaryDirectory() as tmp:
@@ -85,13 +85,13 @@ class TestAppleAlarmsSound(unittest.TestCase):
             'MTSleepAlarms': [{'$MTAlarm': sleep}]}})
         self.assertEqual(len(data_list), 2)
         regular, sleep_row = data_list
-        self.assertEqual(regular[10], '')
-        self.assertEqual(sleep_row[3], '06:05')
-        self.assertEqual(sleep_row[4], '')
-        self.assertEqual(sleep_row[6], 'Monday, Tuesday, Wednesday, Thursday, Friday')
-        self.assertEqual(sleep_row[7], '')
-        self.assertIs(sleep_row[8], True)
-        self.assertEqual(sleep_row[10], '22:30')
+        self.assertEqual(regular[15], '')
+        self.assertEqual(sleep_row[8], '06:05')
+        self.assertEqual(sleep_row[9], '')
+        self.assertEqual(sleep_row[11], 'Monday, Tuesday, Wednesday, Thursday, Friday')
+        self.assertEqual(sleep_row[12], '')
+        self.assertIs(sleep_row[13], True)
+        self.assertEqual(sleep_row[15], '22:30')
 
     def test_plist_without_sleep_list_still_reports_alarms(self):
         """The registered iOS 12.4 and 13.3.1 images store no MTSleepAlarms key."""
@@ -103,15 +103,15 @@ class TestAppleAlarmsSound(unittest.TestCase):
         """An alarm without schedule, state or time keys still yields its row."""
         data_list = self._run_plist({'MTAlarms': {'MTAlarms': [{'$MTAlarm': {}}]}})
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][3], '')
-        self.assertEqual(data_list[0][6], '')
+        self.assertEqual(data_list[0][8], '')
+        self.assertEqual(data_list[0][11], '')
 
     def test_missing_dates_are_none_not_empty_strings(self):
-        """Fire Date, Dismiss Date and Last Modified are datetime columns, the first three.
-        A missing date must reach LAVA as NULL, not as an empty string in an INTEGER column."""
+        """The first eight columns are datetime columns. A missing date must reach LAVA as
+        NULL, not as an empty string in an INTEGER column."""
         data_list = self._run_plist({'MTAlarms': {'MTAlarms': [{'$MTAlarm': {}}]}})
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][:3], (None, None, None))
+        self.assertEqual(data_list[0][:8], (None,) * 8)
 
     def test_dates_lead_the_row(self):
         """Every timestamp sits directly after Fire Date."""
@@ -123,7 +123,35 @@ class TestAppleAlarmsSound(unittest.TestCase):
                       'MTAlarmDismissDate': dismiss.replace(tzinfo=None),
                       'MTAlarmLastModifiedDate': modified.replace(tzinfo=None)})
         data_list = self._run_plist({'MTAlarms': {'MTAlarms': [{'$MTAlarm': alarm}]}})
-        self.assertEqual(data_list[0][:4], (fire, dismiss, modified, '05:35'))
+        self.assertEqual(data_list[0][:9], (fire, dismiss, modified,
+                                            None, None, None, None, None, '05:35'))
+
+    def test_mobiletimer_date_keys_fill_their_columns(self):
+        """MobileTimer's MTDictionarySerializer writes these five keys once the matching
+        setter (setKeepOffUntilDate:, setSnoozeFireDate:, setBedtimeFiredDate:,
+        setBedtimeSnoozeFireDate:, setBedtimeDismissedDate:) has set a date."""
+        keys = ('MTAlarmKeepOffUntilDate', 'MTAlarmSnoozeFireDate', 'MTAlarmBedtimeFireDate',
+                'MTAlarmBedtimeSnoozeFireDate', 'MTAlarmBedtimeDismissDate')
+        dates = [datetime(2026, 1, 3, 7, minute, tzinfo=timezone.utc) for minute in range(5)]
+        sleep = {'MTAlarmHour': 6, 'MTAlarmMinute': 5, 'MTAlarmIsSleep': True}
+        sleep.update({key: date.replace(tzinfo=None) for key, date in zip(keys, dates)})
+        data_list = self._run_plist({'MTAlarms': {'MTAlarms': [],
+                                                  'MTSleepAlarms': [{'$MTAlarm': sleep}]}})
+        self.assertEqual(len(data_list), 1)
+        self.assertEqual(data_list[0][:3], (None, None, None))
+        self.assertEqual(data_list[0][3:8], tuple(dates))
+        self.assertEqual(data_list[0][8], '06:05')
+
+    def test_row_width_matches_headers(self):
+        """Every row is as wide as the header tuple, so no column shifts."""
+        plist = {'MTAlarms': {'MTAlarms': [{'$MTAlarm': {}}]}}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / 'com.apple.mobiletimerd.plist'
+            path.write_bytes(plistlib.dumps(plist))
+            Context.clear()
+            Context.set_files_found([str(path)])
+            headers, data_list, _ = alarms.__wrapped__(Context)
+        self.assertEqual(len(data_list[0]), len(headers))
 
 
 if __name__ == '__main__':

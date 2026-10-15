@@ -14,13 +14,26 @@ __artifacts_v2__ = {
                  "MTAlarmBedtimeMinute. The stored values are integers; the module zero-pads them "
                  "and joins them with a colon, and attaches no date or time zone. Some sleep alarm"
                  " items also carry MTAlarmDay, MTAlarmMonth and MTAlarmYear keys, which this "
-                 "module does not read. Bedtime is filled only for rows from MTSleepAlarms, and "
+                 "module does not read. Keep Off Until, Snooze Fire Date, Bedtime Fire Date, "
+                 "Bedtime Snooze Fire Date and Bedtime Dismiss Date are read from "
+                 "MTAlarmKeepOffUntilDate, MTAlarmSnoozeFireDate, MTAlarmBedtimeFireDate, "
+                 "MTAlarmBedtimeSnoozeFireDate and MTAlarmBedtimeDismissDate. These key names come "
+                 "from Apple's MobileTimer framework on macOS 27.0.1, whose alarm serializer wrote "
+                 "each key once the matching date was set on an alarm. The column names follow the "
+                 "key names; what sets each date on a device was not tested. Keep Off Until is "
+                 "filled on rows from MTSleepAlarms in abe_ios16, otto_ios17, iphone11_ios17 and "
+                 "hickman_ios14, and is empty on every row in the other images listed in "
+                 "sample_data. Snooze Fire Date, "
+                 "Bedtime Fire Date, Bedtime Snooze Fire Date and Bedtime Dismiss Date are empty in "
+                 "every image listed in sample_data. Bedtime "
+                 "is filled only for rows from MTSleepAlarms, and "
                  "its meaning is taken from the key names, not compared with the device's display."
                  " Sleep alarm sounds in the checked images held a sound type and volume but no "
                  "tone or media item ID, so Alarm Sound is blank for them. The Repeat Schedule "
                  "labels (1 Monday, 2 Tuesday, 4 Wednesday, 8 Thursday, 16 Friday, 32 Saturday, 64"
-                 " Sunday, 127 Every Day, 0 Never) are assigned by this module and are not vendor-"
-                 "documented. The comparison they were derived from is not recorded here.",
+                 " Sunday, 127 Every Day, 0 Never) are assigned by this module; no vendor "
+                 "documentation for them was found. The comparison they were derived from is not "
+                 "recorded here.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -115,6 +128,11 @@ def _alarm_row(alarm, is_sleep_list):
     return (_safe_plist_date(alarms_dict.get('MTAlarmFireDate')),
             _safe_plist_date(alarms_dict.get('MTAlarmDismissDate')),
             _safe_plist_date(alarms_dict.get('MTAlarmLastModifiedDate')),
+            _safe_plist_date(alarms_dict.get('MTAlarmKeepOffUntilDate')),
+            _safe_plist_date(alarms_dict.get('MTAlarmSnoozeFireDate')),
+            _safe_plist_date(alarms_dict.get('MTAlarmBedtimeFireDate')),
+            _safe_plist_date(alarms_dict.get('MTAlarmBedtimeSnoozeFireDate')),
+            _safe_plist_date(alarms_dict.get('MTAlarmBedtimeDismissDate')),
             _hour_minute(alarms_dict.get('MTAlarmHour'), alarms_dict.get('MTAlarmMinute')),
             alarms_dict.get('MTAlarmTitle', ''),
             alarms_dict.get('MTAlarmEnabled', ''),
@@ -151,6 +169,11 @@ def alarms(context):
         ('Fire Date', 'datetime'),
         ('Dismiss Date', 'datetime'),
         ('Last Modified', 'datetime'),
+        ('Keep Off Until', 'datetime'),
+        ('Snooze Fire Date', 'datetime'),
+        ('Bedtime Fire Date', 'datetime'),
+        ('Bedtime Snooze Fire Date', 'datetime'),
+        ('Bedtime Dismiss Date', 'datetime'),
         'Alarm Time',
         'Alarm Title',
         'Alarm Enabled',
