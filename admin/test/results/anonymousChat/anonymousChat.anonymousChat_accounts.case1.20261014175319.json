@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "anonymousChat",
+    "artifact_name": "Anonymous Chat & Fun - Accounts",
+    "function_name": "anonymousChat_accounts",
+    "case_number": "case1",
+    "number_of_columns": 10,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 579,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_accounts.case1.zip",
+    "start_time": "2026-10-14T17:53:19.743308+00:00",
+    "end_time": "2026-10-14T17:53:19.762802+00:00",
+    "run_time_seconds": 0.0011470317840576172,
+    "last_commit": {
+      "hash": "8011c9a391bd3b34b9b15b1a35b346a9db1fcaaf",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-14T13:45:26-04:00",
+      "message": "Slim the Anonymous Chat module onto files_found"
+    }
+  },
+  "headers": [
+    "First Message Timestamp",
+    "Last Message Timestamp",
+    "Username",
+    "Account Status",
+    "Conversation Count",
+    "Message Count",
+    "Outgoing Count",
+    "Incoming Count",
+    "AsyncStorage Evidence",
+    "Source"
+  ],
+  "data": [
+    [
+      1770000000,
+      1770000002,
+      "local.synthetic",
+      "Username under an account key in AsyncStorage",
+      1,
+      3,
+      1,
+      2,
+      "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+      "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
+    ],
+    [
+      1770000000,
+      1770000002,
+      "remote.synthetic",
+      "Participant, not confirmed as the signed-in account",
+      1,
+      3,
+      "",
+      "",
+      "",
+      "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
+    ]
+  ]
+}

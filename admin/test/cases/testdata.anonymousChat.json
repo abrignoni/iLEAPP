@@ -1,0 +1,108 @@
+{
+  "case1": {
+    "description": "Synthetic data for the iOS app Anonymous Chat & Fun (bundle ID com.anonimchat.app), built by admin/test/scripts/build_anonymous_chat_fixture.py. Every value is invented; the images are 1x1 PNGs. Not a device extraction.",
+    "maker": "Darren Rooney",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "make_data": {
+      "input_data_path": "anonymousChat_synthetic_extraction.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-14T13:41:53.419787",
+      "last_commit": {
+        "hash": "0344668234d15268347123c40cc2de147c186acf",
+        "author_name": "Darren",
+        "author_email": "19848044+darren33@users.noreply.github.com",
+        "date": "2026-10-08T19:09:49+01:00",
+        "message": "Prevent filename-only Anonymous Chat media joins"
+      }
+    },
+    "artifacts": {
+      "anonymousChat_appInfo": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist"
+        ],
+        "file_count": 5,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_accounts": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/*",
+          "*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_conversations": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/*",
+          "*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_messages": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/*",
+          "*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/*",
+          "*/Containers/Data/Application/*/Library/Caches/com.hackemist.SDImageCache/*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_blocked": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_media": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/*",
+          "*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/*",
+          "*/Containers/Data/Application/*/Library/Caches/com.hackemist.SDImageCache/*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}
