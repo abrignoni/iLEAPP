@@ -58,6 +58,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | accountData |
 | addressBook |
 | allTrails |
+| anonymousChat |
 | appStoreSearches |
 | appleAccountDeviceList |
 | appleMapsTrips |
