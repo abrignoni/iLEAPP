@@ -62,6 +62,49 @@ class TestAppleAlarmsSound(unittest.TestCase):
         self.assertEqual(len(data_list), 1)
         self.assertEqual(data_list[0][7], 'media item: 5999271')
 
+    def _run_plist(self, plist):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / 'com.apple.mobiletimerd.plist'
+            path.write_bytes(plistlib.dumps(plist))
+            Context.clear()
+            Context.set_files_found([str(path)])
+            _, data_list, _ = alarms.__wrapped__(Context)
+        return data_list
+
+    def test_sleep_alarms_list_is_reported(self):
+        """iOS 14 and later keep sleep alarms in the MTSleepAlarms list, with no title,
+        no MTAlarmBedtimeFireDate and a sound with no tone or media item."""
+        sleep = {'MTAlarmHour': 6, 'MTAlarmMinute': 5,
+                 'MTAlarmBedtimeHour': 22, 'MTAlarmBedtimeMinute': 30,
+                 'MTAlarmEnabled': True, 'MTAlarmRepeatSchedule': 31,
+                 'MTAlarmIsSleep': True, 'MTAlarmBedtimeDoNotDisturb': True,
+                 'MTAlarmSound': {'$MTSound': {'MTSoundType': 4, 'MTSoundVolume': 0.5}}}
+        data_list = self._run_plist({'MTAlarms': {
+            'MTAlarms': [{'$MTAlarm': _alarm({'MTSoundToneID': 'system:Arpeggio'})}],
+            'MTSleepAlarms': [{'$MTAlarm': sleep}]}})
+        self.assertEqual(len(data_list), 2)
+        regular, sleep_row = data_list
+        self.assertEqual(regular[10], '')
+        self.assertEqual(sleep_row[1], '06:05')
+        self.assertEqual(sleep_row[2], '')
+        self.assertEqual(sleep_row[6], 'Monday, Tuesday, Wednesday, Thursday, Friday')
+        self.assertEqual(sleep_row[7], '')
+        self.assertIs(sleep_row[8], True)
+        self.assertEqual(sleep_row[10], '22:30')
+
+    def test_plist_without_sleep_list_still_reports_alarms(self):
+        """iOS 12 stores no MTSleepAlarms key at all."""
+        data_list = self._run_plist({'MTAlarms': {
+            'MTAlarms': [{'$MTAlarm': _alarm({'MTSoundToneID': 'system:Arpeggio'})}]}})
+        self.assertEqual(len(data_list), 1)
+
+    def test_missing_optional_keys_do_not_drop_the_alarm(self):
+        """An alarm without schedule, state or time keys still yields its row."""
+        data_list = self._run_plist({'MTAlarms': {'MTAlarms': [{'$MTAlarm': {}}]}})
+        self.assertEqual(len(data_list), 1)
+        self.assertEqual(data_list[0][1], '')
+        self.assertEqual(data_list[0][6], '')
+
 
 if __name__ == '__main__':
     unittest.main()
