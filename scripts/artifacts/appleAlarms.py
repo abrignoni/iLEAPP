@@ -4,13 +4,23 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Clock",
-        "notes": "The Repeat Schedule labels (1 Monday, 2 Tuesday, 4 Wednesday, 8 Thursday, 16 "
-                 "Friday, 32 Saturday, 64 Sunday, 127 Every Day, 0 Never) are assigned by this "
-                 "module and are not vendor-documented. The comparison they were derived from is "
-                 "not recorded here.",
+        "notes": "Rows come from the MTAlarms list and, for sleep alarms, the MTSleepAlarms list. "
+                 "Alarm Title is blank when no MTAlarmTitle is stored; no sleep alarm in the "
+                 "checked images stored one. Alarm Time and Bedtime are HH:MM text built from "
+                 "MTAlarmHour and MTAlarmMinute, and from MTAlarmBedtimeHour and "
+                 "MTAlarmBedtimeMinute. The stored values are integers; the module zero-pads them "
+                 "and joins them with a colon, and attaches no date or time zone. Some sleep alarm"
+                 " items also carry MTAlarmDay, MTAlarmMonth and MTAlarmYear keys, which this "
+                 "module does not read. Bedtime is filled only for rows from MTSleepAlarms, and "
+                 "its meaning is taken from the key names, not compared with the device's display."
+                 " Sleep alarm sounds in the checked images held a sound type and volume but no "
+                 "tone or media item ID, so Alarm Sound is blank for them. The Repeat Schedule "
+                 "labels (1 Monday, 2 Tuesday, 4 Wednesday, 8 Thursday, 16 Friday, 32 Saturday, 64"
+                 " Sunday, 127 Every Day, 0 Never) are assigned by this module and are not vendor-"
+                 "documented. The comparison they were derived from is not recorded here.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -20,14 +30,14 @@ __artifacts_v2__ = {
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 5 rows",
-            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 3 rows",
-            "abe_ios16": "iOS 16.5 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 5 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | 1 row",
-            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 2 rows",
             "jess_ios15": "iOS 15.0.2 | 1 row",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
@@ -83,6 +93,38 @@ def decode_repeat_schedule(repeat_schedule_value):
     return reversed(schedule)
 
 
+def _hour_minute(hour, minute):
+    """Format a stored hour and minute as HH:MM, or '' when either is missing."""
+    if hour is None or minute is None:
+        return ''
+    return str(hour).zfill(2) + ':' + str(minute).zfill(2)
+
+
+def _alarm_row(alarm, is_sleep_list):
+    alarms_dict = alarm.get('$MTAlarm', {}) if isinstance(alarm, dict) else {}
+
+    repeat_value = alarms_dict.get('MTAlarmRepeatSchedule')
+    repeat_schedule = ', '.join(decode_repeat_schedule(repeat_value)) \
+        if isinstance(repeat_value, int) else ''
+
+    # Sleep alarms carry their bedtime in MTAlarmBedtimeHour/Minute. Regular alarms
+    # carry those keys too, so the column is only filled for the sleep list.
+    bedtime = _hour_minute(alarms_dict.get('MTAlarmBedtimeHour'),
+                           alarms_dict.get('MTAlarmBedtimeMinute')) if is_sleep_list else ''
+
+    return (_safe_plist_date(alarms_dict.get('MTAlarmFireDate', '')),
+            _hour_minute(alarms_dict.get('MTAlarmHour'), alarms_dict.get('MTAlarmMinute')),
+            alarms_dict.get('MTAlarmTitle', ''),
+            alarms_dict.get('MTAlarmEnabled', ''),
+            _safe_plist_date(alarms_dict.get('MTAlarmDismissDate', '')),
+            _safe_plist_date(alarms_dict.get('MTAlarmLastModifiedDate', '')),
+            repeat_schedule,
+            decode_alarm_sound(alarms_dict),
+            alarms_dict.get('MTAlarmIsSleep', ''),
+            alarms_dict.get('MTAlarmBedtimeDoNotDisturb', ''),
+            bedtime)
+
+
 @artifact_processor
 def alarms(context):
     files_found = context.get_files_found()
@@ -90,82 +132,32 @@ def alarms(context):
     data_list = []
 
     pl = get_plist_file_content(source_path)
-    
+
     # Check if plist is valid before processing
     if not pl or not isinstance(pl, dict):
         return (), [], source_path
-        
-    if 'MTAlarms' in pl:
-        if 'MTAlarms' in pl['MTAlarms']:
-            for alarm in pl['MTAlarms']['MTAlarms']:
-                alarms_dict = alarm['$MTAlarm']
 
-                alarm_title = alarms_dict.get('MTAlarmTitle', 'Alarm')
-                alarm_hour = alarms_dict.get('MTAlarmHour', '')
-                alarm_min = alarms_dict.get('MTAlarmMinute', '')
-                fire_date = alarms_dict.get('MTAlarmFireDate', '')
-                fire_date = _safe_plist_date(fire_date)
-                dismiss_date = alarms_dict.get('MTAlarmDismissDate', '')
-                dismiss_date = _safe_plist_date(dismiss_date)
-                last_modified_date = alarms_dict.get('MTAlarmLastModifiedDate', '')
-                last_modified_date = _safe_plist_date(last_modified_date)
-                repeat_schedule = decode_repeat_schedule(alarms_dict['MTAlarmRepeatSchedule'])
-
-                alarm_time = str(alarm_hour).zfill(2) + ':' + str(alarm_min).zfill(2)
-
-                data_list.append(
-                    (fire_date,
-                    alarm_time,
-                    alarm_title, 
-                    alarms_dict['MTAlarmEnabled'], 
-                    dismiss_date,
-                    last_modified_date, 
-                    ', '.join(repeat_schedule),
-                    decode_alarm_sound(alarms_dict),
-                    alarms_dict['MTAlarmIsSleep'], 
-                    alarms_dict['MTAlarmBedtimeDoNotDisturb'],
-                    '')
-                    )
-
-        if 'MTSleepAlarm' in pl['MTAlarms']:
-            for sleep_alarms in pl['MTAlarms']['MTSleepAlarm']:
-                logfunc(sleep_alarms)
-                sleep_alarm_dict = pl['MTAlarms']['MTSleepAlarm'][sleep_alarms]
-
-                alarm_title = sleep_alarm_dict.get('MTAlarmTitle', 'Bedtime')
-                fire_date = sleep_alarm_dict.get('MTAlarmFireDate', '')
-                fire_date = _safe_plist_date(fire_date)
-                dismiss_date = sleep_alarm_dict.get('MTAlarmDismissDate', '')
-                dismiss_date = _safe_plist_date(dismiss_date)
-                last_modified_date = sleep_alarm_dict.get('MTAlarmLastModifiedDate', '')
-                last_modified_date = _safe_plist_date(last_modified_date)
-                repeat_schedule = decode_repeat_schedule(sleep_alarm_dict['MTAlarmRepeatSchedule'])
-
-                data_list.append(
-                    (fire_date, 
-                    None, # alarm time 
-                    alarm_title, 
-                    sleep_alarm_dict['MTAlarmEnabled'], 
-                    dismiss_date, 
-                    last_modified_date, 
-                    ', '.join(repeat_schedule), 
-                    decode_alarm_sound(sleep_alarm_dict),
-                    sleep_alarm_dict['MTAlarmIsSleep'], 
-                    sleep_alarm_dict['MTAlarmBedtimeDoNotDisturb'], 
-                    sleep_alarm_dict['MTAlarmBedtimeFireDate'])
-                    )
+    alarms_root = pl.get('MTAlarms', {})
+    if isinstance(alarms_root, dict):
+        for list_key, is_sleep_list in (('MTAlarms', False), ('MTSleepAlarms', True)):
+            alarm_list = alarms_root.get(list_key, [])
+            if not isinstance(alarm_list, list):
+                logfunc(f'Alarms: {list_key} is a {type(alarm_list).__name__}, not a list; skipped')
+                continue
+            for alarm in alarm_list:
+                data_list.append(_alarm_row(alarm, is_sleep_list))
 
     data_headers = (
-        ('Fire Date', 'datetime'), 
-        ('Alarm Time', 'datetime'),
-        'Alarm Title', 
-        'Alarm Enabled', 
-        ('Dismiss Date', 'datetime'), 
-        ('Last Modified', 'datetime'), 
-        'Repeat Schedule', 
-        'Alarm Sound', 
-        'Is Sleep Alarm', 
+        ('Fire Date', 'datetime'),
+        'Alarm Time',
+        'Alarm Title',
+        'Alarm Enabled',
+        ('Dismiss Date', 'datetime'),
+        ('Last Modified', 'datetime'),
+        'Repeat Schedule',
+        'Alarm Sound',
+        'Is Sleep Alarm',
         'Bedtime Do Not Disturb',
-        'Bedtime Fire Date'
+        'Bedtime'
         )
     return data_headers, data_list, source_path
