@@ -1417,7 +1417,8 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
         db.commit()
     
     for entry in data_list:
-        entry = [str(field) for field in entry]
+        # None is written blank, as the HTML and TSV show it, not as the text 'None'.
+        entry = ['' if field is None else str(field) for field in entry]
         
         data_dict = dict(zip(data_headers, entry))
 
