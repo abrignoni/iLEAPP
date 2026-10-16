@@ -569,6 +569,11 @@ class Context:
         folder: stripping the report folder first would leave every staged
         evidence path prefixed with 'data/'.
 
+        Each prefix is matched as the run spells it and with its backslashes
+        turned into '/'. An artifact that rewrites a seeker path to forward
+        slashes before reporting it would otherwise, on Windows, publish the
+        examiner's own folders, because that spelling never matched.
+
         Args:
             full_path (str): The full path to the file.
 
@@ -580,13 +585,21 @@ class Context:
             return full_path
 
         for base in (Context._data_folder, Context._output_folder_base):
-            if base and base in full_path:
+            if not base:
+                continue
+            # On Windows the base is spelled with backslashes, but an artifact that
+            # rewrote a seeker path to '/' hands back the same path spelled with
+            # forward slashes, so both spellings are stripped.
+            spellings = [s for s in dict.fromkeys((base, base.replace('\\', '/')))
+                         if s in full_path]
+            if spellings:
                 # Strip the base path everywhere it appears, including inside path
                 # strings concatenated with arbitrary separators (', ', '; ', ...)
-                return (full_path.replace(base + '/', '')
-                                 .replace(base + '\\', '')
-                                 .replace(base, '')
-                                 .lstrip('/\\'))
+                for spelling in spellings:
+                    full_path = (full_path.replace(spelling + '/', '')
+                                          .replace(spelling + '\\', '')
+                                          .replace(spelling, ''))
+                return full_path.lstrip('/\\')
 
         return full_path
 
