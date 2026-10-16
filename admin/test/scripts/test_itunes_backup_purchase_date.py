@@ -9,6 +9,8 @@ iOS 12.3 backup, #1950) raised TypeError on the first such app and produced no r
 These tests run the artifact the way the runner does over a constructed backup holding one
 app of each form, plus text with no offset, and read back the Purchase Date column. Both
 stated forms come back as the same UTC datetime; text that states no offset comes back blank.
+releaseDate, at the top level of the same iTunesMetadata, is read the same way into the
+Release Date column.
 """
 import datetime
 import pathlib
@@ -34,6 +36,7 @@ PURCHASED = datetime.datetime(2019, 5, 14, 9, 30, 15)
 def _metadata(purchase_date):
     return plistlib.dumps({
         'itemName': 'Constructed App',
+        'releaseDate': purchase_date,
         'com.apple.iTunesStore.downloadInfo': {
             'accountInfo': {'AppleID': 'examiner@example.com'},
             'purchaseDate': purchase_date,
@@ -88,6 +91,17 @@ class ITunesBackupPurchaseDateTests(unittest.TestCase):
         self.assertEqual(by_bundle[DATE_APP][purchase], expected)
         self.assertEqual(by_bundle[STRING_APP][purchase], expected)
         self.assertEqual(by_bundle[NO_OFFSET_APP][purchase], '')
+
+    def test_release_date_reads_like_purchase_date(self):
+        headers, rows, _ = iTunesBackupInfo.itunes_backup_installed_applications.__wrapped__(Context)
+
+        names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        by_bundle = {row[names.index('Bundle ID')]: row for row in rows}
+        release = names.index('Release Date')
+        expected = PURCHASED.replace(tzinfo=datetime.timezone.utc)
+        self.assertEqual(by_bundle[DATE_APP][release], expected)
+        self.assertEqual(by_bundle[STRING_APP][release], expected)
+        self.assertEqual(by_bundle[NO_OFFSET_APP][release], '')
 
 
 if __name__ == '__main__':

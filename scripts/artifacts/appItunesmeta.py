@@ -4,13 +4,20 @@ __artifacts_v2__ = {
         "description": "Selected values from each app's iTunesMetadata.plist and the installDate from the BundleMetadata.plist beside it",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-10-04",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-16",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "The Downloaded by column holds the AppleID value under accountInfo in "
                  "com.apple.iTunesStore.downloadInfo, and the Sideloaded? column holds the "
                  "sideLoadedDeviceBasedVPP value. Both are reported as stored. What either value "
-                 "establishes is not sourced here.",
+                 "establishes is not sourced here. App Purchase Date is the purchaseDate under "
+                 "com.apple.iTunesStore.downloadInfo, and App Release Date is the top-level "
+                 "releaseDate. In the 582 iTunesMetadata.plist files of the corpus images listed "
+                 "below, each value present is ISO 8601 text ending in Z, read as UTC, except one "
+                 "purchaseDate stored as a plist date (abe_ios16), also read as UTC. A value that "
+                 "carries no offset, or that does not parse as a date, is left blank. No file in "
+                 "ctf2020_ios12 carries releaseDate, so App Release Date is blank on all 53 rows "
+                 "there.",
         "paths": ('*/iTunesMetadata.plist', '*/BundleMetadata.plist',),
         "output_types": "standard",
         "artifact_icon": "apps",
@@ -36,8 +43,23 @@ __artifacts_v2__ = {
 
 import pathlib
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, convert_plist_date_to_utc, get_plist_file_content
+
+
+def _metadata_date(value):
+    """UTC datetime for an iTunesMetadata purchaseDate or releaseDate, or '' when no instant is stated.
+
+    Both are ISO 8601 text ending in Z in the corpus images checked. A plist <date>, which
+    plistlib loads as a datetime, is UTC.
+    """
+    if isinstance(value, datetime):
+        return convert_plist_date_to_utc(value)
+    try:
+        parsed = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+    except (TypeError, ValueError):
+        return ''
+    return parsed.astimezone(timezone.utc) if parsed.tzinfo else ''
 
 @artifact_processor
 def get_appItunesmeta(context):
@@ -60,10 +82,7 @@ def get_appItunesmeta(context):
                 continue
             source_dirs.add(os.path.dirname(file_found))
                 
-            purchasedate = plist.get('com.apple.iTunesStore.downloadInfo', {}).get('purchaseDate', '')
-            # purchaseDate may be a plist <date> object or an ISO string; only convert objects
-            if isinstance(purchasedate, datetime):
-                purchasedate = convert_plist_date_to_utc(purchasedate)
+            purchasedate = _metadata_date(plist.get('com.apple.iTunesStore.downloadInfo', {}).get('purchaseDate'))
             
             bundleid = plist.get('softwareVersionBundleId', '')
             itemname = plist.get('itemName', '')
@@ -72,9 +91,7 @@ def get_appItunesmeta(context):
             downloadedby = plist.get('com.apple.iTunesStore.downloadInfo', {}) .get('accountInfo', {}).get('AppleID', '')
             genre = plist.get('genre', '')
             factoryinstall = plist.get('isFactoryInstall', '')
-            appreleasedate = plist.get('releaseDate', '')
-            if isinstance(appreleasedate, datetime):
-                appreleasedate = convert_plist_date_to_utc(appreleasedate)
+            appreleasedate = _metadata_date(plist.get('releaseDate'))
             sourceapp = plist.get('sourceApp', '')
             sideloaded = plist.get('sideLoadedDeviceBasedVPP', '')
             variantid = plist.get('variantID', '')
@@ -98,11 +115,12 @@ def get_appItunesmeta(context):
             else:
                 install_date = ''
     
-            data_list.append((install_date, purchasedate, bundleid, itemname, artistname, versionnum, downloadedby, genre, factoryinstall, appreleasedate, sourceapp, sideloaded, variantid, context.get_relative_path(parent)))   
+            data_list.append((install_date, purchasedate, appreleasedate, bundleid, itemname, artistname, versionnum, downloadedby, genre, factoryinstall, sourceapp, sideloaded, variantid, context.get_relative_path(parent)))   
 
     data_headers = (
         ('Installed Date','datetime'), 
         ('App Purchase Date','datetime'),
+        ('App Release Date', 'datetime'),
         'Bundle ID', 
         'Item Name', 
         'Artist Name', 
@@ -110,7 +128,6 @@ def get_appItunesmeta(context):
         'Downloaded by', 
         'Genre', 
         'Factory Install', 
-        'App Release Date', 
         'Source App', 
         'Sideloaded?', 
         'Variant ID', 
