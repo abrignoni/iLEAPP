@@ -19,8 +19,8 @@ __artifacts_v2__ = {
         "description": "Extract information about installed applications from the "
                        "Info.plist file of an iTunes backup. The AppleID (as stored) column "
                        "is the AppleID value of the app's download information as "
-                       "stored, and the storeCohort Date (decoded) is decoded from the digits "
-                       "after date= as Unix seconds.",
+                       "stored, and the storeCohort Date (decoded) is the ten characters after "
+                       "date= read as Unix seconds.",
         "author": "@johannplw, @AlexisBrignoni, Codex",
         "creation_date": "2023-10-11",
         "last_update_date": "2026-10-16",
