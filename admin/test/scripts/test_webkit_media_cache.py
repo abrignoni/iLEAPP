@@ -206,6 +206,13 @@ class MediaCacheCoreTests(unittest.TestCase):
         self.assertIn('Unsupported cache layout', self.read(b'not cache data')['status'])
         self.assertIn('Truncated', self.read(b'abc')['status'])
 
+    def test_zeroed_header_is_reported_with_its_length(self):
+        stored = cache_bytes(self.media)
+        row = self.read(b'\0' * 8192 + stored[8192:])
+        self.assertEqual(row['status'], 'Cache header zeroed (first 8192 bytes); '
+                                        'no block table to order the stored bytes; no export')
+        self.assertEqual(row['blocks'], [])
+
     def test_existing_destination_and_source_are_not_deleted(self):
         row = self.read(cache_bytes(self.media))
         before = self.source.read_bytes()
@@ -237,6 +244,18 @@ class MediaCacheCoreTests(unittest.TestCase):
     def test_unknown_resource_is_retained_as_binary(self):
         self.output.write_bytes(b'unknown resource')
         self.assertEqual(core.media_info(self.output)['extension'], 'bin')
+
+    def test_mp3_is_recognised_with_and_without_an_id3_tag(self):
+        frame = bytes((0xFF, 0xFB, 0x90, 0x64)) + b'\0' * 413
+        tag = b'ID3' + bytes((3, 0, 0, 0, 0, 0, 20)) + b'\0' * 20
+        for data in (frame, tag + frame):
+            self.output.write_bytes(data)
+            info = core.media_info(self.output)
+            self.assertEqual((info['kind'], info['extension'], info['mime']), ('Audio', 'mp3', 'audio/mpeg'))
+        # Layer II and a reserved version are not called MP3.
+        for header in ((0xFF, 0xFD, 0x90, 0x64), (0xFF, 0xEB, 0x90, 0x64)):
+            self.output.write_bytes(bytes(header) + b'\0' * 413)
+            self.assertEqual(core.media_info(self.output)['extension'], 'bin')
 
     def test_output_io_error_does_not_publish_local_paths(self):
         row = self.read(cache_bytes(self.media))
@@ -469,7 +488,7 @@ class MediaCacheReportIntegrationTests(unittest.TestCase):
             self.assertEqual(tables[0]['record_count'], 2)
             self.assertTrue(list((report / '_TSV Exports').glob('*Media Cache*.tsv')))
             page = next(path for path in (report / '_HTML').rglob('*.html')
-                        if path.stem.replace('_', ' ') == 'WebKit - Media Cache').read_text()
+                        if path.stem.replace('_', ' ') == 'Media Cache - CachedMedia').read_text()
             self.assertIn('<video', page)
             self.assertIn('a=1&amp;b=2', page)
 

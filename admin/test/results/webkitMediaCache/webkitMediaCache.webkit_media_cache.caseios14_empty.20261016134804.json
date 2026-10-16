@@ -1,7 +1,7 @@
 {
   "metadata": {
     "module_name": "webkitMediaCache",
-    "artifact_name": "WebKit - Media Cache",
+    "artifact_name": "Media Cache - CachedMedia",
     "function_name": "webkit_media_cache",
     "case_number": "caseios14_empty",
     "number_of_columns": 30,
@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/webkitMediaCache/testdata.webkitMediaCache.webkit_media_cache.caseios14_empty.zip",
-    "start_time": "2026-10-15T12:34:24.483816+00:00",
-    "end_time": "2026-10-15T12:34:24.488748+00:00",
-    "run_time_seconds": 0.0010330677032470703,
+    "start_time": "2026-10-16T13:48:04.651820+00:00",
+    "end_time": "2026-10-16T13:48:04.670557+00:00",
+    "run_time_seconds": 0.0017979145050048828,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-15T12:34:24.486135",
-      "message": "File not yet committed to git"
+      "hash": "d821de82017eb5d0fa2d71fc773b52dd6283122c",
+      "author_name": "Forensik.IT GmbH",
+      "author_email": "336857309+ForensikITGmbH@users.noreply.github.com",
+      "date": "2026-10-15T15:30:26+02:00",
+      "message": "Add files via upload"
     }
   },
   "headers": [

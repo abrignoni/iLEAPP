@@ -1,40 +1,52 @@
-"""Reconstruct supported WebKit CachedMedia resources with block provenance."""
+"""Rebuild the media stored in CachedMedia files of Apple's media disk cache."""
 
 __artifacts_v2__ = {
     'webkit_media_cache': {
-        'name': 'WebKit - Media Cache',
-        'description': 'Reconstructs stored CachedMedia resources from validated block mappings '
-                       'and reports URLs, container ownership and repository metadata.',
-        'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-15', 'last_update_date': '2026-10-15',
-        'requirements': 'none', 'category': 'Browser',
-        'notes': 'Experimental layout inferred from public MVS 2023 iOS 16.1.1 files: '
-                 'outer version 2, identity version 1, block table version 5 (crab), '
-                 '16/64 KiB blocks. Only fully covered, non-overlapping stored resources '
-                 'are exported, without transcoding or filling gaps. MP4 metadata is '
-                 'structurally checked; no decoder is run at runtime. A complete stored '
-                 'resource is not necessarily a complete original video. Cache presence '
-                 'does not establish a click, playback or viewing duration. Repository '
-                 'Last Modified interprets lastmodtime as Cocoa seconds since 2001; it '
-                 'applies to the repository, not to each resource. Only one timeline '
-                 'event per repository is emitted. Raw times and block maps are retained '
-                 'in provenance JSON. App ownership is the current acquired container '
-                 'metadata, not evidence of the initiating email or page. Stored paths '
-                 'may name an older container GUID; filename-only repository associations '
-                 'are qualified and kept separate from the resource identity URL. '
-                 'Application / Service was empty throughout the public subset because '
-                 'no application display-name metadata was acquired. Web Data Store was '
-                 'empty for direct Chrome and YouTube stores. Recovered Media, Recovered '
-                 'File, Media Kind, Duration Seconds, Dimensions, Codecs, Output SHA256 '
-                 'and Output MD5 have no value for unreconstructed entries. Resource URL, '
-                 'Stored Resource Bytes, Covered Bytes, Block Size and Block Count have '
-                 'no value where no supported identity/block table was decoded. The '
-                 'empty repository has no Source SHA256 or Source Bytes; its index hash '
-                 'is retained in Metadata and provenance. Container Type was uniform '
-                 '(Data/Application) on all 11 public-subset rows. Stored Resource '
-                 'Bytes and Covered Bytes were identical where populated in that subset: '
-                 'the six supported tables each fully covered their stored resource. '
-                 'See admin/docs/webkit_media_cache.md.',
+        'name': 'Media Cache - CachedMedia',
+        'description': 'Rebuilds video and audio stored in CachedMedia files (the media disk '
+                       'cache used by WebKit and other media clients) from their block tables, '
+                       'with the resource URL, the owning app container and the cache '
+                       'repository entry.',
+        'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
+        'creation_date': '2026-10-15', 'last_update_date': '2026-10-16',
+        'requirements': 'none', 'category': 'Media Cache',
+        'notes': 'The repository and block-table strings (diskcacherepository.plist, lastmodtime, '
+                 "checkedinlist, checkedoutlist, crab) are in Apple's MediaToolbox framework, and "
+                 'WebCore holds the CachedMedia- file name (checked on macOS 27.0.1); no writer code '
+                 'was read. Apps keep the cache in tmp/WebKit/MediaCache or under Library/WebKit; it '
+                 'is also found outside app containers, in tmp/MediaCache, Library/WebClips and '
+                 'tmp/com.apple.mediaplaybackd/MediaCache (repository file only, in the corpus). The '
+                 'file layout is read from the files, not from a published specification. A resource '
+                 'is exported only when its block table covers every stored byte once; nothing is '
+                 'padded or filled in. "Incomplete resource" rows have gaps in the table. "Cache '
+                 'header zeroed" rows have zeros where the block table is kept, so the stored bytes '
+                 'cannot be put in order. Both are listed without an export. A complete stored '
+                 'resource can still be a segment or a preview of a longer original. MP4 box structure'
+                 ' and MP3 frame headers are checked; no decoder runs. A cached resource does not show'
+                 ' that it was played or viewed. Repository Last Modified is lastmodtime read as '
+                 'seconds since 2001-01-01 UTC. In the 20 zip-format corpus images, 77 repositories '
+                 'were compared with the modification time the extraction recorded for the plist. Five'
+                 ' had no recorded time and one had a placeholder time at the Unix epoch. Of the other'
+                 ' 71, lastmodtime matched within one second in 48 and was later in 23, never earlier.'
+                 ' The tar images were not compared. It belongs to the repository, not to any one '
+                 'resource, and is written to the timeline once per repository that has one. '
+                 'Identifier and Container GUID come from the container metadata and name the app '
+                 'recorded for that container in the extraction. Application / Service is the app name'
+                 ' from its bundle metadata and is blank when no bundle name for that identifier was '
+                 'found in the extraction. Caches outside an app container have blank owner columns; '
+                 'their folder path is the only pointer to the writer. Web Data Store is '
+                 'SafariViewService for caches under that service and blank otherwise. Container Type '
+                 'held Data/Application on every row with an owner. Covered Bytes equalled Stored '
+                 'Resource Bytes on all 180 exported corpus rows and was smaller on all 23 Incomplete '
+                 'resource rows. Resource URL, Stored Resource Bytes, Covered Bytes, Block Size and '
+                 'Block Count are blank where the cache file has no readable header (all-zero and '
+                 'zeroed-header files) and on rows whose source is the repository plist (a repository '
+                 'with no cache files, or a reference to a cache file not acquired), which also have '
+                 'no Source Bytes. Repository URLs equalled Resource URL on all 203 corpus rows that '
+                 'have both, and is the only URL on rows whose cache file has none. Recovered Media, '
+                 'Media Kind, Duration Seconds, Dimensions, Codecs, Output SHA256, Output MD5, '
+                 'Validation and Recovered File are blank for rows without an export. The block map of'
+                 ' each row is in its Provenance File.',
         'paths': (
             '*/MediaCache/CachedMedia-*',
             '*/MediaCache/diskcacherepository.plist',
@@ -47,13 +59,29 @@ __artifacts_v2__ = {
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'movie',
         'sample_data': {
-            'mvs2023_ios16_subset': 'iOS 16.1.1 | 10 cache files, 3 repositories | '
-                                   '11 rows, 6 recovered resources, 3 repository events',
-            'mvs2021_ios14_empty': 'iOS 14.4 | 2 empty repositories | '
-                                 '2 rows, 0 recovered resources, 2 repository events',
-            'synthetic': 'Reversed blocks, gaps, invalid layouts and isolated containers',
-            'mvs2023_fullzip_manual': 'Full archive run confirmed by contributor on 2026-10-15; '
-                                      'no exported report acquired for an independent count check',
+            'abe_ios16': 'iOS 16.5 | 30 rows, 24 exported',
+            'adams_iphone12mini': 'iOS 17.1.1 | 4 rows, 2 exported',
+            'cookbook_ios1751': 'iOS 17.5.1 | 16 rows, 13 exported',
+            'ctf2020_ios12': 'iOS 12.4 | 6 rows, 5 exported',
+            'dexter_ios18': 'iOS 18.3.2 | 29 rows, 21 exported',
+            'falken_ios26': 'iOS 26.2.1 | 8 rows, 5 exported',
+            'felix23_ios16': 'iOS 16.5 | 2 rows, 0 exported',
+            'felix_ios17': 'iOS 17.6.1 | 1 row, 0 exported',
+            'fsfull002_ios17': 'iOS 17.1 | 4 rows, 1 exported',
+            'hc_ios17_2': 'iOS 17.2.1 | 13 rows, 5 exported',
+            'hc_ios18_7': 'iOS 18.7.8 | 12 rows, 5 exported',
+            'hc_ios26': 'iOS 26.5.2 | 2 rows, 0 exported',
+            'hexordia_ios1651': 'iOS 16.5.1 | 29 rows, 24 exported',
+            'hickman_ios13': 'iOS 13.3.1 | 4 rows, 2 exported',
+            'hickman_ios14': 'iOS 14.3 | 2 rows, 1 exported',
+            'hickman_ios15': 'iOS 15.3.1 | 14 rows, 6 exported',
+            'iphone11_ios17': 'iOS 17.3 | 36 rows, 26 exported',
+            'iphone12_ios18': 'iOS 18.7 | 4 rows, 2 exported',
+            'iphone14plus_ios18': 'iOS 18.0 | 4 rows, 3 exported',
+            'iphone14plus_ios18_mvs2025': 'iOS 18.0 | 5 rows, 3 exported',
+            'jess_ios15': 'iOS 15.0.2 | 2 rows, 0 exported',
+            'magnet_ios16': 'iOS 16.1.1 | 11 rows, 6 exported',
+            'otto_ios17': 'iOS 17.5.1 | 35 rows, 26 exported',
         },
     },
 }
@@ -260,11 +288,11 @@ def webkit_media_cache(context):
                            evidence_path(context, repository_provenance),
                            'Repository-level timestamp; not an individual resource request or playback time'))
     if events:
-        timeline(context.get_report_folder(), 'WebKit MediaCache - Repository Last Modified', events,
+        timeline(context.get_report_folder(), 'Media Cache - Repository Last Modified', events,
                  ('Timestamp', 'Event Type', 'Raw lastmodtime', 'Source File', 'Source SHA256',
                   'Identifier', 'Container GUID', 'Web Data Store', 'Acquired Cache Files',
                   'Repository References', 'Provenance File', 'Interpretation'))
-    logfunc(f'WebKit MediaCache: {len(caches)} cache files, {len(rows)} report rows, '
+    logfunc(f'Media Cache - CachedMedia: {len(caches)} cache files, {len(rows)} report rows, '
             f'{len(events)} repository timeline events')
     sources = [evidence_path(context, path) for path in caches]
     sources.extend(repo['source'] for repo in repositories.values())

@@ -1,7 +1,12 @@
-"""Read the CachedMedia atom/block layout observed in the MVS 2023 iOS image.
+"""Read the CachedMedia files of Apple's media disk cache.
 
-The outer format is experimentally inferred, not an Apple specification. Only
-complete, non-overlapping stored ranges are exported; no missing bytes are made.
+The repository and block-table strings (diskcacherepository.plist, lastmodtime,
+checkedinlist, checkedoutlist, crab) are in MediaToolbox and WebCore holds the
+CachedMedia- file name (macOS 27.0.1). The atom layout is read from the files, not from a specification:
+frei, verz (2), stst (version 5, crab, block size, entries), stid (identity plist)
+in the first 8 KiB, then stcs with the stored bytes. Each block entry is
+logical_index:u32, length:u32, physical_offset:u64, big endian. Only complete,
+non-overlapping stored ranges are exported; no missing bytes are made.
 """
 
 import hashlib
@@ -41,6 +46,18 @@ def file_hashes(path):
             md5.update(data)
             nonzero = nonzero or bool(data.strip(b'\x00'))
     return {'sha256': sha.hexdigest(), 'md5': md5.hexdigest(), 'nonzero': nonzero}
+
+
+def _leading_zeros(path):
+    """Count the zero bytes before the first non-zero byte."""
+    count = 0
+    with open(path, 'rb') as handle:
+        for data in iter(lambda: handle.read(_CHUNK), b''):
+            stripped = data.lstrip(b'\x00')
+            count += len(data) - len(stripped)
+            if stripped:
+                break
+    return count
 
 
 def _read(handle, size):
@@ -83,7 +100,13 @@ def read_cache(path):
         return row
     try:
         with path.open('rb') as handle:
-            if _read(handle, 8)[4:] != b'frei':
+            head = _read(handle, 8)
+            if not any(head):
+                # The block table lives in the first 8 KiB, ahead of the stcs payload.
+                row['status'] = (f'Cache header zeroed (first {_leading_zeros(path)} bytes); '
+                                 'no block table to order the stored bytes; no export')
+                return row
+            if head[4:] != b'frei':
                 row['status'] = 'Unsupported cache layout (no initial frei atom)'
                 return row
             boxes = {}
@@ -215,6 +238,10 @@ def media_info(path):
               'tracks': [], 'validation': 'Not decoded at runtime'}
     try:
         with open(path, 'rb') as handle:
+            if _mpeg_audio(handle):
+                result.update(kind='Audio', extension='mp3', mime='audio/mpeg',
+                              validation='MPEG audio Layer III frame header checked; not decoded at runtime')
+                return result
             top = list(_boxes(handle, 0, Path(path).stat().st_size, extended=True))
             kinds = {box[0] for box in top}
             if not {b'ftyp', b'moov'}.issubset(kinds) or not kinds.intersection((b'mdat', b'moof')):
@@ -238,6 +265,29 @@ def media_info(path):
     except (OSError, CacheFormatError, struct.error) as error:
         result['validation'] = 'Unrecognized/invalid media structure: ' + error_text(error)
     return result
+
+
+def _mpeg_frame_header(data):
+    """True for a valid MPEG audio Layer III frame header (ISO/IEC 11172-3, 13818-3)."""
+    if len(data) < 4 or data[0] != 0xFF or data[1] & 0xE0 != 0xE0:
+        return False
+    version = (data[1] >> 3) & 3
+    layer = (data[1] >> 1) & 3
+    bitrate = data[2] >> 4
+    sample_rate = (data[2] >> 2) & 3
+    return version != 1 and layer == 1 and bitrate not in (0, 15) and sample_rate != 3
+
+
+def _mpeg_audio(handle):
+    """Recognise MP3 by its first frame header, after an ID3v2 tag when one is present."""
+    handle.seek(0)
+    head = handle.read(10)
+    offset = 0
+    if head[:3] == b'ID3' and len(head) == 10 and not any(byte & 0x80 for byte in head[6:10]):
+        size = (head[6] << 21) | (head[7] << 14) | (head[8] << 7) | head[9]
+        offset = 10 + size + (10 if head[5] & 0x10 else 0)
+    handle.seek(offset)
+    return _mpeg_frame_header(handle.read(4))
 
 
 def _track(handle, start, end):
