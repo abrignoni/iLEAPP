@@ -569,10 +569,11 @@ class Context:
         folder: stripping the report folder first would leave every staged
         evidence path prefixed with 'data/'.
 
-        Each prefix is matched as the run spells it and with its backslashes
-        turned into '/'. An artifact that rewrites a seeker path to forward
-        slashes before reporting it would otherwise, on Windows, publish the
-        examiner's own folders, because that spelling never matched.
+        Each prefix is matched as the run spells it, with its backslashes
+        turned into '/', and without the Windows long-path prefix '\\\\?\\'. An
+        artifact that rewrites a seeker path to forward slashes, or drops that
+        prefix, before reporting it would otherwise, on Windows, publish the
+        examiner's own folders, because those spellings never matched.
 
         Args:
             full_path (str): The full path to the file.
@@ -587,10 +588,14 @@ class Context:
         for base in (Context._data_folder, Context._output_folder_base):
             if not base:
                 continue
-            # On Windows the base is spelled with backslashes, but an artifact that
-            # rewrote a seeker path to '/' hands back the same path spelled with
-            # forward slashes, so both spellings are stripped.
-            spellings = [s for s in dict.fromkeys((base, base.replace('\\', '/')))
+            # On Windows the base is spelled with backslashes and usually carries the
+            # long-path prefix. An artifact that rewrote a seeker path to '/', or
+            # dropped the prefix, hands back the same path spelled differently, so
+            # every spelling is stripped, the prefixed ones first because the bare
+            # ones are part of them.
+            bare = base.removeprefix('\\\\?\\')
+            spellings = [s for s in dict.fromkeys((base, base.replace('\\', '/'),
+                                                   bare, bare.replace('\\', '/')))
                          if s in full_path]
             if spellings:
                 # Strip the base path everywhere it appears, including inside path

@@ -1,12 +1,13 @@
-"""Pin that a staged path rewritten to '/' still loses the examiner's folders.
+"""Pin that a staged path spelled another way still loses the examiner's folders.
 
 On Windows the data folder is spelled with backslashes and the long-path prefix,
 '\\\\?\\C:\\...\\data'. An artifact can rewrite a seeker path to forward slashes,
-'//?/C:/.../data/...', and then pass it to `Context.get_relative_path` or return it as the
-source path. The strip used to be a plain match on the backslash spelling, so the
-rewritten path came back whole and the examiner's own folders reached the report's
-Source File cells, the "located at" line and the LAVA manifest's `source_path`. A code read
-of ALEAPP on 2026-10-16 found 59 artifact modules doing this.
+'//?/C:/.../data/...', or drop the prefix, 'C:\\...\\data\\...', and then pass it to
+`Context.get_relative_path` or return it as the source path. The strip used to be a plain
+match on the run's own spelling, so such a path came back whole and the examiner's own
+folders reached the report's Source File cells, the "located at" line and the LAVA
+manifest's `source_path`. A code read of ALEAPP on 2026-10-16 found 59 artifact modules
+rewriting to '/' and one, life360DriverBehavior, dropping the prefix.
 
 The function is plain string work, so these tests set Windows-spelled folders directly
 and run on every platform. They fail on the unfixed function.
@@ -26,6 +27,8 @@ REPORT = '\\\\?\\C:\\Users\\examiner\\Cases\\LEAPP_Output_2026'
 DATA = REPORT + '\\data'
 REPORT_SLASHED = '//?/C:/Users/examiner/Cases/LEAPP_Output_2026'
 DATA_SLASHED = REPORT_SLASHED + '/data'
+DATA_BARE = DATA[4:]                      # 'C:\\Users\\...\\data', the prefix dropped
+DATA_BARE_SLASHED = DATA_SLASHED[4:]      # 'C:/Users/.../data'
 
 
 class WindowsFoldersTestCase(unittest.TestCase):
@@ -68,6 +71,28 @@ class TestARewrittenStagedPathIsReduced(WindowsFoldersTestCase):
 
     def test_a_rewritten_report_file_loses_the_report_folder(self):
         self.assertEqual(Context.get_relative_path(REPORT_SLASHED + '/_lava_artifacts.db'),
+                         '_lava_artifacts.db')
+
+
+class TestAPathWithoutTheLongPathPrefixIsReduced(WindowsFoldersTestCase):
+
+    def test_a_staged_path_with_the_prefix_dropped_loses_the_data_folder(self):
+        staged = DATA_BARE + '\\data\\data\\com.example\\files\\trips\\1.json'
+        self.assertEqual(Context.get_relative_path(staged),
+                         'data\\data\\com.example\\files\\trips\\1.json')
+
+    def test_a_staged_path_with_the_prefix_dropped_and_rewritten_is_reduced(self):
+        self.assertEqual(Context.get_relative_path(DATA_BARE_SLASHED + '/data/data/a.db'),
+                         'data/data/a.db')
+
+    def test_a_prefixed_path_leaves_no_part_of_the_prefix_behind(self):
+        for staged in (DATA + '\\data\\a.db', DATA_SLASHED + '/data/a.db'):
+            got = Context.get_relative_path(staged)
+            self.assertFalse(got.startswith('?'), f'prefix residue: {got!r}')
+            self.assertNotIn('examiner', got)
+
+    def test_a_report_file_with_the_prefix_dropped_loses_the_report_folder(self):
+        self.assertEqual(Context.get_relative_path(REPORT[4:] + '\\_lava_artifacts.db'),
                          '_lava_artifacts.db')
 
 
