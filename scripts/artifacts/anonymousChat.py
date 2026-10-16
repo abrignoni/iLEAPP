@@ -19,7 +19,10 @@ __artifacts_v2__ = {
                  'when container metadata and preference plists are absent; this artifact does '
                  'not read the database contents. '
                  'Application name, version, build and store fields come from the bundle container\'s Info.plist '
-                 'and iTunesMetadata.plist and are blank for data containers.',
+                 'and iTunesMetadata.plist and are blank for data containers. Purchase Date is the '
+                 'purchaseDate under com.apple.iTunesStore.downloadInfo in iTunesMetadata.plist. In '
+                 'the images checked it is stored as ISO 8601 text ending in Z, which is read as UTC. '
+                 'A value that carries no offset, or that does not parse as a date, is left blank.',
         'paths': (
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
@@ -577,6 +580,17 @@ def _message_media(message, folder, cache_files):
 
 # ---------------------------------------------------------------- artifacts
 
+def _purchase_date(value):
+    """UTC datetime for an iTunesMetadata purchaseDate, or '' when no instant is stated."""
+    if isinstance(value, datetime):
+        return value.replace(tzinfo=timezone.utc)  # a plist <date> is UTC
+    try:
+        parsed = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+    except (TypeError, ValueError):
+        return ''
+    return parsed.astimezone(timezone.utc) if parsed.tzinfo else ''
+
+
 @artifact_processor
 def anonymousChat_appInfo(context):
     containers = _containers(context)
@@ -593,7 +607,10 @@ def anonymousChat_appInfo(context):
         info, info_source = plists.get(folder, {}).get('Info.plist', ({}, ''))
         store, store_source = plists.get(folder, {}).get('iTunesMetadata.plist', ({}, ''))
         sources.extend(filter(None, (identified_from, info_source, store_source)))
+        download_info = store.get('com.apple.iTunesStore.downloadInfo')
         rows.append((
+            _purchase_date(download_info.get('purchaseDate')
+                           if isinstance(download_info, dict) else None),
             'Bundle' if kind == 'bundle' else 'Data',
             folder.rsplit('/', 1)[1],
             _BUNDLE_ID,
@@ -602,13 +619,12 @@ def anonymousChat_appInfo(context):
             info.get('CFBundleVersion') or store.get('bundleVersion', ''),
             store.get('itemName', ''),
             store.get('artistName', ''),
-            str(store.get('purchaseDate', '')),
             method,
             folder,
         ))
-    data_headers = ('Container Type', 'Container ID', 'Bundle ID', 'Application Name', 'Version',
-                    'Build', 'Store Item Name', 'Store Artist Name', 'Purchase Date', 'Identified By',
-                    'Container Path')
+    data_headers = (('Purchase Date', 'datetime'), 'Container Type', 'Container ID', 'Bundle ID',
+                    'Application Name', 'Version', 'Build', 'Store Item Name', 'Store Artist Name',
+                    'Identified By', 'Container Path')
     return data_headers, rows, '\n'.join(sorted(set(sources)))
 
 
