@@ -292,33 +292,36 @@ def _read_plist(path):
 
 
 def _containers(context):
-    """Map each container folder that names the app to (kind, how it was identified)."""
+    """Map each container folder that names the app to (kind, how it was identified,
+    source path of the file that identified it)."""
     found = {}
-    for path in context.get_files_found():
-        source = _source(context, path)
+    # Sorted so the identifying file does not depend on the order files were staged in.
+    for source, path in sorted(((_source(context, path), path)
+                                for path in context.get_files_found()),
+                               key=lambda item: item[0]):
         folder, kind = _container(source)
         if not folder:
             continue
         name = posixpath.basename(source)
         if kind == 'data' and folder.rsplit('/', 1)[1].casefold() == _BUNDLE_ID:
-            found[folder] = (kind, 'iTunes backup AppDomain')
+            found.setdefault(folder, (kind, 'iTunes backup AppDomain', source))
         elif name == _MCM_PLIST:
             if _read_plist(path).get('MCMMetadataIdentifier') == _BUNDLE_ID:
-                found[folder] = (kind, 'MCMMetadataIdentifier')
+                found[folder] = (kind, 'MCMMetadataIdentifier', source)
         elif kind == 'data' and name == _PREFS_PLIST:
-            found.setdefault(folder, (kind, 'Preferences plist name'))
+            found.setdefault(folder, (kind, 'Preferences plist name', source))
         elif kind == 'bundle' and name == 'Info.plist':
             if _read_plist(path).get('CFBundleIdentifier') == _BUNDLE_ID:
-                found.setdefault(folder, (kind, 'Info.plist CFBundleIdentifier'))
+                found.setdefault(folder, (kind, 'Info.plist CFBundleIdentifier', source))
         elif kind == 'bundle' and name == 'iTunesMetadata.plist':
             if _read_plist(path).get('softwareVersionBundleId') == _BUNDLE_ID:
-                found.setdefault(folder, (kind, 'iTunesMetadata.plist'))
+                found.setdefault(folder, (kind, 'iTunesMetadata.plist', source))
     return found
 
 
 def _app_files(context):
     """Staged files inside the app's data containers, as (path, source, folder)."""
-    data_folders = {folder for folder, (kind, _) in _containers(context).items()
+    data_folders = {folder for folder, (kind, _, _) in _containers(context).items()
                     if kind == 'data'}
     result = []
     for path in context.get_files_found():
@@ -586,10 +589,10 @@ def anonymousChat_appInfo(context):
                                                                   'iTunesMetadata.plist'):
             plists.setdefault(folder, {})[name] = (_read_plist(path), source)
     rows, sources = [], []
-    for folder, (kind, method) in sorted(containers.items()):
+    for folder, (kind, method, identified_from) in sorted(containers.items()):
         info, info_source = plists.get(folder, {}).get('Info.plist', ({}, ''))
         store, store_source = plists.get(folder, {}).get('iTunesMetadata.plist', ({}, ''))
-        sources.extend(filter(None, (info_source, store_source)))
+        sources.extend(filter(None, (identified_from, info_source, store_source)))
         rows.append((
             'Bundle' if kind == 'bundle' else 'Data',
             folder.rsplit('/', 1)[1],
@@ -606,7 +609,7 @@ def anonymousChat_appInfo(context):
     data_headers = ('Container Type', 'Container ID', 'Bundle ID', 'Application Name', 'Version',
                     'Build', 'Store Item Name', 'Store Artist Name', 'Purchase Date', 'Identified By',
                     'Container Path')
-    return data_headers, rows, '\n'.join(sorted(set(sources)) or sorted(containers))
+    return data_headers, rows, '\n'.join(sorted(set(sources)))
 
 
 @artifact_processor

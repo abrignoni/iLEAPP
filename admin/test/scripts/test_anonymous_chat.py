@@ -225,6 +225,30 @@ class EndToEndTests(unittest.TestCase):
         for input_type, source in self.input_sources.items():
             self.assertEqual(input_hashes(source), self.input_hashes[input_type], input_type)
 
+    def lava_artifact(self, input_type, name):
+        with (self.output_bases[input_type] / '_lava_data.lava').open(encoding='utf-8') as f:
+            lava = json.load(f)
+        found = [artifact for category in lava['artifacts'].values() for artifact in category
+                 if artifact.get('name') == f'Anonymous Chat & Fun - {name}']
+        self.assertEqual(len(found), 1, (input_type, name))
+        return found[0]
+
+    def test_app_info_source_names_the_files_that_identified_each_container(self):
+        tree = self.input_sources['fs']
+        for input_type in ('fs', 'itunes'):
+            lines = self.lava_artifact(input_type, 'Application Info')['source_path'].split('\n')
+            folders = {row['Container Path'] for row in self.rows(input_type, 'Application Info')}
+            self.assertFalse(folders & set(lines), input_type)
+            # Every container row is backed by at least one listed file inside it.
+            for folder in folders:
+                self.assertTrue(any(line.startswith(folder + '/') for line in lines),
+                                (input_type, folder))
+            if input_type == 'fs':
+                self.assertTrue(all((tree / line).is_file() for line in lines), lines)
+        itunes = self.lava_artifact('itunes', 'Application Info')['source_path']
+        self.assertEqual(itunes, 'private/var/mobile/Containers/Data/Application/'
+                                 'com.anonimchat.app/Library/LocalDatabase/anonimchat.db')
+
     def test_lava_exports_the_conversation_view(self):
         for input_type in ('fs', 'itunes'):
             lava_path = self.output_bases[input_type] / '_lava_data.lava'
