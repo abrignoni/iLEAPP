@@ -1,0 +1,130 @@
+{
+  "casepublic_ios16": {
+    "description": "Byte-preserved public MVS 2023 iOS subset: Chrome caches and Gmail SafariViewService audio/zero files with original repositories and ownership metadata. The large video is intentionally absent to exercise a retained missing reference.",
+    "maker": "@ForensikITGmbH",
+    "make_data": {
+      "input_data_path": "public_small_input.zip",
+      "os": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "timestamp": "2026-10-15T12:33:41.552086",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-15T12:33:41.550803",
+        "message": "File not yet committed to git"
+      },
+      "note": "Selected artifact subset; artifact bytes preserved. Synthetic input explicitly labelled. No claim of full source archive hash verification."
+    },
+    "artifacts": {
+      "webkit_media_cache": {
+        "search_patterns": [
+          "*/MediaCache/CachedMedia-*",
+          "*/MediaCache/diskcacherepository.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist"
+        ],
+        "file_count": 15,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "16.1.1",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "16.1.1",
+      "description": "Byte-preserved public MVS 2023 iOS subset: Chrome caches and Gmail SafariViewService audio/zero files with original repositories and ownership metadata. The large video is intentionally absent to exercise a retained missing reference.",
+      "source_url": "https://storage.googleapis.com/mvs-2023/00008101-0010541A1130001E_files_full-001.zip"
+    }
+  },
+  "casesynthetic": {
+    "description": "Synthetic H.264/AAC tone clip encoded into reversed blocks; two independent containers, a missing middle block, zero file, unsupported layout and an absent referenced file.",
+    "maker": "@ForensikITGmbH",
+    "make_data": {
+      "input_data_path": "synthetic_input.zip",
+      "os": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "timestamp": "2026-10-15T12:33:53.459315",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-15T12:33:53.457733",
+        "message": "File not yet committed to git"
+      },
+      "note": "Selected artifact subset; artifact bytes preserved. Synthetic input explicitly labelled. No claim of full source archive hash verification."
+    },
+    "artifacts": {
+      "webkit_media_cache": {
+        "search_patterns": [
+          "*/MediaCache/CachedMedia-*",
+          "*/MediaCache/diskcacherepository.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist"
+        ],
+        "file_count": 9,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic",
+      "description": "Synthetic H.264/AAC tone clip encoded into reversed blocks; two independent containers, a missing middle block, zero file, unsupported layout and an absent referenced file."
+    }
+  },
+  "caseios14_empty": {
+    "description": "Byte-preserved public MVS 2021 iOS 14.4 empty MediaCache repositories; verifies index-only rows without inferring non-use.",
+    "maker": "@ForensikITGmbH",
+    "make_data": {
+      "input_data_path": "public_ios14_empty_input.zip",
+      "os": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "timestamp": "2026-10-15T12:33:53.628684",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-15T12:33:53.626806",
+        "message": "File not yet committed to git"
+      },
+      "note": "Selected artifact subset; artifact bytes preserved. Synthetic input explicitly labelled. No claim of full source archive hash verification."
+    },
+    "artifacts": {
+      "webkit_media_cache": {
+        "search_patterns": [
+          "*/MediaCache/CachedMedia-*",
+          "*/MediaCache/diskcacherepository.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/*.app/Info.plist",
+          "*/[Cc]ontainers/Bundle/Application/*/iTunesMetadata.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "14.4",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "14.4",
+      "description": "Byte-preserved public MVS 2021 iOS 14.4 empty MediaCache repositories; verifies index-only rows without inferring non-use.",
+      "source_url": "https://digitalcorpora.s3.amazonaws.com/corpora/scenarios/magnet/2021%20CTF%20-%20iOS.zip"
+    }
+  }
+}
