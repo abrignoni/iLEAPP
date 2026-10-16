@@ -1,4 +1,4 @@
-"""itunes_backup_installed_applications must accept purchaseDate in both of its stored forms.
+"""itunes_backup_installed_applications must accept purchaseDate in the two stored forms seen so far.
 
 An app's iTunesMetadata, embedded in the backup's Info.plist, carries
 com.apple.iTunesStore.downloadInfo/purchaseDate either as an ISO-8601 string with a
@@ -7,7 +7,8 @@ artifact sliced the value as a string, so a backup storing the date form (report
 iOS 12.3 backup, #1950) raised TypeError on the first such app and produced no rows at all.
 
 These tests run the artifact the way the runner does over a constructed backup holding one
-app of each form, and read back the Purchase Date column.
+app of each form, plus text with no offset, and read back the Purchase Date column. Both
+stated forms come back as the same UTC datetime; text that states no offset comes back blank.
 """
 import datetime
 import pathlib
@@ -26,6 +27,7 @@ from scripts.artifacts import iTunesBackupInfo  # pylint: disable=wrong-import-p
 
 DATE_APP = 'com.example.plistdate'
 STRING_APP = 'com.example.isostring'
+NO_OFFSET_APP = 'com.example.nooffset'
 PURCHASED = datetime.datetime(2019, 5, 14, 9, 30, 15)
 
 
@@ -52,11 +54,12 @@ class ITunesBackupPurchaseDateTests(unittest.TestCase):
         info_plist = backup / 'Info.plist'
         info_plist.write_bytes(plistlib.dumps({
             'Product Name': 'iPhone',
-            'Installed Applications': [DATE_APP, STRING_APP],
+            'Installed Applications': [DATE_APP, STRING_APP, NO_OFFSET_APP],
             'Applications': {
                 # plistlib writes a datetime as <date>, and reads it back as one.
                 DATE_APP: {'iTunesMetadata': _metadata(PURCHASED)},
                 STRING_APP: {'iTunesMetadata': _metadata('2019-05-14T09:30:15Z')},
+                NO_OFFSET_APP: {'iTunesMetadata': _metadata('2019-05-14T09:30:15')},
             },
         }))
         Context.clear()
@@ -73,18 +76,18 @@ class ITunesBackupPurchaseDateTests(unittest.TestCase):
         Context.set_output_params(None)
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
-    def test_a_plist_date_purchase_date_no_longer_stops_the_artifact(self):
+    def test_both_purchase_date_forms_read_as_the_same_utc_datetime(self):
         headers, rows, _ = iTunesBackupInfo.itunes_backup_installed_applications.__wrapped__(Context)
 
         names = [h[0] if isinstance(h, tuple) else h for h in headers]
         by_bundle = {row[names.index('Bundle ID')]: row for row in rows}
-        self.assertEqual(set(by_bundle), {DATE_APP, STRING_APP})
+        self.assertEqual(set(by_bundle), {DATE_APP, STRING_APP, NO_OFFSET_APP})
 
         purchase = names.index('Purchase Date')
-        self.assertEqual(by_bundle[DATE_APP][purchase],
-                         PURCHASED.replace(tzinfo=datetime.timezone.utc))
-        # The string form keeps the value it always produced.
-        self.assertEqual(by_bundle[STRING_APP][purchase], '2019-05-14 09:30:15')
+        expected = PURCHASED.replace(tzinfo=datetime.timezone.utc)
+        self.assertEqual(by_bundle[DATE_APP][purchase], expected)
+        self.assertEqual(by_bundle[STRING_APP][purchase], expected)
+        self.assertEqual(by_bundle[NO_OFFSET_APP][purchase], '')
 
 
 if __name__ == '__main__':
