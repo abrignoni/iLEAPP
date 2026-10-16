@@ -221,7 +221,7 @@ def build_fixture(output_root: Path) -> Path:
             'bundleShortVersionString': '0.0.1',
             'bundleVersion': '1',
             'artistName': 'Synthetic Fixture',
-            'purchaseDate': '2026-01-01T00:00:00Z',
+            'com.apple.iTunesStore.downloadInfo': {'purchaseDate': '2026-01-01T00:00:00Z'},
         },
     )
 

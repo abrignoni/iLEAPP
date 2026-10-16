@@ -24,6 +24,7 @@ import tempfile
 import unittest
 import zipfile
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -116,6 +117,20 @@ class AccountKeyTests(unittest.TestCase):
         self.assertEqual(module._direction(row, {'a': set()}), 'Outgoing')
         self.assertEqual(module._direction(row, {'a': set(), 'b': set()}), '')
         self.assertEqual(module._direction(row, {}), '')
+
+
+class PurchaseDateTests(unittest.TestCase):
+    def test_z_suffixed_text_becomes_a_utc_datetime(self):
+        self.assertEqual(module._purchase_date('2026-01-01T00:00:00Z'),
+                         datetime(2026, 1, 1, tzinfo=timezone.utc))
+
+    def test_plist_date_is_read_as_utc(self):
+        self.assertEqual(module._purchase_date(datetime(2026, 1, 1, 5)),
+                         datetime(2026, 1, 1, 5, tzinfo=timezone.utc))
+
+    def test_no_stated_instant_is_blank(self):
+        for value in (None, '', '2026-01-01T00:00:00', 'not a date', 12):
+            self.assertEqual(module._purchase_date(value), '', value)
 
 
 class ContainerTests(unittest.TestCase):
@@ -220,6 +235,13 @@ class EndToEndTests(unittest.TestCase):
         info = self.rows('itunes', 'Application Info')
         self.assertEqual(info[0]['Container ID'], 'com.anonimchat.app')
         self.assertEqual(info[0]['Identified By'], 'iTunes backup AppDomain')
+
+    def test_purchase_date_is_read_from_download_info(self):
+        for input_type in ('fs', 'zip', 'tar'):
+            bundle = [row for row in self.rows(input_type, 'Application Info')
+                      if row['Container Type'] == 'Bundle']
+            self.assertEqual([row['Purchase Date'] for row in bundle],
+                             ['2026-01-01 00:00:00+00:00'], input_type)
 
     def test_source_evidence_is_unchanged(self):
         for input_type, source in self.input_sources.items():

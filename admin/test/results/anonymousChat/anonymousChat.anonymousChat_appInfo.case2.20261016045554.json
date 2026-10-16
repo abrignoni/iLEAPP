@@ -9,19 +9,20 @@
     "total_data_size_bytes": 128,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\anonymousChat\\testdata.anonymousChat.anonymousChat_appInfo.case2.zip",
-    "start_time": "2026-10-15T14:53:12.511594+00:00",
-    "end_time": "2026-10-15T14:53:12.572185+00:00",
-    "run_time_seconds": 6.079673767089844e-05,
+    "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_appInfo.case2.zip",
+    "start_time": "2026-10-16T04:55:54.882123+00:00",
+    "end_time": "2026-10-16T04:55:54.900506+00:00",
+    "run_time_seconds": 7.915496826171875e-05,
     "last_commit": {
-      "hash": "e76400e976a4eb8481581332d5147c597ee0b917",
-      "author_name": "Darren",
-      "author_email": "19848044+darren33@users.noreply.github.com",
-      "date": "2026-10-15T08:59:57+01:00",
-      "message": "Fix Anonymous Chat iTunes backup app discovery"
+      "hash": "54ed676b0f7d9b903f490b59aae5f8383bbaac99",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-15T23:50:50-04:00",
+      "message": "Anonymous Chat: list identifying files as Application Info's source"
     }
   },
   "headers": [
+    "Purchase Date",
     "Container Type",
     "Container ID",
     "Bundle ID",
@@ -30,16 +31,15 @@
     "Build",
     "Store Item Name",
     "Store Artist Name",
-    "Purchase Date",
     "Identified By",
     "Container Path"
   ],
   "data": [
     [
+      "",
       "Data",
       "com.anonimchat.app",
       "com.anonimchat.app",
-      "",
       "",
       "",
       "",

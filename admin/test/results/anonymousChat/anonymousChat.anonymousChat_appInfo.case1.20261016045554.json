@@ -6,22 +6,23 @@
     "case_number": "case1",
     "number_of_columns": 11,
     "number_of_rows": 2,
-    "total_data_size_bytes": 412,
+    "total_data_size_bytes": 402,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/anonymousChat/testdata.anonymousChat.anonymousChat_appInfo.case1.zip",
-    "start_time": "2026-10-14T17:53:19.716839+00:00",
-    "end_time": "2026-10-14T17:53:19.742645+00:00",
-    "run_time_seconds": 0.00039887428283691406,
+    "start_time": "2026-10-16T04:55:54.709814+00:00",
+    "end_time": "2026-10-16T04:55:54.731636+00:00",
+    "run_time_seconds": 0.00043201446533203125,
     "last_commit": {
-      "hash": "8011c9a391bd3b34b9b15b1a35b346a9db1fcaaf",
+      "hash": "54ed676b0f7d9b903f490b59aae5f8383bbaac99",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-10-14T13:45:26-04:00",
-      "message": "Slim the Anonymous Chat module onto files_found"
+      "date": "2026-10-15T23:50:50-04:00",
+      "message": "Anonymous Chat: list identifying files as Application Info's source"
     }
   },
   "headers": [
+    "Purchase Date",
     "Container Type",
     "Container ID",
     "Bundle ID",
@@ -30,12 +31,12 @@
     "Build",
     "Store Item Name",
     "Store Artist Name",
-    "Purchase Date",
     "Identified By",
     "Container Path"
   ],
   "data": [
     [
+      1767225600,
       "Bundle",
       "22222222-2222-4222-8222-222222222222",
       "com.anonimchat.app",
@@ -44,15 +45,14 @@
       "1",
       "Anonymous Chat Synthetic",
       "Synthetic Fixture",
-      "2026-01-01T00:00:00Z",
       "MCMMetadataIdentifier",
       "private/var/containers/Bundle/Application/22222222-2222-4222-8222-222222222222"
     ],
     [
+      "",
       "Data",
       "11111111-1111-4111-8111-111111111111",
       "com.anonimchat.app",
-      "",
       "",
       "",
       "",
