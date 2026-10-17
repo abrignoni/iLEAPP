@@ -55,6 +55,9 @@ jobs:
       - name: Open SQLite on a path longer than 260 characters
         run: python admin/test/scripts/test_sqlite_longpath_uri.py
 
+      - name: Open SQLite read-only on special-character and WAL-mode paths
+        run: python admin/test/scripts/test_sqlite_readonly_open.py
+
       # The entry points hand a directory input to the seeker with the extended-length
       # prefix on Windows, so the recorded evidence path and the staged path are
       # checked here with that prefix as well as without it.

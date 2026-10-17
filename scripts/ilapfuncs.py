@@ -1157,12 +1157,37 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
             except (tarfile.TarError, EOFError, OSError) as e:
                 print(f"Error processing archive {file_path}: {e}")
 
+def get_sqlite_db_uri_query(path):
+    '''Return the URI query for a read-only open of the SQLite file at path.
+
+    A database in WAL mode (header bytes 18 and 19 both 2) with no -wal beside
+    it can only be read as the database file alone. For such a file SQLite
+    either refuses a mode=ro open (Apple's SQLite 3.54.0, at the first
+    statement) or creates an empty -wal and a -shm beside it, and a -wal staged
+    there later is then written under another name. immutable=1 reads the file
+    alone and creates neither. It is used only when there is no -wal and no
+    -journal beside the file, because it ignores both, and the open is logged.'''
+    path = str(path)
+    try:
+        with open(path, 'rb') as db_file:
+            header = db_file.read(20)
+    except OSError:
+        return 'mode=ro'
+    if (header[:16] == b'SQLite format 3\x00' and header[18:20] == b'\x02\x02'
+            and not os.path.exists(path + '-wal')
+            and not os.path.exists(path + '-journal')):
+        logfunc(f'{path} is in WAL mode and no -wal is beside it. Opened read-only '
+                'with immutable=1, which reads the database file alone.')
+        return 'mode=ro&immutable=1'
+    return 'mode=ro'
+
 def open_sqlite_db_readonly(path):
     '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
     try:
         if path:
+            query = get_sqlite_db_uri_query(path)
             path = get_sqlite_db_path(path)
-            with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+            with sqlite3.connect(f"file:{path}?{query}", uri=True) as db:
                 return db
     except sqlite3.OperationalError as e:
         logfunc(f"Error with {path}:")
@@ -1173,8 +1198,9 @@ def attach_sqlite_db_readonly(path, db_name):
     '''Return the query to attach a sqlite db in read-only mode.
     path: str --> Path of the SQLite DB to attach
     db_name: str --> Name of the SQLite DB in the query'''
+    query = get_sqlite_db_uri_query(path)
     path = get_sqlite_db_path(path)
-    return  f'''ATTACH DATABASE "file:{path}?mode=ro" AS {db_name}'''
+    return f'''ATTACH DATABASE "file:{path}?{query}" AS {db_name}'''
 
 class SqliteRecords:
     """The rows of one query, read as the caller iterates.
