@@ -451,7 +451,7 @@ def _for_each_source(paths, keys, look):
     given, or, when several are read together or the one image holds RAID members,
     each image and then each array or volume read across them (see FileSeekerRaw).
     Logical evidence holds no volumes and is passed over."""
-    opened = []
+    opened, opened_paths = [], []
     try:
         for path in paths:
             logical = open_logical(path, keys)
@@ -461,7 +461,10 @@ def _for_each_source(paths, keys, look):
             opened.append((_image_name(path), qnxprobe.open_image(
                 path, password=keys.password_for(path),
                 private_key=keys.private_key_for(path))))
-        raid = _raid_members(opened) if opened else None
+            opened_paths.append(path)
+        raid = (_raid_members(list(zip(_raid_names(opened_paths),
+                                       (image for _name, image in opened))))
+                if opened else None)
         for name, image in opened:
             look(name, image)
         for arr in (raid.arrays if raid is not None else ()):
@@ -829,10 +832,23 @@ def distinct_images(paths):
     return kept, repeats
 
 
+def repeat_note(path, other):
+    """What is said of ``path``, not read because it opens the disk ``other`` opens, in
+    the vendored reader's words (qnxprobe.same_disk_note, 1.72 or later): the same file
+    (the same path, a link, another spelling) is "the same disk as" the other, and a
+    later file of a set the other opens is "read as a segment of" that set."""
+    return qnxprobe.same_disk_note(path, other)
+
+
 def repeat_lines(repeats):
-    """What the run says about each image given twice."""
-    return [f'Given twice: {path} is the same disk as {other}, which is read once.'
-            for path, other in repeats]
+    """What the run says about each image given twice, or given beside another file of
+    its own set."""
+    lines = []
+    for path, other in repeats:
+        note = repeat_note(path, other)
+        given = 'Given twice' if note.startswith('the same disk') else 'Given too'
+        lines.append(f'{given}: {path} is {note}.')
+    return lines
 
 
 def logical_among(paths):
@@ -883,7 +899,7 @@ def input_text(input_path, found=()):
     notes = []
     if search is not None and not search.found:
         notes.append(search.outcome())
-    notes += [f'{path} was given too and is the same disk as {other}, read once'
+    notes += [f'{path} was given too and is {repeat_note(path, other)}'
               for path, other in repeats]
     return text + ''.join(f' ({note})' for note in notes)
 
@@ -1232,6 +1248,13 @@ def _reading_as_local_instant(reading):
         return 0
 
 
+def _raid_names(paths):
+    """The name the reader's RAID report gives each image path: its file name, or, when
+    two images share a file name, as many of its parent folders as tell them apart
+    (qnxprobe.raid_display_names, 1.72 or later)."""
+    return qnxprobe.raid_display_names(paths)
+
+
 def _raid_members(images):
     """qnxprobe.raid_assemble over ``images``, [(name, open image)], or None when they
     are one image that holds no md member: such an image is read exactly as before.
@@ -1491,7 +1514,7 @@ class FileSeekerRaw(FileSeekerBase):
         # One image that holds a member of an md array (a disk of a RAID set, or a
         # disk whose own partitions form one) is read with its arrays; any other
         # image is read exactly as before.
-        raid = _raid_members([(name, self._image)])
+        raid = _raid_members([(_raid_names([self.image_path])[0], self._image)])
         if raid is not None:
             self._open_raid([(self.image_path, name, self._image, size)], raid, keys)
             return
@@ -1521,6 +1544,11 @@ class FileSeekerRaw(FileSeekerBase):
             logfunc(f'  {len(segments):,} segments joined in order, '
                     f'{os.path.basename(segments[0])} .. '
                     f'{os.path.basename(segments[-1])}')
+            # later segments that begin as a disk does may be separate disks named
+            # like one split image (qnxprobe.split_structure_warning, 1.72 or later)
+            warning = qnxprobe.split_structure_warning(segments)
+            if warning:
+                logfunc(f'  {warning}')
         elif getattr(image, 'paths', None):
             # the container and its segment or file count, as the reader reports it
             logfunc(f'  {qnxprobe.describe_acquisition(image)}')
@@ -1552,15 +1580,19 @@ class FileSeekerRaw(FileSeekerBase):
             self._owned.append(image)
             given.append((path, name, image, size))
         self._image, self._size = given[0][2], given[0][3]
-        self._open_raid(given, _raid_members([(name, image) for _p, name, image, _s in given]),
-                        keys)
+        named = zip(_raid_names([path for path, _n, _i, _s in given]),
+                    (image for _p, _n, image, _s in given))
+        self._open_raid(given, _raid_members(list(named)), keys)
 
     def _open_raid(self, given, raid, keys):
         """Read images that hold RAID members, ``given`` as [(path, name, image, size)]:
         what assembly found, then each image's volumes, except those an array read here
         covers, then each array or volume read across the images, as a disk of its own."""
         self.raid = raid
-        qnxprobe.raid_report(raid, say=logfunc, images_given=len(given))
+        # find_members=True: the reader's own hint names its --find-members option,
+        # which this tool does not have; its own search beside one image (see
+        # find_members) runs before this unless turned off, and says what it found.
+        qnxprobe.raid_report(raid, say=logfunc, images_given=len(given), find_members=True)
         # A RAID1 array whose data starts at the first byte of its first member (metadata
         # 0.90 or 1.0) is not read again, as the reader's own run does not read it: that
         # member's own volume is the same bytes and is read, and the other members'
@@ -1584,9 +1616,12 @@ class FileSeekerRaw(FileSeekerBase):
                          f"a copy in {arr.label} of what {first['where']} holds, which is "
                          f'read there'))
         across = {arr.label: arr for arr in read if isinstance(arr, qnxprobe.LvmSpanned)}
+        # the report names each image as it was assembled (_raid_names); the volume
+        # names keep the file name
+        shown = _raid_names([path for path, _n, _i, _s in given])
         sources = [(name, _safe_source_name(name), image, size, name,
-                    covered.get(id(image), ()), across, _spanned_groups(raid, name))
-                   for _path, name, image, size in given]
+                    covered.get(id(image), ()), across, _spanned_groups(raid, raid_name))
+                   for (_path, name, image, size), raid_name in zip(given, shown)]
         sources += [(f'{arr.label} ({arr.safe_name})', arr.safe_name, arr.image,
                      arr.image.size, arr.safe_name, (), {}, {}) for arr in read]
         several = len(sources) > 1

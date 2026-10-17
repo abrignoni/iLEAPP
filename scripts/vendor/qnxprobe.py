@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.71"
+QNXPROBE_VERSION = "1.72"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -556,6 +556,119 @@ def split_segments(path):
             f"is here. Put the whole set in one folder; a set joined around a "
             f"hole reads every volume past it at the wrong offset.")
     return run
+
+
+def disk_identity(path):
+    """What says two paths open the same disk: (device, inode) of the file the
+    image is read from first, after links are resolved. A split raw set and an
+    EWF set are read from their first segment whichever segment is named, so two
+    segments of one set are one disk, as are a hard link, a symbolic link and two
+    spellings of one path; an AFD is its folder. None when the path cannot be
+    stat'ed. Two different files holding the same bytes are two disks here."""
+    full = os.path.realpath(os.fspath(path))
+    first = full
+    try:
+        kind = acquisition_format(full)
+        if kind in ("EWF", "EWF2") and ewfprobe is not None:
+            first = (ewfprobe.ewf_segments(full) or [full])[0]
+        elif kind == "AFD":
+            first = _afd_folder(full) or full
+        elif kind is None:
+            first = (split_segments(full) or [full])[0]
+    except (SplitImageError, OSError, ValueError,
+            *((ewfprobe.EwfError,) if ewfprobe is not None else ())):
+        first = full
+    try:
+        st = os.stat(os.path.realpath(first))
+    except OSError:
+        return None
+    return (st.st_dev, st.st_ino)
+
+
+def same_disk_paths(paths):
+    """[(path, None or the path given before it that opens the same disk)] for
+    the image paths given, in order: a path that opens a disk already given
+    (disk_identity) is read once, as the one given first."""
+    out, seen = [], {}
+    for img_path in paths:
+        ident = disk_identity(img_path)
+        if ident is not None and ident in seen:
+            out.append((img_path, seen[ident]))
+            continue
+        if ident is not None:
+            seen[ident] = img_path
+        out.append((img_path, None))
+    return out
+
+
+def same_disk_note(img_path, first):
+    """What the report says of `img_path`, left out because it opens the disk
+    `first` opens (same_disk_paths): the same file, or one file of the set
+    opened from `first`, which is not the same thing as the same disk."""
+    def own(where):
+        try:
+            st = os.stat(os.path.realpath(os.fspath(where)))
+        except OSError:
+            return None
+        return (st.st_dev, st.st_ino)
+    if own(img_path) is not None and own(img_path) == own(first):
+        return f"the same disk as {first}, read once"
+    try:
+        kind = acquisition_format(os.path.realpath(img_path))
+    except OSError:
+        kind = None
+    what = {"EWF": "the EWF set", "EWF2": "the EWF set", "AFD": "the AFD",
+            None: "the split set"}.get(kind, "the image")
+    return f"read as a segment of {what} opened from {first}, not on its own"
+
+
+SPLIT_STRUCTURE_CHECKED = 64     # later segments of a split set looked at for a disk's start
+
+
+def split_segment_starts(segments):
+    """[(segment path, what it begins with)] for the segments after the first
+    of a split raw set that begin as a disk does: an md superblock where a
+    member keeps one (for the last segment, only at its start) or a partition
+    table. A segment of one image starts wherever the cut fell, so this
+    suggests separate disks named like a split set (split_segments joins files
+    by name alone). Only the first SPLIT_STRUCTURE_CHECKED are looked at."""
+    out = []
+    last = list(segments)[-1] if segments else None
+    for seg in list(segments)[1:SPLIT_STRUCTURE_CHECKED + 1]:
+        try:
+            with open(seg, "rb") as fh:
+                size = image_size(fh)
+                sb = md_member(fh, 0, size)
+                # the last segment ends where the disk does, so a 0.90 or 1.0
+                # superblock at its end is the disk's own; only one at its start
+                # (1.1, 1.2) says the segment begins as a member does
+                if sb is not None and (seg != last or sb.at < 8192):
+                    out.append((seg, "an md superblock"))
+                elif parse_gpt(fh) is not None:
+                    out.append((seg, "a GPT partition table"))
+                elif parse_mbr(fh):
+                    out.append((seg, "an MBR partition table"))
+                # A filesystem at a segment's first byte is not counted: a
+                # volume, an md member's data or an XFS allocation group can
+                # start where a cut falls in one image (seen on fixtures cut
+                # at 1 MiB and into six pieces).
+        except Exception:                              # pylint: disable=broad-except
+            continue
+    return out
+
+
+def split_structure_warning(segments):
+    """The report's WARNING line for split_segment_starts(), or None."""
+    hits = split_segment_starts(segments)
+    if not hits:
+        return None
+    named = ", ".join(f"{os.path.basename(p)} ({what})" for p, what in hits)
+    stem = os.path.basename(segments[0]).rpartition(".")[0]
+    return (f"WARNING  later segments of this split set begin as a disk does: "
+            f"{named}. They may be separate disks whose names only look like one split "
+            f"image. Files named {stem}.001, {stem}.002 ... in one folder are always joined "
+            f"as one image; to read them as separate images, give copies named otherwise "
+            f"(such as {stem}-1.img, {stem}-2.img)")
 
 
 class SegmentedImage:
@@ -17411,6 +17524,10 @@ class Luks:
             self.keyslots, self.digests, self.data_size = [], [], 0
             self.why = f"its header does not read ({type(exc).__name__}: {exc})" \
                 if not isinstance(exc, ValueError) else str(exc)
+        if not self.why and _BDE_AES is None:
+            # known before any passphrase is tried, as for BitLocker and APFS
+            self.why = ("reading it needs the optional pycryptodome package, which this "
+                        "Python does not have")
 
     def _luks1(self, h):
         name = h[8:40].split(b"\0")[0].decode("ascii", "replace")
@@ -19914,6 +20031,8 @@ def _md_roles(arr, items):
     journal = journal_sb = None
     if sb.refused:
         arr.left_out = [{"where": w, "events": s.events, "data_offset": s.data_offset,
+                         "image": getattr(s, "image_label", w),
+                         "partition": getattr(s, "partition", False),
                          "why": "its array is not read"} for w, _f, _b, _z, s in items]
         # too few members here to read it even if its superblock were usable
         have = len({it[4].dev_number for it in items})
@@ -19921,7 +20040,9 @@ def _md_roles(arr, items):
         arr.incomplete = have < (sb.raid_disks or 0) - allowed
         return None
     for where, fh, base, size, s in items:
-        rec = {"where": where, "events": s.events, "data_offset": s.data_offset}
+        rec = {"where": where, "events": s.events, "data_offset": s.data_offset,
+               "image": getattr(s, "image_label", where),
+               "partition": getattr(s, "partition", False)}
         if (s.level, s.layout if s.level != 0 else 0, s.chunk, s.raid_disks) != \
                 (sb.level, sb.layout if sb.level != 0 else 0, sb.chunk, sb.raid_disks):
             arr.left_out.append(dict(rec, why="its superblock gives the array a different "
@@ -20520,6 +20641,9 @@ def raid_assemble(images):
                                           f"({type(exc).__name__}: {exc})"))
                 continue
             if sb is not None:
+                # where it was found, recorded rather than read back from the
+                # name shown: the image given and whether it is a partition
+                sb.image_label, sb.partition = label, plabel != "whole image"
                 # The same superblock seen from the whole disk and from a
                 # partition that ends where the disk does (0.90 or 1.0 at the
                 # end): the member is the partition, the innermost region.
@@ -20720,20 +20844,42 @@ def _lvm_absent_pvs(vg, lvname, present):
     return absent
 
 
+def raid_display_names(paths):
+    """The name the RAID section gives each image path: its file name, or, when
+    two paths given share a file name, as many of its parent folders as tell it
+    apart from the others (the shortest that does; the whole path at most)."""
+    parts = [os.path.abspath(os.path.normpath(os.fspath(p))).split(os.sep) for p in paths]
+    depth = [1] * len(parts)
+
+    def name(i):
+        return os.sep.join(parts[i][-depth[i]:])
+    while True:
+        groups = collections.defaultdict(list)
+        for i in range(len(parts)):
+            groups[name(i)].append(i)
+        grow = [i for same in groups.values() if len(same) > 1 for i in same
+                if depth[i] < len(parts[i])]
+        if not grow:
+            return [name(i) for i in range(len(parts))]
+        for i in grow:
+            depth[i] += 1
+
+
 def raid_open(paths, passwords=(), private_keys=()):
     """raid_assemble() over the images at `paths`, each opened read-only as
     main() opens it. An image that will not open is left out here (main()
     says why when it reads it)."""
     images = []
     owned = []
-    for img_path in paths:
+    shown = raid_display_names(paths)
+    for img_path, name in zip(paths, shown):
         try:
             segments = [] if acquisition_format(img_path) else split_segments(img_path)
             fh = open_image_trying(img_path, segments, passwords, private_keys)
         except Exception:                              # pylint: disable=broad-except
             continue
         owned.append(fh)
-        images.append((os.path.basename(os.path.normpath(img_path)), fh))
+        images.append((name, fh))
     try:
         rs = raid_assemble(images)
     except Exception as exc:                           # pylint: disable=broad-except
@@ -21732,30 +21878,38 @@ def raid_unread(arr, images_given=None):    # pylint: disable=unused-argument
     return not getattr(arr, "incomplete", False)
 
 
-def _raid_report_lines(arr, images_given):
+def _raid_report_lines(arr, images_given, find_members=False):
     """The report lines for one array or spanned volume."""
     lines = arr.lines()
+    # what would find the members not given; not offered once it has looked
+    look = ("" if find_members else
+            ", or add --find-members to look for them beside the "
+            + ("image given" if images_given == 1 else "images given"))
     if arr.image is None and not raid_unread(arr, images_given):
         lines = [ln for ln in lines if not ln.startswith("  NOT READ: ")]
         if isinstance(arr, LvmSpanned):
             lines.append(f"  not read from the images given: its physical volume(s) "
                          f"{', '.join(arr.absent)} are not among them; give those images to "
-                         f"read it ({arr.refused})")
+                         f"read it ({arr.refused}){look}")
         else:
-            parts = [m["where"] != m["where"].split(" ", 1)[0]
-                     for m in list(arr.members) + list(arr.left_out)]
+            # from where each member was found (raid_assemble), never from its name
+            parts = [m.get("partition", False) for m in list(arr.members) + list(arr.left_out)]
+            roles = ", ".join(map(str, arr.not_given))
+            absent = (f"role(s) {roles} of {arr.sb.raid_disks} are in none of them"
+                      if roles else "too few of its members are among them to read it")
             if images_given == 1 and any(parts):
-                # its members are partitions of the one image given: nothing
-                # else to give; what is wrong with them is named above
+                # its members are partitions of the one image given: the
+                # roles not on it are on another disk
+                why = (" (the members left out above say why the others on it cannot)"
+                       if arr.left_out else "")
                 lines.append(f"  not read: {len(arr.members)} of {arr.sb.raid_disks} members on "
-                             "this image's partitions can be used, and role(s) "
-                             f"{', '.join(map(str, arr.not_given)) or 'none'} are on none of "
-                             "them; the members left out above say why the others cannot")
+                             "this image's partitions can be used, and "
+                             + (f"role(s) {roles} are not on this image"
+                                if roles else "too few of its members are on it to read it")
+                             + f"{why}; give the image(s) that hold the others with it{look}")
             else:
-                lines.append(f"  not read from the images given: role(s) "
-                             f"{', '.join(map(str, arr.not_given))} of {arr.sb.raid_disks} are "
-                             "in none of them; give the other member images with them to read "
-                             "the array")
+                lines.append(f"  not read from the images given: {absent}; give the other "
+                             f"member images with them to read the array{look}")
     if getattr(arr, "same_as", None):
         lines.append(f"  not read again: its data starts at the first byte of {arr.same_as}, "
                      "whose listing above shows the same bytes")
@@ -21764,14 +21918,14 @@ def _raid_report_lines(arr, images_given):
     return lines
 
 
-def raid_run(rs, images_given, run_main, say=print):
+def raid_run(rs, images_given, run_main, say=print, find_members=False):
     """The command line's RAID step: the report, then `run_main(arr)` for each
     array or spanned volume that is read. Returns the labels that count as not
     read for the exit status (raid_unread). A fault in one array's report or
     read is said and never stops the others."""
     unread = []
     try:
-        raid_report(rs, say=say, images_given=images_given)
+        raid_report(rs, say=say, images_given=images_given, find_members=find_members)
     except Exception as exc:                           # pylint: disable=broad-except
         say(f"  the RAID report could not be printed ({type(exc).__name__}: {exc})")
     for arr in rs.arrays:
@@ -21792,14 +21946,20 @@ def raid_run(rs, images_given, run_main, say=print):
     return unread
 
 
-def raid_report(rs, say=print, images_given=2):
+def raid_report(rs, say=print, images_given=2, find_members=False):
     """Print what raid_assemble() found: each image's RAID members, each array
     or spanned volume with its members, what is missing or left out, and what
-    is not read and why. Prints nothing when nothing was found."""
+    is not read and why. Prints nothing when nothing was found. The heading
+    counts as assembled only the arrays that are read."""
     if not (rs.arrays or rs.foreign or rs.members):
         return
+    built = sum(1 for arr in rs.arrays if getattr(arr, "image", None) is not None)
     say("=" * 78)
-    say(f"RAID: {len(rs.arrays)} array(s) or spanned volume(s) assembled from the images given")
+    if built == len(rs.arrays):
+        say(f"RAID: {len(rs.arrays)} array(s) or spanned volume(s) assembled from the images given")
+    else:
+        say(f"RAID: {len(rs.arrays)} array(s) or spanned volume(s) found in the images given, "
+            f"{built} of them assembled")
     say("=" * 78)
     for lines in rs.members.values():
         for ln in lines:
@@ -21807,7 +21967,7 @@ def raid_report(rs, say=print, images_given=2):
     for arr in rs.arrays:
         say("")
         try:
-            for ln in _raid_report_lines(arr, images_given):
+            for ln in _raid_report_lines(arr, images_given, find_members):
                 say("  " + ln)
         except Exception as exc:                       # pylint: disable=broad-except
             # one array's report never stops the others being reported or read
@@ -21945,8 +22105,8 @@ def _raid_self_checks():
         # each kept member holds the role mdadm --examine gives it; a stale
         # member is left out as stale; a member created missing is missing
         # a member on a partition is named by its image and the partition
-        roles = {m["where"].split(" ", 1)[0]: m["role"] for m in arr.members}
-        stale = {m["where"].split(" ", 1)[0] for m in arr.left_out if m["why"].startswith("stale")}
+        roles = {m["image"]: m["role"] for m in arr.members}
+        stale = {m["image"] for m in arr.left_out if m["why"].startswith("stale")}
         fine, held = True, set()
         for m in entry["members"]:
             # the stopped image's own examine, or (a member on a partition, which
@@ -22159,6 +22319,7 @@ def _raid_self_checks():
     return (out + _raid_hostile_checks(md, assemble, blob)
             + _raid_review_checks(md, lvm, blob) + _raid_review2_checks(md, lvm, blob)
             + _raid_review3_checks(md, lvm, blob, doc) + _raid_review4_checks(md, blob)
+            + _raid_review5_checks(md, blob)
             + _raid_sibling_checks(md, lvm, blob) + _raid_foreign_checks(md, blob)
             + _lvm_same_name_checks(lvm, blob))
 
@@ -23975,8 +24136,8 @@ def _raid_review2_checks(md, lvm, blob):
                 and be_lone is not None and be_lone.image is None and not raid_unread(be_lone)
                 and whole is not None and raid_unread(whole)))
 
-    # Members on the partitions of one image: the report names what is wrong
-    # with them, it does not ask for more images.
+    # Members on the partitions of one image: the report counts the ones on
+    # its partitions that can be used, in its own wording for one image.
     disk = bytearray(1 << 20)
     parts = [blob(ls["members"][i]["file"]) for i in (0, 1)]
     for i, part in enumerate(parts):
@@ -23988,8 +24149,8 @@ def _raid_review2_checks(md, lvm, blob):
     said2 = []
     rs = raid_assemble([("disk", io.BytesIO(bytes(disk)))])
     raid_report(rs, say=said2.append, images_given=1)
-    out.append(("members that are partitions of the one image given are not told to give "
-                "other images; the report says how many of them can be used",
+    out.append(("members that are partitions of the one image given are reported in the "
+                "wording for one image, which says how many of them can be used",
                 any("on this image's partitions" in s for s in said2)
                 and not any("give the other member images" in s for s in said2)))
 
@@ -24307,6 +24468,297 @@ def _raid_review4_checks(md, blob):
                 "one read, on a RAID0 array where nothing else could serve it",
                 once is not None and len(whole) == once.image.size
                 and hashlib.sha256(whole).hexdigest() == md["md-r0"]["device_sha256"]))
+    return out
+
+
+def _raid_review5_checks(md, blob):
+    """The cases a validation run on 2026-10-16 found: an image holding part of
+    an array on its partitions, the RAID heading's count, two paths that open
+    one disk (two segments of one set, a link, the same path twice), and two
+    images that share a file name in two folders."""
+    import io
+    import tempfile
+    out = []
+    ls = md["md-r5-ls"]
+    files = [m["file"] for m in ls["members"]]
+
+    def on_partitions(roles):
+        disk = bytearray(1 << 20)
+        for i, role in enumerate(roles):
+            part = blob(files[role])
+            struct.pack_into("<B3sB3sII", disk, 446 + 16 * i, 0, b"\0\0\0", 0xfd, b"\0\0\0",
+                             len(disk) // SECTOR, len(part) // SECTOR)
+            disk += part
+        disk[510:512] = b"\x55\xaa"
+        return bytes(disk)
+
+    # Roles 0 and 1 on the partitions of one image, 2 and 3 on another disk not
+    # given: the report names the roles as not on this image and what would
+    # find them, and does not point at members left out when none were.
+    said = []
+    raid_report(raid_assemble([("diskA", io.BytesIO(on_partitions((0, 1))))]),
+                say=said.append, images_given=1)
+    line = next((s for s in said if "on this image's partitions" in s), "")
+    out.append(("an image holding roles 0 and 1 of a RAID5 on its partitions says roles 2, 3 "
+                "are not on it and suggests --find-members, with no word of members left out "
+                "when none were; the heading counts no array as assembled",
+                "role(s) 2, 3 are not on this image" in line and "--find-members" in line
+                and not any("left out" in s for s in said)
+                and any("found in the images given, 0 of them assembled" in s for s in said)))
+    # The same with role 0 twice on it: the one left out is named, and pointed at.
+    said = []
+    raid_report(raid_assemble([("diskA", io.BytesIO(on_partitions((0, 1, 0))))]),
+                say=said.append, images_given=1)
+    line = next((s for s in said if "on this image's partitions" in s), "")
+    out.append(("the same image with role 0 on a second partition too points at the member "
+                "left out above",
+                "left out above" in line and any("left out:" in s for s in said)))
+    # The heading of a set read in full is as it was; --find-members already
+    # used is not suggested again.
+    said, said_fm, said_one = [], [], []
+    raid_report(raid_assemble([(f, io.BytesIO(blob(f))) for f in files]), say=said.append,
+                images_given=4)
+    raid_report(raid_assemble([(files[0], io.BytesIO(blob(files[0])))]), say=said_fm.append,
+                images_given=1, find_members=True)
+    raid_report(raid_assemble([(files[0], io.BytesIO(blob(files[0])))]), say=said_one.append,
+                images_given=1)
+    out.append(("a RAID5 set given in full is headed as one array assembled; one member alone "
+                "is headed as found and not assembled, suggests --find-members, and does not "
+                "once --find-members has looked",
+                any(s.startswith("RAID: 1 array(s) or spanned volume(s) assembled from") for s in said)
+                and any("found in the images given, 0 of them assembled" in s for s in said_one)
+                and any("--find-members" in s for s in said_one)
+                and not any("--find-members" in s for s in said_fm)))
+
+    # Paths that open one disk are read once. A folder of its own inside the
+    # temporary one: the CI build replaces mkdtemp with one shared folder whose
+    # top-level images it counts.
+    parent = tempfile.mkdtemp(prefix="qnxprobe-same-disk-")
+    top = os.path.join(parent, "same-disk")
+    os.makedirs(top, exist_ok=True)
+    try:
+        def put(name, data):
+            where = os.path.join(top, name)
+            with open(where, "wb") as fh:
+                fh.write(data)
+            return where
+        m0 = blob(files[0])
+        s1 = put("m0.001", m0[:len(m0) // 2])
+        s2 = put("m0.002", m0[len(m0) // 2:])
+        m1 = put("m1.raw", blob(files[1]))
+        m2 = put("m2.raw", blob(files[2]))
+        m3 = put("m3.raw", blob(files[3]))
+        copy3 = put("m3-copy.raw", blob(files[3]))
+        given = [s1, s2, m1, m2, m3, os.path.join(top, ".", "m3.raw"), m3]
+        want = {1: s1, 5: m3, 6: m3}
+        try:
+            hard = os.path.join(top, "m2-hard.raw")
+            os.link(m2, hard)
+            given.append(hard)
+            want[len(given) - 1] = m2
+        except (OSError, AttributeError):
+            pass
+        try:
+            soft = os.path.join(top, "m1-soft.raw")
+            os.symlink(m1, soft)
+            given.append(soft)
+            want[len(given) - 1] = m1
+        except (OSError, NotImplementedError, AttributeError):
+            pass
+        # three files that each start as an EWF segment: E02 and E03 belong to
+        # the set E01 opens, whichever is named
+        sig = b"\x45\x56\x46\x09\x0d\x0a\xff\x00\x01"
+        e1, _e2, e3 = (put(f"e.E0{i}", sig + bytes(4096)) for i in (1, 2, 3))
+        pairs = same_disk_paths(given)
+        ewf = same_disk_paths([e1, e3]) if ewfprobe is not None else [(e1, None), (e3, e1)]
+        dups = {i: first for i, (_p, first) in enumerate(pairs) if first is not None}
+        kept = [where for where, first in pairs if first is None]
+        rs = raid_open(kept)
+        try:
+            arr = rs.arrays[0] if len(rs.arrays) == 1 else None
+            read = (arr is not None and arr.image is not None and not arr.left_out
+                    and _raid_sha(arr.image)[0] == ls["device_sha256"])
+        finally:
+            rs.close()
+        out.append(("paths that open one disk (the second segment of a split raw set, the same "
+                    "path twice and spelled another way, a hard and a symbolic link, the third "
+                    "segment of an EWF set) are read once, as the first given; a byte copy "
+                    "under another name is not; the RAID5 they make is read with no member "
+                    "left out as given again",
+                    dups == want and same_disk_paths([m3, copy3]) == [(m3, None), (copy3, None)]
+                    and ewf == [(e1, None), (e3, e1)] and read))
+        # Two acquisitions of one member under one file name in two folders: the
+        # RAID section names each by as many parent folders as tell them apart.
+        twins = []
+        for sub in ("first", "second"):
+            os.makedirs(os.path.join(top, sub, "disk"), exist_ok=True)
+            twins.append(put(os.path.join(sub, "disk", "m1.raw"), blob(files[1])))
+        said = []
+        rs = raid_open([twins[0], m2, m3, twins[1]])
+        try:
+            raid_report(rs, say=said.append, images_given=4)
+        finally:
+            rs.close()
+        one, two = (os.path.join(sub, "disk", "m1.raw") for sub in ("first", "second"))
+        out.append(("two images of one member that share a file name in two folders are named "
+                    "in the RAID section by the parent folders that tell them apart",
+                    any(f"left out: {two}: role 1 again, held by {one}" in s for s in said)
+                    and any(s.strip().startswith("member  m2.raw: md member of ") for s in said)
+                    and raid_display_names(["/a/x/m.E01", "/b/x/m.E01", "/c/m.img"])
+                    == [os.path.join("a", "x", "m.E01"), os.path.join("b", "x", "m.E01"), "m.img"]))
+        # The wording for members on one image's partitions follows where each
+        # member was found, never a space in the name shown: a whole-disk member
+        # whose file name has a space, given alone, and two whole-disk copies in
+        # folders whose names have spaces, do not get it; partitions of one
+        # image whose name has a space do.
+        def wording(paths):
+            said = []
+            rs = raid_open(paths)
+            try:
+                raid_report(rs, say=said.append, images_given=len(paths))
+            finally:
+                rs.close()
+            return said
+        spaced = put("member one.raw", blob(files[1]))
+        pair = []
+        for sub in ("first copy", "second copy"):
+            os.makedirs(os.path.join(top, sub), exist_ok=True)
+            pair.append(put(os.path.join(sub, "m 1.raw"), blob(files[1])))
+        disk = put("disk A.raw", on_partitions((0, 1)))
+        alone, both, parted = wording([spaced]), wording(pair), wording([disk])
+        out.append(("the wording for members on one image's partitions follows where each was "
+                    "found: not for a whole-disk member whose file name has a space, nor for two "
+                    "copies in folders whose names have spaces; yes for partitions of one image "
+                    "whose name has a space",
+                    not any("this image's partitions" in s for s in alone + both)
+                    and any("give the other member images" in s for s in alone)
+                    and any("this image's partitions" in s for s in parted)
+                    and any(os.path.join("second copy", "m 1.raw") + ": role 1 again, held by "
+                            + os.path.join("first copy", "m 1.raw") in s for s in both)))
+        # Four different member images named like one split set are joined by
+        # name (split_segments): the others are said to be segments of the set
+        # opened from the first, never the same disk, and the first's report
+        # warns that later segments begin as a disk does. A real split set of
+        # one member image gets no warning.
+        os.makedirs(os.path.join(top, "numbered"), exist_ok=True)
+        numbered = [put(os.path.join("numbered", f"m.{r + 1:03d}"), blob(files[r]))
+                    for r in range(4)]
+        warn = split_structure_warning(split_segments(numbered[0])) or ""
+        out.append(("four member images named m.001 to m.004 are said to be segments of the "
+                    "split set opened from m.001, not the same disk, and m.001's report warns "
+                    "that m.002, m.003 and m.004 begin as a disk does; one member split in "
+                    "two gets no warning, and the same path given twice is the same disk",
+                    same_disk_note(numbered[1], numbered[0]).startswith(
+                        "read as a segment of the split set opened from ")
+                    and all(f"m.{r + 1:03d} (an md superblock)" in warn for r in (1, 2, 3))
+                    and "m.001 (" not in warn
+                    and split_structure_warning(split_segments(s1)) is None
+                    and same_disk_note(m3, m3) == f"the same disk as {m3}, read once"))
+    finally:
+        _sibling_rm(top)
+    out.append(("the paths-read-once checks leave no temporary folder behind",
+                _selftest_parent_gone(parent, "qnxprobe-same-disk-") and not os.path.exists(top)))
+    return out
+
+
+def _encryption_message_checks():
+    """What the report says of a LUKS container or BitLocker volume it did not
+    open: the reader's own reason when a passphrase was given or nothing would
+    open it here, and what to give only when nothing was given."""
+    import contextlib
+    import gzip
+    import io
+    import tempfile
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    need = ("luks1-cbc.img.gz", "luks-fixtures.json", "bitlocker-xts128.img.gz")
+    if not all(os.path.isfile(os.path.join(here, n)) for n in need):
+        return [("the LUKS and BitLocker fixtures are not beside this script, so what the "
+                 "report says of a locked one was not checked", None)]
+    p1 = json.load(open(os.path.join(here, "luks-fixtures.json"), encoding="utf-8"))["passphrases"][0]
+    out = []
+    hint = "(give its passphrase with --password-file or --password-env)"
+    # A folder of its own inside the temporary one: the CI build replaces
+    # mkdtemp with one shared folder it keeps, and shutil.rmtree with a no-op.
+    parent = tempfile.mkdtemp(prefix="qnxprobe-locked-")
+    top = os.path.join(parent, "locked")
+    os.makedirs(top, exist_ok=True)
+    try:
+        def report(fixture, passwords):
+            path = os.path.join(top, "locked-" + fixture.replace(".img.gz", ".dd"))
+            if not os.path.exists(path):
+                with gzip.open(os.path.join(here, fixture), "rb") as gz, open(path, "wb") as f:
+                    f.write(gz.read())
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                main(path, passwords=passwords)
+            return buf.getvalue()
+
+        # Without pycryptodome (as on a Python that lacks it), the container
+        # says what it needs, with or without its passphrase.
+        global _BDE_AES                                 # pylint: disable=global-statement
+        saved = _BDE_AES
+        try:
+            _BDE_AES = None
+            none_given = report("luks1-cbc.img.gz", [])
+            right_given = report("luks1-cbc.img.gz", [p1])
+        finally:
+            _BDE_AES = saved
+        out.append(("without pycryptodome a LUKS container says AES needs it, given its right "
+                    "passphrase or none, and is not told to give a passphrase",
+                    all("needs the optional pycryptodome package" in t and hint not in t
+                        for t in (none_given, right_given))))
+        # A LUKS container inside a logical volume read through a map is not
+        # opened (unlock_luks runs before lvm_image): with or without a
+        # passphrase the report says so, and does not ask for one.
+        need2 = ("lvm-fixture.img.gz", "luks1-xts.img.gz")
+        if all(os.path.isfile(os.path.join(here, n)) for n in need2):
+            with gzip.open(os.path.join(here, "lvm-fixture.img.gz"), "rb") as gz:
+                disk = bytearray(gz.read())
+            with gzip.open(os.path.join(here, "luks1-xts.img.gz"), "rb") as gz:
+                luks = gz.read()
+            placed = lvm_image(io.BytesIO(bytes(disk)), len(disk))
+            data = next(v for v in volumes(io.BytesIO(bytes(disk)), len(disk))
+                        if v["label"].endswith("/data"))
+            lmap = placed.lvm_map_for(data["base"])
+            pos = 0
+            for at, n in lmap.image_runs(0, len(luks)):
+                disk[at:at + n] = luks[pos:pos + n]
+                pos += n
+            said = {}
+            for key, given in (("none", []), ("given", ["not the passphrase"])):
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    main("luks-in-mapped-lv", image=io.BytesIO(bytes(disk)), passwords=given)
+                said[key] = buf.getvalue()
+            note = "inside a logical volume read through a map, where a LUKS container is not opened"
+            out.append(("a LUKS container inside a logical volume read through a map says it is "
+                        "not opened there, and that a passphrase given was not tried, and is not "
+                        "told to give one",
+                        lmap is not None and pos == len(luks)
+                        and all(note in t and hint not in t for t in said.values())
+                        and "so the passphrase given was not tried on it" in said["given"]
+                        and "so the passphrase given was not tried" not in said["none"]))
+        if _BDE_AES is None:
+            out.append(("a wrong passphrase is said as opening no keyslot, for LUKS and "
+                        "BitLocker (needs the pycryptodome package)", None))
+        else:
+            wrong = report("luks1-cbc.img.gz", ["not the passphrase"])
+            none_given = report("luks1-cbc.img.gz", [])
+            out.append(("a LUKS container a wrong passphrase does not open says no passphrase given "
+                        "opens a keyslot, and is not told to give one; with none given it is",
+                        "LUKS-encrypted and not read: no passphrase given opens a keyslot" in wrong
+                        and hint not in wrong and hint in none_given))
+            bde_hint = "(give a password or recovery password with --password-file"
+            wrong = report("bitlocker-xts128.img.gz", ["not the password"])
+            none_given = report("bitlocker-xts128.img.gz", [])
+            out.append(("a BitLocker volume a wrong password does not open says none given opens it, "
+                        "and is not told to give one; with none given it is",
+                        "none of the passwords or key files given opens it" in wrong
+                        and bde_hint not in wrong and bde_hint in none_given))
+    finally:
+        _sibling_rm(top)
+    out.append(("the locked-volume report checks leave no temporary folder behind",
+                _selftest_parent_gone(parent, "qnxprobe-locked-") and not os.path.exists(top)))
     return out
 
 
@@ -25527,7 +25979,8 @@ def _shared_extract_checks():
     # A folder of its own inside the temporary one: the CI build replaces mkdtemp
     # with one that always returns its fixtures folder, so count only what this
     # extraction wrote.
-    dest = os.path.join(tempfile.mkdtemp(prefix="qnxprobe-zip-"), "hostile-names")
+    parent = tempfile.mkdtemp(prefix="qnxprobe-zip-")
+    dest = os.path.join(parent, "hostile-names")
     os.makedirs(dest, exist_ok=True)
     try:
         zipfile.ZipFile(buf).extractall(dest)
@@ -25535,7 +25988,8 @@ def _shared_extract_checks():
                      for root, _d, fs in os.walk(dest) for f in fs)
         written = sum(len(fs) for _r, _d, fs in os.walk(dest))
     finally:
-        shutil.rmtree(dest, ignore_errors=True)
+        # the temporary folder itself, which held only this extraction
+        shutil.rmtree(parent, ignore_errors=True)
     renamed = [line for line in log if "RENAMED" in line]
     out.append((f"an extraction of four hostile names writes four members, all inside the folder "
                 f"they are extracted into, and logs the three renamed ({tally[0]} written, "
@@ -28410,6 +28864,9 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
         print(f"  one segment of a split image: {len(segments)} segments joined, "
               f"{os.path.basename(segments[0])} .. {os.path.basename(segments[-1])}")
         print(f"    {describe_segment_sizes(image.sizes)}")
+        warn = split_structure_warning(segments)
+        if warn:
+            print(f"  {warn}")
     elif ewf_parts:
         print(f"  {describe_acquisition(image)}")
     print(f"  {size:,} bytes ({human(size)})")
@@ -28850,13 +29307,32 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                     bl = next((x for x in bitlocker_found if x.base == b), None)
                     if bl is not None:
                         print(f"        {bl.locked_note()}")
-                        if not bl.why and any(k in ("password", "recovery password", "startup key")
-                                              for k, _i in bl.protectors):
+                        # what to give is said only when nothing was given to try
+                        if not bl.why and not bl.tried and any(
+                                k in ("password", "recovery password", "startup key")
+                                for k, _i in bl.protectors):
                             print("        (give a password or recovery password with --password-file "
                                   "or --password-env, a startup key with --bitlocker-key)")
-                if kind == "luks" and not any(lk.base == b and lk.mk is not None
-                                              for lk in getattr(fh, "luks_found", ())):
-                    print("        (give its passphrase with --password-file or --password-env)")
+                if kind == "luks":
+                    lk = next((x for x in getattr(fh, "luks_found", ()) if x.base == b), None)
+                    if lk is not None and lk.mk is None and (lk.why or lk.tried):
+                        # the reader's own reason: a passphrase given that opens no
+                        # keyslot, or what stops it being read whatever is given
+                        print(f"        {lk.locked_note()}")
+                    elif lk is None and (passwords or getattr(
+                            fh, "lvm_map_for", lambda _b: None)(b) is not None):
+                        # unlock_luks() reads the image's own regions, before
+                        # lvm_image() places a mapped volume, so a container in
+                        # one is never opened, whatever is given
+                        mapped = getattr(fh, "lvm_map_for", lambda _b: None)(b) is not None
+                        print("        LUKS-encrypted and not read: "
+                              + ("it is inside a logical volume read through a map, where a "
+                                 "LUKS container is not opened" if mapped else
+                                 "the passphrase given was not tried on it")
+                              + (", so the passphrase given was not tried on it"
+                                 if mapped and passwords else ""))
+                    elif lk is None or lk.mk is None:
+                        print("        (give its passphrase with --password-file or --password-env)")
                 if kind == "apfs" and any(lk.base == b and lk.vek is None and not lk.why
                                           and not lk.tried for lk in apfs_found):
                     print("        (give an encrypted volume's password or personal recovery "
@@ -33870,6 +34346,11 @@ def self_test():
             lvm_checks += _luks_self_checks()
         except Exception as exc:                     # pylint: disable=broad-except
             lvm_checks += [(f"the LUKS checks ran ({type(exc).__name__}: {exc})", False)]
+        try:
+            lvm_checks += _encryption_message_checks()
+        except Exception as exc:                     # pylint: disable=broad-except
+            lvm_checks += [(f"the locked LUKS and BitLocker report checks ran "
+                            f"({type(exc).__name__}: {exc})", False)]
         # XFS: mkfs.xfs wrote the fixtures from a source tree whose listing and
         # hashes were recorded beside them, with xfs_db's and xfs_logprint's own
         # reading of each image (tools/make_xfs_fixtures.sh).
@@ -36699,12 +37180,23 @@ if __name__ == "__main__":
     refused = []
     run_images = (_cli_find_members(args.image, given_passwords, args.private_key)
                   if args.find_members else list(args.image))
+    # Two paths that open one disk (two segments of one EWF or split raw set, a
+    # link, the same path twice) are read once, as the first, and said so.
+    given_order = same_disk_paths(run_images)
+    run_images = [img for img, first in given_order if first is None]
     # RAID members among the images, whole disks or partitions, assembled into
     # arrays (raid_assemble); each array is read after the images, as an image
     # of its own. An image that holds no member is read exactly as before.
     raidset = raid_open(run_images, given_passwords, args.private_key)
     try:
-        for p in run_images:
+        for p, same_as in given_order:
+            if same_as is not None:
+                print("=" * 78)
+                print(p)
+                print(f"  {same_disk_note(p, same_as)}")
+                print("=" * 78)
+                print()
+                continue
             try:
                 asked, tries = [], 0
                 while True:
@@ -36760,7 +37252,7 @@ if __name__ == "__main__":
             key_files=args.bitlocker_key, private_keys=args.private_key,
             unallocated=args.unallocated, unallocated_log=unalloc_log,
             image=raid_arr.image, name_prefix=raid_arr.safe_name + "_",
-            image_info={"raid": raid_arr.describe()}))
+            image_info={"raid": raid_arr.describe()}), find_members=args.find_members)
     finally:
         raidset.close()
         if zf is not None:
