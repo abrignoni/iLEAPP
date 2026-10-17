@@ -45,12 +45,14 @@ passphrase opens is searched as what it holds (see Encrypted images).
 Since 1.74, a file macOS compressed on APFS or HFS+ (decmpfs: zlib, LZVN, LZFSE or
 stored, in the compression attribute or the resource fork) is staged as its content.
 Before, the reader decoded methods 3 and 4 (zlib) and read method 5 as zlib, and
-refused the others by name, so a file compressed with LZVN, LZFSE or a stored method
-was listed and not staged. A file compressed with LZBITMAP, a format Apple has not
-published, or with method 5, is now listed and not staged, and the run log gives the
-reason, as it does for a compressed stream that is damaged. A compression attribute on a file not
+refused every other method, naming its number, so a file compressed with LZVN, LZFSE
+or a stored method was listed and not staged. A file compressed with LZBITMAP, which
+this reader does not decode, or with method 5, is now listed and not staged, and the
+run log gives the reason, as it does for a compressed stream that is damaged. A compression attribute on a file not
 flagged compressed is not the file's content: the file is read as stored, as macOS
-reads it, and the run log names it under the damage the reader recorded in its volume.
+reads it, and the run log lists it under the damage the reader recorded in its volume,
+by member name when one listed member holds that record and otherwise by its object id
+or catalog id.
 
 ## Several images: the members of a RAID set
 
