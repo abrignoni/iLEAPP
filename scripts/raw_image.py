@@ -82,6 +82,16 @@ each file records about itself (qnxprobe.raid_siblings, 1.70 or later), say what
 found and what they left out and why, and read the set; FileSeekerRaw's docstring says
 how its volumes are named.
 
+What the reader finds wrong while it reads is written to the run log as it is met.
+A volume's damage (a record that fails its check, and since qnxprobe 1.74 a file on
+APFS or HFS+ that carries a compression attribute without being flagged compressed,
+read as stored, as macOS reads it) is said after the volume is walked, and damage met
+while a file is staged is said with that file. A chunk, grain or cluster of an
+acquisition whose stored data ran out before the bytes it covers, which ewfprobe
+(0.14.0 or later) reads with zeros in its place, is said when the listing or a staged
+file first reads it. A file the reader will not decode (a macOS file compressed with
+LZBITMAP, since 1.74) is listed and not staged, and the run log gives the reason.
+
 This file is shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP and is kept
 byte-identical across them. It names nothing specific to a platform; the
 platform is in the artifacts.
@@ -1390,6 +1400,56 @@ def _group_read_across(vol, spans, groups):
             + ', '.join(f'{volume} as {name}' for volume, name in read))
 
 
+# How many lines of a reader's damage or padding list the run log shows at once.
+_SHOWN = 5
+
+# What a file's read can raise that names its own reason, which the run log gives
+# as it is: an encrypted NTFS file, and since qnxprobe 1.74 a macOS compressed file
+# whose compression the reader does not decode (LZBITMAP) or whose compressed
+# stream is damaged.
+_REFUSALS = (qnxprobe.NtfsUnreadable, qnxprobe.ApfsUnreadable, qnxprobe.HfsUnreadable)
+
+
+# The two damage lines of the reader that name a file by its record rather than by
+# its path: APFS names the object id within its volume, HFS+ the catalog id.
+_DAMAGE_RECORD = re.compile(r'^(object|catalog id) (\d+):')
+
+
+def _acquisitions(image):
+    """The images ewfprobe opened that ``image`` is read through, nearest first: the
+    image itself and, for a difference disk, the disks under it. Only those keep
+    ``padded_chunks`` (ewfprobe 0.14.0 or later); [] for anything else."""
+    out = []
+    while image is not None and len(out) < 64:
+        if getattr(type(image), 'padded_chunks', None) is not None:
+            out.append(image)
+        image = getattr(image, 'parent', None)
+    return out
+
+
+def padding_lines(name, units):
+    """The run log's lines for ``units``, entries of ewfprobe's ``padded_chunks``
+    first met in the acquisition ``name``: how many, the zeros read in their place,
+    and the first few by where they sit on the disk. The first line is a clause the
+    caller starts its sentence with."""
+    unit = units[0]['unit']
+    zeros = sum(u['zeros'] for u in units)
+    cut = sum(1 for u in units if u['cut'])
+    one = len(units) == 1
+    lines = [f'{len(units):,} {unit}{"" if one else "s"} of {name} whose stored data ran '
+             f'out before the bytes {"it covers" if one else "they cover"} ({cut:,} with a '
+             f'compressed stream cut before its end), and the reader read {zeros:,} zero '
+             f'bytes in place of the data that is not there']
+    for one in units[:_SHOWN]:
+        where = f" of {one['file']}" if 'file' in one else ''
+        lines.append(f"  {one['unit']} {one['index']:,}{where} at byte {one['offset']:,}: "
+                     f"{one['decoded']:,} of {one['length']:,} bytes"
+                     + (', stream cut' if one['cut'] else ''))
+    if len(units) > _SHOWN:
+        lines.append(f'  and {len(units) - _SHOWN:,} more')
+    return lines
+
+
 class _Entry:
     """Where one member lives in the image: enough to read it on demand. ``folder``
     marks the data of a logical evidence entry that is a folder as well, whose
@@ -1513,6 +1573,12 @@ class FileSeekerRaw(FileSeekerBase):
         self._size = 0
         self._entries = {}
         self._image = None
+        # what the run log has said of each reader's damage and of each
+        # acquisition's padded units, so each is said once, when first met
+        self._acquired = []
+        self._padding_said = {}
+        self._damage_said = {}
+        self._walker_names = {}
         try:
             # the password opens an encrypted image and is not kept
             self._open(password)
@@ -1536,6 +1602,7 @@ class FileSeekerRaw(FileSeekerBase):
         logical = open_logical(self.image_path, keys)
         if logical is not None:
             self._image = logical
+            self._acquired += [(name, one) for one in _acquisitions(logical)]
             self._open_logical(name, logical)
             return
         logfunc(f'Reading {name} in place with the vendored qnxprobe '
@@ -1576,6 +1643,7 @@ class FileSeekerRaw(FileSeekerBase):
         image = qnxprobe.open_image(path, segments, password=keys.password_for(path),
                                     private_key=keys.private_key_for(path))
         size = qnxprobe.image_size(image)
+        self._acquired += [(name, one) for one in _acquisitions(image)]
         if segments:
             logfunc(f'  {len(segments):,} segments joined in order, '
                     f'{os.path.basename(segments[0])} .. '
@@ -1741,6 +1809,10 @@ class FileSeekerRaw(FileSeekerBase):
                 line += f"   [{vol['encryption']}]"
             if note:
                 line += f'   ({note})'
+                if 'damage' in note and vol.get('walker') is not None:
+                    # the reader's note already counts what it had met by now
+                    self._damage_said[id(vol['walker'])] = qnxprobe.damage_lines(
+                        vol['walker'], limit=0)[0]
             logfunc(line)
 
         # A partition table describes a whole disk and the file may hold only
@@ -1769,6 +1841,9 @@ class FileSeekerRaw(FileSeekerBase):
             if streams:
                 logfunc(f'    and {streams:,} alternate data streams, matched only by a '
                         f'pattern that names one')
+            self._walker_names[id(walker)] = vol['name']
+            for line in self._new_damage(walker):
+                logfunc(f'    {line}')
         for vol in volumes:
             # a filesystem that reports its free space, or an LVM2 physical volume,
             # whose extents no logical volume holds are its free space
@@ -1782,6 +1857,7 @@ class FileSeekerRaw(FileSeekerBase):
         return image
 
     def _listing_complete(self):
+        self._say_padding('  WARNING: the listing read ')
         if self.free_list:
             logfunc(f'  {len(self.free_list):,} volumes can give their free space, to a '
                     f'pattern that asks for it (*{FREE_SPACE_SUFFIX})')
@@ -1809,6 +1885,7 @@ class FileSeekerRaw(FileSeekerBase):
                     f'pattern that names one')
         for why, count in sorted(left_out.items()):
             logfunc(f'  not searched: {count:,} {why}')
+        self._say_padding('  WARNING: the listing read ')
         logfunc(f'File listing complete - {len(self.name_list):,} members'
                 + (f' and {len(self.stream_list):,} streams' if self.stream_list else ''))
 
@@ -1869,6 +1946,76 @@ class FileSeekerRaw(FileSeekerBase):
             member_of[id(entry)] = path
             files += 1
         return files, dirs, streams, left_out
+
+    def _new_damage(self, walker):
+        """The run log's lines for what ``walker`` recorded as damage since they were
+        last asked for (qnxprobe.damage_lines), or []: how many, and the first few."""
+        said = self._damage_said.get(id(walker), 0)
+        count, lines = qnxprobe.damage_lines(walker, limit=said + _SHOWN)
+        if count <= said:
+            return []
+        self._damage_said[id(walker)] = count
+        name = self._walker_names.get(id(walker), 'the volume')
+        new = count - said
+        out = [f'damage the reader recorded in {name}: {new:,} '
+               f'{"entry" if new == 1 else "entries"}']
+        out += [f'  {self._name_damage(walker, line)}' for line in lines[said:]]
+        if new > _SHOWN:
+            out.append(f'  and {new - _SHOWN:,} more')
+        return out
+
+    def _name_damage(self, walker, line):
+        """``line`` with the member it is about added, when the reader names a file by
+        its APFS object id or HFS+ catalog id and exactly one member listed from
+        ``walker`` has that record; otherwise ``line`` as the reader wrote it. An APFS
+        object id is counted within its volume, so one a container's volumes share
+        names no member."""
+        found = _DAMAGE_RECORD.match(line)
+        if found is None:
+            return line
+        number = int(found.group(2))
+        apfs = found.group(1) == 'object'
+        named = [member for member, entry in self._entries.items()
+                 if entry is not None and entry.walker is walker
+                 and isinstance(entry.node, int)
+                 and (entry.node & qnxprobe.APFS_OID_MASK if apfs else entry.node) == number]
+        return f'{named[0]}: {line}' if len(named) == 1 else line
+
+    def _new_padding(self):
+        """For each acquisition read so far, the run log's lines (padding_lines) for
+        its units whose stored data ran out (ewfprobe's ``padded_chunks``) and that
+        were not said before: a list of line lists, one per acquisition, or []."""
+        out = []
+        for name, image in self._acquired:
+            seen = self._padding_said.setdefault(id(image), set())
+            units = [u for u in image.padded_chunks
+                     if (u['unit'], u['index'], u.get('file')) not in seen]
+            if units:
+                seen.update((u['unit'], u['index'], u.get('file')) for u in units)
+                out.append(padding_lines(name, units))
+        return out
+
+    def _say_padding(self, start, end=''):
+        """Write _new_padding() to the run log, each acquisition's first line as a
+        WARNING that starts with ``start`` and ends with ``end``."""
+        for lines in self._new_padding():
+            logfunc(f'{start}{lines[0]}{end}')
+            for line in lines[1:]:
+                logfunc(f'{" " * (len(start) - len(start.lstrip()))}{line}')
+
+    def _say_met(self, member):
+        """Say what reading ``member`` met that was not said before: the damage its
+        volume's reader recorded, and the acquisition units it read whose stored data
+        ran out, so zeros were read in their place and the copy can hold them."""
+        entry = self._entries.get(member)
+        walker = entry.walker if entry is not None else None
+        damage = self._new_damage(walker) if walker is not None else []
+        if damage:
+            logfunc(f'While reading {member}, {damage[0]}')
+            for line in damage[1:]:
+                logfunc(f'  {line}')
+        self._say_padding(f'WARNING: reading {member} met ',
+                          ', so what was staged for it can hold those zeros')
 
     def _walk(self, walker, prefix):
         """Register every file and directory under a volume's root, and the
@@ -2059,6 +2206,8 @@ class FileSeekerRaw(FileSeekerBase):
                 except OSError as ex:
                     logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
                     continue
+                finally:
+                    self._say_met(member)
                 if staged is None:
                     continue
                 self.copied[member] = staged
@@ -2124,7 +2273,9 @@ class FileSeekerRaw(FileSeekerBase):
                 for chunk in entry.walker.read_file(entry.node, entry.size):
                     fout.write(chunk)
                     got += len(chunk)
-        except qnxprobe.NtfsUnreadable as exc:
+        except _REFUSALS as exc:
+            # the reader says why, in words: an encrypted NTFS file, or a macOS
+            # compressed file it does not decode (LZBITMAP) or whose stream is damaged
             self._discard(dest_path)
             logfunc(f'Not staged, {member}: {exc}')
             return None

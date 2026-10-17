@@ -15,6 +15,8 @@ reader other than the one under test.
 | `ftk-ad-cert-ad1.ad1` | AD1 of three files, AD-encrypted and sealed to a test certificate; opens with `ad-cert-test-key-2048.pem` | 3 | `shasum -a 256` over the three source files before FTK Imager 4.7.3.61 imaged them, 2026-09-27 (`ftk-ad-cert-ad1.sha256`) |
 | `bitlocker-xts128.img.gz` | BitLocker (AES-128-XTS) around qnxprobe's SquashFS fixture, 272 KiB; opens with its password, its recovery password or `bitlocker-xts128.BEK` | 612 | the test carries the file count and two SHA-256 from qnxprobe's `squashfs.src.sha256`, hashed from the source files the SquashFS image was built from |
 | `apfs-converted.sparseimage.gz` | Apple sparse image holding an APFS volume macOS encrypted in place after files were written, with a passphrase hint, 345 KiB; opens with its password | 3 | `shasum -a 256` over the files while macOS had the volume mounted, after the last was written (qnxprobe `tools/make_apfs_converted_fixture.sh`, `apfs-converted.sha256`) |
+| `decmpfs-apfs.img.gz` | APFS, 8 MiB, 25 files: `ditto --hfsCompression` output and files laid out by hand with decmpfs methods 1, 3, 4 and 7 to 14 (zlib, LZVN, LZFSE and stored, in the attribute or the resource fork), among them two LZBITMAP files (methods 13 and 14) the reader refuses and two that carry a compression attribute without being flagged compressed | 25 | macOS itself: `decmpfs-apfs.sha256` holds, per file, the decmpfs method the image holds and the SHA-256 of what macOS read back through the mounted volume (qnxprobe `tools/make_decmpfs_fixture.py`) |
+| `decmpfs-hfsplus.img.gz` | HFS+, 8 MiB, 13 files laid out by hand with decmpfs methods 1, 3, 4 and 7 to 14, among them the two LZBITMAP files and two not flagged compressed | 13 | macOS itself, as for the APFS image (`decmpfs-hfsplus.sha256`) |
 | `ntfs-windows.img.gz` | NTFS in an MBR partition, 40 MiB, written by Windows 11: files compressed by the Windows Overlay Filter in each algorithm, NTFS compressed and sparse files, a file with two names, three online-only cloud placeholders and a cloud file that is all there | 35 | Windows itself: `ntfs-windows.known.tsv` holds the length, size on disk and SHA-256 Windows reported for each file, and whether Windows could read it |
 
 The two AD1s and the test key are copies of fixtures committed in
@@ -22,7 +24,9 @@ The two AD1s and the test key are copies of fixtures committed in
 commit `34c34b8496f0f3d57450d77b7f27a3247f4b08aa`, the BitLocker image and its
 startup key of fixtures in qnxprobe at `2149e20cdf4951ebc900b0e560514175eda285d7`
 (built by its `tools/make_bitlocker_fixtures.py`), and the encrypted APFS image of the
-fixture in qnxprobe at `a45821b9b24017c280eae63757065e1819c9772d`. Every key, password
+fixture in qnxprobe at `a45821b9b24017c280eae63757065e1819c9772d`. The two decmpfs images
+and their listings are copies of the fixtures in qnxprobe at its v1.74 tag
+(`dffd27ab242c16100b40114f248e816fb302cc52`), each file the same git blob as there. Every key, password
 and hint in them is a test value made for the fixture. The Windows-written NTFS image
 and its manifest are copies of the fixture in qnxprobe at `8d530e92f9d7cc3b9e744cde07ea3381b589fe1f`,
 built by its `tools/make_ntfs_windows_fixture.cmd`; the manifest's lines are
