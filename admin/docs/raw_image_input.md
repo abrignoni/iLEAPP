@@ -57,7 +57,14 @@ are read, which are not and why, which members are left out (stale, faulty, a sp
 and which roles are missing is the reader's own report, written to the run log before
 any volume is walked. A RAID5 missing one member, or a RAID6 missing two, is rebuilt
 from parity only when the array was stopped clean; the reader's README, "RAID", says
-what is read and what is refused.
+what is read and what is refused. Since qnxprobe 1.72 the heading of that report counts
+as assembled only the arrays that are read ("1 array(s) or spanned volume(s) found in
+the images given, 0 of them assembled" for one RAID5 member given alone), and two images
+that share a file name in different folders are named in it by the folders that tell
+them apart (`share-left/member.img`, `share-right/member.img`); their volume names
+still start with the file name, told apart by a number as below. The reader's own hint
+to look for the other members with its `--find-members` option is not given, because
+these tools do not have that option: they look beside one image themselves (below).
 
 A member left out of its array (stale, faulty, a spare) is not read anywhere in that
 run: the array is read from the other members, and the left-out member's own copy of
@@ -68,7 +75,18 @@ One disk is read once. Two paths that name the same file (the same path twice, a
 or symbolic link, a relative and an absolute path) or two files of one set (two
 segments of a split raw set, an EWF set or an AD1 set) are one disk: the second is not
 read, and the command line prints, the GUI shows and the run log and the report's
-"Extraction location" record that it was given twice and which path is read.
+"Extraction location" record which path is read, in the vendored reader's words (since
+qnxprobe 1.72): another name of the same file is "the same disk as" the first, "read
+once", and a later file of a split raw or EWF set the first opens is "read as a segment
+of the split set opened from" the first (or "the EWF set"), "not on its own".
+
+A split raw set is joined by its file names alone: files named `<stem>.001`,
+`<stem>.002` ... in one folder are read as one image. Since qnxprobe 1.72, when a later
+segment begins as a disk does (an md superblock, or a partition table), the run log
+carries the reader's warning that they may be separate disks named like one split image,
+and that copies named otherwise (`<stem>-1.img`) are read as separate images. Measured:
+four RAID5 member images named `m.001` to `m.004` give the warning; one NTFS image cut
+in two gives none.
 
 Each image is then read as it would be alone, except its volumes that lie inside a
 member of an array read here: those are listed in the run log with where they are read
@@ -138,7 +156,12 @@ folder with what became of it and why (another array, no RAID metadata, a folder
 symbolic link, and the rest), the roles or physical volumes no file holds, and its
 result, then the set is read. Several images given are read as given, with no search.
 `--no-find-members` turns the search off, and only the image given is read (with its
-arrays, as far as one member allows). The GUI makes the same search when one image is
+arrays, as far as one member allows). An array or volume group not read because members
+are not among the images given gets a line in the run log naming the roles or physical
+volumes missing and saying the other member images can be given with it (several paths
+to `-i`, or several files picked together); when the search was turned off, or what it
+found was not taken, the line adds that leaving member finding on looks for them beside
+the image given. The GUI makes the same search when one image is
 picked, and when it adds files it shows them, and those it did not use with why, before
 the run, with "Use them" (the default), "Only the file I picked" and "Cancel". Nothing
 is asked when the image needs no search or the search adds nothing.
@@ -237,7 +260,12 @@ as a recovery password, on each encrypted APFS volume as a password and as a
 personal recovery key, and on each LUKS container as a passphrase, a private key from `--image_private_key`, and startup keys from
 `--bitlocker_key` (repeatable); at a terminal it asks for what is missing, and
 otherwise it names each BitLocker, APFS or LUKS volume left locked on stderr and runs
-without it. Either way the keys are checked before the
+without it. As qnxprobe 1.72 does, which option takes what opens a volume is said only
+when nothing was given for that kind of volume; when something was given and the volume
+stays locked, the line carries the reader's own reason alone (none of the passwords
+given opens it, the pycryptodome package is missing, or a LUKS container sits inside a
+logical volume read through a map, where it is not opened, so the passphrase given was
+not tried on it). Either way the keys are checked before the
 run, handed to `crunch_artifacts(..., image_password=...)` and on to
 `FileSeekerRaw(..., password=...)`, which passes them to the reader and does not keep
 them; nothing writes them to the report, the log or the history. A secret is never

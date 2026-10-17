@@ -1912,6 +1912,52 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         self.assertIn('That does not open it.', err.getvalue())
         self.assertIn('is a LUKS container', prompts[0])
 
+    # ---- what the command line says once something was given ----------------
+    # As qnxprobe 1.72 does, which option takes what opens a volume is said only when
+    # nothing was given; when something was and the volume stays locked, the reader's
+    # own reason stands alone.
+
+    def _cli_err(self, image, secret, **patches):
+        wrong = os.path.join(self.work, 'wrong-secret.txt')
+        with open(wrong, 'w', encoding='utf-8') as handle:
+            handle.write(secret + '\n')
+        with mock.patch.object(raw_image.sys, 'stdin', None), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            if patches:
+                with mock.patch.multiple(raw_image.qnxprobe, **patches):
+                    raw_image.cli_image_keys(image, password_file=wrong)
+            else:
+                raw_image.cli_image_keys(image, password_file=wrong)
+        return err.getvalue()
+
+    def test_a_wrong_bitlocker_password_gives_the_reason_without_the_hint(self):
+        err = self._cli_err(self.bitlocker, 'not it')
+        self.assertIn('stays locked and its files are not searched', err)
+        self.assertIn('none of the passwords or key files given opens it', err)
+        self.assertNotIn('--bitlocker_key', err)
+        self.assertNotIn('Give its', err)
+
+    def test_a_wrong_apfs_password_gives_the_reason_without_the_hint(self):
+        err = self._cli_err(self.apfs, 'not it')
+        self.assertIn('stays locked and its files are not searched', err)
+        self.assertIn('none of the passwords given opens it', err)
+        self.assertNotIn('Give its', err)
+
+    def test_a_wrong_luks_passphrase_gives_the_reason_without_the_hint(self):
+        _seeker, image, _files = self._luks_members(None)
+        err = self._cli_err(image, 'not it')
+        self.assertIn('LUKS-encrypted and not read: no passphrase given opens a keyslot', err)
+        self.assertNotIn('Give its', err)
+
+    def test_a_luks_passphrase_that_cannot_be_tried_says_why(self):
+        # Without pycryptodome the reader knows before any passphrase is tried that the
+        # container cannot be read: given one, the command line says so, with no hint.
+        _seeker, image, _files = self._luks_members(None)
+        err = self._cli_err(image, LUKS_PASSPHRASE, _BDE_AES=None)
+        self.assertIn('stays locked and its files are not searched (LUKS-encrypted and not '
+                      'read: reading it needs the optional pycryptodome package', err)
+        self.assertNotIn('Give its', err)
+
     @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
     def test_the_gui_asks_for_a_luks_passphrase(self):
         from tkinter import simpledialog  # pylint: disable=import-outside-toplevel
@@ -2289,6 +2335,84 @@ class RaidMembersTest(unittest.TestCase):
         self.assertEqual(lone.name_list, [])
         self.assertIn('not read from the images given', self.log.text())
 
+    def test_the_raid_report_names_no_option_this_tool_does_not_have(self):
+        # One RAID5 member alone: the reader's heading counts no array as assembled, and
+        # its hint, which names its own --find-members, is not given (this tool's own
+        # search beside one image runs before the read unless turned off).
+        self._seeker(self.sets['md-r5-ls'][0])
+        text = self.log.text()
+        self.assertIn('RAID: 1 array(s) or spanned volume(s) found in the images given, '
+                      '0 of them assembled', text)
+        self.assertIn('not read from the images given', text)
+        self.assertNotIn('--find-members', text)
+
+    def test_two_images_that_share_a_file_name_are_told_apart_in_the_raid_report(self):
+        # Two members of one RAID5 under one file name in two folders: the reader's
+        # RAID section names each by the folder that tells them apart, the array reads
+        # to its tree, and the volume names keep the file name, told apart by number.
+        paths = list(self.sets['md-r5-ls'])
+        for side, member in (('left', 0), ('right', 1)):
+            folder = os.path.join(self.work, f'share-{side}')
+            os.makedirs(folder, exist_ok=True)
+            paths[member] = os.path.join(folder, 'member.img')
+            shutil.copy(self.sets['md-r5-ls'][member], paths[member])
+        seeker = self._seeker(paths)
+        text = self.log.text()
+        for role, side in enumerate(('left', 'right')):
+            self.assertIn(f"role {role}: {os.path.join(f'share-{side}', 'member.img')} (", text)
+        (arr,) = self._arrays_read(seeker)
+        self.assertEqual(arr.missing, [])
+        seeker.search('*')
+        self.assertEqual(self._files_of(seeker, arr.safe_name), self.trees['md-r5-ls'])
+        names = [vol['name'] for vol in seeker.volumes]
+        self.assertTrue(any(name.startswith('member_img_lba') for name in names), names)
+        self.assertTrue(any(name.startswith('member_img_2_lba') for name in names), names)
+
+    def test_a_split_set_whose_segments_begin_as_disks_is_warned_about(self):
+        # Four RAID5 member images named like one split image are joined as one image by
+        # their names; the run log carries the reader's warning that its later segments
+        # begin as disks do.
+        folder = os.path.join(self.work, 'numbered-members')
+        os.makedirs(folder, exist_ok=True)
+        numbered = []
+        for number, member in enumerate(self.sets['md-r5-ls'], start=1):
+            numbered.append(os.path.join(folder, f'm.{number:03d}'))
+            shutil.copy(member, numbered[-1])
+        self._seeker(numbered[0])
+        text = self.log.text()
+        self.assertIn('WARNING  later segments of this split set begin as a disk does: '
+                      'm.002 (an md superblock)', text)
+        self.assertIn('give copies named otherwise (such as m-1.img, m-2.img)', text)
+
+    def test_a_partial_array_read_without_the_search_says_how_to_give_the_rest(self):
+        # One RAID5 member with the search turned off (as --no-find-members, or the
+        # window's "Only the file I picked"): the run log names the roles not given and
+        # how to give them; with two members given, member finding is not named.
+        self._seeker(self.sets['md-r5-ls'][0])
+        text = self.log.text()
+        self.assertIn('qp:qp21: role(s) 1, 2, 3 of 4 are not in the images given. Give the '
+                      'other member images with it (several paths to -i, or several files '
+                      'picked together), or leave member finding on to look for them beside '
+                      'the image given.', text)
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log.lines.clear()
+        self._seeker(self.sets['md-r5-ls'][:2])
+        text = self.log.text()
+        self.assertIn('role(s) 2, 3 of 4 are not in the images given. Give the other member '
+                      'images with it (several paths to -i, or several files picked '
+                      'together).', text)
+        self.assertNotIn('member finding', text)
+        # the members found beside it and not taken ("Only the file I picked")
+        search = raw_image.find_members(self.sets['md-r5-ls'][0])
+        search.used = False
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log.lines.clear()
+        self._seeker(self.sets['md-r5-ls'][0], found=search)
+        self.assertIn('or leave member finding on to look for them beside the image given.',
+                      self.log.text())
+
     def test_an_ordinary_image_is_read_exactly_as_before(self):
         seeker = self._seeker(self.ntfs)
         self.assertIsNone(seeker.raid)
@@ -2337,7 +2461,7 @@ class RaidMembersTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.data, True)
         return list(self._seeker(self.ntfs).name_list)
 
-    def _read_once(self, paths, kept):
+    def _read_once(self, paths, kept, said='Given twice: '):
         alone = self._ntfs_entries()
         self.data = tempfile.mkdtemp(prefix='raw_image_data_')
         self.addCleanup(shutil.rmtree, self.data, True)
@@ -2345,7 +2469,7 @@ class RaidMembersTest(unittest.TestCase):
         seeker = self._seeker(paths)
         self.assertEqual(seeker.image_paths, [kept])
         self.assertEqual(seeker.name_list, alone)
-        self.assertIn('Given twice: ', self.log.text())
+        self.assertIn(said, self.log.text())
         return seeker
 
     def test_the_same_file_given_twice_or_by_two_names_is_read_once(self):
@@ -2369,7 +2493,12 @@ class RaidMembersTest(unittest.TestCase):
             with open(os.path.join(folder, f'disk.img.{number:03d}'), 'wb') as handle:
                 handle.write(piece)
         first, second = (os.path.join(folder, f'disk.img.{n:03d}') for n in (1, 2))
-        self._read_once([first, second], first)
+        # a later file of the set is named as a segment of it, not as the same disk
+        self._read_once([first, second], first,
+                        f'Given too: {second} is read as a segment of the split set opened '
+                        f'from {first}, not on its own.')
+        # and one image cut in two is not warned about as separate disks
+        self.assertNotIn('later segments of this split set', self.log.text())
 
     def test_two_segments_of_one_ewf_set_are_read_once(self):
         folder = tempfile.mkdtemp(prefix='raw_image_ewf_', dir=self.work)
@@ -2382,13 +2511,15 @@ class RaidMembersTest(unittest.TestCase):
         seeker = self._seeker(segments[:2])
         self.assertEqual(seeker.image_paths, [segments[0]])
         self.assertEqual(seeker.name_list, alone)
+        self.assertIn(f'Given too: {segments[1]} is read as a segment of the EWF set opened '
+                      f'from {segments[0]}, not on its own.', self.log.text())
 
     def test_the_command_line_says_an_image_given_twice_and_the_report_names_it(self):
         said = []
         raw = raw_image.cli_raw_input([self.ntfs, self.ntfs], say=said.append)
         self.assertEqual((raw.paths, raw.input_path), ([self.ntfs], self.ntfs))
         self.assertEqual(said, [f'Given twice: {self.ntfs} is the same disk as {self.ntfs}, '
-                                'which is read once.'])
+                                'read once.'])
         self.assertIn('is the same disk as', raw_image.input_text(raw.input_path, raw))
         self._seeker(raw.input_path, found=raw)
         self.assertIn('Given twice: ', self.log.lines[0])
