@@ -1,0 +1,16 @@
+# HFS+ volume written by macOS; method is the decmpfs method the file
+# holds, and the hash is of what macOS itself read back through the
+# mounted volume. Built by tools/make_decmpfs_fixture.py
+59f209e3ee8b29744bc95f629f0483ac1f5deada1c2913f28dc92ab0990d5f70   1  method01/tiny.txt
+124f4a03ae98fd46c8bf701aaa4201de0cdbb07529670965b4ef1c724c716e0d   3  method03/small.txt
+69d57a1a27e8540db5209aef64ba482a6b1e44b8571423f6412ef193ae83f8f7   4  method04/mixed.bin
+124f4a03ae98fd46c8bf701aaa4201de0cdbb07529670965b4ef1c724c716e0d   7  method07/small.txt
+69d57a1a27e8540db5209aef64ba482a6b1e44b8571423f6412ef193ae83f8f7   8  method08/mixed.bin
+59f209e3ee8b29744bc95f629f0483ac1f5deada1c2913f28dc92ab0990d5f70   9  method09/tiny.txt
+6e5f0544dd373c11d6f37488179555160d35c837b9eb5f15a0150cb39569594c  10  method10/blocks.txt
+124f4a03ae98fd46c8bf701aaa4201de0cdbb07529670965b4ef1c724c716e0d  11  method11/small.txt
+69d57a1a27e8540db5209aef64ba482a6b1e44b8571423f6412ef193ae83f8f7  12  method12/mixed.bin
+124f4a03ae98fd46c8bf701aaa4201de0cdbb07529670965b4ef1c724c716e0d  13  method13/small.txt
+6e5f0544dd373c11d6f37488179555160d35c837b9eb5f15a0150cb39569594c  14  method14/blocks.txt
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855   9  unflagged/empty.txt
+124f4a03ae98fd46c8bf701aaa4201de0cdbb07529670965b4ef1c724c716e0d   9  unflagged/small.txt

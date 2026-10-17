@@ -79,11 +79,18 @@ def _volume(chunk_count, sectors_per_chunk, sector_size, sector_count):
     return bytes(data)
 
 
-def _pack_chunks(chunks, compress):
+def _pack_chunks(chunks, compress, cut=()):
     blob = bytearray()
     entries = []
-    for chunk in chunks:
+    for number, chunk in enumerate(chunks):
         rel = len(blob)
+        if number in cut:
+            # stored compressed whatever it gains, and only the first half of the
+            # stream kept, so the chunk's data runs out before its end marker
+            packed = zlib.compress(chunk, 6)
+            entries.append(rel | ewfprobe._COMPRESSED_BIT)  # pylint: disable=protected-access
+            blob += packed[:len(packed) // 2]
+            continue
         if compress:
             packed = zlib.compress(chunk, 6)
             if len(packed) < len(chunk):
@@ -102,8 +109,10 @@ def _table_payload(entries, base):
     return payload + body + struct.pack("<I", zlib.adler32(body) & 0xFFFFFFFF)
 
 
-def write_ewf(folder, stem, data, chunk_size=32768, sector_size=512, chunks_per_segment=None):
-    """Write data as an EWF-E01 set and return the segment paths in order."""
+def write_ewf(folder, stem, data, chunk_size=32768, sector_size=512, chunks_per_segment=None,
+              cut=()):
+    """Write data as an EWF-E01 set and return the segment paths in order. Each chunk
+    numbered in ``cut`` is stored as half of its compressed stream."""
     data = data + b"\x00" * (-len(data) % sector_size)
     chunks = [data[i:i + chunk_size] for i in range(0, len(data), chunk_size)] or [b""]
     per_segment = chunks_per_segment or len(chunks)
@@ -118,7 +127,8 @@ def write_ewf(folder, stem, data, chunk_size=32768, sector_size=512, chunks_per_
                 _section(out, "header", zlib.compress(b"1\nmain\nc\n\n"))
                 _section(out, "volume", _volume(len(chunks), chunk_size // sector_size,
                                                 sector_size, len(data) // sector_size))
-            blob, entries = _pack_chunks(group, True)
+            first = index * per_segment
+            blob, entries = _pack_chunks(group, True, {n - first for n in cut})
             base = out.tell() + ewfprobe.SECTION_SIZE
             _section(out, "sectors", blob)
             _section(out, "table", _table_payload(entries, base))
@@ -2746,3 +2756,136 @@ class RaidMembersTest(unittest.TestCase):
         ad1 = str(FIXTURES / 'lean-multi-ntfs-c9.ad1')
         with self.assertRaisesRegex(ValueError, 'is logical evidence'):
             FileSeekerRaw([ad1, self.ntfs], self.data)
+
+
+def _macos_read(stem):
+    """{path in the volume: (decmpfs method, SHA-256 of what macOS read)} from a decmpfs
+    fixture's listing, written when macOS read every file back (see the README)."""
+    out = {}
+    for line in (FIXTURES / f'{stem}.sha256').read_text(encoding='utf-8').splitlines():
+        if line.startswith('#') or not line.strip():
+            continue
+        digest, method, rel = line.split(None, 2)
+        out[rel.strip()] = (int(method), digest)
+    return out
+
+
+class CompressedFilesAndImageDamageTest(unittest.TestCase):
+    """What qnxprobe 1.74 and ewfprobe 0.14.0 report while reading, and what the run
+    log says of it: macOS compressed files staged as macOS reads them, LZBITMAP files
+    not staged with the reason, a compression attribute on an unflagged file named as
+    damage with its member, and an E01 chunk whose data ran out named with the file
+    that read it."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.work = tempfile.mkdtemp(prefix='raw_image_decmpfs_')
+        cls.images = {}
+        for stem in ('decmpfs-apfs', 'decmpfs-hfsplus', 'ntfs-fixture'):
+            cls.images[stem] = os.path.join(cls.work, f'{stem}.img')
+            with gzip.open(FIXTURES / f'{stem}.img.gz', 'rb') as src, \
+                    open(cls.images[stem], 'wb') as dst:
+                shutil.copyfileobj(src, dst)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.work, True)
+
+    def setUp(self):
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log = _Recorder()
+        patcher = mock.patch.object(raw_image, 'logfunc', self.log)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def seeker(self, path):
+        seeker = FileSeekerRaw(path, self.data)
+        self.addCleanup(seeker.cleanup)
+        return seeker
+
+    def check_volume(self, stem, prefix):
+        seeker = self.seeker(self.images[stem])
+        known = _macos_read(stem)
+        refused = {rel for rel, (method, _d) in known.items() if method in (13, 14)}
+        self.assertEqual(len(refused), 2)
+        for rel, (method, digest) in sorted(known.items()):
+            staged = seeker.search(f'*/{prefix}{rel}')
+            if rel in refused:
+                self.assertEqual(staged, [], rel)
+                self.assertTrue(any(
+                    line.startswith(f'Not staged, lba0/{prefix}{rel}: the file is compressed '
+                                    f'with method {method} (LZBITMAP, ')
+                    for line in self.log.lines), (rel, self.log.lines))
+                continue
+            self.assertEqual(len(staged), 1, rel)
+            self.assertEqual(_sha256(staged[0]), digest, rel)
+        # the two files that carry an attribute and no UF_COMPRESSED flag, each named
+        said = [line.strip() for line in self.log.lines]
+        self.assertIn('damage the reader recorded in lba0: 2 entries', said)
+        for rel in ('unflagged/empty.txt', 'unflagged/small.txt'):
+            self.assertTrue(any(line.startswith(f'lba0/{prefix}{rel}: ') and
+                                'not flagged compressed (UF_COMPRESSED clear)' in line
+                                for line in said), (rel, said))
+
+    def test_apfs_compressed_files(self):
+        self.check_volume('decmpfs-apfs', 'DECMPFS/')
+
+    def test_hfsplus_compressed_files(self):
+        self.check_volume('decmpfs-hfsplus', '')
+
+    def test_damage_is_said_once(self):
+        seeker = self.seeker(self.images['decmpfs-apfs'])
+        seeker.search('*/unflagged/*')
+        seeker.search('*/unflagged/*', force=True)
+        headings = [line for line in self.log.lines if 'damage the reader recorded' in line]
+        self.assertEqual(len(headings), 1, self.log.lines)
+
+    def test_a_chunk_whose_data_ran_out_is_named_with_the_file(self):
+        with open(self.images['ntfs-fixture'], 'rb') as handle:
+            data = handle.read()
+        known = _hash_list(FIXTURES / 'ntfs-fixture.sha256')
+        # medium.bin is stored in one run; its first chunk is the one cut
+        clean = self.seeker(self.images['ntfs-fixture'])
+        staged = clean.search('*/medium.bin')[0]
+        self.assertEqual(_sha256(staged), known['medium.bin'])
+        with open(staged, 'rb') as handle:
+            at = data.find(handle.read())
+        self.assertGreater(at, 0)
+        chunk = at // 32768
+        folder = tempfile.mkdtemp(dir=self.work)
+        whole = write_ewf(folder, 'whole', data)[0]
+        cut = write_ewf(folder, 'cut', data, cut=(chunk,))[0]
+
+        self.log.lines.clear()
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        staged = self.seeker(whole).search('*/medium.bin')
+        self.assertEqual(_sha256(staged[0]), known['medium.bin'])
+        self.assertFalse([line for line in self.log.lines if 'ran out' in line])
+
+        self.log.lines.clear()
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        seeker = self.seeker(cut)
+        self.assertFalse([line for line in self.log.lines if 'ran out' in line])
+        staged = seeker.search('*/medium.bin')
+        self.assertEqual(len(staged), 1)
+        self.assertNotEqual(_sha256(staged[0]), known['medium.bin'])
+        warned = [line for line in self.log.lines if line.startswith('WARNING: reading ')]
+        self.assertEqual(len(warned), 1, self.log.lines)
+        self.assertTrue(warned[0].startswith(
+            'WARNING: reading lba0/medium.bin met 1 chunk of cut.E01 whose stored data ran '
+            'out before the bytes it covers (1 with a compressed stream cut before its end), '
+            'and the reader read '), warned[0])
+        self.assertTrue(warned[0].endswith(', so what was staged for it can hold those zeros'))
+        self.assertIn(f'  chunk {chunk:,} at byte {chunk * 32768:,}: ', '\n'.join(self.log.lines))
+        # said once, however often the chunk is read again
+        seeker.search('*/medium.bin', force=True)
+        self.assertEqual(len([line for line in self.log.lines
+                              if line.startswith('WARNING: reading ')]), 1)
+
+    def test_a_folder_is_refused_by_name(self):
+        folder = tempfile.mkdtemp(dir=self.work)
+        with self.assertRaisesRegex(ValueError, 'is a folder, not a disk image'):
+            raw_image.cli_raw_input(folder, say=lambda _line: None)

@@ -8,9 +8,9 @@ reads. It also reads Ex01 (EWF2), the format EnCase 7 introduced, AFF, the
 Advanced Forensic Format that AFFLIB and FTK Imager write, as a single .aff file or
 as an AFD directory of them, AFF4 (.aff4), including one striped across several
 files, and Apple disk images: UDIF (.dmg), compressed with
-zlib, bzip2, LZMA or ADC or stored, including one split into .dmgpart segments,
-sparse images (.sparseimage) and sparse bundles (.sparsebundle). An LZFSE .dmg
-(ULFO) needs the optional pyliblzfse package. An Apple disk image encrypted with a
+zlib, bzip2, LZMA, LZFSE or ADC or stored, including one split into .dmgpart
+segments, sparse images (.sparseimage) and sparse bundles (.sparsebundle). An Apple
+disk image encrypted with a
 password (hdiutil -encryption, AES-128 or AES-256) opens with that password and
 needs the optional pycryptodome package, and so does an E01, SMART or raw (dd) set
 FTK Imager encrypted with AD encryption. From an L01, EnCase's logical evidence, and
@@ -43,7 +43,11 @@ any of them is copied. The Apple disk image readers follow Joachim Metz, "Mac OS
 image types" (libyal/libmodi documentation) and "ADC compressed data format"
 (libyal/libfmos documentation), with the checksum rules, the sparse image's
 continuation headers and the layout of a segmented .dmg measured on images
-hdiutil wrote; no libmodi code is copied. The encrypted container (encrcdsa) is
+hdiutil wrote; no libmodi code is copied. The LZFSE and LZVN decoders an ULFO
+image needs are the ones qnxprobe carries (copied from qnxprobe v1.74, commit
+dffd27a), written from Apple's reference
+implementation (lzfse/lzfse, BSD-3-Clause) by reading its C rather than translating
+it, and kept byte-identical to qnxprobe's copy. The encrypted container (encrcdsa) is
 read from the layout two MIT-licensed readers publish, nlitsme/encrypteddmg and
 kev365/xways-imageio-dmg, with what differs on current macOS measured on images
 hdiutil wrote; no code from either is copied. AD encryption follows the "AD
@@ -108,7 +112,7 @@ try:
 except ImportError:
     lzma = None
 
-__version__ = "0.13.0"
+__version__ = "0.14.0"
 
 # ---------------------------------------------------------------- constants
 
@@ -433,10 +437,6 @@ FORMAT_RAW = "RAW"
 _APPLE_VIRTUAL_CHUNK = 1 << 20
 _APPLE_RUN_CACHE = 8                            # decompressed UDIF chunks kept
 
-try:                                            # optional, for LZFSE (ULFO) images only
-    import liblzfse                             # the pyliblzfse package
-except ImportError:
-    liblzfse = None
 try:                                            # optional, for encrypted images only
     from Crypto.Cipher import AES as _AES, DES3 as _DES3        # pycryptodome
 except ImportError:
@@ -1591,7 +1591,7 @@ def _parse_serialized(raw, method):
     0x0001, 0x0002 and 0x0003.
     """
     if method == 1:
-        raw = _inflate(raw)
+        raw = _inflate(raw, _SECTION_TEXT_MAX)
     elif method != 0:
         raise EwfFormatError(f"compression method {method} is not supported")
     text = raw.decode("utf-16", "replace")
@@ -1615,14 +1615,55 @@ def _compressed_bound(size):
     return size + 5 * (size // 65535 + 1) + 1024
 
 
-def _inflate(data):
-    """Inflate a zlib stream, tolerating trailing bytes after its end."""
-    obj = zlib.decompressobj()
+# The most a metadata section (header, header2, device information, case data)
+# is let inflate to. They hold a few kilobytes of text; the cap only stops a
+# damaged or hostile section from inflating without bound.
+_SECTION_TEXT_MAX = 16 << 20
+# The most memory an LZMA decoder is let use. Its dictionary is sized by the stream's
+# own header, up to 4 GiB, so a damaged or hostile header could otherwise make the
+# decoder allocate that much before producing a byte. xz's largest preset needs about
+# 65 MiB to decode and the ULMO and AFF images measured here 16 MiB or less.
+_LZMA_MEMLIMIT = 256 << 20
+
+
+def _decompress_bounded(codec, data, limit, wbits=15, require_end=True, report_end=False):
+    """Decompress ``data`` (codec "zlib", "bzip2" or "lzma") into at most ``limit``
+    bytes, never allocating more than one byte past it: the decompressor is asked
+    for ``limit + 1`` and anything that long is refused. With ``require_end`` a
+    stream that stops before its own end marker is refused too, as the one-shot
+    zlib.decompress, bz2.decompress and lzma.decompress refuse it. Bytes after the
+    end of a zlib stream are ignored, as zlib.decompress ignores them; after a bzip2
+    or LZMA stream they are refused, as the one-shot functions refuse them unless
+    they are a second stream. Raises EwfFormatError, saying what was wrong. With
+    ``report_end`` the result is (bytes, whether the stream reached its end)."""
     try:
-        out = obj.decompress(data)
-    except zlib.error as exc:
-        raise EwfFormatError(f"cannot inflate section data: {exc}") from exc
-    return out
+        if codec == "zlib":
+            d = zlib.decompressobj(wbits)
+        elif codec == "bzip2":
+            d = bz2.BZ2Decompressor()
+        else:
+            d = lzma.LZMADecompressor(memlimit=_LZMA_MEMLIMIT)
+        out = d.decompress(data, limit + 1)
+    except (zlib.error, OSError, EOFError, lzma.LZMAError if lzma else OSError) as exc:
+        raise EwfFormatError(f"the {codec} stream does not decompress: {exc}") from None
+    if len(out) > limit:
+        raise EwfFormatError(f"the {codec} stream decompresses to more than "
+                             f"{limit:,} bytes")
+    if require_end and not d.eof:
+        raise EwfFormatError(f"the {codec} stream ends before its end marker")
+    if codec != "zlib" and d.unused_data:
+        raise EwfFormatError(f"{len(d.unused_data):,} bytes follow the end of the "
+                             f"{codec} stream")
+    return (out, d.eof) if report_end else out
+
+
+def _inflate(data, limit, report_end=False):
+    """Inflate a zlib stream into at most ``limit`` bytes, tolerating trailing bytes
+    after its end and, as before, a stream cut short (the caller fits the result to
+    the size it covers, and records the chunk in ``padded_chunks``). With
+    ``report_end``, (bytes, whether the stream reached its end)."""
+    return _decompress_bounded("zlib", data, limit, require_end=False,
+                               report_end=report_end)
 
 
 def _parse_header_text(text):
@@ -1719,6 +1760,531 @@ def _adc_decompress(data, size):
         for k in range(count):              # the source may overlap what is written
             out.append(out[start + k])
     return bytes(out)
+
+
+# ---------------------------------------------------------------- LZFSE
+# LZFSE, the codec of an ULFO .dmg's chunks, is not in the standard library, so it
+# is carried here as a pure-Python decoder. An LZFSE stream is a run of blocks, and
+# a block may be LZVN, Apple's other codec, so both decoders are here. They are a
+# copy of the ones qnxprobe.py carries for macOS file compression (decmpfs), as
+# released in qnxprobe v1.74 (github.com/abrignoni/qnxprobe, tag v1.74, commit
+# dffd27ab242c16100b40114f248e816fb302cc52), written
+# there from Apple's reference implementation, github.com/lzfse/lzfse at commit
+# e634ca58b4821d9f3d560cdc6df5dec02ffc93fd (BSD-3-Clause), by reading the C rather
+# than translating it; the file and line each rule comes from at that commit are
+# cited beside it. qnxprobe.py is where they are maintained. The code from
+# ``class DecompressError`` through ``_copy_match``, and from the comment
+# "LZVN opcode kinds" through ``lzfse_decompress``, is byte-identical to
+# qnxprobe.py's: tools/shared_lzfse.py compares the two files and copies a fix
+# across, and tests/test_lzfse.py fails when this copy is edited on its own.
+#
+# Both decoders are strict where the reference is silent. Every stream must end
+# with its own end marker, every block must give exactly the bytes its header
+# says, a match may not reach before the first byte or repeat a distance never
+# set, and output is capped at the size the caller expects. Each of those is a
+# DecompressError naming what was wrong, never a short or zero-filled result.
+class DecompressError(Exception):
+    """Compressed bytes this reader could not turn back into the original."""
+
+
+def _copy_match(out, dist, length):
+    """Append `length` bytes copied from `dist` bytes back in `out`. A copy
+    that overlaps what it writes (dist < length) repeats the last `dist` bytes,
+    which is what a byte-at-a-time copy does."""
+    if dist <= 0 or dist > len(out):
+        raise DecompressError(f"match reaches {dist} bytes back, before the start")
+    start = len(out) - dist
+    if dist >= length:
+        out += out[start:start + length]
+    else:
+        pat = bytes(out[start:])
+        reps, rem = divmod(length, dist)
+        out += pat * reps + pat[:rem]
+
+
+# LZVN opcode kinds, the jump table in src/lzvn_decode_base.c lines 50 to 82.
+_LZVN_SML_D, _LZVN_MED_D, _LZVN_LRG_D, _LZVN_PRE_D = 0, 1, 2, 3
+_LZVN_SML_M, _LZVN_LRG_M, _LZVN_SML_L, _LZVN_LRG_L = 4, 5, 6, 7
+_LZVN_NOP, _LZVN_EOS, _LZVN_UDEF = 8, 9, 10
+
+
+def _lzvn_kinds():
+    kinds = []
+    for opc in range(256):
+        if opc >= 0xF0:
+            kind = _LZVN_LRG_M if opc == 0xF0 else _LZVN_SML_M
+        elif opc >= 0xE0:
+            kind = _LZVN_LRG_L if opc == 0xE0 else _LZVN_SML_L
+        elif 0x70 <= opc < 0x80 or 0xD0 <= opc < 0xE0:
+            kind = _LZVN_UDEF
+        elif 0xA0 <= opc < 0xC0:
+            kind = _LZVN_MED_D
+        elif opc & 7 == 7:
+            kind = _LZVN_LRG_D
+        elif opc & 7 == 6:
+            kind = {0x06: _LZVN_EOS, 0x0E: _LZVN_NOP, 0x16: _LZVN_NOP}.get(
+                opc, _LZVN_UDEF if opc < 0x40 else _LZVN_PRE_D)
+        else:
+            kind = _LZVN_SML_D
+        kinds.append(kind)
+    return bytes(kinds)
+
+
+_LZVN_KIND = _lzvn_kinds()
+
+
+def lzvn_decompress(src, limit, out=None, start=0, end=None):
+    """Decode one LZVN stream, src[start:end], onto the end of ``out`` (a
+    bytearray, new when None), and return (out, the offset just past the
+    stream's end-of-stream opcode).
+
+    ``out`` may already hold earlier output, which a match may reach back
+    into: an LZVN block inside an LZFSE stream copies from the blocks before it
+    (src/lzfse_decode_base.c line 584, dst_begin is the whole output). At most
+    ``limit`` bytes are added.
+
+    The opcodes are those of src/lzvn_decode_base.c: small, medium, large and
+    previous distance (lines 129 to 385), the shared literal and match copy
+    (387 to 489), the match-only opcodes (491 to 540), the literal-only opcodes
+    (542 to 630), nop (632) and end of stream (649), which is the opcode 0x06
+    and seven bytes after it. Every other opcode is undefined (664).
+
+    Two checks go past the reference. A match-only opcode is held to the same
+    distance test as the others (the reference applies line 431 only to the
+    opcodes that carry a literal), so a distance of zero or one reaching before
+    the output fails instead of copying bytes that were never written. And a
+    stream that runs off the end of its bytes without an end-of-stream opcode
+    is an error here, where the reference returns what it had (lines 268, 316,
+    354 and the others marked "source truncated").
+    """
+    if out is None:
+        out = bytearray()
+    n = len(src) if end is None else end
+    pos, cap = start, len(out) + limit
+    dist = 0                          # d_prev starts at zero (lzfse_decode_base.c 370)
+    kind_of = _LZVN_KIND
+    while True:
+        if pos >= n:
+            raise DecompressError("the LZVN stream ends without its end-of-stream opcode")
+        opc = src[pos]
+        kind = kind_of[opc]
+        match = 0
+        if kind <= _LZVN_PRE_D:
+            if kind == _LZVN_SML_D:
+                lit, match, oplen = opc >> 6, ((opc >> 3) & 7) + 3, 2
+            elif kind == _LZVN_MED_D:
+                lit, oplen = (opc >> 3) & 3, 3
+            elif kind == _LZVN_LRG_D:
+                lit, match, oplen = opc >> 6, ((opc >> 3) & 7) + 3, 3
+            else:
+                lit, match, oplen = opc >> 6, ((opc >> 3) & 7) + 3, 1
+            if n - pos <= oplen + lit:
+                raise DecompressError("the LZVN stream ends inside an opcode")
+            if kind == _LZVN_SML_D:
+                dist = (opc & 7) << 8 | src[pos + 1]
+            elif kind == _LZVN_MED_D:
+                word = src[pos + 1] | src[pos + 2] << 8
+                match = ((opc & 7) << 2 | (word & 3)) + 3
+                dist = word >> 2
+            elif kind == _LZVN_LRG_D:
+                dist = src[pos + 1] | src[pos + 2] << 8
+            pos += oplen
+            if len(out) + lit + match > cap:
+                raise DecompressError(f"the LZVN stream decodes to more than {limit:,} bytes")
+            if lit:
+                out += src[pos:pos + lit]
+                pos += lit
+        elif kind == _LZVN_SML_M or kind == _LZVN_LRG_M:
+            oplen = 1 if kind == _LZVN_SML_M else 2
+            if n - pos <= oplen:
+                raise DecompressError("the LZVN stream ends inside an opcode")
+            match = opc & 15 if kind == _LZVN_SML_M else src[pos + 1] + 16
+            pos += oplen
+            if len(out) + match > cap:
+                raise DecompressError(f"the LZVN stream decodes to more than {limit:,} bytes")
+        elif kind == _LZVN_SML_L or kind == _LZVN_LRG_L:
+            if kind == _LZVN_SML_L:
+                lit, oplen = opc & 15, 1
+            else:
+                if n - pos <= 2:
+                    raise DecompressError("the LZVN stream ends inside an opcode")
+                lit, oplen = src[pos + 1] + 16, 2
+            if n - pos <= oplen + lit:
+                raise DecompressError("the LZVN stream ends inside a literal")
+            if len(out) + lit > cap:
+                raise DecompressError(f"the LZVN stream decodes to more than {limit:,} bytes")
+            out += src[pos + oplen:pos + oplen + lit]
+            pos += oplen + lit
+            continue
+        elif kind == _LZVN_NOP:
+            if n - pos <= 1:
+                raise DecompressError("the LZVN stream ends inside an opcode")
+            pos += 1
+            continue
+        elif kind == _LZVN_EOS:
+            if n - pos < 8:
+                raise DecompressError("the LZVN end-of-stream opcode is cut short")
+            return out, pos + 8
+        else:
+            raise DecompressError(f"undefined LZVN opcode 0x{opc:02x} at byte {pos - start:,}")
+        if match:
+            if dist == 0 or dist > len(out):
+                raise DecompressError(f"an LZVN match reaches {dist:,} bytes back, before "
+                                      f"the start of the output")
+            _copy_match(out, dist, match)
+
+
+# LZFSE block magics, src/lzfse_internal.h lines 276 to 281.
+_LZFSE_END, _LZFSE_RAW = b"bvx$", b"bvx-"
+_LZFSE_V1, _LZFSE_V2, _LZFSE_LZVN = b"bvx1", b"bvx2", b"bvxn"
+# Symbols and states of the four FSE streams (lzfse_internal.h 89 to 96), and
+# the most literals and matches one block may carry (97 and 98).
+_LZFSE_L_SYMBOLS, _LZFSE_M_SYMBOLS, _LZFSE_D_SYMBOLS, _LZFSE_LIT_SYMBOLS = 20, 20, 64, 256
+_LZFSE_L_STATES, _LZFSE_M_STATES, _LZFSE_D_STATES, _LZFSE_LIT_STATES = 64, 64, 256, 1024
+_LZFSE_MATCHES_PER_BLOCK = 10000
+_LZFSE_LITERALS_PER_BLOCK = 4 * _LZFSE_MATCHES_PER_BLOCK
+# The extra bits and base value of each L, M and D symbol (lzfse_internal.h 588
+# to 614).
+_LZFSE_L_BITS = (0,) * 16 + (2, 3, 5, 8)
+_LZFSE_L_BASE = tuple(range(16)) + (16, 20, 28, 60)
+_LZFSE_M_BITS = (0,) * 16 + (3, 5, 8, 11)
+_LZFSE_M_BASE = tuple(range(16)) + (16, 24, 56, 312)
+_LZFSE_D_BITS = tuple(i // 4 for i in range(64))
+_LZFSE_D_BASE = (
+    0, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 28, 36, 44, 52, 60, 76, 92, 108,
+    124, 156, 188, 220, 252, 316, 380, 444, 508, 636, 764, 892, 1020, 1276, 1532,
+    1788, 2044, 2556, 3068, 3580, 4092, 5116, 6140, 7164, 8188, 10236, 12284, 14332,
+    16380, 20476, 24572, 28668, 32764, 40956, 49148, 57340, 65532, 81916, 98300,
+    114684, 131068, 163836, 196604, 229372)
+# The v1 header is a C struct of seven 32-bit counts, the literal bits and four
+# states, the L, M, D bits and three states, then 360 16-bit frequencies
+# (lzfse_internal.h 291 to 330): 770 bytes, which the compiler rounds up to 772
+# for its 4-byte alignment, and sizeof() is what lzfse_decode_base.c 400 skips.
+_LZFSE_V1_HEADER = 772
+_LZFSE_V1_FREQ_AT = 50
+_LZFSE_FREQ_COUNT = _LZFSE_L_SYMBOLS + _LZFSE_M_SYMBOLS + _LZFSE_D_SYMBOLS + _LZFSE_LIT_SYMBOLS
+# The v2 header's frequencies are a prefix code (lzfse_decode_base.c 28 to 48):
+# the low five bits pick the length and, up to five bits, the value.
+_LZFSE_FREQ_NBITS = (2, 3, 2, 5, 2, 3, 2, 8, 2, 3, 2, 5, 2, 3, 2, 14) * 2
+_LZFSE_FREQ_VALUE = (0, 2, 1, 4, 0, 3, 1, -1, 0, 2, 1, 5, 0, 3, 1, -1,
+                     0, 2, 1, 6, 0, 3, 1, -1, 0, 2, 1, 7, 0, 3, 1, -1)
+
+
+def _lzfse_v2_freqs(head, size):
+    """The 360 frequencies packed after a v2 header's three fixed fields, as
+    lzfse_decode_v1() reads them (lzfse_decode_base.c 105 to 142): none at all
+    when the header is just its fixed part, else exactly enough bits to fill
+    every table, ending inside the header's last byte."""
+    if size == 32:
+        return [0] * _LZFSE_FREQ_COUNT
+    freqs, accum, nbits, at = [], 0, 0, 32
+    for _ in range(_LZFSE_FREQ_COUNT):
+        while at < size and nbits + 8 <= 32:
+            accum |= head[at] << nbits
+            nbits, at = nbits + 8, at + 1
+        low = accum & 31
+        take = _LZFSE_FREQ_NBITS[low]
+        if take == 8:
+            value = 8 + ((accum >> 4) & 0xF)
+        elif take == 14:
+            value = 24 + ((accum >> 4) & 0x3FF)
+        else:
+            value = _LZFSE_FREQ_VALUE[low]
+        if take > nbits:
+            raise DecompressError("an LZFSE block header's frequency tables are cut short")
+        freqs.append(value)
+        accum, nbits = accum >> take, nbits - take
+    if nbits >= 8 or at != size:
+        raise DecompressError("an LZFSE block header's frequency tables do not fill it exactly")
+    return freqs
+
+
+def _fse_spread(nstates, freqs):
+    """(symbol, freq, j, k, delta) per state, the layout fse_init_decoder_table()
+    and fse_init_value_decoder_table() share (lzfse_fse.c 57 to 147): each
+    symbol takes ``freq`` consecutive states; the first j0 of them read k bits
+    and the rest k - 1. A table whose frequencies sum short of nstates leaves
+    states no symbol owns, which the reference never initialises; here they
+    are None, and reaching one is an error."""
+    if sum(freqs) > nstates:
+        raise DecompressError("an LZFSE frequency table holds more states than it may")
+    top = nstates.bit_length()
+    table = []
+    for sym, f in enumerate(freqs):
+        if not f:
+            continue
+        k = top - f.bit_length()
+        j0 = ((2 * nstates) >> k) - f
+        for j in range(f):
+            if j < j0:
+                table.append((sym, k, ((f + j) << k) - nstates))
+            else:
+                table.append((sym, k - 1, (j - j0) << (k - 1)))
+    table += [None] * (nstates - len(table))
+    return table
+
+
+class _FseBits:
+    """The backward bit reader of lzfse_fse.h, in its 64-bit form (the one the
+    header selects on x86_64 and arm64, line 38). Initialising takes eight
+    bytes, or seven when the stream's final byte is full (300 to 325), and must
+    leave the bits above the count zero; a flush tops the accumulator back up
+    to between 56 and 63 bits a byte at a time (361 to 378), and may not read
+    before ``floor``; a pull takes bits off the top (407 to 413)."""
+
+    __slots__ = ("buf", "pos", "floor", "accum", "nbits")
+
+    def __init__(self, buf, end, floor, extra):
+        if not -7 <= extra <= 0:
+            raise DecompressError("an LZFSE bit stream's final bit count is out of range")
+        take = 8 if extra else 7
+        if end - take < floor:
+            raise DecompressError("an LZFSE bit stream is shorter than its first load")
+        self.buf, self.floor, self.pos = buf, floor, end - take
+        self.accum = int.from_bytes(buf[self.pos:end], "little")
+        self.nbits = extra + 64 if extra else 56
+        if self.accum >> self.nbits:
+            raise DecompressError("an LZFSE bit stream carries bits past its stated end")
+
+    def flush(self):
+        add = (63 - self.nbits) & ~7
+        if add:
+            pos = self.pos - (add >> 3)
+            if pos < self.floor:
+                raise DecompressError("an LZFSE bit stream runs out before its symbols do")
+            self.accum = (self.accum << add) | int.from_bytes(self.buf[pos:self.pos], "little")
+            self.nbits += add
+            self.pos = pos
+
+    def pull(self, n):
+        if n > self.nbits:
+            raise DecompressError("an LZFSE bit stream runs out before its symbols do")
+        self.nbits -= n
+        value = self.accum >> self.nbits
+        self.accum &= (1 << self.nbits) - 1
+        return value
+
+
+def _lzfse_value_table(nstates, freqs, vbits, vbase):
+    """fse_init_value_decoder_table() (lzfse_fse.c 109 to 147): per state, the
+    bits to pull (state bits plus the symbol's extra bits), the extra bits, the
+    state base and the value base."""
+    out = []
+    for item in _fse_spread(nstates, freqs):
+        if item is None:
+            out.append(None)
+        else:
+            sym, k, delta = item
+            out.append((k + vbits[sym], vbits[sym], delta, vbase[sym]))
+    return out
+
+
+def _lzfse_block(src, pos, n, out, cap, v2):
+    """Decode one compressed LZFSE block (bvx1 or bvx2) at src[pos], appending to
+    out. Returns the offset after it. lzfse_decode() lines 376 to 512 for the
+    header and literals, lzfse_decode_lmd() lines 156 to 329 for the matches."""
+    if v2:
+        if pos + 32 > n:
+            raise DecompressError("an LZFSE block header is cut short")
+        raw, v0, v1, v2f = struct.unpack_from("<IQQQ", src, pos + 4)
+        size = v2f & 0xFFFFFFFF
+        if size < 32 or pos + size > n:
+            raise DecompressError("an LZFSE block header is cut short")
+        n_lit, n_lit_payload, n_match = v0 & 0xFFFFF, (v0 >> 20) & 0xFFFFF, (v0 >> 40) & 0xFFFFF
+        lit_bits = ((v0 >> 60) & 7) - 7
+        lit_state = [(v1 >> s) & 0x3FF for s in (0, 10, 20, 30)]
+        n_lmd_payload, lmd_bits = (v1 >> 40) & 0xFFFFF, ((v1 >> 60) & 7) - 7
+        l_state, m_state, d_state = (v2f >> 32) & 0x3FF, (v2f >> 42) & 0x3FF, (v2f >> 52) & 0x3FF
+        freqs = _lzfse_v2_freqs(src[pos:pos + size], size)
+    else:
+        size = _LZFSE_V1_HEADER
+        if pos + size > n:
+            raise DecompressError("an LZFSE block header is cut short")
+        (raw, _payload, n_lit, n_match, n_lit_payload, n_lmd_payload, lit_bits) = \
+            struct.unpack_from("<IIIIIIi", src, pos + 4)
+        lit_state = list(struct.unpack_from("<4H", src, pos + 32))
+        lmd_bits, l_state, m_state, d_state = struct.unpack_from("<iHHH", src, pos + 40)
+        freqs = list(struct.unpack_from(f"<{_LZFSE_FREQ_COUNT}H", src, pos + _LZFSE_V1_FREQ_AT))
+    if pos + size + n_lit_payload + n_lmd_payload > n:
+        raise DecompressError("an LZFSE block is cut short")
+    # lzfse_check_block_header_v1(), lzfse_internal.h 511 to 567
+    if (n_lit > _LZFSE_LITERALS_PER_BLOCK or n_match > _LZFSE_MATCHES_PER_BLOCK
+            or any(s >= _LZFSE_LIT_STATES for s in lit_state) or l_state >= _LZFSE_L_STATES
+            or m_state >= _LZFSE_M_STATES or d_state >= _LZFSE_D_STATES):
+        raise DecompressError("an LZFSE block header is out of range")
+    if len(out) + raw > cap:
+        raise DecompressError(f"an LZFSE block decodes to more than the {cap:,} bytes expected")
+    a = _LZFSE_L_SYMBOLS
+    b = a + _LZFSE_M_SYMBOLS
+    c = b + _LZFSE_D_SYMBOLS
+    l_tab = _lzfse_value_table(_LZFSE_L_STATES, freqs[:a], _LZFSE_L_BITS, _LZFSE_L_BASE)
+    m_tab = _lzfse_value_table(_LZFSE_M_STATES, freqs[a:b], _LZFSE_M_BITS, _LZFSE_M_BASE)
+    d_tab = _lzfse_value_table(_LZFSE_D_STATES, freqs[b:c], _LZFSE_D_BITS, _LZFSE_D_BASE)
+    lit_tab = _fse_spread(_LZFSE_LIT_STATES, freqs[c:])
+    # Literals: four interleaved states over one stream read backwards from the
+    # end of the literal payload, which may read back into the bytes before it
+    # (the stream's floor is the start of the whole buffer, line 443).
+    pos += size
+    lit_end = pos + n_lit_payload
+    # The bit reader is _FseBits, its flush and pull written out inline in both
+    # loops below: the same rules, a quarter of the time.
+    bits = _FseBits(src, lit_end, 0, lit_bits)
+    acc, nb, bpos, floor = bits.accum, bits.nbits, bits.pos, 0
+    lits = bytearray()
+    s0, s1, s2, s3 = lit_state
+    short = "an LZFSE bit stream runs out before its symbols do"
+    try:
+        for _ in range(0, n_lit, 4):
+            add = (63 - nb) & ~7
+            if add:
+                npos = bpos - (add >> 3)
+                if npos < floor:
+                    raise DecompressError(short)
+                acc = (acc << add) | int.from_bytes(src[npos:bpos], "little")
+                nb, bpos = nb + add, npos
+            sym, k, delta = lit_tab[s0]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s0 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+            sym, k, delta = lit_tab[s1]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s1 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+            sym, k, delta = lit_tab[s2]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s2 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+            sym, k, delta = lit_tab[s3]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s3 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+    except (TypeError, IndexError):
+        raise DecompressError("an LZFSE literal reaches a state no symbol owns") from None
+    # Matches: L, M, D triples from the second stream, which the encoder pads
+    # with eight zero bytes at its start (lzfse_encode_base.c 320 to 326).
+    pos = lit_end
+    bits = _FseBits(src, pos + n_lmd_payload, pos, lmd_bits)
+    acc, nb, bpos, floor = bits.accum, bits.nbits, bits.pos, pos
+    start_len, used, dist, n_lits = len(out), 0, -1, len(lits)
+    olen = start_len
+    try:
+        for _ in range(n_match):
+            add = (63 - nb) & ~7
+            if add:
+                npos = bpos - (add >> 3)
+                if npos < floor:
+                    raise DecompressError(short)
+                acc = (acc << add) | int.from_bytes(src[npos:bpos], "little")
+                nb, bpos = nb + add, npos
+            total, vb, delta, base = l_tab[l_state]
+            if total > nb:
+                raise DecompressError(short)
+            nb -= total
+            got = acc >> nb
+            acc &= (1 << nb) - 1
+            l_state, lit = delta + (got >> vb), base + (got & ((1 << vb) - 1))
+            total, vb, delta, base = m_tab[m_state]
+            if total > nb:
+                raise DecompressError(short)
+            nb -= total
+            got = acc >> nb
+            acc &= (1 << nb) - 1
+            m_state, match = delta + (got >> vb), base + (got & ((1 << vb) - 1))
+            total, vb, delta, base = d_tab[d_state]
+            if total > nb:
+                raise DecompressError(short)
+            nb -= total
+            got = acc >> nb
+            acc &= (1 << nb) - 1
+            d_state, new_d = delta + (got >> vb), base + (got & ((1 << vb) - 1))
+            dist = new_d or dist
+            if used + lit > n_lits:
+                raise DecompressError("an LZFSE match uses more literals than its block holds")
+            # line 221: the distance may not reach before the first output byte
+            if dist < 0 or dist > olen + lit:
+                raise DecompressError(f"an LZFSE match reaches {dist:,} bytes back, before "
+                                      f"the start of the output")
+            if olen + lit + match > cap:
+                raise DecompressError(f"an LZFSE block decodes to more than the {cap:,} "
+                                      f"bytes expected")
+            if lit:
+                out += lits[used:used + lit]
+                used += lit
+                olen += lit
+            if match:
+                if dist == 0:
+                    raise DecompressError("an LZFSE match has a distance of zero")
+                if dist >= match:
+                    at = olen - dist
+                    out += out[at:at + match]
+                else:
+                    _copy_match(out, dist, match)
+                olen += match
+    except (TypeError, IndexError):
+        raise DecompressError("an LZFSE match reaches a state no symbol owns") from None
+    if len(out) - start_len != raw:
+        raise DecompressError(f"an LZFSE block gives {len(out) - start_len:,} bytes where its "
+                              f"header says {raw:,}")
+    return pos + n_lmd_payload
+
+
+def lzfse_decompress(src, limit):
+    """Decode one LZFSE stream, which is a run of blocks ending in the bvx$
+    marker (lzfse_decode_base.c 332 to 630), into at most ``limit`` bytes.
+
+    Blocks are raw (bvx-), LZVN (bvxn), or LZFSE proper with its frequency
+    tables either packed (bvx2, what the reference encoder writes) or plain
+    (bvx1). A raw or LZVN block must hold every byte its header names, and an
+    LZVN block must end with its end-of-stream opcode exactly at the end of
+    its payload, having produced exactly its stated bytes (lines 571 to 620).
+    A stream that stops before bvx$ is an error, not a short result."""
+    out, pos, n = bytearray(), 0, len(src)
+    while True:
+        if pos + 4 > n:
+            raise DecompressError("the LZFSE stream ends without its end-of-stream block")
+        magic = bytes(src[pos:pos + 4])
+        if magic == _LZFSE_END:
+            return bytes(out)
+        if magic == _LZFSE_RAW:
+            if pos + 8 > n:
+                raise DecompressError("an LZFSE raw block header is cut short")
+            raw = struct.unpack_from("<I", src, pos + 4)[0]
+            if pos + 8 + raw > n:
+                raise DecompressError("an LZFSE raw block is cut short")
+            if len(out) + raw > limit:
+                raise DecompressError(f"the LZFSE stream decodes to more than {limit:,} bytes")
+            out += src[pos + 8:pos + 8 + raw]
+            pos += 8 + raw
+        elif magic == _LZFSE_LZVN:
+            if pos + 12 > n:
+                raise DecompressError("an LZFSE LZVN block header is cut short")
+            raw, payload = struct.unpack_from("<II", src, pos + 4)
+            pos += 12
+            if pos + payload > n:
+                raise DecompressError("an LZFSE LZVN block is cut short")
+            if len(out) + raw > limit:
+                raise DecompressError(f"the LZFSE stream decodes to more than {limit:,} bytes")
+            before = len(out)
+            _out, after = lzvn_decompress(src, raw, out, pos, pos + payload)
+            if after != pos + payload or len(out) - before != raw:
+                raise DecompressError("an LZFSE LZVN block does not end where its header says")
+            pos = after
+        elif magic in (_LZFSE_V1, _LZFSE_V2):
+            pos = _lzfse_block(src, pos, n, out, limit, magic == _LZFSE_V2)
+        else:
+            raise DecompressError(f"unknown LZFSE block magic {magic!r} at byte {pos:,}")
 
 
 class _Table:
@@ -1951,10 +2517,12 @@ class _LogicalFile(io.RawIOBase):
 
 # ---------------------------------------------------------------- AFF4
 
-def _snappy_decompress(data):
+def _snappy_decompress(data, limit):
     """A raw Snappy block (google/snappy, format_description.txt): the decoded length
     as a varint, then literals and back-references. Raises on anything the format
-    rules out rather than returning a short or padded block."""
+    rules out rather than returning a short or padded block, and on a declared
+    length past ``limit``, before decoding; no literal or copy may take the output
+    past the declared length."""
     size = shift = i = 0
     while True:
         if i >= len(data) or shift > 28:
@@ -1965,6 +2533,9 @@ def _snappy_decompress(data):
         if b < 0x80:
             break
         shift += 7
+    if size > limit:
+        raise EwfFormatError(f"a Snappy chunk declares {size:,} bytes, more than the "
+                             f"{limit:,} a chunk holds")
     out = bytearray()
     end = len(data)
     while i < end:
@@ -1980,6 +2551,9 @@ def _snappy_decompress(data):
             length += 1
             if i + length > end:
                 raise EwfFormatError("a Snappy literal runs past its chunk")
+            if len(out) + length > size:
+                raise EwfFormatError(f"a Snappy chunk decodes to more than the {size:,} "
+                                     f"bytes it declares")
             out += data[i:i + length]
             i += length
             continue
@@ -1995,18 +2569,21 @@ def _snappy_decompress(data):
             length = 1 + (tag >> 2)
             offset = int.from_bytes(data[i:i + 4], "little")
             i += 4
-        _copy_back(out, offset, length, "Snappy")
+        _copy_back(out, offset, length, "Snappy", size)
     if len(out) != size:
         raise EwfFormatError(f"a Snappy chunk decoded to {len(out):,} bytes, not the "
                              f"{size:,} it declares")
     return bytes(out)
 
 
-def _copy_back(out, offset, length, codec):
+def _copy_back(out, offset, length, codec, limit):
     """Append ``length`` bytes copied from ``offset`` bytes back; a copy longer than
-    its offset repeats the last ``offset`` bytes, as both LZ77 formats define."""
+    its offset repeats the last ``offset`` bytes, as both LZ77 formats define. A copy
+    that would take the output past ``limit`` is refused before it is made."""
     if offset == 0 or offset > len(out):
         raise EwfFormatError(f"an {codec} back-reference points outside its chunk")
+    if len(out) + length > limit:
+        raise EwfFormatError(f"an {codec} chunk decodes to more than {limit:,} bytes")
     start = len(out) - offset
     if length <= offset:
         out += out[start:start + length]
@@ -2016,9 +2593,11 @@ def _copy_back(out, offset, length, codec):
         out += piece * whole + piece[:rest]
 
 
-def _lz4_block_decompress(data):
+def _lz4_block_decompress(data, limit):
     """An LZ4 block (lz4/lz4, doc/lz4_Block_format.md): sequences of a token, literals,
-    a two-byte offset and a match, the last sequence holding literals only."""
+    a two-byte offset and a match, the last sequence holding literals only. The
+    block records no decoded size, so ``limit`` caps it: a literal or match that
+    would take the output past it is refused before it is copied."""
     out = bytearray()
     i, end = 0, len(data)
     while i < end:
@@ -2036,6 +2615,8 @@ def _lz4_block_decompress(data):
                     break
         if i + lit > end:
             raise EwfFormatError("an LZ4 literal runs past its chunk")
+        if len(out) + lit > limit:
+            raise EwfFormatError(f"an LZ4 chunk decodes to more than {limit:,} bytes")
         out += data[i:i + lit]
         i += lit
         if i >= end:
@@ -2054,7 +2635,7 @@ def _lz4_block_decompress(data):
                 match += b
                 if b != 255:
                     break
-        _copy_back(out, offset, match + 4, "LZ4")
+        _copy_back(out, offset, match + 4, "LZ4", limit)
     return bytes(out)
 
 
@@ -2064,27 +2645,29 @@ def _aff4_lz4(data, chunk_size):
     4-byte little-endian length, which pyaff4 itself then fails to read. The raw form
     is tried first, the prefixed one when the first four bytes are the chunk size."""
     try:
-        return _lz4_block_decompress(data)
+        return _lz4_block_decompress(data, chunk_size)
     except (IndexError, EwfFormatError):
         if len(data) > 4 and int.from_bytes(data[:4], "little") == chunk_size:
-            out = _lz4_block_decompress(data[4:])
+            out = _lz4_block_decompress(data[4:], chunk_size)
             if len(out) == chunk_size:
                 return out
         raise
 
 
-def _aff4_inflate(data):
+def _aff4_inflate(data, limit):
     """An AFF4 zlib or deflate chunk. c-aff4 writes a zlib stream, header and all,
     for both (deflateInit and compress2 in aff4/aff4_image.cc) and leaves spare bytes
     after a deflate one; the header decides which is tried first, and bytes after the
-    end of the stream are ignored."""
+    end of the stream are ignored. A stream that inflates past ``limit`` is refused."""
     zlib_header = len(data) >= 2 and data[0] & 0x0F == 8 and (data[0] << 8 | data[1]) % 31 == 0
     for wbits in ((15, -15) if zlib_header else (-15, 15)):
         d = zlib.decompressobj(wbits)
         try:
-            out = d.decompress(data)
+            out = d.decompress(data, limit + 1)
         except zlib.error:
             continue
+        if len(out) > limit:
+            raise EwfFormatError(f"the chunk inflates to more than {limit:,} bytes")
         if d.eof:
             return out
     raise EwfFormatError("the chunk is neither a zlib nor a raw deflate stream")
@@ -2720,10 +3303,10 @@ class _Aff4ImageStream:
             return stored                         # AFF4 Standard 3.2: a stored chunk
         try:
             if self.codec in ("snappy", "snappy-always"):
-                return _snappy_decompress(stored)
+                return _snappy_decompress(stored, self.chunk_size)
             if self.codec == "lz4":
                 return _aff4_lz4(stored, self.chunk_size)
-            return _aff4_inflate(stored)
+            return _aff4_inflate(stored, self.chunk_size)
         except (IndexError, EwfFormatError) as exc:
             if self.codec == "snappy-always" and len(stored) == self.chunk_size:
                 return stored                     # not Snappy after all: stored
@@ -3027,8 +3610,8 @@ class _Ad1File(io.RawIOBase):
             a, b = self._addresses[k], self._addresses[k + 1]
             want = min(self._chunk_size, self._size - k * self._chunk_size)
             try:
-                data = zlib.decompress(self._image._ad1_read(a, b - a))
-            except zlib.error as exc:
+                data = _decompress_bounded("zlib", self._image._ad1_read(a, b - a), want)
+            except EwfFormatError as exc:
                 raise EwfFormatError(f"AD1 entry {self._entry.path}: chunk {k} does not "
                                      f"inflate ({exc})") from None
             if len(data) != want:
@@ -3216,19 +3799,29 @@ def _zstd_decompressor():
     backports.zstd or zstandard package; None when none is installed."""
     try:
         from compression import zstd                    # Python 3.14
-        return lambda: zstd.ZstdDecompressor()
+        return lambda blob, most: zstd.ZstdDecompressor().decompress(blob, most)
     except ImportError:
         pass
     try:
         from backports import zstd as backport          # type: ignore
-        return lambda: backport.ZstdDecompressor()
+        return lambda blob, most: backport.ZstdDecompressor().decompress(blob, most)
     except ImportError:
         pass
     try:
         import zstandard                                # type: ignore
-        return lambda: zstandard.ZstdDecompressor().decompressobj()
     except ImportError:
         return None
+
+    def bounded(blob, most):
+        reader = zstandard.ZstdDecompressor().stream_reader(blob)
+        out = bytearray()
+        while len(out) < most:
+            piece = reader.read(most - len(out))
+            if not piece:
+                break
+            out += piece
+        return bytes(out)
+    return bounded
 
 
 class _RawParent:
@@ -3348,6 +3941,9 @@ class EwfImage:
         self.metadata: dict[str, str] = {}
         self.stored_hashes: dict[str, str] = {}
         self.checksum_errors: list[int] = []
+        # Chunks, grains and clusters read with zeros put where their data ran out,
+        # keyed by (unit, index); see padded_chunks and _note_padded.
+        self._padded: dict[tuple[str, int], dict] = {}
         self.chunk_size = 0
         self.media_size = 0
         self.size = 0
@@ -3500,7 +4096,7 @@ class EwfImage:
                 last_name = name
                 if name in ("header", "header2") and not self.metadata:
                     fh.seek(offset)
-                    raw = _inflate(_read_exactly(fh, size))
+                    raw = _inflate(_read_exactly(fh, size), _SECTION_TEXT_MAX)
                     if name == "header2":
                         text = raw.decode("utf-16-le", "replace")
                     else:
@@ -4051,18 +4647,23 @@ class EwfImage:
             return b"\x00" * min(struct.unpack(">I", raw)[0], self.chunk_size)
         if algorithm == AF_PAGE_COMP_ALG_ZLIB:
             try:
-                return zlib.decompressobj().decompress(raw, self.chunk_size)
-            except zlib.error as exc:
+                return _inflate(raw, self.chunk_size)
+            except EwfFormatError as exc:
                 raise EwfFormatError(f"cannot inflate page {n}: {exc}") from exc
         if algorithm == AF_PAGE_COMP_ALG_LZMA:
             if lzma is None:
                 raise EwfFormatError(
                     f"page {n} is LZMA-compressed and this Python has no lzma module")
             try:
-                decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
-                return decoder.decompress(raw, max_length=self.chunk_size)
+                decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE,
+                                                memlimit=_LZMA_MEMLIMIT)
+                out = decoder.decompress(raw, max_length=self.chunk_size + 1)
             except lzma.LZMAError as exc:
                 raise EwfFormatError(f"cannot decompress LZMA page {n}: {exc}") from exc
+            if len(out) > self.chunk_size:
+                raise EwfFormatError(f"LZMA page {n} decompresses to more than the "
+                                     f"{self.chunk_size:,} bytes of a page")
+            return out
         raise EwfFormatError(f"page {n} uses compression algorithm {algorithm:#06x}, "
                              f"which ewfprobe does not read")
 
@@ -4961,11 +5562,6 @@ class EwfImage:
             raise EwfFormatError(
                 f"{name}: the block tables cover {expected} sectors and the trailer "
                 f"says the disk is {sectors}")
-        if "LZFSE" in codecs and liblzfse is None:
-            raise EwfFormatError(
-                f"{name} is compressed with LZFSE (an ULFO image), which needs the "
-                f"pyliblzfse package; install it, or convert the image with "
-                f"hdiutil convert -format UDZO")
         self._runs = runs
         self._run_starts = [r[0] for r in runs]
         self.compression_level = ", ".join(sorted(codecs)) if codecs else "none"
@@ -5015,13 +5611,13 @@ class EwfImage:
                                  f"sector {start // 512:,} needs")
         try:
             if codec == "zlib":
-                data = zlib.decompress(blob)
+                data = _decompress_bounded("zlib", blob, length)
             elif codec == "bzip2":
-                data = bz2.decompress(blob)
+                data = _decompress_bounded("bzip2", blob, length)
             elif codec == "LZMA":
-                data = lzma.decompress(blob)
+                data = _decompress_bounded("lzma", blob, length)
             elif codec == "LZFSE":
-                data = liblzfse.decompress(blob)
+                data = lzfse_decompress(blob, length)
             else:
                 data = _adc_decompress(blob, length)
         except Exception as exc:                # pylint: disable=broad-except
@@ -5521,13 +6117,23 @@ class EwfImage:
         fh.seek(offset)
         blob = fh.read(length)
         try:
+            ended = None                                    # zstd: not reported
             if self._qcow_zstd is not None:
-                data = self._qcow_zstd().decompress(blob)
+                data = self._qcow_zstd(blob, cluster + 1)
             else:
-                data = zlib.decompressobj(-15).decompress(blob, cluster)
+                d = zlib.decompressobj(-15)
+                data = d.decompress(blob, cluster + 1)
+                ended = d.eof
+            if len(data) > cluster:
+                raise EwfFormatError(f"it decompresses to more than the {cluster:,} "
+                                     f"bytes of a cluster")
         except Exception as exc:                            # zlib.error, zstd errors
             raise EwfFormatError(f"{os.path.basename(self.paths[0])}: cluster "
                                  f"{cluster_index:,} does not decompress ({exc})") from None
+        covers = max(0, min(cluster, self.media_size - cluster_index * cluster))
+        if ended is False or len(data) < covers:
+            self._note_padded("cluster", cluster_index, cluster_index * cluster, covers,
+                              len(data), ended is False)
         data = data[:cluster] + bytes(max(0, cluster - len(data)))
         if len(self._qcow_clusters) >= 32:
             self._qcow_clusters.popitem(last=False)
@@ -5955,14 +6561,21 @@ class EwfImage:
                                  f"{entry:,} records sector {lba:,}, not the start of grain "
                                  f"{g:,}")
         blob = _read_exactly(fh, size)
+        ended = True
         try:
-            data = zlib.decompress(blob)
-        except zlib.error:
+            data = _decompress_bounded("zlib", blob, extent["grain"])
+        except EwfFormatError:
             try:
-                data = zlib.decompressobj(-15).decompress(blob)
-            except zlib.error as exc:
+                data, ended = _decompress_bounded("zlib", blob, extent["grain"], wbits=-15,
+                                                  require_end=False, report_end=True)
+            except EwfFormatError as exc:
                 raise EwfFormatError(f"{_shown(extent['file'])}: grain {g:,} does not "
                                      f"decompress ({exc})") from None
+        at = extent["start"] + g * extent["grain"]
+        covers = max(0, min(extent["grain"], extent["start"] + extent["length"] - at))
+        if not ended or len(data) < covers:
+            self._note_padded("grain", g, at, covers, len(data), not ended,
+                              _shown(extent["file"]))
         if len(data) < extent["grain"]:
             data += bytes(extent["grain"] - len(data))
         if len(self._vmdk_grain_cache) >= 32:
@@ -6647,7 +7260,15 @@ class EwfImage:
         fh.seek(offset)
         raw = _read_exactly(fh, size)
         if flags & V2_CHUNK_COMPRESSED:
-            return _inflate(raw)
+            try:
+                data, ended = _inflate(raw, self.chunk_size, report_end=True)
+            except EwfFormatError as exc:
+                raise EwfFormatError(f"chunk {n:,}: {exc}") from None
+            if not ended:
+                self._note_padded("chunk", n, n * self.chunk_size,
+                                  min(self.chunk_size, self.media_size - n * self.chunk_size),
+                                  len(data), True)
+            return data
         if flags & V2_CHUNK_CHECKSUMED:
             data, stored = raw[:-4], struct.unpack("<I", raw[-4:])[0]
             if zlib.adler32(data) & 0xFFFFFFFF != stored and n not in self.checksum_errors:
@@ -6756,6 +7377,8 @@ class EwfImage:
 
         if self.format == FORMAT_EX01:
             data = self._chunk_data_v2(n)
+            if len(data) < want:
+                self._note_padded("chunk", n, n * self.chunk_size, want, len(data), False)
             return self._keep(n, data, want)
         if self.format in (FORMAT_AFF, FORMAT_AFD):
             data = self._chunk_data_aff(n)
@@ -6792,15 +7415,52 @@ class EwfImage:
             # zlib stops at the end of its own stream, so the slice only has to
             # be long enough, which sidesteps the format not recording sizes.
             raw = fh.read(max(0, end - start))
-            data = _inflate(raw)
+            try:
+                data, ended = _inflate(raw, self.chunk_size, report_end=True)
+            except EwfFormatError as exc:
+                raise EwfFormatError(f"chunk {n:,}: {exc}") from None
+            if not ended or len(data) < want:
+                self._note_padded("chunk", n, n * self.chunk_size, want, len(data),
+                                  not ended)
         else:
             data = fh.read(want)
+            if len(data) < want:
+                self._note_padded("chunk", n, n * self.chunk_size, want, len(data), False)
             stored = fh.read(4)
             if len(stored) == 4:
                 if zlib.adler32(data) & 0xFFFFFFFF != struct.unpack("<I", stored)[0]:
                     if n not in self.checksum_errors:
                         self.checksum_errors.append(n)
         return self._keep(n, data, want)
+
+    def _note_padded(self, unit, index, offset, covers, decoded, cut, file=None):
+        """Record a chunk, grain or cluster whose data ran out before the bytes it
+        covers did, or whose compressed stream stopped before its end marker. It is
+        still read as before, with zeros where its data ran out; this only makes
+        that visible. Recorded once per unit, however often it is read."""
+        key = (unit, index)
+        if key not in self._padded:
+            entry = {"unit": unit, "index": index, "offset": offset, "length": covers,
+                     "decoded": decoded, "zeros": max(0, covers - decoded), "cut": cut}
+            if file is not None:
+                entry["file"] = file
+            self._padded[key] = entry
+
+    @property
+    def padded_chunks(self):
+        """The chunks (E01, SMART, Ex01), grains (VMDK) and clusters (QCOW) read so
+        far whose stored data ran out before the bytes they cover, so that zeros were
+        read in its place, or whose compressed stream stopped before its end marker.
+        A list of dicts in disk order: ``unit`` ("chunk", "grain" or "cluster"),
+        ``index``, ``offset`` (the byte on the disk where the unit starts),
+        ``length`` (the bytes of the disk it covers), ``decoded`` (the bytes its data
+        gave), ``zeros`` (the zeros put after them), ``cut`` (True when the stream
+        stopped before its end marker), and ``file`` for a VMDK extent. The last
+        chunk of an image whose size is not a whole number of chunks covers only the
+        bytes up to the end of the disk, so it is not counted for being short.
+        Only the units read are known: ``verify()`` reads them all."""
+        return sorted((dict(v) for v in self._padded.values()),
+                      key=lambda e: (e["offset"], e["unit"], e["index"]))
 
     def _keep(self, n, data, want):
         """Fit a decoded chunk to the size it covers and cache it."""
@@ -6966,6 +7626,7 @@ class EwfImage:
             "match": match,
             "bytes": done,
             "checksum_errors": list(self.checksum_errors),
+            "padded_chunks": self.padded_chunks,
             "missing_page_count": self.missing_page_count,
             "missing_page_ranges": list(self.missing_page_ranges),
             "entry_md5_checked": checked,
@@ -6978,6 +7639,8 @@ class EwfImage:
     def info(self):
         """Everything worth printing about the acquisition, as a dict."""
         return {
+            # only what has been read so far; verify() reads every chunk
+            "padded_chunks": self.padded_chunks,
             "segments": [os.path.basename(p) for p in self.paths],
             "segment_count": len(self.paths),
             "format": self.format,
@@ -7350,6 +8013,20 @@ def _cmd_verify(args):
                 print(f"{name:<6}{value}   DOES NOT MATCH stored {stored}")
         if result["checksum_errors"]:
             print(f"chunk checksum mismatches: {len(result['checksum_errors'])}")
+        padded = result["padded_chunks"]
+        if padded:
+            zeros = sum(p["zeros"] for p in padded)
+            cut = sum(1 for p in padded if p["cut"])
+            print(f"{padded[0]['unit']}s whose data ran out, read with zeros in its place: "
+                  f"{len(padded):,} ({zeros:,} zero bytes; {cut:,} with a stream cut "
+                  f"before its end)")
+            for p in padded[:5]:
+                where = f" of {p['file']}" if "file" in p else ""
+                print(f"  {p['unit']} {p['index']:,}{where} at byte {p['offset']:,}: "
+                      f"{p['decoded']:,} of {p['length']:,} bytes"
+                      + (", stream cut" if p["cut"] else ""))
+            if len(padded) > 5:
+                print(f"  and {len(padded) - 5:,} more")
         if result["missing_page_count"]:
             print(f"pages not in the file, read as the bad-sector marker: "
                   f"{result['missing_page_count']:,}")

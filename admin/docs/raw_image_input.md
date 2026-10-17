@@ -42,6 +42,17 @@ read through a map of its runs; its name counts the first sector of its first ru
 Since 1.67, a RAID1 or mirror logical volume is searched too, read from the first of
 its copies whose extents are all in the image, and a LUKS1 or LUKS2 container a
 passphrase opens is searched as what it holds (see Encrypted images).
+Since 1.74, a file macOS compressed on APFS or HFS+ (decmpfs: zlib, LZVN, LZFSE or
+stored, in the compression attribute or the resource fork) is staged as its content.
+Before, the reader decoded methods 3 and 4 (zlib) and read method 5 as zlib, and
+refused every other method, naming its number, so a file compressed with LZVN, LZFSE
+or a stored method was listed and not staged. A file compressed with LZBITMAP, which
+this reader does not decode, or with method 5, is now listed and not staged, and the
+run log gives the reason, as it does for a compressed stream that is damaged. A compression attribute on a file not
+flagged compressed is not the file's content: the file is read as stored, as macOS
+reads it, and the run log lists it under the damage the reader recorded in its volume,
+by member name when one listed member holds that record and otherwise by its object id
+or catalog id.
 
 ## Several images: the members of a RAID set
 
@@ -328,7 +339,16 @@ cannot read and why, and warns when the image is shorter than the volumes its
 partition table describes, which is what a lone first segment of a split set
 looks like. A file that runs past the end of the image is named in the log and
 not staged, because a truncated database parses as a smaller one rather than as
-an error.
+an error. What the reader records as damage while it walks a volume (a record that
+fails its check, a compression attribute on a file not flagged compressed) is listed
+under the volume's walked line, the first few entries and a count, and damage met
+while a file is staged is said with that file. Since ewfprobe 0.14.0, a chunk of an
+E01, SMART or Ex01 acquisition, a VMDK grain or a QCOW cluster whose stored data runs
+out before the bytes it covers, or whose compressed stream stops before its end, is
+read with zeros in its place, as before, and the run log now says so: once for what
+the listing read, and with the file whose staging first read it, since that file can
+hold those zeros. Only the units read are known; the reader reads the rest only when
+asked to verify the whole image.
 
 ## Free space
 

@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.72"
+QNXPROBE_VERSION = "1.74"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -820,11 +820,26 @@ def open_image(path, segments=None, password=None, private_key=None):
             image.close()
             raise ImageUnreadable(_logical_refusal(name, inner, encrypted=True))
         return image
+    if os.path.isdir(path):
+        # Before 1.74 a folder reached open() and the run ended in an
+        # IsADirectoryError traceback.
+        raise ImageUnreadable(_folder_refusal(path))
     if segments is None:
         segments = split_segments(path)
     if segments:
         return SegmentedImage(segments)
     return open(path, "rb")
+
+
+def _folder_refusal(path):
+    """Why a folder given as an image is not read. The two folder forms that are
+    read, a sparse bundle and an AFD, never get here: acquisition_format() has
+    already named them."""
+    why = ("a .afd folder with no file in it that starts with the AFF signature, so "
+           "it is not an AFD" if _afd_folder(path) else "a folder, not a disk image")
+    return (f"{path} is {why}. The folders read as images are an Apple sparse bundle "
+            f"(recognised by its Info.plist) and an AFD (a .afd folder of AFF files); "
+            f"give the image file itself for anything else")
 
 
 def _logical_refusal(name, kind, encrypted=False):
@@ -5399,6 +5414,745 @@ APFS_RESOURCE_FORK = "com.apple.ResourceFork"
 APFS_NANO = 1_000_000_000
 
 
+# ---------------------------------------------------------------------------
+# LZVN and LZFSE, the two codecs macOS file compression (decmpfs) keeps most
+# compressed files in. Neither is in the standard library, so both are carried
+# here as pure-Python decoders, written for this file from Apple's reference
+# implementation, github.com/lzfse/lzfse at commit
+# e634ca58b4821d9f3d560cdc6df5dec02ffc93fd (BSD-3-Clause). The C was read, not
+# translated line for line; the places each rule comes from are cited by file
+# and line at that commit.
+#
+# Both decoders are strict where the reference is silent. Every stream must end
+# with its own end marker, every block must give exactly the bytes its header
+# says, a match may not reach before the first byte or repeat a distance never
+# set, and output is capped at the size the caller expects. Each of those is a
+# DecompressError naming what was wrong, never a short or zero-filled result.
+# ---------------------------------------------------------------------------
+
+# LZVN opcode kinds, the jump table in src/lzvn_decode_base.c lines 50 to 82.
+_LZVN_SML_D, _LZVN_MED_D, _LZVN_LRG_D, _LZVN_PRE_D = 0, 1, 2, 3
+_LZVN_SML_M, _LZVN_LRG_M, _LZVN_SML_L, _LZVN_LRG_L = 4, 5, 6, 7
+_LZVN_NOP, _LZVN_EOS, _LZVN_UDEF = 8, 9, 10
+
+
+def _lzvn_kinds():
+    kinds = []
+    for opc in range(256):
+        if opc >= 0xF0:
+            kind = _LZVN_LRG_M if opc == 0xF0 else _LZVN_SML_M
+        elif opc >= 0xE0:
+            kind = _LZVN_LRG_L if opc == 0xE0 else _LZVN_SML_L
+        elif 0x70 <= opc < 0x80 or 0xD0 <= opc < 0xE0:
+            kind = _LZVN_UDEF
+        elif 0xA0 <= opc < 0xC0:
+            kind = _LZVN_MED_D
+        elif opc & 7 == 7:
+            kind = _LZVN_LRG_D
+        elif opc & 7 == 6:
+            kind = {0x06: _LZVN_EOS, 0x0E: _LZVN_NOP, 0x16: _LZVN_NOP}.get(
+                opc, _LZVN_UDEF if opc < 0x40 else _LZVN_PRE_D)
+        else:
+            kind = _LZVN_SML_D
+        kinds.append(kind)
+    return bytes(kinds)
+
+
+_LZVN_KIND = _lzvn_kinds()
+
+
+def lzvn_decompress(src, limit, out=None, start=0, end=None):
+    """Decode one LZVN stream, src[start:end], onto the end of ``out`` (a
+    bytearray, new when None), and return (out, the offset just past the
+    stream's end-of-stream opcode).
+
+    ``out`` may already hold earlier output, which a match may reach back
+    into: an LZVN block inside an LZFSE stream copies from the blocks before it
+    (src/lzfse_decode_base.c line 584, dst_begin is the whole output). At most
+    ``limit`` bytes are added.
+
+    The opcodes are those of src/lzvn_decode_base.c: small, medium, large and
+    previous distance (lines 129 to 385), the shared literal and match copy
+    (387 to 489), the match-only opcodes (491 to 540), the literal-only opcodes
+    (542 to 630), nop (632) and end of stream (649), which is the opcode 0x06
+    and seven bytes after it. Every other opcode is undefined (664).
+
+    Two checks go past the reference. A match-only opcode is held to the same
+    distance test as the others (the reference applies line 431 only to the
+    opcodes that carry a literal), so a distance of zero or one reaching before
+    the output fails instead of copying bytes that were never written. And a
+    stream that runs off the end of its bytes without an end-of-stream opcode
+    is an error here, where the reference returns what it had (lines 268, 316,
+    354 and the others marked "source truncated").
+    """
+    if out is None:
+        out = bytearray()
+    n = len(src) if end is None else end
+    pos, cap = start, len(out) + limit
+    dist = 0                          # d_prev starts at zero (lzfse_decode_base.c 370)
+    kind_of = _LZVN_KIND
+    while True:
+        if pos >= n:
+            raise DecompressError("the LZVN stream ends without its end-of-stream opcode")
+        opc = src[pos]
+        kind = kind_of[opc]
+        match = 0
+        if kind <= _LZVN_PRE_D:
+            if kind == _LZVN_SML_D:
+                lit, match, oplen = opc >> 6, ((opc >> 3) & 7) + 3, 2
+            elif kind == _LZVN_MED_D:
+                lit, oplen = (opc >> 3) & 3, 3
+            elif kind == _LZVN_LRG_D:
+                lit, match, oplen = opc >> 6, ((opc >> 3) & 7) + 3, 3
+            else:
+                lit, match, oplen = opc >> 6, ((opc >> 3) & 7) + 3, 1
+            if n - pos <= oplen + lit:
+                raise DecompressError("the LZVN stream ends inside an opcode")
+            if kind == _LZVN_SML_D:
+                dist = (opc & 7) << 8 | src[pos + 1]
+            elif kind == _LZVN_MED_D:
+                word = src[pos + 1] | src[pos + 2] << 8
+                match = ((opc & 7) << 2 | (word & 3)) + 3
+                dist = word >> 2
+            elif kind == _LZVN_LRG_D:
+                dist = src[pos + 1] | src[pos + 2] << 8
+            pos += oplen
+            if len(out) + lit + match > cap:
+                raise DecompressError(f"the LZVN stream decodes to more than {limit:,} bytes")
+            if lit:
+                out += src[pos:pos + lit]
+                pos += lit
+        elif kind == _LZVN_SML_M or kind == _LZVN_LRG_M:
+            oplen = 1 if kind == _LZVN_SML_M else 2
+            if n - pos <= oplen:
+                raise DecompressError("the LZVN stream ends inside an opcode")
+            match = opc & 15 if kind == _LZVN_SML_M else src[pos + 1] + 16
+            pos += oplen
+            if len(out) + match > cap:
+                raise DecompressError(f"the LZVN stream decodes to more than {limit:,} bytes")
+        elif kind == _LZVN_SML_L or kind == _LZVN_LRG_L:
+            if kind == _LZVN_SML_L:
+                lit, oplen = opc & 15, 1
+            else:
+                if n - pos <= 2:
+                    raise DecompressError("the LZVN stream ends inside an opcode")
+                lit, oplen = src[pos + 1] + 16, 2
+            if n - pos <= oplen + lit:
+                raise DecompressError("the LZVN stream ends inside a literal")
+            if len(out) + lit > cap:
+                raise DecompressError(f"the LZVN stream decodes to more than {limit:,} bytes")
+            out += src[pos + oplen:pos + oplen + lit]
+            pos += oplen + lit
+            continue
+        elif kind == _LZVN_NOP:
+            if n - pos <= 1:
+                raise DecompressError("the LZVN stream ends inside an opcode")
+            pos += 1
+            continue
+        elif kind == _LZVN_EOS:
+            if n - pos < 8:
+                raise DecompressError("the LZVN end-of-stream opcode is cut short")
+            return out, pos + 8
+        else:
+            raise DecompressError(f"undefined LZVN opcode 0x{opc:02x} at byte {pos - start:,}")
+        if match:
+            if dist == 0 or dist > len(out):
+                raise DecompressError(f"an LZVN match reaches {dist:,} bytes back, before "
+                                      f"the start of the output")
+            _copy_match(out, dist, match)
+
+
+# LZFSE block magics, src/lzfse_internal.h lines 276 to 281.
+_LZFSE_END, _LZFSE_RAW = b"bvx$", b"bvx-"
+_LZFSE_V1, _LZFSE_V2, _LZFSE_LZVN = b"bvx1", b"bvx2", b"bvxn"
+# Symbols and states of the four FSE streams (lzfse_internal.h 89 to 96), and
+# the most literals and matches one block may carry (97 and 98).
+_LZFSE_L_SYMBOLS, _LZFSE_M_SYMBOLS, _LZFSE_D_SYMBOLS, _LZFSE_LIT_SYMBOLS = 20, 20, 64, 256
+_LZFSE_L_STATES, _LZFSE_M_STATES, _LZFSE_D_STATES, _LZFSE_LIT_STATES = 64, 64, 256, 1024
+_LZFSE_MATCHES_PER_BLOCK = 10000
+_LZFSE_LITERALS_PER_BLOCK = 4 * _LZFSE_MATCHES_PER_BLOCK
+# The extra bits and base value of each L, M and D symbol (lzfse_internal.h 588
+# to 614).
+_LZFSE_L_BITS = (0,) * 16 + (2, 3, 5, 8)
+_LZFSE_L_BASE = tuple(range(16)) + (16, 20, 28, 60)
+_LZFSE_M_BITS = (0,) * 16 + (3, 5, 8, 11)
+_LZFSE_M_BASE = tuple(range(16)) + (16, 24, 56, 312)
+_LZFSE_D_BITS = tuple(i // 4 for i in range(64))
+_LZFSE_D_BASE = (
+    0, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 28, 36, 44, 52, 60, 76, 92, 108,
+    124, 156, 188, 220, 252, 316, 380, 444, 508, 636, 764, 892, 1020, 1276, 1532,
+    1788, 2044, 2556, 3068, 3580, 4092, 5116, 6140, 7164, 8188, 10236, 12284, 14332,
+    16380, 20476, 24572, 28668, 32764, 40956, 49148, 57340, 65532, 81916, 98300,
+    114684, 131068, 163836, 196604, 229372)
+# The v1 header is a C struct of seven 32-bit counts, the literal bits and four
+# states, the L, M, D bits and three states, then 360 16-bit frequencies
+# (lzfse_internal.h 291 to 330): 770 bytes, which the compiler rounds up to 772
+# for its 4-byte alignment, and sizeof() is what lzfse_decode_base.c 400 skips.
+_LZFSE_V1_HEADER = 772
+_LZFSE_V1_FREQ_AT = 50
+_LZFSE_FREQ_COUNT = _LZFSE_L_SYMBOLS + _LZFSE_M_SYMBOLS + _LZFSE_D_SYMBOLS + _LZFSE_LIT_SYMBOLS
+# The v2 header's frequencies are a prefix code (lzfse_decode_base.c 28 to 48):
+# the low five bits pick the length and, up to five bits, the value.
+_LZFSE_FREQ_NBITS = (2, 3, 2, 5, 2, 3, 2, 8, 2, 3, 2, 5, 2, 3, 2, 14) * 2
+_LZFSE_FREQ_VALUE = (0, 2, 1, 4, 0, 3, 1, -1, 0, 2, 1, 5, 0, 3, 1, -1,
+                     0, 2, 1, 6, 0, 3, 1, -1, 0, 2, 1, 7, 0, 3, 1, -1)
+
+
+def _lzfse_v2_freqs(head, size):
+    """The 360 frequencies packed after a v2 header's three fixed fields, as
+    lzfse_decode_v1() reads them (lzfse_decode_base.c 105 to 142): none at all
+    when the header is just its fixed part, else exactly enough bits to fill
+    every table, ending inside the header's last byte."""
+    if size == 32:
+        return [0] * _LZFSE_FREQ_COUNT
+    freqs, accum, nbits, at = [], 0, 0, 32
+    for _ in range(_LZFSE_FREQ_COUNT):
+        while at < size and nbits + 8 <= 32:
+            accum |= head[at] << nbits
+            nbits, at = nbits + 8, at + 1
+        low = accum & 31
+        take = _LZFSE_FREQ_NBITS[low]
+        if take == 8:
+            value = 8 + ((accum >> 4) & 0xF)
+        elif take == 14:
+            value = 24 + ((accum >> 4) & 0x3FF)
+        else:
+            value = _LZFSE_FREQ_VALUE[low]
+        if take > nbits:
+            raise DecompressError("an LZFSE block header's frequency tables are cut short")
+        freqs.append(value)
+        accum, nbits = accum >> take, nbits - take
+    if nbits >= 8 or at != size:
+        raise DecompressError("an LZFSE block header's frequency tables do not fill it exactly")
+    return freqs
+
+
+def _fse_spread(nstates, freqs):
+    """(symbol, freq, j, k, delta) per state, the layout fse_init_decoder_table()
+    and fse_init_value_decoder_table() share (lzfse_fse.c 57 to 147): each
+    symbol takes ``freq`` consecutive states; the first j0 of them read k bits
+    and the rest k - 1. A table whose frequencies sum short of nstates leaves
+    states no symbol owns, which the reference never initialises; here they
+    are None, and reaching one is an error."""
+    if sum(freqs) > nstates:
+        raise DecompressError("an LZFSE frequency table holds more states than it may")
+    top = nstates.bit_length()
+    table = []
+    for sym, f in enumerate(freqs):
+        if not f:
+            continue
+        k = top - f.bit_length()
+        j0 = ((2 * nstates) >> k) - f
+        for j in range(f):
+            if j < j0:
+                table.append((sym, k, ((f + j) << k) - nstates))
+            else:
+                table.append((sym, k - 1, (j - j0) << (k - 1)))
+    table += [None] * (nstates - len(table))
+    return table
+
+
+class _FseBits:
+    """The backward bit reader of lzfse_fse.h, in its 64-bit form (the one the
+    header selects on x86_64 and arm64, line 38). Initialising takes eight
+    bytes, or seven when the stream's final byte is full (300 to 325), and must
+    leave the bits above the count zero; a flush tops the accumulator back up
+    to between 56 and 63 bits a byte at a time (361 to 378), and may not read
+    before ``floor``; a pull takes bits off the top (407 to 413)."""
+
+    __slots__ = ("buf", "pos", "floor", "accum", "nbits")
+
+    def __init__(self, buf, end, floor, extra):
+        if not -7 <= extra <= 0:
+            raise DecompressError("an LZFSE bit stream's final bit count is out of range")
+        take = 8 if extra else 7
+        if end - take < floor:
+            raise DecompressError("an LZFSE bit stream is shorter than its first load")
+        self.buf, self.floor, self.pos = buf, floor, end - take
+        self.accum = int.from_bytes(buf[self.pos:end], "little")
+        self.nbits = extra + 64 if extra else 56
+        if self.accum >> self.nbits:
+            raise DecompressError("an LZFSE bit stream carries bits past its stated end")
+
+    def flush(self):
+        add = (63 - self.nbits) & ~7
+        if add:
+            pos = self.pos - (add >> 3)
+            if pos < self.floor:
+                raise DecompressError("an LZFSE bit stream runs out before its symbols do")
+            self.accum = (self.accum << add) | int.from_bytes(self.buf[pos:self.pos], "little")
+            self.nbits += add
+            self.pos = pos
+
+    def pull(self, n):
+        if n > self.nbits:
+            raise DecompressError("an LZFSE bit stream runs out before its symbols do")
+        self.nbits -= n
+        value = self.accum >> self.nbits
+        self.accum &= (1 << self.nbits) - 1
+        return value
+
+
+def _lzfse_value_table(nstates, freqs, vbits, vbase):
+    """fse_init_value_decoder_table() (lzfse_fse.c 109 to 147): per state, the
+    bits to pull (state bits plus the symbol's extra bits), the extra bits, the
+    state base and the value base."""
+    out = []
+    for item in _fse_spread(nstates, freqs):
+        if item is None:
+            out.append(None)
+        else:
+            sym, k, delta = item
+            out.append((k + vbits[sym], vbits[sym], delta, vbase[sym]))
+    return out
+
+
+def _lzfse_block(src, pos, n, out, cap, v2):
+    """Decode one compressed LZFSE block (bvx1 or bvx2) at src[pos], appending to
+    out. Returns the offset after it. lzfse_decode() lines 376 to 512 for the
+    header and literals, lzfse_decode_lmd() lines 156 to 329 for the matches."""
+    if v2:
+        if pos + 32 > n:
+            raise DecompressError("an LZFSE block header is cut short")
+        raw, v0, v1, v2f = struct.unpack_from("<IQQQ", src, pos + 4)
+        size = v2f & 0xFFFFFFFF
+        if size < 32 or pos + size > n:
+            raise DecompressError("an LZFSE block header is cut short")
+        n_lit, n_lit_payload, n_match = v0 & 0xFFFFF, (v0 >> 20) & 0xFFFFF, (v0 >> 40) & 0xFFFFF
+        lit_bits = ((v0 >> 60) & 7) - 7
+        lit_state = [(v1 >> s) & 0x3FF for s in (0, 10, 20, 30)]
+        n_lmd_payload, lmd_bits = (v1 >> 40) & 0xFFFFF, ((v1 >> 60) & 7) - 7
+        l_state, m_state, d_state = (v2f >> 32) & 0x3FF, (v2f >> 42) & 0x3FF, (v2f >> 52) & 0x3FF
+        freqs = _lzfse_v2_freqs(src[pos:pos + size], size)
+    else:
+        size = _LZFSE_V1_HEADER
+        if pos + size > n:
+            raise DecompressError("an LZFSE block header is cut short")
+        (raw, _payload, n_lit, n_match, n_lit_payload, n_lmd_payload, lit_bits) = \
+            struct.unpack_from("<IIIIIIi", src, pos + 4)
+        lit_state = list(struct.unpack_from("<4H", src, pos + 32))
+        lmd_bits, l_state, m_state, d_state = struct.unpack_from("<iHHH", src, pos + 40)
+        freqs = list(struct.unpack_from(f"<{_LZFSE_FREQ_COUNT}H", src, pos + _LZFSE_V1_FREQ_AT))
+    if pos + size + n_lit_payload + n_lmd_payload > n:
+        raise DecompressError("an LZFSE block is cut short")
+    # lzfse_check_block_header_v1(), lzfse_internal.h 511 to 567
+    if (n_lit > _LZFSE_LITERALS_PER_BLOCK or n_match > _LZFSE_MATCHES_PER_BLOCK
+            or any(s >= _LZFSE_LIT_STATES for s in lit_state) or l_state >= _LZFSE_L_STATES
+            or m_state >= _LZFSE_M_STATES or d_state >= _LZFSE_D_STATES):
+        raise DecompressError("an LZFSE block header is out of range")
+    if len(out) + raw > cap:
+        raise DecompressError(f"an LZFSE block decodes to more than the {cap:,} bytes expected")
+    a = _LZFSE_L_SYMBOLS
+    b = a + _LZFSE_M_SYMBOLS
+    c = b + _LZFSE_D_SYMBOLS
+    l_tab = _lzfse_value_table(_LZFSE_L_STATES, freqs[:a], _LZFSE_L_BITS, _LZFSE_L_BASE)
+    m_tab = _lzfse_value_table(_LZFSE_M_STATES, freqs[a:b], _LZFSE_M_BITS, _LZFSE_M_BASE)
+    d_tab = _lzfse_value_table(_LZFSE_D_STATES, freqs[b:c], _LZFSE_D_BITS, _LZFSE_D_BASE)
+    lit_tab = _fse_spread(_LZFSE_LIT_STATES, freqs[c:])
+    # Literals: four interleaved states over one stream read backwards from the
+    # end of the literal payload, which may read back into the bytes before it
+    # (the stream's floor is the start of the whole buffer, line 443).
+    pos += size
+    lit_end = pos + n_lit_payload
+    # The bit reader is _FseBits, its flush and pull written out inline in both
+    # loops below: the same rules, a quarter of the time.
+    bits = _FseBits(src, lit_end, 0, lit_bits)
+    acc, nb, bpos, floor = bits.accum, bits.nbits, bits.pos, 0
+    lits = bytearray()
+    s0, s1, s2, s3 = lit_state
+    short = "an LZFSE bit stream runs out before its symbols do"
+    try:
+        for _ in range(0, n_lit, 4):
+            add = (63 - nb) & ~7
+            if add:
+                npos = bpos - (add >> 3)
+                if npos < floor:
+                    raise DecompressError(short)
+                acc = (acc << add) | int.from_bytes(src[npos:bpos], "little")
+                nb, bpos = nb + add, npos
+            sym, k, delta = lit_tab[s0]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s0 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+            sym, k, delta = lit_tab[s1]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s1 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+            sym, k, delta = lit_tab[s2]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s2 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+            sym, k, delta = lit_tab[s3]
+            if k > nb:
+                raise DecompressError(short)
+            nb -= k
+            s3 = delta + (acc >> nb)
+            acc &= (1 << nb) - 1
+            lits.append(sym)
+    except (TypeError, IndexError):
+        raise DecompressError("an LZFSE literal reaches a state no symbol owns") from None
+    # Matches: L, M, D triples from the second stream, which the encoder pads
+    # with eight zero bytes at its start (lzfse_encode_base.c 320 to 326).
+    pos = lit_end
+    bits = _FseBits(src, pos + n_lmd_payload, pos, lmd_bits)
+    acc, nb, bpos, floor = bits.accum, bits.nbits, bits.pos, pos
+    start_len, used, dist, n_lits = len(out), 0, -1, len(lits)
+    olen = start_len
+    try:
+        for _ in range(n_match):
+            add = (63 - nb) & ~7
+            if add:
+                npos = bpos - (add >> 3)
+                if npos < floor:
+                    raise DecompressError(short)
+                acc = (acc << add) | int.from_bytes(src[npos:bpos], "little")
+                nb, bpos = nb + add, npos
+            total, vb, delta, base = l_tab[l_state]
+            if total > nb:
+                raise DecompressError(short)
+            nb -= total
+            got = acc >> nb
+            acc &= (1 << nb) - 1
+            l_state, lit = delta + (got >> vb), base + (got & ((1 << vb) - 1))
+            total, vb, delta, base = m_tab[m_state]
+            if total > nb:
+                raise DecompressError(short)
+            nb -= total
+            got = acc >> nb
+            acc &= (1 << nb) - 1
+            m_state, match = delta + (got >> vb), base + (got & ((1 << vb) - 1))
+            total, vb, delta, base = d_tab[d_state]
+            if total > nb:
+                raise DecompressError(short)
+            nb -= total
+            got = acc >> nb
+            acc &= (1 << nb) - 1
+            d_state, new_d = delta + (got >> vb), base + (got & ((1 << vb) - 1))
+            dist = new_d or dist
+            if used + lit > n_lits:
+                raise DecompressError("an LZFSE match uses more literals than its block holds")
+            # line 221: the distance may not reach before the first output byte
+            if dist < 0 or dist > olen + lit:
+                raise DecompressError(f"an LZFSE match reaches {dist:,} bytes back, before "
+                                      f"the start of the output")
+            if olen + lit + match > cap:
+                raise DecompressError(f"an LZFSE block decodes to more than the {cap:,} "
+                                      f"bytes expected")
+            if lit:
+                out += lits[used:used + lit]
+                used += lit
+                olen += lit
+            if match:
+                if dist == 0:
+                    raise DecompressError("an LZFSE match has a distance of zero")
+                if dist >= match:
+                    at = olen - dist
+                    out += out[at:at + match]
+                else:
+                    _copy_match(out, dist, match)
+                olen += match
+    except (TypeError, IndexError):
+        raise DecompressError("an LZFSE match reaches a state no symbol owns") from None
+    if len(out) - start_len != raw:
+        raise DecompressError(f"an LZFSE block gives {len(out) - start_len:,} bytes where its "
+                              f"header says {raw:,}")
+    return pos + n_lmd_payload
+
+
+def lzfse_decompress(src, limit):
+    """Decode one LZFSE stream, which is a run of blocks ending in the bvx$
+    marker (lzfse_decode_base.c 332 to 630), into at most ``limit`` bytes.
+
+    Blocks are raw (bvx-), LZVN (bvxn), or LZFSE proper with its frequency
+    tables either packed (bvx2, what the reference encoder writes) or plain
+    (bvx1). A raw or LZVN block must hold every byte its header names, and an
+    LZVN block must end with its end-of-stream opcode exactly at the end of
+    its payload, having produced exactly its stated bytes (lines 571 to 620).
+    A stream that stops before bvx$ is an error, not a short result."""
+    out, pos, n = bytearray(), 0, len(src)
+    while True:
+        if pos + 4 > n:
+            raise DecompressError("the LZFSE stream ends without its end-of-stream block")
+        magic = bytes(src[pos:pos + 4])
+        if magic == _LZFSE_END:
+            return bytes(out)
+        if magic == _LZFSE_RAW:
+            if pos + 8 > n:
+                raise DecompressError("an LZFSE raw block header is cut short")
+            raw = struct.unpack_from("<I", src, pos + 4)[0]
+            if pos + 8 + raw > n:
+                raise DecompressError("an LZFSE raw block is cut short")
+            if len(out) + raw > limit:
+                raise DecompressError(f"the LZFSE stream decodes to more than {limit:,} bytes")
+            out += src[pos + 8:pos + 8 + raw]
+            pos += 8 + raw
+        elif magic == _LZFSE_LZVN:
+            if pos + 12 > n:
+                raise DecompressError("an LZFSE LZVN block header is cut short")
+            raw, payload = struct.unpack_from("<II", src, pos + 4)
+            pos += 12
+            if pos + payload > n:
+                raise DecompressError("an LZFSE LZVN block is cut short")
+            if len(out) + raw > limit:
+                raise DecompressError(f"the LZFSE stream decodes to more than {limit:,} bytes")
+            before = len(out)
+            _out, after = lzvn_decompress(src, raw, out, pos, pos + payload)
+            if after != pos + payload or len(out) - before != raw:
+                raise DecompressError("an LZFSE LZVN block does not end where its header says")
+            pos = after
+        elif magic in (_LZFSE_V1, _LZFSE_V2):
+            pos = _lzfse_block(src, pos, n, out, limit, magic == _LZFSE_V2)
+        else:
+            raise DecompressError(f"unknown LZFSE block magic {magic!r} at byte {pos:,}")
+
+
+# ---------------------------------------------------------------------------
+# decmpfs: a file whose data fork is empty and whose content is held, compressed
+# or not, in its com.apple.decmpfs attribute or in its resource fork.
+#
+# The attribute starts with a 16-byte header, little endian: "fpmc", the
+# method, and the size the file reports (xnu bsd/sys/decmpfs.h lines 114 to 123
+# at apple-oss-distributions/xnu f6217f891ac0bb64f3d375211650a4c1ff8ca1ea).
+# xnu itself defines only method 1, the content stored as it is after the
+# header (decmpfs.h 163 to 168, checked against the attribute's length in
+# bsd/kern/decmpfs.c 2289 to 2342); the rest belong to Apple's closed
+# AppleFSCompression kernel extension. Their numbers and layouts here are those
+# documented in libfsapfs's "Apple File System (APFS)" format notes (sections
+# "Compression method" and "Compressed data extended attribute with resource
+# fork", libyal/libfsapfs cc122619a0fa5cecf7c077742ac62251fb85fb6c), and each
+# one read here was confirmed by having macOS itself read files built to them
+# (tools/make_decmpfs_fixture.py):
+#
+#   3, 7, 9, 11   the whole content in the attribute after the header: zlib,
+#                 LZVN, stored, LZFSE
+#   4             zlib in the resource fork, 64 KiB per block, behind a resource
+#                 map's block table
+#   8, 10, 12     LZVN, stored or LZFSE in the resource fork, 64 KiB per block,
+#                 behind a table of little-endian 32-bit offsets, one more than
+#                 there are blocks, the first of which is the table's own size
+#
+# A block whose first byte is a marker holds its bytes as they are after it:
+# 0xFF for zlib and LZFSE, 0x06 for LZVN (that is its end-of-stream opcode,
+# which no stream that holds anything starts with), 0xCC for the stored types.
+#
+# Not read, and named when met: 5 (seen holding 12 bytes after the header for
+# a non-empty file; what it stands for is not established), 13 and 14
+# (LZBITMAP, whose format Apple has not published; macOS reads such files, but
+# this reader has no published, permissively licensed description to decode
+# them from), and any other number.
+# ---------------------------------------------------------------------------
+DECMPFS_MAGIC = b"fpmc"
+DECMPFS_BLOCK = 0x10000
+# A file is compressed only when its BSD flags carry UF_COMPRESSED (sys/stat.h
+# 0x00000020): decmpfs_file_is_compressed() reads the attribute only then, and
+# otherwise treats the file as not compressed and reads its data fork
+# (bsd/kern/decmpfs.c lines 838 to 862). An attribute on a file without the flag
+# is not the file's content.
+UF_COMPRESSED = 0x00000020
+# The longest a resource-fork block may be here: twice a block's 64 KiB. A stored
+# block is one byte longer than the block (65,537 bytes, the longest of every
+# block of 4,712 method 4 and 8 files measured on a Mac running macOS 27); a
+# table naming anything far longer is refused rather than read into memory.
+DECMPFS_MAX_PIECE = 2 * DECMPFS_BLOCK
+# A file's size is an off_t, a signed 64-bit count (sys/_types.h, __int64_t).
+DECMPFS_MAX_SIZE = (1 << 63) - 1
+# The largest attribute the kernel will read (MAX_DECMPFS_XATTR_SIZE, decmpfs.h
+# line 71, enforced at decmpfs.c 561). It also bounds what an attribute-held
+# file can decode to.
+DECMPFS_MAX_ATTR = 3802
+DECMPFS_METHODS = {
+    1: ("stored", "attribute"), 3: ("zlib", "attribute"), 4: ("zlib", "fork"),
+    7: ("LZVN", "attribute"), 8: ("LZVN", "fork"), 9: ("stored", "attribute"),
+    10: ("stored", "fork"), 11: ("LZFSE", "attribute"), 12: ("LZFSE", "fork"),
+}
+DECMPFS_REFUSED = {
+    5: "method 5, which libfsapfs's notes describe only as an unknown, sparse form; "
+       "what its bytes stand for is not established, so it is not read here",
+    13: "method 13 (LZBITMAP, in the attribute), a format Apple has not published; "
+        "it is not read here rather than decoded from a guess",
+    14: "method 14 (LZBITMAP, in the resource fork), a format Apple has not published; "
+        "it is not read here rather than decoded from a guess",
+}
+
+
+def decmpfs_header(blob):
+    """(method, size) from the first 16 bytes of a com.apple.decmpfs attribute,
+    or None when they are not one."""
+    if len(blob) < 16 or blob[:4] != DECMPFS_MAGIC:
+        return None
+    return struct.unpack_from("<IQ", blob, 4)
+
+
+def _decmpfs_block(codec, piece, want, where):
+    """The ``want`` bytes one block (or the whole attribute) holds. Anything
+    else, more or fewer, is an error naming the block."""
+    import zlib                                    # pylint: disable=import-outside-toplevel
+    marker = piece[:1]
+    try:
+        if codec == "stored":
+            # A stored block is the marker and its bytes (the attribute's
+            # length is 16 + 1 + size on every one of 60,386 method 9 files
+            # measured on one macOS 11 volume).
+            if marker != b"\xcc":
+                raise DecompressError(f"does not start with the 0xCC marker a stored block "
+                                      f"carries (0x{piece[0]:02x})" if piece else "is empty")
+            out = piece[1:]
+        elif marker == (b"\x06" if codec == "LZVN" else b"\xff"):
+            out = piece[1:]
+        elif codec == "zlib":
+            # A resource-fork block need not end its zlib stream. Of the 2,425
+            # blocks of 937 method 4 files found on a Mac running macOS 27,
+            # 1,473 do not (934 of them not a file's last block, 539 the last),
+            # 923 do and 29 are stored, and macOS reads all 937 files. The byte
+            # count is what is held to, so the stream is not required to end.
+            out = zlib.decompressobj().decompress(piece, min(want + 1, DECMPFS_MAX_SIZE))
+        elif codec == "LZVN":
+            out, _end = lzvn_decompress(piece, want)
+        else:
+            out = lzfse_decompress(piece, want)
+    except zlib.error as exc:
+        raise DecompressError(f"{where} is not a zlib stream: {exc}") from None
+    except DecompressError as exc:
+        raise DecompressError(f"{where} {exc}" if str(exc).startswith(("does", "is")) else
+                              f"{where}: {exc}") from None
+    if len(out) != want:
+        raise DecompressError(f"{where} gives {len(out):,} bytes where {want:,} belong")
+    return bytes(out)
+
+
+def decmpfs_read(method, size, body, fork):
+    """Yield the content of a decmpfs file, a block at a time.
+
+    ``body`` is the attribute's bytes after its 16-byte header. ``fork`` is
+    None or an object with ``size`` and ``read(offset, length)`` giving the
+    resource fork; it is asked for its bytes in order. A file that cannot be
+    read in full raises DecompressError saying why, before or part way through
+    what it yields: a reader of this must treat the file as not read, never as
+    the bytes it was given so far."""
+    if 16 + len(body) > DECMPFS_MAX_ATTR:
+        raise DecompressError(f"the compression attribute is {16 + len(body):,} bytes, more than "
+                              f"the {DECMPFS_MAX_ATTR:,} macOS itself will read")
+    if size > DECMPFS_MAX_SIZE:
+        raise DecompressError(f"the compression attribute gives the file a size of {size:,} "
+                              f"bytes, more than a file's size can be")
+    if method in DECMPFS_REFUSED:
+        raise DecompressError(f"the file is compressed with {DECMPFS_REFUSED[method]}")
+    if method not in DECMPFS_METHODS:
+        raise DecompressError(f"the file is compressed with method {method}, which is not "
+                              f"one this reader knows")
+    codec, home = DECMPFS_METHODS[method]
+    if home == "attribute":
+        if method == 1:
+            # xnu's own check: the attribute is the header and the content
+            # (decmpfs.c 2300)
+            if len(body) != size:
+                raise DecompressError(f"a method 1 attribute holds {len(body):,} bytes for "
+                                      f"a file of {size:,}")
+            yield bytes(body)
+            return
+        if size:
+            yield _decmpfs_block(codec, body, size, f"the {codec} attribute")
+        return
+    if fork is None:
+        raise DecompressError("the file's compressed resource fork is not there")
+    blocks = -(-size // DECMPFS_BLOCK)
+    if codec == "zlib":
+        table = _decmpfs_zlib_table(fork, blocks)
+    else:
+        head = fork.read(0, 4)
+        if len(head) < 4:
+            raise DecompressError("the compressed resource fork is shorter than its block table")
+        first = struct.unpack_from("<I", head)[0]
+        if first % 4 or first // 4 != blocks + 1:
+            raise DecompressError(f"the compressed resource fork's block table holds "
+                                  f"{first // 4 - 1 if first >= 4 else 0:,} blocks where a file "
+                                  f"of {size:,} bytes needs {blocks:,}")
+        raw = head + fork.read(4, first - 4)
+        if len(raw) < first:
+            raise DecompressError("the compressed resource fork is shorter than its block table")
+        offs = struct.unpack_from(f"<{blocks + 1}I", raw)
+        table = [(offs[i], offs[i + 1] - offs[i]) for i in range(blocks)]
+    done = 0
+    for i, (off, length) in enumerate(table):
+        if length < 0 or off + length > fork.size:
+            raise DecompressError(f"block {i:,} of the compressed resource fork lies outside it")
+        if length > DECMPFS_MAX_PIECE:
+            raise DecompressError(f"block {i:,} of the compressed resource fork is {length:,} "
+                                  f"bytes, more than the {DECMPFS_MAX_PIECE:,} a 64 KiB block "
+                                  f"can take")
+        piece = fork.read(off, length)
+        if len(piece) != length:
+            raise DecompressError(f"block {i:,} of the compressed resource fork is cut short")
+        want = min(DECMPFS_BLOCK, size - done)
+        yield _decmpfs_block(codec, piece, want, f"block {i:,} of {blocks:,}")
+        done += want
+
+
+def _decmpfs_zlib_table(fork, blocks):
+    """[(offset, length)] of a method 4 resource fork's blocks, offsets from the
+    start of the fork. The fork is a classic resource file whose one resource
+    holds a block count and (offset, length) pairs, little endian, offsets
+    counted from just after the resource's own length field."""
+    head = fork.read(0, 16)
+    if len(head) < 16:
+        raise DecompressError("the compressed resource fork is shorter than its header")
+    data_off = struct.unpack_from(">I", head, 0)[0]
+    lead = fork.read(data_off, 8)
+    if len(lead) < 8:
+        raise DecompressError("the compressed resource fork has no block table")
+    count = struct.unpack_from("<I", lead, 4)[0]
+    if count != blocks:
+        raise DecompressError(f"the compressed resource fork's block table holds {count:,} "
+                              f"blocks where the file's size needs {blocks:,}")
+    raw = fork.read(data_off + 8, count * 8)
+    if len(raw) < count * 8:
+        raise DecompressError("the compressed resource fork's block table is cut short")
+    base = data_off + 4
+    return [(base + off, length) for off, length in struct.iter_unpack("<II", raw)]
+
+
+class _ForwardFork:
+    """A resource fork read through an iterator of its bytes, for a caller whose
+    offsets only move forward, so that a fork of gigabytes is never held whole.
+    A block table whose offsets go backwards is refused rather than re-read."""
+
+    def __init__(self, pieces, size):
+        self.size, self._it, self._buf, self._at = size, iter(pieces), bytearray(), 0
+
+    def read(self, off, length):
+        if off < self._at:
+            raise DecompressError("the compressed resource fork's blocks are not in order")
+        end = min(off + length, self.size)
+        while self._at + len(self._buf) < end:
+            piece = next(self._it, None)
+            if not piece:
+                break
+            self._buf += piece
+        if off > self._at:
+            del self._buf[:off - self._at]
+            self._at = off
+        return bytes(self._buf[:max(end - off, 0)])
+
+
+class _BytesFork:
+    """A resource fork already in memory."""
+
+    def __init__(self, data):
+        self.size, self._data = len(data), data
+
+    def read(self, off, length):
+        return bytes(self._data[off:off + length])
+
+
 class ApfsUnreadable(Exception):
     """A file whose bytes this walker will not guess at: encrypted, or a
     compression this reader does not implement."""
@@ -5555,12 +6309,13 @@ class ApfsWalker:
     What it reads: the container's newest checkpoint, its object map, the
     volume's own object map and file-system B-tree, directory records, inodes
     and their extended fields, file extents including sparse ones, symbolic
-    links, and files compressed with the decmpfs attribute in its zlib forms.
+    links, and files compressed with the decmpfs attribute: zlib, LZVN, LZFSE
+    or stored, in the attribute or in the resource fork (decmpfs_read()).
 
     What it does not read: an encrypted volume whose blocks are ciphertext in
-    the image and whose key it was not given, and a file compressed with LZVN or
-    LZFSE, which are not in the standard library. Both are reported rather than
-    guessed at. An encrypted volume whose blocks the image holds decrypted is
+    the image and whose key it was not given, and a file compressed with
+    LZBITMAP or with a decmpfs method this reader does not know. Both are
+    reported rather than guessed at. An encrypted volume whose blocks the image holds decrypted is
     read (see encryption()), and so is one whose key unlock_apfs() derived from a
     password: fh then carries the keys, and every walker over it decrypts.
     """
@@ -5569,6 +6324,9 @@ class ApfsWalker:
 
     def __init__(self, fh, base):
         self.fh, self.base = fh, base
+        # what was found while reading that is not as it should be: here, a
+        # compression attribute on a file not flagged compressed (_decmpfs_of)
+        self.damage, self._unflagged = [], set()
         # (container uuid, volume uuid) -> (volume key, what opened it), from
         # unlock_apfs(); block number -> the volume's AES-XTS pair, for every
         # encrypted node of a volume opened with one (see encryption()); and the
@@ -6304,7 +7062,7 @@ class ApfsWalker:
         if mode & S_IFDIR == S_IFDIR:
             return (mode, 0, mtime)
         size, _private = self._dstream(oid)
-        blob = self._xattr(oid, APFS_DECMPFS)
+        blob = self._decmpfs_of(oid, val)
         if blob:
             head = blob[1] if blob[0] == "data" else self._read_stream(blob[1][0], 16)
             if len(head) >= 16 and head[0:4] == b"fpmc":
@@ -6347,7 +7105,7 @@ class ApfsWalker:
         holes = struct.unpack_from("<Q", blob, 0)[0] if blob and len(blob) >= 8 else 0
         stored = max(alloced - holes, 0)
         compression = ""
-        packed = self._xattr(oid, APFS_DECMPFS)
+        packed = self._decmpfs_of(oid, val)
         if packed:
             compression = "decmpfs"
             # the attribute is embedded in the record, or kept in a stream of its own
@@ -6438,7 +7196,7 @@ class ApfsWalker:
             if link and link[0] == "data":
                 yield link[1].split(b"\x00")[0]
             return
-        blob = self._xattr(oid, APFS_DECMPFS)
+        blob = self._decmpfs_of(oid, val)
         if blob:
             yield from self._read_compressed(oid, blob)
             return
@@ -6459,49 +7217,48 @@ class ApfsWalker:
         # stream again for every megabyte it handed back.
         yield from self._iter_stream(private, want)
 
-    def _read_compressed(self, oid, blob):
-        """A file whose data is held by the decmpfs attribute.
+    def _decmpfs_of(self, oid, val):
+        """The compression attribute of a file macOS reads as compressed, or None.
+        A file is compressed only when its BSD flags carry UF_COMPRESSED; an
+        attribute on a file without the flag is not its content, so the data
+        stream is read as stored and the attribute is recorded in damage, once."""
+        blob = self._xattr(oid, APFS_DECMPFS)
+        if not blob or not val or len(val) < APFS_INODE_BSD_FLAGS_OFF + 4:
+            return None
+        if struct.unpack_from("<I", val, APFS_INODE_BSD_FLAGS_OFF)[0] & UF_COMPRESSED:
+            return blob
+        if oid not in self._unflagged:
+            self._unflagged.add(oid)
+            self.damage.append(f"object {oid}: carries a com.apple.decmpfs attribute but is not "
+                               f"flagged compressed (UF_COMPRESSED clear), so its data stream is "
+                               f"read as stored, as macOS reads it, and the attribute is not decoded")
+        return None
 
-        The attribute's header names the method and the size the file reports.
-        Types 3 and 4 are zlib, in the attribute itself or in the resource fork
-        behind a table of block offsets; the rest are LZVN and LZFSE, which the
-        standard library cannot inflate.
-        """
-        import zlib
+    def _read_compressed(self, oid, blob):
+        """A file whose data is held by the decmpfs attribute, in the attribute
+        itself or in the resource fork it names: see decmpfs_read() for the
+        methods read and refused. The fork is read a piece at a time, in order,
+        so a compressed file of gigabytes is not held in memory whole."""
         kind, payload = blob
-        header = payload if kind == "data" else self._read_stream(payload[0], 32)
-        if len(header) < 16 or header[0:4] != b"fpmc":
+        if kind != "data" and payload[1] > DECMPFS_MAX_ATTR:
+            raise ApfsUnreadable(f"the compression attribute is {payload[1]:,} bytes, more than "
+                                 f"the {DECMPFS_MAX_ATTR:,} macOS itself will read")
+        attr = payload if kind == "data" else self._read_stream(payload[0], payload[1])
+        head = decmpfs_header(attr)
+        if head is None:
             raise ApfsUnreadable("the compression attribute is not one this reader knows")
-        method, size = struct.unpack_from("<IQ", header, 4)
-        if method in (3, 5):
-            body = payload[16:] if kind == "data" else \
-                self._read_stream(payload[0], payload[1])[16:]
-            yield (body[1:1 + size] if body[:1] == b"\xff" else zlib.decompress(body)[:size])
-            return
-        if method == 4:
-            fork = self._xattr(oid, APFS_RESOURCE_FORK)
-            if not fork or fork[0] != "stream":
-                raise ApfsUnreadable("the compressed resource fork is not there")
-            stream_id, fork_size = fork[1]
-            raw = self._read_stream(stream_id, fork_size)
-            if len(raw) < 4:
-                raise ApfsUnreadable("the compressed resource fork is unreadable")
-            data_off = struct.unpack_from(">I", raw, 0)[0]
-            count = struct.unpack_from("<I", raw, data_off)[0]
-            produced = 0
-            for i in range(count):
-                off, blen = struct.unpack_from("<II", raw, data_off + 4 + i * 8)
-                piece = raw[data_off + off:data_off + off + blen]
-                out = piece[1:] if piece[:1] == b"\xff" else zlib.decompress(piece)
-                take = min(len(out), size - produced)
-                yield out[:take]
-                produced += take
-                if produced >= size:
-                    return
-            return
-        raise ApfsUnreadable(
-            f"the file is compressed with method {method}, which needs LZVN or "
-            f"LZFSE and is not read here")
+        method, size = head
+        fork = None
+        if DECMPFS_METHODS.get(method, ("", ""))[1] == "fork":
+            got = self._xattr(oid, APFS_RESOURCE_FORK)
+            if got and got[0] == "stream":
+                fork = _ForwardFork(self._iter_stream(got[1][0], got[1][1]), got[1][1])
+            elif got:
+                fork = _BytesFork(got[1])
+        try:
+            yield from decmpfs_read(method, size, attr[16:], fork)
+        except (DecompressError, struct.error) as exc:
+            raise ApfsUnreadable(str(exc)) from None
 
 
 
@@ -6742,18 +7499,21 @@ class HfsPlusWalker:
     whose fragments outgrew the eight descriptors a catalog record holds and
     continue in the extents overflow tree, symbolic links, hard links through
     the private directory the volume keeps them in, and files compressed with
-    the decmpfs attribute in its zlib forms.
+    the decmpfs attribute: zlib, LZVN, LZFSE or stored, in the attribute or in
+    the resource fork (decmpfs_read()).
 
-    What it does not read: a file compressed with LZVN or LZFSE, which are not
-    in the standard library. Those are listed with their recorded size and
-    refuse to be read rather than yielding the compressed bytes as though they
-    were the file.
+    What it does not read: a file compressed with LZBITMAP or with a decmpfs
+    method this reader does not know. Those are listed with their recorded size
+    and refuse to be read rather than yielding the compressed bytes as though
+    they were the file.
     """
 
     root = HFSP_ROOT
 
     def __init__(self, fh, base):
         self.fh, self.base = fh, base
+        # a compression attribute on a file not flagged compressed (_decmpfs_of)
+        self.damage, self._unflagged = [], set()
         vh = read_at(fh, base + HFSP_VH_OFF, 512)
         if len(vh) < 512:
             raise ValueError("no HFS+ volume header")
@@ -7040,7 +7800,7 @@ class HfsPlusWalker:
         mtime = hfs_time(struct.unpack_from(">I", rec, 16)[0])
         mode = struct.unpack_from(">H", rec, 42)[0]
         size, _extents = self._fork(target, rec)
-        blob = self._xattr(target, HFSP_DECMPFS)
+        blob = self._decmpfs_of(target, rec)
         if blob and len(blob) >= 16:
             size = struct.unpack_from("<Q", blob, 8)[0]
         return (mode or 0o100644, size, mtime)
@@ -7067,7 +7827,7 @@ class HfsPlusWalker:
         if not rec or len(rec) < 2 or struct.unpack_from(">H", rec, 0)[0] != HFSP_FILE:
             return
         target, rec = self._resolve(cnid, rec)
-        blob = self._xattr(target, HFSP_DECMPFS)
+        blob = self._decmpfs_of(target, rec)
         if blob:
             yield from self._read_compressed(target, rec, blob)
             return
@@ -7081,53 +7841,52 @@ class HfsPlusWalker:
             yield chunk
             done += len(chunk)
 
-    def _read_compressed(self, cnid, rec, blob):
-        """A file whose data lives in the decmpfs attribute or its resource fork.
+    def _decmpfs_of(self, cnid, rec):
+        """The compression attribute of a file macOS reads as compressed, or None.
+        The flag is the catalog record's ownerFlags, the low byte of the BSD
+        flags, at byte 41 (HFSPlusBSDInfo at 32: ownerID, groupID, adminFlags,
+        ownerFlags; Apple TN1150). Without UF_COMPRESSED the data fork is the
+        content and the attribute is recorded in damage, once."""
+        blob = self._xattr(cnid, HFSP_DECMPFS)
+        if not blob or len(rec) < 42:
+            return None
+        if rec[41] & UF_COMPRESSED:
+            return blob
+        if cnid not in self._unflagged:
+            self._unflagged.add(cnid)
+            self.damage.append(f"catalog id {cnid}: carries a com.apple.decmpfs attribute but is "
+                               f"not flagged compressed (UF_COMPRESSED clear), so its data fork is "
+                               f"read as stored, as macOS reads it, and the attribute is not decoded")
+        return None
 
-        The attribute's header gives the method and the size the file reports.
-        Type 3 keeps a zlib stream in the attribute itself; type 4 keeps one
-        zlib stream per 64 KiB block in the resource fork, behind a table of
-        offsets. The other methods are LZVN and LZFSE, which the standard
-        library cannot inflate.
-        """
-        if len(blob) < 16 or blob[0:4] != HFSP_DECMPFS_MAGIC:
+    def _read_compressed(self, cnid, rec, blob):
+        """A file whose data lives in the decmpfs attribute or its resource
+        fork: see decmpfs_read() for the methods read and refused."""
+        head = decmpfs_header(blob)
+        if head is None:
             raise HfsUnreadable("the compression attribute is not one this reader knows")
-        method, size = struct.unpack_from("<IQ", blob, 4)
-        import zlib                              # only decmpfs and IFS need it
-        if method in (3, 5):
-            body = blob[16:]
-            if body[:1] == b"\xff":
-                yield body[1:1 + size]
-                return
-            yield zlib.decompress(body)[:size]
-            return
-        if method == 4:
-            _rsize, extents = self._fork(cnid, rec, resource=True)
-            head = self._read_extents(extents, 512)
-            if len(head) < 4:
-                raise HfsUnreadable("the compressed resource fork is unreadable")
-            data_off = struct.unpack_from(">I", head, 0)[0]
-            table = self._read_extents(extents, 4, data_off)
-            if len(table) < 4:
-                raise HfsUnreadable("the compressed resource fork has no block table")
-            count = struct.unpack_from("<I", table, 0)[0]
-            if count > 1 << 20:
-                raise HfsUnreadable("the compressed resource fork's block table is absurd")
-            entries = self._read_extents(extents, count * 8, data_off + 4)
-            produced = 0
-            for i in range(count):
-                off, blen = struct.unpack_from("<II", entries, i * 8)
-                piece = self._read_extents(extents, blen, data_off + off)
-                out = piece[1:] if piece[:1] == b"\xff" else zlib.decompress(piece)
-                take = min(len(out), size - produced)
-                yield out[:take]
-                produced += take
-                if produced >= size:
-                    return
-            return
-        raise HfsUnreadable(
-            f"the file is compressed with method {method}, which needs LZVN or "
-            f"LZFSE and is not read here")
+        method, size = head
+        fork = None
+        if DECMPFS_METHODS.get(method, ("", ""))[1] == "fork":
+            rsize, extents = self._fork(cnid, rec, resource=True)
+            if rsize:
+                fork = _ExtentFork(self, extents, rsize)
+        try:
+            yield from decmpfs_read(method, size, blob[16:], fork)
+        except (DecompressError, struct.error) as exc:
+            raise HfsUnreadable(str(exc)) from None
+
+
+class _ExtentFork:
+    """An HFS+ resource fork read through its extents."""
+
+    def __init__(self, walker, extents, size):
+        self.size, self._w, self._extents = size, walker, extents
+
+    def read(self, off, length):
+        length = max(min(length, self.size - off), 0)
+        return (self._w._read_extents(self._extents, length, off)  # pylint: disable=protected-access
+                if length else b"")
 
 
 class Qnx4Walker:
@@ -16520,8 +17279,12 @@ BDE_METHODS = {0x8000: "AES-128-CBC with the Elephant diffuser",
                0x8002: "AES-128-CBC", 0x8003: "AES-256-CBC",
                0x8004: "AES-128-XTS", 0x8005: "AES-256-XTS"}
 BDE_READ_METHODS = (0x8002, 0x8003, 0x8004, 0x8005)
+# libbde lists all but 0x0300 and 0x0700. Those two are the codes Windows 11 (build
+# 26200) wrote for the protectors manage-bde calls "TPM And Startup Key" and "TPM
+# And PIN And Startup Key" (tests/fixtures/bitlocker-win11-tpm, from a test VM).
 BDE_PROTECTORS = {0x0000: "clear key", 0x0100: "TPM", 0x0200: "startup key",
-                  0x0500: "TPM and PIN", 0x0800: "recovery password",
+                  0x0300: "TPM and startup key", 0x0500: "TPM and PIN",
+                  0x0700: "TPM, PIN and startup key", 0x0800: "recovery password",
                   0x2000: "password"}
 
 
@@ -16539,6 +17302,43 @@ def _bde_entries(data):
 
 def _bde_guid(raw):
     return str(uuid.UUID(bytes_le=bytes(raw))).upper()
+
+
+# A TPM-protected key (value type 6) as dissect.fve declares it
+# (dissect/fve/bde/c_tpm.py at 0b3caf20c1e95136cb2eb4494303604e7629616b, lines 44-53,
+# FVE_DATUM_TPM_ENC_BLOB): a 32-bit PCR bitmap, the sealed object's public and
+# private parts and the PCR digest, each behind a 16-bit size, then the PCR
+# selection behind an 8-bit size. Sizes are big-endian. dissect reads the policy
+# from that selection, little-endian (information.py, pcr_policy, line 522). On
+# the five TPM protectors Windows 11 wrote for tests/fixtures/bitlocker-win11-tpm,
+# the leading bitmap read little-endian names the same PCRs, and both are the
+# PCR Validation Profile manage-bde printed (7, 11 and 0, 2, 4, 11).
+BDE_TPM_DIGESTS = {20: "SHA-1", 32: "SHA-256", 48: "SHA-384", 64: "SHA-512"}
+
+
+def _bde_tpm(val):
+    """The PCRs a TPM-protected key is sealed to, as stored, or None when the value
+    does not have the layout above. ``agree`` is False when the leading bitmap and
+    the selection name different PCRs; ``pcrs`` is then empty, since neither is
+    known to be the one the TPM checks. Nothing is unsealed: the TPM keeps that key."""
+    if len(val) < 4:
+        return None
+    pos, parts = 4, []
+    for width in (2, 2, 2, 1):
+        if pos + width > len(val):
+            return None
+        n = int.from_bytes(val[pos:pos + width], "big")
+        pos += width
+        if pos + n > len(val):
+            return None
+        parts.append(val[pos:pos + n])
+        pos += n
+    if pos != len(val) or not 1 <= len(parts[3]) <= 4:
+        return None
+    selection = int.from_bytes(parts[3], "little")
+    agree = selection == int.from_bytes(val[:4], "little")
+    return dict(pcrs=[i for i in range(8 * len(parts[3])) if selection >> i & 1] if agree else [],
+                agree=agree, digest=BDE_TPM_DIGESTS.get(len(parts[2]), f"{len(parts[2])} bytes"))
 
 
 def _bde_ccm_open(key, value):
@@ -16677,7 +17477,11 @@ class BitLocker:
                 self.description = val.decode("utf-16-le", "replace").rstrip("\x00")
             elif etype == 2 and vtype == 8 and len(val) >= 28:
                 vmk = dict(id=_bde_guid(val[:16]), protection=struct.unpack_from("<H", val, 26)[0],
+                           modified=struct.unpack_from("<Q", val, 16)[0],
                            props=_bde_entries(val[28:]))
+                tpm = [_bde_tpm(v) for _e, vt, v in vmk["props"] if vt == 6]
+                vmk["tpm"] = tpm[0] if tpm else None
+                vmk["tpm_unread"] = bool(tpm) and tpm[0] is None
                 self.vmks.append(vmk)
                 self.protectors.append((BDE_PROTECTORS.get(vmk["protection"],
                                                            f"protection 0x{vmk['protection']:04x}"),
@@ -16766,8 +17570,16 @@ class BitLocker:
             out.append(f"created      {stamp(int(ntfs_time(self.created)))}")
         if self.volume_id:
             out.append(f"volume id    {self.volume_id}")
-        for kind, pid in self.protectors:
-            out.append(f"protector    {kind:<18} id {pid}")
+        for (kind, pid), vmk in zip(self.protectors, self.vmks):
+            line = f"protector    {kind:<18} id {pid}"
+            if vmk["tpm"] is not None and not vmk["tpm"]["agree"]:
+                line += "   PCRs not read: its two stored PCR lists disagree"
+            elif vmk["tpm"] is not None:
+                line += (f"   PCRs {', '.join(map(str, vmk['tpm']['pcrs'])) or 'none'}"
+                         f" ({vmk['tpm']['digest']} policy digest)")
+            elif vmk["tpm_unread"]:
+                line += "   PCRs not read: its TPM entry has a layout this does not know"
+            out.append(line)
         if any(kind == "clear key" for kind, _pid in self.protectors):
             # Windows lists no clear key among a volume's protectors; it is what
             # suspending protection leaves (manage-bde -protectors -disable).
@@ -16908,6 +17720,26 @@ class BitLocker:
     def summary(self):
         return (f"BitLocker {BDE_METHODS.get(self.method, '')}, unlocked with its {self.unlocked_by}"
                 if self.fvek is not None else "BitLocker, locked")
+
+    def facts(self):
+        """What the metadata says, as data, for a caller that reports it (volumes()
+        puts it under "bitlocker"): the layout, method, description, created and
+        volume id, and one dict per protector with its kind, code, id, last-modified
+        FILETIME and, for a TPM, the PCRs its key is sealed to as stored. ``why`` is
+        why the metadata or the volume could not be read, else empty."""
+        protectors = []
+        for (kind, pid), vmk in zip(self.protectors, self.vmks):
+            tpm = vmk["tpm"]
+            protectors.append(dict(kind=kind, code=vmk["protection"], id=pid,
+                                   modified=vmk["modified"],
+                                   pcrs=list(tpm["pcrs"]) if tpm and tpm["agree"] else None,
+                                   pcr_digest=tpm["digest"] if tpm else "",
+                                   pcrs_disagree=bool(tpm) and not tpm["agree"],
+                                   tpm_unread=vmk["tpm_unread"]))
+        return dict(layout=self.layout, method=self.method,
+                    method_name=BDE_METHODS.get(self.method, f"method 0x{self.method:04x}") if self.method else "",
+                    description=self.description, created=self.created, volume_id=self.volume_id,
+                    protectors=protectors, unlocked_by=self.unlocked_by or "", why=self.why)
 
     def locked_note(self):
         """Why the volume was not read, and what would open it."""
@@ -25418,6 +26250,269 @@ class _XfsPatchedImage:
         return bytes(buf)
 
 
+def _decmpfs_fixture_files(stem, walker_class):
+    """[(path, method, sha256 macOS read, node, size, walker)] for one decmpfs
+    fixture image (tools/make_decmpfs_fixture.py), or None when it is absent."""
+    import gzip, io
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+    image, listing = os.path.join(here, f"{stem}.img.gz"), os.path.join(here, f"{stem}.sha256")
+    if not (os.path.isfile(image) and os.path.isfile(listing)):
+        return None
+    with gzip.open(image, "rb") as gz:
+        img = io.BytesIO(gz.read())
+    w = walker_class(img, 0)
+    have = {}
+    for path, node, size, _mtime in collect(w, w.root):
+        if size is not None:
+            # the APFS walk names the volume first, the HFS+ walk does not
+            have[path.split("/", 1)[1] if walker_class is ApfsWalker else path] = (node, size)
+    out = []
+    with open(listing, encoding="utf-8") as fh:
+        for line in fh:
+            if line.startswith("#") or not line.strip():
+                continue
+            digest, method, path = line.split(None, 2)
+            node, size = have.get(path.strip(), (None, None))
+            out.append((path.strip(), int(method), digest, node, size, w))
+    return out
+
+
+def _decmpfs_self_checks():
+    """[(label, passed or None for a skip)] for the LZVN and LZFSE decoders and
+    the decmpfs reader. The good streams are Apple's encoder's output checked by
+    Apple's decoder (tools/make_decmpfs_streams.py); the images are volumes
+    macOS wrote whose every file macOS read back (tools/make_decmpfs_fixture.py).
+    The damaged inputs are edits of those, and each must be refused, never
+    returned as bytes."""
+    import base64, hashlib, io
+    out = []
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+
+    def is_refused(fn, *parts):
+        try:
+            got = fn(*parts)
+        except DecompressError as exc:
+            return True, str(exc)
+        except Exception as exc:                     # pylint: disable=broad-except
+            return False, f"raised {type(exc).__name__}, not a refusal: {exc}"
+        return False, f"returned {len(got if isinstance(got, (bytes, bytearray)) else got[0]):,} bytes"
+
+    def fewer_literals(blob):
+        """The stream with its first block's literal count cut by 64: the
+        literals still decode, and the matches then ask for more of them than
+        the block says it holds."""
+        v0 = struct.unpack_from("<Q", blob, 8)[0]
+        v0 = (v0 & ~0xFFFFF) | ((v0 & 0xFFFFF) - 64)
+        return blob[:8] + struct.pack("<Q", v0) + blob[16:]
+
+    def decode(codec, blob, limit):
+        return (lzfse_decompress(blob, limit) if codec == "LZFSE"
+                else bytes(lzvn_decompress(blob, limit)[0]))
+
+    # -- the codecs, on Apple's own streams ------------------------------------
+    path = os.path.join(here, "decmpfs-streams.json")
+    streams = {}
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8") as fh:
+            for e in json.load(fh)["streams"]:
+                streams[e["name"]] = (e["codec"], base64.b64decode(e["stream"]), e["size"],
+                                      e["sha256"], e["blocks"])
+        for name, (codec, blob, size, digest, blocks) in streams.items():
+            try:
+                got = decode(codec, blob, size)
+                cond = hashlib.sha256(got).hexdigest() == digest and len(got) == size
+            except DecompressError as exc:
+                cond = False
+                name += f"; refused: {exc}"
+            out.append((f"{codec} decodes Apple's {name}"
+                        + (f" ({', '.join(blocks)})" if blocks else "")
+                        + " to the bytes it was made from", cond))
+    else:
+        out.append(("the LZVN and LZFSE streams are not beside this script, so the decoders "
+                    "were not checked against them", None))
+    if streams:
+        _c, lzfse2, size2, _d, _b = streams["text, one LZFSE block"]
+        _c, lzfsen, sizen, _d, _b = streams["text, one LZVN block"]
+        _c, lzvn, sizev, _d, _b = streams["LZVN, text"]
+        damaged = [
+            ("an LZFSE stream cut before its end-of-stream block", "LZFSE", lzfse2[:-4], size2),
+            ("an LZFSE stream cut inside its block", "LZFSE", lzfse2[:len(lzfse2) // 2], size2),
+            ("an LZFSE block whose header says one byte more than it holds", "LZFSE",
+             lzfse2[:4] + struct.pack("<I", size2 + 1) + lzfse2[8:], size2 + 1),
+            ("an LZFSE block whose packed frequency tables are damaged", "LZFSE",
+             lzfse2[:32] + b"\xff\xff\xff\xff" + lzfse2[36:], size2),
+            ("an LZFSE stream with an unknown block magic", "LZFSE", b"bvxZ" + lzfse2[4:], size2),
+            ("an LZFSE block whose matches use more literals than it names", "LZFSE",
+             fewer_literals(lzfse2), size2),
+            ("an LZFSE stream that decodes to more than the caller expects", "LZFSE",
+             lzfse2, size2 - 1),
+            ("an LZFSE LZVN block whose payload is one byte longer than its stream", "LZFSE",
+             lzfsen[:8] + struct.pack("<I", struct.unpack_from("<I", lzfsen, 8)[0] + 1)
+             + lzfsen[12:-4] + b"\x0e" + lzfsen[-4:], sizen),
+            ("an LZVN stream cut before its end-of-stream opcode", "LZVN", lzvn[:-8], sizev),
+            ("an LZVN stream cut inside an opcode", "LZVN", lzvn[:len(lzvn) // 3], sizev),
+            ("an LZVN stream that decodes to more than the caller expects", "LZVN", lzvn,
+             sizev - 1),
+            ("an LZVN match reaching before the first byte (literal 'a', then distance 2)",
+             "LZVN", b"\x40\x02a" + b"\x06" + bytes(7), 16),
+            ("an LZVN match-only opcode before any distance is set", "LZVN",
+             b"\xe1a\xf3" + b"\x06" + bytes(7), 16),
+            ("an undefined LZVN opcode (0x70)", "LZVN", b"\x70" + b"\x06" + bytes(7), 16),
+        ]
+        for label, codec, blob, limit in damaged:
+            cond, detail = is_refused(decode, codec, blob, limit)
+            out.append((f"{label} is refused ({detail})", cond))
+
+    # -- the decmpfs layer, on attributes and forks built here -----------------
+    def fork_of(pieces):
+        at, offs = 4 * (len(pieces) + 1), []
+        for piece in pieces:
+            offs.append(at)
+            at += len(piece)
+        offs.append(at)
+        return _BytesFork(struct.pack(f"<{len(offs)}I", *offs) + b"".join(pieces))
+
+    class _HugeFork:
+        """A fork whose one block the table says is 1 GiB long. It records the
+        longest read asked of it, and gives nothing past its table."""
+        size, asked = (1 << 30) + 8, 0
+
+        def read(self, off, length):
+            self.asked = max(self.asked, length)
+            table = struct.pack("<II", 8, 8 + (1 << 30))
+            return table[off:off + length]
+
+    huge = _HugeFork()
+    text = b"decmpfs block text " * 4000                      # 76,000 bytes, two blocks
+    stored = [b"\xcc" + text[:DECMPFS_BLOCK], b"\xcc" + text[DECMPFS_BLOCK:]]
+    whole = lambda *a: b"".join(decmpfs_read(*a))
+    layer = [
+        ("a stored (method 10) fork of two blocks reads whole", True,
+         lambda: whole(10, len(text), b"", fork_of(stored)) == text),
+        ("a fork whose table holds one block fewer than the size needs", False,
+         lambda: whole(10, len(text), b"", fork_of(stored[:1]))),
+        ("a fork block that lies past the end of the fork", False,
+         lambda: whole(10, len(text), b"", _BytesFork(fork_of(stored).read(0, 1 << 20)[:-5]))),
+        ("a stored block one byte short", False,
+         lambda: whole(10, len(text), b"", fork_of([stored[0], stored[1][:-1]]))),
+        ("a stored block without its 0xCC marker", False,
+         lambda: whole(10, len(text), b"", fork_of([b"\x00" + stored[0][1:], stored[1]]))),
+        ("a fork-held method whose resource fork is not there", False,
+         lambda: whole(8, len(text), b"", None)),
+        ("method 1 whose attribute holds fewer bytes than the file's size", False,
+         lambda: whole(1, 10, b"123456789", None)),
+        ("method 5", False, lambda: whole(5, 100, bytes(12), None)),
+        ("method 13 (LZBITMAP)", False, lambda: whole(13, 100, b"x", None)),
+        ("method 14 (LZBITMAP)", False,
+         lambda: whole(14, 100, b"", fork_of([b"x"]))),
+        ("an unknown method (6)", False, lambda: whole(6, 100, b"x", None)),
+        ("an attribute larger than the 3,802 bytes macOS reads", False,
+         lambda: whole(9, 4000, b"\xcc" + bytes(4000), None)),
+        ("a size beyond any file's size (2**64 - 1, method 3)", False,
+         lambda: whole(3, (1 << 64) - 1, __import__("zlib").compress(b"x"), None)),
+        ("the largest size a file can have, given to a zlib attribute of one byte", False,
+         lambda: whole(3, DECMPFS_MAX_SIZE, __import__("zlib").compress(b"x"), None)),
+        ("a size beyond any file's size (2**63, method 7)", False,
+         lambda: whole(7, 1 << 63, b"\x06" + bytes(7), None)),
+        ("a fork block longer than twice a 64 KiB block", False,
+         lambda: whole(10, 10, b"", fork_of([b"\xcc" + bytes(DECMPFS_MAX_PIECE)]))),
+        ("a fork table naming a 1 GiB block, refused before anything that long is read",
+         False, lambda: whole(10, 10, b"", huge)),
+        ("a zlib block that inflates to more than its block holds", False,
+         lambda: whole(3, 10, __import__("zlib").compress(bytes(11)), None)),
+    ]
+    for label, good, fn in layer:
+        if good:
+            try:
+                cond, detail = bool(fn()), ""
+            except DecompressError as exc:
+                cond, detail = False, f" (refused: {exc})"
+            out.append((label + detail, cond))
+        else:
+            cond, detail = is_refused(fn)
+            out.append((f"{label} is refused ({detail})", cond))
+    out.append((f"a fork block longer than the cap is never read (longest read asked: "
+                f"{huge.asked:,} bytes)", 0 < huge.asked <= DECMPFS_MAX_PIECE))
+    # The shape macOS writes for method 4: no block's zlib stream ends, and the
+    # byte count is what decides (see _decmpfs_block).
+    import zlib
+    flush = zlib.compressobj()
+    open_ended = flush.compress(text[:DECMPFS_BLOCK]) + flush.flush(zlib.Z_SYNC_FLUSH)
+    try:
+        cond = whole(3, DECMPFS_BLOCK, open_ended, None) == text[:DECMPFS_BLOCK]
+    except DecompressError:
+        cond = False
+    out.append(("a zlib block whose stream does not end, as macOS writes method 4 blocks, "
+                "reads when it gives exactly its block's bytes", cond))
+
+    # -- the images macOS wrote ------------------------------------------------
+    for stem, cls, fs in (("decmpfs-apfs", ApfsWalker, "APFS"),
+                          ("decmpfs-hfsplus", HfsPlusWalker, "HFS+")):
+        try:
+            files = _decmpfs_fixture_files(stem, cls)
+        except Exception as exc:                     # pylint: disable=broad-except
+            out.append((f"the {fs} decmpfs fixture was walked ({type(exc).__name__}: {exc})",
+                        False))
+            continue
+        if files is None:
+            out.append((f"the {fs} decmpfs fixture is not beside this script, so the "
+                        f"compressed-file reader was not checked against it", None))
+            continue
+        matched, refused_ok, wrong, methods = 0, 0, [], set()
+        w = files[0][5]
+        for path, method, digest, node, size, _w in files:
+            methods.add(method)
+            if node is None:
+                wrong.append(f"{path} missing")
+                continue
+            try:
+                got = b"".join(w.read_file(node, size))
+            except (ApfsUnreadable, HfsUnreadable) as exc:
+                if method in (13, 14) and "LZBITMAP" in str(exc):
+                    refused_ok += 1
+                else:
+                    wrong.append(f"{path}: {exc}")
+                continue
+            if method in (13, 14):
+                wrong.append(f"{path} read as {len(got):,} bytes")
+            elif hashlib.sha256(got).hexdigest() == digest and len(got) == size:
+                matched += 1
+            else:
+                wrong.append(f"{path} differs")
+        out.append((f"every file of the {fs} decmpfs fixture reads as macOS read it "
+                    f"({matched} files, methods "
+                    f"{', '.join(str(m) for m in sorted(methods - {0, 13, 14}))}), and its "
+                    f"{refused_ok} LZBITMAP files are refused by name"
+                    + (f"; {'; '.join(wrong[:3])}" if wrong else ""),
+                    bool(not wrong and matched and refused_ok)))
+        # A compression attribute on a file not flagged compressed is not its
+        # content: macOS read the data fork, one empty and one not.
+        unflagged = [(p, d, n, sz) for p, _m, d, n, sz, _w in files if p.startswith("unflagged/")]
+        try:
+            unflagged_ok = len(unflagged) == 2 and all(
+                n is not None and hashlib.sha256(b"".join(w.read_file(n, sz))).hexdigest() == d
+                for _p, d, n, sz in unflagged)
+            noted = sum("not flagged compressed" in str(x) for x in getattr(w, "damage", []))
+        except Exception as exc:                     # pylint: disable=broad-except
+            unflagged_ok, noted = False, f"raised {type(exc).__name__}: {exc}"
+        out.append((f"on the {fs} fixture, a file carrying a compression attribute but not "
+                    f"flagged compressed reads as its data fork, as macOS read it, and each is "
+                    f"recorded ({noted} recorded)", bool(unflagged_ok and noted == 2)))
+        # --extract must leave a refused file out and say why, never store it
+        # under its own name as an empty or partial member
+        lz = [(p, n, s) for p, m, _d, n, s, _w in files if m == 14 and n is not None]
+        if lz:
+            buf, log = io.BytesIO(), []
+            with zipfile.ZipFile(buf, "w") as zout:
+                tally = extract_to_zip(zout, w, "V", [(lz[0][0], lz[0][1], lz[0][2], 0)], log)
+            with zipfile.ZipFile(buf) as zout:
+                names = zout.namelist()
+            out.append((f"--extract leaves an LZBITMAP file of the {fs} fixture out and logs "
+                        f"why", tally[3] == 1 and not names
+                        and any("LZBITMAP" in line for line in log)))
+    return out
+
+
 def _xfs_self_checks():
     """[(label, passed or None for a skip)] for the XFS reader, from the images
     mkfs.xfs wrote (tools/make_xfs_fixtures.sh) and what was recorded beside
@@ -28466,6 +29561,8 @@ def volumes(fh, size=None):
         walker      an object with root, listdir, entry and read_file, when the
                     kind is one this reads; else
         note        why there is no walker
+        bitlocker   for a BitLocker volume, locked or opened, BitLocker.facts():
+                    its protectors (kind, id, and for a TPM the stored PCRs)
 
     Brute-scan finds are report-only in main() too (they have no region and so
     no base to walk), so they are not here either. fh is what open_image()
@@ -28530,11 +29627,14 @@ def volumes(fh, size=None):
         if opened is not None:
             vol["encryption"] = opened.summary()
             vol["detail"] = "; ".join([opened.summary()] + lines[:1])
+            vol["bitlocker"] = opened.facts()
         if kind == "bitlocker":
             bl = next((b for b in getattr(fh, "bitlocker_found", ()) if b.base == base), None)
             bl = bl or BitLocker.open(fh, base, rsize)
             vol["encryption"] = "BitLocker, locked"
             vol["note"] = bl.locked_note() if bl else "BitLocker-encrypted and not read"
+            if bl:
+                vol["bitlocker"] = bl.facts()
             out.append(vol)
             continue
         try:
@@ -32676,6 +33776,12 @@ def self_test():
                 ("a folder not named .afd, or an .afd with no AFF file, is not one",
                  acquisition_format(not_afd_dir) is None
                  and acquisition_format(empty_afd) is None),
+                ("a folder that is not a sparse bundle or an AFD is refused naming it, "
+                 "and an empty .afd is refused as not an AFD, not ended in a traceback",
+                 (_refusal(not_afd_dir, ewfprobe) or "").startswith(
+                     f"{not_afd_dir} is a folder, not a disk image")
+                 and "is not an AFD" in (_refusal(empty_afd, ewfprobe) or "")
+                 and "is a folder, not a disk image" in (_refusal(not_afd_dir, None) or "")),
                 ("an AFF file not named .aff is read alone, as ewfprobe opens it",
                  acquisition_format(afd_stray) == "AFF"),
                 ("an Ex01, an AFF and an AFD are never opened as raw bytes",
@@ -34366,6 +35472,13 @@ def self_test():
             lvm_checks += _refs_self_checks()
         except Exception as exc:                     # pylint: disable=broad-except
             lvm_checks += [(f"the ReFS checks ran ({type(exc).__name__}: {exc})", False)]
+        # decmpfs: LZVN and LZFSE streams from Apple's encoder, and APFS and HFS+
+        # volumes macOS wrote and read back (tools/make_decmpfs_streams.py,
+        # tools/make_decmpfs_fixture.py).
+        try:
+            lvm_checks += _decmpfs_self_checks()
+        except Exception as exc:                     # pylint: disable=broad-except
+            lvm_checks += [(f"the decmpfs checks ran ({type(exc).__name__}: {exc})", False)]
         # RAID: arrays mdadm, lvm2 and the kernel wrote, read back to the bytes the
         # kernel presented while it ran them (tools/make_raid_fixtures.sh).
         try:
@@ -36491,6 +37604,57 @@ def self_test():
                 print(f"  [{'PASS' if cond else 'FAIL'}] a BitLocker header (a FAT32 boot sector in "
                       f"all but its own fields, or Windows Vista's NTFS-like one) is taken for "
                       f"neither a FAT32 volume nor a partition table")
+
+        # ---- BitLocker protectors Windows 11 wrote, TPM ones among them ---
+        tpm_dir = os.path.join(here, "bitlocker-win11-tpm")
+        if not os.path.isfile(os.path.join(tpm_dir, "manifest.json")):
+            print("  [SKIP] BitLocker protectors Windows 11 wrote (fixtures not found)")
+        else:
+            class _Ranges:
+                """The captured header and metadata at their volume offsets, zeros elsewhere."""
+
+                def __init__(self, parts, size):
+                    self.parts, self.size, self.pos = parts, size, 0
+
+                def seek(self, off, whence=0):
+                    self.pos = off if whence == 0 else self.pos + off if whence == 1 else self.size + off
+                    return self.pos
+
+                def tell(self):
+                    return self.pos
+
+                def read(self, n=-1):
+                    end = self.size if n is None or n < 0 else min(self.size, self.pos + n)
+                    out = bytearray(max(0, end - self.pos))
+                    for start, data in self.parts:
+                        lo, hi = max(start, self.pos), min(start + len(data), end)
+                        if lo < hi:
+                            out[lo - self.pos:hi - self.pos] = data[lo - start:hi - start]
+                    self.pos = max(self.pos, end)
+                    return bytes(out)
+
+            with open(os.path.join(tpm_dir, "manifest.json"), encoding="utf-8") as handle:
+                tpm_states = json.load(handle)["states"]
+            windows_names = {"Numerical Password": "recovery password", "TPM": "TPM",
+                             "TPM And PIN": "TPM and PIN", "TPM And Startup Key": "TPM and startup key",
+                             "TPM And PIN And Startup Key": "TPM, PIN and startup key"}
+            for state, info in sorted(tpm_states.items()):
+                try:
+                    with gzip.open(os.path.join(tpm_dir, f"{state}.bin.gz"), "rb") as g:
+                        raw = g.read()
+                    parts = [(0, raw[:512])] + [(off, raw[512 + i * 65536:512 + (i + 1) * 65536])
+                                                for i, off in enumerate(info["metadata_offsets"])]
+                    fh = _Ranges(parts, info["partition_size"])
+                    facts = BitLocker.open(fh, 0, info["partition_size"]).facts()
+                    got = sorted((p["id"], p["kind"], p["pcrs"]) for p in facts["protectors"])
+                    want = sorted((w["id"], windows_names.get(w["type"]), w["pcrs"]) for w in info["windows"])
+                    cond, detail = got == want, f"{len(got)} protector(s)"
+                except Exception as exc:                 # pylint: disable=broad-except
+                    cond, detail = False, f"raised {type(exc).__name__}: {exc}"
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] BitLocker {state}: every protector's kind, id "
+                      f"and PCRs are what manage-bde printed ({detail})")
 
         # ---- AFF4 and encrypted APFS volumes --------------------------
         import hashlib as _hl4, io as _io4  # pylint: disable=import-outside-toplevel
