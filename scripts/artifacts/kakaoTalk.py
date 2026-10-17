@@ -187,7 +187,7 @@ import sqlite3
 
 from Crypto.Cipher import AES
 
-from scripts.ilapfuncs import (artifact_processor, check_in_media, get_sqlite_db_records,
+from scripts.ilapfuncs import (artifact_processor, check_in_media, get_sqlite_db_path, get_sqlite_db_records,
                                convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, logfunc)
 
 # Message.sqlite and Talk.sqlite are generic names. A store is this client's only when it
@@ -247,7 +247,7 @@ def _container_of(path):
 
 def _columns(db_path, table):
     try:
-        with sqlite3.connect(f'file:{db_path}?mode=ro', uri=True) as con:
+        with sqlite3.connect(f'file:{get_sqlite_db_path(db_path)}?mode=ro', uri=True) as con:
             return {row[1] for row in con.execute(f'PRAGMA table_info("{table}")')}
     except sqlite3.Error:
         return set()
@@ -255,7 +255,7 @@ def _columns(db_path, table):
 
 def _tables(db_path):
     try:
-        with sqlite3.connect(f'file:{db_path}?mode=ro', uri=True) as con:
+        with sqlite3.connect(f'file:{get_sqlite_db_path(db_path)}?mode=ro', uri=True) as con:
             return {row[0] for row in con.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
     except sqlite3.Error:

@@ -338,7 +338,7 @@ import tempfile
 import time
 import zlib
 
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_path, logfunc
 
 
 _FLAGS = (
@@ -706,7 +706,7 @@ def _report_rows(context, interest_mask=None):
     # and TSV outputs; the HTML table is held back above the row limit as before.
     results = context.create_artifact_result(headers=_REPORT_HEADERS)
     sources = {}
-    with sqlite3.connect(f"file:{cache_path}?mode=ro", uri=True) as database:
+    with sqlite3.connect(f"file:{get_sqlite_db_path(cache_path)}?mode=ro", uri=True) as database:
         for row in database.execute(query, parameters):
             results.add_row(row)
             sources.setdefault(row[-1])
