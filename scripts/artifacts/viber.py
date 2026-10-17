@@ -7,15 +7,19 @@ __artifacts_v2__ = {
                        "information regarding Viber settings.",
         'author': 'Evangelos Dragonas (@theAtropos4n6), @AlexisBrignoni, Codex',
         'creation_date': '2022-03-09',
-        'last_update_date': '2026-10-04',
+        'last_update_date': '2026-10-17',
         'requirements': '',
         'category': 'Viber',
         'notes': 'The _autoBackupLastRunTime value is converted from Unix time to UTC unless it '
                  'is negative, in which case it is shown as stored. _lastBackupStartDate is '
                  'reported as stored without an asserted epoch. The two backup attempt counters '
                  'are reported as hexadecimal for bytes and unchanged otherwise because their '
-                 'byte order is not established. What a negative value records is not established.',
-        'paths': ('*/com.viber/settings/Settings.data',),
+                 'byte order is not established. What a negative value records is not established. '
+                 'Settings.data is read together with its -wal write-ahead log when the extraction '
+                 'holds one, so settings come from the database as last committed. On hc_ios18_7, '
+                 'iphone11_ios17, otto_ios17, hickman_ios13 and hickman_ios14 the rows this artifact '
+                 'reports were the same with and without the log.',
+        'paths': ('*/com.viber/settings/Settings.data*',),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'settings',
         'sample_data': {
