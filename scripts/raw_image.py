@@ -25,13 +25,13 @@ encrypted AFF with its password, an E01, SMART, raw or AD1 set FTK Imager encryp
 with AD encryption with its password, and any of them sealed to a certificate with
 that certificate's RSA private key. A BitLocker volume inside an image opens with
 its password, its recovery password or its startup key (``.BEK``) file, and an APFS
-volume macOS encrypted in software with its password or personal recovery key. The
-GUI asks for each; the command line takes a password from ``--image_password_file``
-or ``--image_password_env`` (tried on the image and on any BitLocker or encrypted
-APFS volume in it), a private key from ``--image_private_key`` and startup keys from
-``--bitlocker_key``, or asks at a terminal. What is given is checked against the
-image before the run and never stored; a BitLocker or APFS volume left locked is
-reported and its files are not searched.
+volume macOS encrypted in software with its password or personal recovery key, and a
+LUKS container with its passphrase. The GUI asks for each; the command line takes a
+password from ``--image_password_file`` or ``--image_password_env`` (tried on the image
+and on any BitLocker, encrypted APFS or LUKS volume in it), a private key from
+``--image_private_key`` and startup keys from ``--bitlocker_key``, or asks at a
+terminal. What is given is checked against the image before the run and never stored;
+a BitLocker, APFS or LUKS volume left locked is reported and its files are not searched.
 
 Only matched files are ever read. The volumes are walked for their names when
 the seeker is built, and a file's bytes leave the image only when an artifact's
@@ -578,11 +578,11 @@ def cli_image_keys(path, password_file=None, password_env=None, private_key=None
     A password comes from the first line of ``password_file``, else the environment
     variable ``password_env``; it opens an encrypted image, and it is tried on each
     BitLocker volume in the image as a password and as a recovery password, and on
-    each encrypted APFS volume as a password and as a personal recovery key.
-    ``private_key`` opens an image sealed to a certificate and ``bitlocker_keys`` are
-    startup key (.BEK) files. At a terminal, what is missing is asked for (three tries
-    each); a BitLocker or APFS volume nothing opens is reported on stderr and left
-    locked.
+    each encrypted APFS volume as a password and as a personal recovery key, and on
+    each LUKS container as a passphrase. ``private_key`` opens an image sealed to a
+    certificate and ``bitlocker_keys`` are startup key (.BEK) files. At a terminal, what
+    is missing is asked for (three tries each); a BitLocker, APFS or LUKS volume nothing
+    opens is reported on stderr and left locked.
 
     Raises ValueError, saying why, when the image itself cannot be opened with what was
     given.
