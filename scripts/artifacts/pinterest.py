@@ -274,7 +274,7 @@ from plistlib import UID
 
 from scripts.ilapfuncs import artifact_processor, check_in_media, \
     convert_cocoa_core_data_ts_to_utc, convert_plist_date_to_utc, \
-    get_plist_content, logfunc
+    get_plist_content, get_sqlite_db_path, logfunc
 
 # Files only the Pinterest application writes. Its bundle identifier is the bare
 # word "pinterest", read from MCMMetadataIdentifier in the container metadata of
@@ -872,7 +872,7 @@ def pinterestCachedImages(context):
 def _autocomplete_rows(path):
     '''(row count, docid gaps, distinct queries) of an autocomplete database.'''
     try:
-        db = sqlite3.connect(f'file:{path}?immutable=1', uri=True)
+        db = sqlite3.connect(f'file:{get_sqlite_db_path(path)}?immutable=1', uri=True)
     except sqlite3.Error:
         return '', '', ''
     try:
