@@ -41,3 +41,16 @@ The `.live.sha256` lists are "<sha256>  <path>" lines, paths relative to the
 volume root, the same shape `sha256sum` writes. `ntfs-streams.sha256` has the same
 shape with a stream's path written `<file>:<stream>` (`:<stream>` on the root), after
 a few `#` lines saying which two streams it leaves out because they store nothing.
+
+`raid/` holds the member images of five RAID sets, copies of fixtures committed in
+qnxprobe under `tests/fixtures/raid/` at its v1.70 tag
+(`98c4fc8861efd819913679a6e6462479b6bea9e4`), each file the same git blob as there:
+`md-r1-*` (md RAID1, metadata 1.2, two members), `md-r1-090-*` (RAID1, metadata
+0.90), `md-r5-ls-*` (RAID5 left-symmetric, metadata 1.2, four members),
+`md-r5ls-090-*` (RAID5, metadata 0.90, four members) and `lvm-raid-multi-*` (an LVM2
+volume group across five images holding a raid5, a raid6 and a raid10 volume).
+qnxprobe's `tools/make_raid_fixtures.sh` wrote them with mdadm 4.5 and lvm2 2.03.31 on
+Linux 7.0, and `raid-fixtures.json` there records the run. `raid/raid-trees.sha256`
+holds the lines of qnxprobe's `raid-trees.sha256` for these sets: the SHA-256 of each
+file of the generated tree each array was filled from, as that script recorded it, in
+the same "<sha256>  <tree>/<path>" shape.

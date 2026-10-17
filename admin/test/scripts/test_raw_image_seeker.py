@@ -21,6 +21,7 @@ import hashlib
 import os
 import pathlib
 import plistlib
+import re
 import shutil
 import struct
 import sys
@@ -1945,6 +1946,19 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
             self.assertEqual(got.read(), disk.read(5 * mib))
 
     @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
+    def test_a_password_given_for_one_of_several_images_is_tried_on_their_volumes(self):
+        other = os.path.join(self.work, 'other.img')
+        with open(other, 'wb') as handle:
+            handle.write(b'\0' * 65536)
+        keys = raw_image.ImageKeys()
+        keys.per_image = {other: (BITLOCKER_PASSWORD, None), self.bitlocker: (None, None)}
+        self.assertIn(BITLOCKER_PASSWORD, keys.bitlocker_passwords())
+        data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, data, True)
+        seeker = FileSeekerRaw([self.bitlocker, other], data, password=keys)
+        self.addCleanup(seeker.cleanup)
+        self.assertTrue([m for m in seeker.name_list if m.startswith('bitlocker_xts128_img_')])
+
     def test_the_gui_asks_for_a_private_key_and_a_bitlocker_startup_key(self):
         from tkinter import filedialog, messagebox, simpledialog  # pylint: disable=import-outside-toplevel
         image = str(FIXTURES / 'ftk-ad-cert-ad1.ad1')
@@ -2142,3 +2156,462 @@ class CompressionUnitThatStopsEarlyTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+# ---- several images read together: the members of a RAID set --------------------
+
+RAID_FIXTURES = FIXTURES / 'raid'
+# Each set's member images, and the tree its array was built from (raid-trees.sha256,
+# hashed from the files before mdadm or lvm2 held them).
+RAID_SETS = {'md-r1': 2, 'md-r1-090': 2, 'md-r5-ls': 4, 'md-r5ls-090': 4, 'lvm-raid-multi': 5}
+LVM_TREES = {'lvm_qpraid2_r5': 'lvm-raid-multi-r5', 'lvm_qpraid2_r6': 'lvm-raid-multi-r6',
+             'lvm_qpraid2_r10': 'lvm-raid-multi-r10'}
+
+
+def _raid_trees():
+    """{tree: {path within the tree: sha256}} from raid-trees.sha256."""
+    trees = {}
+    for rel, digest in _hash_list(RAID_FIXTURES / 'raid-trees.sha256').items():
+        tree, _slash, inner = rel.partition('/')
+        trees.setdefault(tree, {})[inner] = digest
+    return trees
+
+
+class RaidMembersTest(unittest.TestCase):
+    """Several images read together as the RAID arrays they are members of, against
+    the trees the arrays were built from; the members found beside one of them; and
+    one ordinary image read exactly as before."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.work = tempfile.mkdtemp(prefix='raw_image_raid_')
+        cls.sets = {}
+        for stem, count in RAID_SETS.items():
+            folder = os.path.join(cls.work, stem)
+            os.makedirs(folder)
+            cls.sets[stem] = []
+            for number in range(count):
+                path = os.path.join(folder, f'{stem}-{number}.img')
+                with gzip.open(RAID_FIXTURES / f'{stem}-{number}.img.gz', 'rb') as src, \
+                        open(path, 'wb') as dst:
+                    shutil.copyfileobj(src, dst)
+                cls.sets[stem].append(path)
+        cls.trees = _raid_trees()
+        cls.ntfs = os.path.join(cls.work, 'ntfs-fixture.img')
+        with gzip.open(FIXTURES / 'ntfs-fixture.img.gz', 'rb') as src, \
+                open(cls.ntfs, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.work, ignore_errors=True)
+
+    def setUp(self):
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log = _Recorder()
+        patcher = mock.patch.object(raw_image, 'logfunc', self.log)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _seeker(self, paths, found=None):
+        seeker = FileSeekerRaw(paths, self.data, found=found)
+        self.addCleanup(seeker.cleanup)
+        return seeker
+
+    @staticmethod
+    def _files_of(seeker, name):
+        """{path within the volume: sha256} of every file staged from the volumes whose
+        name starts with ``name``_."""
+        out = {}
+        for staged, info in seeker.file_infos.items():
+            volume, _slash, rel = info.source_path.partition('/')
+            if volume.startswith(name + '_') and rel and not rel.endswith('/'):
+                out[rel] = _sha256(staged)
+        return out
+
+    def _arrays_read(self, seeker):
+        return [arr for arr in seeker.raid.arrays if arr.image is not None]
+
+    def test_each_set_reads_to_the_tree_its_array_was_built_from(self):
+        for stem in ('md-r1', 'md-r5-ls', 'md-r5ls-090', 'lvm-raid-multi'):
+            with self.subTest(stem):
+                self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+                self.addCleanup(shutil.rmtree, self.data, True)
+                seeker = self._seeker(self.sets[stem])
+                self.assertTrue(seeker.search('*'))
+                arrays = self._arrays_read(seeker)
+                self.assertEqual(len(arrays), 3 if stem.startswith('lvm') else 1)
+                for arr in arrays:
+                    tree = LVM_TREES.get(arr.safe_name, stem)
+                    self.assertEqual(self._files_of(seeker, arr.safe_name), self.trees[tree])
+
+    def test_a_raid5_missing_one_member_is_rebuilt_from_parity(self):
+        paths = [path for number, path in enumerate(self.sets['md-r5-ls']) if number != 2]
+        seeker = self._seeker(paths)
+        seeker.search('*')
+        (arr,) = self._arrays_read(seeker)
+        self.assertEqual(arr.missing, [2])
+        self.assertEqual(self._files_of(seeker, arr.safe_name), self.trees['md-r5-ls'])
+
+    def test_a_raid1_member_that_starts_with_the_filesystem_is_read_once_from_itself(self):
+        # metadata 0.90 keeps its superblock at the end, so each member starts with the
+        # filesystem itself. The reader marks such an array "not read again"; the first
+        # member's own volume is read, the second member's copy is not, the array is not
+        seeker = self._seeker(self.sets['md-r1-090'])
+        (arr,) = self._arrays_read(seeker)
+        self.assertEqual(arr.same_as, 'md-r1-090-0.img')
+        walked = sorted({member.split('/', 1)[0] for member in seeker.name_list})
+        self.assertEqual(walked, ['md_r1_090_0_img_lba0_md_r1_090'])
+        copy = [vol for vol in seeker.volumes if vol['name'].startswith('md_r1_090_1_img_')]
+        self.assertIsNone(copy[0]['walker'])
+        self.assertIn('of what md-r1-090-0.img holds, which is read there', copy[0]['note'])
+        self.assertNotIn(f'Volumes of {arr.label}', self.log.text())
+        seeker.search('*')
+        self.assertEqual(self._files_of(seeker, 'md_r1_090_0_img'), self.trees['md-r1-090'])
+
+    def test_a_raid1_member_that_starts_with_the_filesystem_alone_reads_as_before(self):
+        seeker = self._seeker(self.sets['md-r1-090'][1])
+        self.assertIsNotNone(seeker.raid)
+        self.assertEqual([vol['name'] for vol in seeker.volumes], ['lba0_md_r1_090'])
+        seeker.search('*')
+        self.assertEqual(self._files_of(seeker, 'lba0'), self.trees['md-r1-090'])
+
+    def test_one_member_alone_reads_what_its_level_allows(self):
+        seeker = self._seeker(self.sets['md-r1'][0])
+        (arr,) = self._arrays_read(seeker)
+        seeker.search('*')
+        self.assertEqual(self._files_of(seeker, arr.safe_name), self.trees['md-r1'])
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        lone = self._seeker(self.sets['md-r5-ls'][0])
+        self.assertEqual(self._arrays_read(lone), [])
+        self.assertEqual(lone.name_list, [])
+        self.assertIn('not read from the images given', self.log.text())
+
+    def test_an_ordinary_image_is_read_exactly_as_before(self):
+        seeker = self._seeker(self.ntfs)
+        self.assertIsNone(seeker.raid)
+        self.assertEqual([v['name'] for v in seeker.volumes], ['lba0'])
+        self.assertTrue(all(member.startswith('lba0/') for member in seeker.name_list))
+        self.assertNotIn('RAID', self.log.text())
+        self.assertTrue(self.log.lines[0].startswith('Reading ntfs-fixture.img in place'))
+
+    def test_the_run_log_names_each_image_and_marks_the_ones_found(self):
+        paths = self.sets['md-r5-ls']
+        self._seeker(paths, found=paths[1:])
+        text = self.log.text()
+        self.assertIn(f'Image 1 of 4: md-r5-ls-0.img (given), {paths[0]}', text)
+        self.assertIn(f'Image 4 of 4: md-r5-ls-3.img (found automatically), {paths[3]}', text)
+        self.assertIn('read below as md_qp_qp21_3090d8cb', text)
+
+    def test_volume_names_start_with_what_holds_them_and_never_collide(self):
+        seeker = self._seeker(self.sets['lvm-raid-multi'])
+        names = [vol['name'] for vol in seeker.volumes]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertIn('lvm_qpraid2_r5_lba0_lvm_raid_multi_r', names)
+        self.assertIn('lvm_raid_multi_0_img_lba0', names)
+        # the free space of each physical volume is named after its image
+        self.assertIn('lvm_raid_multi_0_img_lba0/$Unallocated/lvm-raid-multi-0.img.'
+                      'lvm_raid_multi_0_img_lba0.unallocated.bin', seeker.free_list)
+
+    def test_a_physical_volume_s_line_says_where_its_group_is_read(self):
+        self._seeker(self.sets['lvm-raid-multi'])
+        lines = [line for line in self.log.lines if line.startswith('  lvm_raid_multi_0_img_lba0 ')]
+        self.assertEqual(len(lines), 1)
+        self.assertIn('lvm2 pv', lines[0])
+        self.assertTrue(lines[0].endswith('; read across the images given: r5 as lvm_qpraid2_r5, '
+                                          'r6 as lvm_qpraid2_r6, r10 as lvm_qpraid2_r10)'),
+                        lines[0])
+        # read alone, the same image's line is the reader's note as before
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log.lines.clear()
+        self._seeker(self.sets['lvm-raid-multi'][0])
+        self.assertNotIn('read across the images given', self.log.text())
+
+    # ---- one disk given twice -------------------------------------------------
+
+    def _ntfs_entries(self):
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        return list(self._seeker(self.ntfs).name_list)
+
+    def _read_once(self, paths, kept):
+        alone = self._ntfs_entries()
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log.lines.clear()
+        seeker = self._seeker(paths)
+        self.assertEqual(seeker.image_paths, [kept])
+        self.assertEqual(seeker.name_list, alone)
+        self.assertIn('Given twice: ', self.log.text())
+        return seeker
+
+    def test_the_same_file_given_twice_or_by_two_names_is_read_once(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_twice_', dir=self.work)
+        link = os.path.join(folder, 'hard.img')
+        os.link(self.ntfs, link)
+        soft = os.path.join(folder, 'soft.img')
+        os.symlink(self.ntfs, soft)
+        relative = os.path.relpath(self.ntfs)
+        for paths in ([self.ntfs, self.ntfs], [self.ntfs, link], [self.ntfs, soft],
+                      [self.ntfs, relative]):
+            with self.subTest(paths=[os.path.basename(p) for p in paths]):
+                self._read_once(paths, self.ntfs)
+
+    def test_two_segments_of_one_split_set_are_read_once(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_split_', dir=self.work)
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        half = len(data) // 2
+        for number, piece in ((1, data[:half]), (2, data[half:])):
+            with open(os.path.join(folder, f'disk.img.{number:03d}'), 'wb') as handle:
+                handle.write(piece)
+        first, second = (os.path.join(folder, f'disk.img.{n:03d}') for n in (1, 2))
+        self._read_once([first, second], first)
+
+    def test_two_segments_of_one_ewf_set_are_read_once(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_ewf_', dir=self.work)
+        with open(self.ntfs, 'rb') as handle:
+            segments = write_ewf(folder, 'disk', handle.read(), chunks_per_segment=200)
+        self.assertGreater(len(segments), 1)
+        alone = self._ntfs_entries()
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        seeker = self._seeker(segments[:2])
+        self.assertEqual(seeker.image_paths, [segments[0]])
+        self.assertEqual(seeker.name_list, alone)
+
+    def test_the_command_line_says_an_image_given_twice_and_the_report_names_it(self):
+        said = []
+        raw = raw_image.cli_raw_input([self.ntfs, self.ntfs], say=said.append)
+        self.assertEqual((raw.paths, raw.input_path), ([self.ntfs], self.ntfs))
+        self.assertEqual(said, [f'Given twice: {self.ntfs} is the same disk as {self.ntfs}, '
+                                'which is read once.'])
+        self.assertIn('is the same disk as', raw_image.input_text(raw.input_path, raw))
+        self._seeker(raw.input_path, found=raw)
+        self.assertIn('Given twice: ', self.log.lines[0])
+
+    def test_the_window_says_an_image_picked_twice(self):
+        from tkinter import messagebox  # pylint: disable=import-outside-toplevel
+        shown = []
+        with mock.patch.object(messagebox, 'showinfo', lambda *a, **kw: shown.append(a)):
+            raw = raw_image.ask_raw_input(None, [self.ntfs, self.ntfs])
+        self.assertEqual(raw.paths, [self.ntfs])
+        self.assertIn('is the same disk as', shown[0][1])
+
+    def test_two_different_disks_with_one_name_get_their_own_prefixes(self):
+        paths = []
+        for side in ('one', 'two'):
+            folder = os.path.join(self.work, f'same-name-{side}')
+            os.makedirs(folder, exist_ok=True)
+            paths.append(os.path.join(folder, 'disk.img'))
+            shutil.copy(self.ntfs, paths[-1])
+        alone = self._ntfs_entries()
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        seeker = self._seeker(paths)
+        self.assertEqual([vol['name'] for vol in seeker.volumes], ['disk_img_lba0', 'disk_img_2_lba0'])
+        self.assertEqual(len(seeker.name_list), 2 * len(alone))
+        self.assertEqual(len(set(seeker.name_list)), 2 * len(alone))
+
+    # ---- when the search runs, and what it leaves on record ---------------------
+
+    def test_a_one_disk_volume_group_is_not_searched_beside(self):
+        image = os.path.join(self.work, 'lvm-wholedisk.img')
+        with gzip.open(FIXTURES / 'lvm-wholedisk.img.gz', 'rb') as src, open(image, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+        said = []
+        self.assertIsNone(raw_image.find_members(image))
+        raw = raw_image.cli_raw_input(image, say=said.append)
+        self.assertEqual((raw.paths, raw.search, said), ([image], None, []))
+
+    def test_the_examiner_s_choice_reaches_the_run_log_and_the_report(self):
+        folder = self._decoyed_folder()
+        start = os.path.join(folder, 'md-r5-ls-0.img')
+        raw = raw_image.ask_raw_input(None, start, confirm=lambda _parent, _search: 'only')
+        self._seeker(raw.input_path, found=raw)
+        text = self.log.text()
+        self.assertIn('the examiner chose to read only md-r5-ls-0.img', text)
+        self.assertIn('not used  other-array.img', text)
+        self.assertIn('the examiner chose to read only md-r5-ls-0.img',
+                      raw_image.input_text(raw.input_path, raw))
+
+    def test_a_search_that_finds_nothing_is_on_record(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_alone_', dir=self.work)
+        start = os.path.join(folder, 'md-r1-0.img')
+        shutil.copy(self.sets['md-r1'][0], start)
+        said = []
+        raw = raw_image.cli_raw_input(start, say=said.append)
+        self.assertEqual(raw.paths, [start])
+        self.assertIn('no other member was found beside it', said[-1])
+        self._seeker(raw.input_path, found=raw)
+        self.assertIn('no other member was found beside it', self.log.text())
+        self.assertIn('no other member was found beside it', raw_image.input_text(start, raw))
+
+    def test_several_images_given_are_not_searched_beside(self):
+        folder = self._decoyed_folder()
+        paths = [os.path.join(folder, f'md-r5-ls-{n}.img') for n in (0, 1)]
+        said = []
+        raw = raw_image.cli_raw_input(paths, say=said.append)
+        self.assertEqual((raw.paths, raw.search, said), (paths, None, []))
+
+    def test_logical_evidence_is_refused_before_anything_is_read(self):
+        ad1 = str(FIXTURES / 'lean-multi-ntfs-c9.ad1')
+        self.assertEqual(raw_image.logical_among([self.ntfs, ad1]), ad1)
+        self.assertIsNone(raw_image.logical_among([ad1]))
+        with self.assertRaisesRegex(ValueError, 'is logical evidence'):
+            raw_image.cli_raw_input([self.ntfs, ad1], say=lambda _line: None)
+
+    def test_two_volume_groups_with_one_name_are_told_apart_on_each_physical_volume(self):
+        # the same five disks again under another volume group id, as qnxprobe's own
+        # self-test makes them (1.71): every checksum good, the group name unchanged
+        first = self.sets['lvm-raid-multi']
+        pv0 = qnxprobe._lvm_pv(open(first[0], 'rb'), 0, None)  # pylint: disable=protected-access
+        group = pv0.vg[1]
+        ids = [group['id']] + [rec['id'] for rec in group['physical_volumes'].values()]
+
+        def flip(text):
+            return ('B' if text[0] != 'B' else 'C') + text[1:]
+
+        def renamed(text):
+            for one in ids:
+                text = text.replace(one, flip(one))
+            return text
+
+        folder = tempfile.mkdtemp(prefix='raw_image_twin_groups_', dir=self.work)
+        second = []
+        for number, path in enumerate(first):
+            with open(path, 'rb') as handle:
+                data = bytearray(qnxprobe._lvm_text_change(handle.read(), renamed))  # pylint: disable=protected-access
+            pv = qnxprobe._lvm_pv(__import__('io').BytesIO(bytes(data)), 0, None)  # pylint: disable=protected-access
+            at = pv.label_sector * qnxprobe.SECTOR
+            off, = struct.unpack_from('<I', data, at + 20)
+            data[at + off:at + off + 32] = flip(data[at + off:at + off + 32].decode()).encode()
+            struct.pack_into('<I', data, at + 16, qnxprobe.lvm_crc(bytes(data[at + 20:at + qnxprobe.SECTOR])))
+            second.append(os.path.join(folder, f'twin-{number}.img'))
+            with open(second[-1], 'wb') as handle:
+                handle.write(data)
+        seeker = self._seeker(first + second)
+        read = sorted(arr.safe_name for arr in self._arrays_read(seeker))
+        self.assertEqual(len(read), 6)
+        mine = [line for line in self.log.lines if line.startswith('  lvm_raid_multi_0_img_lba0 ')]
+        theirs = [line for line in self.log.lines if line.startswith('  twin_0_img_lba0 ')]
+        names_in = [re.findall(r' as (lvm_\w+)', line) for line in (mine[0], theirs[0])]
+        self.assertEqual([len(found) for found in names_in], [3, 3])
+        self.assertFalse(set(names_in[0]) & set(names_in[1]))
+        self.assertEqual(sorted(names_in[0] + names_in[1]), read)
+
+    def _decoyed_folder(self):
+        """The four RAID5 members beside decoys: a member of another array, a copy of a
+        member in a subfolder, a symbolic link to a member, a text file, and an NTFS
+        image."""
+        folder = tempfile.mkdtemp(prefix='raw_image_siblings_', dir=self.work)
+        for path in self.sets['md-r5-ls']:
+            shutil.copy(path, folder)
+        shutil.copy(self.sets['md-r1'][0], os.path.join(folder, 'other-array.img'))
+        os.makedirs(os.path.join(folder, 'sub'))
+        shutil.copy(self.sets['md-r5-ls'][1], os.path.join(folder, 'sub', 'copy.img'))
+        os.symlink(os.path.join(folder, 'md-r5-ls-1.img'), os.path.join(folder, 'link.img'))
+        with open(os.path.join(folder, 'notes.txt'), 'w', encoding='utf-8') as handle:
+            handle.write('case notes, not a disk\n' * 200)
+        shutil.copy(self.ntfs, folder)
+        return folder
+
+    def test_the_other_members_are_found_beside_one_by_what_they_record(self):
+        folder = self._decoyed_folder()
+        start = os.path.join(folder, 'md-r5-ls-0.img')
+        search = raw_image.find_members(start)
+        self.assertEqual(sorted(os.path.basename(p) for p in search.added),
+                         ['md-r5-ls-1.img', 'md-r5-ls-2.img', 'md-r5-ls-3.img'])
+        codes = {os.path.basename(r['path']): r['code'] for r in search.result.rejected}
+        self.assertEqual(codes['other-array.img'], 'different-array')
+        self.assertEqual(codes['sub'], 'directory')
+        self.assertEqual(codes['link.img'], 'symlink')
+        self.assertIn(codes['notes.txt'], ('no-raid-metadata', 'too-small'))
+        self.assertEqual(codes['ntfs-fixture.img'], 'no-raid-metadata')
+        said = []
+        raw = raw_image.cli_raw_input(start, say=said.append)
+        self.assertEqual(raw.paths[0], start)
+        self.assertEqual(sorted(raw.found), sorted(search.added))
+        self.assertTrue(said[0].startswith('md-r5-ls-0.img holds a member of md array '
+                                           '3090d8cb:464811e5:ec463b0f:41afd66f (qp:qp21), and '
+                                           'not every member is in it.'))
+        self.assertTrue(any('not used' in line and 'other-array.img' in line for line in said))
+        self.assertEqual(said[-1], 'Reading 4 images together: md-r5-ls-0.img, '
+                                   'md-r5-ls-1.img, md-r5-ls-2.img, md-r5-ls-3.img')
+        seeker = self._seeker(raw.paths, found=raw.search)
+        (arr,) = self._arrays_read(seeker)
+        seeker.search('*')
+        self.assertEqual(self._files_of(seeker, arr.safe_name), self.trees['md-r5-ls'])
+        self.assertIn('(found automatically)', self.log.text())
+        self.assertIn('not used  other-array.img', self.log.text())
+
+    def test_no_search_reads_only_the_file_given(self):
+        folder = self._decoyed_folder()
+        start = os.path.join(folder, 'md-r5-ls-0.img')
+        said = []
+        raw = raw_image.cli_raw_input(start, look_beside=False, say=said.append)
+        self.assertEqual((raw.paths, raw.found, said), ([start], [], []))
+
+    def test_an_lvm_physical_volume_finds_the_others_of_its_group(self):
+        search = raw_image.find_members(self.sets['lvm-raid-multi'][0])
+        self.assertEqual(sorted(search.added), sorted(self.sets['lvm-raid-multi'][1:]))
+
+    def test_an_ordinary_image_looks_for_nothing_and_says_nothing(self):
+        said = []
+        self.assertIsNone(raw_image.find_members(self.ntfs))
+        raw = raw_image.cli_raw_input(self.ntfs, say=said.append)
+        self.assertEqual((raw.paths, raw.found, raw.input_path, said),
+                         ([self.ntfs], [], self.ntfs, []))
+
+    def test_the_window_asks_only_when_the_search_adds_files(self):
+        folder = self._decoyed_folder()
+        start = os.path.join(folder, 'md-r5-ls-0.img')
+        asked = []
+
+        def answer(value):
+            def confirm(_parent, search):
+                asked.append(search)
+                return value
+            return confirm
+
+        raw = raw_image.ask_raw_input(None, start, confirm=answer('use'))
+        self.assertEqual(len(raw.paths), 4)
+        self.assertEqual(len(raw.found), 3)
+        raw = raw_image.ask_raw_input(None, start, confirm=answer('only'))
+        self.assertEqual((raw.paths, raw.found), ([start], []))
+        self.assertIn('the examiner chose to read only md-r5-ls-0.img',
+                      '\n'.join(raw.search.lines()))
+        self.assertIsNone(raw_image.ask_raw_input(None, start, confirm=answer(None)))
+        self.assertEqual(len(asked), 3)
+        text = raw_image.found_members_text(asked[0])
+        self.assertIn('md-r5-ls-1.img: ', text)
+        self.assertIn('other-array.img: ', text)
+        # nothing to add, nothing asked
+        raw = raw_image.ask_raw_input(None, self.ntfs, confirm=answer('use'))
+        self.assertEqual((raw.paths, len(asked)), ([self.ntfs], 3))
+        raw = raw_image.ask_raw_input(None, self.sets['md-r5-ls'], confirm=answer('use'))
+        self.assertEqual((len(raw.paths), len(asked)), (4, 3))
+
+    def test_what_the_input_is_called(self):
+        self.assertEqual(raw_image.input_text('/x/disk.img'), '/x/disk.img')
+        self.assertEqual(raw_image.input_text(['/x/a.img', '/x/b.img'], ['/x/b.img']),
+                         '/x/a.img; /x/b.img (found automatically)')
+        self.assertEqual(raw_image.selection_text(['/x/a.img']), '/x/a.img')
+        self.assertEqual(raw_image.selection_text(['/x/a.img', '/x/b.img', '/x/c.img']),
+                         '/x/a.img and 2 more')
+        picked = ['/x/a.img', '/x/b.img']
+        self.assertEqual(raw_image.selected_paths('/x/a.img and 1 more', picked), picked)
+        self.assertEqual(raw_image.selected_paths('/y/typed.img', picked), ['/y/typed.img'])
+        self.assertEqual(raw_image.selected_paths('/x/a.img', []), ['/x/a.img'])
+        self.assertTrue(raw_image.names_raw_images(['/x/a.img', '/x/b.E01', '/x/c.002']))
+        self.assertFalse(raw_image.names_raw_images(['/x/a.img', '/x/b.zip']))
+        self.assertEqual(raw_image.image_paths('/x/a.img'), ['/x/a.img'])
+        self.assertEqual(raw_image.image_paths(('/x/a.img', '/x/b.img')), ['/x/a.img', '/x/b.img'])
+
+    def test_logical_evidence_is_not_read_with_other_images(self):
+        ad1 = str(FIXTURES / 'lean-multi-ntfs-c9.ad1')
+        with self.assertRaisesRegex(ValueError, 'is logical evidence'):
+            FileSeekerRaw([ad1, self.ntfs], self.data)

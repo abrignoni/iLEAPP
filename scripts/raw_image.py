@@ -73,6 +73,15 @@ What is staged is the attribute as the volume stores it, one index block after
 another with their update sequence arrays not applied. Directory indexes need
 qnxprobe 1.63 or later; with an older vendored copy there are none.
 
+Several images can be read together, the members of a RAID set, one image per disk:
+Linux md arrays and LVM2 logical volumes spread over several images are assembled by
+the vendored reader (qnxprobe 1.69 or later) and each array is read as a disk of its
+own. One image that holds an md member is read with its arrays too. Given one such
+image, the command line and the GUI look in its folder for the other members, by what
+each file records about itself (qnxprobe.raid_siblings, 1.70 or later), say what they
+found and what they left out and why, and read the set; FileSeekerRaw's docstring says
+how its volumes are named.
+
 This file is shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP and is kept
 byte-identical across them. It names nothing specific to a platform; the
 platform is in the artifacts.
@@ -80,6 +89,7 @@ platform is in the artifacts.
 
 import getpass
 import os
+import re
 import sys
 import time as timex
 from fnmatch import _compile_pattern
@@ -176,7 +186,7 @@ class ImageKeys:
     """
 
     __slots__ = ('password', 'private_key', 'bitlocker_secrets', 'bitlocker_keys',
-                 'apfs_secrets', 'luks_secrets')
+                 'apfs_secrets', 'luks_secrets', 'per_image')
 
     def __init__(self, password=None, private_key=None, bitlocker_secrets=(),
                  bitlocker_keys=(), apfs_secrets=(), luks_secrets=()):
@@ -186,18 +196,39 @@ class ImageKeys:
         self.bitlocker_keys = list(bitlocker_keys)
         self.apfs_secrets = list(apfs_secrets)
         self.luks_secrets = list(luks_secrets)
+        # When several images are read together, each can open with its own:
+        # {path: (password, private key)}. An image not named here opens with
+        # ``password`` and ``private_key``.
+        self.per_image = {}
+
+    def password_for(self, path):
+        """The password that opens the image at ``path``."""
+        return self.per_image.get(path, (self.password, self.private_key))[0]
+
+    def private_key_for(self, path):
+        """The private key that opens the image at ``path``."""
+        return self.per_image.get(path, (self.password, self.private_key))[1]
+
+    def _image_secrets(self):
+        """The image's password, then the password of each image read with it, once each:
+        as for one image, what opened an image is tried on the volumes inside."""
+        out = [self.password] if self.password else []
+        for password, _key in self.per_image.values():
+            if password and password not in out:
+                out.append(password)
+        return out
 
     def bitlocker_passwords(self):
         """Every secret to try on a BitLocker volume, the image's password first."""
-        return ([self.password] if self.password else []) + self.bitlocker_secrets
+        return self._image_secrets() + self.bitlocker_secrets
 
     def apfs_passwords(self):
         """Every secret to try on an encrypted APFS volume, the image's password first."""
-        return ([self.password] if self.password else []) + self.apfs_secrets
+        return self._image_secrets() + self.apfs_secrets
 
     def luks_passwords(self):
         """Every passphrase to try on a LUKS container, the image's password first."""
-        return ([self.password] if self.password else []) + self.luks_secrets
+        return self._image_secrets() + self.luks_secrets
 
 
 def needs_password(path):
@@ -259,7 +290,8 @@ def open_logical(path, keys=None):
         return None
     keys = keys or ImageKeys()
     try:
-        image = _ewfprobe.open_ewf(path, password=keys.password, private_key=keys.private_key)
+        image = _ewfprobe.open_ewf(path, password=keys.password_for(path),
+                                   private_key=keys.private_key_for(path))
     except _ewfprobe.EwfPasswordError as exc:
         # raised as the disk route raises it, so a caller handles one kind
         raise qnxprobe.ImagePasswordError(
@@ -278,6 +310,18 @@ def _askable(bitlocker):
             and any(kind in _BITLOCKER_ASKABLE for kind, _id in bitlocker.protectors))
 
 
+def _in_image(path, keys, look):
+    """``look(image)`` over the image at ``path`` opened with ``keys``, or [] for
+    logical evidence, which holds no volumes."""
+    logical = open_logical(path, keys)
+    if logical is not None:
+        logical.close()
+        return []
+    with qnxprobe.open_image(path, password=keys.password_for(path),
+                             private_key=keys.private_key_for(path)) as image:
+        return look(image)
+
+
 def _unlock_bitlocker(path, keys, ask):
     """Try ``keys`` on each BitLocker volume in the image at ``path`` and offer every
     volume they leave locked to ``ask(bitlocker, wrong)`` until it opens: ``ask``
@@ -285,30 +329,29 @@ def _unlock_bitlocker(path, keys, ask):
     startup key file, or None to leave it locked. What opens a volume is added to
     ``keys``. Returns the volumes still locked that something could have opened, as
     (label, locked note) pairs. Logical evidence holds no volumes."""
-    logical = open_logical(path, keys)
-    if logical is not None:
-        logical.close()
-        return []
+    return _in_image(path, keys, lambda image: _unlock_bitlocker_in(image, keys, ask))
+
+
+def _unlock_bitlocker_in(image, keys, ask):
+    """_unlock_bitlocker over an image already open (an assembled RAID array)."""
     left = []
-    with qnxprobe.open_image(path, password=keys.password,
-                             private_key=keys.private_key) as image:
-        _fh, found = qnxprobe.unlock_bitlocker(image, qnxprobe.image_size(image),
-                                               keys.bitlocker_passwords(), keys.bitlocker_keys)
-        for bitlocker in found:
-            wrong = False
-            while _askable(bitlocker):
-                answer = ask(bitlocker, wrong)
-                if answer is None:
-                    break
-                kind, value = answer
-                if kind == 'key':
-                    if bitlocker.unlock((), [value]):
-                        keys.bitlocker_keys.append(value)
-                elif bitlocker.unlock([value], ()):
-                    keys.bitlocker_secrets.append(value)
-                wrong = bitlocker.fvek is None
-            if _askable(bitlocker):
-                left.append((bitlocker.label, bitlocker.locked_note()))
+    _fh, found = qnxprobe.unlock_bitlocker(image, qnxprobe.image_size(image),
+                                           keys.bitlocker_passwords(), keys.bitlocker_keys)
+    for bitlocker in found:
+        wrong = False
+        while _askable(bitlocker):
+            answer = ask(bitlocker, wrong)
+            if answer is None:
+                break
+            kind, value = answer
+            if kind == 'key':
+                if bitlocker.unlock((), [value]):
+                    keys.bitlocker_keys.append(value)
+            elif bitlocker.unlock([value], ()):
+                keys.bitlocker_secrets.append(value)
+            wrong = bitlocker.fvek is None
+        if _askable(bitlocker):
+            left.append((bitlocker.label, bitlocker.locked_note()))
     return left
 
 
@@ -320,26 +363,24 @@ def _unlock_apfs(path, keys, ask):
     volumes still locked that a password could have opened, as (name, locked note)
     pairs, the name saying which volume of which region. Logical evidence holds no
     volumes."""
-    logical = open_logical(path, keys)
-    if logical is not None:
-        logical.close()
-        return []
+    return _in_image(path, keys, lambda image: _unlock_apfs_in(image, keys, ask))
+
+
+def _unlock_apfs_in(image, keys, ask):
+    """_unlock_apfs over an image already open (an assembled RAID array)."""
     left = []
-    with qnxprobe.open_image(path, password=keys.password,
-                             private_key=keys.private_key) as image:
-        _fh, found = qnxprobe.unlock_apfs(image, qnxprobe.image_size(image),
-                                          keys.apfs_passwords())
-        for lock in found:
-            wrong = False
-            while lock.vek is None and not lock.why:
-                answer = ask(lock, wrong)
-                if not answer:
-                    break
-                if lock.unlock([answer]):
-                    keys.apfs_secrets.append(answer)
-                wrong = lock.vek is None
-            if lock.vek is None and not lock.why:
-                left.append((f'{lock.name} in {lock.label}', lock.locked_note()))
+    _fh, found = qnxprobe.unlock_apfs(image, qnxprobe.image_size(image), keys.apfs_passwords())
+    for lock in found:
+        wrong = False
+        while lock.vek is None and not lock.why:
+            answer = ask(lock, wrong)
+            if not answer:
+                break
+            if lock.unlock([answer]):
+                keys.apfs_secrets.append(answer)
+            wrong = lock.vek is None
+        if lock.vek is None and not lock.why:
+            left.append((f'{lock.name} in {lock.label}', lock.locked_note()))
     return left
 
 
@@ -349,26 +390,24 @@ def _unlock_luks(path, keys, ask):
     passphrase, or None to leave it locked. What opens a container is added to ``keys``.
     Returns the containers still locked that a passphrase could have opened, as
     (label, locked note) pairs. Logical evidence holds no volumes."""
-    logical = open_logical(path, keys)
-    if logical is not None:
-        logical.close()
-        return []
+    return _in_image(path, keys, lambda image: _unlock_luks_in(image, keys, ask))
+
+
+def _unlock_luks_in(image, keys, ask):
+    """_unlock_luks over an image already open (an assembled RAID array)."""
     left = []
-    with qnxprobe.open_image(path, password=keys.password,
-                             private_key=keys.private_key) as image:
-        _fh, found = qnxprobe.unlock_luks(image, qnxprobe.image_size(image),
-                                          keys.luks_passwords())
-        for luks in found:
-            wrong = False
-            while luks.mk is None and not luks.why:
-                answer = ask(luks, wrong)
-                if not answer:
-                    break
-                if luks.unlock([answer]):
-                    keys.luks_secrets.append(answer)
-                wrong = luks.mk is None
-            if luks.mk is None and not luks.why:
-                left.append((luks.label, luks.locked_note()))
+    _fh, found = qnxprobe.unlock_luks(image, qnxprobe.image_size(image), keys.luks_passwords())
+    for luks in found:
+        wrong = False
+        while luks.mk is None and not luks.why:
+            answer = ask(luks, wrong)
+            if not answer:
+                break
+            if luks.unlock([answer]):
+                keys.luks_secrets.append(answer)
+            wrong = luks.mk is None
+        if luks.mk is None and not luks.why:
+            left.append((luks.label, luks.locked_note()))
     return left
 
 
@@ -395,10 +434,146 @@ def _secret_given(password_file=None, password_env=None):
     return None
 
 
+def image_paths(input_path):
+    """The images of a run as a list: one path, or the several images read together
+    (the members of a RAID set) given as a list or tuple."""
+    if isinstance(input_path, (list, tuple)):
+        return [str(path) for path in input_path]
+    return [input_path]
+
+
+def _image_name(path):
+    return os.path.basename(os.path.normpath(path))
+
+
+def _for_each_source(paths, keys, look):
+    """``look(name, image)`` for every image a run reads volumes from: the one image
+    given, or, when several are read together or the one image holds RAID members,
+    each image and then each array or volume read across them (see FileSeekerRaw).
+    Logical evidence holds no volumes and is passed over."""
+    opened = []
+    try:
+        for path in paths:
+            logical = open_logical(path, keys)
+            if logical is not None:
+                logical.close()
+                continue
+            opened.append((_image_name(path), qnxprobe.open_image(
+                path, password=keys.password_for(path),
+                private_key=keys.private_key_for(path))))
+        raid = _raid_members(opened) if opened else None
+        for name, image in opened:
+            look(name, image)
+        for arr in (raid.arrays if raid is not None else ()):
+            if arr.image is not None:
+                look(arr.label, arr.image)
+    finally:
+        for _name, image in opened:
+            try:
+                image.close()
+            except Exception:  # pylint: disable=broad-exception-caught
+                pass
+
+
+def _cli_image_key(path, given, private_key, at_terminal):
+    """(password, private key) that open the image at ``path``, for the command line:
+    see cli_image_keys."""
+    name = _image_name(path)
+    if needs_private_key(path):
+        if private_key is None:
+            raise ValueError(f'{name} is sealed to a certificate and opens only with '
+                             f"that certificate's private key; give it with "
+                             f'--image_private_key')
+        if not _opens(path, given, private_key):
+            raise ValueError(f'the private key does not open {name}')
+        return given, private_key
+    if needs_password(path):
+        if private_key is not None and _opens(path, None, private_key):
+            return None, private_key                # sealed to a certificate as well
+        if given is not None:
+            if not _opens(path, given):
+                raise ValueError(f'the password does not open {name}')
+            return given, None
+        if at_terminal:
+            for _ in range(3):
+                password = getpass.getpass(f'Password for {name}: ')
+                if _opens(path, password):
+                    return password, None
+                print('That password does not open the image.', file=sys.stderr)
+            raise ValueError(f'the password does not open {name}')
+        raise ValueError(f'{name} is {_encrypted_kind(path)} and opens only '
+                         f'with its password; give it with --image_password_file '
+                         f'or --image_password_env, or run at a terminal to be '
+                         f'asked for it')
+    return given, private_key           # the password can still open a BitLocker volume
+
+
+def _cli_volume_keys(name, image, keys, at_terminal):
+    """Ask at a terminal for what opens each BitLocker, APFS and LUKS volume in
+    ``image`` that ``keys`` leave locked, and say on stderr what stays locked."""
+    tries = {}
+
+    def ask(bitlocker, wrong):
+        if not at_terminal:
+            return None
+        if wrong:
+            print('That does not open it.', file=sys.stderr)
+        tries[bitlocker.base] = tries.get(bitlocker.base, 0) + 1
+        if tries[bitlocker.base] > 3:
+            return None
+        answer = getpass.getpass(f'{bitlocker.label} of {name} is BitLocker-encrypted. '
+                                 f'Its password or recovery password (empty leaves it '
+                                 f'locked): ')
+        return ('secret', answer) if answer else None
+
+    for label, note in _unlock_bitlocker_in(image, keys, ask):
+        print(f'{label} of {name} stays locked and its files are not searched ({note}). '
+              f'Give its password or recovery password with --image_password_file or '
+              f'--image_password_env, or its startup key with --bitlocker_key.',
+              file=sys.stderr)
+    apfs_tries = {}
+
+    def ask_apfs(lock, wrong):
+        if not at_terminal:
+            return None
+        if wrong:
+            print('That does not open it.', file=sys.stderr)
+        key = (lock.container_uuid, lock.uuid)
+        apfs_tries[key] = apfs_tries.get(key, 0) + 1
+        if apfs_tries[key] > 3:
+            return None
+        return getpass.getpass(_apfs_prompt(lock, name, False)
+                               + ' (empty leaves it locked): ') or None
+
+    for label, note in _unlock_apfs_in(image, keys, ask_apfs):
+        print(f'{label} of {name} stays locked and its files are not searched ({note}). '
+              f'Give its password or personal recovery key with --image_password_file '
+              f'or --image_password_env.', file=sys.stderr)
+    luks_tries = {}
+
+    def ask_luks(luks, wrong):
+        if not at_terminal:
+            return None
+        if wrong:
+            print('That does not open it.', file=sys.stderr)
+        luks_tries[luks.base] = luks_tries.get(luks.base, 0) + 1
+        if luks_tries[luks.base] > 3:
+            return None
+        return getpass.getpass(f'{luks.label} of {name} is a LUKS container. Its '
+                               f'passphrase (empty leaves it locked): ') or None
+
+    for label, note in _unlock_luks_in(image, keys, ask_luks):
+        print(f'{label} of {name} stays locked and its files are not searched ({note}). '
+              f'Give its passphrase with --image_password_file or --image_password_env.',
+              file=sys.stderr)
+
+
 def cli_image_keys(path, password_file=None, password_env=None, private_key=None,
                    bitlocker_keys=()):
     """What opens the image at ``path`` and the encrypted volumes in it, for the
-    command line, as ImageKeys.
+    command line, as ImageKeys. ``path`` can also be a list of images read together
+    (the members of a RAID set): each is opened with what opens it, and the volumes
+    of each image and of each array read from them are asked about in turn.
 
     A password comes from the first line of ``password_file``, else the environment
     variable ``password_env``; it opens an encrypted image, and it is tried on each
@@ -412,101 +587,79 @@ def cli_image_keys(path, password_file=None, password_env=None, private_key=None
     Raises ValueError, saying why, when the image itself cannot be opened with what was
     given.
     """
-    name = os.path.basename(os.path.normpath(path))
-    keys = ImageKeys(private_key=private_key, bitlocker_keys=bitlocker_keys)
-    at_terminal = sys.stdin is not None and sys.stdin.isatty()
-    try:
-        given = _secret_given(password_file, password_env)
-        if needs_private_key(path):
-            if private_key is None:
-                raise ValueError(f'{name} is sealed to a certificate and opens only with '
-                                 f"that certificate's private key; give it with "
-                                 f'--image_private_key')
-            if not _opens(path, given, private_key):
-                raise ValueError(f'the private key does not open {name}')
-            keys.password = given
-        elif needs_password(path):
-            keys.private_key = None
-            if private_key is not None and _opens(path, None, private_key):
-                keys.private_key = private_key          # sealed to a certificate as well
-            elif given is not None:
-                if not _opens(path, given):
-                    raise ValueError(f'the password does not open {name}')
-                keys.password = given
-            elif at_terminal:
-                for _ in range(3):
-                    password = getpass.getpass(f'Password for {name}: ')
-                    if _opens(path, password):
-                        keys.password = password
-                        break
-                    print('That password does not open the image.', file=sys.stderr)
-                else:
-                    raise ValueError(f'the password does not open {name}')
-            else:
-                raise ValueError(f'{name} is {_encrypted_kind(path)} and opens only '
-                                 f'with its password; give it with --image_password_file '
-                                 f'or --image_password_env, or run at a terminal to be '
-                                 f'asked for it')
-        else:
-            keys.password = given           # it can still open a BitLocker volume
-        tries = {}
+    return cli_raw_input(path, password_file, password_env, private_key, bitlocker_keys,
+                         look_beside=False).keys
 
-        def ask(bitlocker, wrong):
-            if not at_terminal:
-                return None
-            if wrong:
-                print('That does not open it.', file=sys.stderr)
-            tries[bitlocker.base] = tries.get(bitlocker.base, 0) + 1
-            if tries[bitlocker.base] > 3:
-                return None
-            answer = getpass.getpass(f'{bitlocker.label} of {name} is BitLocker-encrypted. '
-                                     f'Its password or recovery password (empty leaves it '
-                                     f'locked): ')
-            return ('secret', answer) if answer else None
 
-        for label, note in _unlock_bitlocker(path, keys, ask):
-            print(f'{label} of {name} stays locked and its files are not searched ({note}). '
-                  f'Give its password or recovery password with --image_password_file or '
-                  f'--image_password_env, or its startup key with --bitlocker_key.',
-                  file=sys.stderr)
-        apfs_tries = {}
-
-        def ask_apfs(lock, wrong):
-            if not at_terminal:
+def _gui_image_key(parent, path):
+    """(password, private key) that open the image at ``path``, asked for in dialogs
+    over ``parent``, or None when the examiner cancels: see ask_image_keys."""
+    from tkinter import filedialog, messagebox, simpledialog  # pylint: disable=import-outside-toplevel
+    name = _image_name(path)
+    if needs_private_key(path):
+        title = f'{name} is sealed to a certificate: its RSA private key'
+        while True:
+            key = filedialog.askopenfilename(
+                parent=parent, title=title,
+                filetypes=[('Private key', '*.pem *.key *.der'), ('All files', '*')])
+            if not key:
                 return None
-            if wrong:
-                print('That does not open it.', file=sys.stderr)
-            key = (lock.container_uuid, lock.uuid)
-            apfs_tries[key] = apfs_tries.get(key, 0) + 1
-            if apfs_tries[key] > 3:
+            try:
+                if _opens(path, private_key=key):
+                    return None, key
+                why = f'That key does not open {name}.'
+            except _ewfprobe.EwfError as exc:        # not a key it can read
+                why = str(exc)
+            messagebox.showerror('Encrypted disk image', why, parent=parent)
+    if needs_password(path):
+        prompt = f'{name} is {_encrypted_kind(path)}. Its password:'
+        while True:
+            password = simpledialog.askstring('Encrypted disk image', prompt, show='*',
+                                              parent=parent)
+            if password is None:
                 return None
-            return getpass.getpass(_apfs_prompt(lock, name, False)
-                                   + ' (empty leaves it locked): ') or None
+            if _opens(path, password=password):
+                return password, None
+            prompt = f'That password does not open {name}. Its password:'
+    return None, None
 
-        for label, note in _unlock_apfs(path, keys, ask_apfs):
-            print(f'{label} of {name} stays locked and its files are not searched ({note}). '
-                  f'Give its password or personal recovery key with --image_password_file '
-                  f'or --image_password_env.', file=sys.stderr)
-        luks_tries = {}
 
-        def ask_luks(luks, wrong):
-            if not at_terminal:
-                return None
-            if wrong:
-                print('That does not open it.', file=sys.stderr)
-            luks_tries[luks.base] = luks_tries.get(luks.base, 0) + 1
-            if luks_tries[luks.base] > 3:
-                return None
-            return getpass.getpass(f'{luks.label} of {name} is a LUKS container. Its '
-                                   f'passphrase (empty leaves it locked): ') or None
+def _gui_volume_keys(parent, name, image, keys):
+    """Ask in dialogs over ``parent`` for what opens each BitLocker, APFS and LUKS
+    volume in ``image`` that ``keys`` leave locked. Cancelling leaves it locked."""
+    from tkinter import filedialog, simpledialog  # pylint: disable=import-outside-toplevel
 
-        for label, note in _unlock_luks(path, keys, ask_luks):
-            print(f'{label} of {name} stays locked and its files are not searched ({note}). '
-                  f'Give its passphrase with --image_password_file or --image_password_env.',
-                  file=sys.stderr)
-    except _open_errors() as exc:
-        raise ValueError(f'{name} could not be opened: {exc}') from None
-    return keys
+    def ask(bitlocker, wrong):
+        prompt = (('That does not open it. ' if wrong else '')
+                  + f'{bitlocker.label} of {name} is BitLocker-encrypted. Its password or '
+                  f'recovery password (leave empty to choose a startup key .BEK file):')
+        answer = simpledialog.askstring('BitLocker volume', prompt, show='*',
+                                        parent=parent)
+        if answer is None:
+            return None
+        if answer:
+            return ('secret', answer)
+        key = filedialog.askopenfilename(
+            parent=parent, title='BitLocker startup key',
+            filetypes=[('BitLocker startup key', '*.BEK *.bek'), ('All files', '*')])
+        return ('key', key) if key else None
+
+    _unlock_bitlocker_in(image, keys, ask)
+
+    def ask_apfs(lock, wrong):
+        return simpledialog.askstring('Encrypted APFS volume',
+                                      _apfs_prompt(lock, name, wrong) + ':',
+                                      show='*', parent=parent)
+
+    _unlock_apfs_in(image, keys, ask_apfs)
+
+    def ask_luks(luks, wrong):
+        return simpledialog.askstring(
+            'LUKS container', ('That does not open it. ' if wrong else '')
+            + f'{luks.label} of {name} is a LUKS container. Its passphrase:',
+            show='*', parent=parent)
+
+    _unlock_luks_in(image, keys, ask_luks)
 
 
 def ask_image_keys(parent, path):
@@ -517,74 +670,488 @@ def ask_image_keys(parent, path):
     file, and for each encrypted APFS volume, its password or personal recovery key.
     Cancelling a volume's prompt leaves it locked. None when the examiner cancels the
     image's own prompt, or when the image will not open for another reason, which is
-    shown."""
-    from tkinter import filedialog, messagebox, simpledialog  # pylint: disable=import-outside-toplevel
-    name = os.path.basename(os.path.normpath(path))
-    keys = ImageKeys()
+    shown. ``path`` can also be a list of images read together (the members of a RAID
+    set): each that needs it is asked for in turn, then the volumes of each image and of
+    each array read from them."""
+    raw = ask_raw_input(parent, path, look_beside=False)
+    return None if raw is None else raw.keys
+
+
+# ---- several images read together: the members of a RAID set -------------------
+
+FOUND_AUTOMATICALLY = 'found automatically'
+
+
+class MemberSearch:
+    """What a search beside one image found (qnxprobe.raid_siblings): the other
+    members of the md arrays and LVM2 volume groups that image holds members of, found
+    in its folder by what each file records about itself, never by its name; and
+    whether the examiner chose to read them (``used``)."""
+
+    def __init__(self, given, result, used=True):
+        self.given = given
+        self.result = result
+        self.used = used
+
+    @property
+    def added(self):
+        """The files the search would add, in the order it looked at them."""
+        return [record['path'] for record in self.result.added]
+
+    @property
+    def found(self):
+        """The files added to the run: none when the examiner chose only the file given."""
+        return self.added if self.used else []
+
+    def paths(self):
+        """The image given, then each file the run reads with it."""
+        return [self.given] + self.found
+
+    def holds(self):
+        """What the image given holds that sent the search looking, in words."""
+        words = []
+        for ident in self.result.identities:
+            if ident.get('kind') == 'md':
+                words.append(f"a member of md array {ident.get('array_uuid')}"
+                             + (f" ({ident['name']})" if ident.get('name') else ''))
+            else:
+                words.append(f"a physical volume of LVM2 volume group {ident.get('vg_name')}, "
+                             f"which spans other disks")
+        return ' and '.join(words) or 'RAID members'
+
+    def outcome(self):
+        """The search's result and the examiner's choice, in one sentence."""
+        name = _image_name(self.given)
+        if not self.added:
+            return (f'{name} holds {self.holds()}; no other member was found beside it, '
+                    f'so it is read alone')
+        if not self.used:
+            return (f'{name} holds {self.holds()}; {len(self.added)} other member file(s) '
+                    f'were found beside it and not read: the examiner chose to read only {name}')
+        return (f'{name} holds {self.holds()}; {len(self.added)} other member file(s) were '
+                f'found beside it and read with it')
+
+    def lines(self):
+        """What the search did and found, for the run log and the command line: what the
+        image given holds, the folder, what was looked for, every other file in it with
+        what became of it and why, the members no file holds, and what is read."""
+        name = _image_name(self.given)
+        out = [f'{name} holds {self.holds()}, and not every member is in it. The other '
+               f'members were looked for beside it, by what each file records about itself, '
+               f'not by its name:']
+        out += [f'  {line}' for line in self.result.lines()]
+        out.append(f'  Result: {self.outcome()}.')
+        return out
+
+
+def find_members(path, keys=None):
+    """A MemberSearch for the image at ``path``, or None when it holds no member of an
+    md array or an LVM2 volume group (or is logical evidence, or does not open, which
+    the run says when it reads it). Only the image's own folder is looked in; see
+    qnxprobe's README, "Finding the other members from one of them"."""
+    keys = keys or ImageKeys()
     try:
-        if needs_private_key(path):
-            title = f'{name} is sealed to a certificate: its RSA private key'
-            while True:
-                key = filedialog.askopenfilename(
-                    parent=parent, title=title,
-                    filetypes=[('Private key', '*.pem *.key *.der'), ('All files', '*')])
-                if not key:
-                    return None
-                try:
-                    if _opens(path, private_key=key):
-                        keys.private_key = key
-                        break
-                    why = f'That key does not open {name}.'
-                except _ewfprobe.EwfError as exc:        # not a key it can read
-                    why = str(exc)
-                messagebox.showerror('Encrypted disk image', why, parent=parent)
-        elif needs_password(path):
-            prompt = f'{name} is {_encrypted_kind(path)}. Its password:'
-            while True:
-                password = simpledialog.askstring('Encrypted disk image', prompt, show='*',
-                                                  parent=parent)
-                if password is None:
-                    return None
-                if _opens(path, password=password):
-                    keys.password = password
-                    break
-                prompt = f'That password does not open {name}. Its password:'
+        if qnxprobe.acquisition_format(path) in _MAYBE_LOGICAL:
+            return None
+    except _open_errors():
+        return None
+    password = keys.password_for(path)
+    private_key = keys.private_key_for(path)
+    passwords = [password] if password else []
+    private_keys = [private_key] if private_key else []
+    try:
+        # First what the image holds, opening no other file: an image that holds every
+        # member of its arrays and volume groups (a one-disk LVM2 image, or a disk whose
+        # own partitions form an array) needs no search, and nothing is said.
+        held = qnxprobe.raid_siblings(path, passwords=passwords, private_keys=private_keys,
+                                      max_candidates=0)
+        if held.error or not held.identities or not held.missing:
+            return None
+        result = qnxprobe.raid_siblings(path, passwords=passwords, private_keys=private_keys)
+    except Exception:  # pylint: disable=broad-exception-caught
+        # The search is said never to raise for a file it cannot read; anything else
+        # leaves the run to the images given, whose RAID members the log still names.
+        return None
+    if result.error or not result.identities:
+        return None
+    return MemberSearch(path, result)
 
-        def ask(bitlocker, wrong):
-            prompt = (('That does not open it. ' if wrong else '')
-                      + f'{bitlocker.label} of {name} is BitLocker-encrypted. Its password or '
-                      f'recovery password (leave empty to choose a startup key .BEK file):')
-            answer = simpledialog.askstring('BitLocker volume', prompt, show='*',
-                                            parent=parent)
-            if answer is None:
+
+def _image_files(path):
+    """Every file the image at ``path`` is read from, as far as its name tells without
+    opening it: the segments of an EWF or AD1 set or of a split raw set, else the file."""
+    try:
+        kind = qnxprobe.acquisition_format(path)
+    except _open_errors():
+        kind = None
+    files = []
+    try:
+        if kind in ('EWF', 'EWF2'):
+            files = _ewfprobe.ewf_segments(path)
+        elif kind == 'AD1':
+            files = _ewfprobe.ad1_segments(path)
+        elif kind in (None, 'AD_ENCRYPTED'):
+            files = qnxprobe.split_segments(path)
+    except Exception:  # pylint: disable=broad-exception-caught
+        # a set the reader refuses is said, by name, when the run opens it
+        files = []
+    return files or [path]
+
+
+def _identity(path):
+    """The files of the image at ``path`` by device and inode, so two names of one file
+    (a link, a relative and an absolute path) are one."""
+    out = set()
+    for one in _image_files(path):
+        try:
+            info = os.stat(one)
+            out.add((info.st_dev, info.st_ino))
+        except OSError:
+            out.add(os.path.realpath(one))
+    return out
+
+
+def distinct_images(paths):
+    """The images ``paths`` name, each disk once: (kept, repeats), ``repeats`` being
+    [(path, the kept path it is the same disk as)]. Two paths are one disk when they
+    share a file: the same file given twice or by two names, or two segments of one
+    split, EWF or AD1 set."""
+    kept, identities, repeats = [], [], []
+    for path in paths:
+        mine = _identity(path)
+        for other, theirs in zip(kept, identities):
+            if mine & theirs:
+                repeats.append((path, other))
+                break
+        else:
+            kept.append(path)
+            identities.append(mine)
+    return kept, repeats
+
+
+def repeat_lines(repeats):
+    """What the run says about each image given twice."""
+    return [f'Given twice: {path} is the same disk as {other}, which is read once.'
+            for path, other in repeats]
+
+
+def logical_among(paths):
+    """The first of several paths that is logical evidence (an L01 or an AD1), which
+    holds files rather than a disk and is read on its own, or None."""
+    if len(paths) < 2:
+        return None
+    for path in paths:
+        try:
+            if qnxprobe.acquisition_format(path) in ('L01', 'Lx01', 'AD1'):
+                return path
+        except _open_errors():
+            continue
+    return None
+
+
+def logical_refusal(path):
+    """Why several images that include logical evidence are not read together."""
+    return (f'{_image_name(path)} is logical evidence (an L01 or AD1), which holds files '
+            f'rather than a disk and is read on its own, not together with other images.')
+
+
+def _what_was_given(found):
+    """(search, found paths, repeats) from what a run is handed beside its images: a
+    RawInput, a MemberSearch, or the paths found."""
+    if isinstance(found, RawInput):
+        return found.search, list(found.found), list(found.repeats)
+    if isinstance(found, MemberSearch):
+        return found, list(found.found), []
+    return None, list(found or ()), []
+
+
+def input_text(input_path, found=()):
+    """The input as the report, the run log and LAVA name it: the path itself for one
+    image (or anything else), and for several images read together each path, with
+    the ones found beside the image given marked as found automatically. ``found`` is
+    those paths, or the MemberSearch that found them, or the RawInput. When a search
+    ran and read nothing more (none found, or the examiner chose the file given alone),
+    or an image was given twice, a sentence in brackets says so."""
+    paths = image_paths(input_path)
+    search, found_paths, repeats = _what_was_given(found)
+    if len(paths) == 1 and not isinstance(input_path, (list, tuple)):
+        text = input_path
+    else:
+        found_paths = set(found_paths)
+        text = '; '.join(path + (f' ({FOUND_AUTOMATICALLY})' if path in found_paths else '')
+                         for path in paths)
+    notes = []
+    if search is not None and not search.found:
+        notes.append(search.outcome())
+    notes += [f'{path} was given too and is the same disk as {other}, read once'
+              for path, other in repeats]
+    return text + ''.join(f' ({note})' for note in notes)
+
+
+def selection_text(paths):
+    """What the window's input field shows for the files picked: the path for one,
+    the first path and how many more for several."""
+    paths = list(paths)
+    if len(paths) <= 1:
+        return paths[0] if paths else ''
+    return f'{paths[0]} and {len(paths) - 1} more'
+
+
+def selected_paths(entry_text, selection):
+    """The input the window's field stands for: the files picked together when the
+    field still shows them, otherwise whatever was typed or chosen since, as one path."""
+    selection = list(selection or ())
+    if len(selection) > 1 and entry_text == selection_text(selection):
+        return selection
+    return [entry_text]
+
+
+def names_raw_images(paths):
+    """True when every path is something the raw image input reads by its name: an
+    image folder, a conventional image extension, or a numbered segment. Several
+    files are read together only as disk images."""
+    for path in paths:
+        if names_an_image_folder(path):
+            continue
+        suffix = os.path.basename(path).rpartition('.')[2].lower()
+        if suffix in RAW_IMAGE_SUFFIXES or (suffix.isascii() and suffix.isdigit()):
+            continue
+        return False
+    return True
+
+
+class RawInput:
+    """The images a raw run reads and what opens them: ``paths`` (the images given,
+    then any found beside the one given), ``found`` (those found), ``keys`` (ImageKeys)
+    and ``search`` (the MemberSearch, or None when no search was made or the image
+    given holds no RAID member)."""
+
+    def __init__(self, paths, keys, search=None, repeats=()):
+        self.paths = list(paths)
+        self.keys = keys
+        self.search = search
+        self.found = list(search.found) if search is not None else []
+        # [(path, the path of the same disk that is read)] for each image given twice
+        self.repeats = list(repeats)
+
+    @property
+    def input_path(self):
+        """What the run is handed: the one path, or the list of images."""
+        return self.paths[0] if len(self.paths) == 1 else list(self.paths)
+
+
+def cli_raw_input(input_path, password_file=None, password_env=None, private_key=None,
+                  bitlocker_keys=(), look_beside=True, say=print):
+    """The images a command line raw run reads, and what opens them, as RawInput.
+
+    Each image is opened with what opens it (see cli_image_keys). One image that holds
+    a member of an md array or an LVM2 volume group then has the other members looked
+    for beside it (``look_beside``, on unless the examiner turned it off), and what the
+    search did is said through ``say`` before anything is read: every file it adds and
+    every one it does not, with why. Several images given are read as given. Last, the
+    BitLocker, APFS and LUKS volumes of each image, and of each array read from them,
+    are asked about. Raises ValueError, as cli_image_keys does."""
+    paths, repeats = distinct_images(image_paths(input_path))
+    for line in repeat_lines(repeats):
+        say(line)
+    logical = logical_among(paths)
+    if logical is not None:
+        raise ValueError(logical_refusal(logical))
+    keys = ImageKeys(private_key=private_key, bitlocker_keys=bitlocker_keys)
+    at_terminal = sys.stdin is not None and sys.stdin.isatty()
+    search = None
+    name = _image_name(paths[0])
+    try:
+        given = _secret_given(password_file, password_env)
+        opened = {}
+        for one in paths:
+            name = _image_name(one)
+            opened[one] = _cli_image_key(one, given, private_key, at_terminal)
+        if look_beside and len(paths) == 1:
+            name = _image_name(paths[0])
+            first = ImageKeys(*opened[paths[0]])
+            search = find_members(paths[0], first)
+            if search is not None:
+                for line in search.lines():
+                    say(line)
+                for one in search.found:
+                    name = _image_name(one)
+                    opened[one] = _cli_image_key(one, given, private_key, at_terminal)
+                if search.found:
+                    paths = search.paths()
+                    say(f'Reading {len(paths)} images together: '
+                        + ', '.join(_image_name(one) for one in paths))
+        if len(paths) == 1:
+            keys.password, keys.private_key = opened[paths[0]]
+        else:
+            keys.password = given
+            keys.per_image = {one: opened[one] for one in paths}
+        name = _image_name(paths[0])
+
+        def look(source, image):
+            nonlocal name
+            name = source
+            _cli_volume_keys(source, image, keys, at_terminal)
+
+        _for_each_source(paths, keys, look)
+    except _open_errors() as exc:
+        raise ValueError(f'{name} could not be opened: {exc}') from None
+    return RawInput(paths, keys, search, repeats)
+
+
+def found_members_text(search):
+    """What the window shows before a run when the search beside the image picked
+    found other members: each file it would add and why, each it would not and why,
+    and the members no file holds."""
+    name = _image_name(search.given)
+    out = [f'{name} holds RAID members. These files beside it hold the other members, '
+           f'found by what each records about itself, not by its name:', '']
+    for record in search.result.added:
+        out.append(f"  {_image_name(record['path'])}: {record['why']}")
+    rejected = search.result.rejected
+    if rejected:
+        out += ['', 'Not used:']
+        out += [f"  {_image_name(record['path'])}: {record['why']}" for record in rejected]
+    for warning in search.result.warnings:
+        out += ['', f'WARNING: {warning}']
+    for missing in search.result.missing:
+        out += ['', f"Missing: {missing['why']}"]
+    out += ['', f'Read them with {name}?']
+    return '\n'.join(out)
+
+
+def confirm_found_members(parent, search):
+    """Ask the examiner, in a dialog over ``parent``, whether to read the files the
+    search found with the image picked. Returns 'use' (the default button, "Use
+    them"), 'only' ("Only the file I picked") or None ("Cancel", or the window
+    closed)."""
+    import tkinter as tk  # pylint: disable=import-outside-toplevel
+    from tkinter import ttk  # pylint: disable=import-outside-toplevel
+    dialog = tk.Toplevel(parent)
+    dialog.title('RAID members found')
+    dialog.transient(parent)
+    choice = {'value': None}
+    text = tk.Text(dialog, wrap='word', width=90, height=18)
+    text.insert('1.0', found_members_text(search))
+    text.config(state='disabled')
+    text.pack(padx=10, pady=(10, 4), fill='both', expand=True)
+    buttons = ttk.Frame(dialog)
+    buttons.pack(padx=10, pady=(4, 10), anchor='e')
+
+    def close(value):
+        choice['value'] = value
+        dialog.destroy()
+
+    use = ttk.Button(buttons, text='Use them', default='active', command=lambda: close('use'))
+    use.pack(side='left', padx=4)
+    ttk.Button(buttons, text='Only the file I picked',
+               command=lambda: close('only')).pack(side='left', padx=4)
+    ttk.Button(buttons, text='Cancel', command=lambda: close(None)).pack(side='left', padx=4)
+    dialog.bind('<Return>', lambda _event: close('use'))
+    dialog.bind('<Escape>', lambda _event: close(None))
+    dialog.protocol('WM_DELETE_WINDOW', lambda: close(None))
+    use.focus_set()
+    dialog.grab_set()
+    dialog.wait_window()
+    return choice['value']
+
+
+def ask_raw_input(parent, input_path, look_beside=True, confirm=None):
+    """The images a raw run from the window reads, and what opens them, as RawInput,
+    or None when the examiner cancels or an image will not open (which is shown).
+
+    Each image picked that needs it is asked for what opens it (see ask_image_keys).
+    One image picked that holds a member of an md array or an LVM2 volume group then
+    has the other members looked for beside it (``look_beside``). When the search adds
+    files, ``confirm(parent, search)`` (confirm_found_members unless given) asks
+    whether to read them: 'use' reads them, 'only' reads the file picked alone, None
+    cancels the run. Nothing is asked when the image holds no member or the search adds
+    nothing. Several images picked are read as picked. Last, the BitLocker, APFS and
+    LUKS volumes of each image, and of each array read from them, are asked about."""
+    from tkinter import messagebox  # pylint: disable=import-outside-toplevel
+    paths, repeats = distinct_images(image_paths(input_path))
+    if repeats:
+        messagebox.showinfo('The same disk picked twice', '\n'.join(repeat_lines(repeats)),
+                            parent=parent)
+    logical = logical_among(paths)
+    if logical is not None:
+        messagebox.showerror('Error', logical_refusal(logical), parent=parent)
+        return None
+    keys = ImageKeys()
+    search = None
+    name = _image_name(paths[0])
+    try:
+        opened = {}
+        for one in paths:
+            name = _image_name(one)
+            opened[one] = _gui_image_key(parent, one)
+            if opened[one] is None:
                 return None
-            if answer:
-                return ('secret', answer)
-            key = filedialog.askopenfilename(
-                parent=parent, title='BitLocker startup key',
-                filetypes=[('BitLocker startup key', '*.BEK *.bek'), ('All files', '*')])
-            return ('key', key) if key else None
+        if look_beside and len(paths) == 1:
+            name = _image_name(paths[0])
+            search = find_members(paths[0], ImageKeys(*opened[paths[0]]))
+            if search is not None and search.added:
+                answer = (confirm or confirm_found_members)(parent, search)
+                if answer is None:
+                    return None
+                search.used = answer == 'use'
+                for one in search.found:
+                    name = _image_name(one)
+                    opened[one] = _gui_image_key(parent, one)
+                    if opened[one] is None:
+                        return None
+                paths = search.paths()
+        if len(paths) == 1:
+            keys.password, keys.private_key = opened[paths[0]]
+        else:
+            keys.per_image = {one: opened[one] for one in paths}
+        name = _image_name(paths[0])
 
-        _unlock_bitlocker(path, keys, ask)
+        def look(source, image):
+            nonlocal name
+            name = source
+            _gui_volume_keys(parent, source, image, keys)
 
-        def ask_apfs(lock, wrong):
-            return simpledialog.askstring('Encrypted APFS volume',
-                                          _apfs_prompt(lock, name, wrong) + ':',
-                                          show='*', parent=parent)
-
-        _unlock_apfs(path, keys, ask_apfs)
-
-        def ask_luks(luks, wrong):
-            return simpledialog.askstring(
-                'LUKS container', ('That does not open it. ' if wrong else '')
-                + f'{luks.label} of {name} is a LUKS container. Its passphrase:',
-                show='*', parent=parent)
-
-        _unlock_luks(path, keys, ask_luks)
+        _for_each_source(paths, keys, look)
     except _open_errors() as exc:
         messagebox.showerror('Error', f'{name} could not be opened:\n{exc}', parent=parent)
         return None
-    return keys
+    return RawInput(paths, keys, search, repeats)
+
+
+class PathsTooltip:
+    """A tooltip over ``widget`` listing the paths ``paths()`` returns, shown while the
+    pointer is over it and there is more than one path."""
+
+    def __init__(self, widget, paths):
+        self.widget = widget
+        self.paths = paths
+        self.tip = None
+        widget.bind('<Enter>', self.show, add='+')
+        widget.bind('<Leave>', self.hide, add='+')
+
+    def text(self):
+        paths = list(self.paths() or ())
+        if len(paths) < 2:
+            return ''
+        return f'{len(paths)} images, read together:\n' + '\n'.join(paths)
+
+    def show(self, _event=None):
+        import tkinter as tk  # pylint: disable=import-outside-toplevel
+        text = self.text()
+        if not text or self.tip is not None:
+            return
+        self.tip = tk.Toplevel(self.widget)
+        self.tip.wm_overrideredirect(True)
+        self.tip.wm_geometry(f'+{self.widget.winfo_rootx()}+'
+                             f'{self.widget.winfo_rooty() + self.widget.winfo_height() + 2}')
+        tk.Label(self.tip, text=text, justify='left', relief='solid', borderwidth=1,
+                 padx=6, pady=4).pack()
+
+    def hide(self, _event=None):
+        if self.tip is not None:
+            self.tip.destroy()
+            self.tip = None
 
 
 def names_a_stream(filepattern):
@@ -665,6 +1232,105 @@ def _reading_as_local_instant(reading):
         return 0
 
 
+def _raid_members(images):
+    """qnxprobe.raid_assemble over ``images``, [(name, open image)], or None when they
+    are one image that holds no md member: such an image is read exactly as before.
+    Several images always give a RaidSet, whatever they hold."""
+    try:
+        raid = qnxprobe.raid_assemble(images)
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        if len(images) == 1:
+            return None
+        raid = qnxprobe.RaidSet()
+        raid.foreign.append(('', f'RAID members were not assembled ({type(exc).__name__}: '
+                                 f'{exc})'))
+        return raid
+    if len(images) > 1 or raid.arrays or raid.members:
+        return raid
+    raid.close()
+    return None
+
+
+def _safe_source_name(name):
+    """An image's file name made safe to start a volume name with."""
+    return qnxprobe.sanitize_volume_label(name, 48) or 'image'
+
+
+def _read_elsewhere(vol, covers, spans):
+    """Where a volume of an image is read instead of from the image, or None: inside
+    a member of an array read here, or another copy of a RAID1 member read from the
+    first (``covers``, [(start, end, where)]), or a logical volume read across the
+    images (``spans``, {label: volume})."""
+    if vol.get('label') in spans:
+        return f"read across the images as {spans[vol['label']].safe_name}"
+    base = vol.get('base')
+    if vol.get('lvm_map') is not None or base is None:
+        return None
+    for start, end, where in covers:
+        if start <= base < end:
+            return where
+    return None
+
+
+# How the reader names, in its RAID report, a physical volume of a volume group spread
+# over several images: "<image> <region>: LVM2 physical volume of volume group <name>",
+# with "... so this one is shown as <name>@<id>)" when two groups share the name (1.71).
+_SPANNED_PV = re.compile(r'^(?P<where>.+): LVM2 physical volume of volume group (?P<name>.+?)'
+                         r'(?: \(id [^;]+; .* shown as (?P<shown>[^)]+)\))?, which spans several '
+                         r'images$')
+
+
+def _spanned_groups(raid, image_name):
+    """{region label: the group's name as its volumes' labels show it} for each
+    physical volume on ``image_name`` whose volume group is read across the images,
+    from the reader's own RAID report, so a group is told from another of its name by
+    its id."""
+    out = {}
+    prefix = f'{image_name} '
+    for line in raid.members.get(image_name, ()):
+        found = _SPANNED_PV.match(line)
+        if found and found.group('where').startswith(prefix):
+            out[found.group('where')[len(prefix):]] = found.group('shown') or found.group('name')
+    return out
+
+
+def _as_read_here(vol, prefix, covers, spans, groups=None):
+    """A copy of ``vol`` named with ``prefix``. One that an array read here covers keeps
+    its line in the log and loses its walker and free space, with a note saying where
+    its bytes are read, so no file is listed twice."""
+    vol = dict(vol)
+    if prefix and vol.get('name'):
+        vol['name'] = prefix + vol['name']
+    elsewhere = _read_elsewhere(vol, covers, spans)
+    if elsewhere and (vol.get('walker') is not None or vol.get('free_extents') is not None):
+        vol['walker'] = None
+        vol['free_extents'] = None
+        vol['note'] = elsewhere
+    across = _group_read_across(vol, spans, groups or {})
+    if across:
+        # The reader's note on a physical volume says which of its group's volumes this
+        # image alone cannot read; say where they are read instead.
+        vol['note'] = (f"{vol['note']}; " if vol.get('note') else '') + across
+    return vol
+
+
+def _group_read_across(vol, spans, groups):
+    """For an LVM2 physical volume whose volume group has volumes read across the
+    images (``spans``), the words saying where each is read; else None. ``groups`` maps
+    a region to its group as the reader shows it (see _spanned_groups)."""
+    if vol.get('kind') != 'lvm2 pv' or not spans:
+        return None
+    group = groups.get(vol.get('label'))
+    if group is None:
+        return None
+    read = [(label[len(f'LVM {group}/'):], arr.safe_name) for label, arr in spans.items()
+            if label.startswith(f'LVM {group}/')]
+    if not read:
+        return None
+    return ('read across the images given: '
+            + ', '.join(f'{volume} as {name}' for volume, name in read))
+
+
 class _Entry:
     """Where one member lives in the image: enough to read it on demand. ``folder``
     marks the data of a logical evidence entry that is a folder as well, whose
@@ -742,11 +1408,36 @@ class FileSeekerRaw(FileSeekerBase):
 
     ``password`` is what opens the image and the encrypted volumes in it: ImageKeys,
     or a bare password, as earlier callers passed.
+
+    ``image_path`` can also be a list of images read together, the members of a RAID
+    set, and one image that holds an md member is read the same way. The images are
+    assembled as the vendored reader assembles them (qnxprobe.raid_assemble): Linux md
+    arrays, and LVM2 logical volumes spread over several images. Then each image is read
+    as before, except its volumes that an array read here covers, and each array read
+    is read as one disk of its own, so its volumes are named as any disk's are
+    (``lba0``, ``p<idx>_lba<start>``). When more than one image or array is read, each
+    volume name starts with the name of what holds it, so two cannot collide: the
+    image's file name made safe (``disk0_img_p1_lba2048``), or the array's own name
+    (``md_<name>_<first eight hex digits of its uuid>_lba0`` for an md array,
+    ``lvm_<group>_<volume>_lba0`` for an LVM2 volume read across images), the name the
+    reader's own extraction gives it. That name also replaces the image's file name in
+    the array's free space members. ``found`` is a MemberSearch, or the paths found
+    beside the image given, which the run log marks as found automatically.
     """
 
-    def __init__(self, image_path, data_folder, password=None):
+    def __init__(self, image_path, data_folder, password=None, found=None):
         FileSeekerBase.__init__(self)
-        self.image_path = image_path
+        self.member_search, self.found, self.repeats = _what_was_given(found)
+        given = image_paths(image_path)
+        if len(given) > 1:
+            # one disk given twice (two names, two segments of one set) is read once
+            given, repeats = distinct_images(given)
+            self.repeats += repeats
+        self.image_paths = given
+        self.image_path = self.image_paths[0]
+        # the RaidSet when several images, or one image's RAID members, are read
+        self.raid = None
+        self._owned = []
         self.data_folder = data_folder
         self.searched = {}
         self.copied = {}
@@ -777,6 +1468,11 @@ class FileSeekerRaw(FileSeekerBase):
 
     def _open(self, password=None):
         keys = password if isinstance(password, ImageKeys) else ImageKeys(password=password)
+        for line in repeat_lines(self.repeats):
+            logfunc(line)
+        if len(self.image_paths) > 1:
+            self._open_several(keys)
+            return
         name = os.path.basename(self.image_path)
         logical = open_logical(self.image_path, keys)
         if logical is not None:
@@ -786,10 +1482,30 @@ class FileSeekerRaw(FileSeekerBase):
         logfunc(f'Reading {name} in place with the vendored qnxprobe '
                 f'{qnxprobe.QNXPROBE_VERSION}; only the files an artifact asks for '
                 f'leave the image.')
+        if self.member_search is not None:
+            # the search beside it ran, and found nothing or was not taken up
+            for line in self.member_search.lines():
+                logfunc(line)
+        self._image, size = self._open_one(self.image_path, keys)
+        self._size = size
+        # One image that holds a member of an md array (a disk of a RAID set, or a
+        # disk whose own partitions form one) is read with its arrays; any other
+        # image is read exactly as before.
+        raid = _raid_members([(name, self._image)])
+        if raid is not None:
+            self._open_raid([(self.image_path, name, self._image, size)], raid, keys)
+            return
+        self._image = self._read_source(self._image, size, name, keys)
+        self._listing_complete()
+
+    def _open_one(self, path, keys):
+        """Open one image (raw, split, or an acquisition) and say what it is. Returns
+        (image, size)."""
+        name = os.path.basename(path)
         # an acquisition's reader joins its own files; a raw set FTK Imager encrypted
         # is numbered like a split image and its files are ciphertext until then
-        acquisition = qnxprobe.acquisition_format(self.image_path)
-        sibling = None if acquisition else split_image_sibling(self.image_path)
+        acquisition = qnxprobe.acquisition_format(path)
+        sibling = None if acquisition else split_image_sibling(path)
         if sibling:
             logfunc(f'{name} is one segment of a split image: '
                     f'{os.path.basename(sibling)} sits beside it. The reader joins '
@@ -797,36 +1513,125 @@ class FileSeekerRaw(FileSeekerBase):
         # A set with a hole in its numbering raises SplitImageError here, by
         # name, and the run stops with that message rather than reading half a
         # disk as though it were whole.
-        segments = [] if acquisition else qnxprobe.split_segments(self.image_path)
-        self._image = qnxprobe.open_image(self.image_path, segments, password=keys.password,
-                                          private_key=keys.private_key)
-        size = qnxprobe.image_size(self._image)
-        self._size = size
+        segments = [] if acquisition else qnxprobe.split_segments(path)
+        image = qnxprobe.open_image(path, segments, password=keys.password_for(path),
+                                    private_key=keys.private_key_for(path))
+        size = qnxprobe.image_size(image)
         if segments:
             logfunc(f'  {len(segments):,} segments joined in order, '
                     f'{os.path.basename(segments[0])} .. '
                     f'{os.path.basename(segments[-1])}')
-        elif getattr(self._image, 'paths', None):
+        elif getattr(image, 'paths', None):
             # the container and its segment or file count, as the reader reports it
-            logfunc(f'  {qnxprobe.describe_acquisition(self._image)}')
+            logfunc(f'  {qnxprobe.describe_acquisition(image)}')
         logfunc(f'  {size:,} bytes ({qnxprobe.human(size)})')
+        return image, size
 
+    def _open_several(self, keys):
+        """Open each of several images, say which were given and which found, and
+        read them together (_open_raid)."""
+        count = len(self.image_paths)
+        logfunc(f'Reading {count} images together in place with the vendored qnxprobe '
+                f'{qnxprobe.QNXPROBE_VERSION}, as the members of the RAID arrays and LVM2 '
+                f'volume groups they hold; only the files an artifact asks for leave them.')
+        if self.member_search is not None:
+            for line in self.member_search.lines():
+                logfunc(line)
+        given = []
+        for number, path in enumerate(self.image_paths, start=1):
+            name = os.path.basename(path)
+            logical = open_logical(path, keys)
+            if logical is not None:
+                logical.close()
+                raise ValueError(f'{name} is logical evidence (an L01 or AD1), which holds '
+                                 f'files rather than a disk and is read on its own, not '
+                                 f'with other images')
+            how = FOUND_AUTOMATICALLY if path in self.found else 'given'
+            logfunc(f'Image {number} of {count}: {name} ({how}), {path}')
+            image, size = self._open_one(path, keys)
+            self._owned.append(image)
+            given.append((path, name, image, size))
+        self._image, self._size = given[0][2], given[0][3]
+        self._open_raid(given, _raid_members([(name, image) for _p, name, image, _s in given]),
+                        keys)
+
+    def _open_raid(self, given, raid, keys):
+        """Read images that hold RAID members, ``given`` as [(path, name, image, size)]:
+        what assembly found, then each image's volumes, except those an array read here
+        covers, then each array or volume read across the images, as a disk of its own."""
+        self.raid = raid
+        qnxprobe.raid_report(raid, say=logfunc, images_given=len(given))
+        # A RAID1 array whose data starts at the first byte of its first member (metadata
+        # 0.90 or 1.0) is not read again, as the reader's own run does not read it: that
+        # member's own volume is the same bytes and is read, and the other members'
+        # copies are not, so no file is listed twice.
+        read = [arr for arr in raid.arrays
+                if arr.image is not None and not getattr(arr, 'same_as', None)]
+        covered = {}
+        for arr in read:
+            for member in getattr(arr, 'members', None) or ():
+                covered.setdefault(id(member['fh']), []).append(
+                    (member['base'], member['base'] + member['size'],
+                     f'inside a member of {arr.label}, read as {arr.safe_name}'))
+        for arr in raid.arrays:
+            if arr.image is None or not getattr(arr, 'same_as', None):
+                continue
+            first = min(arr.members, key=lambda member: member['role'])
+            for member in arr.members:
+                if member is not first:
+                    covered.setdefault(id(member['fh']), []).append(
+                        (member['base'], member['base'] + member['size'],
+                         f"a copy in {arr.label} of what {first['where']} holds, which is "
+                         f'read there'))
+        across = {arr.label: arr for arr in read if isinstance(arr, qnxprobe.LvmSpanned)}
+        sources = [(name, _safe_source_name(name), image, size, name,
+                    covered.get(id(image), ()), across, _spanned_groups(raid, name))
+                   for _path, name, image, size in given]
+        sources += [(f'{arr.label} ({arr.safe_name})', arr.safe_name, arr.image,
+                     arr.image.size, arr.safe_name, (), {}, {}) for arr in read]
+        several = len(sources) > 1
+        taken = set()
+        for title, stem, image, size, image_name, covers, spans, groups in sources:
+            # two images whose names make the same safe name are told apart by number
+            unique, number = stem, 1
+            while unique in taken:
+                number += 1
+                unique = f'{stem}_{number}'
+            taken.add(unique)
+            prefix = f'{unique}_' if several else ''
+            logfunc(f'Volumes of {title}' + (f', each named {unique}_<volume>:' if several
+                                              else ':'))
+            unlocked = self._read_source(image, size, image_name, keys, prefix, covers, spans,
+                                         groups)
+            if unlocked is not image:
+                self._owned.append(unlocked)
+        self._listing_complete()
+
+    def _read_source(self, image, size, image_name, keys, prefix='', covers=(), spans=None,
+                     groups=None):
+        """Open the encrypted volumes ``keys`` open, list the volumes of ``image``, walk
+        each one the reader reads, and offer its free space. Returns the image as
+        unlocked. ``prefix`` starts each volume's name; a volume inside a region in
+        ``covers`` [(start, end, where it is read)], or named in ``spans`` {label: volume
+        read across the images}, is listed and not walked, because it is read there."""
         # A BitLocker volume the keys open reads as the filesystem inside it, and an
         # encrypted APFS volume they open is read decrypted; one they do not open is
         # listed with the reason and nothing in it is searched.
-        self._image, _found = qnxprobe.unlock_bitlocker(
-            self._image, size, keys.bitlocker_passwords(), keys.bitlocker_keys)
-        self._image, _apfs_found = qnxprobe.unlock_apfs(self._image, size,
-                                                         keys.apfs_passwords())
+        image, _found = qnxprobe.unlock_bitlocker(
+            image, size, keys.bitlocker_passwords(), keys.bitlocker_keys)
+        image, _apfs_found = qnxprobe.unlock_apfs(image, size, keys.apfs_passwords())
         # A LUKS container a passphrase opens reads as what it holds, a region of
         # its own; one none opens is listed with the reason.
-        self._image, _luks_found = qnxprobe.unlock_luks(self._image, size,
-                                                        keys.luks_passwords())
-        self.volumes = qnxprobe.volumes(self._image, size)
-        if not self.volumes:
+        image, _luks_found = qnxprobe.unlock_luks(image, size, keys.luks_passwords())
+        volumes = qnxprobe.volumes(image, size)
+        if prefix or covers or spans or groups:
+            volumes = [_as_read_here(vol, prefix, covers, spans or {}, groups)
+                       for vol in volumes]
+        self.volumes += volumes
+        if not volumes:
             logfunc('  no partition table and no filesystem the reader knows: '
                     'nothing to search')
-        for vol in self.volumes:
+        for vol in volumes:
             note = vol.get('note')
             line = (f"  {vol['name'] or vol['label']:<40} {vol['kind']:<16} "
                     f"{qnxprobe.human(vol['size'] or 0):>10}")
@@ -842,7 +1647,7 @@ class FileSeekerRaw(FileSeekerBase):
         # the front of it: a lone first segment of a split image reads this way,
         # its boot volumes whole and the volume holding the user data cut. Say
         # so before any of its files is staged.
-        short = [v for v in self.volumes if v.get('missing_past_end')]
+        short = [v for v in volumes if v.get('missing_past_end')]
         if short:
             logfunc('WARNING: the image is shorter than the volumes it describes. '
                     'Rows from these volumes come from an incomplete read:')
@@ -853,7 +1658,7 @@ class FileSeekerRaw(FileSeekerBase):
                     'set is not beside it: the reader joins every segment it finds in '
                     'the same folder.')
 
-        for vol in self.volumes:
+        for vol in volumes:
             walker = vol.get('walker')
             if walker is None:
                 continue
@@ -864,8 +1669,7 @@ class FileSeekerRaw(FileSeekerBase):
             if streams:
                 logfunc(f'    and {streams:,} alternate data streams, matched only by a '
                         f'pattern that names one')
-        image_name = os.path.basename(self.image_path)
-        for vol in self.volumes:
+        for vol in volumes:
             # a filesystem that reports its free space, or an LVM2 physical volume,
             # whose extents no logical volume holds are its free space
             if (getattr(vol.get('walker'), 'free_extents', None) is None
@@ -874,7 +1678,10 @@ class FileSeekerRaw(FileSeekerBase):
             member = (f"{vol['name']}/{FREE_SPACE_FOLDER}/"
                       f"{image_name}.{vol['name']}{FREE_SPACE_SUFFIX}")
             self.free_list.append(member)
-            self._free[member] = vol
+            self._free[member] = (vol, image, size, image_name)
+        return image
+
+    def _listing_complete(self):
         if self.free_list:
             logfunc(f'  {len(self.free_list):,} volumes can give their free space, to a '
                     f'pattern that asks for it (*{FREE_SPACE_SUFFIX})')
@@ -1355,16 +2162,15 @@ class FileSeekerRaw(FileSeekerBase):
         end of a partial image cut there, and nothing written when the volume's
         allocation map could not be read or reports nothing free.
         """
-        vol = self._free[member]
+        vol, image, size, image_name = self._free[member]
         intended = self._intended_path(member)
         out_dir = os.path.dirname(intended)
         os.makedirs(out_dir, exist_ok=True)
         if os.path.isfile(intended):
             # a forced second search: the writer never overwrites, and the copy is there
             return intended
-        records = qnxprobe.write_unallocated(
-            self._image, self._size, [vol], out_dir, os.path.basename(self.image_path),
-            say=logfunc)
+        records = qnxprobe.write_unallocated(image, size, [vol], out_dir, image_name,
+                                             say=logfunc)
         record = records[0] if records else {}
         if record.get('status') != 'written':
             logfunc(f"Not staged, {member}: {record.get('status', 'no free space reported')}")
@@ -1382,8 +2188,13 @@ class FileSeekerRaw(FileSeekerBase):
 
     def cleanup(self):
         image, self._image = self._image, None
-        if image is not None:
-            try:
-                image.close()
-            except Exception:  # pylint: disable=broad-exception-caught
-                pass
+        owned, self._owned = self._owned, []
+        for one in [image] + owned:
+            if one is not None:
+                try:
+                    one.close()
+                except Exception:  # pylint: disable=broad-exception-caught
+                    pass
+        raid, self.raid = self.raid, None
+        if raid is not None:
+            raid.close()

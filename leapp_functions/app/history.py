@@ -180,7 +180,7 @@ def _read_json(path, default=None):
 def _has_history_entries(history_data):
     return any(
         history_data.get(key)
-        for key in ("input_paths", "output_paths", "runs")
+        for key in ("input_paths", "input_sets", "output_paths", "runs")
     )
 
 
@@ -232,6 +232,62 @@ def record_input_path(path):
         return
     prefer_long_path = os.path.isdir(_strip_windows_extended_prefix(path))
     _record_path("input_paths", path, _get_limit("path_history_limit", 10), prefer_long_path)
+
+
+def get_input_sets():
+    """
+    Returns the recently used sets of images read together (the members of a RAID
+    set), newest first, each {"paths": [...], "found_automatically": [...]}: every
+    image the run read, and those of them found beside the image given rather than
+    given.
+    """
+    if not is_history_enabled():
+        return []
+    history_data = _read_json(get_history_path())
+    # A set is offered only while the images given in it are still recent input paths:
+    # a LEAPP release that predates sets clears the input paths and leaves the sets,
+    # which are then no longer offered.
+    recent = {_path_history_key(p) for p in history_data.get("input_paths", [])}
+    return [entry for entry in history_data.get("input_sets", [])
+            if all(_path_history_key(p) in recent for p in entry.get("paths", [])
+                   if p not in entry.get("found_automatically", []))]
+
+
+def record_input_set(paths, found=()):
+    """
+    Records the images one run read together. Each image given goes into the input
+    paths as record_input_path does, the first on top; the whole set, with the ones
+    found automatically marked, goes into "input_sets". A set is replaced by a later
+    one given the same images.
+    """
+    if not is_history_enabled():
+        return
+    paths = [p for p in paths if p]
+    if len(paths) < 2:
+        if paths:
+            record_input_path(paths[0])
+        return
+    found = [p for p in found if p in paths]
+    given = [p for p in paths if p not in found]
+    for path in reversed(given):
+        record_input_path(path)
+    given_key = [_path_history_key(p) for p in given]
+    history_data = _read_json(get_history_path())
+    history_data["schema_version"] = SCHEMA_VERSION
+    recent = {_path_history_key(p) for p in history_data.get("input_paths", [])}
+    # a set given again is replaced, and one whose images given are no longer recent
+    # input paths (cleared by an older release) is dropped
+    sets = [entry for entry in history_data.get("input_sets", [])
+            if [_path_history_key(p) for p in entry.get("paths", [])
+                if p not in entry.get("found_automatically", [])] != given_key
+            and all(_path_history_key(p) in recent for p in entry.get("paths", [])
+                    if p not in entry.get("found_automatically", []))]
+    sets.insert(0, {
+        "paths": [_normalize_stored_path(p) for p in paths],
+        "found_automatically": [_normalize_stored_path(p) for p in found],
+    })
+    history_data["input_sets"] = sets[:_get_limit("path_history_limit", 10)]
+    _atomic_write_json(get_history_path(), history_data)
 
 
 def get_output_paths():
@@ -361,6 +417,7 @@ def clear_single_leapp_history(leapp_id):
     """
     history_data = _read_json(get_history_path())
     history_data.pop("input_paths", None)
+    history_data.pop("input_sets", None)
     history_data.pop("output_paths", None)
 
     leapp_id = leapp_id.lower()
