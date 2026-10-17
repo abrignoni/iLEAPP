@@ -18,7 +18,7 @@ import leapp_functions.app.history as history
 from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from scripts.raw_image import FileSeekerRaw, cli_image_keys
+from scripts.raw_image import FileSeekerRaw, cli_raw_input, input_text, logical_among, logical_refusal
 from scripts.ilapfuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from leapp_functions.app.output import validate_output_folder_available
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
@@ -48,6 +48,17 @@ def validate_args(args):
     # Check existence of paths
     if not os.path.exists(args.input_path):
         raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' does not exist! Run the program again.')
+    # Several images are read together only as a raw image set (the members of a RAID set)
+    more_paths = getattr(args, 'input_paths', [args.input_path])[1:]
+    if more_paths and args.t != 'raw':
+        raise argparse.ArgumentError(None, 'Several INPUT paths are read together only with -t raw, as '
+                                           'the member images of a RAID set. Run the program again.')
+    for more_path in more_paths:
+        if not os.path.exists(more_path):
+            raise argparse.ArgumentError(None, f'INPUT path \'{more_path}\' does not exist! Run the program again.')
+    logical = logical_among(getattr(args, 'input_paths', [args.input_path]))
+    if logical is not None:
+        raise argparse.ArgumentError(None, logical_refusal(logical))
 
     if not os.path.exists(args.output_path):
         raise argparse.ArgumentError(None, f'OUTPUT path \'{args.output_path}\' does not exist! Run the program again.')
@@ -201,7 +212,15 @@ def main():
                               "'file' for a single file input."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
-    parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
+    parser.add_argument('-i', '--input_path', required=False, action="store", nargs='+',
+                        help='Path to input file/folder. With -t raw, several disk images can be given, '
+                             'the member images of a RAID set (Linux md, or LVM2 across disks), and they '
+                             'are read together')
+    parser.add_argument('--no-find-members', dest='no_find_members', required=False, action='store_true',
+                        help='With -t raw and one image that holds a RAID member: read only that image. '
+                             'Without this, the other members are looked for in its folder, by what each '
+                             'file records about itself, listed with what was left out and why, and read '
+                             'with it')
     parser.add_argument('--image_password_file', required=False, action="store",
                         help='For an encrypted image (-t raw; an Apple disk image, an encrypted '
                              'AFF or an FTK Imager AD-encrypted set), or a BitLocker or encrypted '
@@ -249,6 +268,9 @@ def main():
         sys.exit()
 
     args = parser.parse_args()
+    # -i takes one path, or with -t raw the several images of a RAID set
+    args.input_paths = list(args.input_path or [])
+    args.input_path = args.input_paths[0] if args.input_paths else None
     if args.html_row_limit < 0:
         parser.error('--html_row_limit must be 0 or a positive number of rows')
     artifact_report.set_html_row_limit(args.html_row_limit)
@@ -394,27 +416,38 @@ def main():
     # An encrypted image opens only with what locked it, and a BitLocker or APFS volume
     # in an image with its own key: from a file, an environment variable or the options
     # naming key files, or asked for at a terminal, and checked before the run.
+    # One image that holds a RAID member has the other members looked for beside it,
+    # unless --no-find-members, and what was found and left out is printed first.
     image_password = None
+    found_members = None
     if extracttype == 'raw':
         try:
-            image_password = cli_image_keys(input_path, args.image_password_file,
-                                            args.image_password_env, args.image_private_key,
-                                            args.bitlocker_key)
+            raw_input = cli_raw_input(args.input_paths, args.image_password_file,
+                                      args.image_password_env, args.image_private_key,
+                                      args.bitlocker_key, look_beside=not args.no_find_members)
         except ValueError as exc:
             print(exc)
             return
+        image_password = raw_input.keys
+        input_path = raw_input.input_path
+        # what was found beside the image given, and any image given twice
+        found_members = raw_input
 
     out_params = OutputParameters(output_path, custom_output_folder)
     Context.set_output_params(out_params)
 
-    initialize_lava(input_path, out_params.output_folder_base, extracttype, profile_filename)
+    initialize_lava(input_text(input_path, found_members),
+                    out_params.output_folder_base, extracttype, profile_filename)
 
     # Record history if enabled
-    history.record_input_path(input_path)
+    if isinstance(input_path, list):
+        history.record_input_set(input_path, getattr(found_members, 'found', found_members))
+    else:
+        history.record_input_path(input_path)
     history.record_output_path(output_path)
 
     crunch_successful = crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
-        profile_filename, itunes_backup_password, image_password=image_password)
+        profile_filename, itunes_backup_password, image_password=image_password, found_members=found_members)
 
     lava_finalize_output(out_params.output_folder_base)
     if crunch_successful:
@@ -440,7 +473,10 @@ def version_readers_first(plugins):
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
         loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, itunes_backup_password=None, decryption_keys=None,
-        image_password=None):
+        image_password=None,
+        found_members=None):
+    # input_path is one path, or for -t raw the list of images read together; then
+    # found_members says what was found beside the image given (a RawInput, a MemberSearch, or paths)
     start = process_time()
     start_wall = perf_counter()
 
@@ -468,7 +504,8 @@ def crunch_artifacts(
             seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'raw':
-            seeker = FileSeekerRaw(input_path, out_params.data_folder, password=image_password)
+            seeker = FileSeekerRaw(input_path, out_params.data_folder, password=image_password,
+                                   found=found_members)
 
         elif extracttype == 'itunes':
             itunes_backup_type = get_itunes_backup_type(input_path)
@@ -514,6 +551,7 @@ def crunch_artifacts(
         if profile_filename:
             logfunc(f'Loaded profile: {profile_filename}')
         logfunc(f'Artifact to parse: {len(plugins)}')
+        input_path = input_text(input_path, found_members)
         logfunc(f'File/Directory selected: {input_path}')
         logfunc('\n--------------------------------------------------------------------------------------')
 
@@ -586,7 +624,9 @@ def crunch_artifacts(
                     found = seeker.search(artifact_search_regex)
                     if not found:
                         if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
-                            src = os.path.join(os.path.dirname(input_path), "logarchive.json")
+                            # beside the image given (the first of several read together)
+                            src = os.path.join(os.path.dirname(getattr(seeker, 'image_path', input_path)),
+                                               "logarchive.json")
                             dst = os.path.join(out_params.data_folder, "logarchive.json")
                             # The artifact declares several search patterns, so this branch is
                             # reached once per pattern that misses; only pick the export up once.

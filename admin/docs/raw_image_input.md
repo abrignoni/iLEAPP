@@ -43,6 +43,134 @@ Since 1.67, a RAID1 or mirror logical volume is searched too, read from the firs
 its copies whose extents are all in the image, and a LUKS1 or LUKS2 container a
 passphrase opens is searched as what it holds (see Encrypted images).
 
+## Several images: the members of a RAID set
+
+Since qnxprobe 1.70, the images of a Linux software RAID set are read together, one
+image per disk. `-i` takes several paths with `-t raw`, and the GUI's file dialog takes
+several files. Each image can be any disk image or acquisition `-t raw` reads (raw,
+split, E01 and the rest). Logical evidence (an L01 or AD1) holds files, not a disk:
+given with other images it is refused before the run, on the command line and in the
+GUI. The reader assembles the images as `qnxprobe.raid_assemble` does: Linux md arrays
+(metadata 0.90, 1.0, 1.1 and 1.2; linear, RAID0, 1, 4, 5, 6 and 10) and LVM2 logical
+volumes spread over several images (LVM RAID4, 5, 6 and 10 among them). Which arrays
+are read, which are not and why, which members are left out (stale, faulty, a spare)
+and which roles are missing is the reader's own report, written to the run log before
+any volume is walked. A RAID5 missing one member, or a RAID6 missing two, is rebuilt
+from parity only when the array was stopped clean; the reader's README, "RAID", says
+what is read and what is refused.
+
+A member left out of its array (stale, faulty, a spare) is not read anywhere in that
+run: the array is read from the other members, and the left-out member's own copy of
+the data, which can differ from the array's, is not searched. To see that copy, run
+the member image on its own.
+
+One disk is read once. Two paths that name the same file (the same path twice, a hard
+or symbolic link, a relative and an absolute path) or two files of one set (two
+segments of a split raw set, an EWF set or an AD1 set) are one disk: the second is not
+read, and the command line prints, the GUI shows and the run log and the report's
+"Extraction location" record that it was given twice and which path is read.
+
+Each image is then read as it would be alone, except its volumes that lie inside a
+member of an array read here: those are listed in the run log with where they are read
+instead, and not walked, so a file is not listed twice. Each array read is read as a
+disk of its own, its volumes named as any disk's are. When more than one image or array
+is read, every volume name starts with the name of what holds it: the image's file name
+made safe (`disk0_img_p1_lba2048`; two images whose names make the same safe name are
+told apart by a number, `disk0_img_2_p1_lba2048`), or the array's own name, the one the
+reader's extraction gives it (`md_<name>_<first eight hex digits of its uuid>_lba0` for
+an md array, `lvm_<group>_<volume>_lba0` for an LVM2 volume read across images). The
+same name replaces the image's file name in an array's free space members.
+
+A RAID1 array whose data starts at the first byte of its first member (metadata 0.90 or
+1.0, superblock at the end) is not read again, as the reader's own report says ("not
+read again"): that member's own volume holds the same bytes and is walked, and the
+other members' copies are listed with a note naming the member read and are not walked.
+
+One image that holds an md member (a lone member of a RAID set, or a disk whose
+partitions are members) is read the same way, with its arrays, as far as the members it
+holds allow. This changes what such an image gives compared with earlier releases: a
+lone RAID1 member whose superblock is at its start (metadata 1.1 or 1.2; the fixture
+measured is 1.2) now reads its filesystem through the array,
+a lone RAID5 member reads no array, and the volume names gain the prefixes above
+whenever an array is read beside the image. A lone RAID1 member with metadata 0.90 or
+1.0 is read as before, from its own volume, under the same names.
+
+The reader also decides, on its own, that some single images are not walked. A region
+it identifies as an md member is listed as a RAID member and not walked, except a RAID1
+member whose filesystem starts at its first byte (the case above): a member of a linear,
+RAID0, RAID4/5/6 or RAID10 array holds only part of the array's data, and walking it
+alone reads a filesystem cut short. Since qnxprobe 1.71 the same rule holds for a DDF or
+Intel IMSM (RST) member, whose array is never assembled here: the level its own metadata
+records decides, and only a mirror in its normal state is walked, on its own, with a
+note saying its array is not assembled; any other level, a mirror in any other state, or
+metadata that cannot be read leaves the region (and everything on that disk, partitions
+included) listed as a RAID member and not walked, its note naming the level or why the
+metadata was not read. With other images, the run log's RAID section also names each
+such disk as not read and says why. Measured: read alone, the first member of
+qnxprobe's linear fixture (`md-linear-0`) and the second and third members of its DDF
+fixture (`md-ddf-1`, `md-ddf-2`, a RAID5) gave files through qnxprobe 1.67 and give none
+through 1.71, with the DDF members' notes naming RAID5; a test disk carrying only the
+IMSM signature, with and without a partition table, is named as an IMSM member whose
+metadata was not read and is not walked, alone and with another image. No fixture here
+holds a DDF or IMSM mirror, so the mirror case is the reader's code, not exercised here.
+An image in which the reader finds no RAID metadata is read exactly as before: the same
+member names and the same run log, byte for byte apart from the vendored reader's
+version.
+
+An LVM2 physical volume read with the other images of its volume group keeps the
+reader's own note on its line in the run log, which names the group's volumes that
+image alone cannot read, followed by where each is read across the images given (`r5 as
+lvm_qpraid2_r5`). Since qnxprobe 1.71, two volume groups that share a name (a default
+such as `vg0`) are matched by their ids and read on their own; their labels and names
+carry the start of the id (`lvm_vg0_<id6>_root`), and each physical volume's line names
+only its own group's volumes (measured with the fixture set and a copy of it given a
+second group id).
+
+Given one image that holds an md member or an LVM2 physical volume of a set that is
+not complete in it (a role or a physical volume no file given holds), the command line
+looks in that image's folder for the other members with `qnxprobe.raid_siblings`,
+which goes by what each file records about itself (an md superblock's array uuid, an
+LVM2 volume group's id and its list of physical volumes), never by its name. An image
+that holds every member of its arrays and volume groups (a one-disk LVM2 image, or a
+disk whose own partitions form an array) is not searched beside, and nothing is said.
+The search prints what the image holds, every file it adds and every other entry of the
+folder with what became of it and why (another array, no RAID metadata, a folder, a
+symbolic link, and the rest), the roles or physical volumes no file holds, and its
+result, then the set is read. Several images given are read as given, with no search.
+`--no-find-members` turns the search off, and only the image given is read (with its
+arrays, as far as one member allows). The GUI makes the same search when one image is
+picked, and when it adds files it shows them, and those it did not use with why, before
+the run, with "Use them" (the default), "Only the file I picked" and "Cancel". Nothing
+is asked when the image needs no search or the search adds nothing.
+
+Whenever a search ran, the run log repeats what it printed, ending with its result and
+the examiner's choice ("Result: ... the examiner chose to read only ..."). When the
+search read nothing more (none found, or the examiner chose the file picked alone), the
+report's "Extraction location" and LAVA's `param_input` add the same sentence after the
+path.
+
+The report's "Extraction location", the run log's first lines, LAVA's `param_input`
+and the recent-inputs history name every image read; the ones the search added are
+marked "found automatically". The history keeps its list of paths as before (the
+images given) and records each set read together, with the ones found marked, under
+`input_sets`. A set is offered in the GUI's history only while the images given in it
+are still among the recent input paths. A LEAPP release from before sets that clears
+its history removes the recent input paths and leaves `input_sets` in the file; the
+sets are then no longer offered, and this release's own clear removes them.
+
+A password or key is asked for each image that needs one, and the BitLocker, APFS and
+LUKS volumes of each image and of each array read are asked about in turn. As for one
+image, every password that opened one of the images is also tried on those volumes.
+
+Measured: the member images of five fixture sets mdadm and lvm2 wrote (a RAID1 with
+metadata 1.2 and one with 0.90, a RAID5 with 1.2 and one with 0.90, and three LVM2
+volumes, RAID5, RAID6 and RAID10, across five images; copied from qnxprobe's
+`tests/fixtures/raid` into `admin/test/data/raw_images/raid/`) read to the SHA-256 of
+every file of the tree each array was built from, and so does the RAID5 with one
+member left out. Not covered by any fixture here: E01 or other acquisition containers
+as members, an LVM2 volume group on an md array, encrypted volumes inside an
+array, and an array whose members are partitions of one image.
+
 ## Where the pieces are
 
 - `scripts/vendor/qnxprobe.py` and `scripts/vendor/ewfprobe.py` are the reader,
@@ -53,17 +181,23 @@ passphrase opens is searched as what it holds (see Encrypted images).
   the GUI uses to recognise an image by extension and to fill its file dialog
   (`RAW_IMAGE_SUFFIXES`, `RAW_IMAGE_FILE_PATTERNS`), `split_image_sibling`, and
   `ImageKeys` with the functions that ask for them (`cli_image_keys`,
-  `ask_image_keys`).
+  `ask_image_keys`), and the several-image input: `cli_raw_input` and `ask_raw_input`
+  (what to read and what opens it, with the member search), `find_members`,
+  `confirm_found_members`, `input_text` (the input as the report names it) and the
+  GUI's `selection_text`, `selected_paths` and `PathsTooltip`.
   **This file is byte-identical in all five cores.** Change it in one, land the
   same bytes in the other four in the same round, and let the parity scanner in
   leapps-org/leapps-parity confirm they match.
 - The entry point adds one `-t` choice, one dispatch branch and a `finally` that
-  calls `seeker.cleanup()` on every exit. The GUI maps the conventional image
+  calls `seeker.cleanup()` on every exit. Its `-i` takes several paths with `-t raw`,
+  and `--no-find-members` turns the member search off. The GUI maps the conventional image
   extensions onto `raw` and lists them in the file dialog. A folder the reader opens
   as one disk image, an Apple sparse bundle or an AFD folder, is mapped onto `raw` too
   when it is chosen with the folder button (`names_an_image_folder`), so it is not
   walked as a folder of extracted files. On a Mac the file dialog lists a
   `.sparsebundle` as one item; on Windows and Linux it is a folder.
+- `leapp_functions/app/history.py` records a set of images read together
+  (`record_input_set`, `get_input_sets`); it is byte-identical in the five cores too.
 - `admin/test/scripts/test_raw_image_seeker.py` checks staged bytes against
   independent hash lists over the fixtures in `admin/test/data/raw_images/`,
   including an E01 set, an AFF file, an AFD folder, a `.dmg`, a `.dmg` split into
@@ -322,6 +456,15 @@ for it, so no report field carries a zone the evidence never had.
   Free space above) and the deleted files of a flash filesystem for a pattern that
   names `$Deleted`. Deleted records the reader can recover on NTFS, FAT and exFAT
   are not staged, nor are the entries an AD1 lists as deleted.
+- It reads software RAID only as Linux md and LVM2 write it. Hardware RAID imaged as
+  one logical disk is one image already. DDF and Intel IMSM (RST) arrays are not
+  assembled; only a member of a mirror in its normal state is walked, on its own (see
+  above). The GPT partitions of Windows LDM, Windows
+  Storage Spaces and Apple RAID are not assembled either; when the run assembles RAID
+  members (several images, or one holding an md member) the reader's RAID section
+  names them as not read (from the reader's code, `raid_assemble`; no fixture here
+  exercises it). The member search looks in the image's own folder only, not
+  its subfolders, and does not follow the identities of the files it adds.
 - It does not re-root a bare partition image. A raw image of an Android
   `userdata` partition has `data/`, `media/` and `system/` at its root rather
   than under `data/`, and an iOS Data volume has `mobile/` and `containers/`

@@ -245,6 +245,19 @@ password or personal recovery key, given the same way. At a terminal whatever is
 is asked for, and the GUI asks in dialogs; a BitLocker or APFS volume nothing opens is
 reported and not searched.
 
+The disk images of a Linux software RAID set (md, or LVM2 across disks) are read
+together: give them all to `-i` with `-t raw`, or pick them together in the GUI's file
+dialog. Given one image that holds a member, the other members are looked for in its
+folder by what each file records about itself, not by its name; the command line lists
+what it found and what it left out and why before reading the set (`--no-find-members`
+reads only the image given), and the GUI asks before reading files it found. The report
+names every image read and marks the ones found automatically. One image that holds an
+md member is read with its arrays too: a lone RAID1 member with metadata 1.1 or 1.2
+now reads its filesystem through the array, and its volume names gain the image's or
+the array's name in front. One disk given twice is read once. An image in which no
+RAID metadata is found is read as before; see `admin/docs/raw_image_input.md` for what
+qnxprobe 1.71 does with DDF, IMSM and md member images read alone.
+
 `tar` also reads an xz-compressed tar (`.tar.xz`), and the GUI picks `tar` for that
 extension. A compressed tar, `.tar.gz` included, is decompressed once into the report folder
 before any file is read, so the run needs free space there for the uncompressed tar. The
