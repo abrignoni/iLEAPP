@@ -1912,6 +1912,52 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         self.assertIn('That does not open it.', err.getvalue())
         self.assertIn('is a LUKS container', prompts[0])
 
+    # ---- what the command line says once something was given ----------------
+    # As qnxprobe 1.72 does, which option takes what opens a volume is said only when
+    # nothing was given; when something was and the volume stays locked, the reader's
+    # own reason stands alone.
+
+    def _cli_err(self, image, secret, **patches):
+        wrong = os.path.join(self.work, 'wrong-secret.txt')
+        with open(wrong, 'w', encoding='utf-8') as handle:
+            handle.write(secret + '\n')
+        with mock.patch.object(raw_image.sys, 'stdin', None), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            if patches:
+                with mock.patch.multiple(raw_image.qnxprobe, **patches):
+                    raw_image.cli_image_keys(image, password_file=wrong)
+            else:
+                raw_image.cli_image_keys(image, password_file=wrong)
+        return err.getvalue()
+
+    def test_a_wrong_bitlocker_password_gives_the_reason_without_the_hint(self):
+        err = self._cli_err(self.bitlocker, 'not it')
+        self.assertIn('stays locked and its files are not searched', err)
+        self.assertIn('none of the passwords or key files given opens it', err)
+        self.assertNotIn('--bitlocker_key', err)
+        self.assertNotIn('Give its', err)
+
+    def test_a_wrong_apfs_password_gives_the_reason_without_the_hint(self):
+        err = self._cli_err(self.apfs, 'not it')
+        self.assertIn('stays locked and its files are not searched', err)
+        self.assertIn('none of the passwords given opens it', err)
+        self.assertNotIn('Give its', err)
+
+    def test_a_wrong_luks_passphrase_gives_the_reason_without_the_hint(self):
+        _seeker, image, _files = self._luks_members(None)
+        err = self._cli_err(image, 'not it')
+        self.assertIn('LUKS-encrypted and not read: no passphrase given opens a keyslot', err)
+        self.assertNotIn('Give its', err)
+
+    def test_a_luks_passphrase_that_cannot_be_tried_says_why(self):
+        # Without pycryptodome the reader knows before any passphrase is tried that the
+        # container cannot be read: given one, the command line says so, with no hint.
+        _seeker, image, _files = self._luks_members(None)
+        err = self._cli_err(image, LUKS_PASSPHRASE, _BDE_AES=None)
+        self.assertIn('stays locked and its files are not searched (LUKS-encrypted and not '
+                      'read: reading it needs the optional pycryptodome package', err)
+        self.assertNotIn('Give its', err)
+
     @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
     def test_the_gui_asks_for_a_luks_passphrase(self):
         from tkinter import simpledialog  # pylint: disable=import-outside-toplevel
@@ -2337,6 +2383,35 @@ class RaidMembersTest(unittest.TestCase):
         self.assertIn('WARNING  later segments of this split set begin as a disk does: '
                       'm.002 (an md superblock)', text)
         self.assertIn('give copies named otherwise (such as m-1.img, m-2.img)', text)
+
+    def test_a_partial_array_read_without_the_search_says_how_to_give_the_rest(self):
+        # One RAID5 member with the search turned off (as --no-find-members, or the
+        # window's "Only the file I picked"): the run log names the roles not given and
+        # how to give them; with two members given, member finding is not named.
+        self._seeker(self.sets['md-r5-ls'][0])
+        text = self.log.text()
+        self.assertIn('qp:qp21: role(s) 1, 2, 3 of 4 are not in the images given. Give the '
+                      'other member images with it (several paths to -i, or several files '
+                      'picked together), or leave member finding on to look for them beside '
+                      'the image given.', text)
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log.lines.clear()
+        self._seeker(self.sets['md-r5-ls'][:2])
+        text = self.log.text()
+        self.assertIn('role(s) 2, 3 of 4 are not in the images given. Give the other member '
+                      'images with it (several paths to -i, or several files picked '
+                      'together).', text)
+        self.assertNotIn('member finding', text)
+        # the members found beside it and not taken ("Only the file I picked")
+        search = raw_image.find_members(self.sets['md-r5-ls'][0])
+        search.used = False
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log.lines.clear()
+        self._seeker(self.sets['md-r5-ls'][0], found=search)
+        self.assertIn('or leave member finding on to look for them beside the image given.',
+                      self.log.text())
 
     def test_an_ordinary_image_is_read_exactly_as_before(self):
         seeker = self._seeker(self.ntfs)

@@ -327,9 +327,20 @@ def _unlock_bitlocker(path, keys, ask):
     volume they leave locked to ``ask(bitlocker, wrong)`` until it opens: ``ask``
     returns ('secret', text) for a password or recovery password, ('key', path) for a
     startup key file, or None to leave it locked. What opens a volume is added to
-    ``keys``. Returns the volumes still locked that something could have opened, as
-    (label, locked note) pairs. Logical evidence holds no volumes."""
+    ``keys``. Returns the volumes still locked as _Locked records. Logical evidence
+    holds no volumes."""
     return _in_image(path, keys, lambda image: _unlock_bitlocker_in(image, keys, ask))
+
+
+class _Locked:
+    """An encrypted volume left locked: ``label``, the reader's ``note`` on why,
+    ``askable`` (a secret could still open it) and ``tried`` (something given was tried
+    on it and did not open it)."""
+
+    __slots__ = ('label', 'note', 'askable', 'tried')
+
+    def __init__(self, label, note, askable, tried):
+        self.label, self.note, self.askable, self.tried = label, note, askable, bool(tried)
 
 
 def _unlock_bitlocker_in(image, keys, ask):
@@ -350,8 +361,9 @@ def _unlock_bitlocker_in(image, keys, ask):
             elif bitlocker.unlock([value], ()):
                 keys.bitlocker_secrets.append(value)
             wrong = bitlocker.fvek is None
-        if _askable(bitlocker):
-            left.append((bitlocker.label, bitlocker.locked_note()))
+        if bitlocker.fvek is None:
+            left.append(_Locked(bitlocker.label, bitlocker.locked_note(),
+                                _askable(bitlocker), bitlocker.tried))
     return left
 
 
@@ -360,9 +372,8 @@ def _unlock_apfs(path, keys, ask):
     are ciphertext there, and offer every volume they leave locked to ``ask(lock,
     wrong)`` until it opens: ``ask`` returns a password or personal recovery key, or
     None to leave it locked. What opens a volume is added to ``keys``. Returns the
-    volumes still locked that a password could have opened, as (name, locked note)
-    pairs, the name saying which volume of which region. Logical evidence holds no
-    volumes."""
+    volumes still locked as _Locked records, the name saying which volume of which
+    region. Logical evidence holds no volumes."""
     return _in_image(path, keys, lambda image: _unlock_apfs_in(image, keys, ask))
 
 
@@ -379,8 +390,9 @@ def _unlock_apfs_in(image, keys, ask):
             if lock.unlock([answer]):
                 keys.apfs_secrets.append(answer)
             wrong = lock.vek is None
-        if lock.vek is None and not lock.why:
-            left.append((f'{lock.name} in {lock.label}', lock.locked_note()))
+        if lock.vek is None:
+            left.append(_Locked(f'{lock.name} in {lock.label}', lock.locked_note(),
+                                not lock.why, lock.tried))
     return left
 
 
@@ -388,8 +400,8 @@ def _unlock_luks(path, keys, ask):
     """Try ``keys`` on each LUKS container in the image at ``path`` and offer every
     container they leave locked to ``ask(luks, wrong)`` until it opens: ``ask`` returns a
     passphrase, or None to leave it locked. What opens a container is added to ``keys``.
-    Returns the containers still locked that a passphrase could have opened, as
-    (label, locked note) pairs. Logical evidence holds no volumes."""
+    Returns the containers still locked as _Locked records. Logical evidence holds no
+    volumes."""
     return _in_image(path, keys, lambda image: _unlock_luks_in(image, keys, ask))
 
 
@@ -406,8 +418,8 @@ def _unlock_luks_in(image, keys, ask):
             if luks.unlock([answer]):
                 keys.luks_secrets.append(answer)
             wrong = luks.mk is None
-        if luks.mk is None and not luks.why:
-            left.append((luks.label, luks.locked_note()))
+        if luks.mk is None:
+            left.append(_Locked(luks.label, luks.locked_note(), not luks.why, luks.tried))
     return left
 
 
@@ -513,8 +525,23 @@ def _cli_image_key(path, given, private_key, at_terminal):
 
 def _cli_volume_keys(name, image, keys, at_terminal):
     """Ask at a terminal for what opens each BitLocker, APFS and LUKS volume in
-    ``image`` that ``keys`` leave locked, and say on stderr what stays locked."""
+    ``image`` that ``keys`` leave locked, and say on stderr what stays locked. As the
+    vendored reader does (qnxprobe 1.72), which option takes what opens it is said only
+    when nothing was given or tried for that kind of volume; when something was, the
+    reader's reason stands alone, and a volume no secret could open is named too."""
     tries = {}
+    # what was given before anything is asked, for each kind of volume
+    given_bitlocker = bool(keys.bitlocker_passwords() or keys.bitlocker_keys)
+    given_apfs = bool(keys.apfs_passwords())
+    given_luks = bool(keys.luks_passwords())
+
+    def say_locked(lock, given, hint):
+        if not (lock.askable or given):
+            return            # nothing given, and nothing would open it: the run log says why
+        line = f'{lock.label} of {name} stays locked and its files are not searched ({lock.note}).'
+        if lock.askable and not given and not lock.tried:
+            line += f' {hint}'
+        print(line, file=sys.stderr)
 
     def ask(bitlocker, wrong):
         if not at_terminal:
@@ -529,11 +556,10 @@ def _cli_volume_keys(name, image, keys, at_terminal):
                                  f'locked): ')
         return ('secret', answer) if answer else None
 
-    for label, note in _unlock_bitlocker_in(image, keys, ask):
-        print(f'{label} of {name} stays locked and its files are not searched ({note}). '
-              f'Give its password or recovery password with --image_password_file or '
-              f'--image_password_env, or its startup key with --bitlocker_key.',
-              file=sys.stderr)
+    for lock in _unlock_bitlocker_in(image, keys, ask):
+        say_locked(lock, given_bitlocker,
+                   'Give its password or recovery password with --image_password_file or '
+                   '--image_password_env, or its startup key with --bitlocker_key.')
     apfs_tries = {}
 
     def ask_apfs(lock, wrong):
@@ -548,10 +574,10 @@ def _cli_volume_keys(name, image, keys, at_terminal):
         return getpass.getpass(_apfs_prompt(lock, name, False)
                                + ' (empty leaves it locked): ') or None
 
-    for label, note in _unlock_apfs_in(image, keys, ask_apfs):
-        print(f'{label} of {name} stays locked and its files are not searched ({note}). '
-              f'Give its password or personal recovery key with --image_password_file '
-              f'or --image_password_env.', file=sys.stderr)
+    for lock in _unlock_apfs_in(image, keys, ask_apfs):
+        say_locked(lock, given_apfs,
+                   'Give its password or personal recovery key with --image_password_file '
+                   'or --image_password_env.')
     luks_tries = {}
 
     def ask_luks(luks, wrong):
@@ -565,10 +591,20 @@ def _cli_volume_keys(name, image, keys, at_terminal):
         return getpass.getpass(f'{luks.label} of {name} is a LUKS container. Its '
                                f'passphrase (empty leaves it locked): ') or None
 
-    for label, note in _unlock_luks_in(image, keys, ask_luks):
-        print(f'{label} of {name} stays locked and its files are not searched ({note}). '
-              f'Give its passphrase with --image_password_file or --image_password_env.',
-              file=sys.stderr)
+    for lock in _unlock_luks_in(image, keys, ask_luks):
+        say_locked(lock, given_luks,
+                   'Give its passphrase with --image_password_file or --image_password_env.')
+    if given_luks:
+        # A LUKS container inside a logical volume read through a map is not opened,
+        # whatever is given: the reader places such a volume past the image's end
+        # (lvm_image), after the containers are tried, and its note says so.
+        size = qnxprobe.image_size(image)
+        mapped = getattr(qnxprobe.lvm_image(image, size), 'lvm_virtual', None)
+        for vol in (qnxprobe.volumes(image, size) if mapped else ()):
+            if vol.get('kind') == 'luks' and (vol.get('base') or 0) >= size:
+                print(f"{vol.get('label') or vol.get('name')} of {name} stays locked and its "
+                      f"files are not searched ({vol.get('note')}), so the passphrase given "
+                      f'was not tried on it.', file=sys.stderr)
 
 
 def cli_image_keys(path, password_file=None, password_env=None, private_key=None,
@@ -1593,6 +1629,8 @@ class FileSeekerRaw(FileSeekerBase):
         # which this tool does not have; its own search beside one image (see
         # find_members) runs before this unless turned off, and says what it found.
         qnxprobe.raid_report(raid, say=logfunc, images_given=len(given), find_members=True)
+        for line in self._partial_array_lines(raid, len(given)):
+            logfunc(line)
         # A RAID1 array whose data starts at the first byte of its first member (metadata
         # 0.90 or 1.0) is not read again, as the reader's own run does not read it: that
         # member's own volume is the same bytes and is read, and the other members'
@@ -1641,6 +1679,33 @@ class FileSeekerRaw(FileSeekerBase):
             if unlocked is not image:
                 self._owned.append(unlocked)
         self._listing_complete()
+
+    def _partial_array_lines(self, raid, images_given):
+        """For each array or volume group not read because members are not among the
+        images given: which, and how to give them. The search beside one image is named
+        when it did not run (turned off) or its finds were not taken."""
+        search = self.member_search
+        off = (search is None and images_given == 1) or (search is not None and not search.used)
+        out = []
+        for arr in raid.arrays:
+            if arr.image is not None:
+                continue
+            if isinstance(arr, qnxprobe.LvmSpanned):
+                missing = list(getattr(arr, 'absent', None) or ())
+                what = f"its physical volume(s) {', '.join(missing)} are"
+            else:
+                missing = list(getattr(arr, 'not_given', None) or ())
+                total = getattr(getattr(arr, 'sb', None), 'raid_disks', None)
+                what = (f"role(s) {', '.join(map(str, missing))}"
+                        + (f' of {total}' if total else '') + ' are')
+            if not missing:
+                continue
+            out.append(f'{arr.label}: {what} not in the images given. Give the other member '
+                       f'images with it (several paths to -i, or several files picked '
+                       f'together)'
+                       + (', or leave member finding on to look for them beside the image '
+                          'given' if off else '') + '.')
+        return out
 
     def _read_source(self, image, size, image_name, keys, prefix='', covers=(), spans=None,
                      groups=None):

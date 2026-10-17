@@ -156,7 +156,12 @@ folder with what became of it and why (another array, no RAID metadata, a folder
 symbolic link, and the rest), the roles or physical volumes no file holds, and its
 result, then the set is read. Several images given are read as given, with no search.
 `--no-find-members` turns the search off, and only the image given is read (with its
-arrays, as far as one member allows). The GUI makes the same search when one image is
+arrays, as far as one member allows). An array or volume group not read because members
+are not among the images given gets a line in the run log naming the roles or physical
+volumes missing and saying the other member images can be given with it (several paths
+to `-i`, or several files picked together); when the search was turned off, or what it
+found was not taken, the line adds that leaving member finding on looks for them beside
+the image given. The GUI makes the same search when one image is
 picked, and when it adds files it shows them, and those it did not use with why, before
 the run, with "Use them" (the default), "Only the file I picked" and "Cancel". Nothing
 is asked when the image needs no search or the search adds nothing.
@@ -255,7 +260,12 @@ as a recovery password, on each encrypted APFS volume as a password and as a
 personal recovery key, and on each LUKS container as a passphrase, a private key from `--image_private_key`, and startup keys from
 `--bitlocker_key` (repeatable); at a terminal it asks for what is missing, and
 otherwise it names each BitLocker, APFS or LUKS volume left locked on stderr and runs
-without it. Either way the keys are checked before the
+without it. As qnxprobe 1.72 does, which option takes what opens a volume is said only
+when nothing was given for that kind of volume; when something was given and the volume
+stays locked, the line carries the reader's own reason alone (none of the passwords
+given opens it, the pycryptodome package is missing, or a LUKS container sits inside a
+logical volume read through a map, where it is not opened, so the passphrase given was
+not tried on it). Either way the keys are checked before the
 run, handed to `crunch_artifacts(..., image_password=...)` and on to
 `FileSeekerRaw(..., password=...)`, which passes them to the reader and does not keep
 them; nothing writes them to the report, the log or the history. A secret is never
