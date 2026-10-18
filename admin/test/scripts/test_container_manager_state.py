@@ -55,9 +55,9 @@ class ContainerManagerStateTest(unittest.TestCase):
             headers, rows, _ = _run(module.containerManagerState, [self._standalone(folder, self.raw)])
         self.assertEqual(headers[0][1], 'datetime')
         self.assertTrue(all(row[0] is not None and row[0].tzinfo is not None for row in rows))
-        row = next(row for row in rows if row[1] == 'Data/Application')
-        self.assertTrue(row[5].endswith(row[6]))        # the path ends in the directory name
-        self.assertNotEqual(row[6], row[7])             # the directory name is not the container uuid
+        row = next(row for row in rows if row[4] == 'Data/Application')
+        self.assertTrue(row[8].endswith(row[9]))        # the path ends in the directory name
+        self.assertNotEqual(row[9], row[10])             # the directory name is not the container uuid
 
     def test_no_directory_rows_carry_no_time(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -102,6 +102,14 @@ class ContainerManagerStateTest(unittest.TestCase):
             _, rows, _ = _run(module.containerManagerState, [path])
         self.assertTrue(all(row[0] is None or row[0].year < 2100 for row in rows))
         self.assertIsNone(rows[0][0])
+        # numbers are never turned into dates: the epoch and unit cannot be told from the value
+        self.assertIsNone(rows[1][1])
+        self.assertIsNone(rows[1][3])
+        self.assertIn('numeric value 1788000000 not converted', rows[1][14])
+
+    def test_cocoa_shaped_number_is_not_read_as_a_unix_date(self):
+        self.assertEqual(module.parse_timestamp(781234567.0)[0], '')
+        self.assertIn('781234567.0', module.parse_timestamp(781234567.0)[1])
 
 
 if __name__ == '__main__':

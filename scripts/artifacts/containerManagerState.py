@@ -1,34 +1,43 @@
 __artifacts_v2__ = {
     "containerManagerState": {
         "name": "Container Manager State",
-        "description": "Containers that had a directory when the container manager state was captured (iOS 27 sysdiagnose logs/ContainerManager/state.json), with the directory times",
+        "description": "Container records with a directory entry in the container manager state (iOS 27 sysdiagnose logs/ContainerManager/state.json), with the stored directory times",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-17",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-18",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "iOS 27 sysdiagnoses carry logs/ContainerManager/state.json instead of the "
-                 "MobileContainerManager and appinstallation text logs. The file is a snapshot of the "
-                 "container manager daemon's state. A row is a container directory the daemon knew about, "
-                 "with the creation (birthtime), change (ctime) and modification (mtime) times of that "
-                 "directory and the time the daemon last checked it (lastSeen); all four are UTC as stored. "
-                 "The container class is the folder the directory sits in (Data/Application is an app's "
-                 "data container, Data/PluginKitPlugin an extension's, Shared/AppGroup a shared group, "
-                 "Bundle/Application an app's program files). Host App is filled for an extension container "
-                 "that the file's own extension-to-app map links to an app. Path is the class folder plus the "
-                 "directory name; the directory name is the same UUID that mobile_installation.log names for "
-                 "the directory, while the Container UUID is the daemon's own identity for the container and "
-                 "is not the directory name. Generation is reported as stored; its meaning is not established. "
-                 "Owner is the stored ownership string. A birth time shows when the directory was created on "
-                 "the device, which can be a first install or a later re-creation (for example after a "
-                 "restore); it does not show who installed the app or when it was opened. The Last Checked "
-                 "time looks like the daemon's own check of the directory, not user activity. A record can "
-                 "be absent for reasons outside this file, so an empty result is not evidence that no app "
-                 "was present. Not reported here: the records with no directory (see 'Container Manager "
-                 "State - No Directory'), the code-signing registrations (see 'Container Manager State - "
-                 "Registrations'), the daemon's recent client processes, the container class folder table, "
-                 "the persona tables and the entitlement values, none of which identify an app container. "
-                 "Tested on iOS 27.0 (24A437) only. iOS 26 and earlier carry no such file.",
+        "notes": "The iOS 27.0 sysdiagnose tested carries logs/ContainerManager/state.json and not the "
+                 "MobileContainerManager and appinstallation text logs. The folder and file name point to the "
+                 "container manager; what writes the file and when is not established. A row is a container "
+                 "record that has a directory entry (node) in the file, with the birthtime, ctime, mtime and "
+                 "lastSeen values stored for it, converted to UTC. A numeric time value is not converted, "
+                 "because its epoch and unit are not established; the cell is left blank and the raw value "
+                 "is given in Notes. birthtime, ctime and mtime are named like the file system's directory "
+                 "time fields; how the daemon fills them is not established. lastSeen is converted to UTC "
+                 "like the other three times; what sets it is not established. A birth time need not be the "
+                 "first install of the app, and none of these times shows who installed the app or when it "
+                 "was opened. Container Class is the class folder the file's class table names for the "
+                 "record's group. When the table has no entry, a table held by this parser supplies the "
+                 "folder name. Data/Application holds an app's data container and Bundle/Application its "
+                 "bundle, per Apple's File System Programming Guide; Data/PluginKitPlugin and Shared/AppGroup "
+                 "are the folder names as stored. Host App is the parent identifier the file's childParentMap "
+                 "pairs with the identifier; it is filled only for Data/PluginKitPlugin records. State is "
+                 "'present' when the record has a node object, 'corrupt' or 'ignored' when the file's corrupt "
+                 "or ignore flag is true, and 'invalid' when the record or node has an unexpected shape. "
+                 "Path is built by this parser from the class folder and the directory name; the container "
+                 "record does not carry a path field. In the tested sysdiagnose the directory name matched "
+                 "the UUID that mobile_installation.log names for the directory. Container UUID is the "
+                 "record's uuid value. In the tested sysdiagnose it differed from the directory name. "
+                 "Generation is the record's generation value read as an integer; its meaning is not "
+                 "established. Owner is the stored ownership string. Scope is the file's top-level key as "
+                 "stored. A record can be absent for reasons outside this file, so an empty result is not "
+                 "evidence that no app was present. Not reported here: the records with no directory (see "
+                 "'Container Manager State - No Directory'), the code-signing registrations (see 'Container "
+                 "Manager State - Registrations'), the daemon's recent client processes, the container class "
+                 "folder table, the persona tables and the entitlement values, none of which is a container "
+                 "record. Tested on one iOS 27.0 (24A437) sysdiagnose; the iOS 26 (23G71) sysdiagnose tested "
+                 "has no ContainerManager folder. Other versions are not checked.",
         "paths": (
             '*/ContainerManager/state.json',
             '*/sysdiagnose_*.tar.gz'),
@@ -36,27 +45,27 @@ __artifacts_v2__ = {
         "artifact_icon": "package",
         "sample_data": {
             "ios27_0_24A437_sysdiag": "iOS 27.0 | 1738 rows",
-            "ios26_6_23G71_sysdiag": "iOS 26.6 | 0 rows; the archive carries no ContainerManager folder",
+            "hc_ios26_sysdiag": "iOS 26 (23G71) | 0 rows; the archive carries no ContainerManager folder",
         }
     },
     "containerManagerStateNoDirectory": {
         "name": "Container Manager State - No Directory",
-        "description": "Container records that had no directory when the container manager state was captured (iOS 27 sysdiagnose logs/ContainerManager/state.json)",
+        "description": "Container records with no directory entry in the container manager state (iOS 27 sysdiagnose logs/ContainerManager/state.json)",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-17",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-18",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "A row is a container the daemon still holds a record for but whose directory was absent "
-                 "from the file system when the state was captured (the file stores no directory times and "
-                 "a generation of -1 for these). The file does not say why: the container may have been "
-                 "removed, replaced by a new directory, or not yet created, and these cannot be told apart "
-                 "from this file alone. It is not a record of an uninstall. The directory name is the one "
-                 "the record expected, so a mobile_installation.log line naming that UUID refers to the "
-                 "same container. Host App is filled for an extension container linked to an app by the "
-                 "file's extension-to-app map. Generation is reported as stored; its meaning is not "
-                 "established. An empty result is not evidence that nothing was removed. Tested on iOS 27.0 "
-                 "(24A437) only.",
+        "notes": "A row is a container record whose directory entry (node) is null in the file. In the "
+                 "tested sysdiagnose these records carry no directory times and a generation of -1. The "
+                 "file does not say why the entry is null: the container may have been removed, replaced "
+                 "by a new directory, or not yet created, and these cannot be told apart from this file "
+                 "alone. This file alone does not show an uninstall. Directory Name is the record's pathIdentifier "
+                 "value as stored. Host App is the parent identifier the file's childParentMap pairs with "
+                 "the identifier; it is filled only for Data/PluginKitPlugin records. Generation is the "
+                 "record's generation value read as an integer; its meaning is not established. Scope is the "
+                 "file's top-level key as stored. An empty result is not evidence that nothing was removed. Tested on one iOS "
+                 "27.0 (24A437) sysdiagnose only.",
         "paths": (
             '*/ContainerManager/state.json',
             '*/sysdiagnose_*.tar.gz'),
@@ -64,7 +73,7 @@ __artifacts_v2__ = {
         "artifact_icon": "package-off",
         "sample_data": {
             "ios27_0_24A437_sysdiag": "iOS 27.0 | 419 rows",
-            "ios26_6_23G71_sysdiag": "iOS 26.6 | 0 rows; the archive carries no ContainerManager folder",
+            "hc_ios26_sysdiag": "iOS 26 (23G71) | 0 rows; the archive carries no ContainerManager folder",
         }
     },
     "containerManagerStateRegistrations": {
@@ -72,18 +81,21 @@ __artifacts_v2__ = {
         "description": "Code-signing registrations cached by the container manager (iOS 27 sysdiagnose logs/ContainerManager/state.json)",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-17",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-18",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "One row per entry of the daemon's ordered code-signing registration cache: the identifier, "
-                 "the container class it was registered for, and the flags the file stores (invalid, "
+                 "the container class number stored for it, shown as the class folder when the file's class "
+                 "table names one and as the number otherwise, and the flags the file stores (invalid, "
                  "placeholder, registeredByCaller, advanceCopy, registeredByKernel; only the true ones are "
-                 "listed). Position in Cache is the entry's place in the stored order; the file does not "
-                 "state what the order or the eviction of the cache mean. A cache entry is not proof that an "
-                 "app is or was installed: it lists identifiers the daemon registered, including extensions "
-                 "and group identifiers. The entitlement values are not copied; only the number of entitlement "
-                 "keys is reported. An empty result is not evidence that nothing was registered. Tested on iOS "
-                 "27.0 (24A437) only.",
+                 "listed). State is 'invalid' or 'placeholder' when the file's flag of that name is true; "
+                 "otherwise blank. Position in Cache is the entry's place in the stored order within its "
+                 "scope; the file does not state what the order means. A cache entry is not proof that an "
+                 "app is or was installed: it lists identifiers the daemon registered; in the tested "
+                 "sysdiagnose these included extension and group identifiers. The entitlement values are "
+                 "not copied; only the number of entitlement keys is reported. Scope is the file's top-level key as stored. An empty result is not "
+                 "evidence that nothing was registered. Tested on one "
+                 "iOS 27.0 (24A437) sysdiagnose only.",
         "paths": (
             '*/ContainerManager/state.json',
             '*/sysdiagnose_*.tar.gz'),
@@ -91,7 +103,7 @@ __artifacts_v2__ = {
         "artifact_icon": "certificate",
         "sample_data": {
             "ios27_0_24A437_sysdiag": "iOS 27.0 | 1799 rows",
-            "ios26_6_23G71_sysdiag": "iOS 26.6 | 0 rows; the archive carries no ContainerManager folder",
+            "hc_ios26_sysdiag": "iOS 26 (23G71) | 0 rows; the archive carries no ContainerManager folder",
         }
     }
 }
@@ -148,7 +160,7 @@ COLUMNS: tuple[str, ...] = (
     "path",  # derived directory (class directory + pathIdentifier) or a path from the file
     "uuid",  # container uuid (daemon identity; NOT the directory name)
     "path_identifier",  # directory name of the container
-    "state",  # present | no_node | corrupt | ignored | invalid | registered | ...
+    "state",  # present | no_node | corrupt | ignored | invalid | placeholder | ...
     "generation",
     "schema_version",
     "owner",  # posixOwnership / owner string
@@ -345,8 +357,9 @@ def parse_timestamp(value: Any) -> tuple[str, str]:
     """Return (normalised UTC ISO text with milliseconds, '') or ('', reason).
 
     Strings: ISO-8601 (``...Z`` or with an offset; a missing zone is taken as UTC and said so).
-    Numbers: Unix epoch, unit guessed from magnitude (s / ms / us / ns); bad or out-of-range values
-    are rejected instead of being turned into a date.
+    Numbers: not converted. A number's epoch and unit cannot be told from its magnitude (a
+    Cocoa-epoch second count also falls inside the Unix range), so the raw value is returned in
+    the reason instead of a date.
     """
     if value is None or value == "":
         return "", ""
@@ -365,16 +378,7 @@ def parse_timestamp(value: Any) -> tuple[str, str]:
                 reason = "no zone, taken as UTC"
             moment = moment.astimezone(UTC)
         elif isinstance(value, (int, float)):
-            number = float(value)
-            if not math.isfinite(number):
-                return "", "non-finite timestamp"
-            for divisor in (1.0, 1e3, 1e6, 1e9):
-                if _MIN_EPOCH <= number / divisor <= _MAX_EPOCH:
-                    moment = datetime(1970, 1, 1, tzinfo=UTC) + timedelta(seconds=number / divisor)
-                    reason = "numeric epoch, unit guessed"
-                    break
-            if moment is None:
-                return "", "numeric timestamp out of range"
+            return "", f"numeric value {value!r} not converted; its epoch and unit are not established"
         else:
             return "", f"unsupported timestamp type {type(value).__name__}"
     except (ValueError, OverflowError, OSError):
@@ -609,7 +613,7 @@ def _codesign_rows(ctx: _Ctx, scope: str, data: dict[str, Any], tables: dict) ->
             if entry.get("invalid") is True
             else "placeholder"
             if entry.get("placeholder") is True
-            else "registered"
+            else ""
         )
         entitlements = entry.get("entitlements")
         if isinstance(entitlements, dict):
@@ -901,7 +905,7 @@ def expected_counts(obj: Any) -> dict[str, int]:
     return counts
 
 # ---------------------------------------------------------------------------------------------
-# iLEAPP adapters. Everything above this line is the shared reader (also used by the SAF parser).
+# iLEAPP adapters. Everything above this line is the reader for the file.
 # ---------------------------------------------------------------------------------------------
 import re as _re
 
@@ -910,7 +914,7 @@ from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files, logfunc
 _STATE_PATH = _re.compile(r'(?:^|[/\\])ContainerManager[/\\]state\.json$')
 _STATE_NAME = _re.compile(r'state\.json$')
 _ENTITLEMENTS = _re.compile(r'entitlements=(\d+)')
-_SCOPE_LABEL = {'system': 'System'}
+_SCOPE_LABEL = {'system': '<system>'}
 
 
 def _when(text):
@@ -924,7 +928,7 @@ def _when(text):
 
 
 def _scope(scope):
-    return _SCOPE_LABEL.get(scope, 'User ' + scope.split(':', 1)[-1])
+    return _SCOPE_LABEL.get(scope, scope.split(':', 1)[-1])
 
 
 def _rows(context):
@@ -955,15 +959,15 @@ def _has_directory(row):
 def containerManagerState(context):
     ''' See artifact description '''
     data_headers = (
-        ('Container Created (birthtime)', 'datetime'), 'Container Class', 'Identifier', 'Host App', 'State',
-        'Path', 'Directory Name', 'Container UUID', ('Last Changed (ctime)', 'datetime'),
-        ('Last Modified (mtime)', 'datetime'), ('Last Checked (lastSeen)', 'datetime'), 'Generation',
-        'Owner (as stored)', 'Scope', 'Notes', 'Source File')
+        ('Directory birthtime (UTC)', 'datetime'), ('Directory ctime (UTC)', 'datetime'),
+        ('Directory mtime (UTC)', 'datetime'), ('lastSeen (UTC)', 'datetime'), 'Container Class', 'Identifier',
+        'Host App', 'State', 'Path', 'Directory Name', 'Container UUID', 'Generation',
+        'Owner (as stored)', 'Scope (as stored)', 'Notes', 'Source File')
 
     def build(row):
-        return (_when(row['birthtime']), row['class_label'] or row['container_class'], row['identifier'],
-                row['parent_identifier'], row['state'], row['path'], row['path_identifier'], row['uuid'],
-                _when(row['ctime']), _when(row['mtime']), _when(row['last_seen']), row['generation'],
+        return (_when(row['birthtime']), _when(row['ctime']), _when(row['mtime']), _when(row['last_seen']),
+                row['class_label'] or row['container_class'], row['identifier'], row['parent_identifier'],
+                row['state'], row['path'], row['path_identifier'], row['uuid'], row['generation'],
                 row['owner'], _scope(row['scope']), row['notes'])
 
     data_list, source = _collect(context, _has_directory, build)
@@ -975,7 +979,7 @@ def containerManagerStateNoDirectory(context):
     ''' See artifact description '''
     data_headers = (
         'Container Class', 'Identifier', 'Host App', 'Directory Name', 'Container UUID', 'Generation',
-        'Owner (as stored)', 'Scope', 'Notes', 'Source File')
+        'Owner (as stored)', 'Scope (as stored)', 'Notes', 'Source File')
 
     def build(row):
         return (row['class_label'] or row['container_class'], row['identifier'], row['parent_identifier'],
@@ -991,7 +995,7 @@ def containerManagerStateNoDirectory(context):
 def containerManagerStateRegistrations(context):
     ''' See artifact description '''
     data_headers = (
-        'Identifier', 'Container Class', 'State', 'Flags', 'Entitlement Keys', 'Position in Cache', 'Scope',
+        'Identifier', 'Container Class', 'State', 'Flags', 'Entitlement Keys', 'Position in Cache', 'Scope (as stored)',
         'Notes', 'Source File')
 
     def build(row):
