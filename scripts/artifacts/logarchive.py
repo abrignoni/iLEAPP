@@ -494,8 +494,9 @@ __artifacts_v2__ = {
         "name": "logarchive touchscreen events",
         "description": "Unified log entries recording physical screen contact: digitizer "
                        "contact presence transitions, per-app touch statistics windows "
-                       "(touchstats), touch attention events, and tap-to-wake (backboardd received and "
-                       "send entries and SpringBoard's tapToWakeDidRecognize)",
+                       "(touchstats), touch attention events, and tap-to-wake ('received tapToWake', "
+                       "'send tapToWake' and 'tapToWakeDidRecognize' entries, written by backboardd "
+                       "and SpringBoard on the tested images)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
         "last_update_date": "2026-10-18",
@@ -693,11 +694,12 @@ __artifacts_v2__ = {
                  "(28, 54, 58, 18 and 26 entries), including iOS 12.4 and 17.2.1, where 'apfs is "
                  "being UN-locked' did not appear. The cheatsheet is cited as reporting two such "
                  "entries per unlock on iOS. "
-                 "On the tested images each entry names one volume. The 26 entries on iOS 26.5.2 were 13 "
+                 "On iOS 17.2.1, 18.3.2, 18.7 and 26.5.2 each entry names one disk device. The 26 entries "
+                 "on iOS 26.5.2 were 13 "
                  "pairs less than two seconds apart, one naming disk1s2 and one disk1s8. iOS 18.3.2 held "
                  "28 disk2s2 and 30 disk2s8 entries, iOS 18.7 8 disk1s2 and 10 disk1s8, and iOS 17.2.1 46 "
-                 "disk1s2 and 8 disk1s8, while on iOS 12.4 each of the 28 entries names the Data volume in "
-                 "an 'apfs_device_locked' form. So two entries per unlock did not hold on every tested "
+                 "disk1s2 and 8 disk1s8, while on iOS 12.4 each of the 28 entries reads 'apfs Data is now "
+                 "UN-locked' in an 'apfs_device_locked' form and names no disk device. So two entries per unlock did not hold on every tested "
                  "build. "
                  "The address recorded for the cheatsheet, "
                  "thesisfriday.com/alr, did not serve it when fetched on 2026-10-03, so the "
@@ -1284,7 +1286,8 @@ __artifacts_v2__ = {
                  "also reported by the audio status artifact; button presses can come from an "
                  "examiner handling the device. "
                  "SpringBoard 'RECEIVED rawVolumeIncreasePress' and 'RECEIVED rawVolumeDecreasePress' "
-                 "entries were added 2026-10-18. Each comes as a 'down:YES' and a 'down:NO' entry. The iOS "
+                 "entries were added 2026-10-18. On the tested images each press gave a 'down:YES' entry followed by a 'down:NO' "
+                 "entry. The iOS "
                  "18.7 image held 41 increase and 13 decrease pairs and the iOS 26.5.2 image 3 and 5, "
                  "equal on both to the backboardd 0xC/0xE9 and 0xC/0xEA presses; none appeared on iOS "
                  "12.4, 17.2.1 or 18.3.2. "
