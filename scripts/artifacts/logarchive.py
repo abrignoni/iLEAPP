@@ -100,7 +100,8 @@ __artifacts_v2__ = {
     },
     "logarchive_executed_apps": {
         "name": "logarchive executed apps",
-        "description": "Unified log entries containing 'Allowing tap for icon view', 'Launching "
+        "description": "Unified log entries containing 'Allowing tap for icon view' (matched without "
+                       "regard to case, so 'Disallowing tap' entries are included), 'Launching "
                        "application' or 'transition source:', and entries of the "
                        "com.apple.UserNotifications subsystem containing 'Launch application'; what "
                        "each form records is not sourced here",
@@ -109,25 +110,28 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "'Launch application' is matched only in the com.apple.UserNotifications subsystem. "
-                 "Those entries were on two of the five tested images: 7 rows on the iOS 12.4 image "
-                 "and 8 on the iOS 26.5.2 image, logged by SpringBoard in the AppLaunching category. "
-                 "9 of the 15 contain 'Launch application in foreground for notification response "
-                 "action' and 6 contain 'Launch application in background for notification "
-                 "response'; 3 of the iOS 26.5.2 rows hold <private> in place of the value that ends "
-                 "the others. The other three images held no such entry, and the clause adds no row "
-                 "that the three older terms already matched. Process Image Path was SpringBoard and "
-                 "Process ID held one value on the rows of each tested image. The iOS 12.4 image "
-                 "held only the UserNotifications entries, so Subsystem and Category each held "
-                 "one value there. Trace ID held no value on any row of the tested images: rows "
-                 "read from tracev3 data leave it empty. "
-                 "Bundle ID and Icon Location (as stored), added 2026-10-18, are read from the message. A "
-                 "SpringBoard 'Launching application <bundle ID> from icon <icon>, location: <location>' entry "
-                 "gives both, and 'Allowing tap for icon view '<bundle ID>'' gives the bundle ID; either holds "
-                 "<private> where the log redacted it. Other forms leave the two blank, among them "
-                 "nsurlsessiond 'Launching application ... since we could not restore session' entries (2 on "
-                 "jess_ios15), which name no icon. On the 14 images in sample_data every SpringBoard 'from "
-                 "icon' entry gave both values and every 'Allowing tap' entry a bundle ID. Locations seen, "
+        "notes": "'Launch application' is matched only in the com.apple.UserNotifications subsystem. Those "
+                 "entries were on six of the 14 images: 7 on ctf2020_ios12, 1 on hickman_ios14_sysdiag, 1 on "
+                 "jess_ios15, 3 on abe_ios16, 8 on hc_ios26 and 40 on ai16_ios26_sysdiag, logged by "
+                 "SpringBoard in the AppLaunching category. 14 of the 60 contain 'Launch application in "
+                 "foreground for notification response action' and 46 contain 'Launch application in "
+                 "background for notification response'; 23 hold <private> in place of the value that ends the "
+                 "others (20 on ai16_ios26_sysdiag, 3 on hc_ios26). The clause adds no row that the three "
+                 "older terms already matched. Process Image Path was SpringBoard on every row except 2 "
+                 "nsurlsessiond rows on jess_ios15. Process ID held one value per image on 10 images, two on "
+                 "felix23_ios16 and hc_ios26_sysdiag, and three on jess_ios15. The iOS 12.4 image held only "
+                 "the UserNotifications entries, so Subsystem and Category each held one value there. Trace ID "
+                 "held no value on any row of the tested images: rows read from tracev3 data leave it empty. "
+                 "Application (as stored) and Icon Location (as stored), added 2026-10-18, are read from the "
+                 "message. A SpringBoard 'Launching application <application> from icon <icon>, location: "
+                 "<location>' entry gives both, and 'Allowing tap for icon view '<application>'' gives the "
+                 "application. On both forms the application value reads <private> where the log redacted it; "
+                 "no redacted location was seen on the 14 images. Other forms leave the two blank, among them "
+                 "'Disallowing tap for icon view' entries (5, on felix23_ios16 and iphone12_ios18), which the "
+                 "case-insensitive match admits but the column parser does not read, and nsurlsessiond "
+                 "'Launching application ... since we could not restore session' entries (2 on jess_ios15), "
+                 "which name no icon. On the 14 images every SpringBoard 'from icon' entry gave both values "
+                 "and every entry the 'Allowing tap' pattern read gave an application value. Locations seen, "
                  "reported as written: SBIconLocationRoot, SBIconLocationDock, SBIconLocationFolder, "
                  "SBIconLocationAppLibraryCategoryPod and SBIconLocationAppLibraryCategoryPodExpanded.",
         "paths": None,
@@ -2474,7 +2478,7 @@ ALLOWING_TAP = re.compile(r"Allowing tap for icon view '(?P<bundle>[^']*)'")
 
 
 def _launch_fields(message):
-    """The bundle ID and icon location a SpringBoard launch entry names, as written."""
+    """The application and icon location a SpringBoard launch entry names, as written."""
     message = message or ''
     match = LAUNCHING_APPLICATION.search(message)
     if match:
@@ -2501,7 +2505,7 @@ def logarchive_executed_apps(context):
     
     for record in _report_rows(get_sqlite_db_records(source_path, query)):
         data_list.append((record[0],) + _launch_fields(record[6]) + tuple(record[1:]))
-    data_headers = (('Timestamp', 'datetime'), 'Bundle ID', 'Icon Location (as stored)', 'Row Number',
+    data_headers = (('Timestamp', 'datetime'), 'Application (as stored)', 'Icon Location (as stored)', 'Row Number',
                     'Process Image Path', 'Process ID', 'Subsystem', 'Category', 'Event Message',
                     'Trace ID')
 
