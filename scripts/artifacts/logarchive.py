@@ -106,7 +106,7 @@ __artifacts_v2__ = {
                        "each form records is not sourced here",
         "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2025-05-26",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "'Launch application' is matched only in the com.apple.UserNotifications subsystem. "
@@ -120,16 +120,34 @@ __artifacts_v2__ = {
                  "Process ID held one value on the rows of each tested image. The iOS 12.4 image "
                  "held only the UserNotifications entries, so Subsystem and Category each held "
                  "one value there. Trace ID held no value on any row of the tested images: rows "
-                 "read from tracev3 data leave it empty.",
+                 "read from tracev3 data leave it empty. "
+                 "Bundle ID and Icon Location (as stored), added 2026-10-18, are read from the message. A "
+                 "SpringBoard 'Launching application <bundle ID> from icon <icon>, location: <location>' entry "
+                 "gives both, and 'Allowing tap for icon view '<bundle ID>'' gives the bundle ID; either holds "
+                 "<private> where the log redacted it. Other forms leave the two blank, among them "
+                 "nsurlsessiond 'Launching application ... since we could not restore session' entries (2 on "
+                 "jess_ios15), which name no icon. On the 14 images in sample_data every SpringBoard 'from "
+                 "icon' entry gave both values and every 'Allowing tap' entry a bundle ID. Locations seen, "
+                 "reported as written: SBIconLocationRoot, SBIconLocationDock, SBIconLocationFolder, "
+                 "SBIconLocationAppLibraryCategoryPod and SBIconLocationAppLibraryCategoryPodExpanded.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "code",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 7 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 243 rows",
+            "jess_ios15": "iOS 15.0.2 | 52 rows",
+            "abe_ios16": "iOS 16.5 | 1222 rows",
+            "felix23_ios16": "iOS 16.5 | 301 rows",
+            "fsfull002_ios17": "iOS 17.1 | 223 rows",
             "hc_ios17_2": "iOS 17.2.1 | 752 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 39 rows",
             "dexter_ios18": "iOS 18.3.2 | 95 rows",
             "iphone12_ios18": "iOS 18.7 | 1676 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 229 rows",
             "hc_ios26": "iOS 26.5.2 | 442 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 75 rows",
         },
     },
     "logarchive_tethering": {
@@ -2450,6 +2468,23 @@ def logarchive_flashlight(context):
     
     return data_headers, data_list, source_path
 
+LAUNCHING_APPLICATION = re.compile(
+    r'Launching application (?P<bundle>\S+) from icon \S+, location: (?P<location>\S+)')
+ALLOWING_TAP = re.compile(r"Allowing tap for icon view '(?P<bundle>[^']*)'")
+
+
+def _launch_fields(message):
+    """The bundle ID and icon location a SpringBoard launch entry names, as written."""
+    message = message or ''
+    match = LAUNCHING_APPLICATION.search(message)
+    if match:
+        return match.group('bundle'), match.group('location')
+    match = ALLOWING_TAP.search(message)
+    if match:
+        return match.group('bundle'), ''
+    return '', ''
+
+
 @artifact_processor
 def logarchive_executed_apps(context):
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
@@ -2464,10 +2499,12 @@ def logarchive_executed_apps(context):
         OR (event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%')
     '''
     
-    data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
-                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
-    
+    for record in _report_rows(get_sqlite_db_records(source_path, query)):
+        data_list.append((record[0],) + _launch_fields(record[6]) + tuple(record[1:]))
+    data_headers = (('Timestamp', 'datetime'), 'Bundle ID', 'Icon Location (as stored)', 'Row Number',
+                    'Process Image Path', 'Process ID', 'Subsystem', 'Category', 'Event Message',
+                    'Trace ID')
+
     return data_headers, data_list, source_path
 
 @artifact_processor
