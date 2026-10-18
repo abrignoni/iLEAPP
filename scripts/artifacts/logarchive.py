@@ -172,7 +172,7 @@ __artifacts_v2__ = {
                        "changed, Screen shut off) and the 'Biometric match' completion entries",
         "author": "@AlexisBrignoni, @stark4n6, Claude",
         "creation_date": "2025-05-28",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "2026-10-14: added com.apple.SpringBoard entries whose message begins "
@@ -183,7 +183,13 @@ __artifacts_v2__ = {
                  "'UILocked:' mid-message (20 entries on hickman_ios14_sysdiag); those are not "
                  "reported. The SpringBoard process also logs entries under subsystem "
                  "com.apple.UserNotificationsKit that contain 'UILocked:' mid-message; the "
-                 "subsystem filter keeps those out.",
+                 "subsystem filter keeps those out. "
+                 "The 'Device unlocked' pattern matches in any process and in any case. "
+                 "softwareupdateservicesd wrote 19, 6, 13, 17 and 6 of those rows on iOS 12.4, 17.2.1, "
+                 "18.3.2, 18.7 and 26.5.2, fewer than the kernel 'is now UN-locked' entries the unlock "
+                 "sessions artifact reports on each (28, 54, 58, 18 and 26). sharingd, appstored, "
+                 "locationd and other processes wrote the rest, up to 424 rows from sharingd on iOS "
+                 "17.2.1, so these rows are not a count of unlocks.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -488,10 +494,12 @@ __artifacts_v2__ = {
         "name": "logarchive touchscreen events",
         "description": "Unified log entries recording physical screen contact: digitizer "
                        "contact presence transitions, per-app touch statistics windows "
-                       "(touchstats), touch attention events, and tap-to-wake",
+                       "(touchstats), touch attention events, and tap-to-wake ('received tapToWake', "
+                       "'send tapToWake' and 'tapToWakeDidRecognize' entries, written by backboardd "
+                       "and SpringBoard on the tested images)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at https://thesisfriday.com/thesis-friday-14-aul-touch-events/ "
@@ -505,16 +513,20 @@ __artifacts_v2__ = {
                  "recorded for the cheatsheet, thesisfriday.com/alr, did not serve it when fetched "
                  "on 2026-10-03, so that statement could not be checked. The entry was observed on "
                  "the iOS 26.5.2 image. "
+                 "backboardd 'send tapToWake' and SpringBoard 'tapToWakeDidRecognize:' entries were added "
+                 "2026-10-18. The send entries equalled the received entries on each image that had either "
+                 "(2, 21, 21 and 4 on iOS 17.2.1, 18.3.2, 18.7 and 26.5.2), and tapToWakeDidRecognize gave "
+                 "2, 6, 21 and 4 there. On iOS 12.4 tapToWakeDidRecognize gave all 27 rows. "
                  "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "target",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
-            "hc_ios17_2": "iOS 17.2.1 | 8193 rows",
-            "dexter_ios18": "iOS 18.3.2 | 4801 rows",
-            "iphone12_ios18": "iOS 18.7 | 23978 rows",
-            "hc_ios26": "iOS 26.5.2 | 6933 rows",
+            "ctf2020_ios12": "iOS 12.4 | 27 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 8197 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4828 rows",
+            "iphone12_ios18": "iOS 18.7 | 24020 rows",
+            "hc_ios26": "iOS 26.5.2 | 6941 rows",
         },
     },
     "logarchive_usb_connections": {
@@ -652,7 +664,7 @@ __artifacts_v2__ = {
                        "notifications, and locks from the side button",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
@@ -681,7 +693,15 @@ __artifacts_v2__ = {
                  "process cheatsheet', was added 2026-10-03: it appeared on all five tested images "
                  "(28, 54, 58, 18 and 26 entries), including iOS 12.4 and 17.2.1, where 'apfs is "
                  "being UN-locked' did not appear. The cheatsheet is cited as reporting two such "
-                 "entries per unlock on iOS. The address recorded for the cheatsheet, "
+                 "entries per unlock on iOS. "
+                 "On iOS 17.2.1, 18.3.2, 18.7 and 26.5.2 each entry names one disk device. The 26 entries "
+                 "on iOS 26.5.2 were 13 "
+                 "pairs less than two seconds apart, one naming disk1s2 and one disk1s8. iOS 18.3.2 held "
+                 "28 disk2s2 and 30 disk2s8 entries, iOS 18.7 8 disk1s2 and 10 disk1s8, and iOS 17.2.1 46 "
+                 "disk1s2 and 8 disk1s8, while on iOS 12.4 each of the 28 entries reads 'apfs Data is now "
+                 "UN-locked' in an 'apfs_device_locked' form and names no disk device. So two entries per unlock did not hold on every tested "
+                 "build. "
+                 "The address recorded for the cheatsheet, "
                  "thesisfriday.com/alr, did not serve it when fetched on 2026-10-03, so the "
                  "statements attributed to it in these notes could not be checked. The kernel "
                  "'Sending notification for volume' entry carries "
@@ -996,7 +1016,7 @@ __artifacts_v2__ = {
                        "any process",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at "
@@ -1006,7 +1026,14 @@ __artifacts_v2__ = {
                  "show an SOS call; the payloads are redacted to <private>. The "
                  "sosTriggeredOnPairedDevice entry (documented from a paired Apple Watch "
                  "trigger) is collected as documented-only. Complements the SOS claw "
-                 "gesture entries in the logarchive artifacts filter.",
+                 "gesture entries in the logarchive artifacts filter. "
+                 "Those are SpringBoard 'SBSOSClawGestureObserver - button press noted' entries, each "
+                 "naming a hardware button (lock, volumeUp or volumeDown). The logarchive artifacts table "
+                 "held 76, 4, 172 and 64 of them on iOS 17.2.1, 18.3.2, 18.7 and 26.5.2 and none on iOS "
+                 "12.4. On iOS 26.5.2 they were two per backboardd press of the named button (48, 10 and 6 "
+                 "against 24 side button, 5 volume down and 3 volume up presses); on iOS 18.3.2 there were "
+                 "4 against 15 side button presses. They record button presses and are not by themselves a "
+                 "sign of an SOS call.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "alert-triangle",
@@ -1232,11 +1259,11 @@ __artifacts_v2__ = {
         "name": "logarchive hardware button presses",
         "description": "Unified log entries recording physical button presses: backboardd button events "
                        "with the button's HID usage and how long it was held, SpringBoard side button "
-                       "press counts and single press recognition, and the SpringBoard button "
-                       "combination recognizer's press type",
+                       "press counts and single press recognition, SpringBoard raw volume press "
+                       "entries, and the SpringBoard button combination recognizer's press type",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
@@ -1257,7 +1284,14 @@ __artifacts_v2__ = {
                  "(33) and 26.5.2 (24) images but not on iOS 18.3.2 (2 against 15). The iOS 12.4 "
                  "image held only 'Lock button single press recognized' (9). Volume presses are "
                  "also reported by the audio status artifact; button presses can come from an "
-                 "examiner handling the device. Trace ID held no value on any row of the tested "
+                 "examiner handling the device. "
+                 "SpringBoard 'RECEIVED rawVolumeIncreasePress' and 'RECEIVED rawVolumeDecreasePress' "
+                 "entries were added 2026-10-18. On the tested images each press gave a 'down:YES' entry followed by a 'down:NO' "
+                 "entry. The iOS "
+                 "18.7 image held 41 increase and 13 decrease pairs and the iOS 26.5.2 image 3 and 5, "
+                 "equal on both to the backboardd 0xC/0xE9 and 0xC/0xEA presses; none appeared on iOS "
+                 "12.4, 17.2.1 or 18.3.2. "
+                 "Trace ID held no value on any row of the tested "
                  "images: rows read from tracev3 data leave it empty, and only a 'log show' JSON "
                  "export fills it.",
         "paths": None,
@@ -1267,8 +1301,8 @@ __artifacts_v2__ = {
             "ctf2020_ios12": "iOS 12.4 | 9 rows",
             "hc_ios17_2": "iOS 17.2.1 | 188 rows",
             "dexter_ios18": "iOS 18.3.2 | 40 rows",
-            "iphone12_ios18": "iOS 18.7 | 406 rows",
-            "hc_ios26": "iOS 26.5.2 | 175 rows",
+            "iphone12_ios18": "iOS 18.7 | 514 rows",
+            "hc_ios26": "iOS 26.5.2 | 191 rows",
         },
     },
     "logarchive_orientation": {
@@ -2129,6 +2163,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%contact _ presence:%'
         OR event_message LIKE '%touchstats%'
         OR event_message LIKE '%received tapToWake%'
+        OR event_message LIKE '%send tapToWake%'
+        OR event_message LIKE '%tapToWakeDidRecognize%'
         OR event_message LIKE '%AttentionAwareness.Touch%'
         -- logarchive_usb_connections
         OR event_message LIKE '%plugin state changed to%'
@@ -2281,6 +2317,7 @@ def logarchive_artifacts(context):
         OR (subsystem = 'com.apple.SpringBoard.buttons'
             AND (event_message LIKE 'press count:%'
                  OR event_message LIKE 'Lock button single press recognized%'
+                 OR event_message LIKE 'RECEIVED rawVolume%Press%'
                  OR event_message LIKE 'SOS button gesture: press type=%'))
         -- logarchive_orientation ('Received orientation' is already collected by
         -- the case-insensitive 'Received Orientation' pattern above)
@@ -2730,6 +2767,8 @@ def logarchive_touch(context):
         event_message LIKE '%contact _ presence:%'
         OR event_message LIKE '%touchstats%'
         OR event_message LIKE '%received tapToWake%'
+        OR event_message LIKE '%send tapToWake%'
+        OR event_message LIKE '%tapToWakeDidRecognize%'
         OR event_message LIKE '%AttentionAwareness.Touch%'
         OR event_message LIKE '%Touch entered%'
     ''', report_time=False)
@@ -3087,6 +3126,7 @@ def logarchive_hardware_buttons(context):
         OR (subsystem = 'com.apple.SpringBoard.buttons'
             AND (event_message LIKE 'press count:%'
                  OR event_message LIKE 'Lock button single press recognized%'
+                 OR event_message LIKE 'RECEIVED rawVolume%Press%'
                  OR event_message LIKE 'SOS button gesture: press type=%'))
     ''')
 
