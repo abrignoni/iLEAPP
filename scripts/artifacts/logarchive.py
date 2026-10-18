@@ -808,7 +808,9 @@ __artifacts_v2__ = {
                  "Disconnected. On every row VBUS held 1 when State began with Charging and 0 when it was "
                  "Disconnected. UISOC held whole numbers from 2 to 100, Type held 0, 1 or 2, and TLC held a "
                  "date and time written as text. The entries record what powerd logged, not what was "
-                 "connected; the logarchive USB and power connections artifact reports the cable entries.",
+                 "connected; the logarchive USB and power connections artifact reports the cable entries. "
+                 "Process Image Path held the powerd executable on every row, and Process ID held one "
+                 "value on all 13 ai16_ios26_sysdiag rows.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "battery-charging",
