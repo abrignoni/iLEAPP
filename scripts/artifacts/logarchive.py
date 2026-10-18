@@ -788,6 +788,47 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "battery-charging",
     },
+    "logarchive_charging_state": {
+        "name": "logarchive charging state",
+        "description": "Unified log entries in which powerd logged a charging state update, with the "
+                       "state and the other values the entry names",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-18",
+        "last_update_date": "2026-10-18",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive module must run in "
+                 "the same session. Row Number is the entry's row number in the logarchive table. Selects "
+                 "powerd entries beginning 'handleChargingStateUpdate '. State is the text after 'State:' as "
+                 "written, and the next five columns are the values after VBUS:, UISOC:, CHNC:, Type: and TLC: "
+                 "as written; their meaning is not established here. A message of another shape leaves those "
+                 "columns blank, and Event Message keeps the whole message. Tested on the 14 images in "
+                 "sample_data, iOS 12.4 to 26.6. The entries appeared only on the three iOS 26 images, where "
+                 "every row parsed. States seen: Charging, Charging Completed, Charging On Hold and "
+                 "Disconnected. On every row VBUS held 1 when State began with Charging and 0 when it was "
+                 "Disconnected. UISOC held whole numbers from 2 to 100, Type held 0, 1 or 2, and TLC held a "
+                 "date and time written as text. The entries record what powerd logged, not what was "
+                 "connected; the logarchive USB and power connections artifact reports the cable entries.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 13 rows",
+            "hc_ios26": "iOS 26.5.2 | 41 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 18 rows",
+        },
+    },
     "logarchive_battery_center_sources": {
         "name": "logarchive Battery Center power sources",
         "description": "Unified log entries in which Battery Center listed a power source, the "
@@ -2354,6 +2395,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%UIOpenURLAction%'
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
+        -- logarchive_charging_state
+        OR (process_image_path LIKE '%/powerd' AND event_message LIKE 'handleChargingStateUpdate %')
     )
     '''
 
@@ -2895,6 +2938,32 @@ _BC_SOURCE_KEYS = ('Name', 'Type', 'Transport Type', 'Power Source State', 'Curr
 _BC_DEVICE_KEYS = ('name', 'groupName', 'vendor', 'modelNumber', 'percentCharge', 'charging',
                    'connected', 'internal', 'poweredSoureState', 'transportType',
                    'accessoryIdentifier', 'accessoryCategory', 'identifier', 'productIdentifier')
+
+
+CHARGING_STATE_UPDATE = re.compile(
+    r'handleChargingStateUpdate State:(?P<state>.+?) VBUS:(?P<vbus>\S*) UISOC:(?P<uisoc>\S*) '
+    r'CHNC:(?P<chnc>\S*) Type:(?P<type>\S*)(?: TLC:(?P<tlc>.*?))?\s*$')
+
+
+@artifact_processor
+def logarchive_charging_state(context):
+    _headers, records, source_path = _artifacts_table_records(context, """
+        process_image_path LIKE '%/powerd' AND event_message LIKE 'handleChargingStateUpdate %'
+    """, report_time=False)
+    data_list = []
+    for record in records:
+        message = record['event_message'] or ''
+        match = CHARGING_STATE_UPDATE.match(message)
+        fields = (match.group('state'), match.group('vbus'), match.group('uisoc'),
+                  match.group('chnc'), match.group('type'), match.group('tlc') or '') if match \
+            else ('',) * 6
+        data_list.append((_report_time(record['timestamp']),) + fields
+                         + (message, record['process_image_path'], record['process_id'],
+                            record['row_number']))
+    data_headers = (('Timestamp', 'datetime'), 'State', 'VBUS (as stored)', 'UISOC (as stored)',
+                    'CHNC (as stored)', 'Type (as stored)', 'TLC (as stored)', 'Event Message',
+                    'Process Image Path', 'Process ID', 'Row Number')
+    return data_headers, data_list, source_path
 
 
 def _bc_unquote(text):
