@@ -800,17 +800,19 @@ __artifacts_v2__ = {
         "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive module must run in "
                  "the same session. Row Number is the entry's row number in the logarchive table. Selects "
                  "powerd entries beginning 'handleChargingStateUpdate '. State is the text after 'State:' as "
-                 "written, and the next five columns are the values after VBUS:, UISOC:, CHNC:, Type: and TLC: "
-                 "as written; their meaning is not established here. A message of another shape leaves those "
-                 "columns blank, and Event Message keeps the whole message. Tested on the 14 images in "
-                 "sample_data, iOS 12.4 to 26.6. The entries appeared only on the three iOS 26 images, where "
-                 "every row parsed. States seen: Charging, Charging Completed, Charging On Hold and "
-                 "Disconnected. On every row VBUS held 1 when State began with Charging and 0 when it was "
-                 "Disconnected. UISOC held whole numbers from 2 to 100, Type held 0, 1 or 2, and TLC held a "
-                 "date and time written as text. The entries record what powerd logged, not what was "
-                 "connected; the logarchive USB and power connections artifact reports the cable entries. "
-                 "Process Image Path held the powerd executable on every row, and Process ID held one "
-                 "value on all 13 ai16_ios26_sysdiag rows.",
+                 "written. VBUS, UISOC, CHNC and Type are the values after those labels as written. TLC is the "
+                 "text after 'TLC:' with trailing whitespace removed, and is blank when the message has no "
+                 "TLC. The meaning of these values is not established here. A message of another shape leaves "
+                 "those columns blank, and Event Message keeps the whole message; no such message appeared in "
+                 "the images tested. Tested on the 14 images in sample_data, iOS 12.4 to 26.6. The entries "
+                 "appeared only on the three iOS 26 images, where every row parsed. States seen: Charging, "
+                 "Charging Completed, Charging On Hold and Disconnected. On every row VBUS held 1 when State "
+                 "began with Charging and 0 when it was Disconnected. UISOC held whole numbers from 2 to 100, "
+                 "Type held 0, 1 or 2, and TLC held text shaped like a weekday, month, day, time and year, "
+                 "with no time zone in it. The entries record what powerd logged, not what was connected; the "
+                 "logarchive USB and power connections artifact reports the cable entries. Process Image Path "
+                 "ended in /powerd on every row, which the selection requires, and held one value per image. "
+                 "Process ID held one value on all 13 ai16_ios26_sysdiag rows.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "battery-charging",
