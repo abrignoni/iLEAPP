@@ -1,0 +1,536 @@
+{
+  "metadata": {
+    "module_name": "logarchive",
+    "artifact_name": "logarchive",
+    "function_name": "logarchive",
+    "case_number": "case_synthetic_capture",
+    "number_of_columns": 8,
+    "number_of_rows": 50,
+    "total_data_size_bytes": 12436,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\logarchive\\testdata.logarchive.logarchive.case_synthetic_capture.zip",
+    "start_time": "2026-10-19T20:25:30.344619+00:00",
+    "end_time": "2026-10-19T20:25:30.472524+00:00",
+    "run_time_seconds": 0.020011425018310547,
+    "last_commit": {
+      "hash": "fddd33b2436def34272799036edc6dad41208fec",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-18T16:20:57-04:00",
+      "message": "executed apps: restate notes on 14 images, name the column Application"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Row Number",
+    "Process Image Path",
+    "Process ID",
+    "Subsystem",
+    "Category",
+    "Event Message",
+    "Trace ID"
+  ],
+  "data": [
+    [
+      1773500400,
+      1,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionCreate: Creating session for PID 3101",
+      "1000"
+    ],
+    [
+      1773500400,
+      2,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionCreate: <0x7f0a11c000[3101][com.example.fakecam]> New session created.",
+      "1001"
+    ],
+    [
+      1773500400,
+      3,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_SetConfiguration: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:0 Cam/Audio:0/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:0 interruptionError:0 sessionStatus:Idle Update:0",
+      "1002"
+    ],
+    [
+      1773500405,
+      4,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_updateSessionStateWithApplicationAndLayoutState: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:0 Cam/Audio:0/0 bg:1 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:0 interruptionError:0 sessionStatus:Idle Update:0",
+      "1003"
+    ],
+    [
+      1773500410,
+      5,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_StartRunning: <0x7f0a11c000[3101][com.example.fakecam]> Called",
+      "1004"
+    ],
+    [
+      1773500410,
+      6,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_StartRunning: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:1 Cam/Audio:1/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:1 interruptionError:0 sessionStatus:Idle ClientStartRunning",
+      "1005"
+    ],
+    [
+      1773500410,
+      7,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_transitionToSessionStatus: <0x7f0a11c000[3101][com.example.fakecam]> Idle -> Starting Running",
+      "1006"
+    ],
+    [
+      1773500410,
+      8,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_transitionToSessionStatus: <0x7f0a11c000[3101][com.example.fakecam]> Starting Running -> Running",
+      "1007"
+    ],
+    [
+      1773500410,
+      9,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_transitionToSessionStatus: <0x7f0a11c000[3101][com.example.fakecam]> Starting took 289.6ms",
+      "1008"
+    ],
+    [
+      1773500420,
+      10,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_updateSessionStateWithApplicationAndLayoutState: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:1 Cam/Audio:1/0 bg:1 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:1 interruptionError:0 sessionStatus:Running Update:1",
+      "1009"
+    ],
+    [
+      1773500425,
+      11,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_updateSessionStateWithApplicationAndLayoutState: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:0 Cam/Audio:1/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:1 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:0 interruptionError:0 sessionStatus:Idle Update:1",
+      "1010"
+    ],
+    [
+      1773500430,
+      12,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_updateSessionStateWithApplicationAndLayoutState: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:1 Cam/Audio:0/1 bg:0 prewarming:0 micStolen:1 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:1 interruptionError:0 sessionStatus:Running Update:1",
+      "1011"
+    ],
+    [
+      1773500440,
+      13,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_StopRunning: <0x7f0a11c000[3101][com.example.fakecam]> Called",
+      "1012"
+    ],
+    [
+      1773500440,
+      14,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_StopRunning: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:1 Cam/Audio:1/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:1 interruptionError:0 sessionStatus:Running ClientStopRunning",
+      "1013"
+    ],
+    [
+      1773500440,
+      15,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_transitionToSessionStatus: <0x7f0a11c000[3101][com.example.fakecam]> Running -> Stopping Running",
+      "1014"
+    ],
+    [
+      1773500440,
+      16,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_transitionToSessionStatus: <0x7f0a11c000[3101][com.example.fakecam]> Stopping Running -> Idle",
+      "1015"
+    ],
+    [
+      1773500440,
+      17,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_didStopRunning: <0x7f0a11c000[3101][com.example.fakecam]> Stopped running, tearing down graph",
+      "1016"
+    ],
+    [
+      1773500440,
+      18,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_didStopRunning: <0x7f0a11c000[3101][com.example.fakecam]> disabling memory pool",
+      "1017"
+    ],
+    [
+      1773500460,
+      19,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionDetachFromClient_block_invoke: <0x7f0a11c000[3101][com.example.fakecam]> detaching from client with session 7F0A11C000",
+      "1018"
+    ],
+    [
+      1773500500,
+      20,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionCreate: Creating session for PID 3102",
+      "1019"
+    ],
+    [
+      1773500500,
+      21,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionCreate: <0x7f0a11d000[3102][com.example.fakeprewarm]> New session created.",
+      "1020"
+    ],
+    [
+      1773500500,
+      22,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_SetConfiguration: <0x7f0a11d000[3102][com.example.fakeprewarm]> ClientStartedSession:0 Cam/Audio:1/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:0 interruptionError:0 sessionStatus:Idle Update:0",
+      "1021"
+    ],
+    [
+      1773500510,
+      23,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionCreate: <0x7f0a11f000[3105]> New session created.",
+      "1022"
+    ],
+    [
+      1773500600,
+      24,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionCreate: Creating session for PID 3103",
+      "1023"
+    ],
+    [
+      1773500600,
+      25,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> FigCaptureSessionCreate: <0x7f0a11e000[3103][com.example.fakevideo]> New session created.",
+      "1024"
+    ],
+    [
+      1773500600,
+      26,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_updateRunningCondition: <0x7f0a11e000[3103][com.example.fakevideo]> ClientStartedSession:0 Cam/Audio:1/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 active:0 shouldRun:0 (start:0 stop:0)",
+      "1025"
+    ],
+    [
+      1773500610,
+      27,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_StartRunning: <0x7f0a11e000[3103][com.example.fakevideo]> Called",
+      "1026"
+    ],
+    [
+      1773500610,
+      28,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_updateRunningCondition: <0x7f0a11e000[3103][com.example.fakevideo]> ClientStartedSession:1 Cam/Audio:1/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 active:0 shouldRun:1 (start:1 stop:0)",
+      "1027"
+    ],
+    [
+      1773500610,
+      29,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_updateSessionRunningCondition_block_invoke: <0x7f0a11e000[3103][com.example.fakevideo]> Handle clientRequested start:1 stop:0, clientStartedSession:1, shouldRun:1, shouldStop:0 sessionStatus:Idle, interruptionError:0, runtimeError:0 cancelled:0 -> Start",
+      "1028"
+    ],
+    [
+      1773500700,
+      30,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000001/FakeCam.app/FakeCam",
+      3104,
+      "com.apple.cameracapture",
+      "",
+      "<<<< AVCaptureSession >>>> -[AVCaptureSession startRunning]: (73CCD281A0) (pthread:16DBEB000)",
+      "1029"
+    ],
+    [
+      1773500710,
+      31,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000001/FakeCam.app/FakeCam",
+      3104,
+      "com.apple.cameracapture",
+      "",
+      "<<<< AVCaptureSession >>>> -[AVCaptureSession stopRunning]: (73CCD281A0) (pthread:16DBEB000)",
+      "1030"
+    ],
+    [
+      1773500800,
+      32,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigFlashlightLocal >>>> -[FigFlashlightLocal _postNotification:withValue:]_block_invoke: <0x7f0a200000[118][com.apple.springboard]> Posting notification FlashlightLevel with payload {\n    FlashlightValue = 1;\n}",
+      "1031"
+    ],
+    [
+      1773500801,
+      33,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigFlashlightLocal >>>> -[FigFlashlightLocal initWithClientType:clientAuditToken:clientApplicationID:]: <0x7f0a200000[118][com.apple.springboard]> Created flashlight (0x7f0a200010), clientType: AVCaptureDevice Torch.",
+      "1032"
+    ],
+    [
+      1773500802,
+      34,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< BWFigCaptureDevice >>>> -[BWFigCaptureDevice _setProperty:value:requireSupported:]: <0x7f0a210000 FigCaptureDeviceRef(0x7f0a210010), 1, Default>: set ClientIsActive to 1",
+      "1033"
+    ],
+    [
+      1773500803,
+      35,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCaptureThermalMonitor >>>> -[FigCaptureThermalMonitor _thermalNotification:]: Thermal level now 0 (vs. threshold 3)",
+      "1034"
+    ],
+    [
+      1773500804,
+      36,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCapturePowerLog >>>> cpls_logCameraStreamingPowerEvents: Event 9: {\n    CameraType = 1;\n    Streaming = 0;\n    Timestamp = \"2026-03-14 10:06:44 +0000\";\n}",
+      "1035"
+    ],
+    [
+      1773500900,
+      37,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.example.notcamera",
+      "",
+      "<<<< FigCaptureSession >>>> captureSession_StartRunning: <0x7f0a11c000[3101][com.example.fakecam]> ClientStartedSession:1 Cam/Audio:1/0 bg:0 prewarming:0 micStolen:0 multitasking:0 pip:0 cameraStolen:0 pressured:0 interruptions:0 runtimeError:0 stopRequired:0 shouldRun:1 interruptionError:0 sessionStatus:Idle ClientStartRunning",
+      "1036"
+    ],
+    [
+      1773500901,
+      38,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000001/FakeCam.app/FakeCam",
+      3104,
+      "com.example.notcamera",
+      "",
+      "<<<< AVCaptureSession >>>> -[AVCaptureSession startRunning]: (73CCD28290) (pthread:16DB5F000)",
+      "1037"
+    ],
+    [
+      1773500902,
+      39,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.example.notcamera",
+      "",
+      "FigCaptureLogCameraStreamingPowerEvent: PID: 3101, applicationID: <private>, deviceType: 2, streaming: 1, portType: PortTypeBack",
+      "1038"
+    ],
+    [
+      1773501000,
+      40,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCapturePowerLog >>>> FigCaptureLogCameraStreamingPowerEvent: PID: 3101, applicationID: <private>, deviceType: 20, streaming: 1, portType: PortTypeFrontInfrared",
+      "1039"
+    ],
+    [
+      1773501000,
+      41,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCapturePowerLog >>>> FigCaptureLogCameraStreamingPowerEvent: PID: 3101, applicationID: <private>, deviceType: 20, streaming: 0, portType: PortTypeFrontInfrared",
+      "1040"
+    ],
+    [
+      1773501010,
+      42,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCapturePowerLog >>>> FigCaptureLogCameraStreamingPowerEvent: PID: 3103, applicationID: com.example.fakevideo, deviceType: 2, streaming: 1, portType: PortTypeBack",
+      "1041"
+    ],
+    [
+      1773501020,
+      43,
+      "/usr/libexec/cameracaptured",
+      118,
+      "com.apple.cameracapture",
+      "",
+      "<<<< FigCapturePowerLog >>>> FigCaptureLogCameraStreamingPowerEvent: unrecognised layout",
+      "1042"
+    ],
+    [
+      1773501100,
+      44,
+      "/System/Library/CoreServices/SpringBoard.app/SpringBoard",
+      60,
+      "com.apple.SpringBoard",
+      "StatusBarish",
+      "[Recording Indicator] Active camera/microphone activity changed:\n{(\n)}",
+      "1043"
+    ],
+    [
+      1773501100,
+      45,
+      "/System/Library/CoreServices/SpringBoard.app/SpringBoard",
+      60,
+      "com.apple.SpringBoard",
+      "StatusBarish",
+      "[Recording Indicator] Active camera/microphone activity changed:\n{(\n    Camera\n)}",
+      "1044"
+    ],
+    [
+      1773501101,
+      46,
+      "/System/Library/CoreServices/SpringBoard.app/SpringBoard",
+      60,
+      "com.apple.SpringBoard",
+      "StatusBarish",
+      "[Recording Indicator] creating secure indicator layer for view-dot with Camera",
+      "1045"
+    ],
+    [
+      1773501102,
+      47,
+      "/System/Library/CoreServices/SpringBoard.app/SpringBoard",
+      60,
+      "com.apple.SpringBoard",
+      "StatusBarish",
+      "[Recording Indicator] updating live rendering assertion... hasSecureIndicator: YES, isActive: NO, windowScene: <private>",
+      "1046"
+    ],
+    [
+      1773501103,
+      48,
+      "/System/Library/CoreServices/SpringBoard.app/SpringBoard",
+      60,
+      "com.apple.SpringBoard",
+      "StatusBarish",
+      "[Recording Indicator] Changed high level layer opacity to 0.5 for backlightLuminance update 0.5 from: 1.0",
+      "1047"
+    ],
+    [
+      1773501104,
+      49,
+      "/System/Library/CoreServices/SpringBoard.app/SpringBoard",
+      60,
+      "com.apple.SpringBoard",
+      "StatusBarish",
+      "[Recording Indicator] Should force high level layer off... forceOff: NO",
+      "1048"
+    ],
+    [
+      1773501105,
+      50,
+      "/System/Library/CoreServices/SpringBoard.app/SpringBoard",
+      60,
+      "com.example.notspringboard",
+      "StatusBarish",
+      "[Recording Indicator] Active camera/microphone activity changed:\n{(\n)}",
+      "1049"
+    ]
+  ]
+}

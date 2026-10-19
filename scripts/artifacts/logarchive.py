@@ -1767,6 +1767,122 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 | 5 rows",
         },
     },
+    "logarchive_capture_sessions": {
+        "name": "logarchive camera and microphone capture sessions",
+        "description": "Unified log lines from the camera capture daemon (subsystem "
+                       "com.apple.cameracapture) recording a capture session being created, a "
+                       "client calling start or stop, the session status changing, and the "
+                       "client's own startRunning and stopRunning calls. Each row is one log "
+                       "line, not one session. A start line is a lead; it does not establish "
+                       "that audio or video was recorded.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Lines are read from the table logarchive_artifacts builds. Kept: "
+                 "FigCaptureSessionCreate, captureSession_StartRunning and _StopRunning, "
+                 "captureSession_transitionToSessionStatus lines that carry a transition, "
+                 "captureSession_didStopRunning lines reporting the stop, "
+                 "FigCaptureSessionDetachFromClient, and the client-side -[AVCaptureSession "
+                 "startRunning] and -[AVCaptureSession stopRunning] lines, whose Process Image "
+                 "Path is the client process itself. The state lines that carry ClientStartedSession "
+                 "are kept only when ClientStartedSession is 1 or a micStolen or cameraStolen flag "
+                 "is 1; the many state lines with all three at 0 are collected but not listed. "
+                 "Client App ID and Client PID are read from the tag the daemon writes before the "
+                 "message, in the form <object address[pid][app id]>, and from the 'Creating session "
+                 "for PID' line; in the pairs found in the two logs tested the two PIDs were the same. "
+                 "Session Object is that address as logged: it groups the lines of one session, but an "
+                 "address can be reused, so compare the times as well. Cam/Audio, Background, Mic Stolen, "
+                 "Camera Stolen, Runtime Error, Interruption Error and Session Status are copied as "
+                 "logged; this artifact assigns no meaning to the numbers. Runtime Error and Session "
+                 "Status are read from the iOS 27.0 state lines; the iOS 26.6 state line read "
+                 "(captureSession_updateRunningCondition) carried neither and they stay blank for it. "
+                 "In the iOS 27.0 log tested Background, Mic Stolen, Camera Stolen, Runtime Error and "
+                 "Interruption Error were identical on every row that carried them, all 0, and every "
+                 "listed state line had Client Started Session 1 and Cam/Audio 1/0, so those columns "
+                 "were uniform there. They stay because a different value is what this artifact "
+                 "exists to surface, and only the synthetic test fixture has exercised one. "
+                 "Timestamp is the time of the log record as stored, shown in UTC; no time inside a "
+                 "message is used. "
+                 "What a row does not establish: a client start line is the daemon's record of the "
+                 "client's request, not of frames being recorded, and nothing here says whether anything "
+                 "was saved. A system component can start a session on its own account: in the iOS 27.0 "
+                 "log tested, every state line with ClientStartedSession at 1 carried the app id of an "
+                 "Apple system daemon (com.apple.biometrickitd), while the Camera app's state lines all "
+                 "read 0 although its sessions were created. An empty result is not evidence that nothing was captured: the log "
+                 "has a limited window and this artifact reads one daemon's lines. "
+                 "Not covered: microphone capture that does not go through this daemon (audio sessions, "
+                 "calls, voice recording) is not collected, and in neither log tested did the audio "
+                 "flag or a stolen flag read 1, so those columns have been exercised only by the "
+                 "synthetic test fixture. The camera hardware daemon (appleh*camerad, subsystem "
+                 "com.apple.isp) is not collected: the lines inspected were connection, light-meter, "
+                 "flicker-detector and audio-converter bookkeeping with the client PID redacted. "
+                 "FigFlashlightLocal (torch) lines are written by the same daemon and subsystem, "
+                 "outnumber the session lines by a wide margin, and are neither collected nor shown "
+                 "here, so a count of lines from that daemon is not a count of camera use; the "
+                 "device-vendor lines (ClientIsActive, device usage counts, close timers) are also left "
+                 "out because what they count is not established. Message shapes were read on "
+                 "iOS 26.6 and iOS 27.0 sysdiagnose logs; those images are not in the public corpus and "
+                 "no fixture from them is committed. The test fixture is synthetic, with invented app "
+                 "IDs, PIDs and dates.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "camera",
+    },
+    "logarchive_capture_streaming": {
+        "name": "logarchive camera streaming power events",
+        "description": "Unified log lines from the camera capture daemon's power logger "
+                       "(FigCaptureLogCameraStreamingPowerEvent) with the PID, application ID, "
+                       "device type, streaming flag and port type as logged. Each row is one log "
+                       "line.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Fields are copied as logged and no meaning is assigned to the numbers. In the logs "
+                 "tested the streaming flag was logged as 1 and 0 and the application ID as <private>, "
+                 "so the client has to be taken from the PID, for example by matching it with Client PID "
+                 "in the capture sessions artifact; that match was not validated against a known capture. "
+                 "In the iOS 27.0 log tested the lines came in 1/0 pairs for a single device type and port "
+                 "type, written for an Apple system daemon's session. A line records the power logger's "
+                 "report, not a saved recording. The related cpls_logCameraStreamingPowerEvents lines, "
+                 "which carry a time inside the message, are not collected. Timestamp is the log record "
+                 "time as stored, in UTC. An empty result is not evidence that the camera was not "
+                 "streaming. In the iOS 27.0 log tested Application ID (as logged) read <private>, Device Type "
+                 "(as logged) 20 and Port Type (as logged) PortTypeFrontInfrared on every row, and Process "
+                 "Image Path and Process ID held one value each. The test fixture is synthetic.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "video",
+    },
+    "logarchive_recording_indicator": {
+        "name": "logarchive recording indicator lines",
+        "description": "SpringBoard '[Recording Indicator]' log lines: the camera/microphone "
+                       "activity-changed line, secure indicator layer creation, and the live "
+                       "rendering assertion line. Each row is one log line.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "The text after '[Recording Indicator]' is in the Event Message column as logged. "
+                 "In the logs tested the activity-changed line carried an empty set, so a row does not "
+                 "say which sensor was active; a set with entries was not seen, and the synthetic "
+                 "fixture's entry is invented to exercise the pass-through. Whether the on-screen "
+                 "indicator was visible at a time is not established by these lines. The same prefix is "
+                 "used by lines about layer opacity and brightness updates, which are not collected, "
+                 "and by 'Should force high level layer' lines, which are not collected either. Use "
+                 "this artifact to place indicator-related events in time, next to the capture "
+                 "sessions and streaming events, not as proof of recording. Timestamp is the log "
+                 "record time as stored, in UTC. An empty result is not evidence that the indicator "
+                 "was not shown. Process Image Path held one value (SpringBoard) on every row in the "
+                 "logs tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "eye",
+    },
 }
 
 import os
@@ -2423,6 +2539,29 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%no registered handler for URL scheme%'
         -- logarchive_charging_state
         OR (process_image_path LIKE '%/powerd' AND event_message LIKE 'handleChargingStateUpdate %')
+        -- logarchive_capture_sessions and logarchive_capture_streaming. Collected here as
+        -- well as filtered in the dependent artifacts, or the rows never reach the table
+        -- they read. The subsystem condition keeps this to the capture daemon's session
+        -- and power-log lines: the same subsystem carries tens of thousands of torch
+        -- (FigFlashlightLocal) and device-vendor lines that no marker below matches. The
+        -- ClientStartedSession state lines are collected whole; the dependent artifact
+        -- lists only those with a start or a stolen flag set.
+        OR (subsystem = 'com.apple.cameracapture'
+            AND (event_message LIKE '%FigCaptureSessionCreate:%'
+                 OR event_message LIKE '%captureSession_StartRunning:%'
+                 OR event_message LIKE '%captureSession_StopRunning:%'
+                 OR event_message LIKE '%captureSession_transitionToSessionStatus:%'
+                 OR event_message LIKE '%captureSession_didStopRunning:%'
+                 OR event_message LIKE '%FigCaptureSessionDetachFromClient%'
+                 OR event_message LIKE '%-[AVCaptureSession startRunning]%'
+                 OR event_message LIKE '%-[AVCaptureSession stopRunning]%'
+                 OR event_message LIKE '%ClientStartedSession:%'
+                 OR event_message LIKE '%FigCaptureLogCameraStreamingPowerEvent:%'))
+        -- logarchive_recording_indicator
+        OR (subsystem = 'com.apple.SpringBoard'
+            AND (event_message LIKE '%[Recording Indicator] Active camera/microphone activity changed%'
+                 OR event_message LIKE '%[Recording Indicator] creating secure indicator layer%'
+                 OR event_message LIKE '%[Recording Indicator] updating live rendering assertion%'))
     )
     '''
 
@@ -3313,3 +3452,146 @@ def logarchive_urlopens(context):
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
     ''')
+
+
+# Camera and microphone capture. The WHERE fragments below must stay within the markers
+# logarchive_artifacts collects (a test checks every pattern appears there), because these
+# artifacts only read the table that query builds.
+CAPTURE_SESSION_WHERE = """
+    subsystem = 'com.apple.cameracapture'
+    AND (event_message LIKE '%FigCaptureSessionCreate:%'
+         OR event_message LIKE '%captureSession_StartRunning:%'
+         OR event_message LIKE '%captureSession_StopRunning:%'
+         OR (event_message LIKE '%captureSession_transitionToSessionStatus:%'
+             AND event_message LIKE '% -> %')
+         OR (event_message LIKE '%captureSession_didStopRunning:%'
+             AND event_message LIKE '%Stopped running%')
+         OR event_message LIKE '%FigCaptureSessionDetachFromClient%'
+         OR event_message LIKE '%-[AVCaptureSession startRunning]%'
+         OR event_message LIKE '%-[AVCaptureSession stopRunning]%'
+         OR (event_message LIKE '%ClientStartedSession:%'
+             AND (event_message LIKE '%ClientStartedSession:1%'
+                  OR event_message LIKE '%micStolen:1%'
+                  OR event_message LIKE '%cameraStolen:1%')))
+"""
+
+CAPTURE_STREAMING_WHERE = """
+    subsystem = 'com.apple.cameracapture'
+    AND event_message LIKE '%FigCaptureLogCameraStreamingPowerEvent:%'
+"""
+
+RECORDING_INDICATOR_WHERE = """
+    subsystem = 'com.apple.SpringBoard'
+    AND (event_message LIKE '%[Recording Indicator] Active camera/microphone activity changed%'
+         OR event_message LIKE '%[Recording Indicator] creating secure indicator layer%'
+         OR event_message LIKE '%[Recording Indicator] updating live rendering assertion%')
+"""
+
+# The tag the capture daemon writes in front of a session message: <object address[pid][app id]>.
+# The app id part is absent on some lines and is left blank then.
+CAPTURE_TAG = re.compile(r'<(0x[0-9A-Fa-f]+)\[(\d+)\](?:\[([^\]]*)\])?>')
+CAPTURE_FUNCTION = re.compile(r'FigCaptureSession >>>> (\w+):|AVCaptureSession >>>> (-\[AVCaptureSession \w+\])')
+CAPTURE_CREATE_PID = re.compile(r'Creating session for PID (\d+)')
+CAPTURE_TRANSITION = re.compile(r'captureSession_transitionToSessionStatus: (?:<[^>]*> )?(\S.* -> .*\S)')
+CAPTURE_STATE = re.compile(r'ClientStartedSession:(\d+) Cam/Audio:(\d+)/(\d+) bg:(\d+)')
+CAPTURE_FLAG_NAMES = (('mic_stolen', 'micStolen'), ('camera_stolen', 'cameraStolen'),
+                      ('runtime_error', 'runtimeError'), ('interruption_error', 'interruptionError'))
+CAPTURE_STATUS = re.compile(r'sessionStatus:(\w+)')
+CAPTURE_STREAMING = re.compile(
+    r'FigCaptureLogCameraStreamingPowerEvent: PID: (\d+), applicationID: (.*?), '
+    r'deviceType: (\d+), streaming: (\d+), portType: (\w+)')
+
+CAPTURE_SESSION_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Logged Function',
+    'Client App ID (as logged)', 'Client PID (as logged)', 'Session Object (as logged)',
+    'Client Started Session', 'Cam/Audio', 'Background', 'Mic Stolen', 'Camera Stolen',
+    'Runtime Error', 'Interruption Error', 'Session Status', 'Status Transition',
+    'Process Image Path', 'Process ID', 'Event Message')
+
+RECORDING_INDICATOR_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 'Event Message')
+
+CAPTURE_STREAMING_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Client PID (as logged)',
+    'Application ID (as logged)', 'Device Type (as logged)', 'Streaming (as logged)',
+    'Port Type (as logged)', 'Process Image Path', 'Process ID', 'Event Message')
+
+
+def _capture_session_fields(message):
+    """The fields of one capture-daemon line, as logged; '' for any the line does not carry.
+
+    Nothing is interpreted: the numbers are copied, and a line in another shape yields blanks
+    rather than a guess, so the row still shows the full message.
+    """
+    message = str(message or '')
+    fields = dict.fromkeys(
+        ('function', 'app_id', 'pid', 'session_object', 'started', 'cam_audio', 'background',
+         'mic_stolen', 'camera_stolen', 'runtime_error', 'interruption_error', 'status',
+         'transition'), '')
+    function = CAPTURE_FUNCTION.search(message)
+    if function:
+        fields['function'] = function.group(1) or function.group(2)
+    tag = CAPTURE_TAG.search(message)
+    if tag:
+        fields['session_object'], fields['pid'], fields['app_id'] = (
+            tag.group(1), tag.group(2), tag.group(3) or '')
+    else:
+        created = CAPTURE_CREATE_PID.search(message)
+        if created:
+            fields['pid'] = created.group(1)
+    transition = CAPTURE_TRANSITION.search(message)
+    if transition:
+        fields['transition'] = transition.group(1)
+    state = CAPTURE_STATE.search(message)
+    if state:
+        fields['started'] = state.group(1)
+        fields['cam_audio'] = f'{state.group(2)}/{state.group(3)}'
+        fields['background'] = state.group(4)
+        for key, logged in CAPTURE_FLAG_NAMES:
+            flag = re.search(rf'\b{logged}:(\d+)', message)
+            if flag:
+                fields[key] = flag.group(1)
+        status = CAPTURE_STATUS.search(message)
+        if status:
+            fields['status'] = status.group(1)
+    return fields
+
+
+@artifact_processor
+def logarchive_capture_sessions(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {CAPTURE_SESSION_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        fields = _capture_session_fields(record[6])
+        data_list.append((
+            _report_time(record[0]), record[1], fields['function'], fields['app_id'],
+            fields['pid'], fields['session_object'], fields['started'], fields['cam_audio'],
+            fields['background'], fields['mic_stolen'], fields['camera_stolen'],
+            fields['runtime_error'], fields['interruption_error'], fields['status'],
+            fields['transition'], record[2], record[3], record[6]))
+    return CAPTURE_SESSION_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_capture_streaming(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {CAPTURE_STREAMING_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        logged = CAPTURE_STREAMING.search(str(record[6] or ''))
+        pid, application, device, streaming, port = logged.groups() if logged else ('',) * 5
+        data_list.append((_report_time(record[0]), record[1], pid, application, device,
+                          streaming, port, record[2], record[3], record[6]))
+    return CAPTURE_STREAMING_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_recording_indicator(context):
+    # Subsystem and category are fixed by the WHERE clause and Trace ID is empty on the native
+    # import, so none of the three is repeated here.
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {RECORDING_INDICATOR_WHERE}'
+    data_list = [(_report_time(record[0]), record[1], record[2], record[3], record[6])
+                 for record in get_sqlite_db_records(source_path, query)]
+    return RECORDING_INDICATOR_HEADERS, data_list, source_path
