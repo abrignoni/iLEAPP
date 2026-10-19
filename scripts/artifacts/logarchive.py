@@ -1727,6 +1727,142 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 | 0 rows; no 'Family Hotspot State' entry in the parsed log",
         },
     },
+    # ---- TCC authorization cache and location manager state dumps (begin) ----
+    "logarchive_tcc_cache": {
+        "name": "logarchive TCC authorization cache dumps",
+        "description": "Statedump snapshots titled 'TCC Authorization Cache', one row per cached "
+                       "authorization entry in each dump: the service, the auth right, the reason and "
+                       "the version as logged, and the process that wrote the dump. A dump is the "
+                       "process's state when it was written, not an event, and the same entry is "
+                       "repeated by the later dumps that still hold it.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Statedump records carry no subsystem or category, and the logarchive table does not "
+                 "keep the record's event type, so they are found by the first line of the message, "
+                 "'title: TCC Authorization Cache'. The body is a JSON object of service name to a "
+                 "credential and an authorization record, each a text description. Each entry becomes a "
+                 "row: Service is the JSON key, Credential Object and Authorization Object are the "
+                 "hexadecimal addresses in the two descriptions, Auth Right, Reason and Version are the "
+                 "words and number after those labels, Other Flags is any text after the version, and "
+                 "Authorization Record is the description as logged. Values are copied as logged and "
+                 "this artifact assigns no meaning to them. In the logs tested the two descriptions held "
+                 "object addresses and no client identifier, bundle id or process name, so a row does not "
+                 "name the application the entry is about; the only attribution is Process Image Path and "
+                 "Process ID, the process that wrote the dump, as stored. Whether the cache is that "
+                 "process's own, what a Version of 1 or 2 denotes, what 'Has Prompted For Allow' denotes, "
+                 "and how an entry relates to the TCC.db access table are not established here. An entry "
+                 "is the cache's content at the dump time, which is the record's time as stored, shown in "
+                 "UTC. It does not say when the permission was granted, changed or used, and a match is a "
+                 "lead, not proof of consent. Repeated dumps repeat entries: the logs tested held many "
+                 "dumps per process, so the same entry appears in many rows; the summary artifact "
+                 "collapses them and is a labelled view over these rows. Entries In Dump is the number of "
+                 "entries the dump held, counted over all its services. A dump with no entries (an empty "
+                 "object) is collected but gives no row, and a dump whose body cannot be read as JSON "
+                 "gives one row with the body in Authorization Record and every other field blank. An "
+                 "empty result is not evidence that no permission was cached: only processes that wrote "
+                 "a dump inside the log's window appear. Message shapes were read on iOS 26.6 and iOS "
+                 "27.0 sysdiagnose logs natively decoded with unifiedlog_iterator; the way these records "
+                 "appear in a 'log show' export was not examined. Those images are not in the public "
+                 "corpus and no fixture from them is committed. The test fixture is synthetic, with "
+                 "invented process paths, PIDs and addresses.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "shield",
+    },
+    "logarchive_tcc_cache_summary": {
+        "name": "logarchive TCC authorization cache summary",
+        "description": "A collapsed view of the TCC authorization cache dumps: each distinct entry "
+                       "(process, process ID, service, auth right, reason, version, other flags) once, "
+                       "with the first and last dump that held it and the number of dumps.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "A view over the rows of the logarchive TCC authorization cache dumps artifact, not a "
+                 "change log. Two rows for the same process and service with different auth right, reason "
+                 "or version mean that dumps held different content, not that the permission changed "
+                 "between them: the dumps in between, or the dumps' own cache, may differ for reasons not "
+                 "established here. First Dump and Last Dump are the record times, as stored, of the "
+                 "earliest and latest dump holding the entry; Dumps is the number of dumps (distinct "
+                 "Row Number and time) holding it and Entries the number of entries counted, which can be "
+                 "larger when one dump holds the same description under more than one credential. The "
+                 "credential and authorization object addresses are left out of the key, so entries that "
+                 "differ only in address are merged. A process that restarted has a new Process ID and so a "
+                 "new row. Dumps with no entries add no row, and an unreadable dump adds a row with blank "
+                 "fields. Which dumps exist depends on the log window; absence of a service here does not "
+                 "show that it was not cached. The test fixture is synthetic.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "shield",
+    },
+    "logarchive_location_state": {
+        "name": "logarchive location manager state dumps",
+        "description": "Statedump snapshots titled 'CLLocationManagerStateTracker', one row per dump: "
+                       "the location manager flags and settings the dump logged, and the process that "
+                       "wrote it. A dump is the state when it was written, not an event.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Statedump records carry no subsystem or category, so they are found by the first line "
+                 "of the message, 'title: CLLocationManagerStateTracker'. After two 'Object Type' lines "
+                 "the body is a brace-delimited list of \"key\":value lines. Each column named after a "
+                 "logged key (updatingLocation as Updating Location, and so on) holds the text after that "
+                 "key's colon, as logged: booleans as true or false, numbers as written. Keys that have no "
+                 "column of their own, including any a later release adds, are kept in Other Fields as "
+                 "key: value pairs in the order logged, and a key the dump does not hold leaves its column "
+                 "blank. If no key line can be read, Other Fields holds the body lines or, with no body, "
+                 "the message as logged. No meaning is assigned to any value: the numbers in "
+                 "previousAuthorizationStatus, activityType, desiredAccuracy and distanceFilter are not "
+                 "translated, and previousAuthorizationStatus is the field of that name, not the "
+                 "authorization in force. The dump does not name the application or the location manager "
+                 "it describes. The only attribution is Process Image Path and Process ID, the process "
+                 "that wrote the dump, as stored, and one process can hold several managers, so two rows "
+                 "with the same time and process can describe different managers. A row with "
+                 "updatingLocation true shows that state in the dump at that time. It is a lead; it does "
+                 "not show that a position was obtained, stored or used, and the dump records no event "
+                 "between dumps. Repeated dumps repeat state: the logs tested held many dumps per "
+                 "process, mostly with identical content, and the summary artifact collapses them. "
+                 "Timestamp is the record time as stored, in UTC. An empty result is not evidence that no "
+                 "process used location: only processes that wrote a dump inside the log's window "
+                 "appear. Message shapes were read on iOS 26.6 and iOS 27.0 sysdiagnose logs natively "
+                 "decoded with unifiedlog_iterator; the way these records appear in a 'log show' export "
+                 "was not examined. Those images are not in the public corpus and no fixture from them is "
+                 "committed. The test fixture is synthetic, with invented process paths, PIDs and values.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+    },
+    "logarchive_location_state_summary": {
+        "name": "logarchive location manager state summary",
+        "description": "A collapsed view of the location manager state dumps: each distinct content "
+                       "(process, process ID and the logged keys and values) once, with the first and "
+                       "last dump that held it and the number of dumps.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "A view over the rows of the logarchive location manager state dumps artifact, not a "
+                 "change log. Two rows for one process with different content mean that dumps held "
+                 "different content, not when or why it changed. First Dump and Last Dump are the record "
+                 "times, as stored, of the earliest and latest dump with exactly that content; Dumps is "
+                 "the number of dumps (distinct Row Number and time) with it. Because a process can hold "
+                 "several location managers and the dump does not name which one it describes, a row "
+                 "groups dumps by content, and dumps from different managers with equal content are "
+                 "merged. A process that restarted has a new Process ID and so a new row. Columns are the "
+                 "same as in the dumps artifact. An empty result is not evidence that no process used "
+                 "location. The test fixture is synthetic.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+    },
+    # ---- TCC authorization cache and location manager state dumps (end) ----
     "logarchive_urlopens": {
         "name": "logarchive URL and link opens",
         "description": "Unified log lines matching three URL-open markers: UIOpenURLAction "
@@ -1769,6 +1905,7 @@ __artifacts_v2__ = {
     },
 }
 
+import json
 import os
 import re
 import shutil
@@ -2421,6 +2558,16 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%UIOpenURLAction%'
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
+        -- (statedump markers begin) logarchive_tcc_cache, logarchive_tcc_cache_summary,
+        -- logarchive_location_state and logarchive_location_state_summary. A statedump
+        -- record has no subsystem or category, and this table does not keep the event
+        -- type, so the first line of the message ('title: ...') is the only handle. The
+        -- patterns are anchored at the start of the message and must stay collected here
+        -- as well as filtered in the dependent artifacts, or the rows never reach the table
+        -- they read.
+        OR event_message LIKE 'title: TCC Authorization Cache%'
+        OR event_message LIKE 'title: CLLocationManagerStateTracker%'
+        -- (statedump markers end)
         -- logarchive_charging_state
         OR (process_image_path LIKE '%/powerd' AND event_message LIKE 'handleChargingStateUpdate %')
     )
@@ -3009,6 +3156,230 @@ def logarchive_charging_state(context):
                     'CHNC (as stored)', 'Type (as stored)', 'TLC (as stored)', 'Event Message',
                     'Process Image Path', 'Process ID', 'Row Number')
     return data_headers, data_list, source_path
+
+
+# ---- Statedump artifacts: TCC authorization cache and location manager state (begin) ----
+# A statedump is the state a process wrote at one instant. The record has no subsystem or category
+# and the logarchive table does not keep its event type, so each dump is found by the first line of
+# its message. The WHERE fragments below must stay within the markers logarchive_artifacts collects
+# (a test checks every pattern appears there), because these artifacts only read the table that
+# query builds.
+TCC_CACHE_WHERE = "event_message LIKE 'title: TCC Authorization Cache%'"
+LOCATION_STATE_WHERE = "event_message LIKE 'title: CLLocationManagerStateTracker%'"
+
+# The credential and the authorization record are text descriptions: '<Credential (0x...) | Requestor>'
+# and '<Authorization Record (0x...) | Service: S, AuthRight: A, Reason: R, Version: V, [flags,] >'.
+TCC_ADDRESS = re.compile(r'\((0x[0-9A-Fa-f]+)\)')
+TCC_AUTH_RECORD = re.compile(
+    r'^<Authorization Record \((?P<address>0x[0-9A-Fa-f]+)\) \| Service: (?P<service>[^,]*), '
+    r'AuthRight: (?P<right>[^,]*), Reason: (?P<reason>[^,]*), Version: (?P<version>[^,]*),'
+    r'(?P<rest>.*)>$', re.DOTALL)
+
+TCC_CACHE_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+    'Service (as logged)', 'Credential Object (as logged)', 'Authorization Object (as logged)',
+    'Auth Right (as logged)', 'Reason (as logged)', 'Version (as logged)',
+    'Other Flags (as logged)', 'Entries In Dump', 'Authorization Record (as logged)')
+
+TCC_CACHE_SUMMARY_HEADERS = (
+    ('First Dump', 'datetime'), ('Last Dump', 'datetime'), 'Dumps', 'Entries',
+    'Process Image Path', 'Process ID', 'Service (as logged)', 'Auth Right (as logged)',
+    'Reason (as logged)', 'Version (as logged)', 'Other Flags (as logged)')
+
+# '"key": value' lines of a CLLocationManagerStateTracker dump. The body is not valid JSON (the last
+# value is followed by a comma), so it is read line by line.
+LOCATION_KEY_VALUE = re.compile(r'^\s*"([^"]+)"\s*:\s*(.*?)\s*,?\s*$')
+# (logged key, column header) in column order. A key not listed goes to Other Fields.
+LOCATION_COLUMNS = (
+    ('updatingLocation', 'Updating Location (as logged)'),
+    ('requestingLocation', 'Requesting Location (as logged)'),
+    ('updatingHeading', 'Updating Heading (as logged)'),
+    ('updatingRanging', 'Updating Ranging (as logged)'),
+    ('requestingRanging', 'Requesting Ranging (as logged)'),
+    ('allowsBackgroundLocationUpdates', 'Allows Background Location Updates (as logged)'),
+    ('showsBackgroundLocationIndicator', 'Shows Background Location Indicator (as logged)'),
+    ('paused', 'Paused (as logged)'),
+    ('batchingLocation', 'Batching Location (as logged)'),
+    ('limitsPrecision', 'Limits Precision (as logged)'),
+    ('dynamicAccuracyReductionEnabled', 'Dynamic Accuracy Reduction Enabled (as logged)'),
+    ('previousAuthorizationStatusValid', 'Previous Authorization Status Valid (as logged)'),
+    ('previousAuthorizationStatus', 'Previous Authorization Status (as logged)'),
+    ('desiredAccuracy', 'Desired Accuracy (as logged)'),
+    ('distanceFilter', 'Distance Filter (as logged)'),
+    ('activityType', 'Activity Type (as logged)'),
+)
+LOCATION_STATE_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+    *(header for _key, header in LOCATION_COLUMNS), 'Other Fields (as logged)')
+LOCATION_STATE_SUMMARY_HEADERS = (
+    ('First Dump', 'datetime'), ('Last Dump', 'datetime'), 'Dumps', 'Process Image Path',
+    'Process ID', *(header for _key, header in LOCATION_COLUMNS), 'Other Fields (as logged)')
+
+
+def _statedump_body(message):
+    """The text of a statedump message from its first line that begins with a brace.
+
+    Statedump messages are a title line, two 'Object Type:' lines and then the body. Returns ''
+    when no line begins with a brace, so the caller can keep the whole message instead.
+    """
+    lines = str(message or '').split('\n')
+    for index, line in enumerate(lines):
+        if line.lstrip().startswith('{'):
+            return '\n'.join(lines[index:])
+    return ''
+
+
+def _logged_text(value):
+    return value if isinstance(value, str) else json.dumps(value)
+
+
+def _tcc_cache_entries(message):
+    """The authorization entries of a TCC Authorization Cache dump, or None when unreadable.
+
+    None means the body is missing or is not a JSON object; the caller then keeps the text as
+    logged. An empty list is a dump that holds no entries. Each entry is a dict of the service
+    (the JSON key), the two object addresses, the auth right, reason, version and any text after
+    the version, and the authorization description; a description of another shape leaves its
+    fields blank and is kept whole.
+    """
+    try:
+        cache = json.loads(_statedump_body(message))
+    except (ValueError, RecursionError):
+        return None
+    if not isinstance(cache, dict):
+        return None
+    entries = []
+    for service, credentials in cache.items():
+        if not isinstance(credentials, dict):
+            credentials = {'': credentials}
+        for credential, record in credentials.items():
+            entry = dict.fromkeys(('credential', 'authorization', 'right', 'reason', 'version', 'flags'), '')
+            entry['service'] = service
+            entry['record'] = _logged_text(record)
+            address = TCC_ADDRESS.search(str(credential))
+            entry['credential'] = address.group(1) if address else ''
+            parsed = TCC_AUTH_RECORD.match(entry['record'])
+            if parsed:
+                entry['authorization'] = parsed.group('address')
+                entry['right'] = parsed.group('right').strip()
+                entry['reason'] = parsed.group('reason').strip()
+                entry['version'] = parsed.group('version').strip()
+                entry['flags'] = parsed.group('rest').strip().strip(',').strip()
+            entries.append(entry)
+    return entries
+
+
+def _location_state_fields(message):
+    """The fields of a CLLocationManagerStateTracker dump: (column values, other fields).
+
+    Column values are in LOCATION_COLUMNS order, '' for a key the dump does not hold. Other
+    Fields lists the remaining keys as 'key: value' in the order logged, then any body line that
+    is not a key and value, joined with '; '. A message with no body is kept whole there.
+    """
+    body = _statedump_body(message)
+    pairs = []
+    leftover = []
+    for line in body.split('\n'):
+        match = LOCATION_KEY_VALUE.match(line)
+        if match:
+            pairs.append((match.group(1), match.group(2)))
+        elif line.strip() not in ('', '{', '}'):
+            leftover.append(line.strip())
+    known = {key for key, _header in LOCATION_COLUMNS}
+    values = {}
+    other = []
+    for key, value in pairs:
+        if key in known and key not in values:
+            values[key] = value
+        else:
+            other.append(f'{key}: {value}')
+    other.extend(leftover)
+    if not body:
+        other = [str(message or '').strip()]
+    return tuple(values.get(key, '') for key, _header in LOCATION_COLUMNS), '; '.join(other)
+
+
+def _widen_range(group, timestamp):
+    """Move a group's first and last record time outwards; a time that is not a number is ignored."""
+    if isinstance(timestamp, (int, float)) and not isinstance(timestamp, bool):
+        group['first'] = timestamp if group['first'] is None else min(group['first'], timestamp)
+        group['last'] = timestamp if group['last'] is None else max(group['last'], timestamp)
+
+
+@artifact_processor
+def logarchive_tcc_cache(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {TCC_CACHE_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        message = record['event_message']
+        entries = _tcc_cache_entries(message)
+        if entries is None:
+            body = _statedump_body(message)
+            data_list.append((_report_time(record['timestamp']), record['row_number'],
+                              record['process_image_path'], record['process_id'],
+                              '', '', '', '', '', '', '', '', body or str(message or '')))
+            continue
+        for entry in entries:
+            data_list.append((
+                _report_time(record['timestamp']), record['row_number'], record['process_image_path'],
+                record['process_id'], entry['service'], entry['credential'], entry['authorization'],
+                entry['right'], entry['reason'], entry['version'], entry['flags'], len(entries),
+                entry['record']))
+    return TCC_CACHE_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_tcc_cache_summary(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {TCC_CACHE_WHERE}'
+    groups = {}
+    for record in get_sqlite_db_records(source_path, query):
+        entries = _tcc_cache_entries(record['event_message'])
+        if entries is None:
+            entries = [dict.fromkeys(('service', 'right', 'reason', 'version', 'flags'), '')]
+        dump = (record['row_number'], record['timestamp'])
+        for entry in entries:
+            key = (record['process_image_path'], record['process_id'], entry['service'],
+                   entry['right'], entry['reason'], entry['version'], entry['flags'])
+            group = groups.setdefault(key, {'first': None, 'last': None, 'dumps': set(), 'entries': 0})
+            _widen_range(group, record['timestamp'])
+            group['dumps'].add(dump)
+            group['entries'] += 1
+    data_list = [(_report_time(group['first']), _report_time(group['last']), len(group['dumps']),
+                  group['entries'], key[0], key[1], key[2], key[3], key[4], key[5], key[6])
+                 for key, group in groups.items()]
+    return TCC_CACHE_SUMMARY_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_location_state(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {LOCATION_STATE_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        values, other = _location_state_fields(record['event_message'])
+        data_list.append((_report_time(record['timestamp']), record['row_number'],
+                          record['process_image_path'], record['process_id']) + values + (other,))
+    return LOCATION_STATE_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_location_state_summary(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {LOCATION_STATE_WHERE}'
+    groups = {}
+    for record in get_sqlite_db_records(source_path, query):
+        values, other = _location_state_fields(record['event_message'])
+        key = (record['process_image_path'], record['process_id'], values, other)
+        group = groups.setdefault(key, {'first': None, 'last': None, 'dumps': set()})
+        _widen_range(group, record['timestamp'])
+        group['dumps'].add((record['row_number'], record['timestamp']))
+    data_list = [(_report_time(group['first']), _report_time(group['last']), len(group['dumps']),
+                  key[0], key[1]) + key[2] + (key[3],)
+                 for key, group in groups.items()]
+    return LOCATION_STATE_SUMMARY_HEADERS, data_list, source_path
+# ---- Statedump artifacts: TCC authorization cache and location manager state (end) ----
 
 
 def _bc_unquote(text):

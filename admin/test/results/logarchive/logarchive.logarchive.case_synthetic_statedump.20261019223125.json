@@ -1,0 +1,326 @@
+{
+  "metadata": {
+    "module_name": "logarchive",
+    "artifact_name": "logarchive",
+    "function_name": "logarchive",
+    "case_number": "case_synthetic_statedump",
+    "number_of_columns": 8,
+    "number_of_rows": 29,
+    "total_data_size_bytes": 21017,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\logarchive\\testdata.logarchive.logarchive.case_synthetic_statedump.zip",
+    "start_time": "2026-10-19T22:31:25.706780+00:00",
+    "end_time": "2026-10-19T22:31:25.810931+00:00",
+    "run_time_seconds": 0.014896631240844727,
+    "last_commit": {
+      "hash": "fddd33b2436def34272799036edc6dad41208fec",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-18T16:20:57-04:00",
+      "message": "executed apps: restate notes on 14 images, name the column Application"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Row Number",
+    "Process Image Path",
+    "Process ID",
+    "Subsystem",
+    "Category",
+    "Event Message",
+    "Trace ID"
+  ],
+  "data": [
+    [
+      1773500410,
+      1,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServicePhotos\":{\"<Credential (0x7f0b00001000) | Requestor>\":\"<Authorization Record (0x7f0b00002000) | Service: kTCCServicePhotos, AuthRight: Allowed, Reason: Entitled, Version: 2, >\"},\"kTCCServiceMicrophone\":{\"<Credential (0x7f0b00001100) | Requestor>\":\"<Authorization Record (0x7f0b00002100) | Service: kTCCServiceMicrophone, AuthRight: Allowed, Reason: User Consent, Version: 1, >\"}}",
+      "2000"
+    ],
+    [
+      1773500411,
+      2,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServicePhotos\":{\"<Credential (0x7f0b00003000) | Requestor>\":\"<Authorization Record (0x7f0b00004000) | Service: kTCCServicePhotos, AuthRight: Allowed, Reason: Entitled, Version: 2, >\"},\"kTCCServiceMicrophone\":{\"<Credential (0x7f0b00003100) | Requestor>\":\"<Authorization Record (0x7f0b00004100) | Service: kTCCServiceMicrophone, AuthRight: Allowed, Reason: User Consent, Version: 1, >\"}}",
+      "2001"
+    ],
+    [
+      1773500412,
+      3,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServicePhotos\":{\"<Credential (0x7f0b00001000) | Requestor>\":\"<Authorization Record (0x7f0b00002000) | Service: kTCCServicePhotos, AuthRight: Allowed, Reason: Entitled, Version: 2, >\"},\"kTCCServiceMicrophone\":{\"<Credential (0x7f0b00001100) | Requestor>\":\"<Authorization Record (0x7f0b00002100) | Service: kTCCServiceMicrophone, AuthRight: Allowed, Reason: User Consent, Version: 1, >\"},\"kTCCServiceCamera\":{\"<Credential (0x7f0b00001200) | Requestor>\":\"<Authorization Record (0x7f0b00002200) | Service: kTCCServiceCamera, AuthRight: Denied, Reason: User Consent, Version: 1, Has Prompted For Allow, >\"}}",
+      "2002"
+    ],
+    [
+      1773500413,
+      4,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServicePhotos\":{\"<Credential (0x7f0b00001000) | Requestor>\":\"<Authorization Record (0x7f0b00002000) | Service: kTCCServicePhotos, AuthRight: Allowed, Reason: Entitled, Version: 2, >\"},\"kTCCServiceMicrophone\":{\"<Credential (0x7f0b00001100) | Requestor>\":\"<Authorization Record (0x7f0b00002100) | Service: kTCCServiceMicrophone, AuthRight: Denied, Reason: System Set, Version: 1, >\"},\"kTCCServiceCamera\":{\"<Credential (0x7f0b00001200) | Requestor>\":\"<Authorization Record (0x7f0b00002200) | Service: kTCCServiceCamera, AuthRight: Denied, Reason: User Consent, Version: 1, Has Prompted For Allow, >\"}}",
+      "2003"
+    ],
+    [
+      1773500414,
+      5,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{}",
+      "2004"
+    ],
+    [
+      1773500420,
+      6,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000003/FakeCam.app/FakeCam",
+      4102,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServiceCamera\":{\"<Credential (0x7f0b00005000) | Requestor>\":\"<Authorization Record (0x7f0b00006000) | Service: kTCCServiceCamera, AuthRight: Allowed, Reason: System Set, Version: 1, >\"},\"kTCCServicePhotos\":{\"<Credential (0x7f0b00005100) | Requestor>\":\"<Authorization Record (0x7f0b00006100) | Service: kTCCServicePhotos, AuthRight: Limited, Reason: Service Policy, Version: 2, >\"},\"kTCCServiceAddressBook\":{\"<Credential (0x7f0b00005200) | Requestor>\":\"<Authorization Record (0x7f0b00006200) | Service: kTCCServiceAddressBook, AuthRight: Unknown, Reason: None, Version: 1, >\"}}",
+      "2005"
+    ],
+    [
+      1773500430,
+      7,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4103,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServicePhotos\":{\"<Credential (0x7f0b00001000) | Requestor>\":\"<Authorization Record (0x7f0b00002000) | Service: kTCCServicePhotos, AuthRight: Allowed, Reason: Entitled, Version: 2, >\"}}",
+      "2006"
+    ],
+    [
+      1773500440,
+      8,
+      "/usr/libexec/faketccd",
+      90,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServiceCamera\":{\"<Credential (0x7f0b00007000) | Requestor>\":\"<Authorization Record (0x7f0b00008000) | something else entirely>\"}}",
+      "2007"
+    ],
+    [
+      1773500441,
+      9,
+      "/usr/libexec/faketccd",
+      90,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServiceCalendar\":\"not an object\"}",
+      "2008"
+    ],
+    [
+      1773500442,
+      10,
+      "/usr/libexec/faketccd",
+      90,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServiceCamera\":{\"<Credential (0x7f0b00009000) | Requestor>\":",
+      "2009"
+    ],
+    [
+      1773500443,
+      11,
+      "/usr/libexec/faketccd",
+      90,
+      "",
+      "",
+      "title: TCC Authorization Cache",
+      "2010"
+    ],
+    [
+      1773500444,
+      12,
+      "/usr/libexec/faketccd",
+      90,
+      "",
+      "",
+      "title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServiceCamera\":{\"<Credential | Requestor>\":\"<Authorization Record (0x7f0b0000a000) | Service: kTCCServiceMicrophone, AuthRight: Allowed, Reason: Entitled, Version: 2, >\"}}",
+      "2011"
+    ],
+    [
+      1773500500,
+      13,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":-1, \n            \"desiredAccuracy\":-1, \n            \"updatingLocation\":false,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2012"
+    ],
+    [
+      1773500510,
+      14,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":50, \n            \"desiredAccuracy\":100, \n            \"updatingLocation\":true,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2013"
+    ],
+    [
+      1773500520,
+      15,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":50, \n            \"desiredAccuracy\":100, \n            \"updatingLocation\":true,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2014"
+    ],
+    [
+      1773500520,
+      16,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":50, \n            \"desiredAccuracy\":100, \n            \"updatingLocation\":true,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2015"
+    ],
+    [
+      1773500530,
+      17,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000002/FakeMaps.app/FakeMaps",
+      4101,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":-1, \n            \"desiredAccuracy\":-1, \n            \"updatingLocation\":false,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":3,\n            \"limitsPrecision\":true,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2016"
+    ],
+    [
+      1773500540,
+      18,
+      "/private/var/containers/Bundle/Application/FAKE0000-0000-0000-0000-000000000003/FakeCam.app/FakeCam",
+      4102,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":-1, \n            \"desiredAccuracy\":-1, \n            \"updatingLocation\":true,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":3,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":true,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2017"
+    ],
+    [
+      1773500550,
+      19,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":500, \n            \"desiredAccuracy\":2147483646, \n            \"updatingLocation\":false,\n            \"requestingLocation\":true,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":true,\n            \"previousAuthorizationStatusValid\":false,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2018"
+    ],
+    [
+      1773500560,
+      20,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":-1, \n            \"desiredAccuracy\":-1, \n            \"updatingLocation\":false,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"futureKey\":\"text value\",\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2019"
+    ],
+    [
+      1773500570,
+      21,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":-1, \n            \"desiredAccuracy\":-1, \n            \"updatingLocation\":false,\n            \"updatingLocation\":true,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2020"
+    ],
+    [
+      1773500580,
+      22,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":-1, \n            \"desiredAccuracy\":-1, \n            \"updatingLocation\":false,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            stray line\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2021"
+    ],
+    [
+      1773500590,
+      23,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "",
+      "",
+      "title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState",
+      "2022"
+    ],
+    [
+      1773500900,
+      24,
+      "/usr/libexec/faketccd",
+      90,
+      "com.apple.TCC",
+      "access",
+      "TCC Authorization Cache refreshed for kTCCServiceCamera",
+      "2023"
+    ],
+    [
+      1773500901,
+      25,
+      "/usr/libexec/faketccd",
+      90,
+      "",
+      "",
+      "note: title: TCC Authorization Cache\nObject Type: \nObject Type: \n{\"kTCCServicePhotos\":{\"<Credential (0x7f0b00001000) | Requestor>\":\"<Authorization Record (0x7f0b00002000) | Service: kTCCServicePhotos, AuthRight: Allowed, Reason: Entitled, Version: 2, >\"}}",
+      "2024"
+    ],
+    [
+      1773500902,
+      26,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "com.apple.locationd",
+      "Client",
+      "CLLocationManagerStateTracker: updatingLocation changed",
+      "2025"
+    ],
+    [
+      1773500903,
+      27,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "",
+      "",
+      "note: title: CLLocationManagerStateTracker\nObject Type: location\nObject Type: _CLLocationManagerStateTrackerState\n{\n            \"distanceFilter\":-1, \n            \"desiredAccuracy\":-1, \n            \"updatingLocation\":true,\n            \"requestingLocation\":false,\n            \"requestingRanging\":false,\n            \"updatingRanging\":false,\n            \"updatingHeading\":false,\n            \"headingFilter\":1,\n            \"allowsLocationPrompts\":true,\n            \"allowsAlteredAccessoryLocations\":false,\n            \"dynamicAccuracyReductionEnabled\":false,\n            \"previousAuthorizationStatusValid\":true,\n            \"previousAuthorizationStatus\":2,\n            \"limitsPrecision\":false,\n            \"activityType\":0,\n            \"pausesLocationUpdatesAutomatically\":5,\n            \"paused\":false,\n            \"allowsBackgroundLocationUpdates\":false,\n            \"showsBackgroundLocationIndicator\":false,\n            \"allowsMapCorrection\":true,\n            \"batchingLocation\":false,\n            \"updatingVehicleSpeed\":false,\n            \"updatingVehicleHeading\":false,\n            \"matchInfoEnabled\":false,\n            \"groundAltitudeEnabled\":false,\n            \"fusionInfoEnabled\":false,\n            \"courtesyPromptNeeded\":false,\n            \"isAuthorizedForWidgetUpdates\":false,\n        }",
+      "2026"
+    ],
+    [
+      1773500904,
+      28,
+      "/usr/libexec/fakelocationclientd",
+      210,
+      "",
+      "",
+      "title: CLRegionStateTracker\nObject Type: location\n{\n\"updatingLocation\":true,\n}",
+      "2027"
+    ],
+    [
+      1773500905,
+      29,
+      "/usr/libexec/faketccd",
+      90,
+      "",
+      "",
+      "title: TCC Access Cache\nObject Type: \nObject Type: \n{}",
+      "2028"
+    ]
+  ]
+}
