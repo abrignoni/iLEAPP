@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct and group messages, attachments and shared locations from GroupMe',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-10-09',
+        'last_update_date': '2026-10-19',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': 'Deletion Status Recorded, System Deleted and Deletion Actor (as stored) '
@@ -30,7 +30,11 @@ __artifacts_v2__ = {
                  '(as stored) is the ZCHATTYPE value of the linked ZGMCHAT row, reported as '
                  'stored with no label applied; it is blank when no chat row is linked or the '
                  'stored value is NULL. The meaning of values other than group is not '
-                 'established here.',
+                 'established here. ' 'Every GroupMe.sqlite found is read, under Library/Application Support and under '
+                 'Documents, and Source File names the store each row came from. On the iOS 17.3 '
+                 'image both exist and the Documents copy holds the same tables with no rows in any '
+                 'of the GroupMe entity tables (only the Core Data metadata tables hold rows); the '
+                 'iOS 14.3 and 15.3.1 images hold only the Documents copy.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -60,12 +64,16 @@ __artifacts_v2__ = {
         'description': 'Rows of the ZGMCHAT table of GroupMe.sqlite, with the chat type as stored',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-10-09',
+        'last_update_date': '2026-10-19',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': 'Chat Type (as stored) is ZGMCHAT.ZCHATTYPE reported as stored, blank when the '
                  'stored value is NULL. The meaning of values other than group is not '
-                 'established here.',
+                 'established here. ' 'Every GroupMe.sqlite found is read, under Library/Application Support and under '
+                 'Documents, and Source File names the store each row came from. On the iOS 17.3 '
+                 'image both exist and the Documents copy holds the same tables with no rows in any '
+                 'of the GroupMe entity tables (only the Core Data metadata tables hold rows); the '
+                 'iOS 14.3 and 15.3.1 images hold only the Documents copy.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -84,10 +92,14 @@ __artifacts_v2__ = {
                        "state as stored",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-18',
+        'last_update_date': '2026-10-19',
         'requirements': 'none',
         'category': 'GroupMe',
-        'notes': '',
+        'notes': 'Every GroupMe.sqlite found is read, under Library/Application Support and under '
+                 'Documents, and Source File names the store each row came from. On the iOS 17.3 '
+                 'image both exist and the Documents copy holds the same tables with no rows in any '
+                 'of the GroupMe entity tables (only the Core Data metadata tables hold rows); the '
+                 'iOS 14.3 and 15.3.1 images hold only the Documents copy.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -105,10 +117,14 @@ __artifacts_v2__ = {
         'description': 'Contacts and relationships stored by the GroupMe application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-18',
+        'last_update_date': '2026-10-19',
         'requirements': 'none',
         'category': 'GroupMe',
-        'notes': '',
+        'notes': 'Every GroupMe.sqlite found is read, under Library/Application Support and under '
+                 'Documents, and Source File names the store each row came from. On the iOS 17.3 '
+                 'image both exist and the Documents copy holds the same tables with no rows in any '
+                 'of the GroupMe entity tables (only the Core Data metadata tables hold rows); the '
+                 'iOS 14.3 and 15.3.1 images hold only the Documents copy.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -142,6 +158,7 @@ __artifacts_v2__ = {
 }
 
 import plistlib
+from pathlib import Path
 
 from scripts.ilapfuncs import artifact_processor, logfunc, \
     get_file_path, get_plist_content, get_plist_file_content, get_sqlite_db_records, \
@@ -165,6 +182,17 @@ ACCOUNT_KEYS = (
     ('syncContactsToServer', 'Sync Contacts To Server'),
     ('apnsId', 'APNS ID'),
 )
+
+def _store_paths(files_found):
+    """Every GroupMe.sqlite found, in a fixed order.
+
+    The app has kept its store under Documents (iOS 14.3 and 15.3.1 images) and
+    under Library/Application Support (iOS 17.3 image), and an extraction can
+    hold both. Reading only the first match let file order decide which one was
+    reported, so every copy is read and each row names its store.
+    """
+    return sorted({path for path in files_found if Path(path).match('GroupMe.sqlite')})
+
 
 # Resolves both direct messages (ZUSER) and group lines (ZGROUP) to ZGMCHAT.
 CHAT_JOIN = 'LEFT JOIN ZGMCHAT c ON c.Z_PK = COALESCE(m.ZGROUP, m.ZUSER)'
@@ -216,7 +244,7 @@ def _decode_deletion_status(blob):
 @artifact_processor
 def groupMeMessages(context):
     files_found = context.get_files_found()
-    source_path = get_file_path(files_found, 'GroupMe.sqlite')
+    store_paths = _store_paths(files_found)
     data_list = []
 
     local_user_id = _get_local_user_id(files_found)
@@ -256,7 +284,9 @@ def groupMeMessages(context):
     ORDER BY m.ZCREATEDAT
     '''
 
-    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
+    for source_path, record in (
+            (path, record) for path in store_paths
+            for record in get_sqlite_db_records(path, null_absent_columns(path, query))):
         sender_id = record['senderId']
         if local_user_id is not None and not record['isSystem']:
             from_me = 1 if str(sender_id) == local_user_id else 0
@@ -297,6 +327,7 @@ def groupMeMessages(context):
             record['replyMessageId'],
             record['messageId'],
             record['sourceGuid'],
+            context.get_relative_path(source_path),
         ))
 
     data_headers = (
@@ -322,14 +353,15 @@ def groupMeMessages(context):
         'Reply To Message ID',
         'Message ID',
         'Source GUID',
+        'Source File',
     )
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(store_paths) or None
 
 
 @artifact_processor
 def groupMeChats(context):
-    source_path = get_file_path(context.get_files_found(), 'GroupMe.sqlite')
+    store_paths = _store_paths(context.get_files_found())
     data_list = []
 
     query = '''
@@ -356,7 +388,8 @@ def groupMeChats(context):
     ORDER BY c.ZLASTMESSAGEDATE
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for source_path, record in (
+            (path, record) for path in store_paths for record in get_sqlite_db_records(path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']) if record['ZCREATEDAT'] else '',
             convert_cocoa_core_data_ts_to_utc(record['ZLASTMESSAGEDATE']) if record['ZLASTMESSAGEDATE'] else '',
@@ -374,6 +407,7 @@ def groupMeChats(context):
             'Yes' if record['hidden'] else '',
             record['shareUrl'],
             record['avatarUrl'],
+            context.get_relative_path(source_path),
         ))
 
     data_headers = (
@@ -381,14 +415,14 @@ def groupMeChats(context):
         'Chat Name', 'Chat ID', 'Chat Type (as stored)', 'Group Type',
         'Group Description',
         'Other Party User ID', 'Creator ID', 'Message Count', 'Unread Count',
-        'Muted', 'Hidden', 'Share URL', 'Avatar URL')
+        'Muted', 'Hidden', 'Share URL', 'Avatar URL', 'Source File')
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(store_paths) or None
 
 
 @artifact_processor
 def groupMeGroupMembers(context):
-    source_path = get_file_path(context.get_files_found(), 'GroupMe.sqlite')
+    store_paths = _store_paths(context.get_files_found())
     data_list = []
 
     query = '''
@@ -407,7 +441,8 @@ def groupMeGroupMembers(context):
     ORDER BY c.ZNAME, mem.ZNAME
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for source_path, record in (
+            (path, record) for path in store_paths for record in get_sqlite_db_records(path, query)):
         data_list.append((
             record['groupName'],
             record['groupId'],
@@ -418,18 +453,19 @@ def groupMeGroupMembers(context):
             record['state'],
             'Yes' if record['autoKicked'] else '',
             record['avatarUrl'],
+            context.get_relative_path(source_path),
         ))
 
     data_headers = (
         'Group Name', 'Group ID', 'Nickname', 'Real Name', 'User ID',
-        'Member ID', 'State', 'Auto Kicked', 'Avatar URL')
+        'Member ID', 'State', 'Auto Kicked', 'Avatar URL', 'Source File')
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(store_paths) or None
 
 
 @artifact_processor
 def groupMeContacts(context):
-    source_path = get_file_path(context.get_files_found(), 'GroupMe.sqlite')
+    store_paths = _store_paths(context.get_files_found())
     data_list = []
 
     query = '''
@@ -451,7 +487,8 @@ def groupMeContacts(context):
     ORDER BY r.ZNAME
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for source_path, record in (
+            (path, record) for path in store_paths for record in get_sqlite_db_records(path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']) if record['ZCREATEDAT'] else '',
             convert_cocoa_core_data_ts_to_utc(record['ZUPDATEDAT']) if record['ZUPDATEDAT'] else '',
@@ -465,15 +502,16 @@ def groupMeContacts(context):
             'Yes' if record['isAppUser'] else '',
             record['addressBookId'],
             record['avatarUrl'],
+            context.get_relative_path(source_path),
         ))
 
     data_headers = (
         ('Created', 'datetime'), ('Updated', 'datetime'), 'Name',
         'Address Book Name', ('Phone Number', 'phonenumber'), 'User ID',
         'Relationship ID', 'Blocked', 'Hidden', 'GroupMe User',
-        'Address Book ID', 'Avatar URL')
+        'Address Book ID', 'Avatar URL', 'Source File')
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(store_paths) or None
 
 
 @artifact_processor
