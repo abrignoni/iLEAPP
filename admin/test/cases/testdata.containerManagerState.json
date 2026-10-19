@@ -51,5 +51,58 @@
     },
     "os_name": "iOS",
     "os_version": "27.0"
+  },
+  "case_ios27_sanitized": {
+    "description": "Real iOS 27.0 (24A437) container manager state (logs/ContainerManager/state.json) with identifiers replaced (bundle ids, team ids, UUIDs, hosts) and timestamps shifted by a constant offset; structure otherwise as written by the device. Packed in a sysdiagnose-shaped archive and cut with make_test_data.py.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_sanitized_iPhone-OS_iPhone_24A437.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-19T18:54:45.888973",
+      "last_commit": {
+        "hash": "996f7c5c1c541df69c0f2c527a44fe701455b220",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-19T11:54:44-04:00",
+        "message": "Container Manager State: synthetic test fixture, drop unregistered sample_data key"
+      }
+    },
+    "artifacts": {
+      "containerManagerState": {
+        "search_patterns": [
+          "*/ContainerManager/state.json",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "containerManagerStateNoDirectory": {
+        "search_patterns": [
+          "*/ContainerManager/state.json",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "containerManagerStateRegistrations": {
+        "search_patterns": [
+          "*/ContainerManager/state.json",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "27.0"
   }
 }
