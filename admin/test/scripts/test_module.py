@@ -36,7 +36,7 @@ import inspect
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
-from scripts.search_files import FileInfo, FileSeekerZip
+from scripts.search_files import FileInfo, FileSeekerZip, _compile_pattern
 from leapp_functions.app.artifact_result import ArtifactResult
 
 
@@ -77,6 +77,33 @@ def artifact_declaration_order(artifacts_info):
     cross-artifact state depend on it, so tests must execute in the same order.
     """
     return {name: index for index, name in enumerate(artifacts_info)}
+
+
+def order_like_seeker(staged_files, file_infos, paths):
+    """Order staged files the way a real zip run hands them to the artifact.
+
+    ileapp.py searches each of the artifact's paths in declared order and
+    extends files_found with that pattern's matches in archive order, so an
+    artifact that takes the first match (get_file_path) sees the file of its
+    first pattern. os.walk order depends on the file system (it flipped on the
+    GitHub runner image of 2026-10-18), so it is not used for that. Files no
+    pattern matches follow, sorted.
+    """
+    if isinstance(paths, str):
+        paths = (paths,)
+    ordered = []
+    seen = set()
+    root = os.path.normcase('root/')
+    for pattern in paths or ():
+        pat = _compile_pattern(os.path.normcase(pattern))
+        for extracted_path, info in file_infos.items():
+            if extracted_path in seen:
+                continue
+            if pat(root + os.path.normcase(info.source_path)) is not None:
+                ordered.append(extracted_path)
+                seen.add(extracted_path)
+    ordered.extend(sorted(path for path in staged_files if path not in seen))
+    return ordered
 
 
 def stage_case_members(zip_ref, temp_dir, file_infos):
@@ -174,9 +201,12 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
             stage_case_members(zip_ref, temp_dir, mock_seeker.file_infos)
 
             # Recursively get all files
+            staged_files = []
             for root, _, files in os.walk(temp_dir):
                 for file in files:
-                    all_files.append(os.path.join(root, file))
+                    staged_files.append(os.path.join(root, file))
+            artifact_paths = getattr(module, '__artifacts_v2__', {}).get(artifact_name, {}).get('paths')
+            all_files.extend(order_like_seeker(staged_files, mock_seeker.file_infos, artifact_paths))
 
         # Mock for lava_db connection and cursor
         mock_lava_cursor_instance = MagicMock()
