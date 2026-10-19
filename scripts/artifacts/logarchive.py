@@ -100,36 +100,58 @@ __artifacts_v2__ = {
     },
     "logarchive_executed_apps": {
         "name": "logarchive executed apps",
-        "description": "Unified log entries containing 'Allowing tap for icon view', 'Launching "
+        "description": "Unified log entries containing 'Allowing tap for icon view' (matched without "
+                       "regard to case, so 'Disallowing tap' entries are included), 'Launching "
                        "application' or 'transition source:', and entries of the "
                        "com.apple.UserNotifications subsystem containing 'Launch application'; what "
                        "each form records is not sourced here",
         "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2025-05-26",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "'Launch application' is matched only in the com.apple.UserNotifications subsystem. "
-                 "Those entries were on two of the five tested images: 7 rows on the iOS 12.4 image "
-                 "and 8 on the iOS 26.5.2 image, logged by SpringBoard in the AppLaunching category. "
-                 "9 of the 15 contain 'Launch application in foreground for notification response "
-                 "action' and 6 contain 'Launch application in background for notification "
-                 "response'; 3 of the iOS 26.5.2 rows hold <private> in place of the value that ends "
-                 "the others. The other three images held no such entry, and the clause adds no row "
-                 "that the three older terms already matched. Process Image Path was SpringBoard and "
-                 "Process ID held one value on the rows of each tested image. The iOS 12.4 image "
-                 "held only the UserNotifications entries, so Subsystem and Category each held "
-                 "one value there. Trace ID held no value on any row of the tested images: rows "
-                 "read from tracev3 data leave it empty.",
+        "notes": "'Launch application' is matched only in the com.apple.UserNotifications subsystem. Those "
+                 "entries were on six of the 14 images: 7 on ctf2020_ios12, 1 on hickman_ios14_sysdiag, 1 on "
+                 "jess_ios15, 3 on abe_ios16, 8 on hc_ios26 and 40 on ai16_ios26_sysdiag, logged by "
+                 "SpringBoard in the AppLaunching category. 14 of the 60 contain 'Launch application in "
+                 "foreground for notification response action' and 46 contain 'Launch application in "
+                 "background for notification response'; 23 hold <private> in place of the value that ends the "
+                 "others (20 on ai16_ios26_sysdiag, 3 on hc_ios26). The clause adds no row that the three "
+                 "older terms already matched. Process Image Path was SpringBoard on every row except 2 "
+                 "nsurlsessiond rows on jess_ios15. Process ID held one value per image on 10 images, two on "
+                 "felix23_ios16 and hc_ios26_sysdiag, and three on jess_ios15. The iOS 12.4 image held only "
+                 "the UserNotifications entries, so Subsystem and Category each held one value there. Trace ID "
+                 "held no value on any row of the tested images: rows read from tracev3 data leave it empty. "
+                 "Application (as stored) and Icon Location (as stored), added 2026-10-18, are read from the "
+                 "message. A SpringBoard 'Launching application <application> from icon <icon>, location: "
+                 "<location>' entry gives both, and 'Allowing tap for icon view '<application>'' gives the "
+                 "application. On both forms the application value reads <private> where the log redacted it; "
+                 "no redacted location was seen on the 14 images. Other forms leave the two blank, among them "
+                 "'Disallowing tap for icon view' entries (5, on felix23_ios16 and iphone12_ios18), which the "
+                 "case-insensitive match admits but the column parser does not read, and nsurlsessiond "
+                 "'Launching application ... since we could not restore session' entries (2 on jess_ios15), "
+                 "which name no icon. On the 14 images every SpringBoard 'from icon' entry gave both values "
+                 "and every entry the 'Allowing tap' pattern read gave an application value. Locations seen, "
+                 "reported as written: SBIconLocationRoot, SBIconLocationDock, SBIconLocationFolder, "
+                 "SBIconLocationAppLibraryCategoryPod and SBIconLocationAppLibraryCategoryPodExpanded.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "code",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 7 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 243 rows",
+            "jess_ios15": "iOS 15.0.2 | 52 rows",
+            "abe_ios16": "iOS 16.5 | 1222 rows",
+            "felix23_ios16": "iOS 16.5 | 301 rows",
+            "fsfull002_ios17": "iOS 17.1 | 223 rows",
             "hc_ios17_2": "iOS 17.2.1 | 752 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 39 rows",
             "dexter_ios18": "iOS 18.3.2 | 95 rows",
             "iphone12_ios18": "iOS 18.7 | 1676 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 229 rows",
             "hc_ios26": "iOS 26.5.2 | 442 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 75 rows",
         },
     },
     "logarchive_tethering": {
@@ -172,7 +194,7 @@ __artifacts_v2__ = {
                        "changed, Screen shut off) and the 'Biometric match' completion entries",
         "author": "@AlexisBrignoni, @stark4n6, Claude",
         "creation_date": "2025-05-28",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "2026-10-14: added com.apple.SpringBoard entries whose message begins "
@@ -183,7 +205,13 @@ __artifacts_v2__ = {
                  "'UILocked:' mid-message (20 entries on hickman_ios14_sysdiag); those are not "
                  "reported. The SpringBoard process also logs entries under subsystem "
                  "com.apple.UserNotificationsKit that contain 'UILocked:' mid-message; the "
-                 "subsystem filter keeps those out.",
+                 "subsystem filter keeps those out. "
+                 "The 'Device unlocked' pattern matches in any process and in any case. "
+                 "softwareupdateservicesd wrote 19, 6, 13, 17 and 6 of those rows on iOS 12.4, 17.2.1, "
+                 "18.3.2, 18.7 and 26.5.2, fewer than the kernel 'is now UN-locked' entries the unlock "
+                 "sessions artifact reports on each (28, 54, 58, 18 and 26). sharingd, appstored, "
+                 "locationd and other processes wrote the rest, up to 424 rows from sharingd on iOS "
+                 "17.2.1, so these rows are not a count of unlocks.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -488,10 +516,12 @@ __artifacts_v2__ = {
         "name": "logarchive touchscreen events",
         "description": "Unified log entries recording physical screen contact: digitizer "
                        "contact presence transitions, per-app touch statistics windows "
-                       "(touchstats), touch attention events, and tap-to-wake",
+                       "(touchstats), touch attention events, and tap-to-wake ('received tapToWake', "
+                       "'send tapToWake' and 'tapToWakeDidRecognize' entries, written by backboardd "
+                       "and SpringBoard on the tested images)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at https://thesisfriday.com/thesis-friday-14-aul-touch-events/ "
@@ -505,16 +535,20 @@ __artifacts_v2__ = {
                  "recorded for the cheatsheet, thesisfriday.com/alr, did not serve it when fetched "
                  "on 2026-10-03, so that statement could not be checked. The entry was observed on "
                  "the iOS 26.5.2 image. "
+                 "backboardd 'send tapToWake' and SpringBoard 'tapToWakeDidRecognize:' entries were added "
+                 "2026-10-18. The send entries equalled the received entries on each image that had either "
+                 "(2, 21, 21 and 4 on iOS 17.2.1, 18.3.2, 18.7 and 26.5.2), and tapToWakeDidRecognize gave "
+                 "2, 6, 21 and 4 there. On iOS 12.4 tapToWakeDidRecognize gave all 27 rows. "
                  "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "target",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
-            "hc_ios17_2": "iOS 17.2.1 | 8193 rows",
-            "dexter_ios18": "iOS 18.3.2 | 4801 rows",
-            "iphone12_ios18": "iOS 18.7 | 23978 rows",
-            "hc_ios26": "iOS 26.5.2 | 6933 rows",
+            "ctf2020_ios12": "iOS 12.4 | 27 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 8197 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4828 rows",
+            "iphone12_ios18": "iOS 18.7 | 24020 rows",
+            "hc_ios26": "iOS 26.5.2 | 6941 rows",
         },
     },
     "logarchive_usb_connections": {
@@ -652,7 +686,7 @@ __artifacts_v2__ = {
                        "notifications, and locks from the side button",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
@@ -681,7 +715,15 @@ __artifacts_v2__ = {
                  "process cheatsheet', was added 2026-10-03: it appeared on all five tested images "
                  "(28, 54, 58, 18 and 26 entries), including iOS 12.4 and 17.2.1, where 'apfs is "
                  "being UN-locked' did not appear. The cheatsheet is cited as reporting two such "
-                 "entries per unlock on iOS. The address recorded for the cheatsheet, "
+                 "entries per unlock on iOS. "
+                 "On iOS 17.2.1, 18.3.2, 18.7 and 26.5.2 each entry names one disk device. The 26 entries "
+                 "on iOS 26.5.2 were 13 "
+                 "pairs less than two seconds apart, one naming disk1s2 and one disk1s8. iOS 18.3.2 held "
+                 "28 disk2s2 and 30 disk2s8 entries, iOS 18.7 8 disk1s2 and 10 disk1s8, and iOS 17.2.1 46 "
+                 "disk1s2 and 8 disk1s8, while on iOS 12.4 each of the 28 entries reads 'apfs Data is now "
+                 "UN-locked' in an 'apfs_device_locked' form and names no disk device. So two entries per unlock did not hold on every tested "
+                 "build. "
+                 "The address recorded for the cheatsheet, "
                  "thesisfriday.com/alr, did not serve it when fetched on 2026-10-03, so the "
                  "statements attributed to it in these notes could not be checked. The kernel "
                  "'Sending notification for volume' entry carries "
@@ -767,6 +809,51 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "battery-charging",
+    },
+    "logarchive_charging_state": {
+        "name": "logarchive charging state",
+        "description": "Unified log entries in which powerd logged a charging state update, with the "
+                       "state and the other values the entry names",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-18",
+        "last_update_date": "2026-10-18",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive module must run in "
+                 "the same session. Row Number is the entry's row number in the logarchive table. Selects "
+                 "powerd entries beginning 'handleChargingStateUpdate '. State is the text after 'State:' as "
+                 "written. VBUS, UISOC, CHNC and Type are the values after those labels as written. TLC is the "
+                 "text after 'TLC:' with trailing whitespace removed, and is blank when the message has no "
+                 "TLC. The meaning of these values is not established here. A message of another shape leaves "
+                 "those columns blank, and Event Message keeps the whole message; no such message appeared in "
+                 "the images tested. Tested on the 14 images in sample_data, iOS 12.4 to 26.6. The entries "
+                 "appeared only on the three iOS 26 images, where every row parsed. States seen: Charging, "
+                 "Charging Completed, Charging On Hold and Disconnected. On every row VBUS held 1 when State "
+                 "began with Charging and 0 when it was Disconnected. UISOC held whole numbers from 2 to 100, "
+                 "Type held 0, 1 or 2, and TLC held text shaped like a weekday, month, day, time and year, "
+                 "with no time zone in it. The entries record what powerd logged, not what was connected; the "
+                 "logarchive USB and power connections artifact reports the cable entries. Process Image Path "
+                 "ended in /powerd on every row, which the selection requires, and held one value per image. "
+                 "Process ID held one value on all 13 ai16_ios26_sysdiag rows.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 13 rows",
+            "hc_ios26": "iOS 26.5.2 | 41 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 18 rows",
+        },
     },
     "logarchive_battery_center_sources": {
         "name": "logarchive Battery Center power sources",
@@ -996,7 +1083,7 @@ __artifacts_v2__ = {
                        "any process",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at "
@@ -1006,7 +1093,14 @@ __artifacts_v2__ = {
                  "show an SOS call; the payloads are redacted to <private>. The "
                  "sosTriggeredOnPairedDevice entry (documented from a paired Apple Watch "
                  "trigger) is collected as documented-only. Complements the SOS claw "
-                 "gesture entries in the logarchive artifacts filter.",
+                 "gesture entries in the logarchive artifacts filter. "
+                 "Those are SpringBoard 'SBSOSClawGestureObserver - button press noted' entries, each "
+                 "naming a hardware button (lock, volumeUp or volumeDown). The logarchive artifacts table "
+                 "held 76, 4, 172 and 64 of them on iOS 17.2.1, 18.3.2, 18.7 and 26.5.2 and none on iOS "
+                 "12.4. On iOS 26.5.2 they were two per backboardd press of the named button (48, 10 and 6 "
+                 "against 24 side button, 5 volume down and 3 volume up presses); on iOS 18.3.2 there were "
+                 "4 against 15 side button presses. They record button presses and are not by themselves a "
+                 "sign of an SOS call.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "alert-triangle",
@@ -1232,11 +1326,11 @@ __artifacts_v2__ = {
         "name": "logarchive hardware button presses",
         "description": "Unified log entries recording physical button presses: backboardd button events "
                        "with the button's HID usage and how long it was held, SpringBoard side button "
-                       "press counts and single press recognition, and the SpringBoard button "
-                       "combination recognizer's press type",
+                       "press counts and single press recognition, SpringBoard raw volume press "
+                       "entries, and the SpringBoard button combination recognizer's press type",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-18",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
@@ -1257,7 +1351,14 @@ __artifacts_v2__ = {
                  "(33) and 26.5.2 (24) images but not on iOS 18.3.2 (2 against 15). The iOS 12.4 "
                  "image held only 'Lock button single press recognized' (9). Volume presses are "
                  "also reported by the audio status artifact; button presses can come from an "
-                 "examiner handling the device. Trace ID held no value on any row of the tested "
+                 "examiner handling the device. "
+                 "SpringBoard 'RECEIVED rawVolumeIncreasePress' and 'RECEIVED rawVolumeDecreasePress' "
+                 "entries were added 2026-10-18. On the tested images each press gave a 'down:YES' entry followed by a 'down:NO' "
+                 "entry. The iOS "
+                 "18.7 image held 41 increase and 13 decrease pairs and the iOS 26.5.2 image 3 and 5, "
+                 "equal on both to the backboardd 0xC/0xE9 and 0xC/0xEA presses; none appeared on iOS "
+                 "12.4, 17.2.1 or 18.3.2. "
+                 "Trace ID held no value on any row of the tested "
                  "images: rows read from tracev3 data leave it empty, and only a 'log show' JSON "
                  "export fills it.",
         "paths": None,
@@ -1267,8 +1368,8 @@ __artifacts_v2__ = {
             "ctf2020_ios12": "iOS 12.4 | 9 rows",
             "hc_ios17_2": "iOS 17.2.1 | 188 rows",
             "dexter_ios18": "iOS 18.3.2 | 40 rows",
-            "iphone12_ios18": "iOS 18.7 | 406 rows",
-            "hc_ios26": "iOS 26.5.2 | 175 rows",
+            "iphone12_ios18": "iOS 18.7 | 514 rows",
+            "hc_ios26": "iOS 26.5.2 | 191 rows",
         },
     },
     "logarchive_orientation": {
@@ -2129,6 +2230,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%contact _ presence:%'
         OR event_message LIKE '%touchstats%'
         OR event_message LIKE '%received tapToWake%'
+        OR event_message LIKE '%send tapToWake%'
+        OR event_message LIKE '%tapToWakeDidRecognize%'
         OR event_message LIKE '%AttentionAwareness.Touch%'
         -- logarchive_usb_connections
         OR event_message LIKE '%plugin state changed to%'
@@ -2281,6 +2384,7 @@ def logarchive_artifacts(context):
         OR (subsystem = 'com.apple.SpringBoard.buttons'
             AND (event_message LIKE 'press count:%'
                  OR event_message LIKE 'Lock button single press recognized%'
+                 OR event_message LIKE 'RECEIVED rawVolume%Press%'
                  OR event_message LIKE 'SOS button gesture: press type=%'))
         -- logarchive_orientation ('Received orientation' is already collected by
         -- the case-insensitive 'Received Orientation' pattern above)
@@ -2317,6 +2421,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%UIOpenURLAction%'
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
+        -- logarchive_charging_state
+        OR (process_image_path LIKE '%/powerd' AND event_message LIKE 'handleChargingStateUpdate %')
     )
     '''
 
@@ -2366,6 +2472,23 @@ def logarchive_flashlight(context):
     
     return data_headers, data_list, source_path
 
+LAUNCHING_APPLICATION = re.compile(
+    r'Launching application (?P<bundle>\S+) from icon \S+, location: (?P<location>\S+)')
+ALLOWING_TAP = re.compile(r"Allowing tap for icon view '(?P<bundle>[^']*)'")
+
+
+def _launch_fields(message):
+    """The application and icon location a SpringBoard launch entry names, as written."""
+    message = message or ''
+    match = LAUNCHING_APPLICATION.search(message)
+    if match:
+        return match.group('bundle'), match.group('location')
+    match = ALLOWING_TAP.search(message)
+    if match:
+        return match.group('bundle'), ''
+    return '', ''
+
+
 @artifact_processor
 def logarchive_executed_apps(context):
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
@@ -2380,10 +2503,12 @@ def logarchive_executed_apps(context):
         OR (event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%')
     '''
     
-    data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
-                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
-    
+    for record in _report_rows(get_sqlite_db_records(source_path, query)):
+        data_list.append((record[0],) + _launch_fields(record[6]) + tuple(record[1:]))
+    data_headers = (('Timestamp', 'datetime'), 'Application (as stored)', 'Icon Location (as stored)', 'Row Number',
+                    'Process Image Path', 'Process ID', 'Subsystem', 'Category', 'Event Message',
+                    'Trace ID')
+
     return data_headers, data_list, source_path
 
 @artifact_processor
@@ -2730,6 +2855,8 @@ def logarchive_touch(context):
         event_message LIKE '%contact _ presence:%'
         OR event_message LIKE '%touchstats%'
         OR event_message LIKE '%received tapToWake%'
+        OR event_message LIKE '%send tapToWake%'
+        OR event_message LIKE '%tapToWakeDidRecognize%'
         OR event_message LIKE '%AttentionAwareness.Touch%'
         OR event_message LIKE '%Touch entered%'
     ''', report_time=False)
@@ -2856,6 +2983,32 @@ _BC_SOURCE_KEYS = ('Name', 'Type', 'Transport Type', 'Power Source State', 'Curr
 _BC_DEVICE_KEYS = ('name', 'groupName', 'vendor', 'modelNumber', 'percentCharge', 'charging',
                    'connected', 'internal', 'poweredSoureState', 'transportType',
                    'accessoryIdentifier', 'accessoryCategory', 'identifier', 'productIdentifier')
+
+
+CHARGING_STATE_UPDATE = re.compile(
+    r'handleChargingStateUpdate State:(?P<state>.+?) VBUS:(?P<vbus>\S*) UISOC:(?P<uisoc>\S*) '
+    r'CHNC:(?P<chnc>\S*) Type:(?P<type>\S*)(?: TLC:(?P<tlc>.*?))?\s*$')
+
+
+@artifact_processor
+def logarchive_charging_state(context):
+    _headers, records, source_path = _artifacts_table_records(context, """
+        process_image_path LIKE '%/powerd' AND event_message LIKE 'handleChargingStateUpdate %'
+    """, report_time=False)
+    data_list = []
+    for record in records:
+        message = record['event_message'] or ''
+        match = CHARGING_STATE_UPDATE.match(message)
+        fields = (match.group('state'), match.group('vbus'), match.group('uisoc'),
+                  match.group('chnc'), match.group('type'), match.group('tlc') or '') if match \
+            else ('',) * 6
+        data_list.append((_report_time(record['timestamp']),) + fields
+                         + (message, record['process_image_path'], record['process_id'],
+                            record['row_number']))
+    data_headers = (('Timestamp', 'datetime'), 'State', 'VBUS (as stored)', 'UISOC (as stored)',
+                    'CHNC (as stored)', 'Type (as stored)', 'TLC (as stored)', 'Event Message',
+                    'Process Image Path', 'Process ID', 'Row Number')
+    return data_headers, data_list, source_path
 
 
 def _bc_unquote(text):
@@ -3087,6 +3240,7 @@ def logarchive_hardware_buttons(context):
         OR (subsystem = 'com.apple.SpringBoard.buttons'
             AND (event_message LIKE 'press count:%'
                  OR event_message LIKE 'Lock button single press recognized%'
+                 OR event_message LIKE 'RECEIVED rawVolume%Press%'
                  OR event_message LIKE 'SOS button gesture: press type=%'))
     ''')
 

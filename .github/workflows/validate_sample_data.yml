@@ -39,7 +39,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v7
       with:
-        python-version: '3.x'
+        python-version: '3.14'
 
     - name: Validate sample_data blocks
       run: python3 admin/scripts/validate_sample_data.py
