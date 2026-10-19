@@ -1,0 +1,111 @@
+name: Build Windows wheels
+
+# Builds the Windows wheels kept in whl_files/ for the Python versions and
+# machines PyPI carries no wheel for, so a Windows install needs no compiler.
+# Each package is built from its PyPI sdist, checked against the pinned
+# sha256, then installed into a clean venv and exercised before upload.
+# Download the artifacts and commit the wheels by hand, with a requirements.txt
+# line for each.
+#
+# Gaps covered, measured against PyPI on 2026-10-19:
+#   x64 3.15: no cp315 wheels for pyliblzfse, astc-decomp-faster, pyahocorasick.
+#   ARM64 3.11 to 3.15: none of those three publishes win_arm64 wheels.
+# numpy 1.26.4 has no win_arm64 wheel either, and MSVC 19.51 stops on it with
+# internal compiler errors, so requirements.txt gives Windows ARM64 numpy 2.
+# setup-python offers Windows ARM64 builds of Python from 3.11 only.
+
+on:
+  # A change to this file rebuilds and checks every wheel.
+  pull_request:
+    paths:
+      - '.github/workflows/build_windows_wheels.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build ${{ matrix.package.name }} ${{ matrix.target.arch }} ${{ matrix.target.python }}
+    runs-on: ${{ matrix.target.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { runner: windows-latest, arch: x64, python: '3.15' }
+          - { runner: windows-11-arm, arch: arm64, python: '3.11' }
+          - { runner: windows-11-arm, arch: arm64, python: '3.12' }
+          - { runner: windows-11-arm, arch: arm64, python: '3.13' }
+          - { runner: windows-11-arm, arch: arm64, python: '3.14' }
+          - { runner: windows-11-arm, arch: arm64, python: '3.15' }
+        package:
+          - name: pyliblzfse
+            version: 0.4.1
+            sdist: https://files.pythonhosted.org/packages/2c/ba/a4bc465d36f6aafbff89da1bf67bcc6a97475b1d2300a74a778dcb293cef/pyliblzfse-0.4.1.tar.gz
+            sha256: bb0b899b3830c02fdf3dbde48ea59611833f366fef836e5c32cf8145134b7d3d
+            check: |
+              import liblzfse
+              data = bytes(range(256)) * 64
+              assert liblzfse.decompress(liblzfse.compress(data)) == data
+          - name: astc-decomp-faster
+            version: 1.1.5
+            sdist: https://files.pythonhosted.org/packages/46/0c/9175a74d7dfb5743b027b97dc15127802d882cb1154b779fe857801ca325/astc_decomp_faster-1.1.5.tar.gz
+            sha256: c84865c97231996a9a4f12c9f4d676633808afe62f4df230dfd740ee7d3054b4
+            needs: pillow
+            check: |
+              import astc_decomp_faster  # registers Pillow's "astc" decoder
+              from PIL import Image
+              # A void-extent block: one constant colour for the whole 4x4 block.
+              block = bytes([0xFC, 0xFD, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                             0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF])
+              image = Image.frombytes('RGBA', (4, 4), block, 'astc', (4, 4, False))
+              assert image.getpixel((0, 0)) == (255, 0, 0, 255), image.getpixel((0, 0))
+          - name: pyahocorasick
+            version: 2.3.1
+            sdist: https://files.pythonhosted.org/packages/b0/3c/dc9e31a0f004eabe2ef5d31456766555a02e2af29e159daa31266934af79/pyahocorasick-2.3.1.tar.gz
+            sha256: 9d0f6bb522237ed7f111ed59c9e8baea7d1e75813587b6773babd43bda35db9f
+            check: |
+              import ahocorasick
+              automaton = ahocorasick.Automaton()
+              for word in ('he', 'she', 'hers'):
+                  automaton.add_word(word, word)
+              automaton.make_automaton()
+              assert sorted(found for _, found in automaton.iter('ushers')) == ['he', 'hers', 'she']
+
+    steps:
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.target.python }}
+          architecture: ${{ matrix.target.arch }}
+
+      - name: Download and verify the sdist
+        shell: bash
+        run: |
+          curl -sSfL -o sdist.tar.gz "${{ matrix.package.sdist }}"
+          echo "${{ matrix.package.sha256 }}  sdist.tar.gz" | sha256sum -c -
+
+      - name: Build the wheel
+        shell: bash
+        run: python -m pip wheel --no-deps --wheel-dir dist sdist.tar.gz
+
+      - name: Install into a clean venv and exercise it
+        shell: bash
+        env:
+          CHECK: ${{ matrix.package.check }}
+        run: |
+          python -m venv check
+          check/Scripts/python -m pip install --quiet --no-index dist/*.whl
+          if [ -n "${{ matrix.package.needs }}" ]; then
+            check/Scripts/python -m pip install --quiet --only-binary=:all: ${{ matrix.package.needs }}
+          fi
+          printf '%s\n' "$CHECK" > check.py
+          check/Scripts/python check.py
+          check/Scripts/python -c "import platform, sys; print(sys.version, platform.machine())"
+          sha256sum dist/*.whl
+          python -m zipfile -l dist/*.whl
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.package.name }}-${{ matrix.package.version }}-py${{ matrix.target.python }}-${{ matrix.target.arch }}
+          path: dist/*.whl
+          if-no-files-found: error

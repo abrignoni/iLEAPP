@@ -1,4 +1,42 @@
+# Windows wheels kept in whl_files/, for the Python versions and machines PyPI
+# has no wheel for, so a Windows install needs no compiler. A local wheel is used
+# only when its line comes before the bare requirement of the same name, so these
+# lines stay at the top. The cp310 to cp314 win_amd64 pyliblzfse wheels predate
+# .github/workflows/build_windows_wheels.yml, which built every other wheel here.
+# The markers pin the machine as well as the OS, or pip would try a win_amd64
+# wheel on Windows ARM64.
+whl_files/pyliblzfse-0.4.1-cp310-cp310-win_amd64.whl; python_version == "3.10" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp311-cp311-win_amd64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp312-cp312-win_amd64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp313-cp313-win_amd64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp314-cp314-win_amd64.whl; python_version == "3.14" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp315-cp315-win_amd64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp311-cp311-win_arm64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyliblzfse-0.4.1-cp312-cp312-win_arm64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyliblzfse-0.4.1-cp313-cp313-win_arm64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyliblzfse-0.4.1-cp314-cp314-win_arm64.whl; python_version == "3.14" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyliblzfse-0.4.1-cp315-cp315-win_arm64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/astc_decomp_faster-1.1.5-cp315-cp315-win_amd64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/astc_decomp_faster-1.1.5-cp311-cp311-win_arm64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/astc_decomp_faster-1.1.5-cp312-cp312-win_arm64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/astc_decomp_faster-1.1.5-cp313-cp313-win_arm64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/astc_decomp_faster-1.1.5-cp314-cp314-win_arm64.whl; python_version == "3.14" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/astc_decomp_faster-1.1.5-cp315-cp315-win_arm64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyahocorasick-2.3.1-cp315-cp315-win_amd64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyahocorasick-2.3.1-cp311-cp311-win_arm64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyahocorasick-2.3.1-cp312-cp312-win_arm64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyahocorasick-2.3.1-cp313-cp313-win_arm64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyahocorasick-2.3.1-cp314-cp314-win_arm64.whl; python_version == "3.14" and platform_system == "Windows" and platform_machine == "ARM64"
+whl_files/pyahocorasick-2.3.1-cp315-cp315-win_arm64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "ARM64"
+
 astc_decomp_faster
+# numpy 1.26.4 has no Windows ARM64 wheel, and MSVC 19.51 fails to build it there
+# (internal compiler errors), so Windows ARM64 takes numpy 2 on every version, as
+# 3.13 and later do everywhere.
+numpy==1.26.4; python_version < "3.13" and (platform_system != "Windows" or platform_machine != "ARM64")
+numpy>=2.1; python_version >= "3.13" or (platform_system == "Windows" and platform_machine == "ARM64")
+# Compiled Unified Log prefilter. Windows ARM64 on Python 3.10 uses the SQLite fallback.
+pyahocorasick==2.3.1; platform_system != "Windows" or platform_machine != "ARM64" or python_version >= "3.11"
 pytypedstream
 bencoding
 biplist
@@ -13,8 +51,6 @@ mmh3
 mdplistlib
 nska-deserialize>=1.3.1
 nska_deserialize
-numpy==1.26.4; python_version < "3.13"
-numpy>=2.1; python_version >= "3.13"
 packaging>=24.0
 pandas
 pathlib2==2.3.5
@@ -27,17 +63,6 @@ pillow_heif
 # CVEs. 5.29.6 is the minimum that clears CVE-2022-1941/2025-4565/2026-0994.
 protobuf==5.29.6
 pycryptodome
-# Compiled Unified Log prefilter. Native Windows ARM64 uses the SQLite fallback.
-pyahocorasick==2.3.1; platform_system != "Windows" or platform_machine == "AMD64"
-
-# pyliblzfse for Windows on x64. The markers pin the machine as well as the OS:
-# these wheels are win_amd64, and on Windows-on-ARM pip would otherwise try to
-# install them and fail. ARM builds compile pyliblzfse from the sdist below.
-whl_files/pyliblzfse-0.4.1-cp310-cp310-win_amd64.whl; python_version == "3.10" and platform_system == "Windows" and platform_machine == "AMD64"
-whl_files/pyliblzfse-0.4.1-cp311-cp311-win_amd64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "AMD64"
-whl_files/pyliblzfse-0.4.1-cp312-cp312-win_amd64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "AMD64"
-whl_files/pyliblzfse-0.4.1-cp313-cp313-win_amd64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "AMD64"
-whl_files/pyliblzfse-0.4.1-cp314-cp314-win_amd64.whl; python_version == "3.14" and platform_system == "Windows" and platform_machine == "AMD64"
 
 pyliblzfse
 
