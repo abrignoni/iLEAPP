@@ -37,7 +37,8 @@ __artifacts_v2__ = {
                  "Manager State - Registrations'), the daemon's recent client processes, the container class "
                  "folder table, the persona tables and the entitlement values, none of which is a container "
                  "record. Observed on one iOS 27.0 (24A437) sysdiagnose: 1,738 containers with a directory, "
-                 "419 without, 1,799 registrations. That sysdiagnose is not part of the test data. The "
+                 "419 without, 1,799 registrations. A copy with the identifiers replaced and the times shifted by one offset is the "
+                 "test case case_ios27_sanitized. The "
                  "iOS 26 (23G71) sysdiagnose tested has no ContainerManager folder. Other versions are not "
                  "checked.",
         "paths": (
@@ -58,7 +59,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "A row is a container record whose directory entry (node) is null in the file. In the "
-                 "tested sysdiagnose these records carry no directory times and a generation of -1. The "
+                 "tested sysdiagnose these records carry no directory times, and 418 of the 419 carry a "
+                 "generation of -1. The "
                  "file does not say why the entry is null: the container may have been removed, replaced "
                  "by a new directory, or not yet created, and these cannot be told apart from this file "
                  "alone. This file alone does not show an uninstall. Directory Name is the record's pathIdentifier "
@@ -67,7 +69,8 @@ __artifacts_v2__ = {
                  "record's generation value read as an integer; its meaning is not established. Scope is the "
                  "file's top-level key as stored. An empty result is not evidence that nothing was removed. Observed on one iOS "
                  "27.0 (24A437) sysdiagnose: 419 containers without a directory (1,738 with a directory, "
-                 "1,799 registrations). That sysdiagnose is not part of the test data. Other versions are "
+                 "1,799 registrations). A copy with the identifiers replaced and the times shifted by one offset is the "
+                 "test case case_ios27_sanitized. Other versions are "
                  "not checked.",
         "paths": (
             '*/ContainerManager/state.json',
@@ -98,7 +101,8 @@ __artifacts_v2__ = {
                  "not copied; only the number of entitlement keys is reported. Scope is the file's top-level key as stored. An empty result is not "
                  "evidence that nothing was registered. Observed on one "
                  "iOS 27.0 (24A437) sysdiagnose: 1,799 registrations (1,738 containers with a directory, "
-                 "419 without). That sysdiagnose is not part of the test data. Other versions are not "
+                 "419 without). A copy with the identifiers replaced and the times shifted by one offset is the "
+                 "test case case_ios27_sanitized. Other versions are not "
                  "checked.",
         "paths": (
             '*/ContainerManager/state.json',

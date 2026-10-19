@@ -9,16 +9,16 @@
     "total_data_size_bytes": 6545,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\containerManagerState\\testdata.containerManagerState.containerManagerStateNoDirectory.case_synthetic.zip",
-    "start_time": "2026-10-19T15:52:53.561811+00:00",
-    "end_time": "2026-10-19T15:52:53.671921+00:00",
-    "run_time_seconds": 0.01922464370727539,
+    "input_zip_path": "admin/test/cases/data/containerManagerState/testdata.containerManagerState.containerManagerStateNoDirectory.case_synthetic.zip",
+    "start_time": "2026-10-19T19:10:06.917990+00:00",
+    "end_time": "2026-10-19T19:10:06.935872+00:00",
+    "run_time_seconds": 0.003136157989501953,
     "last_commit": {
-      "hash": "7137c142d8d1415fd50ea45b0cea8e87fad9c164",
-      "author_name": "Brigs",
-      "author_email": "abrignoni@gmail.com",
-      "date": "2026-10-18T14:45:06-04:00",
-      "message": "Container Manager State: stop guessing numeric time units, tighten notes"
+      "hash": "996f7c5c1c541df69c0f2c527a44fe701455b220",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-19T11:54:44-04:00",
+      "message": "Container Manager State: synthetic test fixture, drop unregistered sample_data key"
     }
   },
   "headers": [
@@ -44,7 +44,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/Application",
@@ -56,7 +56,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/Application",
@@ -68,7 +68,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/Application",
@@ -80,7 +80,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/Application",
@@ -92,7 +92,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/Application",
@@ -104,7 +104,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Shared/AppGroup",
@@ -116,7 +116,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Shared/AppGroup",
@@ -128,7 +128,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Shared/AppGroup",
@@ -140,7 +140,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Shared/AppGroup",
@@ -152,7 +152,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/InternalDaemon",
@@ -164,7 +164,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -176,7 +176,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -188,7 +188,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -200,7 +200,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -212,7 +212,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -224,7 +224,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -236,7 +236,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -248,7 +248,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -260,7 +260,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -272,7 +272,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -284,7 +284,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/PluginKitPlugin",
@@ -296,7 +296,7 @@
       "{501:501:u+rwx,g+rx,o+rx}",
       "501",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Bundle/Application",
@@ -308,7 +308,7 @@
       "{33:33:u+rwx,g+rx,o+rx}",
       "<system>",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Bundle/Application",
@@ -320,7 +320,7 @@
       "{33:33:u+rwx,g+rx,o+rx}",
       "<system>",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Bundle/Application",
@@ -332,7 +332,7 @@
       "{33:33:u+rwx,g+rx,o+rx}",
       "<system>",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Bundle/Application",
@@ -344,7 +344,7 @@
       "{33:33:u+rwx,g+rx,o+rx}",
       "<system>",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Data/System",
@@ -356,7 +356,7 @@
       "{0:0:u+rwx,g+rx,o+rx}",
       "<system>",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ],
     [
       "Shared/SystemGroup",
@@ -368,7 +368,7 @@
       "{0:0:u+rwx,g+rx,o+rx}",
       "<system>",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ContainerManager\\state.json"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ContainerManager/state.json"
     ]
   ]
 }
