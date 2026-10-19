@@ -4,21 +4,21 @@
     "artifact_name": "GroupMe - Contacts",
     "function_name": "groupMeContacts",
     "case_number": "josh_ios17_ffs",
-    "number_of_columns": 12,
+    "number_of_columns": 13,
     "number_of_rows": 14,
-    "total_data_size_bytes": 1693,
+    "total_data_size_bytes": 3625,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/groupMe/testdata.groupMe.groupMeContacts.josh_ios17_ffs.zip",
-    "start_time": "2026-08-18T05:49:25.507131+00:00",
-    "end_time": "2026-08-18T05:49:25.531746+00:00",
-    "run_time_seconds": 0.0011649131774902344,
+    "start_time": "2026-10-19T19:44:28.564806+00:00",
+    "end_time": "2026-10-19T19:44:28.594359+00:00",
+    "run_time_seconds": 0.002382993698120117,
     "last_commit": {
-      "hash": "c7e10a63063e4daee2d4ce296ef671c508f9f9e2",
+      "hash": "0b8125f79f111bd779eb313b2e8be5aa46443023",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-08-18T01:23:30-04:00",
-      "message": "Report GroupMe message deletion state on iOS"
+      "date": "2026-10-09T07:38:01-04:00",
+      "message": "Report stored values and keep dropped rows in audited artifacts"
     }
   },
   "headers": [
@@ -33,7 +33,8 @@
     "Hidden",
     "GroupMe User",
     "Address Book ID",
-    "Avatar URL"
+    "Avatar URL",
+    "Source File"
   ],
   "data": [
     [
@@ -48,7 +49,8 @@
       "",
       "Yes",
       null,
-      "https://i.groupme.com/828x828.jpeg.15a05f24a2ca44d6813af416e8c27b24"
+      "https://i.groupme.com/828x828.jpeg.15a05f24a2ca44d6813af416e8c27b24",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -62,7 +64,8 @@
       "",
       "Yes",
       null,
-      null
+      null,
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1612359084,
@@ -76,7 +79,8 @@
       "",
       "Yes",
       "5E871B1B-858C-43D2-8068-84167B126BB8",
-      "https://i.groupme.com/450x450.jpeg.cd75f1b6d99f4042931e8864b1506dcc"
+      "https://i.groupme.com/450x450.jpeg.cd75f1b6d99f4042931e8864b1506dcc",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1689405696,
@@ -90,7 +94,8 @@
       "",
       "Yes",
       null,
-      null
+      null,
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -104,7 +109,8 @@
       "",
       "Yes",
       null,
-      null
+      null,
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1709051599,
@@ -118,7 +124,8 @@
       "",
       "Yes",
       "CE5C200B-EF90-4940-BB56-D50976E519A6:ABPerson",
-      "https://i.groupme.com/1480x1311.png.e99b93b6f23445a6a07ed1b162731473"
+      "https://i.groupme.com/1480x1311.png.e99b93b6f23445a6a07ed1b162731473",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1660691868,
@@ -132,7 +139,8 @@
       "",
       "Yes",
       "3C273137-6965-4F90-85E9-573EA74E03C9",
-      "http://i.groupme.com/3dc311f0c5850130397a163a2985e75d"
+      "http://i.groupme.com/3dc311f0c5850130397a163a2985e75d",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -146,7 +154,8 @@
       "",
       "Yes",
       null,
-      "https://i.groupme.com/1792x902.jpeg.d697015e0033497b93a7dccd0f6ea42d"
+      "https://i.groupme.com/1792x902.jpeg.d697015e0033497b93a7dccd0f6ea42d",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -160,7 +169,8 @@
       "",
       "Yes",
       null,
-      "https://i.groupme.com/1024x1024.jpeg.6ea71f175744479cbe67b34b0b8ec482"
+      "https://i.groupme.com/1024x1024.jpeg.6ea71f175744479cbe67b34b0b8ec482",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -174,7 +184,8 @@
       "",
       "Yes",
       null,
-      null
+      null,
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -188,7 +199,8 @@
       "",
       "Yes",
       null,
-      null
+      null,
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -202,7 +214,8 @@
       "",
       "Yes",
       null,
-      "https://i.groupme.com/796x796.jpeg.a3938107440747ff9d088951c0cbff4d"
+      "https://i.groupme.com/796x796.jpeg.a3938107440747ff9d088951c0cbff4d",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -216,7 +229,8 @@
       "",
       "Yes",
       null,
-      null
+      null,
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ],
     [
       1692487555,
@@ -230,7 +244,8 @@
       "",
       "Yes",
       null,
-      "https://i.groupme.com/1024x1024.jpeg.37ab1b1ed18b40d5b21efea4203f9e98"
+      "https://i.groupme.com/1024x1024.jpeg.37ab1b1ed18b40d5b21efea4203f9e98",
+      "filesystem1/private/var/mobile/Containers/Data/Application/F87AD240-7074-48F0-B414-08EFDDD24AEA/Library/Application Support/GroupMe.sqlite"
     ]
   ]
 }
