@@ -36,15 +36,16 @@ __artifacts_v2__ = {
                  "'Container Manager State - No Directory'), the code-signing registrations (see 'Container "
                  "Manager State - Registrations'), the daemon's recent client processes, the container class "
                  "folder table, the persona tables and the entitlement values, none of which is a container "
-                 "record. Tested on one iOS 27.0 (24A437) sysdiagnose; the iOS 26 (23G71) sysdiagnose tested "
-                 "has no ContainerManager folder. Other versions are not checked.",
+                 "record. Observed on one iOS 27.0 (24A437) sysdiagnose: 1,738 containers with a directory, "
+                 "419 without, 1,799 registrations. That sysdiagnose is not part of the test data. The "
+                 "iOS 26 (23G71) sysdiagnose tested has no ContainerManager folder. Other versions are not "
+                 "checked.",
         "paths": (
             '*/ContainerManager/state.json',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "package",
         "sample_data": {
-            "ios27_0_24A437_sysdiag": "iOS 27.0 | 1738 rows",
             "hc_ios26_sysdiag": "iOS 26 (23G71) | 0 rows; the archive carries no ContainerManager folder",
         }
     },
@@ -64,15 +65,16 @@ __artifacts_v2__ = {
                  "value as stored. Host App is the parent identifier the file's childParentMap pairs with "
                  "the identifier; it is filled only for Data/PluginKitPlugin records. Generation is the "
                  "record's generation value read as an integer; its meaning is not established. Scope is the "
-                 "file's top-level key as stored. An empty result is not evidence that nothing was removed. Tested on one iOS "
-                 "27.0 (24A437) sysdiagnose only.",
+                 "file's top-level key as stored. An empty result is not evidence that nothing was removed. Observed on one iOS "
+                 "27.0 (24A437) sysdiagnose: 419 containers without a directory (1,738 with a directory, "
+                 "1,799 registrations). That sysdiagnose is not part of the test data. Other versions are "
+                 "not checked.",
         "paths": (
             '*/ContainerManager/state.json',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package-off",
         "sample_data": {
-            "ios27_0_24A437_sysdiag": "iOS 27.0 | 419 rows",
             "hc_ios26_sysdiag": "iOS 26 (23G71) | 0 rows; the archive carries no ContainerManager folder",
         }
     },
@@ -94,15 +96,16 @@ __artifacts_v2__ = {
                  "app is or was installed: it lists identifiers the daemon registered; in the tested "
                  "sysdiagnose these included extension and group identifiers. The entitlement values are "
                  "not copied; only the number of entitlement keys is reported. Scope is the file's top-level key as stored. An empty result is not "
-                 "evidence that nothing was registered. Tested on one "
-                 "iOS 27.0 (24A437) sysdiagnose only.",
+                 "evidence that nothing was registered. Observed on one "
+                 "iOS 27.0 (24A437) sysdiagnose: 1,799 registrations (1,738 containers with a directory, "
+                 "419 without). That sysdiagnose is not part of the test data. Other versions are not "
+                 "checked.",
         "paths": (
             '*/ContainerManager/state.json',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "certificate",
         "sample_data": {
-            "ios27_0_24A437_sysdiag": "iOS 27.0 | 1799 rows",
             "hc_ios26_sysdiag": "iOS 26 (23G71) | 0 rows; the archive carries no ContainerManager folder",
         }
     }

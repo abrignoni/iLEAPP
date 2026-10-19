@@ -1,0 +1,55 @@
+{
+  "case_synthetic": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated logs/ContainerManager/state.json (com.example.* identifiers, generated UUIDs and fixed dates) built by admin/test/scripts/synthetic_container_state.py in the ISO-8601 UTC string time format with milliseconds and a Z, packed in a sysdiagnose-shaped archive and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-19T11:52:45.875756",
+      "last_commit": {
+        "hash": "7137c142d8d1415fd50ea45b0cea8e87fad9c164",
+        "author_name": "Brigs",
+        "author_email": "abrignoni@gmail.com",
+        "date": "2026-10-18T14:45:06-04:00",
+        "message": "Container Manager State: stop guessing numeric time units, tighten notes"
+      }
+    },
+    "artifacts": {
+      "containerManagerState": {
+        "search_patterns": [
+          "*/ContainerManager/state.json",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "containerManagerStateNoDirectory": {
+        "search_patterns": [
+          "*/ContainerManager/state.json",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "containerManagerStateRegistrations": {
+        "search_patterns": [
+          "*/ContainerManager/state.json",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "27.0"
+  }
+}
