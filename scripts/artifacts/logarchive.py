@@ -1744,8 +1744,8 @@ __artifacts_v2__ = {
                  "keep the record's event type, so they are found by the first line of the message, "
                  "'title: TCC Authorization Cache'. The body is a JSON object of service name to a "
                  "credential and an authorization record, each a text description. Each entry becomes a "
-                 "row: Service is the JSON key, Credential Object and Authorization Object are the "
-                 "hexadecimal addresses in the two descriptions, Auth Right, Reason and Version are the "
+                 "row: Service is the JSON key, Credential Object Address and Authorization Object Address are the hexadecimal "
+                 "addresses in the two descriptions, Auth Right, Reason and Version are the "
                  "words and number after those labels, Other Flags is any text after the version, and "
                  "Authorization Record is the description as logged. Values are copied as logged and "
                  "this artifact assigns no meaning to them. In the logs read the two descriptions held "
@@ -1756,11 +1756,12 @@ __artifacts_v2__ = {
                  "and how an entry relates to the TCC.db access table are not established here. An entry "
                  "is the cache's content at the dump time, which is the record's time as stored, shown in "
                  "UTC. It does not say when the permission was granted, changed or used, and a match is a "
-                 "lead, not proof of consent. Repeated dumps repeat entries: the logs read held many "
-                 "dumps per process, so the same entry appears in many rows; the summary artifact "
+                 "lead, not proof of consent. Repeated dumps repeat entries: some processes wrote many dumps (up to 252 on "
+                 "ai16_ios26_sysdiag and 36 on hc_ios26_sysdiag, while about half wrote one), so the "
+                 "same entry can appear in many rows; the summary artifact "
                  "collapses them and is a labelled view over these rows. Entries In Dump is the number of "
-                 "entries the dump held, counted over all its services. A dump with no entries (an empty "
-                 "object) is collected but gives no row, and a dump whose body cannot be read as JSON "
+                 "entries the dump held, counted over all its services. A dump with no entries (an empty object, or a service whose credential object is "
+                 "empty) is collected but gives no row, and a dump whose body cannot be read as JSON "
                  "gives one row with the body in Authorization Record and every other field blank. An "
                  "empty result is not evidence that no permission was cached: only processes that wrote "
                  "a dump inside the log's window appear. Message shapes were read on iOS 26.6 and iOS "
@@ -1774,10 +1775,11 @@ __artifacts_v2__ = {
                  "Service Policy or None, Version 1 or 2, and Other Flags was blank except for 'Has "
                  "Prompted For Allow' on 4 rows on ai16_ios26_sysdiag. Most rows were "
                  "kTCCServiceAddressBook entries with Reason Entitled (381 of 542 and 230 of 278), "
-                 "nearly all written by processes outside app bundles. Both sysdiagnoses also held "
+                 "most written by processes outside app bundles (341 of 381 and 195 of 230) and "
+                 "nearly all of the rest by processes in system app bundles. Both sysdiagnoses also held "
                  "TCC.db, which the Application Permissions artifact reads; it names the client and "
                  "gives a last modified time, while these dumps give the writing process and the dump "
-                 "time. The dumps held Reason Entitled AddressBook entries for 42 processes on "
+                 "time. The dumps held Reason Entitled AddressBook entries for 42 distinct process image paths on "
                  "ai16_ios26_sysdiag and 38 on hc_ios26_sysdiag; TCC.db held AddressBook rows for 7 "
                  "clients on each. How the two sources relate "
                  "entry by entry is not established here. The test fixture is synthetic, with invented "
@@ -1844,23 +1846,25 @@ __artifacts_v2__ = {
                  "translated, and previousAuthorizationStatus is the field of that name, not the "
                  "authorization in force. The dump does not name the application or the location manager "
                  "it describes. The only attribution is Process Image Path and Process ID, the process "
-                 "that wrote the dump, as stored, and one process can hold several managers, so two rows "
-                 "with the same time and process can describe different managers. A row with "
+                 "that wrote the dump, as stored, Whether a dump describes one location manager or the whole process is not "
+                 "established here; on the two corpus images no two dumps shared a time, process and "
+                 "Process ID. A row with "
                  "updatingLocation true shows that state in the dump at that time. It is a lead; it does "
                  "not show that a position was obtained, stored or used, and the dump records no event "
-                 "between dumps. Repeated dumps repeat state: the logs read held many dumps per "
-                 "process, mostly with identical content, and the summary artifact collapses them. "
+                 "between dumps. Repeated dumps repeat state: some processes wrote many dumps (up to 1,764 on "
+                 "ai16_ios26_sysdiag and 174 on hc_ios26_sysdiag), most of them with content identical "
+                 "to an earlier dump, and the summary artifact collapses them. "
                  "Timestamp is the record time as stored, in UTC. An empty result is not evidence that no "
                  "process used location: only processes that wrote a dump inside the log's window "
                  "appear. Message shapes were read on iOS 26.6 and iOS 27.0 sysdiagnose logs natively "
                  "decoded with unifiedlog_iterator; the way these records appear in a 'log show' export "
                  "was not examined. Those images are not in the public corpus and no fixture from them is "
                  "committed. On ai16_ios26_sysdiag (iOS 26.5.2) and hc_ios26_sysdiag (iOS 26.6), read "
-                 "from tracev3 data, 2,174 and 514 dumps came from 55 and 44 processes. Every dump on "
+                 "from tracev3 data, 2,174 and 514 dumps came from 55 and 44 distinct process image paths. Every dump on "
                  "both held the 16 keys with columns and the same 12 others, which fill Other Fields on "
                  "every row, and no line that was not a key and value. Updating Location read true on 62 "
-                 "and 42 rows; 12 of the 62 on ai16_ios26_sysdiag were written by processes in "
-                 "third-party app bundles, and none of the 42 on hc_ios26_sysdiag. The test fixture is "
+                 "and 42 rows; 12 of the 62 on ai16_ios26_sysdiag were written by processes in app bundles under "
+                 "the user-installed application container, and none of the 42 on hc_ios26_sysdiag. The test fixture is "
                  "synthetic, with invented process paths, PIDs and values.",
         "paths": None,
         "output_types": "standard",
@@ -1884,11 +1888,9 @@ __artifacts_v2__ = {
                  "change log. Two rows for one process with different content mean that dumps held "
                  "different content, not when or why it changed. First Dump and Last Dump are the record "
                  "times, as stored, of the earliest and latest dump with exactly that content; Dumps is "
-                 "the number of dumps (distinct Row Number and time) with it. Because a process can hold "
-                 "several location managers and the dump does not name which one it describes, a row "
-                 "groups dumps by content, and dumps from different managers with equal content are "
-                 "merged. A process that restarted has a new Process ID and so a new row. Columns are the "
-                 "same as in the dumps artifact. An empty result is not evidence that no process used "
+                 "the number of dumps (distinct Row Number and time) with it. The dump does not name which location manager it describes, so a row groups dumps by "
+                 "content; if one process wrote dumps for more than one manager with equal content, "
+                 "they are merged. A process that restarted has a new Process ID and so a new row. The value columns are the same as in the dumps artifact. An empty result is not evidence that no process used "
                  "location. The test fixture is synthetic.",
         "paths": None,
         "output_types": "standard",
@@ -3391,7 +3393,7 @@ TCC_AUTH_RECORD = re.compile(
 
 TCC_CACHE_HEADERS = (
     ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
-    'Service (as logged)', 'Credential Object (as logged)', 'Authorization Object (as logged)',
+    'Service (as logged)', 'Credential Object Address', 'Authorization Object Address',
     'Auth Right (as logged)', 'Reason (as logged)', 'Version (as logged)',
     'Other Flags (as logged)', 'Entries In Dump', 'Authorization Record (as logged)')
 

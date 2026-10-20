@@ -112,8 +112,8 @@ class ChainTest(unittest.TestCase):
     def test_tcc_entry_fields(self):
         rows = self.rows(
             'logarchive_tcc_cache',
-            'row_number, process_image_path, process_id, service_as_logged, credential_object_as_logged, '
-            'authorization_object_as_logged, auth_right_as_logged, reason_as_logged, version_as_logged, '
+            'row_number, process_image_path, process_id, service_as_logged, credential_object_address, '
+            'authorization_object_address, auth_right_as_logged, reason_as_logged, version_as_logged, '
             'other_flags_as_logged, entries_in_dump')
         by_row = {}
         for row in rows:
@@ -141,7 +141,7 @@ class ChainTest(unittest.TestCase):
 
     def test_tcc_fallbacks_keep_the_text_and_leave_fields_blank(self):
         records = {int(row[0]): row[1:] for row in self.db.execute(
-            'SELECT row_number, service_as_logged, credential_object_as_logged, authorization_object_as_logged, '
+            'SELECT row_number, service_as_logged, credential_object_address, authorization_object_address, '
             'auth_right_as_logged, reason_as_logged, version_as_logged, other_flags_as_logged, '
             'entries_in_dump, authorization_record_as_logged FROM logarchive_tcc_cache')}
         # An authorization description in another layout.
