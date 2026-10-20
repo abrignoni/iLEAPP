@@ -9,16 +9,16 @@
     "total_data_size_bytes": 5777,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\batteryUISysdiagnose\\testdata.batteryUISysdiagnose.batteryUISysdiagnoseBuckets.case_synthetic_ios26.zip",
-    "start_time": "2026-10-20T05:55:48.737354+00:00",
-    "end_time": "2026-10-20T05:55:48.830670+00:00",
-    "run_time_seconds": 0.008521556854248047,
+    "input_zip_path": "admin/test/cases/data/batteryUISysdiagnose/testdata.batteryUISysdiagnose.batteryUISysdiagnoseBuckets.case_synthetic_ios26.zip",
+    "start_time": "2026-10-20T14:59:46.959911+00:00",
+    "end_time": "2026-10-20T14:59:47.053703+00:00",
+    "run_time_seconds": 0.006887197494506836,
     "last_commit": {
-      "hash": "3f77e2cf06049a5b8bc563822ced5c3f68eb219e",
+      "hash": "cef6e74dae9e6d30e82ca0c4c180ba480200d970",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T01:55:25-04:00",
-      "message": "BatteryUI: per-app runtime, buckets and upgrade marker from a sysdiagnose"
+      "date": "2026-10-20T10:52:07-04:00",
+      "message": "BatteryUI: real-structure test fixtures with identifiers replaced"
     }
   },
   "headers": [
@@ -40,8 +40,8 @@
   ],
   "data": [
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "DayKey",
       "",
@@ -54,11 +54,11 @@
       0,
       3,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790658000,
+      1799913600,
+      1799917200,
       3600.0,
       "DayTapKey",
       1,
@@ -71,11 +71,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790658000,
-      1790661600,
+      1799917200,
+      1799920800,
       3600.0,
       "DayTapKey",
       2,
@@ -88,11 +88,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790661600,
-      1790665200,
+      1799920800,
+      1799924400,
       3600.0,
       "DayTapKey",
       3,
@@ -105,11 +105,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790665200,
-      1790668800,
+      1799924400,
+      1799928000,
       3600.0,
       "DayTapKey",
       4,
@@ -122,11 +122,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790668800,
-      1790672400,
+      1799928000,
+      1799931600,
       3600.0,
       "DayTapKey",
       5,
@@ -139,11 +139,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790672400,
-      1790676000,
+      1799931600,
+      1799935200,
       3600.0,
       "DayTapKey",
       6,
@@ -156,11 +156,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790676000,
-      1790679600,
+      1799935200,
+      1799938800,
       3600.0,
       "DayTapKey",
       7,
@@ -173,11 +173,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790679600,
-      1790683200,
+      1799938800,
+      1799942400,
       3600.0,
       "DayTapKey",
       8,
@@ -190,11 +190,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790683200,
-      1790686800,
+      1799942400,
+      1799946000,
       3600.0,
       "DayTapKey",
       9,
@@ -207,11 +207,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790686800,
-      1790690400,
+      1799946000,
+      1799949600,
       3600.0,
       "DayTapKey",
       10,
@@ -224,11 +224,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790690400,
-      1790694000,
+      1799949600,
+      1799953200,
       3600.0,
       "DayTapKey",
       11,
@@ -241,11 +241,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790694000,
-      1790697600,
+      1799953200,
+      1799956800,
       3600.0,
       "DayTapKey",
       12,
@@ -258,11 +258,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790697600,
-      1790701200,
+      1799956800,
+      1799960400,
       3600.0,
       "DayTapKey",
       13,
@@ -275,11 +275,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790701200,
-      1790704800,
+      1799960400,
+      1799964000,
       3600.0,
       "DayTapKey",
       14,
@@ -292,11 +292,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790704800,
-      1790708400,
+      1799964000,
+      1799967600,
       3600.0,
       "DayTapKey",
       15,
@@ -309,11 +309,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790708400,
-      1790712000,
+      1799967600,
+      1799971200,
       3600.0,
       "DayTapKey",
       16,
@@ -326,11 +326,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790712000,
-      1790715600,
+      1799971200,
+      1799974800,
       3600.0,
       "DayTapKey",
       17,
@@ -343,11 +343,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790715600,
-      1790719200,
+      1799974800,
+      1799978400,
       3600.0,
       "DayTapKey",
       18,
@@ -360,11 +360,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790719200,
-      1790722800,
+      1799978400,
+      1799982000,
       3600.0,
       "DayTapKey",
       19,
@@ -377,11 +377,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790722800,
-      1790726400,
+      1799982000,
+      1799985600,
       3600.0,
       "DayTapKey",
       20,
@@ -394,11 +394,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790726400,
-      1790730000,
+      1799985600,
+      1799989200,
       3600.0,
       "DayTapKey",
       21,
@@ -411,11 +411,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790730000,
-      1790733600,
+      1799989200,
+      1799992800,
       3600.0,
       "DayTapKey",
       22,
@@ -428,11 +428,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790733600,
-      1790737200,
+      1799992800,
+      1799996400,
       3600.0,
       "DayTapKey",
       23,
@@ -445,11 +445,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790737200,
-      1790740800,
+      1799996400,
+      1800000000,
       3600.0,
       "DayTapKey",
       24,
@@ -462,11 +462,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1790740800,
+      1799136000,
+      1800000000,
       864000.0,
       "WeekKey",
       "",
@@ -479,11 +479,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1789963200,
+      1799136000,
+      1799222400,
       86400.0,
       "WeekTapKey",
       1,
@@ -496,11 +496,11 @@
       0,
       1,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789963200,
-      1790049600,
+      1799222400,
+      1799308800,
       86400.0,
       "WeekTapKey",
       2,
@@ -513,11 +513,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "WeekTapKey",
       3,
@@ -530,11 +530,11 @@
       0,
       3,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "WeekTapKey",
       4,
@@ -547,11 +547,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790222400,
-      1790308800,
+      1799481600,
+      1799568000,
       86400.0,
       "WeekTapKey",
       5,
@@ -564,11 +564,11 @@
       0,
       1,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790308800,
-      1790395200,
+      1799568000,
+      1799654400,
       86400.0,
       "WeekTapKey",
       6,
@@ -581,11 +581,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790395200,
-      1790481600,
+      1799654400,
+      1799740800,
       86400.0,
       "WeekTapKey",
       7,
@@ -598,11 +598,11 @@
       0,
       3,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790481600,
-      1790568000,
+      1799740800,
+      1799827200,
       86400.0,
       "WeekTapKey",
       8,
@@ -615,11 +615,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790568000,
-      1790654400,
+      1799827200,
+      1799913600,
       86400.0,
       "WeekTapKey",
       9,
@@ -632,11 +632,11 @@
       0,
       1,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "WeekTapKey",
       10,
@@ -649,7 +649,7 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ]
   ]
 }

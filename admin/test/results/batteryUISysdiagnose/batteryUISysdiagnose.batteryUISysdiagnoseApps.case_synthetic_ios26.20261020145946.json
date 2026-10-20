@@ -9,16 +9,16 @@
     "total_data_size_bytes": 11165,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\batteryUISysdiagnose\\testdata.batteryUISysdiagnose.batteryUISysdiagnoseApps.case_synthetic_ios26.zip",
-    "start_time": "2026-10-20T05:55:48.628378+00:00",
-    "end_time": "2026-10-20T05:55:48.733680+00:00",
-    "run_time_seconds": 0.00838923454284668,
+    "input_zip_path": "admin/test/cases/data/batteryUISysdiagnose/testdata.batteryUISysdiagnose.batteryUISysdiagnoseApps.case_synthetic_ios26.zip",
+    "start_time": "2026-10-20T14:59:46.831353+00:00",
+    "end_time": "2026-10-20T14:59:46.956223+00:00",
+    "run_time_seconds": 0.009020090103149414,
     "last_commit": {
-      "hash": "3f77e2cf06049a5b8bc563822ced5c3f68eb219e",
+      "hash": "cef6e74dae9e6d30e82ca0c4c180ba480200d970",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T01:55:25-04:00",
-      "message": "BatteryUI: per-app runtime, buckets and upgrade marker from a sysdiagnose"
+      "date": "2026-10-20T10:52:07-04:00",
+      "message": "BatteryUI: real-structure test fixtures with identifiers replaced"
     }
   },
   "headers": [
@@ -45,8 +45,8 @@
   ],
   "data": [
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "DayKey",
       "",
@@ -64,11 +64,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "DayKey",
       "",
@@ -86,11 +86,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "DayKey",
       "",
@@ -108,11 +108,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790658000,
-      1790661600,
+      1799917200,
+      1799920800,
       3600.0,
       "DayTapKey",
       2,
@@ -130,11 +130,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790658000,
-      1790661600,
+      1799917200,
+      1799920800,
       3600.0,
       "DayTapKey",
       2,
@@ -152,11 +152,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790661600,
-      1790665200,
+      1799920800,
+      1799924400,
       3600.0,
       "DayTapKey",
       3,
@@ -174,11 +174,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790661600,
-      1790665200,
+      1799920800,
+      1799924400,
       3600.0,
       "DayTapKey",
       3,
@@ -196,11 +196,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790661600,
-      1790665200,
+      1799920800,
+      1799924400,
       3600.0,
       "DayTapKey",
       3,
@@ -218,11 +218,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790661600,
-      1790665200,
+      1799920800,
+      1799924400,
       3600.0,
       "DayTapKey",
       3,
@@ -240,11 +240,11 @@
       "",
       "SynthCPU=17.0; SynthDRAM=6.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790668800,
-      1790672400,
+      1799928000,
+      1799931600,
       3600.0,
       "DayTapKey",
       5,
@@ -262,11 +262,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790668800,
-      1790672400,
+      1799928000,
+      1799931600,
       3600.0,
       "DayTapKey",
       5,
@@ -284,11 +284,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790672400,
-      1790676000,
+      1799931600,
+      1799935200,
       3600.0,
       "DayTapKey",
       6,
@@ -306,11 +306,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790672400,
-      1790676000,
+      1799931600,
+      1799935200,
       3600.0,
       "DayTapKey",
       6,
@@ -328,11 +328,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790672400,
-      1790676000,
+      1799931600,
+      1799935200,
       3600.0,
       "DayTapKey",
       6,
@@ -350,11 +350,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790672400,
-      1790676000,
+      1799931600,
+      1799935200,
       3600.0,
       "DayTapKey",
       6,
@@ -372,11 +372,11 @@
       "",
       "SynthCPU=17.0; SynthDRAM=6.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790679600,
-      1790683200,
+      1799938800,
+      1799942400,
       3600.0,
       "DayTapKey",
       8,
@@ -394,11 +394,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790679600,
-      1790683200,
+      1799938800,
+      1799942400,
       3600.0,
       "DayTapKey",
       8,
@@ -416,11 +416,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790683200,
-      1790686800,
+      1799942400,
+      1799946000,
       3600.0,
       "DayTapKey",
       9,
@@ -438,11 +438,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790683200,
-      1790686800,
+      1799942400,
+      1799946000,
       3600.0,
       "DayTapKey",
       9,
@@ -460,11 +460,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790683200,
-      1790686800,
+      1799942400,
+      1799946000,
       3600.0,
       "DayTapKey",
       9,
@@ -482,11 +482,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790683200,
-      1790686800,
+      1799942400,
+      1799946000,
       3600.0,
       "DayTapKey",
       9,
@@ -504,11 +504,11 @@
       "",
       "SynthCPU=17.0; SynthDRAM=6.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790690400,
-      1790694000,
+      1799949600,
+      1799953200,
       3600.0,
       "DayTapKey",
       11,
@@ -526,11 +526,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790690400,
-      1790694000,
+      1799949600,
+      1799953200,
       3600.0,
       "DayTapKey",
       11,
@@ -548,11 +548,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790694000,
-      1790697600,
+      1799953200,
+      1799956800,
       3600.0,
       "DayTapKey",
       12,
@@ -570,11 +570,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790694000,
-      1790697600,
+      1799953200,
+      1799956800,
       3600.0,
       "DayTapKey",
       12,
@@ -592,11 +592,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790694000,
-      1790697600,
+      1799953200,
+      1799956800,
       3600.0,
       "DayTapKey",
       12,
@@ -614,11 +614,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790694000,
-      1790697600,
+      1799953200,
+      1799956800,
       3600.0,
       "DayTapKey",
       12,
@@ -636,11 +636,11 @@
       "",
       "SynthCPU=17.0; SynthDRAM=6.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1790740800,
+      1799136000,
+      1800000000,
       864000.0,
       "WeekKey",
       "",
@@ -658,11 +658,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1790740800,
+      1799136000,
+      1800000000,
       864000.0,
       "WeekKey",
       "",
@@ -680,11 +680,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1790740800,
+      1799136000,
+      1800000000,
       864000.0,
       "WeekKey",
       "",
@@ -702,11 +702,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1790740800,
+      1799136000,
+      1800000000,
       864000.0,
       "WeekKey",
       "",
@@ -724,11 +724,11 @@
       "",
       "SynthCPU=17.0; SynthDRAM=6.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1789963200,
+      1799136000,
+      1799222400,
       86400.0,
       "WeekTapKey",
       1,
@@ -746,11 +746,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789963200,
-      1790049600,
+      1799222400,
+      1799308800,
       86400.0,
       "WeekTapKey",
       2,
@@ -768,11 +768,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789963200,
-      1790049600,
+      1799222400,
+      1799308800,
       86400.0,
       "WeekTapKey",
       2,
@@ -790,11 +790,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "WeekTapKey",
       3,
@@ -812,11 +812,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "WeekTapKey",
       3,
@@ -834,11 +834,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "WeekTapKey",
       3,
@@ -856,11 +856,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "WeekTapKey",
       4,
@@ -878,11 +878,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "WeekTapKey",
       4,
@@ -900,11 +900,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "WeekTapKey",
       4,
@@ -922,11 +922,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "WeekTapKey",
       4,
@@ -944,11 +944,11 @@
       "",
       "SynthCPU=17.0; SynthDRAM=6.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790222400,
-      1790308800,
+      1799481600,
+      1799568000,
       86400.0,
       "WeekTapKey",
       5,
@@ -966,11 +966,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790308800,
-      1790395200,
+      1799568000,
+      1799654400,
       86400.0,
       "WeekTapKey",
       6,
@@ -988,11 +988,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790308800,
-      1790395200,
+      1799568000,
+      1799654400,
       86400.0,
       "WeekTapKey",
       6,
@@ -1010,11 +1010,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790395200,
-      1790481600,
+      1799654400,
+      1799740800,
       86400.0,
       "WeekTapKey",
       7,
@@ -1032,11 +1032,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790395200,
-      1790481600,
+      1799654400,
+      1799740800,
       86400.0,
       "WeekTapKey",
       7,
@@ -1054,11 +1054,11 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790395200,
-      1790481600,
+      1799654400,
+      1799740800,
       86400.0,
       "WeekTapKey",
       7,
@@ -1076,11 +1076,11 @@
       "",
       "SynthCPU=12.75; SynthDRAM=4.5; SynthWidgetCounts={\"a\": 1, \"b\": 2}",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790568000,
-      1790654400,
+      1799827200,
+      1799913600,
       86400.0,
       "WeekTapKey",
       9,
@@ -1098,11 +1098,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "WeekTapKey",
       10,
@@ -1120,11 +1120,11 @@
       "",
       "SynthCPU=4.25; SynthDRAM=1.5",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "WeekTapKey",
       10,
@@ -1142,7 +1142,7 @@
       "2, 7",
       "SynthCPU=8.5; SynthDRAM=3.0",
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ]
   ]
 }

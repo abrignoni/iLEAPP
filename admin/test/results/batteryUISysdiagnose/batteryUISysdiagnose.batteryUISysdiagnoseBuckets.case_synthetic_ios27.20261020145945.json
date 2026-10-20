@@ -9,16 +9,16 @@
     "total_data_size_bytes": 12190,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\batteryUISysdiagnose\\testdata.batteryUISysdiagnose.batteryUISysdiagnoseBuckets.case_synthetic_ios27.zip",
-    "start_time": "2026-10-20T05:55:48.399417+00:00",
-    "end_time": "2026-10-20T05:55:48.506156+00:00",
-    "run_time_seconds": 0.011542797088623047,
+    "input_zip_path": "admin/test/cases/data/batteryUISysdiagnose/testdata.batteryUISysdiagnose.batteryUISysdiagnoseBuckets.case_synthetic_ios27.zip",
+    "start_time": "2026-10-20T14:59:45.888434+00:00",
+    "end_time": "2026-10-20T14:59:45.990599+00:00",
+    "run_time_seconds": 0.00923013687133789,
     "last_commit": {
-      "hash": "3f77e2cf06049a5b8bc563822ced5c3f68eb219e",
+      "hash": "cef6e74dae9e6d30e82ca0c4c180ba480200d970",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T01:55:25-04:00",
-      "message": "BatteryUI: per-app runtime, buckets and upgrade marker from a sysdiagnose"
+      "date": "2026-10-20T10:52:07-04:00",
+      "message": "BatteryUI: real-structure test fixtures with identifiers replaced"
     }
   },
   "headers": [
@@ -40,8 +40,8 @@
   ],
   "data": [
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "DayKey",
       "",
@@ -54,11 +54,11 @@
       0,
       3,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1788667200,
-      1788753600,
+      1797926400,
+      1798012800,
       86400.0,
       "DayTapKey",
       1,
@@ -71,11 +71,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1788753600,
-      1788840000,
+      1798012800,
+      1798099200,
       86400.0,
       "DayTapKey",
       2,
@@ -88,11 +88,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1788840000,
-      1788926400,
+      1798099200,
+      1798185600,
       86400.0,
       "DayTapKey",
       3,
@@ -105,11 +105,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1788926400,
-      1789012800,
+      1798185600,
+      1798272000,
       86400.0,
       "DayTapKey",
       4,
@@ -122,11 +122,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789012800,
-      1789099200,
+      1798272000,
+      1798358400,
       86400.0,
       "DayTapKey",
       5,
@@ -139,11 +139,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789099200,
-      1789185600,
+      1798358400,
+      1798444800,
       86400.0,
       "DayTapKey",
       6,
@@ -156,11 +156,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789185600,
-      1789272000,
+      1798444800,
+      1798531200,
       86400.0,
       "DayTapKey",
       7,
@@ -173,11 +173,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789272000,
-      1789358400,
+      1798531200,
+      1798617600,
       86400.0,
       "DayTapKey",
       8,
@@ -190,11 +190,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789358400,
-      1789444800,
+      1798617600,
+      1798704000,
       86400.0,
       "DayTapKey",
       9,
@@ -207,11 +207,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789444800,
-      1789531200,
+      1798704000,
+      1798790400,
       86400.0,
       "DayTapKey",
       10,
@@ -224,11 +224,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789531200,
-      1789617600,
+      1798790400,
+      1798876800,
       86400.0,
       "DayTapKey",
       11,
@@ -241,11 +241,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789617600,
-      1789704000,
+      1798876800,
+      1798963200,
       86400.0,
       "DayTapKey",
       12,
@@ -258,11 +258,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789704000,
-      1789790400,
+      1798963200,
+      1799049600,
       86400.0,
       "DayTapKey",
       13,
@@ -275,11 +275,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789790400,
-      1789876800,
+      1799049600,
+      1799136000,
       86400.0,
       "DayTapKey",
       14,
@@ -292,11 +292,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1789963200,
+      1799136000,
+      1799222400,
       86400.0,
       "DayTapKey",
       15,
@@ -309,11 +309,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789963200,
-      1790049600,
+      1799222400,
+      1799308800,
       86400.0,
       "DayTapKey",
       16,
@@ -326,11 +326,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "DayTapKey",
       17,
@@ -343,11 +343,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "DayTapKey",
       18,
@@ -360,11 +360,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790222400,
-      1790308800,
+      1799481600,
+      1799568000,
       86400.0,
       "DayTapKey",
       19,
@@ -377,11 +377,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790308800,
-      1790395200,
+      1799568000,
+      1799654400,
       86400.0,
       "DayTapKey",
       20,
@@ -394,11 +394,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790395200,
-      1790481600,
+      1799654400,
+      1799740800,
       86400.0,
       "DayTapKey",
       21,
@@ -411,11 +411,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790481600,
-      1790568000,
+      1799740800,
+      1799827200,
       86400.0,
       "DayTapKey",
       22,
@@ -428,11 +428,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790568000,
-      1790654400,
+      1799827200,
+      1799913600,
       86400.0,
       "DayTapKey",
       23,
@@ -445,11 +445,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "DayTapKey",
       24,
@@ -462,11 +462,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "WeekKey",
       "",
@@ -479,11 +479,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789876800,
-      1789963200,
+      1799136000,
+      1799222400,
       86400.0,
       "WeekTapKey",
       1,
@@ -496,11 +496,11 @@
       0,
       1,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1789963200,
-      1790049600,
+      1799222400,
+      1799308800,
       86400.0,
       "WeekTapKey",
       2,
@@ -513,11 +513,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "WeekTapKey",
       3,
@@ -530,11 +530,11 @@
       0,
       3,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "WeekTapKey",
       4,
@@ -547,11 +547,11 @@
       0,
       4,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790222400,
-      1790308800,
+      1799481600,
+      1799568000,
       86400.0,
       "WeekTapKey",
       5,
@@ -564,11 +564,11 @@
       0,
       1,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790308800,
-      1790395200,
+      1799568000,
+      1799654400,
       86400.0,
       "WeekTapKey",
       6,
@@ -581,11 +581,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790395200,
-      1790481600,
+      1799654400,
+      1799740800,
       86400.0,
       "WeekTapKey",
       7,
@@ -598,11 +598,11 @@
       0,
       3,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790481600,
-      1790568000,
+      1799740800,
+      1799827200,
       86400.0,
       "WeekTapKey",
       8,
@@ -615,11 +615,11 @@
       1,
       0,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790568000,
-      1790654400,
+      1799827200,
+      1799913600,
       86400.0,
       "WeekTapKey",
       9,
@@ -632,11 +632,11 @@
       0,
       1,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "WeekTapKey",
       10,
@@ -649,11 +649,11 @@
       0,
       2,
       "Main file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUISysdiagnose.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
     ],
     [
-      1790222400,
-      1790308800,
+      1799481600,
+      1799568000,
       86400.0,
       "DayKey",
       "",
@@ -666,11 +666,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788235200,
-      1788321600,
+      1797494400,
+      1797580800,
       86400.0,
       "DayTapKey",
       1,
@@ -683,11 +683,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788321600,
-      1788408000,
+      1797580800,
+      1797667200,
       86400.0,
       "DayTapKey",
       2,
@@ -700,11 +700,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788408000,
-      1788494400,
+      1797667200,
+      1797753600,
       86400.0,
       "DayTapKey",
       3,
@@ -717,11 +717,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788494400,
-      1788580800,
+      1797753600,
+      1797840000,
       86400.0,
       "DayTapKey",
       4,
@@ -734,11 +734,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788580800,
-      1788667200,
+      1797840000,
+      1797926400,
       86400.0,
       "DayTapKey",
       5,
@@ -751,11 +751,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788667200,
-      1788753600,
+      1797926400,
+      1798012800,
       86400.0,
       "DayTapKey",
       6,
@@ -768,11 +768,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788753600,
-      1788840000,
+      1798012800,
+      1798099200,
       86400.0,
       "DayTapKey",
       7,
@@ -785,11 +785,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788840000,
-      1788926400,
+      1798099200,
+      1798185600,
       86400.0,
       "DayTapKey",
       8,
@@ -802,11 +802,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1788926400,
-      1789012800,
+      1798185600,
+      1798272000,
       86400.0,
       "DayTapKey",
       9,
@@ -819,11 +819,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789012800,
-      1789099200,
+      1798272000,
+      1798358400,
       86400.0,
       "DayTapKey",
       10,
@@ -836,11 +836,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789099200,
-      1789185600,
+      1798358400,
+      1798444800,
       86400.0,
       "DayTapKey",
       11,
@@ -853,11 +853,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789185600,
-      1789272000,
+      1798444800,
+      1798531200,
       86400.0,
       "DayTapKey",
       12,
@@ -870,11 +870,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789272000,
-      1789358400,
+      1798531200,
+      1798617600,
       86400.0,
       "DayTapKey",
       13,
@@ -887,11 +887,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789358400,
-      1789444800,
+      1798617600,
+      1798704000,
       86400.0,
       "DayTapKey",
       14,
@@ -904,11 +904,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789444800,
-      1789531200,
+      1798704000,
+      1798790400,
       86400.0,
       "DayTapKey",
       15,
@@ -921,11 +921,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789531200,
-      1789617600,
+      1798790400,
+      1798876800,
       86400.0,
       "DayTapKey",
       16,
@@ -938,11 +938,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789617600,
-      1789704000,
+      1798876800,
+      1798963200,
       86400.0,
       "DayTapKey",
       17,
@@ -955,11 +955,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789704000,
-      1789790400,
+      1798963200,
+      1799049600,
       86400.0,
       "DayTapKey",
       18,
@@ -972,11 +972,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789790400,
-      1789876800,
+      1799049600,
+      1799136000,
       86400.0,
       "DayTapKey",
       19,
@@ -989,11 +989,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789876800,
-      1789963200,
+      1799136000,
+      1799222400,
       86400.0,
       "DayTapKey",
       20,
@@ -1006,11 +1006,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789963200,
-      1790049600,
+      1799222400,
+      1799308800,
       86400.0,
       "DayTapKey",
       21,
@@ -1023,11 +1023,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "DayTapKey",
       22,
@@ -1040,11 +1040,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "DayTapKey",
       23,
@@ -1057,11 +1057,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790222400,
-      1790308800,
+      1799481600,
+      1799568000,
       86400.0,
       "DayTapKey",
       24,
@@ -1074,11 +1074,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "WeekKey",
       "",
@@ -1091,11 +1091,11 @@
       0,
       4,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789876800,
-      1789963200,
+      1799136000,
+      1799222400,
       86400.0,
       "WeekTapKey",
       1,
@@ -1108,11 +1108,11 @@
       0,
       1,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1789963200,
-      1790049600,
+      1799222400,
+      1799308800,
       86400.0,
       "WeekTapKey",
       2,
@@ -1125,11 +1125,11 @@
       0,
       2,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790049600,
-      1790136000,
+      1799308800,
+      1799395200,
       86400.0,
       "WeekTapKey",
       3,
@@ -1142,11 +1142,11 @@
       0,
       3,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790136000,
-      1790222400,
+      1799395200,
+      1799481600,
       86400.0,
       "WeekTapKey",
       4,
@@ -1159,11 +1159,11 @@
       0,
       4,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790222400,
-      1790308800,
+      1799481600,
+      1799568000,
       86400.0,
       "WeekTapKey",
       5,
@@ -1176,11 +1176,11 @@
       0,
       1,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790308800,
-      1790395200,
+      1799568000,
+      1799654400,
       86400.0,
       "WeekTapKey",
       6,
@@ -1193,11 +1193,11 @@
       0,
       2,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790395200,
-      1790481600,
+      1799654400,
+      1799740800,
       86400.0,
       "WeekTapKey",
       7,
@@ -1210,11 +1210,11 @@
       0,
       3,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790481600,
-      1790568000,
+      1799740800,
+      1799827200,
       86400.0,
       "WeekTapKey",
       8,
@@ -1227,11 +1227,11 @@
       1,
       0,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790568000,
-      1790654400,
+      1799827200,
+      1799913600,
       86400.0,
       "WeekTapKey",
       9,
@@ -1244,11 +1244,11 @@
       0,
       1,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ],
     [
-      1790654400,
-      1790740800,
+      1799913600,
+      1800000000,
       86400.0,
       "WeekTapKey",
       10,
@@ -1261,7 +1261,7 @@
       0,
       2,
       "Upgrade file",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\BatteryUIPlist\\BatteryUIUpgrade_00A001_00B002.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
     ]
   ]
 }

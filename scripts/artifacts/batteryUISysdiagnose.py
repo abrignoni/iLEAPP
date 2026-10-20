@@ -48,14 +48,18 @@ __artifacts_v2__ = {
                  "buckets are kept for a limited window; the file does not describe it, and an empty result "
                  "is not evidence of no activity. Observed on one iOS 27.0 (24A437) sysdiagnose: 699 rows in "
                  "72 buckets from 2 files, and on one iOS 26.6 (23G71) sysdiagnose: 272 rows in 36 buckets from "
-                 "1 file. Neither sysdiagnose is shareable, so the test cases hold a generated synthetic copy "
-                 "of each shape.",
+                 "1 file. Neither sysdiagnose is shareable as it is; the test cases hold a copy of each with the "
+                 "identifying values replaced (case_ios27_sanitized, case_ios26_sanitized) and a generated "
+                 "synthetic copy of each shape.",
         "paths": (
             '*/logs/BatteryUIPlist/BatteryUI*.plist',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
-        "sample_data": {}
+        "sample_data": {
+            "case_ios27_sanitized": "iOS 27.0 (24A437) | 699 rows; real structure, identifiers replaced",
+            "case_ios26_sanitized": "iOS 26.6 (23G71) | 272 rows; real structure, identifiers replaced",
+        }
     },
     "batteryUISysdiagnoseBuckets": {
         "name": "Battery UI - Time Buckets",
@@ -85,7 +89,10 @@ __artifacts_v2__ = {
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "chart-bar",
-        "sample_data": {}
+        "sample_data": {
+            "case_ios27_sanitized": "iOS 27.0 (24A437) | 72 rows; real structure, identifiers replaced",
+            "case_ios26_sanitized": "iOS 26.6 (23G71) | 36 rows; real structure, identifiers replaced",
+        }
     },
     "batteryUISysdiagnoseSnapshots": {
         "name": "Battery UI - Snapshots and Upgrade Marker",
@@ -117,7 +124,10 @@ __artifacts_v2__ = {
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
-        "sample_data": {}
+        "sample_data": {
+            "case_ios27_sanitized": "iOS 27.0 (24A437) | 2 rows; real structure, identifiers replaced",
+            "case_ios26_sanitized": "iOS 26.6 (23G71) | 1 row; real structure, identifiers replaced",
+        }
     }
 }
 

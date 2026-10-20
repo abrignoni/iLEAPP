@@ -21,7 +21,7 @@ import tarfile
 
 DAY = 86400.0
 HOUR = 3600.0
-QUERY_TIME = 1790740800.0                     # 2026-09-30 04:00:00 UTC
+QUERY_TIME = 1800000000.0                     # 2027-01-15 08:00:00 UTC (fictitious)
 BUILDS = {"hourly": "23G71", "stretched": "24A437"}
 UPGRADE_NAME = "BatteryUIUpgrade_00A001_00B002.plist"
 APPS = ("com.example.alpha", "com.example.beta", "com.example.gamma", "Flashlight")
@@ -157,7 +157,7 @@ def write_archive(path, variant, with_upgrade=True, with_noise=True):
         for name in sorted(files):
             info = tarfile.TarInfo(name)
             info.size = len(files[name])
-            info.mtime = 1790708400
+            info.mtime = 1799970000
             tar.addfile(info, io.BytesIO(files[name]))
     return path
 
