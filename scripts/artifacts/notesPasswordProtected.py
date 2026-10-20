@@ -51,8 +51,42 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 19 rows (16-byte keys)",
             "hc_ios18_7": "iOS 18.7.8 | 9 rows (16-byte keys)",
         }
+    },
+    "notesEncryptionKeys": {
+        "name": "Notes - Encryption Keys (John the Ripper)",
+        "description": "The PBKDF2 salt, iteration count and wrapped key held against each locked "
+                       "Apple Notes record, assembled into the hash string that hashcat (-m 16200, "
+                       "Apple Secure Notes) consumes.",
+        "author": "@Rugikex",
+        "creation_date": "2026-10-20",
+        "last_update_date": "2026-10-20",
+        "requirements": "none",
+        "category": "Notes",
+        "notes": "Each ZICCLOUDSYNCINGOBJECT row that carries Notes key material becomes one "
+                 "hashcat/John hash string, reproducing the field order of John the Ripper's "
+                 "run/applenotes2john.py: $ASN$*<Z_PK>*<ZCRYPTOITERATIONCOUNT>*<ZCRYPTOSALT hex>*"
+                 "<ZCRYPTOWRAPPEDKEY hex>, falling back to ZCRYPTOVERIFIER when ZCRYPTOWRAPPEDKEY "
+                 "is NULL. A row is skipped when the iteration count is zero or missing, or when "
+                 "neither a wrapped key nor a verifier is stored. "
+                 "Unlike the Notes - Password Protected artifact this does NOT filter on "
+                 "ZISPASSWORDPROTECTED: an account-wide ('universal') Notes password is stored on "
+                 "the account record (entity ICAccount), and applenotes2john.py's own comment "
+                 "records that ZISPASSWORDPROTECTED can be 0 there while the iteration count is "
+                 "non-zero, so filtering on that flag drops the account hash. The Entity column is "
+                 "resolved from each row's Z_ENT through the Core Data Z_PRIMARYKEY table "
+                 "(Z_ENT and Z_NAME); an ICAccount hash recovers one password that unlocks every "
+                 "note secured with it, an ICNote hash recovers a single note's password. "
+                 "To crack, save a hash string to a file and run "
+                 "'hashcat -m 16200 -a 0 <file> <wordlist>' "
+                 "Reference: John The Ripper's repository, "
+                 "https://github.com/openwall/john/blob/bleeding-jumbo/run/applenotes2john.py",
+        "paths": ('*/NoteStore.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "key",
     }
 }
+
+import binascii
 
 from scripts.ilapfuncs import (artifact_processor, convert_cocoa_core_data_ts_to_utc,
                                does_table_exist_in_db, get_sqlite_db_records, logfunc)
@@ -161,5 +195,105 @@ def notesPasswordProtected(context):
         recoverable = sum(1 for row in data_list if row[7].startswith('Recoverable'))
         logfunc(f'Notes: {len(data_list)} password-protected note(s), '
                 f'{recoverable} in the recoverable scheme')
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+
+
+def _entity_names(file_found):
+    """Map Core Data Z_ENT integers to entity names via Z_PRIMARYKEY.
+
+    ZICCLOUDSYNCINGOBJECT holds several entities in one table (Core Data
+    single-table inheritance); Z_ENT says which one a row is. Z_PRIMARYKEY names
+    them, which is how an account record (ICAccount, the account-wide password)
+    is told apart from a note record (ICNote, a single note's password). An
+    empty mapping when the table is absent leaves rows labelled by raw Z_ENT.
+    """
+    return {row[0]: row[1] for row in get_sqlite_db_records(
+        file_found, 'SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY')}
+
+
+def _asn_hash(z_pk, iterations, salt_blob, key_blob):
+    """Assemble the hashcat/John ``$ASN$`` string body for one record.
+
+    Reproduces the field order of John the Ripper's applenotes2john.py:
+    ``$ASN$*<Z_PK>*<iterations>*<salt hex>*<key hex>``. Returns '' when the salt
+    or key bytes are missing, since the hash cannot be built without them.
+    """
+    if not iterations or salt_blob is None or key_blob is None:
+        return ''
+    salt_hex = binascii.hexlify(salt_blob).decode('ascii')
+    key_hex = binascii.hexlify(key_blob).decode('ascii')
+    return f'$ASN$*{z_pk}*{iterations}*{salt_hex}*{key_hex}'
+
+
+@artifact_processor
+def notesEncryptionKeys(context):
+    data_headers = (
+        'Entity', 'Record ID', 'Password Protected Flag', 'Password Hint',
+        'KDF Iterations', 'Wrapped Key Bytes', 'Salt (hex)',
+        'Wrapped Key / Verifier (hex)', 'Hash Source Column',
+        'hashcat/John Hash String ($ASN$, -m 16200)')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('.sqlite'):
+            continue
+        if not does_table_exist_in_db(file_found, TABLE):
+            continue
+
+        columns = _existing_columns(file_found)
+        wrapped = _first_present(columns, 'ZCRYPTOWRAPPEDKEY')
+        verifier = _first_present(columns, 'ZCRYPTOVERIFIER')
+        salt = _first_present(columns, 'ZCRYPTOSALT')
+        iterations = _first_present(columns, 'ZCRYPTOITERATIONCOUNT')
+        if wrapped == 'NULL' and verifier == 'NULL':
+            continue  # schema predates encrypted notes; no key material to export
+        if salt == 'NULL' or iterations == 'NULL':
+            continue  # a hash needs both the salt and the iteration count
+
+        hint = _first_present(columns, 'ZPASSWORDHINT')
+        protected = _first_present(columns, 'ZISPASSWORDPROTECTED')
+        entity_names = _entity_names(file_found)
+
+        # No ZISPASSWORDPROTECTED filter: the account-wide key lives on the
+        # ICAccount row, which can carry a non-zero iteration count while its
+        # ZISPASSWORDPROTECTED flag is 0 (see applenotes2john.py).
+        query = f'''
+            SELECT Z_PK, Z_ENT, {protected}, {hint}, {iterations},
+                   {salt}, {wrapped}, {verifier}
+            FROM {TABLE}
+            WHERE {iterations} > 0
+              AND ({wrapped} IS NOT NULL OR {verifier} IS NOT NULL)
+            ORDER BY Z_ENT, Z_PK
+        '''
+        rows = list(get_sqlite_db_records(file_found, query))
+        if not rows:
+            continue
+
+        for (z_pk, z_ent, is_protected, note_hint, iters,
+             salt_blob, wrapped_blob, verifier_blob) in rows:
+            key_blob = wrapped_blob if wrapped_blob is not None else verifier_blob
+            source_col = ('ZCRYPTOWRAPPEDKEY' if wrapped_blob is not None
+                          else 'ZCRYPTOVERIFIER')
+            data_list.append((
+                entity_names.get(z_ent, f'Z_ENT {z_ent}'),
+                z_pk,
+                is_protected if is_protected is not None else '',
+                note_hint or '',
+                iters,
+                len(key_blob) if key_blob is not None else '',
+                binascii.hexlify(salt_blob).decode('ascii') if salt_blob is not None else '',
+                binascii.hexlify(key_blob).decode('ascii') if key_blob is not None else '',
+                source_col,
+                _asn_hash(z_pk, iters, salt_blob, key_blob)))
+
+        sources.append(context.get_relative_path(file_found))
+
+    if data_list:
+        accounts = sum(1 for row in data_list if row[0] == 'ICAccount')
+        logfunc(f'Notes: {len(data_list)} encryption-key hash(es) built, '
+                f'{accounts} on account records')
 
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
