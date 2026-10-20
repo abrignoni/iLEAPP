@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "batteryUISysdiagnose",
+    "artifact_name": "Battery UI - Snapshots and Upgrade Marker",
+    "function_name": "batteryUISysdiagnoseSnapshots",
+    "case_number": "case_ios26_sanitized",
+    "number_of_columns": 13,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 194,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/batteryUISysdiagnose/testdata.batteryUISysdiagnose.batteryUISysdiagnoseSnapshots.case_ios26_sanitized.zip",
+    "start_time": "2026-10-20T14:36:42.890799+00:00",
+    "end_time": "2026-10-20T14:36:42.997337+00:00",
+    "run_time_seconds": 0.014055967330932617,
+    "last_commit": {
+      "hash": "59b6740a4b32dec7f645b9165f656a359b008d2a",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-20T01:59:02-04:00",
+      "message": "BatteryUI: notes limit the midnight observation to the main file"
+    }
+  },
+  "headers": [
+    "Query Time (UTC)",
+    "Last Charge Time (UTC)",
+    "File Kind",
+    "Old Build (from file name)",
+    "New Build (from file name)",
+    "Last Charge Level (as stored)",
+    "Paused Charging State (as stored)",
+    "Paused Charging Percentage (as stored)",
+    "Data Duration (as stored)",
+    "XPC Version (as stored)",
+    "Range Entries",
+    "Notes",
+    "Source File"
+  ],
+  "data": [
+    [
+      1816056000,
+      1815975625,
+      "Main file",
+      "",
+      "",
+      100,
+      203,
+      100,
+      1036800.0,
+      1.0,
+      "DayKey, DayTapKey, WeekKey, WeekTapKey",
+      "",
+      "sysdiagnose_2027.07.19_10-18-09-0400_iPhone-OS_iPhone_23G71/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
+    ]
+  ]
+}
