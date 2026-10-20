@@ -182,7 +182,7 @@ def write_archive(path, variant, extra=None, with_noise=True):
         for name in sorted(files):
             info = tarfile.TarInfo(name)
             info.size = len(files[name])
-            info.mtime = 1790708400
+            info.mtime = 1799970000
             tar.addfile(info, io.BytesIO(files[name]))
     return path
 

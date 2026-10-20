@@ -189,7 +189,7 @@ class ManagedSettingsTest(unittest.TestCase):
 
     def test_sysdiagnose_archive_and_extracted_folder_give_the_same_rows(self):
         with tempfile.TemporaryDirectory() as folder:
-            archive = Path(folder) / 'sysdiagnose_2026.09.29_19-00-00-0400_iPhone-OS_iPhone_24A437.tar.gz'
+            archive = Path(folder) / 'sysdiagnose_2027.01.14_19-00-00-0500_iPhone-OS_iPhone_24A437.tar.gz'
             SYNTH.write_archive(archive, 'ios27', SYNTH.edge_files())
             _, from_archive, source = _run(module.managedSettings, [archive])
             _, stores_archive, _ = _run(module.managedSettingsStores, [archive])

@@ -5,13 +5,13 @@
     "make_data": {
       "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437.tar.gz",
       "os": "Windows-10-10.0.19045-SP0",
-      "timestamp": "2026-10-20T01:54:51.918008",
+      "timestamp": "2026-10-20T10:59:34.640318",
       "last_commit": {
-        "hash": "3663215fc134b8615afa3de60b6f46ee02e19147",
+        "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
         "author_name": "danjethh",
         "author_email": "danjethh@gmail.com",
-        "date": "2026-10-20T01:54:23-04:00",
-        "message": "ManagedSettings: Screen Time / Family Controls settings stores from a sysdiagnose"
+        "date": "2026-10-20T10:52:06-04:00",
+        "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
       }
     },
     "artifacts": {
@@ -47,13 +47,13 @@
     "make_data": {
       "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71.tar.gz",
       "os": "Windows-10-10.0.19045-SP0",
-      "timestamp": "2026-10-20T01:55:02.405897",
+      "timestamp": "2026-10-20T10:59:35.648100",
       "last_commit": {
-        "hash": "3663215fc134b8615afa3de60b6f46ee02e19147",
+        "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
         "author_name": "danjethh",
         "author_email": "danjethh@gmail.com",
-        "date": "2026-10-20T01:54:23-04:00",
-        "message": "ManagedSettings: Screen Time / Family Controls settings stores from a sysdiagnose"
+        "date": "2026-10-20T10:52:06-04:00",
+        "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
       }
     },
     "artifacts": {
@@ -74,6 +74,90 @@
           "*/sysdiagnose_*.tar.gz"
         ],
         "file_count": 27,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.6"
+  },
+  "case_ios27_sanitized": {
+    "description": "Real iOS 27.0 (24A437) logs/ManagedSettings files from a sysdiagnose with every identifying value replaced: store and record UUIDs and the token key bytes are generated replacements, and the file times are shifted by one constant offset. Structure, key names, counts and order are as the device wrote them. Packed in a sysdiagnose-shaped archive and cut with make_test_data.py; the replacement mapping is not part of the repository.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_sanitized_iPhone-OS_iPhone_24A437.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T10:36:05.794553",
+      "last_commit": {
+        "hash": "59818bf7c4ab3481ce43bc91a87ac9ab9e248312",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T01:59:01-04:00",
+        "message": "ManagedSettings: notes name the Items column"
+      }
+    },
+    "artifacts": {
+      "managedSettings": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 26,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "managedSettingsStores": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 26,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "27.0"
+  },
+  "case_ios26_sanitized": {
+    "description": "Real iOS 26.6 (23G71) logs/ManagedSettings files from a sysdiagnose with every identifying value replaced: store and record UUIDs and the token key bytes are generated replacements, and the file times are shifted by one constant offset. Structure, key names, counts and order are as the device wrote them. Packed in a sysdiagnose-shaped archive and cut with make_test_data.py; the replacement mapping is not part of the repository.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_sanitized_iPhone-OS_iPhone_23G71.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T10:36:06.628877",
+      "last_commit": {
+        "hash": "59818bf7c4ab3481ce43bc91a87ac9ab9e248312",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T01:59:01-04:00",
+        "message": "ManagedSettings: notes name the Items column"
+      }
+    },
+    "artifacts": {
+      "managedSettings": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 16,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "managedSettingsStores": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 16,
         "expected_output": {
           "headers": [],
           "data": []

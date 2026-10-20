@@ -43,13 +43,17 @@ __artifacts_v2__ = {
                  "lists (9 store files, 3 clientEffectiveSettings files and the EffectiveSettings file), and "
                  "on one iOS 26.6 (23G71) sysdiagnose: 21 rows from 12 property lists (7 store files, 4 "
                  "clientEffectiveSettings files and the EffectiveSettings file). Neither sysdiagnose is "
-                 "shareable, so the test cases hold a generated synthetic copy of each shape.",
+                 "shareable as it is; the test cases hold a copy of each with the identifying values replaced "
+                 "(case_ios27_sanitized, case_ios26_sanitized) and a generated synthetic copy of each shape.",
         "paths": (
             '*/logs/ManagedSettings/*.plist',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "device-mobile-cog",
-        "sample_data": {}
+        "sample_data": {
+            "case_ios27_sanitized": "iOS 27.0 (24A437) | 73 rows; real structure, identifiers replaced",
+            "case_ios26_sanitized": "iOS 26.6 (23G71) | 21 rows; real structure, identifiers replaced",
+        }
     },
     "managedSettingsStores": {
         "name": "ManagedSettings - Store Directory",
@@ -79,7 +83,10 @@ __artifacts_v2__ = {
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "building-warehouse",
-        "sample_data": {}
+        "sample_data": {
+            "case_ios27_sanitized": "iOS 27.0 (24A437) | 11 rows; real structure, identifiers replaced",
+            "case_ios26_sanitized": "iOS 26.6 (23G71) | 9 rows; real structure, identifiers replaced",
+        }
     }
 }
 

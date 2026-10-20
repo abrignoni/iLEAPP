@@ -9,16 +9,16 @@
     "total_data_size_bytes": 7291,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\managedSettings\\testdata.managedSettings.managedSettings.case_synthetic_ios26.zip",
-    "start_time": "2026-10-20T05:55:46.988938+00:00",
-    "end_time": "2026-10-20T05:55:47.187953+00:00",
-    "run_time_seconds": 0.05093860626220703,
+    "input_zip_path": "admin/test/cases/data/managedSettings/testdata.managedSettings.managedSettings.case_synthetic_ios26.zip",
+    "start_time": "2026-10-20T14:59:44.261198+00:00",
+    "end_time": "2026-10-20T14:59:44.522503+00:00",
+    "run_time_seconds": 0.08763432502746582,
     "last_commit": {
-      "hash": "3663215fc134b8615afa3de60b6f46ee02e19147",
+      "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T01:54:23-04:00",
-      "message": "ManagedSettings: Screen Time / Family Controls settings stores from a sysdiagnose"
+      "date": "2026-10-20T10:52:06-04:00",
+      "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
     }
   },
   "headers": [
@@ -54,7 +54,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -71,7 +71,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -88,7 +88,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -105,7 +105,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -122,7 +122,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -139,7 +139,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -156,7 +156,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\FamilyControlsAgent\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/FamilyControlsAgent/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -173,7 +173,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\FamilyControlsAgent\\71FB4024-7E5F-52B5-8311-2D6A5AB548DD.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/FamilyControlsAgent/71FB4024-7E5F-52B5-8311-2D6A5AB548DD.plist"
     ],
     [
       "User",
@@ -190,7 +190,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.Preferences\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.Preferences/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -207,7 +207,7 @@
       "true",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.Preferences\\B640FAF5-F86D-5C80-90A8-1130AB1EA15E.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.Preferences/B640FAF5-F86D-5C80-90A8-1130AB1EA15E.plist"
     ],
     [
       "User",
@@ -224,7 +224,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -241,7 +241,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -258,7 +258,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -275,7 +275,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -292,7 +292,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68.plist"
     ],
     [
       "User",
@@ -309,7 +309,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68.plist"
     ],
     [
       "User",
@@ -326,7 +326,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\7169CE91-706E-5A7F-8E77-23D2F9DBE110.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/7169CE91-706E-5A7F-8E77-23D2F9DBE110.plist"
     ],
     [
       "User",
@@ -343,7 +343,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.ScreenTime\\7A6A68B0-0A1E-595A-8910-9BB92D0A0C9E.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/7A6A68B0-0A1E-595A-8910-9BB92D0A0C9E.plist"
     ],
     [
       "User",
@@ -360,7 +360,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.UserSafety\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.UserSafety/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -377,7 +377,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.UserSafety\\6ECE4623-AA5D-5F91-8053-4FEF812A3F26.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.UserSafety/6ECE4623-AA5D-5F91-8053-4FEF812A3F26.plist"
     ],
     [
       "User",
@@ -394,7 +394,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.momentsd\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.momentsd/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -411,7 +411,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.apple.momentsd\\2533BA14-7F92-5197-8808-C6B22D6B01FE.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.momentsd/2533BA14-7F92-5197-8808-C6B22D6B01FE.plist"
     ],
     [
       "User",
@@ -428,7 +428,7 @@
       "",
       "",
       "The file could not be read.",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.example.broken\\5C407678-B225-5FF6-BB21-E3B4F9CC361A.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.example.broken/5C407678-B225-5FF6-BB21-E3B4F9CC361A.plist"
     ],
     [
       "User",
@@ -445,7 +445,7 @@
       "false",
       "9",
       "Other Properties keys as stored: extra",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.example.future\\2F867811-656B-5ABA-B988-39A32ADF0429.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.example.future/2F867811-656B-5ABA-B988-39A32ADF0429.plist"
     ],
     [
       "User",
@@ -462,7 +462,7 @@
       "false",
       "9",
       "Other Properties keys as stored: extra",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71\\logs\\ManagedSettings\\User\\com.example.future\\2F867811-656B-5ABA-B988-39A32ADF0429.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.example.future/2F867811-656B-5ABA-B988-39A32ADF0429.plist"
     ]
   ]
 }

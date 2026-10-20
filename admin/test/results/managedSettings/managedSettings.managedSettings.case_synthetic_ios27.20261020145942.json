@@ -9,16 +9,16 @@
     "total_data_size_bytes": 24605,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\managedSettings\\testdata.managedSettings.managedSettings.case_synthetic_ios27.zip",
-    "start_time": "2026-10-20T05:55:46.533084+00:00",
-    "end_time": "2026-10-20T05:55:46.797889+00:00",
-    "run_time_seconds": 0.08329129219055176,
+    "input_zip_path": "admin/test/cases/data/managedSettings/testdata.managedSettings.managedSettings.case_synthetic_ios27.zip",
+    "start_time": "2026-10-20T14:59:42.893167+00:00",
+    "end_time": "2026-10-20T14:59:43.166018+00:00",
+    "run_time_seconds": 0.10811758041381836,
     "last_commit": {
-      "hash": "3663215fc134b8615afa3de60b6f46ee02e19147",
+      "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T01:54:23-04:00",
-      "message": "ManagedSettings: Screen Time / Family Controls settings stores from a sysdiagnose"
+      "date": "2026-10-20T10:52:06-04:00",
+      "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
     }
   },
   "headers": [
@@ -54,7 +54,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -71,7 +71,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -88,7 +88,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -105,7 +105,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -122,7 +122,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -139,7 +139,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -156,7 +156,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -173,7 +173,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -190,7 +190,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -207,7 +207,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -224,7 +224,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -241,7 +241,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -258,7 +258,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -275,7 +275,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -292,7 +292,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -309,7 +309,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -326,7 +326,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -343,7 +343,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -360,7 +360,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -377,7 +377,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -394,7 +394,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\EffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -411,7 +411,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\FamilyControlsAgent\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/FamilyControlsAgent/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -428,7 +428,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\FamilyControlsAgent\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/FamilyControlsAgent/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -445,7 +445,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\FamilyControlsAgent\\FC0CB2A5-2DF6-5BEA-B444-870F7D8A5828.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/FamilyControlsAgent/FC0CB2A5-2DF6-5BEA-B444-870F7D8A5828.plist"
     ],
     [
       "User",
@@ -462,7 +462,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\FamilyControlsAgent\\FC0CB2A5-2DF6-5BEA-B444-870F7D8A5828.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/FamilyControlsAgent/FC0CB2A5-2DF6-5BEA-B444-870F7D8A5828.plist"
     ],
     [
       "User",
@@ -479,7 +479,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.Preferences\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.Preferences/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -496,7 +496,7 @@
       "true",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.Preferences\\BC168AA4-ABD4-5F53-8F75-A823BC7ABB84.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.Preferences/BC168AA4-ABD4-5F53-8F75-A823BC7ABB84.plist"
     ],
     [
       "User",
@@ -513,7 +513,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -530,7 +530,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -547,7 +547,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -564,7 +564,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -581,7 +581,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -598,7 +598,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -615,7 +615,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -632,7 +632,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -649,7 +649,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -666,7 +666,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -683,7 +683,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -700,7 +700,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -717,7 +717,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -734,7 +734,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -751,7 +751,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -768,7 +768,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -785,7 +785,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
     ],
     [
       "User",
@@ -802,7 +802,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
     ],
     [
       "User",
@@ -819,7 +819,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
     ],
     [
       "User",
@@ -836,7 +836,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
     ],
     [
       "User",
@@ -853,7 +853,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
     ],
     [
       "User",
@@ -870,7 +870,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
     ],
     [
       "User",
@@ -887,7 +887,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/6D9BABC4-C1D8-54F4-B60F-5CDCC3FD7D66.plist"
     ],
     [
       "User",
@@ -904,7 +904,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -921,7 +921,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -938,7 +938,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -955,7 +955,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -972,7 +972,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -989,7 +989,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1006,7 +1006,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1023,7 +1023,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1040,7 +1040,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1057,7 +1057,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1074,7 +1074,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1091,7 +1091,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1108,7 +1108,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1125,7 +1125,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1142,7 +1142,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1159,7 +1159,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings\\CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings/CEE955F2-0691-55F1-B6C4-2E02AD468154.plist"
     ],
     [
       "User",
@@ -1176,7 +1176,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -1193,7 +1193,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -1210,7 +1210,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -1227,7 +1227,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\50E7EA05-9291-56EB-B781-D0AA67FF3AA2.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/50E7EA05-9291-56EB-B781-D0AA67FF3AA2.plist"
     ],
     [
       "User",
@@ -1244,7 +1244,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\50E7EA05-9291-56EB-B781-D0AA67FF3AA2.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/50E7EA05-9291-56EB-B781-D0AA67FF3AA2.plist"
     ],
     [
       "User",
@@ -1261,7 +1261,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\50E7EA05-9291-56EB-B781-D0AA67FF3AA2.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/50E7EA05-9291-56EB-B781-D0AA67FF3AA2.plist"
     ],
     [
       "User",
@@ -1278,7 +1278,7 @@
       "true",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\72323044-0942-5431-BFAD-755077ECB137.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/72323044-0942-5431-BFAD-755077ECB137.plist"
     ],
     [
       "User",
@@ -1295,7 +1295,7 @@
       "true",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\72323044-0942-5431-BFAD-755077ECB137.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/72323044-0942-5431-BFAD-755077ECB137.plist"
     ],
     [
       "User",
@@ -1312,7 +1312,7 @@
       "true",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\72323044-0942-5431-BFAD-755077ECB137.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/72323044-0942-5431-BFAD-755077ECB137.plist"
     ],
     [
       "User",
@@ -1329,7 +1329,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.ScreenTimeSettings.TimeAllowances\\F78A06F8-5A9E-5FCB-9843-4D0C419DED07.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.ScreenTimeSettings.TimeAllowances/F78A06F8-5A9E-5FCB-9843-4D0C419DED07.plist"
     ],
     [
       "User",
@@ -1346,7 +1346,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.UserSafety\\clientEffectiveSettings.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.UserSafety/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -1363,7 +1363,7 @@
       "false",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.apple.UserSafety\\A5503751-DC15-56EC-9054-28636FE8AA96.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.apple.UserSafety/A5503751-DC15-56EC-9054-28636FE8AA96.plist"
     ],
     [
       "User",
@@ -1380,7 +1380,7 @@
       "",
       "",
       "The file could not be read.",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.example.broken\\5C407678-B225-5FF6-BB21-E3B4F9CC361A.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.example.broken/5C407678-B225-5FF6-BB21-E3B4F9CC361A.plist"
     ],
     [
       "User",
@@ -1397,7 +1397,7 @@
       "false",
       "9",
       "Other Properties keys as stored: extra",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.example.future\\2F867811-656B-5ABA-B988-39A32ADF0429.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.example.future/2F867811-656B-5ABA-B988-39A32ADF0429.plist"
     ],
     [
       "User",
@@ -1414,7 +1414,7 @@
       "false",
       "9",
       "Other Properties keys as stored: extra",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437\\logs\\ManagedSettings\\User\\com.example.future\\2F867811-656B-5ABA-B988-39A32ADF0429.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/com.example.future/2F867811-656B-5ABA-B988-39A32ADF0429.plist"
     ]
   ]
 }
