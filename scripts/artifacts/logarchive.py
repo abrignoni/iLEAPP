@@ -1788,39 +1788,53 @@ __artifacts_v2__ = {
                  "startRunning] and -[AVCaptureSession stopRunning] lines, whose Process Image "
                  "Path is the client process itself. The state lines that carry ClientStartedSession "
                  "are kept only when ClientStartedSession is 1 or a micStolen or cameraStolen flag "
-                 "is 1; the many state lines with all three at 0 are collected but not listed. "
+                 "is 1; the state lines with all three at 0 are collected but not listed. "
                  "Client App ID and Client PID are read from the tag the daemon writes before the "
                  "message, in the form <object address[pid][app id]>, and from the 'Creating session "
-                 "for PID' line; in the pairs found in the two logs tested the two PIDs were the same. "
+                 "for PID' line; in the logs read (iOS 26.6 and 27.0 privately, and ai16_ios26_sysdiag) the "
+                 "two PIDs agreed. "
                  "Session Object is that address as logged: it groups the lines of one session, but an "
                  "address can be reused, so compare the times as well. Cam/Audio, Background, Mic Stolen, "
                  "Camera Stolen, Runtime Error, Interruption Error and Session Status are copied as "
-                 "logged; this artifact assigns no meaning to the numbers. Runtime Error and Session "
-                 "Status are read from the iOS 27.0 state lines; the iOS 26.6 state line read "
-                 "(captureSession_updateRunningCondition) carried neither and they stay blank for it. "
-                 "In the iOS 27.0 log tested Background, Mic Stolen, Camera Stolen, Runtime Error and "
+                 "logged; this artifact assigns no meaning to the numbers. Runtime Error, Interruption "
+                 "Error and Session Status are read from the iOS 27.0 state lines; the "
+                 "captureSession_updateRunningCondition state line on iOS 26.5.2 (ai16_ios26_sysdiag) "
+                 "and on the iOS 26.6 log read carried none of the three, so they stay blank there. "
+                 "In the iOS 27.0 log read Background, Mic Stolen, Camera Stolen, Runtime Error and "
                  "Interruption Error were identical on every row that carried them, all 0, and every "
                  "listed state line had Client Started Session 1 and Cam/Audio 1/0, so those columns "
                  "were uniform there. They stay because a different value is what this artifact "
-                 "exists to surface, and only the synthetic test fixture has exercised one. "
+                 "exists to surface: Camera Stolen read 1 on ai16_ios26_sysdiag (below), and the "
+                 "other flags have read 1 only in the synthetic test fixture. "
                  "Timestamp is the time of the log record as stored, shown in UTC; no time inside a "
                  "message is used. "
                  "What a row does not establish: a client start line is the daemon's record of the "
                  "client's request, not of frames being recorded, and nothing here says whether anything "
                  "was saved. A system component can start a session on its own account: in the iOS 27.0 "
-                 "log tested, every state line with ClientStartedSession at 1 carried the app id of an "
+                 "log read, every state line with ClientStartedSession at 1 carried the app id of an "
                  "Apple system daemon (com.apple.biometrickitd), while the Camera app's state lines all "
                  "read 0 although its sessions were created. An empty result is not evidence that nothing was captured: the log "
                  "has a limited window and this artifact reads one daemon's lines. "
                  "Not covered: microphone capture that does not go through this daemon (audio sessions, "
-                 "calls, voice recording) is not collected, and in neither log tested did the audio "
-                 "flag or a stolen flag read 1, so those columns have been exercised only by the "
-                 "synthetic test fixture. The camera hardware daemon (appleh*camerad, subsystem "
-                 "com.apple.isp) is not collected: the lines inspected were connection, light-meter, "
-                 "flicker-detector and audio-converter bookkeeping with the client PID redacted. "
-                 "FigFlashlightLocal (torch) lines are written by the same daemon and subsystem, "
-                 "outnumber the session lines by a wide margin, and are neither collected nor shown "
-                 "here, so a count of lines from that daemon is not a count of camera use; the "
+                 "calls, voice recording) is not collected, and in no log read did the audio "
+                 "flag or Mic Stolen read 1, so those two have been exercised only by the synthetic "
+                 "test fixture. On ai16_ios26_sysdiag (iOS 26.5.2, read from tracev3 data) Camera "
+                 "Stolen read 1 on 6 rows, all captureSession_updateRunningCondition lines for "
+                 "com.apple.biometrickitd. On that image every row that carried a Client App ID (78 "
+                 "of 102) named com.apple.biometrickitd; the other 24 were 'Creating session for "
+                 "PID' lines with the same PID and client-side lines written by biometrickitd. No "
+                 "row there came from a third-party app or the Camera app, although the import held "
+                 "com.apple.cameracapture lines tagged with the Camera app id and lines written by a "
+                 "third-party app, in client state and device selection shapes this artifact does not "
+                 "collect. On hc_ios26_sysdiag "
+                 "(iOS 26.6) the import held 1,140 com.apple.cameracapture lines and none in the "
+                 "session or power-log shapes above. The com.apple.isp subsystem, written by the "
+                 "camera hardware daemon (appleh*camerad) and by cameracaptured, is not collected: the "
+                 "lines inspected were connection, ISP command, flicker-detector and similar "
+                 "bookkeeping with the client PID redacted. "
+                 "In the iOS 27.0 log read, FigFlashlightLocal (torch) lines from the same daemon and "
+                 "subsystem outnumbered the session lines by a wide margin; neither corpus image held "
+                 "that shape. They are not collected here, so a count of lines from that daemon is not a count of camera use; the "
                  "device-vendor lines (ClientIsActive, device usage counts, close timers) are also left "
                  "out because what they count is not established. Message shapes were read on "
                  "iOS 26.6 and iOS 27.0 sysdiagnose logs; those images are not in the public corpus and "
@@ -1829,11 +1843,15 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "camera",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 102 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+        },
     },
     "logarchive_capture_streaming": {
         "name": "logarchive camera streaming power events",
-        "description": "Unified log lines from the camera capture daemon's power logger "
-                       "(FigCaptureLogCameraStreamingPowerEvent) with the PID, application ID, "
+        "description": "Unified log lines from the camera capture daemon's "
+                       "FigCaptureLogCameraStreamingPowerEvent function with the PID, application ID, "
                        "device type, streaming flag and port type as logged. Each row is one log "
                        "line.",
         "author": "@danjethh, Claude",
@@ -1842,20 +1860,27 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Fields are copied as logged and no meaning is assigned to the numbers. In the logs "
-                 "tested the streaming flag was logged as 1 and 0 and the application ID as <private>, "
+                 "read the streaming flag was logged as 1 and 0 and the application ID as <private>, "
                  "so the client has to be taken from the PID, for example by matching it with Client PID "
                  "in the capture sessions artifact; that match was not validated against a known capture. "
-                 "In the iOS 27.0 log tested the lines came in 1/0 pairs for a single device type and port "
-                 "type, written for an Apple system daemon's session. A line records the power logger's "
-                 "report, not a saved recording. The related cpls_logCameraStreamingPowerEvents lines, "
+                 "In the iOS 27.0 log read the lines came in 1/0 pairs for a single device type and port "
+                 "type, written for an Apple system daemon's session. A line records the daemon's power "
+                 "event, not a saved recording. The related cpls_logCameraStreamingPowerEvents lines, "
                  "which carry a time inside the message, are not collected. Timestamp is the log record "
                  "time as stored, in UTC. An empty result is not evidence that the camera was not "
-                 "streaming. In the iOS 27.0 log tested Application ID (as logged) read <private>, Device Type "
+                 "streaming. In the iOS 27.0 log read Application ID (as logged) read <private>, Device Type "
                  "(as logged) 20 and Port Type (as logged) PortTypeFrontInfrared on every row, and Process "
-                 "Image Path and Process ID held one value each. The test fixture is synthetic.",
+                 "Image Path and Process ID held one value each. On ai16_ios26_sysdiag (iOS 26.5.2) "
+                 "the 12 rows had the same shape: 6 with Streaming 1 and 6 with 0, all <private>, "
+                 "20 and PortTypeFrontInfrared, and their PID matched the Client PID of that "
+                 "image's com.apple.biometrickitd session lines. The test fixture is synthetic.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "video",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 12 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+        },
     },
     "logarchive_recording_indicator": {
         "name": "logarchive recording indicator lines",
@@ -1867,8 +1892,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-19",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "The text after '[Recording Indicator]' is in the Event Message column as logged. "
-                 "In the logs tested the activity-changed line carried an empty set, so a row does not "
+        "notes": "The whole message, prefix included, is in the Event Message column as logged. "
+                 "In the logs read the activity-changed line carried an empty set, so a row does not "
                  "say which sensor was active; a set with entries was not seen, and the synthetic "
                  "fixture's entry is invented to exercise the pass-through. Whether the on-screen "
                  "indicator was visible at a time is not established by these lines. The same prefix is "
@@ -1878,10 +1903,18 @@ __artifacts_v2__ = {
                  "sessions and streaming events, not as proof of recording. Timestamp is the log "
                  "record time as stored, in UTC. An empty result is not evidence that the indicator "
                  "was not shown. Process Image Path held one value (SpringBoard) on every row in the "
-                 "logs tested.",
+                 "logs read. On hc_ios26_sysdiag (iOS 26.6) the one row was an activity-changed "
+                 "line with an empty set. On ai16_ios26_sysdiag (iOS 26.5.2) all 51 '[Recording "
+                 "Indicator]' lines were opacity or 'Should force high level layer' lines, so the "
+                 "artifact gave no row. The layer creation and rendering assertion shapes were seen "
+                 "only in the synthetic fixture.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "eye",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 1 row",
+        },
     },
 }
 
@@ -2542,8 +2575,9 @@ def logarchive_artifacts(context):
         -- logarchive_capture_sessions and logarchive_capture_streaming. Collected here as
         -- well as filtered in the dependent artifacts, or the rows never reach the table
         -- they read. The subsystem condition keeps this to the capture daemon's session
-        -- and power-log lines: the same subsystem carries tens of thousands of torch
-        -- (FigFlashlightLocal) and device-vendor lines that no marker below matches. The
+        -- and power-log lines: in the iOS 27.0 log read, the same subsystem carried tens of
+        -- thousands of torch (FigFlashlightLocal) and device-vendor lines that no marker below
+        -- matches. The
         -- ClientStartedSession state lines are collected whole; the dependent artifact
         -- lists only those with a start or a stolen flag set.
         OR (subsystem = 'com.apple.cameracapture'
