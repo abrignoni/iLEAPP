@@ -1491,10 +1491,10 @@ __artifacts_v2__ = {
         "description": "Unified log entries from installd in the com.apple.appinstallation "
                        "TransactionLog category, and CommCenter ct.server entries beginning 'App "
                        "state'; what each entry records about an app is reported as logged and is "
-                       "not sourced here",
+                       "not sourced here. 2026-10-20: Adds app container paths which are made during install.",
         "author": "@Hexordia",
         "creation_date": "2026-10-06",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-20",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms provided by Hexordia as part of private R&D work; what the entries "
@@ -2088,6 +2088,24 @@ __artifacts_v2__ = {
         "sample_data": {
             "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
             "hc_ios26_sysdiag": "iOS 26.6 | 1 row",
+        },
+    },
+    "logarchive_app_snapshots": {
+        "name": "logarchive app snapshots",
+        "description": "Unified log entries recording when an app snapshot KTX "
+                       "file was created. This includes the app bundle name and the full file "
+                       "system path where the file was saved in the file system.",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-20",
+        "last_update_date": "2026-10-20",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries whose message contains 'Snapshot data for' while "
+                 "also filtering category for 'FileManifest'",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "screenshot",
+        "sample_data": {
         },
     },
 }
@@ -2732,6 +2750,7 @@ def logarchive_artifacts(context):
         -- logarchive_app_state
         OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        OR (process_image_path LIKE '/usr/libexec/installd' AND event_message LIKE '%Made container live for%')
         -- logarchive_device_id
         OR (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
         OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
@@ -2786,6 +2805,8 @@ def logarchive_artifacts(context):
             AND (event_message LIKE '%[Recording Indicator] Active camera/microphone activity changed%'
                  OR event_message LIKE '%[Recording Indicator] creating secure indicator layer%'
                  OR event_message LIKE '%[Recording Indicator] updating live rendering assertion%'))
+        -- logarchive_app_snapshots
+        OR (event_message LIKE '%Snapshot data for%' AND category LIKE 'FileManifest')
     )
     '''
 
@@ -3860,6 +3881,7 @@ def logarchive_app_state(context):
     return _artifacts_table_records(context, '''
         (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        OR (process_image_path LIKE '/usr/libexec/installd' AND event_message LIKE '%Made container live for%')
     ''')
 
 @artifact_processor
@@ -3899,6 +3921,12 @@ def logarchive_urlopens(context):
         event_message LIKE '%UIOpenURLAction%'
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
+    ''')
+    
+@artifact_processor
+def logarchive_app_snapshots(context):
+    return _artifacts_table_records(context, '''
+        (event_message LIKE '%Snapshot data for%' AND category LIKE 'FileManifest')
     ''')
 
 
