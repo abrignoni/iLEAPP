@@ -1,0 +1,108 @@
+{
+  "case_synthetic_ios27": {
+    "description": "SYNTHETIC fixture, not a real device. Fabricated logs/BatteryUIPlist property lists (com.example.* apps, formula-built numbers) in the shape where every bucket is stored one day wide, with a BatteryUIUpgrade file, built by admin/test/scripts/synthetic_battery_ui.py, packed in a sysdiagnose-shaped archive and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T01:55:26.628242",
+      "last_commit": {
+        "hash": "3f77e2cf06049a5b8bc563822ced5c3f68eb219e",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T01:55:25-04:00",
+        "message": "BatteryUI: per-app runtime, buckets and upgrade marker from a sysdiagnose"
+      }
+    },
+    "artifacts": {
+      "batteryUISysdiagnoseApps": {
+        "search_patterns": [
+          "*/logs/BatteryUIPlist/BatteryUI*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "batteryUISysdiagnoseBuckets": {
+        "search_patterns": [
+          "*/logs/BatteryUIPlist/BatteryUI*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "batteryUISysdiagnoseSnapshots": {
+        "search_patterns": [
+          "*/logs/BatteryUIPlist/BatteryUI*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "27.0"
+  },
+  "case_synthetic_ios26": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated logs/BatteryUIPlist/BatteryUISysdiagnose.plist (com.example.* apps, formula-built numbers) in the shape where the DayTapKey buckets are one hour wide and the WeekKey bucket ten days wide, built by admin/test/scripts/synthetic_battery_ui.py, packed in a sysdiagnose-shaped archive and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T01:55:27.475823",
+      "last_commit": {
+        "hash": "3f77e2cf06049a5b8bc563822ced5c3f68eb219e",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T01:55:25-04:00",
+        "message": "BatteryUI: per-app runtime, buckets and upgrade marker from a sysdiagnose"
+      }
+    },
+    "artifacts": {
+      "batteryUISysdiagnoseApps": {
+        "search_patterns": [
+          "*/logs/BatteryUIPlist/BatteryUI*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "batteryUISysdiagnoseBuckets": {
+        "search_patterns": [
+          "*/logs/BatteryUIPlist/BatteryUI*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "batteryUISysdiagnoseSnapshots": {
+        "search_patterns": [
+          "*/logs/BatteryUIPlist/BatteryUI*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.6"
+  }
+}
