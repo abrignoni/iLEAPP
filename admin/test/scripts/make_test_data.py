@@ -355,7 +355,9 @@ def process_archive(input_file, all_patterns, filepath_list=None):
     # one-element tuple. Iterating it yields characters, and a leading '*' then
     # matches every member of the archive. Normalize once here, the way
     # match_files_from_list and the main loop already do.
-    all_patterns = {name: (patterns,) if isinstance(patterns, str) else patterns
+    # An artifact with `paths: None` reads what an earlier artifact wrote (the logarchive family),
+    # so it has no files to find; give it an empty pattern list rather than crashing the search.
+    all_patterns = {name: () if patterns is None else (patterns,) if isinstance(patterns, str) else patterns
                     for name, patterns in all_patterns.items()}
     matching_files = defaultdict(list if filepath_list else dict)
     file_count = 0
