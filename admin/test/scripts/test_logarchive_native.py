@@ -62,6 +62,23 @@ class TestIteratorTimestamp(unittest.TestCase):
         self.assertEqual(logarchive.parse_iterator_timestamp(''), '')
 
 
+class TestJsonExportTimestamp(unittest.TestCase):
+    """'log show --style json' writes the offset without a colon, which 3.10 cannot parse."""
+
+    def test_offset_without_colon_is_accepted(self):
+        parsed = logarchive.convert_to_utc('2026-03-14 10:00:00.100000-0500')
+        self.assertEqual(parsed, datetime.datetime(2026, 3, 14, 15, 0, 0, 100000,
+                                                   tzinfo=datetime.timezone.utc))
+
+    def test_positive_offset_and_other_fraction_widths(self):
+        self.assertEqual(logarchive.convert_to_utc('2026-03-14 10:00:00.1+0130').minute, 30)
+        self.assertEqual(logarchive.convert_to_utc('2026-03-14 10:00:00.123456789+0000').microsecond,
+                         123456)
+
+    def test_offset_with_colon_still_parses(self):
+        self.assertEqual(logarchive.convert_to_utc('2026-03-14 10:00:00.000000-05:00').hour, 15)
+
+
 class TestSearchPatternsMatchRealLayouts(unittest.TestCase):
     """The declared globs must match every extraction layout the data arrives in.
 

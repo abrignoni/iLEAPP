@@ -1933,17 +1933,22 @@ DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', '
                 'Subsystem', 'Category', 'Event Message', 'Trace ID')
 
 
+_JSON_OFFSET = re.compile(r'([+-]\d{2})(\d{2})$')
+
+
 def convert_to_utc(timestamp):
-    # dt_local = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f%z")
-    # dt_utc = dt_local.astimezone(timezone.utc)
-    # return dt_utc.astimezone(timezone.utc)
-    # NOTE:
-    #   python 3.7-3.10 have datetime.fromisoformat() but it had a bug where it didn't
-    #   parse timezones correctly -- so this is now 3.11 onwards:
-    #   if you're on 3.10 and know your python-fun, uncomment the first 3 lines
-    #   but it'll run much slower than 3.11+ with this new version
-    
-    return datetime.fromisoformat(timestamp).astimezone(timezone.utc)
+    """Parse the 'log show --style json' timestamp, e.g. 2026-03-14 10:00:00.100000-0500.
+
+    The offset has no colon. datetime.fromisoformat() accepts that only from 3.11, and on
+    3.10 it also takes a fraction of exactly 3 or 6 digits, so normalize both here rather
+    than depend on the interpreter version.
+    """
+    normalized = _JSON_OFFSET.sub(r'\1:\2', timestamp)
+    if '.' in normalized:
+        whole, rest = normalized.split('.', 1)
+        digits = len(rest) - len(rest.lstrip('0123456789'))
+        normalized = f'{whole}.{rest[:digits][:6].ljust(6, "0")}{rest[digits:]}'
+    return datetime.fromisoformat(normalized).astimezone(timezone.utc)
 
 
 def truncate_after_last_bracket(file_path):
