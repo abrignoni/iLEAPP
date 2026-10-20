@@ -1748,7 +1748,7 @@ __artifacts_v2__ = {
                  "hexadecimal addresses in the two descriptions, Auth Right, Reason and Version are the "
                  "words and number after those labels, Other Flags is any text after the version, and "
                  "Authorization Record is the description as logged. Values are copied as logged and "
-                 "this artifact assigns no meaning to them. In the logs tested the two descriptions held "
+                 "this artifact assigns no meaning to them. In the logs read the two descriptions held "
                  "object addresses and no client identifier, bundle id or process name, so a row does not "
                  "name the application the entry is about; the only attribution is Process Image Path and "
                  "Process ID, the process that wrote the dump, as stored. Whether the cache is that "
@@ -1756,7 +1756,7 @@ __artifacts_v2__ = {
                  "and how an entry relates to the TCC.db access table are not established here. An entry "
                  "is the cache's content at the dump time, which is the record's time as stored, shown in "
                  "UTC. It does not say when the permission was granted, changed or used, and a match is a "
-                 "lead, not proof of consent. Repeated dumps repeat entries: the logs tested held many "
+                 "lead, not proof of consent. Repeated dumps repeat entries: the logs read held many "
                  "dumps per process, so the same entry appears in many rows; the summary artifact "
                  "collapses them and is a labelled view over these rows. Entries In Dump is the number of "
                  "entries the dump held, counted over all its services. A dump with no entries (an empty "
@@ -1766,11 +1766,29 @@ __artifacts_v2__ = {
                  "a dump inside the log's window appear. Message shapes were read on iOS 26.6 and iOS "
                  "27.0 sysdiagnose logs natively decoded with unifiedlog_iterator; the way these records "
                  "appear in a 'log show' export was not examined. Those images are not in the public "
-                 "corpus and no fixture from them is committed. The test fixture is synthetic, with "
-                 "invented process paths, PIDs and addresses.",
+                 "corpus and no fixture from them is committed. On ai16_ios26_sysdiag (iOS 26.5.2) and "
+                 "hc_ios26_sysdiag (iOS 26.6), read from tracev3 data, 518 and 331 dumps were collected "
+                 "and 481 and 254 of them gave 542 and 278 rows; the other dumps held no entries. No body "
+                 "failed to read as JSON and every authorization description matched the shape above. "
+                 "Auth Right read Allowed, Limited, Denied or Unknown, Reason Entitled, User Consent, "
+                 "Service Policy or None, Version 1 or 2, and Other Flags was blank except for 'Has "
+                 "Prompted For Allow' on 4 rows on ai16_ios26_sysdiag. Most rows were "
+                 "kTCCServiceAddressBook entries with Reason Entitled (381 of 542 and 230 of 278), "
+                 "nearly all written by processes outside app bundles. Both sysdiagnoses also held "
+                 "TCC.db, which the Application Permissions artifact reads; it names the client and "
+                 "gives a last modified time, while these dumps give the writing process and the dump "
+                 "time. The dumps held Reason Entitled AddressBook entries for 42 processes on "
+                 "ai16_ios26_sysdiag and 38 on hc_ios26_sysdiag; TCC.db held AddressBook rows for 7 "
+                 "clients on each. How the two sources relate "
+                 "entry by entry is not established here. The test fixture is synthetic, with invented "
+                 "process paths, PIDs and addresses.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "shield",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 542 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 278 rows",
+        },
     },
     "logarchive_tcc_cache_summary": {
         "name": "logarchive TCC authorization cache summary",
@@ -1798,6 +1816,10 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "shield",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 103 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 99 rows",
+        },
     },
     "logarchive_location_state": {
         "name": "logarchive location manager state dumps",
@@ -1826,17 +1848,27 @@ __artifacts_v2__ = {
                  "with the same time and process can describe different managers. A row with "
                  "updatingLocation true shows that state in the dump at that time. It is a lead; it does "
                  "not show that a position was obtained, stored or used, and the dump records no event "
-                 "between dumps. Repeated dumps repeat state: the logs tested held many dumps per "
+                 "between dumps. Repeated dumps repeat state: the logs read held many dumps per "
                  "process, mostly with identical content, and the summary artifact collapses them. "
                  "Timestamp is the record time as stored, in UTC. An empty result is not evidence that no "
                  "process used location: only processes that wrote a dump inside the log's window "
                  "appear. Message shapes were read on iOS 26.6 and iOS 27.0 sysdiagnose logs natively "
                  "decoded with unifiedlog_iterator; the way these records appear in a 'log show' export "
                  "was not examined. Those images are not in the public corpus and no fixture from them is "
-                 "committed. The test fixture is synthetic, with invented process paths, PIDs and values.",
+                 "committed. On ai16_ios26_sysdiag (iOS 26.5.2) and hc_ios26_sysdiag (iOS 26.6), read "
+                 "from tracev3 data, 2,174 and 514 dumps came from 55 and 44 processes. Every dump on "
+                 "both held the 16 keys with columns and the same 12 others, which fill Other Fields on "
+                 "every row, and no line that was not a key and value. Updating Location read true on 62 "
+                 "and 42 rows; 12 of the 62 on ai16_ios26_sysdiag were written by processes in "
+                 "third-party app bundles, and none of the 42 on hc_ios26_sysdiag. The test fixture is "
+                 "synthetic, with invented process paths, PIDs and values.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 2174 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 514 rows",
+        },
     },
     "logarchive_location_state_summary": {
         "name": "logarchive location manager state summary",
@@ -1861,6 +1893,10 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 119 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 156 rows",
+        },
     },
     # ---- TCC authorization cache and location manager state dumps (end) ----
     "logarchive_urlopens": {
