@@ -1,4 +1,303 @@
 {
+  "case_synthetic_capture": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated 'log show --style json' export (invented app ids, PIDs and process names, fixed 2026-03-14 timestamps at a -0500 offset) built by admin/test/scripts/synthetic_capture_sessions.py: camera capture daemon session, power-log and torch lines in the iOS 26.6 and 27.0 message shapes, SpringBoard recording indicator lines, and decoys under other subsystems. This case runs the logarchive producer over it. The camera and microphone capture artifacts read the table that logarchive_artifacts builds from the producer's table and declare no paths, so the case harness cannot supply their input; they are tested through the real ileapp.py chain in admin/test/scripts/test_logarchive_capture_sessions.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "logarchive_SYNTHETIC_capture_input.zip",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-19T16:25:05.336359",
+      "last_commit": {
+        "hash": "fddd33b2436def34272799036edc6dad41208fec",
+        "author_name": "Brigs",
+        "author_email": "abrignoni@gmail.com",
+        "date": "2026-10-18T16:20:57-04:00",
+        "message": "executed apps: restate notes on 14 images, name the column Application"
+      }
+    },
+    "artifacts": {
+      "logarchive": {
+        "search_patterns": [
+          "*/logarchive*.json",
+          "*/db/diagnostics/*",
+          "*/db/uuidtext/*",
+          "*.logarchive/*",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "logarchive_artifacts": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_time_change": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_flashlight": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_executed_apps": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_tethering": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_airplane_mode": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_lock_status": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_wifi_status": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_bluetooth_status": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_audio_status": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_motionstate": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_navigation": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_calls": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_dialed_numbers": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_typing": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_faceid_presence": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_pocket_state": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_touch": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_usb_connections": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_camera": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_notifications": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_app_focus": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_media_playback": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_sim_cellular": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_unlock_auth": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_dictation": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_audio_routes": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_battery_state": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_charging_state": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_battery_center_sources": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_battery_center_devices": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_ui_navigation": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_driving": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_bluetooth_pairing": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_emergency_sos": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_power_events": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_airdrop": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_carplay_session": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_biometric_match": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_passcode_field": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_hardware_buttons": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_orientation": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_system_gestures": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_usb_host": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_app_state": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_device_id": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_wake_source": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_weather": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_family_hotspot": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_urlopens": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_capture_sessions": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_capture_streaming": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "logarchive_recording_indicator": {
+        "search_patterns": null,
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "27.0"
+  },
   "case_synthetic_statedump": {
     "description": "SYNTHETIC fixture, not a real device. A fabricated 'log show --style json' export (invented process paths, PIDs and object addresses, fixed 2026-03-14 timestamps at a -0500 offset) built by admin/test/scripts/synthetic_statedumps.py: 'TCC Authorization Cache' and 'CLLocationManagerStateTracker' statedump messages in the layout unifiedlog_iterator decoded on iOS 26.6 and 27.0 logs (empty subsystem and category), repeated dumps, an empty cache, shapes the real logs did not hold (marked INVENTED SHAPE in the builder) and decoys that mention the same names. This case runs the logarchive producer over it. The TCC authorization cache and location manager state artifacts read the table that logarchive_artifacts builds from the producer's table and declare no paths, so the case harness cannot supply their input; they are tested through the real ileapp.py chain in admin/test/scripts/test_logarchive_statedumps.py. It carries no data from any real extraction.",
     "maker": "@danjethh, Claude",
