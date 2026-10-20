@@ -102,7 +102,7 @@ class ManagedSettingsTest(unittest.TestCase):
         for row in rows:
             if row[headers.index('File Kind')] == 'Store file':
                 by_key.setdefault((row[headers.index('Store Name')], row[headers.index('Key (as stored)')]),
-                                  row[headers.index('Value (as stored)')])
+                                  row[headers.index('Value (text)')])
         self.assertEqual(by_key[('Restrictions', 'appStore.denyAppStoreAppInstallation')], 'true')
         self.assertEqual(by_key[('Restrictions', 'appStore.maximumRating')], '200')
         self.assertEqual(by_key[('Restrictions', 'webContent.blockedByFilter')], 'neverAllow: []; policy: 1')
@@ -136,7 +136,7 @@ class ManagedSettingsTest(unittest.TestCase):
         key_row = next(r for r in future if r[headers.index('Key (as stored)')] == 'example.futureKey')
         self.assertEqual(key_row[headers.index('Setting')], 'Setting not described by this parser')
         self.assertEqual(key_row[headers.index('Group')], 'Other')
-        self.assertEqual(key_row[headers.index('Value (as stored)')], 'a: x; b: [1, 2]')
+        self.assertEqual(key_row[headers.index('Value (text)')], 'a: x; b: [1, 2]')
         self.assertIn('extra', key_row[headers.index('Notes')])
         broken = [r for r in rows if r[headers.index('Client Folder')] == 'com.example.broken']
         self.assertEqual(len(broken), 1)
@@ -153,9 +153,9 @@ class ManagedSettingsTest(unittest.TestCase):
         self.assertNotIn(repr(SYNTH.TOKEN_KEY), text)
         self.assertNotIn(SYNTH.TOKEN_KEY.hex(), text.lower())
         row = next(r for r in rows if r[headers.index('Key (as stored)')] == 'managedSettings.tokenEncodingKey')
-        self.assertEqual(row[headers.index('Value (as stored)')], '<32 bytes, not copied>')
+        self.assertEqual(row[headers.index('Value (text)')], '<32 bytes, not copied>')
         row = next(r for r in rows if r[headers.index('Key (as stored)')] == 'managedSettings.tokenDecodingKeys')
-        self.assertEqual(row[headers.index('Value (as stored)')], '[1 item(s), not copied]')
+        self.assertEqual(row[headers.index('Value (text)')], '[1 item(s), not copied]')
 
     def test_tokenized_copies_sidecars_and_other_folders_are_not_read(self):
         files = self._files('ios27')

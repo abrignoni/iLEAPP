@@ -1,58 +1,87 @@
 __artifacts_v2__ = {
     "managedSettings": {
         "name": "ManagedSettings - Settings",
-        "description": "Setting keys and values held by the ManagedSettings stores in a sysdiagnose (logs/ManagedSettings): install, web content, shield, Siri and intelligence, user safety and similar keys, as stored",
+        "description": "Setting keys and values held by the ManagedSettings stores in a sysdiagnose (logs/ManagedSettings): install, web content, shield, Siri and intelligence, user safety and similar keys, written as text",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-20",
         "last_update_date": "2026-10-20",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "A sysdiagnose carries a copy of the ManagedSettings stores under logs/ManagedSettings/User and "
-                 "logs/ManagedSettings/System. The folder and key names point to the Screen Time and Family "
-                 "Controls settings stores; what the file does on the device, and what writes it, is not "
-                 "established by the file. A row is one top-level key of one property list: a store file "
+        "notes": "A sysdiagnose writes the ManagedSettings stores out under logs/ManagedSettings/User and "
+                 "logs/ManagedSettings/System when it is taken. The folder and key names point to the Screen Time "
+                 "and Family Controls settings stores; what the file does on the device, and what writes it, is "
+                 "not established by the file. A row is one top-level key of one property list: a store file "
                  "(<store identifier>.plist, kept in a folder named for the client that owns it), a "
                  "clientEffectiveSettings.plist or the EffectiveSettings.plist of the scope. A file with no "
-                 "setting key gives one row that says so. Store Name is the StoreName value of a store "
-                 "file; Store Active and Sync To Watch are the two values of its Properties entry; Format "
-                 "Version is its version value, all as stored. The store names are not the same in every "
-                 "version: the iOS 27.0 (24A437) sysdiagnose tested holds the stores ContentAndPrivacy, "
-                 "Restrictions, UserSafety, defaultGroup, downtime, scheduleDowntime, bedtime and Default under "
-                 "com.apple.ScreenTimeSettings, com.apple.ScreenTimeSettings.TimeAllowances, "
-                 "com.apple.UserSafety, com.apple.Preferences and FamilyControlsAgent, and the iOS 26.6 "
-                 "(23G71) one holds Default, SafariStore, UserSafetyStore, UserSafety and DeviceActivityStore "
-                 "under com.apple.ScreenTime, com.apple.UserSafety, com.apple.Preferences, com.apple.momentsd "
-                 "and FamilyControlsAgent. Other versions are not checked, and a key not listed here is "
-                 "reported with its key and value as stored. Setting is a label written from the key "
-                 "name; the file does not describe the keys and the meaning of a number stored for a key "
-                 "(for example the webContent.blockedByFilter policy value or the appStore.maximumRating "
-                 "value) is not established. Group is taken from the part of the key before the first dot. "
-                 "The group 'User safety' follows the key prefix userSafety; the file does not say whether "
-                 "it corresponds to a named feature such as Communication Safety. Value is the stored value "
-                 "written as text: true and false for booleans, lists as bracketed text, and a dictionary "
-                 "as key: value pairs. Items is the number of list entries in the value (for a dictionary, the "
-                 "entries of its lists). A list of shielded apps is given by bundle identifier and a list of "
-                 "categories by category identifier, as stored; the file does not name the categories. The "
-                 "token encoding and decoding keys are not copied, only their size. A value of false for a "
-                 "key that begins with deny means the store holds the value false; a key that is absent is "
-                 "not reported, because an absent key is not evidence that a setting was off. A store file "
-                 "in the archive is a snapshot of the stores when the sysdiagnose was taken and carries no "
-                 "time, so no row says when a setting was set or changed. The .tokenized.plist copies kept "
-                 "beside the store files are not read. An empty result is not evidence that no restriction "
-                 "is or was set. Observed on one iOS 27.0 (24A437) sysdiagnose: 73 rows from 13 property "
-                 "lists (9 store files, 3 clientEffectiveSettings files and the EffectiveSettings file), and "
-                 "on one iOS 26.6 (23G71) sysdiagnose: 21 rows from 12 property lists (7 store files, 4 "
-                 "clientEffectiveSettings files and the EffectiveSettings file). Neither sysdiagnose is "
-                 "shareable as it is; the test cases hold a copy of each with the identifying values replaced "
-                 "(case_ios27_sanitized, case_ios26_sanitized) and a generated synthetic copy of each shape.",
+                 "setting key gives one row that says so. The same key and value can appear in a store file, in "
+                 "its client's clientEffectiveSettings.plist and in the EffectiveSettings.plist: on both iOS 26 "
+                 "corpus images safari.denyPrivateBrowsing appears in all three, so the rows are not a count of "
+                 "settings. Store Name is the StoreName value of a store file; Store Active and Sync To Watch are "
+                 "the active and syncToWatch values of its Properties entry, and any other Properties key is "
+                 "named in Notes; File Version is the version value of the file, all as stored. On both iOS 26 "
+                 "corpus images File Version was 3 for every store file while the store entry for the same store "
+                 "in SettingRecords.plist held version 2, so the two are different values. The store names are "
+                 "not the same on every device. The iOS 27.0 (24A437) sysdiagnose read holds the stores "
+                 "ContentAndPrivacy, Restrictions, UserSafety, defaultGroup, downtime, scheduleDowntime, bedtime "
+                 "and Default under com.apple.ScreenTimeSettings, com.apple.ScreenTimeSettings.TimeAllowances, "
+                 "com.apple.UserSafety, com.apple.Preferences and FamilyControlsAgent, and a second iOS 26.6 "
+                 "(23G71) sysdiagnose, not in the corpus, holds Default, SafariStore, UserSafetyStore, UserSafety "
+                 "and DeviceActivityStore under com.apple.ScreenTime, com.apple.UserSafety, "
+                 "com.apple.Preferences, com.apple.momentsd and FamilyControlsAgent. On ai16_ios26_sysdiag (iOS "
+                 "26.5.2) the stores were SafariStore, UserSafetyStore, DeviceActivityStore and two named "
+                 "UserSafety, under com.apple.ScreenTime, com.apple.momentsd, com.apple.Preferences and "
+                 "com.apple.UserSafety; on hc_ios26_sysdiag (iOS 26.6) they were SafariStore and two named "
+                 "UserSafety, under com.apple.ScreenTime, com.apple.Preferences and com.apple.UserSafety. On "
+                 "those two images the only keys were safari.denyHistoryClearing and safari.denyPrivateBrowsing "
+                 "(false wherever they appeared), userSafety.allowedClients, userSafety.scanningPolicy and, on "
+                 "ai16_ios26_sysdiag, deviceActivity.allowedClients; no app installation, web content or shield "
+                 "key was present. The iOS 13.3.1, 14.3 and 17.3 sysdiagnoses in sample_data hold no "
+                 "logs/ManagedSettings folder. A key not listed here is reported with its key and its value "
+                 "written as text. Setting is a label written from the key name; the file does not describe the "
+                 "keys and the meaning of a number stored for a key (for example the webContent.blockedByFilter "
+                 "policy value or the appStore.maximumRating value) is not established. Group is taken from the "
+                 "part of the key before the first dot and is a label for that part. The group 'User safety' "
+                 "follows the key prefix userSafety; the file does not say whether it corresponds to a named "
+                 "feature such as Communication Safety. Value is the stored value written as text: true and false "
+                 "for booleans, lists as bracketed text, and a dictionary as key: value pairs with its keys "
+                 "sorted. A list entry that is a one-entry dictionary is written as its value, a key and value "
+                 "pair as key=value, an empty dictionary as (empty), and a binary value by its byte size only. "
+                 "Items is the number of list entries in the value (for a dictionary, the entries of its lists). "
+                 "A list of shielded apps is given by bundle identifier and a list of categories by category "
+                 "identifier, as stored; the file does not name the categories. The token encoding key is given "
+                 "by its byte size and the token decoding keys by their count; neither is copied. A value of "
+                 "false for a key that begins with deny means the store holds the value false; a key that is "
+                 "absent is not reported, because an absent key is not evidence that a setting was off. A store "
+                 "file in the archive is a snapshot of the stores when the sysdiagnose was taken and carries no "
+                 "time, so no row says when a setting was set or changed. Any .tokenized.plist copy beside a "
+                 "store file is not read; such copies were present on the iOS 27.0 sysdiagnose read and absent on "
+                 "the iOS 26 ones. Not read: the live stores of a full file system extraction, kept in a "
+                 "different layout under /private/var/mobile/Library/com.apple.ManagedSettings "
+                 "(EffectiveSettings.plist and DataVersion.plist at the top, Records/SettingRecords.plist, "
+                 "Records/<record identifier>/clientEffectiveSettings.plist and Records/<record "
+                 "identifier>/<store identifier>/detokenized.plist and tokenized.plist) and in a "
+                 "com.apple.ManagedSettings.system folder of a shared system group container; on hc_ios26 they "
+                 "were present and this artifact gave no row. Also not read: the "
+                 "managed_settings_diagnostic_tool_stdout.txt beside the property lists, which was empty on both "
+                 "iOS 26 sysdiagnoses in sample_data. An empty result is not evidence that no restriction is or "
+                 "was set. Observed on the iOS 27.0 (24A437) sysdiagnose read: 73 rows from 13 property lists (9 "
+                 "store files, 3 clientEffectiveSettings files and the EffectiveSettings file), and on the second "
+                 "iOS 26.6 (23G71) one: 21 rows from 12 property lists (7 store files, 4 clientEffectiveSettings "
+                 "files and the EffectiveSettings file). Neither of those two sysdiagnoses is shareable as it is; "
+                 "the test cases hold a copy of each with the identifying values replaced (case_ios27_sanitized, "
+                 "case_ios26_sanitized) and a generated synthetic copy of each shape.",
         "paths": (
             '*/logs/ManagedSettings/*.plist',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "device-mobile-cog",
         "sample_data": {
-            "case_ios27_sanitized": "iOS 27.0 (24A437) | 73 rows; real structure, identifiers replaced",
-            "case_ios26_sanitized": "iOS 26.6 (23G71) | 21 rows; real structure, identifiers replaced",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 0 rows; no logs/ManagedSettings folder",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 0 rows; no logs/ManagedSettings folder",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows; no logs/ManagedSettings folder",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 16 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 10 rows",
+            "hc_ios26": "iOS 26.5.2 full file system | 0 rows; live stores present, not read",
         }
     },
     "managedSettingsStores": {
@@ -63,29 +92,46 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-20",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "A row is one store entry of one client record in a SettingRecords.plist (User or System "
-                 "scope), or one DataVersion.plist. Client is the client container identifier of the record, "
-                 "Store Name the key of the store entry and Store Identifier the identifier stored for it. "
-                 "Store Active and Sync To Watch are the stored values of the entry. Store File In Archive "
-                 "says whether a store file named with that identifier was read in the same run; it is "
-                 "'no' when the sysdiagnose does not hold it. Team Identifier, Internal Client, Record "
-                 "Identifier, Container Path and Record Version are copied as stored; what they mean for "
-                 "the device is not established. A record with no store entry gives one row with the "
-                 "store columns blank. Data Version is the version number stored in DataVersion.plist. A "
-                 "listed store is not proof that anything is restricted: the settings themselves are in "
-                 "'ManagedSettings - Settings'. The files carry no time, so no row says when a store was "
-                 "created or changed. An empty result is not evidence that no store exists. Observed on one "
-                 "iOS 27.0 (24A437) sysdiagnose: 11 rows (9 store entries, 2 data versions), and on one iOS "
-                 "26.6 (23G71) sysdiagnose: 9 rows (7 store entries, 2 data versions); other versions are "
-                 "not checked.",
+        "notes": "A row is one store entry of one client record in a SettingRecords.plist (User or System scope), "
+                 "or one DataVersion.plist. Client is the client container identifier of the record, Store Name "
+                 "the key of the store entry and Store Identifier the identifier stored for it. Store Active and "
+                 "Sync To Watch are the stored values of the entry. Store File In Archive says whether a store "
+                 "file named with that identifier was read in the same run; it is 'no' when the sysdiagnose does "
+                 "not hold it. Team Identifier, Internal Client, Record Identifier and Record Version are copied "
+                 "as stored, Container Path is the relative value of the record's containerPath entry, and Store "
+                 "Entry Version is the version of the store entry (2 on both iOS 26 corpus images, against 3 in "
+                 "the store files); what they mean for the device is not established. A record with no store "
+                 "entry gives one row with the store columns blank, and a SettingRecords.plist that holds an "
+                 "empty list gives no row: the System one was an empty list on both iOS 26 corpus images. Data "
+                 "Version is the version number stored in DataVersion.plist. A listed store is not proof that "
+                 "anything is restricted: the settings themselves are in 'ManagedSettings - Settings'. The files "
+                 "carry no time, so no row says when a store was created or changed. An empty result is not "
+                 "evidence that no store exists. Observed on the iOS 27.0 (24A437) sysdiagnose read: 11 rows (9 "
+                 "store entries, 2 data versions), and on the second iOS 26.6 (23G71) one: 9 rows (7 store "
+                 "entries, 2 data versions). On ai16_ios26_sysdiag (iOS 26.5.2): 7 rows (5 store entries, 2 data "
+                 "versions); on hc_ios26_sysdiag (iOS 26.6): 5 rows (3 store entries, 2 data versions); every "
+                 "listed store file was in the archive on both. The iOS 13.3.1, 14.3 and 17.3 sysdiagnoses in "
+                 "sample_data hold no logs/ManagedSettings folder. Not read: the live stores of a full file "
+                 "system extraction, kept in a different layout under "
+                 "/private/var/mobile/Library/com.apple.ManagedSettings (EffectiveSettings.plist and "
+                 "DataVersion.plist at the top, Records/SettingRecords.plist, Records/<record "
+                 "identifier>/clientEffectiveSettings.plist and Records/<record identifier>/<store "
+                 "identifier>/detokenized.plist and tokenized.plist) and in a com.apple.ManagedSettings.system "
+                 "folder of a shared system group container; on hc_ios26 they were present and neither artifact "
+                 "gave a row. Also not read: the managed_settings_diagnostic_tool_stdout.txt beside the property "
+                 "lists, which was empty on both iOS 26 sysdiagnoses in sample_data.",
         "paths": (
             '*/logs/ManagedSettings/*.plist',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "building-warehouse",
         "sample_data": {
-            "case_ios27_sanitized": "iOS 27.0 (24A437) | 11 rows; real structure, identifiers replaced",
-            "case_ios26_sanitized": "iOS 26.6 (23G71) | 9 rows; real structure, identifiers replaced",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 0 rows; no logs/ManagedSettings folder",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 0 rows; no logs/ManagedSettings folder",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows; no logs/ManagedSettings folder",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 7 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 5 rows",
+            "hc_ios26": "iOS 26.5.2 full file system | 0 rows; live stores present, not read",
         }
     }
 }
@@ -117,8 +163,8 @@ SETTING_LABELS = {
     'webContent.blockedByFilter': 'Web content filter policy',
     'webContent.limitWebProxies': 'Limit web proxies',
     'webContent.overridePolicy': 'Web content override policy',
-    'shield.applicationCategories': 'Shielded apps and app categories',
-    'shield.webDomainCategories': 'Shielded web domains and web categories',
+    'shield.applicationCategories': 'Shielded application categories',
+    'shield.webDomainCategories': 'Shielded web domain categories',
     'screenTime.categoryShieldPolicies': 'Category shield policies',
     'siri.denySiri': 'Deny Siri',
     'siri.denySiri3489': 'Deny Siri (second key, denySiri3489)',
@@ -128,7 +174,7 @@ SETTING_LABELS = {
     'intelligence.denyImagePlayground': 'Deny Image Playground',
     'intelligence.denyImageWand': 'Deny Image Wand',
     'intelligence.denyPhotorealisticImageGeneration': 'Deny photorealistic image generation',
-    'userSafety.scanningPolicy': 'User safety scanning policy (services and applications on or off)',
+    'userSafety.scanningPolicy': 'User safety scanning policy',
     'userSafety.allowedClients': 'User safety allowed clients',
     'deviceActivity.shareAcrossDevices': 'Share device activity across devices',
     'deviceActivity.allowedClients': 'Device activity allowed clients',
@@ -141,7 +187,7 @@ SETTING_LABELS = {
 
 # Group by the part of the key before the first dot.
 GROUP_LABELS = {
-    'appStore': 'App installation',
+    'appStore': 'App Store',
     'webContent': 'Web content',
     'shield': 'Shield',
     'screenTime': 'Shield',
@@ -347,7 +393,7 @@ def managedSettings(context):
     ''' See artifact description '''
     data_headers = (
         'Scope', 'Client Folder', 'File Kind', 'File Name', 'Store Name', 'Group', 'Setting', 'Key (as stored)',
-        'Value (as stored)', 'Items', 'Store Active', 'Sync To Watch', 'Format Version', 'Notes', 'Source File')
+        'Value (text)', 'Items', 'Store Active', 'Sync To Watch', 'File Version (as stored)', 'Notes', 'Source File')
     data_list, sources = [], []
     for info in _sorted(f for f in read_files(context) if f['kind'] in (KIND_STORE, KIND_CLIENT, KIND_EFFECTIVE)):
         sources.append(info['source'])
@@ -361,9 +407,9 @@ def managedSettings(context):
 def managedSettingsStores(context):
     ''' See artifact description '''
     data_headers = (
-        'Scope', 'Row Kind', 'Client', 'Store Name', 'Store Identifier', 'Store Version', 'Store Active',
+        'Scope', 'Row Kind', 'Client', 'Store Name', 'Store Identifier', 'Store Entry Version', 'Store Active',
         'Sync To Watch', 'Store File In Archive', 'Team Identifier', 'Internal Client', 'Record Identifier',
-        'Container Path (as stored)', 'Record Version', 'Data Version', 'Notes', 'Source File')
+        'Container Path (relative, as stored)', 'Record Version', 'Data Version', 'Notes', 'Source File')
     files = _sorted(f for f in read_files(context) if f['kind'] in (KIND_STORE, KIND_RECORDS, KIND_VERSION))
     data_list, sources = [], set()
     for row, source in store_rows(files):
