@@ -23,10 +23,10 @@
   },
   "headers": [
     "Query Time (UTC)",
+    "Last Charge Time (UTC)",
     "File Kind",
     "Old Build (from file name)",
     "New Build (from file name)",
-    "Last Charge Time (UTC)",
     "Last Charge Level (as stored)",
     "Paused Charging State (as stored)",
     "Paused Charging Percentage (as stored)",
@@ -39,10 +39,10 @@
   "data": [
     [
       1800000000,
+      1799966999,
       "Main file",
       "",
       "",
-      1799966999,
       77,
       601,
       87,
@@ -54,10 +54,10 @@
     ],
     [
       1799568000,
+      1799563999,
       "Upgrade file",
       "00A001",
       "00B002",
-      1799563999,
       54,
       601,
       87,

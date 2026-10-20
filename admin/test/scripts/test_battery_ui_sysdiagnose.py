@@ -132,12 +132,12 @@ class BatteryUISysdiagnoseTest(unittest.TestCase):
             _, rows, source = _run(module.batteryUISysdiagnoseSnapshots, paths)
             _, buckets, _ = _run(module.batteryUISysdiagnoseBuckets, paths)
         self.assertEqual(len(rows), 2)
-        by_kind = {row[1]: row for row in rows}
+        by_kind = {row[2]: row for row in rows}
         upgrade, main = by_kind['Upgrade file'], by_kind['Main file']
-        self.assertEqual((upgrade[2], upgrade[3]), ('00A001', '00B002'))
-        self.assertEqual((main[2], main[3]), ('', ''))
+        self.assertEqual((upgrade[3], upgrade[4]), ('00A001', '00B002'))
+        self.assertEqual((main[3], main[4]), ('', ''))
         self.assertEqual(main[0], utc(SYNTH.QUERY_TIME))
-        self.assertEqual(main[4], utc(SYNTH.QUERY_TIME - 33000.5))
+        self.assertEqual(main[1], utc(SYNTH.QUERY_TIME - 33000.5))
         self.assertEqual(main[5:10], (77, 601, 87, 1036800.0, 1.0))
         self.assertEqual(main[10], 'DayKey, DayTapKey, WeekKey, WeekTapKey')
         self.assertIn('BatteryUIUpgrade_00A001_00B002.plist', source)
