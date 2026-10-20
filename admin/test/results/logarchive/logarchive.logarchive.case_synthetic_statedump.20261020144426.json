@@ -9,16 +9,16 @@
     "total_data_size_bytes": 21017,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\logarchive\\testdata.logarchive.logarchive.case_synthetic_statedump.zip",
-    "start_time": "2026-10-19T22:31:25.706780+00:00",
-    "end_time": "2026-10-19T22:31:25.810931+00:00",
-    "run_time_seconds": 0.014896631240844727,
+    "input_zip_path": "admin/test/cases/data/logarchive/testdata.logarchive.logarchive.case_synthetic_statedump.zip",
+    "start_time": "2026-10-20T14:44:26.870774+00:00",
+    "end_time": "2026-10-20T14:44:26.996559+00:00",
+    "run_time_seconds": 0.015289545059204102,
     "last_commit": {
-      "hash": "fddd33b2436def34272799036edc6dad41208fec",
-      "author_name": "Brigs",
-      "author_email": "abrignoni@gmail.com",
-      "date": "2026-10-18T16:20:57-04:00",
-      "message": "executed apps: restate notes on 14 images, name the column Application"
+      "hash": "08b4c9b52d02c9c9c953b21f29159a97223ae994",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-20T10:42:58-04:00",
+      "message": "Merge upstream/main into add-tcc-location-statedump-artifacts"
     }
   },
   "headers": [
