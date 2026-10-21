@@ -2155,19 +2155,46 @@ __artifacts_v2__ = {
     },
     "logarchive_data_usage": {
         "name": "logarchive data usage",
-        "description": "Unified log entries recording wifi and cell data usage "
-                       "on a per app and process basis. This may include bluetooth data usage.",
+        "description": "Unified log entries from symptomsd in the analytics category giving WiFi "
+                       "and Cell in/out counters for a named process or identifier on a network "
+                       "flow; the counters are reported as logged",
         "author": "@Hexordia",
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-21",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Matches entries whose message contains 'Data Usage for' while "
-                 "also filtering category for 'analytics'",
+        "notes": "Matches entries in the analytics category whose message contains 'Data Usage "
+                 "for'. On every tested image those entries came from /usr/libexec/symptomsd in "
+                 "the com.apple.symptomsd subsystem. Each message read 'Data Usage for <name> on "
+                 "flow <number> - WiFi in/out: <n>/<n>, WiFi delta_in/delta_out: <n>/<n>, Cell "
+                 "in/out: <n>/<n>, Cell delta_in/delta_out: <n>/<n>, RNF: <n>, subscriber tag: "
+                 "<n>', followed on the iOS 18.3.2 to 26.6 images by ', total duration: <n>'. On "
+                 "those images the name was followed by '(delegation: <name>)' on 12,902, "
+                 "15,504, 14,554 and 4,095 rows (iOS 18.3.2, 18.7, 26.5.2 and 26.6). Some names "
+                 "ended in '(viaNEHelper)' and some read '(null)'. The name is a process name or "
+                 "a reverse-DNS-shaped identifier; which one it is on a row is not established. "
+                 "None held <private>. What the in/out, delta, RNF, subscriber tag and duration "
+                 "values count, and in what unit, is not established: the message gives no unit. "
+                 "A flow number appeared on more than one row (24,593 rows held 14,841 distinct "
+                 "flow numbers on the iOS 17.2.1 image). No counter is labelled Bluetooth; "
+                 "Bluetooth appears only in the name, on 4, 6 and 7 rows of the iOS 17.2.1, "
+                 "18.3.2 and 26.6 images. The iOS 12.4 image and the iOS 17.3 sysdiagnose held no "
+                 "entry containing the text. CommCenter entries reading 'Data usage for "
+                 "tethering' (2 and 4 on the iOS 17.2.1 and 26.5.2 images) match the text but not "
+                 "the category and are not reported here. Per-process totals kept by the system "
+                 "are reported by the Data Usage artifact (get_DataUsage). Only the direct "
+                 "tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "chart-line",
         "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 24593 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 23400 rows",
+            "iphone12_ios18": "iOS 18.7 | 23480 rows",
+            "hc_ios26": "iOS 26.5.2 | 22242 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 6501 rows",
         },
     },
 }
@@ -3993,7 +4020,8 @@ def logarchive_app_snapshots(context):
     return _artifacts_table_records(context, '''
         (subsystem LIKE 'com.apple.SplashBoard' AND event_message LIKE '%Snapshot data for%')
     ''')
-    
+
+
 @artifact_processor
 def logarchive_data_usage(context):
     return _artifacts_table_records(context, '''
