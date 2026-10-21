@@ -2107,7 +2107,7 @@ __artifacts_v2__ = {
     "logarchive_app_snapshots": {
         "name": "logarchive app snapshots",
         "description": "Unified log entries from SpringBoard's com.apple.SplashBoard subsystem "
-                       "saying that snapshot data for an app was written to a file. The message "
+                       "saying that snapshot data was written to a file. The message "
                        "carries a bracketed identifier and the path of the .ktx file written",
         "author": "@Hexordia",
         "creation_date": "2026-10-20",
@@ -2124,13 +2124,16 @@ __artifacts_v2__ = {
                  "<XBApplicationSnapshot ...> [identifier] written to file: <path>'. On iOS 12.4 it "
                  "read '[identifier] Snapshot data for <XBApplicationSnapshot ...> written to file: "
                  "<path>'. Whether the identifier is a bundle identifier is not established here. "
-                 "Every path ended in .ktx, and none held <private>. "
+                 "Every path ended in .ktx, and none held <private>. Some paths contain spaces: on "
+                 "17, 83, 1 and 7 rows of the iOS 17.2.1, 18.7, 26.5.2 and 26.6 images a folder "
+                 "was named '<identifier> - {DEFAULT GROUP}'. "
                  "Paths were under a data container path "
                  "(/private/var/mobile/Containers/Data/Application/<UUID>/Library/SplashBoard/"
                  "Snapshots, or Library/Caches/Snapshots on iOS 12.4) or under "
                  "/var/mobile/Library/SplashBoard/Snapshots (/var/mobile/Library/Caches/Snapshots "
                  "on iOS 12.4); some were in a 'downscaled' subfolder. A row records that a file "
-                 "was written, not that it still exists: of the logged paths, 19 of 233 on the iOS "
+                 "was written, not that it still exists. Matching each logged path from /var/mobile/ "
+                 "on against the extraction, 19 of 233 on the iOS "
                  "26.5.2 image, 83 of 429 on the iOS 18.7 image and 67 of 187 on the iOS 17.2.1 "
                  "image were present in the extraction. The App Snapshots artifact "
                  "(applicationSnapshots) reads .ktx files under those folders; it leaves out files "
@@ -2156,8 +2159,8 @@ __artifacts_v2__ = {
     "logarchive_data_usage": {
         "name": "logarchive data usage",
         "description": "Unified log entries from symptomsd in the analytics category giving WiFi "
-                       "and Cell in/out counters for a named process or identifier on a network "
-                       "flow; the counters are reported as logged",
+                       "and Cell in/out values for a name on a numbered flow; the values are "
+                       "reported as logged",
         "author": "@Hexordia",
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-21",
@@ -2171,8 +2174,8 @@ __artifacts_v2__ = {
                  "<n>', followed on the iOS 18.3.2 to 26.6 images by ', total duration: <n>'. On "
                  "those images the name was followed by '(delegation: <name>)' on 12,902, "
                  "15,504, 14,554 and 4,095 rows (iOS 18.3.2, 18.7, 26.5.2 and 26.6). Some names "
-                 "ended in '(viaNEHelper)' and some read '(null)'. The name is a process name or "
-                 "a reverse-DNS-shaped identifier; which one it is on a row is not established. "
+                 "ended in '(viaNEHelper)' and some read '(null)'. The name is either a dotted "
+                 "reverse-DNS-shaped string or a single word; what either names is not established. "
                  "None held <private>. What the in/out, delta, RNF, subscriber tag and duration "
                  "values count, and in what unit, is not established: the message gives no unit. "
                  "A flow number appeared on more than one row (24,593 rows held 14,841 distinct "
@@ -2181,8 +2184,8 @@ __artifacts_v2__ = {
                  "18.3.2 and 26.6 images. The iOS 12.4 image and the iOS 17.3 sysdiagnose held no "
                  "entry containing the text. CommCenter entries reading 'Data usage for "
                  "tethering' (2 and 4 on the iOS 17.2.1 and 26.5.2 images) match the text but not "
-                 "the category and are not reported here. Per-process totals kept by the system "
-                 "are reported by the Data Usage artifact (get_DataUsage). Process Image Path, "
+                 "the category and are not reported here. Network usage recorded in DataUsage.sqlite "
+                 "is reported by the Data Usage artifact (get_DataUsage). Process Image Path, "
                  "Subsystem and Category held one value on every row of every tested image. "
                  "Process ID held one value on the iOS 18.7 and 26.5.2 images and two to four "
                  "values on the others. Trace ID held no value on any row: rows read from tracev3 "
