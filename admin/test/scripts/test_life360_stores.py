@@ -91,6 +91,19 @@ class Life360StoreTests(unittest.TestCase):
                 self.assertEqual(seconds_to_utc(value, 1970), '')
             log.assert_not_called()
 
+    def test_converted_artifact_columns_preserve_epochs_and_subseconds(self):
+        entry = fixture.uid(0x9030)
+        document = {'id': entry, 'bufferedSamples': [fixture.loc(fixture.T0 + 1200.125)]}
+        _append(_topic(self.root, 'DeviceLocationTopic'), fixture.T0 + 1200.375, document)
+        rows = _run(awareness, 'life360DeviceLocationSamples', self.root)
+        sample = next(row for row in rows if row['Entry ID'] == entry)
+        self.assertEqual(sample['Sample Time'], datetime.fromtimestamp(fixture.T0 + 1200.125, timezone.utc))
+        self.assertEqual(sample['Logged Time'], datetime.fromtimestamp(fixture.T0 + 1200.375, timezone.utc))
+        self.assertEqual((sample['Logged Time'] - sample['Sample Time']).total_seconds(), 0.25)
+        drives = _run(stores, 'life360CircleDrives', self.root)
+        self.assertEqual(len(drives), 3)
+        self.assertTrue(all(row['Last Retrieved'].microsecond == 500000 for row in drives))
+
     def test_equal_position_and_time_keep_both_point_sources(self):
         rows = _run(awareness, 'life360MovementWaypoints', self.root)
         self.assertEqual(len(rows), 6)
