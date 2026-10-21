@@ -2108,6 +2108,23 @@ __artifacts_v2__ = {
         "sample_data": {
         },
     },
+    "logarchive_data_usage": {
+        "name": "logarchive data usage",
+        "description": "Unified log entries recording wifi and cell data usage "
+                       "on a per app and process basis. This may include bluetooth data usage.",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-21",
+        "last_update_date": "2026-10-21",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries whose message contains 'Data Usage for' while "
+                 "also filtering category for 'analytics'",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "chart-line",
+        "sample_data": {
+        },
+    },
 }
 
 import json
@@ -2807,6 +2824,8 @@ def logarchive_artifacts(context):
                  OR event_message LIKE '%[Recording Indicator] updating live rendering assertion%'))
         -- logarchive_app_snapshots
         OR (event_message LIKE '%Snapshot data for%' AND category LIKE 'FileManifest')
+        -- logarchive_data_usage
+        OR (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
     )
     '''
 
@@ -3927,6 +3946,12 @@ def logarchive_urlopens(context):
 def logarchive_app_snapshots(context):
     return _artifacts_table_records(context, '''
         (event_message LIKE '%Snapshot data for%' AND category LIKE 'FileManifest')
+    ''')
+    
+@artifact_processor
+def logarchive_data_usage(context):
+    return _artifacts_table_records(context, '''
+        (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
     ''')
 
 
