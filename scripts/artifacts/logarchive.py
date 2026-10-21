@@ -2182,8 +2182,11 @@ __artifacts_v2__ = {
                  "entry containing the text. CommCenter entries reading 'Data usage for "
                  "tethering' (2 and 4 on the iOS 17.2.1 and 26.5.2 images) match the text but not "
                  "the category and are not reported here. Per-process totals kept by the system "
-                 "are reported by the Data Usage artifact (get_DataUsage). Only the direct "
-                 "tracev3 import was tested.",
+                 "are reported by the Data Usage artifact (get_DataUsage). Process Image Path, "
+                 "Subsystem and Category held one value on every row of every tested image. "
+                 "Process ID held one value on the iOS 18.7 and 26.5.2 images and two to four "
+                 "values on the others. Trace ID held no value on any row: rows read from tracev3 "
+                 "data leave it empty. Only the direct tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "chart-line",
