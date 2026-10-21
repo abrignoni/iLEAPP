@@ -24,6 +24,10 @@ Download a pre-built release — no Python installation required.
 
 Each download holds one program, `ileapp`. `SHA256SUMS.txt` in each release lets you check a download.
 
+**Linux compatibility:** The official AppImages are built on Ubuntu 22.04, targeting glibc 2.35 or
+newer. A local Linux build can require a newer glibc when its build host provides newer libraries;
+use Ubuntu 22.04 to match the release build target.
+
 **GUI** — open iLEAPP the usual way: by double-clicking `ileapp.exe` from the zip on
 Windows, iLEAPP in Applications on macOS, or the AppImage on Linux. Started without arguments, it opens the window; select your input
 type, source path, output folder, and modules to process.
