@@ -1489,20 +1489,22 @@ __artifacts_v2__ = {
     "logarchive_app_state": {
         "name": "logarchive app install and state",
         "description": "Unified log entries from installd in the com.apple.appinstallation "
-                       "TransactionLog category, and CommCenter ct.server entries beginning 'App "
+                       "TransactionLog category, installd entries naming a container it 'Made "
+                       "container live for', and CommCenter ct.server entries beginning 'App "
                        "state'; what each entry records about an app is reported as logged and is "
                        "not sourced here",
         "author": "@Hexordia",
         "creation_date": "2026-10-06",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-21",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms provided by Hexordia as part of private R&D work; what the entries "
-                 "mean is not sourced here, so they are reported as logged. Two filters feed this "
+                 "mean is not sourced here, so they are reported as logged. Three filters feed this "
                  "artifact. (1) Entries logged by /usr/libexec/installd in the TransactionLog "
                  "category of the com.apple.appinstallation subsystem. On the five tested images "
                  "each message ended with a phase and an action separated by ' : '. Phases seen: "
-                 "'Start', 'Success (End)' and 'Fail (End)'. Actions seen: 'Install (New)', "
+                 "'Start', 'Success (End)' and 'Fail (End)'. Actions seen on those five images: "
+                 "'Install (New)', "
                  "'Install (Placeholder)', 'Install (Parallel Placeholder)', 'Install (Promote From "
                  "Placeholder)', 'Install (Patch Update)', 'Uninstall (Application)', 'Uninstall "
                  "(Parallel Placeholder)', 'Staged Update Placeholder' and 'Apply Staged Update'. "
@@ -1510,9 +1512,9 @@ __artifacts_v2__ = {
                  "17.2.1, 18.3.2, 18.7 and 26.5.2 images a slash and a second value follow the "
                  "identifier, and on the iOS 12.4 image they do not. What the numbers and the "
                  "second value are is not established. No installd message held <private> on a "
-                 "tested image. Other processes log in the same category (19 to 53 processes per "
-                 "tested image, 1,992 to 21,210 entries against 20 to 468 from installd); their "
-                 "entries are not reported here. (2) CommCenter entries in the ct.server category "
+                 "tested image. The category held 1,992 to 21,210 entries from 19 to 53 processes "
+                 "per tested image; 20 to 468 of those entries were from installd. Entries from "
+                 "other processes are not reported here. (2) CommCenter entries in the ct.server category "
                  "that begin 'App state'. They read 'App state[...] is suspended' or 'App "
                  "state[...] is moving from <state> to <state>'. State names seen: kUnknown, "
                  "kInBackgroundUnknownRestriction, kInBackgroundRestricted, "
@@ -1521,18 +1523,30 @@ __artifacts_v2__ = {
                  "value was <private> on each of the 1,237 rows. On the other four images it was "
                  "not redacted, and it was a name followed by a number in parentheses on 514 of "
                  "515 rows; whether that name is a bundle or a process name, and what the number "
-                 "is, is not established. Only the direct tracev3 import was tested. A 'log show' "
-                 "JSON export was not, and the installd filter relies on the Process Image Path "
+                 "is, is not established. (3) Entries logged by /usr/libexec/installd whose "
+                 "message contains 'Made container live for', followed by an identifier and a "
+                 "container path. The iOS 12.4, 17.2.1, 18.3.2, 18.7 and 26.5.2 images held 60, "
+                 "5, 4, 44 and 0 of them; none held <private>, and Subsystem and Category were "
+                 "empty on all 113. The path was under /private/var/containers/Bundle/Application "
+                 "on all of them except six on the iOS 12.4 image: three under "
+                 "/private/var/mobile/Containers/Data/Application and three under "
+                 "/private/var/mobile/Containers/Data/PluginKitPlugin. Whether an entry marks an "
+                 "install, an update or another container change is not established. Most were "
+                 "logged after a TransactionLog Start entry for the same identifier and before a "
+                 "later End entry for the same action, but none of the four on the iOS 18.3.2 "
+                 "image was, nor five of the 60 on the iOS 12.4 image. Only the direct tracev3 "
+                 "import was tested. A 'log show' JSON export was not, and both installd filters "
+                 "rely on the Process Image Path "
                  "column holding the /usr/libexec/installd path. Trace ID held no value on any row "
                  "of the tested images: rows read from tracev3 data leave it empty.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "package",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 1449 rows",
-            "hc_ios17_2": "iOS 17.2.1 | 155 rows",
-            "dexter_ios18": "iOS 18.3.2 | 133 rows",
-            "iphone12_ios18": "iOS 18.7 | 335 rows",
+            "ctf2020_ios12": "iOS 12.4 | 1509 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 160 rows",
+            "dexter_ios18": "iOS 18.3.2 | 137 rows",
+            "iphone12_ios18": "iOS 18.7 | 379 rows",
             "hc_ios26": "iOS 26.5.2 | 590 rows",
         },
     },
@@ -2088,6 +2102,105 @@ __artifacts_v2__ = {
         "sample_data": {
             "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
             "hc_ios26_sysdiag": "iOS 26.6 | 1 row",
+        },
+    },
+    "logarchive_app_snapshots": {
+        "name": "logarchive app snapshots",
+        "description": "Unified log entries from SpringBoard's com.apple.SplashBoard subsystem "
+                       "saying that snapshot data was written to a file. The message "
+                       "carries a bracketed identifier and the path of the .ktx file written",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-20",
+        "last_update_date": "2026-10-21",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the com.apple.SplashBoard subsystem whose message contains "
+                 "'Snapshot data for'. On every tested image, every entry containing that text "
+                 "came from that subsystem and from "
+                 "/System/Library/CoreServices/SpringBoard.app/SpringBoard (1,810 entries across "
+                 "seven images). The category was FileManifest on the iOS 17.2.1 to 26.6 images "
+                 "and Snapshot on the iOS 12.4 image, so the filter does not test the category. "
+                 "On iOS 17.2.1 and later each message read '<...> [identifier] Snapshot data for "
+                 "<XBApplicationSnapshot ...> [identifier] written to file: <path>'. On iOS 12.4 it "
+                 "read '[identifier] Snapshot data for <XBApplicationSnapshot ...> written to file: "
+                 "<path>'. Whether the identifier is a bundle identifier is not established here. "
+                 "Every path ended in .ktx, and none held <private>. Some paths contain spaces: on "
+                 "17, 83, 1 and 7 rows of the iOS 17.2.1, 18.7, 26.5.2 and 26.6 images a folder "
+                 "was named '<identifier> - {DEFAULT GROUP}'. "
+                 "Paths were under a data container path "
+                 "(/private/var/mobile/Containers/Data/Application/<UUID>/Library/SplashBoard/"
+                 "Snapshots, or Library/Caches/Snapshots on iOS 12.4) or under "
+                 "/var/mobile/Library/SplashBoard/Snapshots (/var/mobile/Library/Caches/Snapshots "
+                 "on iOS 12.4); some were in a 'downscaled' subfolder. A row records that a file "
+                 "was written, not that it still exists. Matching each logged path from /var/mobile/ "
+                 "on against the extraction, 19 of 233 on the iOS "
+                 "26.5.2 image, 83 of 429 on the iOS 18.7 image and 67 of 187 on the iOS 17.2.1 "
+                 "image were present in the extraction. The App Snapshots artifact "
+                 "(applicationSnapshots) reads .ktx files under those folders; it leaves out files "
+                 "under 2500 bytes and files that do not decode. The identifier and path are not split "
+                 "into their own columns; read them from Event Message. Process Image Path and "
+                 "Subsystem held one value on every row of every tested image, and Category held "
+                 "one value per image. Process ID held one value on six images and three values "
+                 "on the iOS 12.4 image. Trace ID held no value on any row: rows read from "
+                 "tracev3 data leave it empty. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "screenshot",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 900 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 187 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | 32 rows",
+            "iphone12_ios18": "iOS 18.7 | 429 rows",
+            "hc_ios26": "iOS 26.5.2 | 233 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 23 rows",
+        },
+    },
+    "logarchive_data_usage": {
+        "name": "logarchive data usage",
+        "description": "Unified log entries from symptomsd in the analytics category giving WiFi "
+                       "and Cell in/out values for a name on a numbered flow; the values are "
+                       "reported as logged",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-21",
+        "last_update_date": "2026-10-21",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the analytics category whose message contains 'Data Usage "
+                 "for'. On every tested image those entries came from /usr/libexec/symptomsd in "
+                 "the com.apple.symptomsd subsystem. Each message read 'Data Usage for <name> on "
+                 "flow <number> - WiFi in/out: <n>/<n>, WiFi delta_in/delta_out: <n>/<n>, Cell "
+                 "in/out: <n>/<n>, Cell delta_in/delta_out: <n>/<n>, RNF: <n>, subscriber tag: "
+                 "<n>', followed on the iOS 18.3.2 to 26.6 images by ', total duration: <n>'. On "
+                 "those images the name was followed by '(delegation: <name>)' on 12,902, "
+                 "15,504, 14,554 and 4,095 rows (iOS 18.3.2, 18.7, 26.5.2 and 26.6). Some names "
+                 "ended in '(viaNEHelper)' and some read '(null)'. The name is either a dotted "
+                 "reverse-DNS-shaped string or a single word; what either names is not established. "
+                 "None held <private>. What the in/out, delta, RNF, subscriber tag and duration "
+                 "values count, and in what unit, is not established: the message gives no unit. "
+                 "A flow number appeared on more than one row (24,593 rows held 14,841 distinct "
+                 "flow numbers on the iOS 17.2.1 image). No counter is labelled Bluetooth; "
+                 "Bluetooth appears only in the name, on 4, 6 and 7 rows of the iOS 17.2.1, "
+                 "18.3.2 and 26.6 images. The iOS 12.4 image and the iOS 17.3 sysdiagnose held no "
+                 "entry containing the text. CommCenter entries reading 'Data usage for "
+                 "tethering' (2 and 4 on the iOS 17.2.1 and 26.5.2 images) match the text but not "
+                 "the category and are not reported here. Network usage recorded in DataUsage.sqlite "
+                 "is reported by the Data Usage artifact (get_DataUsage). Process Image Path, "
+                 "Subsystem and Category held one value on every row of every tested image. "
+                 "Process ID held one value on the iOS 18.7 and 26.5.2 images and two to four "
+                 "values on the others. Trace ID held no value on any row: rows read from tracev3 "
+                 "data leave it empty. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "chart-line",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 24593 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 23400 rows",
+            "iphone12_ios18": "iOS 18.7 | 23480 rows",
+            "hc_ios26": "iOS 26.5.2 | 22242 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 6501 rows",
         },
     },
 }
@@ -2732,6 +2845,7 @@ def logarchive_artifacts(context):
         -- logarchive_app_state
         OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        OR (process_image_path LIKE '%/usr/libexec/installd%' AND event_message LIKE '%Made container live for%')
         -- logarchive_device_id
         OR (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
         OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
@@ -2786,6 +2900,10 @@ def logarchive_artifacts(context):
             AND (event_message LIKE '%[Recording Indicator] Active camera/microphone activity changed%'
                  OR event_message LIKE '%[Recording Indicator] creating secure indicator layer%'
                  OR event_message LIKE '%[Recording Indicator] updating live rendering assertion%'))
+        -- logarchive_app_snapshots
+        OR (subsystem LIKE 'com.apple.SplashBoard' AND event_message LIKE '%Snapshot data for%')
+        -- logarchive_data_usage
+        OR (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
     )
     '''
 
@@ -3860,6 +3978,7 @@ def logarchive_app_state(context):
     return _artifacts_table_records(context, '''
         (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        OR (process_image_path LIKE '%/usr/libexec/installd%' AND event_message LIKE '%Made container live for%')
     ''')
 
 @artifact_processor
@@ -3899,6 +4018,20 @@ def logarchive_urlopens(context):
         event_message LIKE '%UIOpenURLAction%'
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
+    ''')
+
+
+@artifact_processor
+def logarchive_app_snapshots(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE 'com.apple.SplashBoard' AND event_message LIKE '%Snapshot data for%')
+    ''')
+
+
+@artifact_processor
+def logarchive_data_usage(context):
+    return _artifacts_table_records(context, '''
+        (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
     ''')
 
 
