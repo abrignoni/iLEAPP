@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 from admin.test.fixtures.life360 import make_synthetic_life360 as fixture
 from scripts.artifacts import life360Awareness as awareness, life360Stores as stores
-from scripts.life360_common import seconds_to_utc
+from scripts.life360_common import get_life360_files, seconds_to_utc
 
 
 class _Context:
@@ -82,6 +82,14 @@ class Life360StoreTests(unittest.TestCase):
             self.assertEqual(seconds_to_utc(float('inf'), 1970), '')
             self.assertEqual(seconds_to_utc(float('nan'), 2001), '')
         self.assertEqual(log.call_count, 2)
+        with patch('scripts.life360_common.logfunc') as log:
+            for value in ('synthetic-not-seconds', True):
+                self.assertEqual(seconds_to_utc(value, 1970), '')
+            self.assertEqual(log.call_count, 2)
+            log.reset_mock()
+            for value in (None, ''):
+                self.assertEqual(seconds_to_utc(value, 1970), '')
+            log.assert_not_called()
 
     def test_equal_position_and_time_keep_both_point_sources(self):
         rows = _run(awareness, 'life360MovementWaypoints', self.root)
@@ -182,13 +190,26 @@ class Life360StoreTests(unittest.TestCase):
     def test_raw_event_forms_and_bad_base64_preserve_outer_entry(self):
         path = _topic(self.root, 'active_modality')
         raw = {'timestamp': fixture.T0 + 1200, 'location': fixture.loc(fixture.T0 + 1199)}
-        for index, value in enumerate((raw, '!!notbase64', base64.b64encode(b'not JSON').decode(), None)):
+        drive = {'timestamp': fixture.T0 + 1199 - fixture.COCOA,
+                 'coordinate': {'latitude': fixture.LAT, 'longitude': fixture.LON},
+                 'tripID': 'synthetic-fallback-trip'}
+        variants = (raw, '!!notbase64', base64.b64encode(b'not JSON').decode(), None,
+                    base64.b64encode(b'[]').decode(), 7,
+                    dict(raw, location=None, drive=drive), dict(raw, location=7, drive=drive))
+        for index, value in enumerate(variants):
             document = {'id': fixture.uid(0x9100 + index), 'timestamp': fixture.T0 + 1300 + index,
                         'rawEvent': value, 'rawEventType': 'synthetic'}
             _append(path, fixture.T0 + 1400 + index, document)
-        rows = _run(awareness, 'life360ActivityModality', self.root)
-        self.assertEqual(len(rows), 6)
-        self.assertEqual(sum(row['Location Time'] == '' for row in rows), 3)
+        with patch.object(awareness, 'logfunc') as log, patch('scripts.life360_common.logfunc') as shape_log:
+            rows = _run(awareness, 'life360ActivityModality', self.root)
+        self.assertEqual(len(rows), 10)
+        self.assertEqual(sum(row['Location Time'] == '' for row in rows), 5)
+        self.assertEqual(log.call_count, 4)
+        self.assertTrue(all('outer entry retained' in call.args[0] for call in log.call_args_list))
+        self.assertTrue(any('rawEvent location' in call.args[0] for call in shape_log.call_args_list))
+        fallback = [row for row in rows if row['Trip ID'] == 'synthetic-fallback-trip']
+        self.assertEqual(len(fallback), 2)
+        self.assertTrue(all(row['Location Time'] != '' and row['Latitude'] == fixture.LAT for row in fallback))
         self.assertTrue(any(row['Event Time'] != row['Logged Time'] for row in rows))
 
     def test_account_health_dictionary_json_bytes_and_string(self):
@@ -235,6 +256,34 @@ class Life360StoreTests(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual(sum(row['Place Name'] == '' and row['Latitude'] == fixture.LAT for row in rows), 1)
 
+    def test_preference_shape_and_setting_decode_failures_are_logged(self):
+        path = self.root / 'Library/Preferences/com.life360.safetymap.plist'
+        preferences = plistlib.loads(path.read_bytes())
+        preferences['com.life360.datakit.CurrentUser.Type'] = 7
+        preferences['com.life360.datakit.Circle.Type'] = '[null, {}]'
+        preferences['L360LocationHealthStorage'] = b'null'
+        key = 'com.life360.datakit.MemberCircleSettings.Type'
+        blocks = json.loads(preferences[key])
+        blocks[0]['store'].extend(['synthetic-raw-key', '!!synthetic-secret', 'synthetic-unpaired-key'])
+        preferences[key] = json.dumps(blocks).encode()
+        path.write_bytes(plistlib.dumps(preferences))
+        with patch.object(stores, 'logfunc') as log:
+            self.assertTrue(_run(stores, 'life360Account', self.root))
+            self.assertTrue(_run(stores, 'life360Circles', self.root))
+            rows = _run(stores, 'life360MemberSettings', self.root)
+        messages = [call.args[0] for call in log.call_args_list]
+        for reason in ('neither an array nor an object', 'array element 0 was not an object',
+                       'did not hold a dictionary', 'unpaired trailing key', 'raw value retained'):
+            self.assertTrue(any(reason in message for message in messages), reason)
+        self.assertTrue(any(row['Value'] == '!!synthetic-secret' for row in rows))
+        self.assertTrue(all('synthetic-secret' not in message for message in messages))
+        path.write_bytes(plistlib.dumps([]))
+        with patch.object(stores, 'logfunc') as log:
+            for name in ('life360Account', 'life360Circles', 'life360MemberSettings',
+                         'life360GeofenceStates', 'life360PopDwells'):
+                self.assertEqual(_run(stores, name, self.root), [])
+        self.assertEqual(log.call_count, 5)
+
     def test_two_tenants_duplicate_views_and_foreign_decoy(self):
         # An examiner's ancestor folder named Library must not become the container key.
         tree = self.root.parent / 'Library' / 'multi'
@@ -247,7 +296,8 @@ class Life360StoreTests(unittest.TestCase):
             for name in module.__artifacts_v2__:
                 with self.subTest(artifact=name):
                     single = _run(module, name, self.root)
-                    multiple = _run(module, name, tree, duplicate=True)
+                    with patch('scripts.life360_common.logfunc'):
+                        multiple = _run(module, name, tree, duplicate=True)
                     expected = 2 * len(single) + (name == 'life360DeviceLocationSamples')
                     self.assertEqual(len(multiple), expected)
                     for row in multiple:
@@ -272,6 +322,49 @@ class Life360StoreTests(unittest.TestCase):
         headers, rows, _ = awareness.life360MovementWaypoints.__wrapped__(context)
         self.assertEqual(len(rows), 6)
         self.assertTrue(all(len(row) == len(headers) for row in rows))
+
+    def test_excluded_stores_are_logged_when_the_main_container_is_present(self):
+        tree = self.root.parent
+        _container(tree / 'PluginKitPlugin' / 'extension', 'com.life360.safetymap.SidecarLPSE')
+        _container(tree / 'foreign', 'invalid.example.foreign-app')
+        _container(tree / 'missing')
+        (tree / 'missing' / '.com.apple.mobile_container_manager.metadata.plist').unlink()
+        _container(tree / 'invalid')
+        (tree / 'invalid' / '.com.apple.mobile_container_manager.metadata.plist').write_bytes(
+            plistlib.dumps([]))
+        for module in (awareness, stores):
+            for name in module.__artifacts_v2__:
+                with self.subTest(artifact=name), patch('scripts.life360_common.logfunc') as log:
+                    single = _run(module, name, self.root)
+                    multiple = _run(module, name, tree, duplicate=True)
+                    self.assertEqual(len(multiple), len(single))
+                    messages = [call.args[0] for call in log.call_args_list]
+                    self.assertTrue(any('com.life360.safetymap.SidecarLPSE' in m for m in messages))
+                    self.assertTrue(any('invalid.example.foreign-app' in m for m in messages))
+                    self.assertTrue(any('missing/' in m and 'marker missing' in m for m in messages))
+                    self.assertTrue(any('invalid/' in m and 'Identifier None' in m for m in messages))
+                    self.assertTrue(all(str(tree) not in m for m in messages))
+                    log.reset_mock()
+                    self.assertEqual(_run(module, name, tree), multiple)
+                    self.assertEqual([call.args[0] for call in log.call_args_list], messages)
+
+    def test_unrelated_markers_are_not_parsed(self):
+        context = _Context(self.root, awareness.__artifacts_v2__['life360GeofenceBreaches']['paths'])
+        unrelated = [self.root.parent / 'other-apps' / str(n) /
+                     '.com.apple.mobile_container_manager.metadata.plist' for n in range(1352)]
+        context.files.extend(str(path) for path in unrelated)
+        with patch('scripts.life360_common.get_plist_file_content', wraps=stores.get_plist_file_content) as read:
+            self.assertTrue(get_life360_files(context))
+        self.assertEqual(read.call_count, 1)
+
+    def test_nested_foreign_marker_does_not_inherit_an_accepted_parent(self):
+        nested = self.root / 'nested'
+        _container(nested, 'invalid.example.foreign-app')
+        with patch('scripts.life360_common.logfunc') as log:
+            rows = _run(awareness, 'life360GeofenceBreaches', self.root)
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(all('nested/' not in row['Source File'] for row in rows))
+        self.assertTrue(any('invalid.example.foreign-app' in call.args[0] for call in log.call_args_list))
 
 
 if __name__ == '__main__':
