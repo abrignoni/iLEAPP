@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "module_name": "life360Stores",
+    "artifact_name": "Life360 - Place Alerts",
+    "function_name": "life360PlaceAlerts",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 11,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 617,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Stores/testdata.life360Stores.life360PlaceAlerts.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T19:30:24.559610+00:00",
+    "end_time": "2026-10-21T19:30:24.567618+00:00",
+    "run_time_seconds": 0.0005507469177246094,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-21T19:30:24.563121",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Place Name",
+    "Member ID",
+    "Arrival Alerts",
+    "Departure Alerts",
+    "Latitude",
+    "Longitude",
+    "Circle ID",
+    "Place ID",
+    "Alert ID",
+    "Last Retrieved",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Home",
+      "00000000-0000-0000-0000-00000000a001",
+      "Yes",
+      "Yes",
+      0.5,
+      -150.5,
+      "00000000-0000-0000-0000-00000000a00a",
+      "00000000-0000-0000-0000-00000000a014",
+      "00000000-0000-0000-0000-00000000a03c",
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/L360CoreDataStore.sqlite"
+    ],
+    [
+      "Home",
+      "00000000-0000-0000-0000-00000000a002",
+      "No",
+      "Yes",
+      0.5,
+      -150.5,
+      "00000000-0000-0000-0000-00000000a00a",
+      "00000000-0000-0000-0000-00000000a014",
+      "00000000-0000-0000-0000-00000000a03d",
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/L360CoreDataStore.sqlite"
+    ]
+  ]
+}

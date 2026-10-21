@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "module_name": "life360Awareness",
+    "artifact_name": "Life360 - Failed Location Reports",
+    "function_name": "life360FailedLocations",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 18,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 344,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Awareness/testdata.life360Awareness.life360FailedLocations.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T19:30:24.292875+00:00",
+    "end_time": "2026-10-21T19:30:24.300137+00:00",
+    "run_time_seconds": 0.0004286766052246094,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-21T19:30:24.296128",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Location Time",
+    "Logged Time",
+    "Latitude",
+    "Longitude",
+    "Altitude",
+    "Speed",
+    "Course",
+    "Horizontal Accuracy",
+    "Vertical Accuracy",
+    "Server Tag (as stored)",
+    "Battery Level (as stored)",
+    "Battery State (as stored)",
+    "Wi-Fi Enabled",
+    "SSID",
+    "BSSID",
+    "Drive Detection Status (as stored)",
+    "Entry ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      1768478419,
+      1768478420,
+      0.5,
+      -150.5,
+      10.5,
+      1.5,
+      90.0,
+      5.0,
+      3.0,
+      "drive",
+      -100,
+      "unknown",
+      "No",
+      "",
+      "",
+      "OFF",
+      "00000000-0000-0000-0000-000000009001",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
+    ]
+  ]
+}

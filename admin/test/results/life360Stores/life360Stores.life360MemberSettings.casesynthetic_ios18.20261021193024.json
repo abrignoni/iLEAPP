@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "module_name": "life360Stores",
+    "artifact_name": "Life360 - Member and Circle Settings",
+    "function_name": "life360MemberSettings",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 7,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 1051,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Stores/testdata.life360Stores.life360MemberSettings.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T19:30:24.603264+00:00",
+    "end_time": "2026-10-21T19:30:24.613029+00:00",
+    "run_time_seconds": 0.0016133785247802734,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-21T19:30:24.606793",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Scope",
+    "Member ID",
+    "Circle ID",
+    "Setting",
+    "Value",
+    "Last Retrieved",
+    "Source File"
+  ],
+  "data": [
+    [
+      "member",
+      "00000000-0000-0000-0000-00000000a001",
+      "00000000-0000-0000-0000-00000000a00a",
+      "driveDetectionStatus",
+      "ON",
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ],
+    [
+      "member",
+      "00000000-0000-0000-0000-00000000a001",
+      "00000000-0000-0000-0000-00000000a00a",
+      "driveAlertsEnabled",
+      true,
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ],
+    [
+      "circle",
+      "",
+      "00000000-0000-0000-0000-00000000a00a",
+      "crashDetectionLimitationStatus",
+      "bm90LWFjY2VwdGVk",
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ],
+    [
+      "user",
+      "",
+      "",
+      "contactsSettings",
+      "{\"visibility\": 1}",
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ],
+    [
+      "user",
+      "",
+      "",
+      "broken",
+      "!!notbase64",
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ]
+  ]
+}

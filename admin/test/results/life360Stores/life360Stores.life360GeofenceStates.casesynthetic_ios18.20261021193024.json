@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "module_name": "life360Stores",
+    "artifact_name": "Life360 - Geofence State Cache",
+    "function_name": "life360GeofenceStates",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 9,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 457,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Stores/testdata.life360Stores.life360GeofenceStates.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T19:30:24.613608+00:00",
+    "end_time": "2026-10-21T19:30:24.622005+00:00",
+    "run_time_seconds": 0.0002758502960205078,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-21T19:30:24.616271",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Place Name",
+    "Direction (as stored)",
+    "Latitude",
+    "Longitude",
+    "Radius",
+    "Unit",
+    "Circle ID",
+    "Place ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Home",
+      "egress",
+      0.5,
+      -150.5,
+      150.0,
+      "m",
+      "00000000-0000-0000-0000-00000000a00a",
+      "00000000-0000-0000-0000-00000000a014",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ],
+    [
+      "Work",
+      "ingress",
+      0.6,
+      -150.4,
+      250.0,
+      "m",
+      "00000000-0000-0000-0000-00000000a00a",
+      "00000000-0000-0000-0000-00000000a015",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ]
+  ]
+}

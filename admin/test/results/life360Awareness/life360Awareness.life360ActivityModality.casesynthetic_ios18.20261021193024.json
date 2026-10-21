@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "module_name": "life360Awareness",
+    "artifact_name": "Life360 - Activity Modality",
+    "function_name": "life360ActivityModality",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 16,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 727,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Awareness/testdata.life360Awareness.life360ActivityModality.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T19:30:24.351877+00:00",
+    "end_time": "2026-10-21T19:30:24.360234+00:00",
+    "run_time_seconds": 0.0006146430969238281,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-21T19:30:24.354392",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Event Time",
+    "Modality (as stored)",
+    "Confidence (as stored)",
+    "Raw Event Type (as stored)",
+    "Location Time",
+    "Latitude",
+    "Longitude",
+    "Altitude",
+    "Speed",
+    "Course",
+    "Horizontal Accuracy",
+    "Vertical Accuracy",
+    "Server Tag (as stored)",
+    "Trip ID",
+    "Entry ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      1768479500,
+      "driving",
+      "high",
+      "modalityLocation",
+      1768479499,
+      0.5,
+      -150.5,
+      10.5,
+      1.5,
+      90.0,
+      5.0,
+      3.0,
+      "undefined",
+      "",
+      "00000000-0000-0000-0000-000000009001",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.activity_recognition.topics.active_modality/com.life360.activity_recognition.topics.active_modality.sqlite"
+    ],
+    [
+      1768478700,
+      "unknown",
+      "",
+      "driveEvent",
+      1768478700,
+      0.5,
+      -150.49,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "00000000-0000-0000-0000-000000009002",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.activity_recognition.topics.active_modality/com.life360.activity_recognition.topics.active_modality.sqlite"
+    ]
+  ]
+}

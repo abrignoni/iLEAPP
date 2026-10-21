@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "module_name": "life360Stores",
+    "artifact_name": "Life360 - Circles",
+    "function_name": "life360Circles",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 10,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 244,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Stores/testdata.life360Stores.life360Circles.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T19:30:24.595833+00:00",
+    "end_time": "2026-10-21T19:30:24.602669+00:00",
+    "run_time_seconds": 0.00032782554626464844,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-21T19:30:24.598709",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Circle Name",
+    "Circle ID",
+    "Type (as stored)",
+    "Created At",
+    "Role (as stored)",
+    "Invite Code",
+    "Invite Deeplink",
+    "Invite Expiration",
+    "Last Retrieved",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Family",
+      "00000000-0000-0000-0000-00000000a00a",
+      "basic",
+      1742558400,
+      1,
+      "ABC-123",
+      "https://example.invalid/join",
+      1768737600,
+      1768478400,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ]
+  ]
+}

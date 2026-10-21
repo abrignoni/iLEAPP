@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "module_name": "life360Stores",
+    "artifact_name": "Life360 - Pop Dwells Seen",
+    "function_name": "life360PopDwells",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 6,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 188,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Stores/testdata.life360Stores.life360PopDwells.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T19:30:24.622599+00:00",
+    "end_time": "2026-10-21T19:30:24.629989+00:00",
+    "run_time_seconds": 0.0003209114074707031,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-21T19:30:24.626005",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Date",
+    "Latitude",
+    "Longitude",
+    "Circle ID",
+    "Recurrence ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      1768032000,
+      0.7,
+      -150.3,
+      "00000000-0000-0000-0000-00000000a00a",
+      "r1",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ]
+  ]
+}
