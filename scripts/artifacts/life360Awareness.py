@@ -49,7 +49,7 @@ __artifacts_v2__ = {
                  'renders as the declared epoch instant (1970-01-01 or 2001-01-01), not as a missing value. Missing dates '
                  'remain blank. Unexpected nonnumeric and out-of-range numeric dates render blank with a log entry. '
                  'Decode failures and unexpected stored object/array shapes are logged; valid outer rows and raw values '
-                 'are retained where supported. Main-file-only scope on'
+                 'are retained where supported. Main-file-only scope on '
                  'the tested image: comparing stored ZID sets with WAL ignored versus applied found 352 main-only '
                  'drive_session entries (101 live), 119 BreachTopic (1 live), 87 trip_session (2 live), 53 '
                  'FailedLocationTopic (7 live), 47 DwellTopic (14 live), 13 dwell_session (5 live), and 45 main-only '

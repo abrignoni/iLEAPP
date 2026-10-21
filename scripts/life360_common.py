@@ -71,7 +71,10 @@ def get_life360_files(context):
             if identifier == 'com.life360.safetymap':
                 accepted[physical] = path
                 continue
-            reason = f'unsupported MCMMetadataIdentifier {identifier!r}'
+            if not isinstance(identifier, str) or not identifier:
+                reason = 'container marker unreadable or missing a valid MCMMetadataIdentifier'
+            else:
+                reason = f'unsupported MCMMetadataIdentifier {identifier!r}'
         relative = context.get_relative_path(path)
         logfunc(f'Life360 skipped matching file {relative!r}: {reason}')
     return sorted(accepted.values())

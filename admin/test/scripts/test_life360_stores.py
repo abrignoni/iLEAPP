@@ -231,6 +231,36 @@ class Life360StoreTests(unittest.TestCase):
         self.assertEqual(orphan['Created At'], '')
         self.assertEqual(orphan['Invite Code'], 'XYZ-789')
 
+    def test_circle_roles_decode_dictionaries_json_text_and_bytes(self):
+        path = self.root / 'Library/Preferences/com.life360.safetymap.plist'
+        preferences = plistlib.loads(path.read_bytes())
+        roles = {fixture.CIRCLE1: 1, fixture.CIRCLE2: 0}
+        for raw in (roles, json.dumps(roles), json.dumps(roles).encode()):
+            with self.subTest(type=type(raw).__name__):
+                preferences['memberRoles'] = raw
+                path.write_bytes(plistlib.dumps(preferences))
+                with patch.object(stores, 'logfunc') as log, patch('scripts.life360_common.logfunc') as shape_log:
+                    rows = _run(stores, 'life360Circles', self.root)
+                self.assertEqual({row['Circle ID']: row['Role (as stored)'] for row in rows}, roles)
+                log.assert_not_called()
+                shape_log.assert_not_called()
+        for raw in (b'{', b'[]', 7):
+            with self.subTest(invalid=type(raw).__name__):
+                preferences['memberRoles'] = raw
+                path.write_bytes(plistlib.dumps(preferences))
+                with patch.object(stores, 'logfunc') as log:
+                    rows = _run(stores, 'life360Circles', self.root)
+                self.assertEqual(len(rows), 2)
+                self.assertTrue(all(row['Role (as stored)'] == '' for row in rows))
+                self.assertTrue(any('memberRoles' in call.args[0] for call in log.call_args_list))
+        preferences.pop('memberRoles')
+        path.write_bytes(plistlib.dumps(preferences))
+        with patch.object(stores, 'logfunc') as log:
+            rows = _run(stores, 'life360Circles', self.root)
+        self.assertEqual(len(rows), 2)
+        self.assertTrue(all(row['Role (as stored)'] == '' for row in rows))
+        log.assert_not_called()
+
     def test_malformed_preference_sections_are_logged_and_isolated(self):
         path = self.root / 'Library/Preferences/com.life360.safetymap.plist'
         preferences = plistlib.loads(path.read_bytes())
@@ -332,9 +362,12 @@ class Life360StoreTests(unittest.TestCase):
         _container(tree / 'invalid')
         (tree / 'invalid' / '.com.apple.mobile_container_manager.metadata.plist').write_bytes(
             plistlib.dumps([]))
+        _container(tree / 'corrupt')
+        (tree / 'corrupt' / '.com.apple.mobile_container_manager.metadata.plist').write_bytes(b'not a plist')
         for module in (awareness, stores):
             for name in module.__artifacts_v2__:
-                with self.subTest(artifact=name), patch('scripts.life360_common.logfunc') as log:
+                with self.subTest(artifact=name), patch('scripts.life360_common.logfunc') as log, \
+                        patch('scripts.ilapfuncs.logfunc') as plist_log:
                     single = _run(module, name, self.root)
                     multiple = _run(module, name, tree, duplicate=True)
                     self.assertEqual(len(multiple), len(single))
@@ -342,7 +375,9 @@ class Life360StoreTests(unittest.TestCase):
                     self.assertTrue(any('com.life360.safetymap.SidecarLPSE' in m for m in messages))
                     self.assertTrue(any('invalid.example.foreign-app' in m for m in messages))
                     self.assertTrue(any('missing/' in m and 'marker missing' in m for m in messages))
-                    self.assertTrue(any('invalid/' in m and 'Identifier None' in m for m in messages))
+                    self.assertTrue(any('invalid/' in m and 'marker unreadable' in m for m in messages))
+                    self.assertTrue(any('corrupt/' in m and 'marker unreadable' in m for m in messages))
+                    plist_log.assert_called()
                     self.assertTrue(all(str(tree) not in m for m in messages))
                     log.reset_mock()
                     self.assertEqual(_run(module, name, tree), multiple)
