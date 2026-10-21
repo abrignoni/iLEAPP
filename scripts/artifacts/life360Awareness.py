@@ -38,7 +38,9 @@ __artifacts_v2__ = {
                   'com.life360.DeviceLocationTopic.sqlite*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 1468 rows",
+        },
     },
     "life360FailedLocations": {
         "name": "Life360 - Failed Location Reports",
@@ -68,7 +70,9 @@ __artifacts_v2__ = {
                   'com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite*',),
         "output_types": "all",
         "artifact_icon": "map-pin-off",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 7 rows",
+        },
     },
     "life360MovementEvents": {
         "name": "Life360 - Movement Events",
@@ -117,7 +121,9 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/com.life360.safetymap.plist'),
         "output_types": "all",
         "artifact_icon": "car",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 136 rows",
+        },
     },
     "life360MovementWaypoints": {
         "name": "Life360 - Movement Waypoints",
@@ -156,7 +162,9 @@ __artifacts_v2__ = {
                   'com.life360.event_history_core.topics.trip_session.sqlite*'),
         "output_types": "all",
         "artifact_icon": "route",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 2158 rows",
+        },
     },
     "life360DrivingIncidents": {
         "name": "Life360 - Driving Incidents",
@@ -187,7 +195,9 @@ __artifacts_v2__ = {
                   'com.life360.L360Driving.Topics.DriveEvent.sqlite*'),
         "output_types": "all",
         "artifact_icon": "alert-triangle",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 9 rows",
+        },
     },
     "life360DwellEvents": {
         "name": "Life360 - Dwell Events",
@@ -222,7 +232,9 @@ __artifacts_v2__ = {
                   'com.life360.AwarenessEngine.Topics.DwellTopic.sqlite*'),
         "output_types": "all",
         "artifact_icon": "home",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 16 rows",
+        },
     },
     "life360GeofenceBreaches": {
         "name": "Life360 - Geofence Breaches",
@@ -252,7 +264,9 @@ __artifacts_v2__ = {
                   'com.life360.AwarenessEngine.Topics.BreachTopic.sqlite*',),
         "output_types": "all",
         "artifact_icon": "circle-dashed",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 2 rows",
+        },
     },
     "life360ActivityModality": {
         "name": "Life360 - Activity Modality",
@@ -282,7 +296,9 @@ __artifacts_v2__ = {
                   'com.life360.activity_recognition.topics.active_modality.sqlite*',),
         "output_types": "all",
         "artifact_icon": "activity",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 562 rows",
+        },
     },
 }
 

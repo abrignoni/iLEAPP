@@ -31,7 +31,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/DriveModelStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "car",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 1127 rows",
+        },
     },
     "life360Places": {
         "name": "Life360 - Places",
@@ -59,7 +61,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/L360CoreDataStore.sqlite*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 10 rows",
+        },
     },
     "life360PlaceAlerts": {
         "name": "Life360 - Place Alerts",
@@ -83,7 +87,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/L360CoreDataStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "bell",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 23 rows",
+        },
     },
     "life360DriverReports": {
         "name": "Life360 - Driver Reports",
@@ -112,7 +118,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/L360CoreDataStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "report",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 128 rows",
+        },
     },
     "life360Account": {
         "name": "Life360 - Account and Device",
@@ -144,7 +152,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Preferences/com.life360.safetymap.plist',),
         "output_types": "standard",
         "artifact_icon": "user",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 86 rows",
+        },
     },
     "life360Circles": {
         "name": "Life360 - Circles",
@@ -172,7 +182,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Preferences/com.life360.safetymap.plist',),
         "output_types": "standard",
         "artifact_icon": "users",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 2 rows",
+        },
     },
     "life360MemberSettings": {
         "name": "Life360 - Member and Circle Settings",
@@ -199,7 +211,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Preferences/com.life360.safetymap.plist',),
         "output_types": "standard",
         "artifact_icon": "settings",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 30 rows",
+        },
     },
     "life360GeofenceStates": {
         "name": "Life360 - Geofence State Cache",
@@ -224,7 +238,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Preferences/com.life360.safetymap.plist',),
         "output_types": "all",
         "artifact_icon": "circle-dashed",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 8 rows",
+        },
     },
     "life360PopDwells": {
         "name": "Life360 - Pop Dwells Seen",
@@ -249,7 +265,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Preferences/com.life360.safetymap.plist',),
         "output_types": "all",
         "artifact_icon": "map-pin",
-        "sample_data": {},
+        "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 7 rows",
+        },
     },
 }
 

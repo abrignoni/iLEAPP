@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "map-pin",
         "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 0 rows (no com.life360.safetymap*.log file in the container)",
             "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 728 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
             "belkactf6": "0 rows",
@@ -75,6 +76,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "battery",
         "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 0 rows (no com.life360.safetymap*.log file in the container)",
             "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 728 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
             "belkactf6": "0 rows",
@@ -143,6 +145,7 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "map",
         "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 0 rows (no com.life360.safetymap*.log file in the container)",
             "abe_ios16": "iOS 16.5 | 20421 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
             "belkactf6": "0 rows",
@@ -200,6 +203,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "navigation",
         "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 0 rows (no com.life360.safetymap*.log file in the container)",
             "abe_ios16": "iOS 16.5 | 4024 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
             "belkactf6": "0 rows",
@@ -249,6 +253,7 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "message-circle",
         "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 1 row",
             "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 8 rows",
             "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 0 rows",
@@ -279,6 +284,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "users",
         "sample_data": {
+            "private_ios18_6": "iOS 18.6 | Life360 26.34.0.5 | 4 rows",
             "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 10 rows",
             "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 1 row",
             "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 4 rows",
