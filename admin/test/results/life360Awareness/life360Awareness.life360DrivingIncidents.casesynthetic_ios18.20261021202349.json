@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "module_name": "life360Awareness",
+    "artifact_name": "Life360 - Driving Incidents",
+    "function_name": "life360DrivingIncidents",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 11,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 1961,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Awareness/testdata.life360Awareness.life360DrivingIncidents.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T20:23:49.875290+00:00",
+    "end_time": "2026-10-21T20:23:49.887860+00:00",
+    "run_time_seconds": 0.0008642673492431641,
+    "last_commit": {
+      "hash": "027b1863890c12f5576b7f5db92305678e569fa2",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-21T19:47:17+00:00",
+      "message": "chore(life360): record sample_data for the private iOS 18.6 extraction"
+    }
+  },
+  "headers": [
+    "Incident Time",
+    "Type (as stored)",
+    "Latitude",
+    "Longitude",
+    "Trip ID",
+    "Event IDs",
+    "Stores",
+    "Occurrences",
+    "Source Files",
+    "Contributing Records",
+    "Incident Data (as stored)"
+  ],
+  "data": [
+    [
+      1768478550,
+      "distractedDriving",
+      0.502,
+      -150.5,
+      "20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "00000000-0000-0000-0000-000000000930, 00000000-0000-0000-0000-0000000009BC",
+      "DriveEvent, drive_session",
+      3,
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.L360Driving.Topics.DriveEvent/com.life360.L360Driving.Topics.DriveEvent.sqlite\nprivate/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite",
+      "[{\"entryID\": \"00000000-0000-0000-0000-000000009002\", \"eventID\": \"00000000-0000-0000-0000-000000000930\", \"loggedTimeUnix\": 1768478560.0, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite\", \"store\": \"drive_session\"}, {\"entryID\": \"00000000-0000-0000-0000-000000009002\", \"eventID\": \"00000000-0000-0000-0000-0000000009BC\", \"loggedTimeUnix\": 1768478700.0, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.L360Driving.Topics.DriveEvent/com.life360.L360Driving.Topics.DriveEvent.sqlite\", \"store\": \"DriveEvent\"}, {\"entryID\": \"00000000-0000-0000-0000-000000009003\", \"eventID\": \"00000000-0000-0000-0000-0000000009BC\", \"loggedTimeUnix\": 1768478700.0, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite\", \"store\": \"drive_session\"}]",
+      "{\"coordinate\": {\"latitude\": 0.502, \"longitude\": -150.5}, \"timestamp\": 1768478550, \"type\": \"distractedDriving\"}"
+    ]
+  ]
+}

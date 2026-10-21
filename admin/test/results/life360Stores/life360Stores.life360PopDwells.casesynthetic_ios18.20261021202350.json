@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/life360Stores/testdata.life360Stores.life360PopDwells.casesynthetic_ios18.zip",
-    "start_time": "2026-10-21T19:30:24.622599+00:00",
-    "end_time": "2026-10-21T19:30:24.629989+00:00",
-    "run_time_seconds": 0.0003209114074707031,
+    "start_time": "2026-10-21T20:23:50.361332+00:00",
+    "end_time": "2026-10-21T20:23:50.373128+00:00",
+    "run_time_seconds": 0.00035381317138671875,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-21T19:30:24.626005",
-      "message": "File not yet committed to git"
+      "hash": "027b1863890c12f5576b7f5db92305678e569fa2",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-21T19:47:17+00:00",
+      "message": "chore(life360): record sample_data for the private iOS 18.6 extraction"
     }
   },
   "headers": [

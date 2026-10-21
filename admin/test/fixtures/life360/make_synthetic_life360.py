@@ -10,6 +10,9 @@ Usage: make_synthetic_life360.py OUT_DIR [--containers N]
 import json
 import os
 import plistlib
+# plistlib exports its format enum members dynamically; astroid does not see this member.
+from plistlib import FMT_BINARY  # pylint: disable=no-name-in-module
+from pathlib import Path
 import sqlite3
 import sys
 import uuid
@@ -52,22 +55,30 @@ def loc(ts_unix, dlat=0.0, dlon=0.0, speed=1.5, course=90.0, tag='undefined', or
     }
 
 
-def topic_db(path, entries):
+def topic_db(path, entries, wal=False):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     con = sqlite3.connect(path)
+    if wal:
+        con.execute('PRAGMA journal_mode=WAL')
     con.executescript('''
         CREATE TABLE ZENTRY (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, ZTIMESTAMP FLOAT,
                              ZID BLOB, ZDATA BLOB);
         CREATE TABLE ZSUBSCRIPTION (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER,
                                     ZLASTSENTTIMESTAMP FLOAT, ZIDENTIFIER VARCHAR);
     ''')
+    if wal:
+        con.execute('PRAGMA wal_checkpoint(TRUNCATE)')
     for i, (ts, doc) in enumerate(entries, 1):
         doc.setdefault('id', uid(0x9000 + i))
         doc.setdefault('timestamp', ts)
         con.execute('INSERT INTO ZENTRY VALUES (?,1,1,?,?,?)',
                     (i, float(ts), uuid.UUID(doc['id']).bytes, json.dumps(doc).encode()))
     con.commit()
+    # Preserve a load-bearing WAL in the fabricated evidence, not a fully checkpointed database.
+    snapshot = {suffix: Path(path + suffix).read_bytes() for suffix in ('', '-wal', '-shm')} if wal else {}
     con.close()
+    for suffix, data in snapshot.items():
+        Path(path + suffix).write_bytes(data)
 
 
 def drive_doc(ts, event, waypoints, incidents, summary, session):
@@ -100,7 +111,7 @@ def build_container(root):
     topic_db(t('com.life360.DeviceLocationTopic'), [
         (T0 + 10, {'version': 4, 'location': loc(T0 + 9), 'bufferedSamples': [loc(T0 + 5), loc(T0 + 9, 0.0005)]}),
         (T0 + 70, {'version': 4, 'location': loc(T0 + 69, 0.001), 'bufferedSamples': [loc(T0 + 69, 0.001)]}),
-    ])
+    ], wal=True)
     topic_db(t('com.life360.AwarenessEngine.Topics.FailedLocationTopic'), [
         (T0 + 20, {'version': 2, 'location': loc(T0 + 19, tag='drive'), 'batteryState': {'state': 'unknown', 'level': -100},
                    'ssid': '', 'bssid': '', 'wifiEnabled': False, 'driveDetectionStatus': 'OFF'}),
@@ -225,7 +236,11 @@ def build_container(root):
                                                         'createdAt': T0 - 86400 * 300 - COCOA, 'lastRetrieved': T0 - COCOA}]).encode(),
         'com.life360.datakit.CircleCode.Type': json.dumps([{'circleID': CIRCLE1, 'code': 'ABC-123',
                                                             'deeplink': 'https://example.invalid/join', 'message': 'Join',
-                                                            'expiration': T0 + 86400 * 3 - COCOA, 'lastRetrieved': T0 - COCOA}]).encode(),
+                                                            'expiration': T0 + 86400 * 3 - COCOA, 'lastRetrieved': T0 - COCOA},
+                                                          {'circleID': CIRCLE2, 'code': 'XYZ-789',
+                                                           'deeplink': 'https://example.invalid/other-circle',
+                                                           'expiration': T0 + 86400 - COCOA,
+                                                           'lastRetrieved': T0 - COCOA}]).encode(),
         'com.life360.datakit.MemberCircleSettings.Type': json.dumps([{
             'memberID': USER, 'circleID': CIRCLE1, 'lastRetrieved': T0 - COCOA,
             'store': ['driveDetectionStatus', 'Ik9OIg==', 'driveAlertsEnabled', 'dHJ1ZQ==']}]).encode(),
@@ -239,7 +254,8 @@ def build_container(root):
         'lpseRegistrationInfo': {'appVersion': '26.34.0.5', 'appID': 'safetymap_lpse', 'deviceID': uid(0x1234)},
         'kL360UserDefaultsStoreloggedInUserData': {'dateOfBirth': float(T0 - 86400 * 365 * 30), 'initialAppRole': 'owner',
                                                    'premiumDispatchEnabled': False, 'createdAt': float(T0 - 86400 * 400)},
-        'L360LocationHealthStorage': {'device_app_logged_in': {'name': 'ok', 'total': 1, 'time': float(T0)}},
+        'L360LocationHealthStorage': json.dumps({'device_app_logged_in': {
+            'name': 'synthetic', 'total': 1, 'time': float(T0)}}).encode(),
         'kL360UserDefaultsStoreuserEmail': 'pat@example.invalid', 'kL360UserDefaultsStoreuserPhone': '+15555550100',
         'kL360UserDefaultsStoreuserFirstName': 'Pat', 'kL360UserDefaultsStoreuserLastName': 'Example',
         'kL360UserDefaultsStoreselectedCircleID': CIRCLE1, 'firstCircleID': CIRCLE1, 'memberDeviceID': uid(0x1234),
@@ -253,12 +269,12 @@ def build_container(root):
                          'longitude': LON + 0.1, 'radius': {'value': 250.0, 'unit': {'symbol': 'm', 'converter': {'coefficient': 1, 'constant': 0}}}},
         }}).encode(),
         'pop-dwell_seen': plistlib.dumps([{'recurrenceId': 'r1', 'circleId': CIRCLE1, 'latitude': LAT + 0.2, 'longitude': LON + 0.2,
-                                           'date': datetime(2026, 1, 10, 8, 0, 0)}], fmt=plistlib.FMT_BINARY),
+                                           'date': datetime(2026, 1, 10, 8, 0, 0)}], fmt=FMT_BINARY),
         'DriveEventPublishingComponent.tripStartTimes': {TRIP1: float(T0 + 100), TRIP2: float(T0 - 86400 * 30)},
     }
     os.makedirs(os.path.join(root, 'Library', 'Preferences'), exist_ok=True)
     with open(os.path.join(root, 'Library', 'Preferences', 'com.life360.safetymap.plist'), 'wb') as fh:
-        plistlib.dump(prefs, fh, fmt=plistlib.FMT_BINARY)
+        plistlib.dump(prefs, fh, fmt=FMT_BINARY)
 
 
 def main():

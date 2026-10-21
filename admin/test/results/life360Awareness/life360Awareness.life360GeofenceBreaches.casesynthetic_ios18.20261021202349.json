@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/life360Awareness/testdata.life360Awareness.life360GeofenceBreaches.casesynthetic_ios18.zip",
-    "start_time": "2026-10-21T19:30:24.342227+00:00",
-    "end_time": "2026-10-21T19:30:24.351174+00:00",
-    "run_time_seconds": 0.0005667209625244141,
+    "start_time": "2026-10-21T20:23:49.901360+00:00",
+    "end_time": "2026-10-21T20:23:49.911832+00:00",
+    "run_time_seconds": 0.0004980564117431641,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-21T19:30:24.344986",
-      "message": "File not yet committed to git"
+      "hash": "027b1863890c12f5576b7f5db92305678e569fa2",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-21T19:47:17+00:00",
+      "message": "chore(life360): record sample_data for the private iOS 18.6 extraction"
     }
   },
   "headers": [
