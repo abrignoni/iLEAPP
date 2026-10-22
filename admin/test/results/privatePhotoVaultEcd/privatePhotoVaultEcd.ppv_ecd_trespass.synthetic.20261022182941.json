@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/privatePhotoVaultEcd/testdata.privatePhotoVaultEcd.ppv_ecd_trespass.synthetic.zip",
-    "start_time": "2026-10-22T17:50:26.206778+00:00",
-    "end_time": "2026-10-22T17:50:26.218500+00:00",
-    "run_time_seconds": 0.0006189346313476562,
+    "start_time": "2026-10-22T18:29:41.494821+00:00",
+    "end_time": "2026-10-22T18:29:41.506650+00:00",
+    "run_time_seconds": 0.0005381107330322266,
     "last_commit": {
-      "hash": "c9c7d634253afd78561c906451afd08f294cb129",
+      "hash": "69ddd7123923a57db63e094d994e1dcfbcb88ad4",
       "author_name": "CyberMike81",
       "author_email": "cybermike81@users.noreply.github.com",
-      "date": "2026-10-22T13:50:26-04:00",
-      "message": "Preserve oversized activity and diagnostic values through LAVA export"
+      "date": "2026-10-22T14:28:49-04:00",
+      "message": "Expose corroborating PPV identity evidence and flag conflicting container metadata"
     }
   },
   "headers": [
