@@ -1,7 +1,5 @@
 # Offline Reddit report reader
 
-
-
 Existing `reddit.py` artifacts keep their native LAVA `data_views.conversation` settings: Matrix rooms use Room ID, and legacy chat messages use Channel URL. Time, sender, direction and media settings survive the report manifest. This addition does not alter those chat parsers or declare public content to be sent/received messages.
 
 An optional local reader supplies separate Chats and Cached discussions tabs from the report's existing LAVA database:
