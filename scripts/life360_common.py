@@ -38,8 +38,8 @@ def stored_list(value, label):
     return []
 
 
-def read_life360_rows(path, query):
-    """Keep a deferred SQLite read failure local to its source file."""
+def read_life360_rows(path, query, label):
+    """Keep a deferred SQLite read failure local to its source file; label is its extraction-relative path."""
     try:
         records = get_sqlite_db_records(path, query)
         try:
@@ -49,7 +49,7 @@ def read_life360_rows(path, query):
             if close is not None:
                 close()
     except sqlite3.Error as error:
-        logfunc(f'Life360 SQLite read failed in {str(path)!r} ({type(error).__name__}); '
+        logfunc(f'Life360 SQLite read failed in {label!r} ({type(error).__name__}); '
                 'remaining rows skipped, earlier rows retained')
 
 

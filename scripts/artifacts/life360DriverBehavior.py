@@ -1,74 +1,38 @@
 __artifacts_v2__ = {
     'life360CrashDetection': {
         'name': 'Life360 - Crash Detection Diagnostics',
-        'description': 'Crash/collision detections, detector intervals, collision data-exchange metadata and '
-                       'accelerometer-anomaly diagnostics Life360 wrote to its internal logs. '
-                       'Speed is as stored: metres per second for the examined SDK 3.11.16 collision '
-                       'producer; other versions are unverified.',
+        'description': 'Crash and collision detections, detector intervals, collision data-exchange metadata and '
+                       'accelerometer-anomaly diagnostics from the Life360 internal logs.',
         'author': '@CyberMike81, OpenAI Codex',
         'creation_date': '2026-10-21',
-        'last_update_date': '2026-10-21',
+        'last_update_date': '2026-10-22',
         'requirements': 'none',
         'category': 'Life360',
-        'notes': 'Reads files whose basename matches com.life360.safetymap*.log, including logs in a '
-                 'shared app-group container. The search wildcard can also match through same-named '
-                 'directories; these non-application basenames, including Crashlytics sdk.log, are '
-                 'excluded with a named log entry and do not enter the source list. '
-                 'The application-specific basename and the logged component/message select records; no '
-                 'container marker is required. One row represents one diagnostic log record, including '
-                 'its continuation lines. Repeated records, copies in separate files and separate '
-                 'containers remain separate observations. Duplicate file-list entries and physical '
-                 'symlink aliases are read once. Source Line and Source Line End are one-based physical '
-                 'line numbers. Raw Log Record retains the decoded record, including unreported fields '
-                 'and embedded newlines, with only its final line terminator removed. Invalid UTF-8 is '
-                 'replaced for display and logged; the preserved source file remains authoritative. '
-                 'Logged Time comes from the record prefix, Event Time from Timestamp in a Crash detected '
-                 'entry, and Detector Start/End from startTimestamp/endTimestamp in a DvBArity confidence '
-                 'entry. Each uses its own explicit numeric UTC offset and renders in UTC, preserving '
-                 'subseconds up to microsecond precision. No time zone is taken from the filename or '
-                 'the examiner computer. Missing times remain blank; invalid times or offsets are '
-                 'logged and left blank with the raw record retained. '
-                 'A present scalar label with no value, including one followed by another field label, '
-                 'is logged and left blank; the following label is not used as its value. '
-                 'Record Kind is a parser classification of the message: Crash detected, High confidence '
-                 'collision detected, Collision detected, Detector details, Collision data exchange, '
-                 'Accelerometer anomaly warning/diagnostic, or Other crash/collision diagnostic. The '
-                 'component text, event type, IDs and numeric field text are reported as stored. '
-                 'Detector details and SDK warnings are not joined to another event by proximity; no '
-                 'confidence, identifier, coordinate or capability state is carried to another row. '
-                 'Confidence is not converted to a percentage or interpreted as a probability. '
-                 'Payload Size is the logged size text, not recovered collision/sensor data. '
-                 'Speed and Accuracy retain their logged numeric text without conversion. Inspection of '
-                 'the recovered collision producer with CoreEngine SDK 3.11.16 found sampleSpeed read '
-                 'with milesPerHour and converted to metersPerSecond before the logged event field. '
-                 'Thus the examined collision Speed field is already metres per second; the parser '
-                 'does not convert it again. Units for other producer versions and other speed or '
-                 'accuracy fields are not established by that inspection. Coordinates identify the '
-                 'values recorded in the diagnostic, not an '
-                 'independently established location fix or who carried the device. '
-                 'The warnings remain alongside later detection messages; this artifact does not decide '
-                 'whether the detector was effective, what triggered it, or whether a physical crash '
-                 'occurred. Missing records do not establish that no event occurred. Layout coverage '
-                 'includes the diagnostic format recorded by Life360 26.31.5.2066 on iOS 18.6 with '
-                 'SDK 3.11.16 and fabricated fixtures; other layouts '
-                 'and producer versions may differ. Unrecognised crash/collision messages from '
-                 'DriverBehavior retain their raw record with a log entry. Unreadable files are logged '
-                 'and other files continue. Partial detector-detail records retain their available '
-                 'fields and raw text, with missing expected labels logged. Other DriverBehavior '
-                 'telemetry, saved sensor files, upload '
-                 'queues, Cache.db API responses, and historical main-database/WAL recovery are outside '
-                 'this artifact. The database Driving Incidents and Driver Reports artifacts read '
-                 'different sources and are not treated as equivalent observations.',
+        'notes': 'Reads com.life360.safetymap*.log files, including those in the shared app group; other files '
+                 'the wildcard matches, such as Crashlytics sdk.log, are skipped and logged. One row per crash, '
+                 'collision, detector or accelerometer-anomaly record from the DriverBehavior component, plus '
+                 'Metrics accelerometer-anomaly-detected records, including continuation lines; Raw Log Record '
+                 'keeps the record text and Source Line and Source Line End give its lines in the file. Logged '
+                 'Time is the line prefix, Event Time the Timestamp of a Crash detected record, and Detector '
+                 'Start and Detector End the startTimestamp and endTimestamp of a DvBArity record; each uses its '
+                 'own logged UTC offset and renders in UTC. Record Kind is the parser label for the message. '
+                 'Values are as logged. Inspection by the contributor of the SDK 3.11.16 collision producer '
+                 'found Speed logged in metres per second; this was not re-verified here, and units for other '
+                 'versions are not established. Confidence is not a percentage or probability. Payload Size is '
+                 'the logged size, not recovered sensor data. Records are not joined to each other. A row does '
+                 'not establish that a physical crash happened, and no row does not establish that none did. '
+                 'Tested on Life360 26.31.5.2066 (iOS 18.6, SDK 3.11.16), which logs "| [DriverBehavior | ...] '
+                 '-". The Life360 23.x and 24.x logs on abe_ios16, felix_ios17, fsfull002_ios17 and '
+                 'iphone11_ios17 write "| DriverBehavior | ...|" without brackets, which is not parsed; those '
+                 'logs held no crash or collision records.',
         'paths': ('*/com.life360.safetymap*.log',),
         'output_types': 'all',
         'artifact_icon': 'alert-triangle',
         'sample_data': {
-            'private_driverbehavior_ios18_6': 'iOS 18.6 | Life360 26.31.5.2066 | SDK 3.11.16 | '
-                                             '7 rows from 36 diagnostic logs; private source',
-            'private_ios18_6': 'iOS 18.6 | Life360 26.34.0.5 | 0 rows '
-                              '(no com.life360.safetymap*.log files in the tested container)',
-            'synthetic_driverbehavior': 'Fabricated diagnostic logs | 9 rows | main and sidecar layouts; '
-                                       'sidecar diagnostics and malformed variants are synthetic controls',
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 0 rows',
         },
     },
 }
