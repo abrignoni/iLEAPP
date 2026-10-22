@@ -72,6 +72,31 @@ class LinkedWorkspaceTests(unittest.TestCase):
         self.assertEqual(len(history['links']),2)
         self.assertEqual(len({r['group'] for r in records if r['kind']=='post'}),2)
 
+    def test_subreddit_headers_link_with_unchanged_legacy_subscription_headers(self):
+        cache = self.account+'sqlNormalizedCache'
+        self.table('reddit_cached_posts',[{'Account':'alpha','Object ID':'t3_demo',
+                   'Subreddit':'Synthetic','Subreddit ID':'t5_demo','Source File':cache}])
+        self.table('reddit_cached_comments',[{'Account':'alpha','Object ID':'t1_demo',
+                   'Post ID (from permalink)':'t3_demo','Subreddit (from permalink)':'Synthetic','Source File':cache}])
+        self.table('reddit_cached_communities',[{'Account':'alpha','Subreddit ID':'t5_demo',
+                   'Subreddit':'Synthetic','Source File':cache}])
+        self.table('reddit_subreddit_subscriptions',[{'Account':'alpha','Community ID':'t5_demo',
+                   'Community':'Synthetic','Source File':self.account+'SubredditSubscriptions'}])
+        self.table('reddit_community_history',[{'Account':'alpha','Entry':'t5_demo',
+                   'Source File':self.account+'SubredditHistory'}])
+        records = self.load()
+        history = next(r for r in records if r['kind']=='community_history')
+        self.assertEqual(history['matchCount'],1)
+        for row in records:
+            if row['kind'] in ('post','comment'):
+                self.assertEqual(row['community'],'Synthetic')
+                expected = {'reddit_cached_communities'}
+                if row['kind']=='post':
+                    expected.add('reddit_subreddit_subscriptions')
+                self.assertEqual({link['ref'].split(':')[0] for link in row['links']}, expected)
+        self.assertEqual(next(r for r in records if r['kind']=='post')['fields']['Subreddit ID'],'t5_demo')
+        self.assertTrue(all(r['communityId']=='t5_demo' for r in records if r['kind']=='community'))
+
     def test_old_subscriptions_and_new_cache_combine_but_preserve_conflicting_states(self):
         self.table('reddit_community_history',[
             {'Account':'alpha','Entry':'t5_demo','Source File':self.account+'SubredditHistory'},

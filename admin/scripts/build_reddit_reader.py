@@ -117,15 +117,15 @@ def load_records(report):
                                   profileId=_value(row, 'Author ID'),
                                   created=_value(row, 'Content Created'), edited=_value(row, 'Content Edited'),
                                   title=_value(row, 'Cached Post Title') if comment else _value(row, 'Title'),
-                                  community=_value(row, 'Community (from permalink)') if comment else _value(row, 'Community'),
-                                  communityId=_value(row, 'Community ID'),
+                                  community=_value(row, 'Subreddit (from permalink)', 'Community (from permalink)') if comment else _value(row, 'Subreddit', 'Community'),
+                                  communityId=_value(row, 'Subreddit ID', 'Community ID'),
                                   postId=post_id, id=_value(row, 'Object ID'),
                                   permalink=_value(row, 'Permalink'), own=_value(row, 'Is Own (as stored)'))
                     record['group'] = json.dumps(['discussion', account, source,
                                                   post_id or ['unassigned', table, record['rowid']]])
                 elif kind == 'community':
-                    record.update(id=_value(row, 'Community ID'), communityId=_value(row, 'Community ID'),
-                                  community=_value(row, 'Community'), title=_value(row, 'Title'),
+                    record.update(id=_value(row, 'Subreddit ID', 'Community ID'), communityId=_value(row, 'Subreddit ID', 'Community ID'),
+                                  community=_value(row, 'Subreddit', 'Community'), title=_value(row, 'Title'),
                                   text=_value(row, 'Public Description'), created=_value(row, 'Community Created'))
                 elif kind in ('profile', 'contact', 'matrix_user'):
                     record.update(id=_value(row, 'Profile ID', 'Reddit ID', 'User ID', 'Matrix User ID'),
@@ -215,7 +215,7 @@ def link_records(records):
             matches = communities.get((record['scope'], record['id']), [])
             record['matchCount'] = len({match['group'] for match in matches})
             for match in matches:
-                connect(record, match, 'Exact community ID; same account directory.')
+                connect(record, match, 'Exact subreddit ID; same account directory.')
         if kind in ('post', 'comment'):
             obj = _object(record['fields'])
             # Older exports may retain only the explicit cache reference in Object JSON.
@@ -225,15 +225,15 @@ def link_records(records):
             if not community_id and isinstance(explicit, str) and explicit.startswith('Subreddit:'):
                 community_id = explicit[len('Subreddit:'):]
             for match in cached_communities.get((record['source'], community_id), []) if community_id else []:
-                connect(record, match, 'Exact community ID/reference; same normalized cache.')
+                connect(record, match, 'Exact subreddit ID/reference; same normalized cache.')
             if record['scope'] and community_id:
                 for match in communities.get((record['scope'], community_id), []):
-                    connect(record, match, 'Exact community ID; same account directory. Subscription/cache observations stay separate.')
+                    connect(record, match, 'Exact subreddit ID; same account directory. Subscription/cache observations stay separate.')
             if kind == 'comment' and record['community']:
                 matches = community_names.get((record['source'], str(record['community']).casefold()), [])
                 if len({match['id'] for match in matches}) == 1:
                     for match in matches:
-                        connect(record, match, 'Stored, validated permalink community name; unique community in the same cache.')
+                        connect(record, match, 'Stored, validated permalink subreddit name; unique subreddit in the same cache.')
             for match in cached_profiles.get((record['source'], record['profileId']), []) if record['profileId'] else []:
                 connect(record, match, 'Exact author ID; same normalized cache.')
             if record['container'] and record['profileId']:

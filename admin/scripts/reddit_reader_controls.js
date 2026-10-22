@@ -42,6 +42,11 @@ const ReaderControls = (() => {
     const offset = p.timeZoneName === 'GMT' ? 'UTC+00:00' : p.timeZoneName.replace('GMT', 'UTC');
     return `${date} ${hour}:${p.minute}:${p.second}${fraction}${suffix} [${zone(options.timeZone || 'UTC')} ${offset}]`;
   }
+  function dateDetail(value, options = {}) {
+    const display = stamp(value, options);
+    if (value === null || value === undefined || (typeof value === 'string' && !value.trim())) return display;
+    return display + '\nRaw UTC epoch: ' + String(value);
+  }
   function inRange(row, options) {
     if (!options.from && !options.to) return options.includeUndated !== false || epoch(row.created) !== null;
     const key = day(row.created, options.timeZone || 'UTC');
@@ -90,7 +95,7 @@ const ReaderControls = (() => {
   }
   function csv(bundle) {
     const headings = ['Exported UTC','Export scope','Section','View settings JSON','Artifact','Export row','Kind',
-      'Account','Source reference','Record ID','Post ID','Title','Community','Author','Text','Date meaning',
+      'Account','Source reference','Record ID','Post ID','Title','Subreddit','Author','Text','Date meaning',
       'Created epoch seconds (UTC as exported)','Created UTC','Displayed date','Raw fields JSON','Relationships JSON'];
     const lines = [headings];
     for (const row of bundle.records) lines.push([bundle.exportedAtUTC,bundle.scope,bundle.section,
@@ -99,6 +104,6 @@ const ReaderControls = (() => {
       JSON.stringify(row.fields),JSON.stringify(row.links)]);
     return '\ufeff' + lines.map(line => line.map(csvCell).join(',')).join('\r\n') + '\r\n';
   }
-  return {epoch, zone, parts, day, stamp, inRange, compareTime, compareRows, compareGroups, csvCell, exportBundle, csv};
+  return {epoch, zone, parts, day, stamp, dateDetail, inRange, compareTime, compareRows, compareGroups, csvCell, exportBundle, csv};
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = ReaderControls;

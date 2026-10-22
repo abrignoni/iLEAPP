@@ -41,6 +41,14 @@ assert.equal(C.stamp(0,{clock:'12'}),'1970-01-01 12:00:00 AM [UTC UTC+00:00]');
 assert.equal(value,1706965445.125);assert.throws(()=>C.zone('Invalid/Zone'));
 """)
 
+    def test_date_details_omit_only_absent_raw_values(self):
+        self.check_js(r"""
+for(const value of ['',null,undefined,' '])assert.equal(C.dateDetail(value),'Date not retained');
+assert.ok(C.dateDetail(0).endsWith('Raw UTC epoch: 0'));
+assert.ok(C.dateDetail('invalid').endsWith('Raw UTC epoch: invalid'));
+assert.ok(C.dateDetail('1706965445.123456').endsWith('Raw UTC epoch: 1706965445.123456'));
+""")
+
     def test_dst_repeated_hour_retains_distinct_offsets(self):
         self.check_js(r"""
 const first=Date.parse('2024-11-03T05:30:00Z')/1000,second=Date.parse('2024-11-03T06:30:00Z')/1000;

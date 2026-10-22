@@ -9,20 +9,22 @@ __REPORT_FONTS__
 body[data-theme="dark"]{--bg:#111;--surface:#202020;--text:#eee;--muted:#bdbdbd;--border:#555;--control:#333;--accent:#81b6ff;--notice:#493c13;--notice-text:#ffe6a1;--out:#1e4c73;--in:#285633;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:400 .875rem Roboto,Arial,sans-serif;overflow-wrap:anywhere}p{margin:7px 0;line-height:1.5}a{color:var(--accent)}.navbar{min-height:48px;background:#343a40;color:white;display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:16px;box-shadow:0 2px 5px #0003}.navbar a{color:#fff;text-decoration:none}.navbar-brand{padding:14px 22px;align-self:stretch;background:rgba(227,6,19,.2);box-shadow:inset -1px 0 #0004;font-size:1rem}.navbar label{display:flex;align-items:center;gap:7px}.navbar select{background:#343a40;color:#fff;border-color:#666}header{padding:18px 24px;border-bottom:1px solid var(--border)}.report-brand{max-width:400px;width:100%;height:auto;display:block;margin-bottom:12px}h1{font-size:1.75rem;font-weight:400;margin:0 0 8px}h2{font-size:1.4rem;font-weight:400}h3{font-size:1.05rem;font-weight:500}.muted{color:var(--muted);font-size:12px}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.controls label{display:flex;gap:6px;align-items:center;flex-wrap:wrap}button,input,select{font:inherit;padding:8px;border:1px solid var(--border);border-radius:3px;background:var(--control);color:var(--text);max-width:100%}button{cursor:pointer;overflow-wrap:anywhere;box-shadow:0 2px 4px #0002}button.active{background:#4285f4;color:#fff}button:disabled{opacity:.5;cursor:default}input[type=search]{min-width:0;flex:1;flex-basis:240px}input[type=checkbox]{accent-color:#4285f4}#timezone{max-width:245px}.review-options{border:1px solid var(--border);padding:8px 12px;margin-top:12px;border-radius:3px}.review-options summary{font-weight:500}.settings-note{font-size:12px;color:var(--muted)}main{display:grid;grid-template-columns:minmax(210px,300px) minmax(0,1fr);min-height:450px}aside{overflow:auto;max-height:75vh;background:#343a40;padding:10px;min-width:0}#detail{overflow:auto;padding:20px;min-width:0;max-height:80vh}#groups button{display:block;width:100%;text-align:left;margin:0;padding:12px;background:transparent;color:#bbb;border:0;border-radius:0;box-shadow:none;border-left:3px solid transparent}#groups button:hover{background:#ffffff12;color:#eee}#groups button.selected{border-left-color:#d02e26;color:#fff;background:#ffffff12}.group-title{display:block;font-weight:400}.group-sub{display:block;font-size:12px;color:#aaa;margin-top:6px}.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;margin:12px 0;padding:16px;max-width:850px;min-width:0;overflow-wrap:anywhere;box-shadow:0 2px 5px #0002}.card.post{border-top:3px solid #d02e26}.card.comment{border-left:3px solid var(--border);margin-left:18px}.card h3{margin:10px 0}.body{white-space:pre-wrap;line-height:1.6;margin:10px 0;max-width:74ch;overflow-wrap:anywhere}.card details{margin-top:12px;font-size:12px;color:var(--muted)}.source-fields{display:grid;grid-template-columns:minmax(100px,180px) minmax(0,1fr);gap:5px 12px;margin:12px 0}.source-fields dt{font-weight:500}.source-fields dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.badge{font-size:12px;font-weight:500;color:var(--accent)}.notice{padding:10px 13px;border-left:4px solid #ffc107;border-radius:3px;background:var(--notice);color:var(--notice-text);font-size:12px;line-height:1.5;max-width:850px}.empty{padding:24px;color:var(--muted)}.links{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;max-width:850px}.links button{font-size:12px;padding:6px 8px}.section-label{margin-top:24px}summary{cursor:pointer}.missing{font-style:italic;color:var(--muted)}.context-only{border-style:dashed}.chat-message{background:transparent;border:0;box-shadow:none;padding:8px 0;max-width:850px}.chat-message.outgoing{margin-left:18%}.chat-message.incoming{margin-right:18%}.chat-message .body{position:relative;padding:18px 20px;border-radius:7px;font-size:16px;background:var(--in);color:#152515}.chat-message.outgoing .body{background:var(--out);color:#132d45}.chat-message.unknown .body,.chat-message.event .body{background:var(--surface);color:var(--text);border:1px solid var(--border)}.chat-message .body:before{content:"";position:absolute;bottom:100%;left:20px;border:8px solid transparent;border-bottom-color:var(--in)}.chat-message.outgoing .body:before{left:auto;right:20px;border-bottom-color:var(--out)}.chat-message.unknown .body:before,.chat-message.event .body:before{display:none}body[data-theme="dark"] .chat-message .body{color:#eee}.message-data{font-size:12px;color:var(--muted);margin-bottom:17px}.day-divider{font-size:12px;text-align:center;color:var(--muted);border-bottom:1px solid var(--border);padding:8px;margin:18px 0}.error{color:#c62828;font-weight:500}[hidden]{display:none!important}
 @media(max-width:750px){header{padding:12px}.navbar{flex-wrap:wrap;padding:0 10px 8px 0}.navbar-brand{padding:12px}main{grid-template-columns:minmax(0,1fr)}aside{max-height:32vh}#detail{padding:12px;max-height:none}.source-fields{grid-template-columns:minmax(0,1fr)}.source-fields dd{margin-bottom:10px}.card.comment{margin-left:8px}.chat-message.outgoing{margin-left:8%}.chat-message.incoming{margin-right:8%}.controls label{max-width:100%}}
-@media print{.navbar,header,aside,.links,button{display:none!important}main{display:block}#detail{max-height:none;overflow:visible}.card{break-inside:avoid;box-shadow:none}body,body[data-theme="dark"]{--bg:#fff;--surface:#fff;--text:#111;--muted:#444;--border:#ccc;--notice:#fff3cd;--notice-text:#664d03;--out:#94c2ed;--in:#86bb71;color:#111;background:#fff}body[data-theme="dark"] .chat-message .body{color:#111}}
+.print-only{display:none}
+@media print{.print-only{display:block;padding:16px 20px;border-bottom:1px solid #ccc}.print-only p{white-space:pre-wrap}.navbar,header,aside,.links,button{display:none!important}main{display:block}#detail{max-height:none;overflow:visible}.card{break-inside:avoid;box-shadow:none}body,body[data-theme="dark"]{--bg:#fff;--surface:#fff;--text:#111;--muted:#444;--border:#ccc;--notice:#fff3cd;--notice-text:#664d03;--out:#94c2ed;--in:#86bb71;color:#111;background:#fff}body[data-theme="dark"] .chat-message .body{color:#111}}
 </style></head><body>
 <nav class="navbar" aria-label="iLEAPP report"><a class="navbar-brand" href="_HTML/index.html">iLEAPP · Reddit Reader</a><label>Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label></nav>
 <header>__REPORT_BRAND__<h1>Reddit Reader</h1>
 <p>History, cached posts and comments, communities, profiles and chats connected across the available iLEAPP results.</p>
 <p class="muted"><a href="_HTML/index.html">Full iLEAPP tables</a> · <span id="time-label">Times in UTC</span> · Partial reconstruction from retained records</p>
-<nav class="controls" aria-label="Reddit sections"><button id="chats" class="active">Chats</button><button id="discussions">Posts &amp; comments</button><button id="post-history">Post history</button><button id="community-history">Community history</button><button id="communities">Communities</button><button id="people">People &amp; contacts</button><button id="drafts">Drafts</button></nav>
-<div class="controls"><input id="search" type="search" placeholder="Search text, community, author or ID" aria-label="Search Reddit records"><select id="account" aria-label="Filter by source account"><option value="">All source accounts</option></select><label id="stub-label"><input type="checkbox" id="stubs"> Include ID-only posts</label><label id="linked-label" hidden><input type="checkbox" id="only-linked" checked> Only linked history</label><span id="counts" class="muted"></span></div>
+<nav class="controls" aria-label="Reddit sections"><button id="chats" class="active">Chats</button><button id="discussions">Posts &amp; comments</button><button id="post-history">Post history</button><button id="community-history">Subreddit history</button><button id="communities">Subreddits</button><button id="people">People &amp; contacts</button><button id="drafts">Drafts</button></nav>
+<div class="controls"><input id="search" type="search" placeholder="Search text, subreddit, author or ID" aria-label="Search Reddit records"><select id="account" aria-label="Filter by source account"><option value="">All source accounts</option></select><label id="stub-label"><input type="checkbox" id="stubs"> Include ID-only posts</label><label id="linked-label" hidden><input type="checkbox" id="only-linked" checked> Only linked history</label><span id="counts" class="muted"></span></div>
 <details class="review-options" open><summary>Display, dates and export</summary>
 <div class="controls"><label>Timezone <select id="timezone"></select></label><label>Date format <select id="date-format"><option value="iso">YYYY-MM-DD</option><option value="mdy">MM/DD/YYYY</option><option value="dmy">DD/MM/YYYY</option></select></label><label>Clock <select id="clock"><option value="24">24-hour</option><option value="12">12-hour</option></select></label><label>Sort <select id="sort"><option value="context">Default / stored order</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option><option value="title-desc">Title Z–A</option><option value="comments">Most cached comments</option><option value="count">Most records</option><option value="source">Source / stored position</option></select></label></div>
 <div class="controls"><label>From <input type="date" id="date-from"></label><label>Through <input type="date" id="date-to"></label><label><input type="checkbox" id="include-undated" checked> Include undated records</label><button id="reset-filters">Reset filters</button></div>
-<p class="settings-note">Date bounds include the whole selected day in the display timezone. They filter each record’s labeled source date. History has no inferred view date. Context-only post cards are excluded from filtered exports.</p>
+<p class="settings-note">Date bounds include the whole selected day in the display timezone. They filter each record’s labeled source date. History has no inferred view date. Context-only post cards are excluded from filtered exports. Displayed times stop at milliseconds; raw UTC epochs and source fields retain the exported precision.</p>
 <div class="controls"><label>Export <select id="export-scope"><option value="selected">Selected item · matching rows</option><option value="filtered">Filtered list · matching rows</option><option value="all">All Reddit records · ignore filters</option></select></label><button id="export-csv">CSV</button><button id="export-json">JSON</button><button id="print-view">Print selected view / PDF</button><span id="export-count" class="muted"></span></div>
 </details><p id="filter-error" class="error" role="alert"></p><p id="navigation-note" class="muted" aria-live="polite"></p></header>
+<section id="print-summary" class="print-only" aria-label="Printed view settings"><h1>Reddit Reader</h1><p id="print-selection"></p><p id="print-filters"></p></section>
 <main><aside aria-label="Record list"><div id="groups"></div></aside><section id="detail" aria-live="polite"></section></main>
 <script id="records" type="application/json">__RECORDS__</script>
 <script>
@@ -57,7 +59,7 @@ for(const g of groups.values()){
  g.account=String(first.account||'Account not exported for this source');
  g.accounts=new Set(g.rows.map(r=>String(r.account||'Account not exported for this source')));
  g.community=String(g.rows.find(r=>r.community)?.community||'');
- g.title=String((post&&post.title)||g.rows.find(r=>r.title)?.title||(g.kind==='chat'?'Chat · '+([...new Set(g.rows.map(r=>r.author).filter(Boolean))].join(', ')||first.channel||'without stored ID'):g.kind==='community'?(g.community?'r/'+g.community:'Community '+first.id):g.kind==='people'?(first.author||'Profile '+(first.id||'without stored ID')):g.kind==='post_history'?'Post '+(first.postId||'without stored ID'):g.kind==='community_history'?'Community '+(first.id||'without stored ID'):g.kind==='draft'?'Comment draft':'Post '+(first.postId||'without established post link')));
+ g.title=String((post&&post.title)||g.rows.find(r=>r.title)?.title||(g.kind==='chat'?'Chat · '+([...new Set(g.rows.map(r=>r.author).filter(Boolean))].join(', ')||first.channel||'without stored ID'):g.kind==='community'?(g.community?'r/'+g.community:'Subreddit '+first.id):g.kind==='people'?(first.author||'Profile '+(first.id||'without stored ID')):g.kind==='post_history'?'Post '+(first.postId||'without stored ID'):g.kind==='community_history'?'Subreddit '+(first.id||'without stored ID'):g.kind==='draft'?'Comment draft':'Post '+(first.postId||'without established post link')));
  g.comments=g.rows.filter(r=>r.kind==='comment').length;
  g.stub=g.kind==='discussion'&&g.comments===0&&!g.rows.some(r=>r.text||r.title);
 }
@@ -88,7 +90,7 @@ function relatedLinks(g, kinds, heading){
 function fieldDetails(r){
  const d=el('details');d.append(el('summary','All exported fields and source references'));
  d.addEventListener('toggle',()=>{if(!d.open||d.dataset.loaded)return;d.dataset.loaded='true';const dl=el('dl',undefined,'source-fields');
-  for(const [key,value] of Object.entries({Artifact:r.table,'Export row':r.rowid,'Source account':r.account,'Source reference':r.source,'Source reference scope':r.fields['Source File']?'Per-row Source File field':'Artifact manifest; a per-row source file was not exported',...r.fields})){dl.append(el('dt',key),el('dd',(r.dateFields||[]).includes(key)?stamp(value)+'\nRaw UTC epoch: '+String(value):value===null?'(null)':value));}
+  for(const [key,value] of Object.entries({Artifact:r.table,'Export row':r.rowid,'Source account':r.account,'Source reference':r.source,'Source reference scope':r.fields['Source File']?'Per-row Source File field':'Artifact manifest; a per-row source file was not exported',...r.fields})){dl.append(el('dt',key),el('dd',(r.dateFields||[]).includes(key)?ReaderControls.dateDetail(value,settings()):value===null?'(null)':value));}
   for(const link of r.links){const target=byRef.get(link.ref);dl.append(el('dt','Linked '+target.table+' row '+target.rowid),el('dd',link.basis+'\n'+target.source));}
   d.append(dl);
  });return d;
@@ -96,7 +98,7 @@ function fieldDetails(r){
 function card(r,contextOnly=false){
  const direction=r.kind==='chat'?(r.direction!==''&&r.direction===r.sentValue?'outgoing':r.direction==='Incoming'?'incoming':'unknown'):r.kind;
  const article=el('article',undefined,'card '+direction+(r.kind==='chat'?' chat-message':'')+(r.kind==='chat'&&r.event&&r.event!=='m.room.message'?' event':'')+(contextOnly?' context-only':''));article.dataset.ref=r.ref;
- const labels={post:'Cached post',comment:'Cached comment',community:'Community source observation',profile:'Profile source observation',contact:'Legacy chat contact',matrix_user:'Matrix chat user',draft:'Unsent comment draft'};
+ const labels={post:'Cached post',comment:'Cached comment',community:'Subreddit source observation',profile:'Profile source observation',contact:'Legacy chat contact',matrix_user:'Matrix chat user',draft:'Unsent comment draft'};
  article.append(el('div',(labels[r.kind]||r.event||'Chat message')+(r.kind==='chat'?' · '+(r.direction||'Direction unknown'):''),'badge'));
  if(contextOnly)article.append(el('p','Context only — outside the date filter; excluded from matching-row exports.','notice'));
  if(['post','comment','chat','draft'].includes(r.kind))article.append(el('p',(r.community?'r/'+r.community+' · ':'')+(r.author||'Author not retained')+' · '+stamp(r.created)+(r.dateLabel?' · '+r.dateLabel:''),'message-data'));
@@ -122,7 +124,7 @@ function card(r,contextOnly=false){
 }
 function appendLinked(target,g,kinds,heading){const links=relatedLinks(g,kinds,heading);if(links)target.append(links);}
 function renderHistory(target,g){
- for(const r of g.rows){const box=el('article',undefined,'card');box.append(el('div',g.kind==='post_history'?'Post-history record':'Community-history record','badge'));
+ for(const r of g.rows){const box=el('article',undefined,'card');box.append(el('div',g.kind==='post_history'?'Post-history record':'Subreddit-history record','badge'));
   box.append(el('p','Stored ID: '+r.id));const position=r.fields['List Position (zero-based)'];box.append(el('p','Stored list position: '+(position===null||position===undefined||position===''?'Not retained':position)+' · '+r.account,'muted'));
   box.append(el('p','Storage order is not a timestamp. A history/cache match does not establish who viewed the content.','notice'),fieldDetails(r));target.append(box);
  }
@@ -135,7 +137,7 @@ function renderHistory(target,g){
    if(!other.rows.some(r=>r.kind==='post'))target.append(el('p','Post body is missing; cached comments establish this post ID.','missing'));
    if(other.comments)target.append(el('p',other.comments+' cached comments available with this post.','muted'));
    const communityRows=[...other.related.keys()].map(id=>groups.get(id)).filter(x=>x.kind==='community');
-   for(const c of communityRows)target.append(el('p','Community: '+c.title,'muted'));
+   for(const c of communityRows)target.append(el('p','Subreddit: '+c.title,'muted'));
   }else for(const row of other.rows)target.append(card(row));
  }
 }
@@ -146,7 +148,7 @@ function renderDetail(g){
  if(g.kind==='post_history'||g.kind==='community_history'){renderHistory(target,g);return;}
  target.append(el('p',g.kind==='discussion'?'Only retained posts and comments are shown. Reply nesting is not established. Content dates are creation dates, not viewing times.':g.kind==='chat'?'Direction is reported as exported; unknown direction stays unknown. Reactions and redactions are labeled.':'Each card is a separate source observation. Names and states may differ between sources.','notice'));
  appendLinked(target,g,['post_history','community_history'],'Linked history');
- appendLinked(target,g,['community'],'Community records');
+ appendLinked(target,g,['community'],'Subreddit records');
  appendLinked(target,g,['people'],'Authors and contacts');
  if(g.kind==='discussion'&&!g.rows.some(r=>r.kind==='post'))target.append(el('p','The root post was not retained in this cache.','missing'));
  const matching=g.viewRows||g.rows;
@@ -160,6 +162,17 @@ function renderDetail(g){
 }
 let visibleGroups=[];
 function visibleRowsForExport(){const scope=byId('export-scope').value;if(scope==='all')return [...records];const chosen=scope==='selected'?visibleGroups.filter(g=>g.id===selected):visibleGroups;return chosen.flatMap(g=>[...g.viewRows].sort((a,b)=>ReaderControls.compareRows(a,b,byId('sort').value)));}
+function updatePrintSummary(){
+ const options=settings(),group=visibleGroups.find(g=>g.id===selected),section=modes.find(([,value])=>value===mode);
+ byId('print-selection').textContent='Section: '+byId(section[0]).textContent+' · Selected: '+(group?.title||'No matching item')+' · Matching source rows: '+(group?.viewRows.length||0);
+ const lines=['Timezone: '+options.timeZone+' · Date format: '+options.dateFormat.toUpperCase()+' · Clock: '+options.clock+'-hour',
+  'From: '+(options.from||'(unbounded)')+' · Through: '+(options.to||'(unbounded)')+' · Include undated: '+options.includeUndated,
+  'Account: '+(options.account||'(all source accounts)'), 'Search: '+(options.search||'(none)'),
+  'Sort: '+byId('sort').selectedOptions[0].textContent];
+ if(mode==='discussion')lines.push('Include ID-only posts: '+options.includeIdOnly);
+ if(mode.endsWith('_history'))lines.push('Only linked history: '+options.onlyLinkedHistory);
+ byId('print-filters').textContent=lines.join('\n');
+}
 function makeExport(){return ReaderControls.exportBundle(visibleRowsForExport(),{exportedAtUTC:new Date().toISOString(),scope:byId('export-scope').value,section:byId('export-scope').value==='all'?'all':mode,settings:settings()});}
 function download(format){const bundle=makeExport();if(!bundle.count)return;const content=format==='json'?JSON.stringify(bundle,null,2):ReaderControls.csv(bundle);const blob=new Blob([content],{type:format==='json'?'application/json;charset=utf-8':'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Reddit_Reader_'+bundle.scope+'.'+format;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function render(){
@@ -177,12 +190,12 @@ function render(){
  if(!visibleGroups.length)list.append(el('p','No matching records.','empty'));
  byId('counts').textContent=visibleGroups.length+' items · '+visibleGroups.reduce((n,g)=>n+g.viewRows.length,0)+' matching source rows';
  renderDetail(visibleGroups.find(g=>g.id===selected)||null);
- const count=visibleRowsForExport().length;byId('export-count').textContent=count+' rows to export';byId('export-csv').disabled=!count;byId('export-json').disabled=!count;
+ const count=visibleRowsForExport().length;byId('export-count').textContent=count+' rows to export';byId('export-csv').disabled=!count;byId('export-json').disabled=!count;updatePrintSummary();
 }
 for(const [id,value] of modes)byId(id).addEventListener('click',()=>{mode=value;selected='';render();});
 for(const id of ['search','account','stubs','only-linked','date-from','date-to','include-undated','export-scope'])byId(id).addEventListener('input',render);
 for(const id of Object.values(preferenceControls))byId(id).addEventListener('change',()=>{savePreferences();render();});
 byId('reset-filters').addEventListener('click',()=>{byId('search').value='';byId('account').value='';byId('stubs').checked=false;byId('only-linked').checked=true;clearDates();byId('navigation-note').textContent='';render();});
-byId('export-csv').addEventListener('click',()=>download('csv'));byId('export-json').addEventListener('click',()=>download('json'));byId('print-view').addEventListener('click',()=>window.print());
+byId('export-csv').addEventListener('click',()=>download('csv'));byId('export-json').addEventListener('click',()=>download('json'));byId('print-view').addEventListener('click',()=>{updatePrintSummary();window.print();});window.addEventListener('beforeprint',updatePrintSummary);
 render();
 </script></body></html>
