@@ -6,19 +6,19 @@
     "case_number": "synthetic",
     "number_of_columns": 20,
     "number_of_rows": 2,
-    "total_data_size_bytes": 1376,
+    "total_data_size_bytes": 1365,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/redditCache/testdata.redditCache.reddit_cached_comments.synthetic.zip",
-    "start_time": "2026-10-22T17:39:54.884404+00:00",
-    "end_time": "2026-10-22T17:39:54.899056+00:00",
-    "run_time_seconds": 0.0007178783416748047,
+    "start_time": "2026-10-22T18:29:40.810953+00:00",
+    "end_time": "2026-10-22T18:29:40.823970+00:00",
+    "run_time_seconds": 0.0007109642028808594,
     "last_commit": {
-      "hash": "fa5bb1037a5e0b022b167ea66d8de52cdc9b0749",
+      "hash": "b3962c2a6143e8e5495498b2a6155b86b784a9d3",
       "author_name": "CyberMike81",
       "author_email": "cybermike81@users.noreply.github.com",
-      "date": "2026-10-22T13:38:58-04:00",
-      "message": "Add Reddit cached content, retained history and account-scoped drafts"
+      "date": "2026-10-22T14:28:49-04:00",
+      "message": "Normalize Reddit fractional dates across Python versions and use source-relative diagnostics"
     }
   },
   "headers": [
@@ -62,7 +62,7 @@
       null,
       "Comment:t1_demo",
       "SubredditPost:t3_demo",
-      "{\"authorInfo\": {\"$reference\": \"Redditor:t2_demo\"}, \"content\": {\"$reference\": \"body\"}, \"createdAt\": \"2024-01-02T03:04:05.125000+0000\", \"editedAt\": \"2024-01-02T03:04:06.125000+0000\", \"id\": \"t1_demo\", \"isSaved\": false, \"permalink\": \"/r/SyntheticCommunity/comments/demo/synthetic/demo/\"}",
+      "{\"authorInfo\": {\"$reference\": \"Redditor:t2_demo\"}, \"content\": {\"$reference\": \"body\"}, \"createdAt\": \"2024-01-02T03:04:05.1+0000\", \"editedAt\": \"2024-01-02T03:04:06.1234+0000\", \"id\": \"t1_demo\", \"isSaved\": false, \"permalink\": \"/r/SyntheticCommunity/comments/demo/synthetic/demo/\"}",
       "{\"authorInfo\": {\"displayName\": \"Synthetic alpha\", \"id\": \"t2_demo\"}, \"content\": {\"markdown\": \"Fabricated body alpha\"}, \"subreddit\": {}}",
       "Documents/release02/accountData/alpha/sqlNormalizedCache"
     ],
@@ -84,7 +84,7 @@
       null,
       "Comment:t1_demo",
       "SubredditPost:t3_demo",
-      "{\"authorInfo\": {\"$reference\": \"Redditor:t2_demo\"}, \"content\": {\"$reference\": \"body\"}, \"createdAt\": \"2024-01-02T03:04:05.125000+0000\", \"editedAt\": \"2024-01-02T03:04:06.125000+0000\", \"id\": \"t1_demo\", \"isSaved\": false, \"permalink\": \"/r/SyntheticCommunity/comments/demo/synthetic/demo/\"}",
+      "{\"authorInfo\": {\"$reference\": \"Redditor:t2_demo\"}, \"content\": {\"$reference\": \"body\"}, \"createdAt\": \"2024-01-02T03:04:05.12345+0000\", \"editedAt\": \"2024-01-02T03:04:06.125+0000\", \"id\": \"t1_demo\", \"isSaved\": false, \"permalink\": \"/r/SyntheticCommunity/comments/demo/synthetic/demo/\"}",
       "{\"authorInfo\": {\"displayName\": \"Synthetic beta\", \"id\": \"t2_demo\"}, \"content\": {\"markdown\": \"Fabricated body beta\"}, \"subreddit\": {}}",
       "Documents/release02/accountData/beta/sqlNormalizedCache"
     ]
