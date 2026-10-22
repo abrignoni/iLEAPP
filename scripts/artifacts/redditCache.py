@@ -191,6 +191,10 @@ def _iso(value, location=''):
             raise ValueError('not a timestamp string')
         # Python 3.10 needs a colon in offsets such as the observed +0000.
         normalized = re.sub(r'([+-]\d{2})(\d{2})$', r'\1:\2', value)
+        # Python 3.10 accepts only 3/6 fractional digits. Normalize the
+        # HH:MM:SS fraction to microseconds; preserve the original in Object JSON.
+        normalized = re.sub(r'(\d{2}:\d{2}:\d{2})[.,](\d+)',
+                            lambda m: m[1] + '.' + m[2][:6].ljust(6, '0'), normalized)
         if normalized.endswith('Z'):
             normalized = normalized[:-1] + '+00:00'
         stamp = datetime.fromisoformat(normalized)
@@ -202,10 +206,10 @@ def _iso(value, location=''):
         return ''
 
 
-def _cache(path):
+def _cache(path, display_path):
     db = open_sqlite_db_readonly(path)
     if db is None:
-        logfunc(f'Reddit cache: could not open {path}')
+        logfunc(f'Reddit cache: could not open {display_path}')
         return {}
     result = {}
     try:
@@ -213,14 +217,14 @@ def _cache(path):
             try:
                 value = json.loads(raw)
             except (ValueError, TypeError, UnicodeError):
-                logfunc(f'Reddit cache: skipped malformed JSON; file={path}; row={rowid}; key={key}')
+                logfunc(f'Reddit cache: skipped malformed JSON; file={display_path}; row={rowid}; key={key}')
                 continue
             if isinstance(key, str) and isinstance(value, dict):
                 result[key] = value
             else:
-                logfunc(f'Reddit cache: unsupported record shape; file={path}; row={rowid}; key={key}')
+                logfunc(f'Reddit cache: unsupported record shape; file={display_path}; row={rowid}; key={key}')
     except sqlite3.Error:
-        logfunc(f'Reddit cache: unsupported or unreadable records table; file={path}')
+        logfunc(f'Reddit cache: unsupported or unreadable records table; file={display_path}')
     finally:
         db.close()
     return result
@@ -248,7 +252,7 @@ def _dict(value):
 
 def _objects(context, kind):
     for path in _files(context, 'sqlNormalizedCache'):
-        records = _cache(path)
+        records = _cache(path, context.get_relative_path(path))
         for key, obj in records.items():
             # Child fragments share the prefix but are not additional posts/users.
             if not re.fullmatch(re.escape(kind) + r':[^.:]+', key):
@@ -290,8 +294,8 @@ def _content(context, kind):
         resolved = {'content': content, 'authorInfo': author, 'subreddit': community}
         post_id, link_community = _permalink_context(obj.get('permalink'), obj.get('id'))
         parent = _dict(records.get('SubredditPost:' + post_id)) if post_id else {}
-        rows.append((_iso(obj.get('createdAt'), f'file={path}; key={key}; field=createdAt'),
-                     _iso(obj.get('editedAt'), f'file={path}; key={key}; field=editedAt'),
+        rows.append((_iso(obj.get('createdAt'), f'file={context.get_relative_path(path)}; key={key}; field=createdAt'),
+                     _iso(obj.get('editedAt'), f'file={context.get_relative_path(path)}; key={key}; field=editedAt'),
                      _account(path), obj.get('id', ''), obj.get('title', ''),
                      content.get('markdown', content.get('preview', '')),
                      author.get('id', ''), author.get('displayName', author.get('name', '')),
@@ -368,20 +372,20 @@ def reddit_post_history(context):
         source = source or path
         data = get_plist_file_content(path)
         if not isinstance(data, dict):
-            logfunc(f'Reddit history: expected PostHistory dictionary; file={path}')
+            logfunc(f'Reddit history: expected PostHistory dictionary; file={context.get_relative_path(path)}')
             continue
         order = data.get('kPostIDDictionaryKey', [])
         raw_info = data.get('kInfoDictionaryKey', {})
         if not isinstance(raw_info, dict):
-            logfunc(f'Reddit history: invalid kInfoDictionaryKey; file={path}')
+            logfunc(f'Reddit history: invalid kInfoDictionaryKey; file={context.get_relative_path(path)}')
         info = _dict(raw_info)
         if not isinstance(order, list):
-            logfunc(f'Reddit history: invalid kPostIDDictionaryKey; file={path}')
+            logfunc(f'Reddit history: invalid kPostIDDictionaryKey; file={context.get_relative_path(path)}')
             order = []
         listed = set()
         for position, post in enumerate(order):
             if not isinstance(post, str):
-                logfunc(f'Reddit history: non-string post ID; file={path}; position={position}')
+                logfunc(f'Reddit history: non-string post ID; file={context.get_relative_path(path)}; position={position}')
                 continue
             listed.add(post)
             entry = info.get(post)
@@ -404,7 +408,7 @@ def reddit_community_history(context):
         source = source or path
         data = get_plist_file_content(path)
         if not isinstance(data, list):
-            logfunc(f'Reddit history: expected SubredditHistory list; file={path}')
+            logfunc(f'Reddit history: expected SubredditHistory list; file={context.get_relative_path(path)}')
             continue
         if isinstance(data, list):
             for position, entry in enumerate(data):
@@ -420,7 +424,7 @@ def reddit_comment_drafts(context):
     for path in _files(context, 'CommentDraftEntity.sqlite'):
         db = open_sqlite_db_readonly(path)
         if db is None:
-            logfunc(f'Reddit drafts: could not open {path}')
+            logfunc(f'Reddit drafts: could not open {context.get_relative_path(path)}')
             continue
         source = source or path
         try:
@@ -434,7 +438,7 @@ def reddit_comment_drafts(context):
                         pass
                 rows.append((stamp, _account(path), row[0], *row[2:], row[1], context.get_relative_path(path)))
         except sqlite3.Error:
-            logfunc(f'Reddit drafts: unsupported or unreadable ZCOMMENTDRAFTENTITY; file={path}')
+            logfunc(f'Reddit drafts: unsupported or unreadable ZCOMMENTDRAFTENTITY; file={context.get_relative_path(path)}')
         finally:
             db.close()
     return (('Modified', 'datetime'), 'Account', 'Row ID', 'Content', 'Draft ID', 'Parent Comment ID',

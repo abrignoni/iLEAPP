@@ -236,7 +236,7 @@ class AuditRegressionTests(unittest.TestCase):
         self.assertEqual(row['Content Edited'], '')
         messages = [call.args[0] for call in log.call_args_list]
         self.assertEqual(len(messages), 2)
-        self.assertTrue(all(str(path) in msg and 'Comment:bad' in msg for msg in messages))
+        self.assertTrue(all(path.relative_to(self.root).as_posix() in msg and 'Comment:bad' in msg for msg in messages))
         self.assertTrue(any('field=createdAt' in msg for msg in messages))
         self.assertTrue(any('field=editedAt' in msg for msg in messages))
 
@@ -251,7 +251,8 @@ class AuditRegressionTests(unittest.TestCase):
         with patch.object(parser, 'logfunc') as log:
             self.assertEqual(len(run(self.root, 'reddit_cached_profiles')), 1)
         msg = log.call_args.args[0]
-        self.assertIn(str(path), msg)
+        self.assertIn(path.relative_to(self.root).as_posix(), msg)
+        self.assertNotIn(str(self.root), msg)
         self.assertIn('row=2', msg)
         self.assertIn('key=broken', msg)
 
@@ -265,7 +266,7 @@ class AuditRegressionTests(unittest.TestCase):
             path.write_bytes(plistlib.dumps(value))
             with self.subTest(source=filename), patch.object(parser, 'logfunc') as log:
                 self.assertEqual(run(self.root, artifact), [])
-                self.assertTrue(any(str(path) in c.args[0] for c in log.call_args_list))
+                self.assertTrue(any(path.relative_to(self.root).as_posix() in c.args[0] for c in log.call_args_list))
 
     def test_draft_account_scope_and_bad_store_diagnostic(self):
         for account in ('alpha', 'beta'):
@@ -288,4 +289,34 @@ class AuditRegressionTests(unittest.TestCase):
             db.execute('CREATE TABLE unrelated (x)')
         with patch.object(parser, 'logfunc') as log:
             self.assertEqual(len(run(self.root, 'reddit_comment_drafts')), 2)
-        self.assertTrue(any(str(bad) in c.args[0] for c in log.call_args_list))
+        self.assertTrue(any(bad.relative_to(self.root).as_posix() in c.args[0] for c in log.call_args_list))
+
+
+class FractionCompatibilityTests(unittest.TestCase):
+    def test_all_fraction_lengths_have_the_same_microsecond_precision(self):
+        expected = {'': 0, '1': 100000, '12': 120000, '123': 123000,
+                    '1234': 123400, '12345': 123450, '123456': 123456,
+                    '1234567': 123456, '123456789': 123456}
+        for digits, microsecond in expected.items():
+            for offset in ('Z', '+0000', '+00:00'):
+                fraction = '.'+digits if digits else ''
+                value = '2024-05-01T12:40:00'+fraction+offset
+                with self.subTest(digits=digits, offset=offset):
+                    stamp = parser._iso(value, 'synthetic/cache')  # pylint: disable=protected-access
+                    self.assertNotEqual(stamp, '')
+                    self.assertEqual(stamp.microsecond, microsecond)
+                    self.assertEqual((stamp.year, stamp.month, stamp.day, stamp.hour, stamp.minute, stamp.second),
+                                     (2024, 5, 1, 12, 40, 0))
+
+    def test_parser_diagnostics_do_not_include_local_root(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            path = cache(root, 'alpha', {'Comment:bad': {'createdAt': 'invalid'}})
+            with sqlite3.connect(path) as db:
+                db.execute("INSERT INTO records(key,record) VALUES ('bad-json','{')")
+            with patch.object(parser, 'logfunc') as log:
+                run(root, 'reddit_cached_comments')
+            messages = [call.args[0] for call in log.call_args_list]
+            self.assertEqual(len(messages), 2)
+            self.assertTrue(all(str(root) not in msg for msg in messages))
+            self.assertTrue(all(path.relative_to(root).as_posix() in msg for msg in messages))

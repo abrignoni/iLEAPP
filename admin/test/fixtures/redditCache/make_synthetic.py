@@ -22,12 +22,12 @@ def main():
         for account in ['alpha', 'beta']:
             p = cache(root, account, {
                 'SubredditPost:t3_demo': {'id': 't3_demo', 'title': 'Synthetic post',
-                    'createdAt': '2024-01-02T03:04:05.125000+0000', 'isOwnPost': False,
+                    'createdAt': ('2024-01-02T03:04:05.125000+0000' if account == 'alpha' else '2024-01-02T03:04:05.12+0000'), 'isOwnPost': False,
                     'content': {'$reference': 'body'}, 'subreddit': {'$reference': 'Subreddit:t5_demo'}},
                 'body': {'markdown': 'Fabricated body ' + account},
                 'Comment:t1_demo': {'id': 't1_demo', 'content': {'$reference': 'body'},
-                    'createdAt': '2024-01-02T03:04:05.125000+0000',
-                    'editedAt': '2024-01-02T03:04:06.125000+0000',
+                    'createdAt': ('2024-01-02T03:04:05.1+0000' if account == 'alpha' else '2024-01-02T03:04:05.12345+0000'),
+                    'editedAt': ('2024-01-02T03:04:06.1234+0000' if account == 'alpha' else '2024-01-02T03:04:06.125+0000'),
                     'authorInfo': {'$reference': 'Redditor:t2_demo'}, 'isSaved': False,
                     'permalink': '/r/SyntheticCommunity/comments/demo/synthetic/demo/'},
                 'Redditor:t2_demo': {'id': 't2_demo', 'displayName': 'Synthetic ' + account},

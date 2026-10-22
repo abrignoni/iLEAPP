@@ -15,7 +15,7 @@ Every row carries a source file. Cache/history/draft rows carry the containing `
 
 Normalized-cache `$reference` links resolve inside the same database. The parser retains each root object's JSON, its cache key, and selected resolved content JSON. It does not emit child fragments as additional posts/comments. Missing and cyclic links remain reference tokens; traversal is bounded to twelve levels. Full reply-to-comment forests, media relationships and query-root graphs remain in the preserved source database; a cached permalink does not independently prove the parent-child relationship of every comment. Rendered text is ordinary escaped report text, not injected HTML.
 
-Unknown and absent values are kept distinct from stored false/zero. Creation/edit strings are converted only when they contain an explicit timezone, including Z, +HH:MM and the observed +HHMM form on Python 3.10. Invalid nonempty dates are logged with source, cache key and field. The cache stores ISO timestamps, not NSKeyedArchiver dates. History files use the existing plist/NSKeyedArchiver helper. SQLite opens use the shared read-only helper and include available WAL state; this is not recovery of overwritten or deleted SQLite pages.
+Unknown and absent values are kept distinct from stored false/zero. Creation/edit strings are converted only when they contain an explicit timezone, including Z, +HH:MM and the observed +HHMM form on Python 3.10. HH:MM:SS fractional seconds are normalized to six microsecond digits on both runtimes: shorter fractions are padded and longer fractions are truncated, not rounded. Object JSON preserves the original string. Invalid nonempty dates are logged with source, cache key and field. The cache stores ISO timestamps, not NSKeyedArchiver dates. History files use the existing plist/NSKeyedArchiver helper. SQLite opens use the shared read-only helper and include available WAL state; this is not recovery of overwritten or deleted SQLite pages.
 
 ## Validation
 
@@ -50,4 +50,4 @@ The comparison run also included unchanged `reddit.py` artifacts. Its contact Bl
 
 ## Audit repairs
 
-Local audit repairs add regression controls for the reported failures. Fabricated case metadata is labeled synthetic, not an acquired iOS version. Test/runtime results and remaining validation limits are recorded in the local review handoff; passing Python 3.10 and 3.12 checks does not establish untested runtimes, Windows, packaging or native LAVA behavior.
+Local audit repairs add regression controls for the reported failures. Fabricated case metadata is labeled synthetic, not an acquired iOS version. Unit and strict fabricated regression checks pass on Python 3.10 and 3.12. Other Python runtimes, Windows, packaging, backup/other seekers and native LAVA behavior remain unverified. Module diagnostics use extraction-relative source paths; shared framework helpers may still log absolute local paths.
