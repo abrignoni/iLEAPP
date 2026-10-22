@@ -6,14 +6,14 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                          'output_types': ['html', 'tsv', 'lava'],
                          'artifact_icon': 'brand-reddit',
                          'name': 'Reddit - Cached Posts',
-                         'description': 'Cached post text, author, community and stored post '
+                         'description': 'Cached post text, author, subreddit and stored post '
                                         'states.',
                          'paths': ('*/Documents/release02/accountData/*/sqlNormalizedCache*',),
                          'notes': 'Content Created and Content Edited are post creation/edit '
                                   'dates, not view or cache-receipt times. Dates without a '
                                   'timezone remain blank; original values are in Object JSON. '
                                   'Account is the source account directory, not a verified person. '
-                                  'Source File separates cache stores. Author/community references '
+                                  'Source File separates cache stores. Author/subreddit references '
                                   'come from the same cache. Cached content may be prefetched and '
                                   'does not establish reading or authorship; own/saved/vote flags '
                                   'are reported as stored.'},
@@ -29,7 +29,7 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                             'paths': ('*/Documents/release02/accountData/*/sqlNormalizedCache*',),
                             'notes': 'Content Created and Content Edited are comment creation/edit '
                                      'dates, not view times. Original values are in Object JSON. '
-                                     'Post ID and community come from a stored permalink matching '
+                                     'Post ID and subreddit come from a stored permalink matching '
                                      'the comment ID; Cached Post Title requires a matching post '
                                      'in the same cache. Missing links remain blank; reply nesting '
                                      'is not established. Account and Source File identify the '
@@ -42,17 +42,18 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                                'category': 'Reddit',
                                'output_types': ['html', 'tsv', 'lava'],
                                'artifact_icon': 'brand-reddit',
-                               'name': 'Reddit - Cached Communities',
-                               'description': 'Cached community IDs, names, descriptions and '
+                               'name': 'Reddit - Cached Subreddits',
+                               'description': 'Cached subreddit IDs, names, descriptions and '
                                               'subscription/notification states.',
                                'paths': ('*/Documents/release02/accountData/*/sqlNormalizedCache*',),
-                               'notes': 'Community ID identifies the stored subreddit; Account and '
+                               'notes': 'Subreddit ID identifies the stored subreddit; Account and '
                                         'Source File distinguish source accounts and caches. '
                                         'Subscription, favorite, mute and notification fields are '
-                                        'reported as stored. A cached community does not establish '
+                                        'reported as stored. A cached subreddit does not establish '
                                         'a visit or who set a state. Object JSON preserves the '
-                                        'source fields; blank values were not retained in the '
-                                        'object.'},
+                                        'source fields. A blank cell means the field was absent or '
+                                        "null; Object JSON shows which. Reddit's app calls these "
+                                        'Communities.'},
  'reddit_cached_profiles': {'author': '@CyberMike81, OpenAI Codex',
                             'creation_date': '2026-10-22',
                             'last_update_date': '2026-10-22',
@@ -94,8 +95,8 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                               'category': 'Reddit',
                               'output_types': ['html', 'tsv', 'lava'],
                               'artifact_icon': 'brand-reddit',
-                              'name': 'Reddit - Community History Store',
-                              'description': 'Stored community-history entries and list positions.',
+                              'name': 'Reddit - Subreddit History Store',
+                              'description': 'Stored subreddit-history entries and list positions.',
                               'paths': ('*/Documents/release02/accountData/*/SubredditHistory',),
                               'notes': 'List Position is zero-based storage order, not a timestamp '
                                        'or established visit sequence. Entry holds the stored '
@@ -153,8 +154,14 @@ def _iso(value, location=''):
     try:
         if not isinstance(value, str):
             raise ValueError('not a timestamp string')
+        # Normalize basic calendar timestamps and hour-only offsets before
+        # fromisoformat, whose accepted ISO forms differ between Python versions.
+        normalized = re.sub(r'^(\d{4})(\d{2})(\d{2})[Tt ](\d{2})(\d{2})(\d{2})(?=[.,Z+-]|$)',
+                            r'\1-\2-\3T\4:\5:\6', value)
+        normalized = re.sub(r'([Tt ]\d{2}:\d{2}(?::\d{2}(?:[.,]\d+)?)?)([+-]\d{2})$',
+                            r'\1\2:00', normalized)
         # Python 3.10 needs a colon in offsets such as the observed +0000.
-        normalized = re.sub(r'([+-]\d{2})(\d{2})$', r'\1:\2', value)
+        normalized = re.sub(r'([+-]\d{2})(\d{2})$', r'\1:\2', normalized)
         # Python 3.10 accepts only 3/6 fractional digits. Normalize the
         # HH:MM:SS fraction to microseconds; preserve the original in Object JSON.
         normalized = re.sub(r'(\d{2}:\d{2}:\d{2})[.,](\d+)',
@@ -275,9 +282,9 @@ def _content(context, kind):
 
 @artifact_processor
 def reddit_cached_posts(context):
-    data_headers = ('Account', 'Title', 'Text', 'Author Name', 'Community',
+    data_headers = ('Account', 'Title', 'Text', 'Author Name', 'Subreddit',
                     ('Content Created', 'datetime'), ('Content Edited', 'datetime'),
-                    'Object ID', 'Author ID', 'Community ID', 'Permalink', 'URL',
+                    'Object ID', 'Author ID', 'Subreddit ID', 'Permalink', 'URL',
                     'Is Own (as stored)', 'Is Saved (as stored)', 'Vote State (as stored)',
                     'Is Removed (as stored)', 'Cache Key', 'Object JSON',
                     'Resolved Content JSON', 'Source File')
@@ -290,7 +297,7 @@ def reddit_cached_posts(context):
 def reddit_cached_comments(context):
     data_headers = (('Content Created', 'datetime'), ('Content Edited', 'datetime'),
                     'Account', 'Cached Post Title', 'Post ID (from permalink)',
-                    'Community (from permalink)', 'Author Name', 'Text', 'Object ID',
+                    'Subreddit (from permalink)', 'Author Name', 'Text', 'Object ID',
                     'Author ID', 'Permalink', 'Is Own (as stored)', 'Is Saved (as stored)',
                     'Vote State (as stored)', 'Is Removed (as stored)', 'Cache Key',
                     'Post Cache Key', 'Object JSON', 'Resolved Content JSON', 'Source File')
@@ -313,7 +320,7 @@ def _entities(context, kind, fields):
 @artifact_processor
 def reddit_cached_communities(context):
     return _entities(context, 'Subreddit', (
-        ('id', 'Community ID'), ('name', 'Community'), ('title', 'Title'),
+        ('id', 'Subreddit ID'), ('name', 'Subreddit'), ('title', 'Title'),
         ('publicDescriptionText', 'Public Description'), ('path', 'Path'),
         ('isSubscribed', 'Is Subscribed (as stored)'), ('isFavorite', 'Is Favorite (as stored)'),
         ('isMuted', 'Is Muted (as stored)'), ('notificationLevel', 'Notification Level (as stored)'),
