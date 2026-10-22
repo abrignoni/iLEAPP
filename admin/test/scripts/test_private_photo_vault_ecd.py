@@ -98,6 +98,49 @@ class ParserTests(unittest.TestCase):
         self.assertIn('unsupported or unreadable', log.call_args.args[0])
         opener.return_value.close.assert_called_once()
 
+    def test_unreadable_signature_object_does_not_hide_good_album_or_identity(self):
+        path = store(self.root)
+        with sqlite3.connect(path) as db:
+            db.execute('DROP TABLE ecdPersistentMediaItem')
+            db.execute('CREATE VIEW ecdPersistentMediaItem AS SELECT * FROM missing_source')
+        analytics(self.root,[{'event':'synthetic', 'properties':{'time':1700000000}}])
+        with patch.object(parser, 'logfunc') as log:
+            albums = run(self.root, 'ppv_ecd_albums')
+            events = run(self.root, 'ppv_activity_events')
+        self.assertEqual(len(albums),1)
+        self.assertEqual(len(events),1)
+        self.assertIn('Verified ECD schema',events[0]['App Association'])
+        messages = [c.args[0] for c in log.call_args_list]
+        self.assertTrue(any('unreadable ECD schema; table=ecdPersistentMediaItem;' in m for m in messages))
+        self.assertFalse(any('no supported ECD table signature' in m for m in messages))
+
+    def test_unverified_schema_does_not_claim_signatures_are_absent(self):
+        path = store(self.root)
+        with sqlite3.connect(path) as db:
+            for table in parser.ECD_SIGNATURES:
+                db.execute('DROP TABLE "'+table+'"')
+            db.execute('CREATE VIEW ecdPersistentMediaItem AS SELECT * FROM missing_source')
+        with patch.object(parser, 'logfunc') as log:
+            self.assertEqual(run(self.root,'ppv_ecd_albums'),[])
+        messages = [c.args[0] for c in log.call_args_list]
+        self.assertTrue(any('could not verify ECD schema' in m for m in messages))
+        self.assertFalse(any('no supported ECD table signature' in m for m in messages))
+
+    def test_partial_read_reports_rows_emitted_and_keeps_good_prefix(self):
+        def damaged_rows():
+            yield (1,'synthetic')
+            raise sqlite3.DatabaseError('synthetic failure after first row')
+        with patch.object(parser,'open_sqlite_db_readonly') as opener, patch.object(parser,'logfunc') as log:
+            cursor = opener.return_value.cursor.return_value
+            cursor.description = [('id',),('value',)]
+            cursor.__iter__.side_effect = damaged_rows
+            opener.return_value.execute.side_effect = [opener.return_value,cursor]
+            opener.return_value.fetchone.return_value = (1,)
+            rows = list(parser._rows('synthetic.db','synthetic','synthetic/store'))  # pylint: disable=protected-access
+        self.assertEqual(rows,[{'id':1,'value':'synthetic'}])
+        self.assertIn('read incomplete; rows emitted=1',log.call_args.args[0])
+        opener.return_value.close.assert_called_once()
+
     def test_multiple_containers_keep_identical_syncids(self):
         tmp_path = self.root
         store(tmp_path, 'alpha')

@@ -135,16 +135,25 @@ ECD_SIGNATURES = {
 def _ecd_schema(path, display_path):
     db = open_sqlite_db_readonly(path)
     if db is None:
+        logfunc(f'Private Photo Vault: could not open ECD schema; file={display_path}')
         return False
+    unreadable = False
     try:
         for table, required in ECD_SIGNATURES.items():
-            columns = {r[1] for r in db.execute('PRAGMA table_info("' + table + '")')}
+            try:
+                columns = {r[1] for r in db.execute('PRAGMA table_info("' + table + '")')}
+            except sqlite3.Error:
+                unreadable = True
+                logfunc(f'Private Photo Vault: unreadable ECD schema; table={table}; file={display_path}')
+                continue
             if required <= columns:
                 return True
-    except sqlite3.Error:
-        logfunc(f'Private Photo Vault: unreadable ECD schema; file={display_path}')
     finally:
         db.close()
+    if unreadable:
+        logfunc(f'Private Photo Vault: could not verify ECD schema; some objects unreadable; file={display_path}')
+    else:
+        logfunc(f'Private Photo Vault: no supported ECD table signature; file={display_path}')
     return False
 
 
@@ -161,7 +170,6 @@ def _stores(context):
             logfunc(f'Private Photo Vault: could not read store signature; file={context.get_relative_path(path)}')
             continue
         if not _ecd_schema(path, context.get_relative_path(path)):
-            logfunc(f'Private Photo Vault: no supported ECD table signature; file={context.get_relative_path(path)}')
             continue
         yield path
 
@@ -226,6 +234,7 @@ def _report_scalar(value):
 
 
 def _rows(path, table, display_path):
+    emitted = 0
     db = open_sqlite_db_readonly(path)
     if db is None:
         logfunc(f'Private Photo Vault: could not open {table}; file={display_path}')
@@ -239,9 +248,10 @@ def _rows(path, table, display_path):
         cursor = db.execute('SELECT * FROM "' + table + '"')
         cols = [d[0] for d in cursor.description]
         for row in cursor:
+            emitted += 1
             yield dict(zip(cols, row))
     except sqlite3.Error:
-        logfunc(f'Private Photo Vault: unsupported or unreadable table={table}; file={display_path}')
+        logfunc(f'Private Photo Vault: unsupported or unreadable table={table}; read incomplete; rows emitted={emitted}; file={display_path}')
     finally:
         db.close()
 
