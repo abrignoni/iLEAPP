@@ -2,8 +2,34 @@
 import os
 import sqlite3
 from datetime import datetime, timedelta, timezone
+from weakref import WeakKeyDictionary
 
 from scripts.ilapfuncs import get_plist_file_content, get_sqlite_db_records, logfunc
+
+_DIAGNOSTICS = WeakKeyDictionary()
+
+
+def life360_logger(context, logger):
+    """Report each distinct structural diagnostic once per context/run, never across runs."""
+    try:
+        run = context.get_output_params() if hasattr(context, 'get_output_params') else None
+    except ValueError:
+        # The recorded-fixture harness sets a data folder without OutputParameters.
+        run = None
+    if run is None:
+        run = context.get_data_folder() if hasattr(context, 'get_data_folder') else None
+    previous = _DIAGNOSTICS.get(context)
+    if previous is None or previous[0] != run:
+        previous = (run, set())
+        _DIAGNOSTICS[context] = previous
+    seen = previous[1]
+
+    def report(message):
+        if message not in seen:
+            seen.add(message)
+            logger(message)
+
+    return report
 
 
 def seconds_to_utc(value, epoch_year):
@@ -61,8 +87,9 @@ def read_life360_rows(path, query, label):
                 'remaining rows skipped, earlier rows retained')
 
 
-def get_life360_files(context):
+def get_life360_files(context, logger=None):
     """Validate relevant container markers and log every excluded matching file."""
+    logger = logger or logfunc
     files = [str(path) for path in context.get_files_found()]
     marker_name = '.com.apple.mobile_container_manager.metadata.plist'
     markers = {}
@@ -100,5 +127,5 @@ def get_life360_files(context):
             else:
                 reason = f'unsupported MCMMetadataIdentifier {identifier!r}'
         relative = context.get_relative_path(path)
-        logfunc(f'Life360 skipped matching file {relative!r}: {reason}')
+        logger(f'Life360 skipped matching file {relative!r}: {reason}')
     return sorted(accepted.values())

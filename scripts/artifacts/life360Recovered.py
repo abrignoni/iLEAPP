@@ -25,7 +25,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                      'held one value, JSON object, in both tested inputs. Source File and '
                                      'Store identify one database per store in the single-container tests; '
                                      'Source File is retained to distinguish containers/copies. Complete '
-                                     'payloads above 32 MiB are excluded with a diagnostic.',
+                                     'payloads above 32 MiB are excluded with a diagnostic.'
+                                     ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/Library/Application Support/DriveModelStore.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -58,7 +59,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                         'Tested on Life360 26.34.0.5 / iOS 18.6; other schemas may differ. '
                                         'Store and Sample Index were uniform in the tested extraction '
                                         'because every recovered location came from a single headline '
-                                        'location in FailedLocationTopic.',
+                                        'location in FailedLocationTopic.'
+                                        ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -91,7 +93,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                        '26.34.0.5 / iOS 18.6; other schemas may differ. End Time is empty in '
                                        'the synthetic drive-only case. Source File identifies the '
                                        'originating database even when recovery provenance also identifies '
-                                       'that file.',
+                                       'that file.'
+                                       ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                         '*/Library/Application Support/DriveModelStore.sqlite*',
                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -99,7 +102,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                               'artifact_icon': 'route'},
  'life360RecoveredWaypoints': {'name': 'Life360 - Recovered Movement Waypoints',
                                'description': 'Distinct waypoint and route objects within non-live Life360 '
-                                              'movement records.',
+                                              'movement records. Parent provenance is in the '
+                                              'TSV/LAVA Parent Records JSON column.',
                                'author': '@CyberMike81, OpenAI Codex',
                                'creation_date': '2026-10-22',
                                'last_update_date': '2026-10-22',
@@ -122,7 +126,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                         'transactions and unsupported/incomplete cells are not carved; '
                                         'failures and exclusions are logged. Overwriting or absence from the '
                                         'live view does not establish user deletion. Times render in UTC. '
-                                        'Tested on Life360 26.34.0.5 / iOS 18.6; other schemas may differ.',
+                                        'Tested on Life360 26.34.0.5 / iOS 18.6; other schemas may differ.'
+                                        ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -130,7 +135,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                'artifact_icon': 'map-pin'},
  'life360RecoveredIncidents': {'name': 'Life360 - Recovered Driving Incidents',
                                'description': 'Driving-incident objects within non-live Life360 movement '
-                                              'records.',
+                                              'records. Parent provenance is in the TSV/LAVA '
+                                              'Parent Records JSON column.',
                                'author': '@CyberMike81, OpenAI Codex',
                                'creation_date': '2026-10-22',
                                'last_update_date': '2026-10-22',
@@ -153,9 +159,10 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                         'unsupported/incomplete cells are not carved; failures and '
                                         'exclusions are logged. Overwriting or absence from the live view '
                                         'does not establish user deletion. Times render in UTC. Tested on '
-                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Parent '
-                                        'Records was uniform in the tested extraction; each grouped incident '
-                                        'had one recovered parent record.',
+                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Parent Record '
+                                        'Count was uniform in the tested extraction; each grouped incident '
+                                        'had one recovered parent record.'
+                                        ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -189,7 +196,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                      'Drive Type, User Mode and User Tag were uniform in the tested '
                                      'extraction; Rideshare Vendor was empty in real and fabricated inputs. '
                                      'Created At and Updated At were identical in the tested extraction; '
-                                     'both are retained as separately stored fields.',
+                                     'both are retained as separately stored fields.'
+                                     ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/Library/Application Support/DriveModelStore.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -202,7 +210,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                               'last_update_date': '2026-10-22',
                               'requirements': 'none',
                               'category': 'Life360',
-                              'notes': 'Event Time is the entry timestamp (Unix seconds); Location Time is '
+                              'notes': 'Event Time is the JSON timestamp (Unix seconds); a missing timestamp '
+                                       'stays blank and is logged, without falling back to Logged Time. Location Time is '
                                        'the stored location timestamp (Cocoa seconds). Place, direction, '
                                        'distance and unit values are as stored. Raw parent JSON retains '
                                        'unknown fields; no place is supplied from another source. Only '
@@ -216,7 +225,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                        'render in UTC. Tested on Life360 26.34.0.5 / iOS 18.6; other layouts '
                                        'may differ. Unit and Algorithm were uniform and Event Time and '
                                        'Logged Time were identical in the tested extraction; the separate '
-                                       'source fields are retained.',
+                                       'source fields are retained.'
+                                       ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
                               'output_types': 'all',
@@ -243,7 +253,8 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                      'uniform in the tested extraction. Session ID and User ID are empty in '
                                      'the fabricated engine-topic case. Source File and Store identify each '
                                      'database; the separate Source File preserves container/copy '
-                                     'provenance.',
+                                     'provenance.'
+                                     ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
                             'output_types': 'all',
@@ -255,7 +266,7 @@ from pathlib import Path
 import uuid
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.life360_common import get_life360_files, seconds_to_utc
+from scripts.life360_common import get_life360_files, life360_logger, seconds_to_utc
 from scripts.life360_recovery import recover_rows
 
 _TOPICS = {'DeviceLocationTopic', 'FailedLocationTopic', 'drive_session', 'trip_session',
@@ -303,7 +314,8 @@ def _enum(value):
 
 def _files(context, drives=False):
     result = []
-    for name in get_life360_files(context):
+    logger = life360_logger(context, logfunc)
+    for name in get_life360_files(context, logger):
         path = Path(name)
         if path.suffix != '.sqlite' or not path.is_file():
             continue
@@ -314,15 +326,16 @@ def _files(context, drives=False):
         if (drives and is_drive) or (not drives and is_topic):
             result.append(name)
         elif not drives and path.name != 'DriveModelStore.sqlite':
-            logfunc(f'Life360 recovery skipped {context.get_relative_path(name)!r}: topic outside supported recovery scope')
+            logger(f'Life360 recovery skipped {context.get_relative_path(name)!r}: topic outside supported recovery scope')
     return result
 
 
 def _records(context, drives=False):
+    logger = life360_logger(context, logfunc)
     for name in _files(context, drives):
         relative = context.get_relative_path(name)
         grouped = {}
-        for record in recover_rows(name, 'ZDRIVEMODEL' if drives else 'ZENTRY', relative):
+        for record in recover_rows(name, 'ZDRIVEMODEL' if drives else 'ZENTRY', relative, logger):
             entry = grouped.setdefault(record['fingerprint'], dict(record, appearances=[]))
             appearance = dict(record['source'], sourceFile=relative + ('-wal' if record['source']['frame'] else ''))
             entry['appearances'].append(appearance)
@@ -478,15 +491,23 @@ def _nested(context, incidents):
                                      'sourceFile': record['file'], 'walSourceFile': record['wal'],
                                      'recoverySources': record['appearances']})
             entry['files'].add(record['file'])
-            entry['states'].add(record['states'])
+            entry['states'].update(record['states'].split('; '))
     return [entry for _, entry in sorted(grouped.items())]
+
+
+def _nested_output(headers, rows):
+    """Keep full provenance in data exports without repeating it in every HTML point row."""
+    column = headers.index('Parent Records JSON')
+    html_rows = [row[:column] + ('Complete JSON in this artifact\'s TSV/LAVA export; '
+                               'match trip/session and Parent Entry IDs.',) + row[column + 1:] for row in rows]
+    return rows, html_rows
 
 
 @artifact_processor
 def life360RecoveredWaypoints(context):
     headers = (('Waypoint Time', 'datetime'), 'Trip ID or Session ID', 'Parent Entry IDs', 'Kind',
                'Latitude', 'Longitude', 'Speed (as stored)', 'Course (as stored)', 'Horizontal Accuracy (as stored)',
-               'Point JSON', 'Source States', 'Parent Records', 'Contributing Records', 'Source Files')
+               'Point JSON', 'Source States', 'Parent Record Count', 'Parent Records JSON', 'Source Files')
     rows = []
     for entry in _nested(context, False):
         item = entry['item']
@@ -495,13 +516,13 @@ def life360RecoveredWaypoints(context):
                     _coordinates(item) + tuple(_text(item.get(k)) for k in ('speed', 'course', 'horizontalAccuracy')) +
                     (_json(item), '; '.join(sorted(entry['states'])), len(entry['parents']),
                      _json(entry['parents']), '\n'.join(sorted(entry['files']))))
-    return headers, rows, _sources(context)
+    return headers, _nested_output(headers, rows), _sources(context)
 
 
 @artifact_processor
 def life360RecoveredIncidents(context):
     headers = (('Incident Time', 'datetime'), 'Trip ID', 'Parent Entry IDs', 'Type (as stored)', 'Latitude',
-               'Longitude', 'Incident JSON', 'Source States', 'Parent Records', 'Contributing Records', 'Source Files')
+               'Longitude', 'Incident JSON', 'Source States', 'Parent Record Count', 'Parent Records JSON', 'Source Files')
     rows = []
     for entry in _nested(context, True):
         item = entry['item']
@@ -509,7 +530,7 @@ def life360RecoveredIncidents(context):
                      _json(sorted({p['entryID'] for p in entry['parents']})), _text(item.get('type'))) +
                     _coordinates(item) + (_json(item), '; '.join(sorted(entry['states'])), len(entry['parents']),
                                          _json(entry['parents']), '\n'.join(sorted(entry['files']))))
-    return headers, rows, _sources(context)
+    return headers, _nested_output(headers, rows), _sources(context)
 
 
 @artifact_processor
@@ -544,11 +565,14 @@ def life360RecoveredBreaches(context):
         if record['topic'] != 'BreachTopic':
             continue
         doc = record['document']
+        if 'timestamp' not in doc:
+            life360_logger(context, logfunc)(f'Life360 recovered missing breach timestamp in '
+                                            f'{record["file"]!r}, record {record["key"]}; Event Time left blank')
         location = _object(doc.get('location'), 'breach location')
         for place in _array(doc.get('places'), 'breach places') or [{}]:
             distance = _object(place.get('distanceToFence'), 'distanceToFence')
             unit = _object(distance.get('unit'), 'distance unit')
-            rows.append((seconds_to_utc(doc.get('timestamp', record['values'].get('ZTIMESTAMP')), 1970),
+            rows.append((seconds_to_utc(doc.get('timestamp'), 1970),
                          seconds_to_utc(location.get('timestamp'), 2001), record['logged'], record['entry_id']) +
                         tuple(_text(place.get(k)) for k in ('id', 'circleId', 'name', 'direction')) +
                         (_text(distance.get('value')), _text(unit.get('symbol')), _text(place.get('algorithm'))) +

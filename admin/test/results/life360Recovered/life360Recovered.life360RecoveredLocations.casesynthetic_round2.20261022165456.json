@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/life360Recovered/testdata.life360Recovered.life360RecoveredLocations.casesynthetic_round2.zip",
-    "start_time": "2026-10-22T15:34:21.707624+00:00",
-    "end_time": "2026-10-22T15:34:21.731710+00:00",
-    "run_time_seconds": 0.0053288936614990234,
+    "start_time": "2026-10-22T16:54:56.805999+00:00",
+    "end_time": "2026-10-22T16:54:56.827823+00:00",
+    "run_time_seconds": 0.0052738189697265625,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-22T15:34:21.720181",
-      "message": "File not yet committed to git"
+      "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T11:48:53-04:00",
+      "message": "feat(life360): parse API cache and recover historical page records"
     }
   },
   "headers": [
@@ -59,7 +59,7 @@
       "Committed WAL page version",
       1,
       "b45f331991a026346f592ff4276627aa4ba88cb1cf8c7db4a2a1ce7ef760d8db",
-      "[{\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 3689, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 3689, \"frame\": 4, \"overflow\": [], \"page\": 6, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
     ],
     [
@@ -79,7 +79,7 @@
       "Committed WAL page version; Main-file view without WAL",
       2,
       "e56b0f2979bb50ddd2030c5ec9ae498fbfcf2bc71d651e1bff59f895b8505c09",
-      "[{\"cellOffset\": 489, \"commitFrame\": 0, \"fileOffset\": 1513, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 2641, \"frame\": 3, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 489, \"commitFrame\": 0, \"fileOffset\": 1513, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 2641, \"frame\": 3, \"overflow\": [], \"page\": 5, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
     ]
   ]

@@ -24,11 +24,15 @@ from scripts.artifacts import life360Cache as cache, life360Recovered as recover
 class Context:
     def __init__(self, root, patterns):
         self.root = Path(root)
+        self.output_params = None
         self.files = [str(p) for p in self.root.rglob('*') if p.is_file()
                       and any(fnmatch.fnmatchcase(p.as_posix(), pattern) for pattern in patterns)]
 
     def get_files_found(self):
         return self.files
+
+    def get_output_params(self):
+        return self.output_params
 
     def get_relative_path(self, path):
         return Path(path).relative_to(self.root).as_posix()
@@ -37,6 +41,10 @@ class Context:
 def run(module, name, root, context=None):
     context = context or Context(root, module.__artifacts_v2__[name]['paths'])
     headers, rows, sources = inspect.unwrap(getattr(module, name))(context)
+    if isinstance(rows, tuple):
+        rows, html_rows = rows
+        if len(html_rows) != len(rows) or any(len(r) != len(headers) for r in html_rows):
+            raise AssertionError('HTML projection width/count mismatch')
     labels = [h[0] if isinstance(h, tuple) else h for h in headers]
     if any(len(r) != len(labels) for r in rows):
         raise AssertionError('Header/row width mismatch')
@@ -67,6 +75,8 @@ class RoundTwoTests(unittest.TestCase):
                 with self.subTest(artifact=name):
                     context = Context(self.root, info['paths'])
                     headers, rows, sources = inspect.unwrap(getattr(module, name))(context)
+                    if isinstance(rows, tuple):
+                        rows, _ = rows
                     self.assertTrue(rows)
                     self.assertTrue(sources)
                     non_time_seen = False
@@ -92,6 +102,53 @@ class RoundTwoTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertTrue(rows[0]['Body Source File'].endswith('fsCachedData/synthetic-4'))
         self.assertEqual(rows[0]['Created'], datetime.fromtimestamp(base.T0, timezone.utc))
+
+    def test_external_body_symlink_cannot_cross_cache_directories(self):
+        other_cache = fixture.build_cache(self.root / 'two')
+        body = self.cache.parent / 'fsCachedData/synthetic-4'
+        body.unlink()
+        try:
+            body.symlink_to(other_cache.parent / 'fsCachedData/synthetic-4')
+        except (OSError, NotImplementedError):
+            self.skipTest('File symlinks unavailable')
+        rows, _ = run(cache, 'life360CachedCircles', self.root)
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows[0]['Source File'].startswith('two/'))
+        self.assertTrue(any('external body outside this cache' in m for m in self.logs))
+
+    def test_external_body_directory_symlink_cannot_cross_cache_directories(self):
+        other_cache = fixture.build_cache(self.root / 'two')
+        directory = self.cache.parent / 'fsCachedData'
+        shutil.rmtree(directory)
+        try:
+            directory.symlink_to(other_cache.parent / 'fsCachedData', target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest('Directory symlinks unavailable')
+        rows, _ = run(cache, 'life360CachedCircles', self.root)
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows[0]['Source File'].startswith('two/'))
+
+    def test_missing_receiver_row_is_not_an_unsupported_storage_flag(self):
+        self.mutate_cache('delete from cfurl_cache_receiver_data where entry_ID=5')
+        rows, _ = run(cache, 'life360CacheResponses', self.root)
+        self.assertEqual(len(rows), 6)
+        self.assertEqual(next(r for r in rows if r['Cache Entry ID'] == 5)['Body Status'],
+                         'Body unavailable or invalid')
+        messages = [m for m in self.logs if 'entry 5' in m]
+        self.assertTrue(any('body missing' in m for m in messages))
+        self.assertFalse(any('unsupported body-storage flag' in m for m in messages))
+
+    def test_device_issue_json_keeps_unknown_parent_fields(self):
+        with sqlite3.connect(self.cache) as connection:
+            body = json.loads(connection.execute(
+                'select receiver_data from cfurl_cache_receiver_data where entry_ID=3').fetchone()[0])
+        body['data']['items'][0]['unknownParentField'] = 'synthetic-retained'
+        self.mutate_cache('update cfurl_cache_receiver_data set receiver_data=? where entry_ID=3',
+                          (json.dumps(body),))
+        rows, _ = run(cache, 'life360CachedDeviceIssues', self.root)
+        record = json.loads(rows[0]['Record JSON'])
+        self.assertEqual(record['item'], body['data']['items'][0])
+        self.assertEqual(record['issue'], body['data']['items'][0]['issues'][0])
 
     def test_missing_external_body_has_index_row_and_named_log(self):
         rows, _ = run(cache, 'life360CacheResponses', self.root)
@@ -177,6 +234,116 @@ class RoundTwoTests(unittest.TestCase):
         self.assertNotIn(base.uid(0xD002), identities)
         self.assertTrue(any('Main-file view' in r['Source States'] for r in rows))
         self.assertTrue(any('Committed WAL page' in r['Source States'] for r in rows))
+
+    def test_checkpointed_later_btree_cannot_misattribute_sibling_entity(self):
+        path = self.root / 'checkpointed-sibling.sqlite'
+        connection = sqlite3.connect(path)
+        connection.execute('PRAGMA page_size=1024')
+        connection.execute('PRAGMA journal_mode=WAL')
+        connection.execute('PRAGMA wal_autocheckpoint=0')
+        for table in ('ZENTRY', 'ZOTHER'):
+            connection.execute(f'CREATE TABLE {table}(Z_PK INTEGER PRIMARY KEY,Z_ENT INTEGER,'
+                               'Z_OPT INTEGER,ZTIMESTAMP FLOAT,ZID BLOB,ZDATA BLOB)')
+        connection.executescript('CREATE TABLE Z_PRIMARYKEY(Z_ENT INTEGER PRIMARY KEY,Z_NAME TEXT);'
+                                 "INSERT INTO Z_PRIMARYKEY VALUES(1,'Entry'),(2,'Other');")
+        connection.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        connection.executemany('INSERT INTO ZOTHER VALUES(?,2,1,1,NULL,?)',
+                               [(i, b'sibling-' + b'x' * 300) for i in range(1, 41)])
+        connection.commit()
+        connection.execute('DELETE FROM ZOTHER')
+        connection.commit()
+        connection.executemany('INSERT INTO ZENTRY VALUES(?,1,1,2,NULL,?)',
+                               [(i, b'target-' + b'y' * 300) for i in range(1, 41)])
+        connection.commit()
+        connection.execute('PRAGMA wal_checkpoint(PASSIVE)')
+        snapshot = {suffix: Path(str(path) + suffix).read_bytes() for suffix in ('', '-wal', '-shm')}
+        connection.close()
+        for suffix, content in snapshot.items():
+            Path(str(path) + suffix).write_bytes(content)
+        rows = list(recovery.recover_rows(path, 'ZENTRY', 'synthetic-sibling'))
+        self.assertEqual(rows, [])  # All target rows are live; sibling rows are never ZENTRY history.
+        self.assertTrue(any('entity identity' in m for m in self.logs))
+
+    def test_unavailable_entity_mapping_suppresses_recovery_with_diagnostic(self):
+        for mode in ('missing', 'ambiguous'):
+            path = self.root / (mode + '.sqlite')
+            fixture._history(path, [{'id': base.uid(i)} for i in range(3)])
+            with sqlite3.connect(path) as connection:
+                if mode == 'missing':
+                    connection.execute('DROP TABLE Z_PRIMARYKEY')
+                else:
+                    connection.execute("INSERT INTO Z_PRIMARYKEY VALUES(9,'Entry')")
+            rows = list(recovery.recover_rows(path, 'ZENTRY', 'synthetic-' + mode))
+            self.assertEqual(rows, [])
+        self.assertTrue(any('entity identity' in m for m in self.logs))
+
+    def test_nested_parent_states_are_a_union_not_joined_strings(self):
+        documents = list(recovered._documents(Context(self.root,
+                         recovered.__artifacts_v2__['life360RecoveredTopics']['paths'])))
+        parents = [r for r in documents if r['topic'] == 'drive_session']
+        self.assertEqual(len(parents), 2)
+        parents[1]['document']['drive']['waypoints'] = parents[0]['document']['drive']['waypoints']
+        parents[0]['states'] = 'Main-file view without WAL'
+        parents[1]['states'] = 'Committed WAL page version; Main-file view without WAL'
+        with patch.object(recovered, '_documents', return_value=iter(parents)):
+            rows, _ = run(recovered, 'life360RecoveredWaypoints', self.root)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['Source States'],
+                         'Committed WAL page version; Main-file view without WAL')
+        self.assertEqual(rows[0]['Parent Record Count'], 2)
+        self.assertEqual(len(json.loads(rows[0]['Parent Records JSON'])), 2)
+
+    def test_html_parent_summary_keeps_complete_data_exports(self):
+        for name in ('life360RecoveredWaypoints', 'life360RecoveredIncidents'):
+            headers, (rows, html_rows), _ = inspect.unwrap(getattr(recovered, name))(
+                Context(self.root, recovered.__artifacts_v2__[name]['paths']))
+            column = headers.index('Parent Records JSON')
+            self.assertEqual(len(rows), len(html_rows))
+            for row, html_row in zip(rows, html_rows):
+                self.assertTrue(json.loads(row[column])[0]['recoverySources'])
+                self.assertIn('TSV/LAVA export', html_row[column])
+                self.assertEqual(row[:column] + row[column + 1:], html_row[:column] + html_row[column + 1:])
+
+    def test_missing_breach_event_timestamp_does_not_inherit_logged_time(self):
+        documents = list(recovered._documents(Context(self.root,
+                         recovered.__artifacts_v2__['life360RecoveredTopics']['paths'])))
+        breaches = [r for r in documents if r['topic'] == 'BreachTopic']
+        self.assertTrue(breaches)
+        for record in breaches:
+            record['document'].pop('timestamp', None)
+        with patch.object(recovered, '_documents', return_value=iter(breaches)):
+            rows, _ = run(recovered, 'life360RecoveredBreaches', self.root)
+        self.assertTrue(rows)
+        self.assertTrue(all(row['Event Time'] == '' and row['Logged Time'] for row in rows))
+        self.assertTrue(any('missing breach timestamp' in m for m in self.logs))
+
+    def test_repeated_structural_failure_logs_once_per_run_but_again_next_run(self):
+        context = Context(self.root, cache.__artifacts_v2__['life360CacheResponses']['paths'])
+        run(cache, 'life360CachedLocations', self.root, context)
+        run(cache, 'life360CacheResponses', self.root, context)
+        self.assertEqual(sum('entry 6' in m and 'external body missing' in m for m in self.logs), 1)
+        run(cache, 'life360CacheResponses', self.root)  # A new run must report the failure again.
+        self.assertEqual(sum('entry 6' in m and 'external body missing' in m for m in self.logs), 2)
+
+    def test_run_logger_resets_when_framework_reuses_context_for_a_new_report(self):
+        context = Context(self.root, ())
+        context.output_params = object()
+        first = life360_common.life360_logger(context, self.logs.append)
+        first('synthetic failure A')
+        first('synthetic failure A')
+        first('synthetic failure B')
+        self.assertEqual(self.logs, ['synthetic failure A', 'synthetic failure B'])
+        context.output_params = object()
+        life360_common.life360_logger(context, self.logs.append)('synthetic failure A')
+        self.assertEqual(len(self.logs), 3)
+
+    def test_run_logger_supports_fixture_context_without_output_parameters(self):
+        context = Context(self.root, ())
+        with patch.object(context, 'get_output_params', side_effect=ValueError('Context not set')):
+            logger = life360_common.life360_logger(context, self.logs.append)
+            logger('synthetic fixture failure')
+            logger('synthetic fixture failure')
+        self.assertEqual(self.logs, ['synthetic fixture failure'])
 
     def test_wal_overflow_payload_is_complete_and_provenance_names_its_frames(self):
         rows, _ = run(recovered, 'life360RecoveredTopics', self.root)
@@ -287,6 +454,8 @@ class RoundTwoTests(unittest.TestCase):
         connection.execute('PRAGMA journal_mode=WAL')
         connection.execute('PRAGMA wal_autocheckpoint=0')
         connection.execute('CREATE TABLE ZENTRY(Z_PK INTEGER PRIMARY KEY,Z_ENT INTEGER,Z_OPT INTEGER,ZTIMESTAMP FLOAT,ZID BLOB,ZDATA BLOB)')
+        connection.executescript("CREATE TABLE Z_PRIMARYKEY(Z_ENT INTEGER PRIMARY KEY,Z_NAME TEXT);"
+                                 "INSERT INTO Z_PRIMARYKEY VALUES(1,'Entry');")
         connection.commit()
         connection.execute('INSERT INTO ZENTRY VALUES(1,1,1,?,NULL,?)', (float(base.T0), b'{"history":"old"}'))
         connection.commit()

@@ -58,7 +58,8 @@ __artifacts_v2__ = {'life360CachedLocations': {'name': 'Life360 - Cached Device 
                                'notes': 'Issue Start is the issue startTime field (ISO with an explicit '
                                         'offset). Names and values are as stored; an issue does not '
                                         'independently establish device capability or its duration. Record '
-                                        'JSON retains the enclosing device/user association. Read from '
+                                        'JSON retains the complete enclosing item and the selected issue '
+                                        'as separate item and issue objects. Read from '
                                         'Library/Caches/com.life360.safetymap/Cache.db with the current WAL '
                                         'applied. Cached Time is SQLite CURRENT_TIMESTAMP text, read as UTC; '
                                         'invalid times are left blank and logged. Only the validated main '
@@ -158,7 +159,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
-from scripts.life360_common import get_life360_files, seconds_to_utc
+from scripts.life360_common import get_life360_files, life360_logger, seconds_to_utc
 
 _MAX_BODY = 32 * 1024 * 1024
 _HOSTS = {'api-cloudfront.life360.com', 'api.life360.com'}
@@ -228,16 +229,21 @@ def _finite_float(text):
 
 def _body(database, data, on_disk, files):
     source = ''
+    if on_disk is None:
+        raise ValueError('body missing')
     if on_disk == 1:
         if isinstance(data, bytes):
             data = data.decode('utf-8')
         if not isinstance(data, str) or data in ('.', '..') or not re.fullmatch(r'[A-Za-z0-9._-]+', data):
             raise ValueError('unsafe external-body reference')
         expected = database.parent / 'fsCachedData' / data
+        if expected.resolve().parent != database.parent.resolve() / 'fsCachedData':
+            raise ValueError('external body outside this cache')
         # The accepted file list is container-scoped and must name this exact cache directory.
         source = files.get(str(expected.resolve()))
         if source is None:
             raise ValueError('external body missing')
+        source = str(expected)
         with Path(source).open('rb') as stream:
             data = stream.read(_MAX_BODY + 1)
     elif on_disk != 0:
@@ -259,20 +265,20 @@ def _body(database, data, on_disk, files):
     return value, source, len(data)
 
 
-def _cache_rows(path, query, label):
+def _cache_rows(path, query, label, logger):
     connection = None
     try:
         with Path(path).open('rb') as stream:
             if stream.read(16) != b'SQLite format 3\x00':
-                logfunc(f'Life360 cache SQLite read failed in {label!r}: invalid database header')
+                logger(f'Life360 cache SQLite read failed in {label!r}: invalid database header')
                 return
         connection = open_sqlite_db_readonly(path)
         if connection is None:
-            logfunc(f'Life360 cache SQLite read failed in {label!r}: read-only open unavailable')
+            logger(f'Life360 cache SQLite read failed in {label!r}: read-only open unavailable')
             return
         yield from connection.execute(query)
     except (OSError, sqlite3.Error) as error:
-        logfunc(f'Life360 cache SQLite read failed in {label!r} ({type(error).__name__}); '
+        logger(f'Life360 cache SQLite read failed in {label!r} ({type(error).__name__}); '
                 'earlier rows retained and other files continue')
     finally:
         if connection is not None:
@@ -280,7 +286,8 @@ def _cache_rows(path, query, label):
 
 
 def _responses(context):
-    paths = get_life360_files(context)
+    logger = life360_logger(context, logfunc)
+    paths = get_life360_files(context, logger)
     files = {str(Path(p).resolve()): p for p in paths}
     for name in paths:
         database = Path(name)
@@ -288,12 +295,12 @@ def _responses(context):
             continue
         rel = context.get_relative_path(name)
         if database.parent.name != 'com.life360.safetymap' or database.parent.parent.name != 'Caches':
-            logfunc(f'Life360 cache skipped matching database {rel!r}: not the main application API cache')
+            logger(f'Life360 cache skipped matching database {rel!r}: not the main application API cache')
             continue
         query = '''SELECT r.entry_ID,r.request_key,r.time_stamp,d.isDataOnFS,d.receiver_data
                    FROM cfurl_cache_response r LEFT JOIN cfurl_cache_receiver_data d
                    ON d.entry_ID=r.entry_ID ORDER BY r.entry_ID'''
-        for entry, key, stamp, on_disk, data in _cache_rows(name, query, rel):
+        for entry, key, stamp, on_disk, data in _cache_rows(name, query, rel, logger):
             try:
                 if not isinstance(key, str):
                     raise TypeError
@@ -301,7 +308,7 @@ def _responses(context):
                 if url.scheme not in ('https', 'http') or url.hostname not in _HOSTS:
                     continue
             except (ValueError, TypeError):
-                logfunc(f'Life360 cache invalid request URL in {rel!r}, entry {entry}; entry skipped')
+                logger(f'Life360 cache invalid request URL in {rel!r}, entry {entry}; entry skipped')
                 continue
             response = {'entry': entry, 'path': url.path, 'request': url.hostname + url.path,
                         'cached': _time(stamp, 'Cached Time', cache=True), 'file': rel,
@@ -314,8 +321,8 @@ def _responses(context):
                 # Error text is ours, not the JSON parser's payload-bearing message.
                 reason = str(error) if type(error) is ValueError else type(error).__name__
                 response['status'] = 'Body unavailable or invalid'
-                logfunc(f'Life360 cache body unavailable/invalid in {rel!r}, entry {entry} '
-                        f'({reason if reason in ("unsafe external-body reference", "external body missing", "body missing", "unsupported body-storage flag", "body size or type unsupported", "expanded body exceeds limit", "body is not a JSON object or array", "nonfinite JSON") else type(error).__name__})')
+                logger(f'Life360 cache body unavailable/invalid in {rel!r}, entry {entry} '
+                       f'({reason if reason in ("unsafe external-body reference", "external body outside this cache", "external body missing", "body missing", "unsupported body-storage flag", "body size or type unsupported", "expanded body exceeds limit", "body is not a JSON object or array", "nonfinite JSON") else type(error).__name__})')
             yield response
 
 
@@ -359,7 +366,7 @@ def _provenance(response, record):
 
 
 def _sources(context):
-    files = get_life360_files(context)
+    files = get_life360_files(context, life360_logger(context, logfunc))
     caches = {Path(p).parent for p in files if Path(p).name == 'Cache.db'
               and Path(p).parent.name == 'com.life360.safetymap'
               and Path(p).parent.parent.name == 'Caches'}
@@ -424,8 +431,7 @@ def life360CachedDeviceIssues(context):
                 rows.append((_time(issue.get('startTime'), 'startTime'), response['cached'], response['entry'],
                              _text(item.get('deviceId')), _text(item.get('userId')),
                              _text(issue.get('name')), _text(issue.get('value'))) +
-                            _provenance(response, {'deviceId': item.get('deviceId'),
-                                                  'userId': item.get('userId'), 'issue': issue}))
+                            _provenance(response, {'item': item, 'issue': issue}))
     return headers, rows, _sources(context)
 
 

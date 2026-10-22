@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/life360Recovered/testdata.life360Recovered.life360RecoveredBreaches.casesynthetic_round2.zip",
-    "start_time": "2026-10-22T15:34:21.822420+00:00",
-    "end_time": "2026-10-22T15:34:21.842641+00:00",
-    "run_time_seconds": 0.004539012908935547,
+    "start_time": "2026-10-22T16:54:56.941077+00:00",
+    "end_time": "2026-10-22T16:54:56.961848+00:00",
+    "run_time_seconds": 0.0044879913330078125,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-22T15:34:21.833318",
-      "message": "File not yet committed to git"
+      "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T11:48:53-04:00",
+      "message": "feat(life360): parse API cache and recover historical page records"
     }
   },
   "headers": [
@@ -63,7 +63,7 @@
       "Committed WAL page version; Main-file view without WAL",
       2,
       "b280975b5085c3cae41d78c3e5b50debaa7d3a31cee3c33837b567d40b7b4442",
-      "[{\"cellOffset\": 178, \"commitFrame\": 0, \"fileOffset\": 1202, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 2330, \"frame\": 3, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 178, \"commitFrame\": 0, \"fileOffset\": 1202, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 2330, \"frame\": 3, \"overflow\": [], \"page\": 5, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite"
     ],
     [
@@ -85,7 +85,7 @@
       "Committed WAL page version",
       1,
       "f62e8b6030f6a1c7694d9763920942aeecb6e2f48aa256d05319401e38a758a0",
-      "[{\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 3378, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 3378, \"frame\": 4, \"overflow\": [], \"page\": 6, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite"
     ]
   ]

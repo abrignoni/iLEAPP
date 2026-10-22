@@ -74,7 +74,9 @@ def _history(path, documents):
     connection.executescript('''CREATE TABLE ZENTRY(Z_PK INTEGER PRIMARY KEY,Z_ENT INTEGER,Z_OPT INTEGER,
         ZTIMESTAMP FLOAT,ZID BLOB,ZDATA BLOB);
         CREATE TABLE ZSUBSCRIPTION(Z_PK INTEGER PRIMARY KEY,Z_ENT INTEGER,Z_OPT INTEGER,
-                                  ZLASTSENTTIMESTAMP FLOAT,ZIDENTIFIER VARCHAR);''')
+                                  ZLASTSENTTIMESTAMP FLOAT,ZIDENTIFIER VARCHAR);
+        CREATE TABLE Z_PRIMARYKEY(Z_ENT INTEGER PRIMARY KEY,Z_NAME TEXT);
+        INSERT INTO Z_PRIMARYKEY VALUES(1,'Entry'),(2,'Subscription');''')
     def put(index, doc):
         connection.execute('insert or replace into ZENTRY values(?,1,1,?,?,?)',
                            (index, float(base.T0 + index), uuid.UUID(doc['id']).bytes, json.dumps(doc).encode()))
@@ -122,6 +124,8 @@ def build_recovery(root):
     destination = root / 'Library/Application Support/DriveModelStore.sqlite'
     destination.write_bytes(source.read_bytes())
     connection = sqlite3.connect(destination)
+    connection.executescript("CREATE TABLE Z_PRIMARYKEY(Z_ENT INTEGER PRIMARY KEY,Z_NAME TEXT);"
+                             "INSERT INTO Z_PRIMARYKEY VALUES(1,'DriveModel');")
     connection.execute('PRAGMA journal_mode=WAL')
     connection.execute('PRAGMA wal_autocheckpoint=0')
     connection.execute('delete from ZDRIVEMODEL where Z_PK=1')

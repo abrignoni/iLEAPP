@@ -2,6 +2,8 @@
 
 Format: https://www.sqlite.org/fileformat2.html (btree, record, overflow and WAL sections).
 No freeblock, freelist, old-salt, uncommitted-tail or raw-string carving is attempted.
+Current Core Data entity IDs reject sibling entities. Historical btree/schema ownership is
+not guaranteed where traversal needs main-file pages backfilled after the WAL transaction.
 """
 import hashlib
 import json
@@ -47,8 +49,9 @@ def _checksum(data, order, seed=(0, 0)):
     return first, second
 
 
-def wal_transactions(path, size, label):
+def wal_transactions(path, size, label, logger=None):
     """Yield only complete transactions in the valid WAL prefix; last image per page wins."""
+    logger = logger or logfunc
     try:
         with Path(path).open('rb') as stream:
             header = stream.read(32)
@@ -71,15 +74,15 @@ def wal_transactions(path, size, label):
                     break
                 number += 1
                 if len(raw) != 24 + size:
-                    logfunc(f'Life360 recovery {label!r}: truncated frame {number}; valid earlier commits retained')
+                    logger(f'Life360 recovery {label!r}: truncated frame {number}; valid earlier commits retained')
                     break
                 page, commit_size, a, b, x, y = struct.unpack('>6I', raw[:24])
                 if page == 0 or page > 0xfffffffe or (a, b) != (salt1, salt2):
-                    logfunc(f'Life360 recovery {label!r}: invalid page/salt at frame {number}; remaining frames excluded')
+                    logger(f'Life360 recovery {label!r}: invalid page/salt at frame {number}; remaining frames excluded')
                     break
                 calculated = _checksum(raw[:8] + raw[24:], order, seed)
                 if calculated != (x, y):
-                    logfunc(f'Life360 recovery {label!r}: checksum mismatch at frame {number}; remaining frames excluded')
+                    logger(f'Life360 recovery {label!r}: checksum mismatch at frame {number}; remaining frames excluded')
                     break
                 seed = calculated
                 pending[page] = (raw[24:], number)
@@ -87,9 +90,9 @@ def wal_transactions(path, size, label):
                     yield number, commit_size, pending
                     pending = {}
             if pending:
-                logfunc(f'Life360 recovery {label!r}: uncommitted/incomplete transaction tail excluded')
+                logger(f'Life360 recovery {label!r}: uncommitted/incomplete transaction tail excluded')
     except (OSError, ValueError, struct.error) as error:
-        logfunc(f'Life360 recovery {label!r}: WAL read/validation failed ({type(error).__name__}); '
+        logger(f'Life360 recovery {label!r}: WAL read/validation failed ({type(error).__name__}); '
                 'valid earlier commits retained')
 
 
@@ -225,27 +228,34 @@ def fingerprint(values):
     return hashlib.sha256(json.dumps(serial, ensure_ascii=False, allow_nan=False).encode()).hexdigest()
 
 
-def recover_rows(path, table, label):
+def recover_rows(path, table, label, logger=None):
     """Yield non-live records with source page/frame provenance, never inferred deletion status."""
+    logger = logger or logfunc
     if table not in ('ZENTRY', 'ZDRIVEMODEL'):
         raise ValueError('unsupported recovery table')
     connection = open_sqlite_db_readonly(path)
     if connection is None:
-        logfunc(f'Life360 recovery {label!r}: live comparison unavailable; recovery suppressed')
+        logger(f'Life360 recovery {label!r}: live comparison unavailable; recovery suppressed')
         return
     try:
         columns = connection.execute(f'PRAGMA table_info({table})').fetchall()
         root_row = connection.execute('SELECT rootpage FROM sqlite_master WHERE type=? AND name=?',
                                       ('table', table)).fetchone()
         if not columns or not root_row or [c[1] for c in columns[:3]] != ['Z_PK', 'Z_ENT', 'Z_OPT']:
-            logfunc(f'Life360 recovery {label!r}: unsupported or missing {table} schema')
+            logger(f'Life360 recovery {label!r}: unsupported or missing {table} schema')
             return
+        entities = connection.execute('SELECT Z_ENT FROM Z_PRIMARYKEY WHERE upper(Z_NAME)=?',
+                                      (table[1:],)).fetchall()
+        if len(entities) != 1 or not isinstance(entities[0][0], int):
+            logger(f'Life360 recovery {label!r}: entity identity unavailable for {table}; recovery suppressed')
+            return
+        entity = entities[0][0]
         names = [c[1] for c in columns]
         live_encoding = connection.execute('PRAGMA encoding').fetchone()[0]
         real = [i for i, c in enumerate(columns) if 'FLOA' in c[2].upper() or 'REAL' in c[2].upper() or 'DOUB' in c[2].upper()]
         live = {fingerprint(tuple(row)[3:]) for row in connection.execute(f'SELECT * FROM {table}')}
     except (sqlite3.Error, ValueError, TypeError):
-        logfunc(f'Life360 recovery {label!r}: schema/live comparison failed; recovery suppressed')
+        logger(f'Life360 recovery {label!r}: schema/entity identity/live comparison failed; recovery suppressed')
         return
     finally:
         connection.close()
@@ -266,7 +276,7 @@ def recover_rows(path, table, label):
         if encoding is None or usable < 480 or len(main) % size:
             raise ValueError('unsupported database encoding/size')
     except (OSError, ValueError, IndexError):
-        logfunc(f'Life360 recovery {label!r}: main-file header read failed; file skipped')
+        logger(f'Life360 recovery {label!r}: main-file header read failed; file skipped')
         return
 
     def main_page(number):
@@ -276,11 +286,15 @@ def recover_rows(path, table, label):
     def records(number, page, provider, state, frame, commit):
         try:
             def failure(index):
-                logfunc(f'Life360 recovery {label!r}: page {number}, frame {frame}, cell {index} '
+                logger(f'Life360 recovery {label!r}: page {number}, frame {frame}, cell {index} '
                         'was incomplete/unsupported; other cells continue')
             for rowid, values, offset, overflow in _cells(page, number, usable, provider, encoding, failure):
                 if len(values) != len(names) or values[0] is not None:
-                    logfunc(f'Life360 recovery {label!r}: schema-shaped cell check failed on page {number}; cell skipped')
+                    logger(f'Life360 recovery {label!r}: schema-shaped cell check failed on page {number}; cell skipped')
+                    continue
+                if values[1] != entity:
+                    logger(f'Life360 recovery {label!r}: entity identity mismatch on page {number}, '
+                           f'frame {frame}, cell offset {offset}; cell skipped')
                     continue
                 values[0] = rowid
                 for index in real:
@@ -296,19 +310,19 @@ def recover_rows(path, table, label):
                                   'fileOffset': (32 + (frame - 1) * (size + 24) + 24 + offset)
                                   if frame else (number - 1) * size + offset}}
         except (ValueError, UnicodeError, IndexError, struct.error):
-            logfunc(f'Life360 recovery {label!r}: page {number}, frame {frame} had an incomplete/unsupported cell; '
+            logger(f'Life360 recovery {label!r}: page {number}, frame {frame} had an incomplete/unsupported cell; '
                     'earlier cells retained')
 
     try:
         for number in sorted(_leaves(root_row[0], main_page, usable)):
             yield from records(number, main_page(number)[0], main_page, 'Main-file view without WAL', 0, 0)
     except ValueError:
-        logfunc(f'Life360 recovery {label!r}: main-file btree incomplete; valid WAL pages still considered')
+        logger(f'Life360 recovery {label!r}: main-file btree incomplete; valid WAL pages still considered')
     wal = Path(str(path) + '-wal')
     if not wal.exists():
         return
     latest = {}
-    for commit, database_size, pages in wal_transactions(wal, size, label):
+    for commit, database_size, pages in wal_transactions(wal, size, label, logger):
         latest.update(pages)
         latest = {number: image for number, image in latest.items() if number <= database_size}
 
@@ -322,7 +336,7 @@ def recover_rows(path, table, label):
         try:
             leaves = _leaves(root_row[0], snapshot_page, usable)
         except ValueError:
-            logfunc(f'Life360 recovery {label!r}: btree could not be assigned at commit frame {commit}; transaction skipped')
+            logger(f'Life360 recovery {label!r}: btree could not be assigned at commit frame {commit}; transaction skipped')
             continue
         for number, (page, frame) in sorted(pages.items()):
             if number in leaves and number <= database_size:

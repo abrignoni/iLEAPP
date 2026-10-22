@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/life360Recovered/testdata.life360Recovered.life360RecoveredTopics.casesynthetic_round2.zip",
-    "start_time": "2026-10-22T15:34:21.682354+00:00",
-    "end_time": "2026-10-22T15:34:21.707088+00:00",
-    "run_time_seconds": 0.00562596321105957,
+    "start_time": "2026-10-22T16:54:56.780886+00:00",
+    "end_time": "2026-10-22T16:54:56.805590+00:00",
+    "run_time_seconds": 0.005490303039550781,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-22T15:34:21.694832",
-      "message": "File not yet committed to git"
+      "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T11:48:53-04:00",
+      "message": "feat(life360): parse API cache and recover historical page records"
     }
   },
   "headers": [
@@ -43,7 +43,7 @@
       "Committed WAL page version; Main-file view without WAL",
       2,
       "b280975b5085c3cae41d78c3e5b50debaa7d3a31cee3c33837b567d40b7b4442",
-      "[{\"cellOffset\": 178, \"commitFrame\": 0, \"fileOffset\": 1202, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 2330, \"frame\": 3, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 178, \"commitFrame\": 0, \"fileOffset\": 1202, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 2330, \"frame\": 3, \"overflow\": [], \"page\": 5, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite"
     ],
     [
@@ -55,7 +55,7 @@
       "Committed WAL page version",
       1,
       "f62e8b6030f6a1c7694d9763920942aeecb6e2f48aa256d05319401e38a758a0",
-      "[{\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 3378, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 3378, \"frame\": 4, \"overflow\": [], \"page\": 6, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite"
     ],
     [
@@ -67,7 +67,7 @@
       "Committed WAL page version",
       2,
       "40654ac489b098efc67e0c786d404e713b5bb44b3f6376e2c02869a6eb5d010b",
-      "[{\"cellOffset\": 220, \"commitFrame\": 1, \"fileOffset\": 276, \"frame\": 1, \"overflow\": [], \"page\": 2, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 220, \"commitFrame\": 5, \"fileOffset\": 3420, \"frame\": 4, \"overflow\": [], \"page\": 4, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 220, \"commitFrame\": 1, \"fileOffset\": 276, \"frame\": 1, \"overflow\": [], \"page\": 2, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 220, \"commitFrame\": 5, \"fileOffset\": 3420, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite"
     ],
     [
@@ -79,7 +79,7 @@
       "Committed WAL page version; Main-file view without WAL",
       3,
       "6f97b9ad299aa43f4d4811f04db4fac37c4c06cb584fbdfaaa34d9f76a78f054",
-      "[{\"cellOffset\": 622, \"commitFrame\": 0, \"fileOffset\": 1646, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 622, \"commitFrame\": 1, \"fileOffset\": 678, \"frame\": 1, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 622, \"commitFrame\": 5, \"fileOffset\": 3822, \"frame\": 4, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 622, \"commitFrame\": 0, \"fileOffset\": 1646, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 622, \"commitFrame\": 1, \"fileOffset\": 678, \"frame\": 1, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 622, \"commitFrame\": 5, \"fileOffset\": 3822, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite"
     ],
     [
@@ -91,7 +91,7 @@
       "Committed WAL page version",
       1,
       "b45f331991a026346f592ff4276627aa4ba88cb1cf8c7db4a2a1ce7ef760d8db",
-      "[{\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 3689, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 3689, \"frame\": 4, \"overflow\": [], \"page\": 6, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
     ],
     [
@@ -103,7 +103,7 @@
       "Committed WAL page version; Main-file view without WAL",
       2,
       "e56b0f2979bb50ddd2030c5ec9ae498fbfcf2bc71d651e1bff59f895b8505c09",
-      "[{\"cellOffset\": 489, \"commitFrame\": 0, \"fileOffset\": 1513, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 2641, \"frame\": 3, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 489, \"commitFrame\": 0, \"fileOffset\": 1513, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 2641, \"frame\": 3, \"overflow\": [], \"page\": 5, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
     ],
     [
@@ -115,7 +115,7 @@
       "Main-file view without WAL",
       1,
       "74df7c060055aab599613264e03742d0262a363b85f7180d276a14d902bba01f",
-      "[{\"cellOffset\": 796, \"commitFrame\": 0, \"fileOffset\": 1820, \"frame\": 0, \"overflow\": [{\"frame\": 0, \"page\": 4}], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite\", \"state\": \"Main-file view without WAL\"}]",
+      "[{\"cellOffset\": 796, \"commitFrame\": 0, \"fileOffset\": 1820, \"frame\": 0, \"overflow\": [{\"frame\": 0, \"page\": 5}], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite\", \"state\": \"Main-file view without WAL\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite"
     ],
     [
@@ -127,7 +127,7 @@
       "Committed WAL page version",
       2,
       "db57e6f3641ddd43b4062a579a40f721ab5d41823fdef1658cee58f883b7848b",
-      "[{\"cellOffset\": 226, \"commitFrame\": 6, \"fileOffset\": 1330, \"frame\": 2, \"overflow\": [{\"frame\": 3, \"page\": 5}, {\"frame\": 4, \"page\": 6}, {\"frame\": 5, \"page\": 7}, {\"frame\": 6, \"page\": 8}], \"page\": 2, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 226, \"commitFrame\": 11, \"fileOffset\": 9714, \"frame\": 10, \"overflow\": [{\"frame\": 3, \"page\": 5}, {\"frame\": 4, \"page\": 6}, {\"frame\": 5, \"page\": 7}, {\"frame\": 6, \"page\": 8}], \"page\": 10, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "[{\"cellOffset\": 226, \"commitFrame\": 6, \"fileOffset\": 1330, \"frame\": 2, \"overflow\": [{\"frame\": 3, \"page\": 6}, {\"frame\": 4, \"page\": 7}, {\"frame\": 5, \"page\": 8}, {\"frame\": 6, \"page\": 9}], \"page\": 2, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 226, \"commitFrame\": 11, \"fileOffset\": 9714, \"frame\": 10, \"overflow\": [{\"frame\": 3, \"page\": 6}, {\"frame\": 4, \"page\": 7}, {\"frame\": 5, \"page\": 8}, {\"frame\": 6, \"page\": 9}], \"page\": 11, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite"
     ]
   ]

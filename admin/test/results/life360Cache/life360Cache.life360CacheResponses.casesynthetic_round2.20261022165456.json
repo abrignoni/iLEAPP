@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/life360Cache/testdata.life360Cache.life360CacheResponses.casesynthetic_round2.zip",
-    "start_time": "2026-10-22T15:34:21.534757+00:00",
-    "end_time": "2026-10-22T15:34:21.549506+00:00",
-    "run_time_seconds": 0.0011072158813476562,
+    "start_time": "2026-10-22T16:54:56.602822+00:00",
+    "end_time": "2026-10-22T16:54:56.619097+00:00",
+    "run_time_seconds": 0.0015397071838378906,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-22T15:34:21.545668",
-      "message": "File not yet committed to git"
+      "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T11:48:53-04:00",
+      "message": "feat(life360): parse API cache and recover historical page records"
     }
   },
   "headers": [
