@@ -23,7 +23,7 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                                   'empty; retained for populated stores. Is Own (as stored) and Is '
                                   'Saved (as stored) were identical in this sample but are '
                                   'independent stored flags. Source File distinguishes multiple '
-                                  'stores for an account.'},
+                                  'stores for an Account; Account and Source File were one-to-one in this sample.'},
  'reddit_cached_comments': {'author': '@CyberMike81, OpenAI Codex',
                             'creation_date': '2026-10-22',
                             'last_update_date': '2026-10-22',
