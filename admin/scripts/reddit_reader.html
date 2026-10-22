@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reddit — Linked examiner workspace</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#172b3a;font:15px system-ui,sans-serif;overflow-wrap:anywhere}header{padding:18px 24px;background:#fff;border-bottom:1px solid #d8e0e6}h1{font-size:24px;margin:0 0 7px}h2{font-size:21px}h3{font-size:17px}p{margin:7px 0;line-height:1.5}.muted{color:#536777;font-size:13px}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}button,input,select{font:inherit;padding:9px;border:1px solid #a7b6c2;border-radius:7px;background:white;max-width:100%}button{cursor:pointer;overflow-wrap:anywhere}button.active{background:#174d71;color:#fff}input[type=search]{min-width:0;flex:1;flex-basis:250px}main{display:grid;grid-template-columns:minmax(210px,310px) minmax(0,1fr);height:calc(100vh - 260px);min-height:430px}aside{overflow:auto;border-right:1px solid #d8e0e6;padding:12px;min-width:0}#detail{overflow:auto;padding:20px;min-width:0}#groups button{display:block;width:100%;text-align:left;margin:0 0 8px;padding:12px}#groups button.selected{border:2px solid #174d71}.group-title{display:block;font-weight:650}.group-sub{display:block;font-size:12px;color:#526776;margin-top:6px}.card{background:white;border:1px solid #d8e0e6;border-radius:10px;margin:12px 0;padding:16px;max-width:850px;min-width:0;overflow-wrap:anywhere}.card.post{border-top:4px solid #bc5519}.card.comment{border-left:3px solid #b9c9d5;margin-left:18px}.card.outgoing{margin-left:10%;background:#e6f1fa}.card.incoming{margin-right:10%}.card.unknown{border-left:4px solid #a7b6c2}.card h3{margin:10px 0}.body{white-space:pre-wrap;line-height:1.6;margin:10px 0;max-width:74ch;overflow-wrap:anywhere}.card details{margin-top:12px;font-size:12px;color:#526776}.source-fields{display:grid;grid-template-columns:minmax(100px,180px) minmax(0,1fr);gap:5px 12px;margin:12px 0}.source-fields dt{font-weight:650}.source-fields dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.badge{font-size:12px;font-weight:650;color:#174d71}.notice{padding:10px 13px;border-radius:7px;background:#fff3d6;font-size:13px;line-height:1.5;max-width:850px}.empty{padding:24px;color:#526776}a{color:#174d71}.links{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;max-width:850px}.links button{font-size:12px;padding:6px 8px}.section-label{margin-top:24px}.count-badge{background:#edf3f7;padding:2px 7px;border-radius:10px;font-size:12px}summary{cursor:pointer}.missing{font-style:italic;color:#536777}
+@media(max-width:750px){header{padding:15px}main{grid-template-columns:minmax(0,1fr);height:auto}aside{max-height:32vh}#detail{padding:12px}.source-fields{grid-template-columns:minmax(0,1fr)}.source-fields dd{margin-bottom:10px}.card.comment{margin-left:10px}}
+</style></head><body>
+<header><h1>Reddit examiner workspace</h1>
+<p>History, cached posts and comments, communities, profiles and chats connected across the available iLEAPP results.</p>
+<p class="muted"><a href="_HTML/index.html">Full iLEAPP tables</a> · Times in UTC · Partial reconstruction from retained records · No web or media requests</p>
+<nav class="controls" aria-label="Reddit sections"><button id="chats" class="active">Chats</button><button id="discussions">Posts &amp; comments</button><button id="post-history">Post history</button><button id="community-history">Community history</button><button id="communities">Communities</button><button id="people">People &amp; contacts</button><button id="drafts">Drafts</button></nav>
+<div class="controls"><input id="search" type="search" placeholder="Search text, community, author or ID" aria-label="Search Reddit records"><select id="account" aria-label="Filter by source account"><option value="">All source accounts</option></select><label id="stub-label"><input type="checkbox" id="stubs"> Include ID-only posts</label><label id="linked-label" hidden><input type="checkbox" id="only-linked" checked> Only linked history</label><span id="counts" class="muted"></span></div></header>
+<main><aside aria-label="Record list"><div id="groups"></div></aside><section id="detail" aria-live="polite"></section></main>
+<script id="records" type="application/json">__RECORDS__</script>
+<script>
+'use strict';
+const records=JSON.parse(document.getElementById('records').textContent);
+const byId=id=>document.getElementById(id);
+function el(tag,text,cls){const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);if(cls)node.className=cls;return node;}
+function stamp(raw){if(raw===''||raw===null||raw===undefined)return 'Date not retained';const n=Number(raw);if(!Number.isFinite(n))return 'Date not retained';const date=new Date(n*1000);return Number.isNaN(date.getTime())?'Date not retained':date.toISOString().replace('T',' ').replace('.000Z',' UTC').replace('Z',' UTC');}
+const byRef=new Map(records.map(r=>[r.ref,r])),groups=new Map();
+const section=r=>r.kind==='post'||r.kind==='comment'?'discussion':['profile','matrix_user','contact'].includes(r.kind)?'people':r.kind;
+for(const r of records){if(!groups.has(r.group))groups.set(r.group,{id:r.group,rows:[],kind:section(r),related:new Map()});groups.get(r.group).rows.push(r);}
+for(const g of groups.values()){
+ for(const r of g.rows)for(const link of r.links){const other=byRef.get(link.ref);if(other&&other.group!==g.id){if(!g.related.has(other.group))g.related.set(other.group,new Set());g.related.get(other.group).add(link.basis);}}
+ const first=g.rows[0],post=g.rows.find(r=>r.kind==='post');
+ g.account=String(first.account||'Account not exported for this source');
+ g.accounts=new Set(g.rows.map(r=>String(r.account||'Account not exported for this source')));
+ g.community=String(g.rows.find(r=>r.community)?.community||'');
+ g.title=String((post&&post.title)||g.rows.find(r=>r.title)?.title||(g.kind==='chat'?'Chat · '+([...new Set(g.rows.map(r=>r.author).filter(Boolean))].join(', ')||first.channel||'without stored ID'):g.kind==='community'?(g.community?'r/'+g.community:'Community '+first.id):g.kind==='people'?(first.author||'Profile '+(first.id||'without stored ID')):g.kind==='post_history'?'Post '+(first.postId||'without stored ID'):g.kind==='community_history'?'Community '+(first.id||'without stored ID'):g.kind==='draft'?'Comment draft':'Post '+(first.postId||'without established post link')));
+ g.comments=g.rows.filter(r=>r.kind==='comment').length;
+ g.stub=g.kind==='discussion'&&g.comments===0&&!g.rows.some(r=>r.text||r.title);
+}
+// History labels borrow display context only. All candidate stores remain accessible.
+for(const g of groups.values()){
+ if(g.kind==='post_history'||g.kind==='community_history'){
+  const candidates=[...g.related.keys()].map(id=>groups.get(id)).filter(x=>g.kind==='post_history'?x.kind==='discussion':x.kind==='community');
+  if(candidates.length===1){g.title=candidates[0].title;g.community=candidates[0].community;}
+  if(candidates.length>1)g.title+=' · '+candidates.length+' cache candidates';
+  g.matches=candidates.length;
+ }
+ const related=[...g.related.keys()].map(id=>groups.get(id));
+ g.search=[...g.rows.map(r=>[r.text,r.author,r.title,r.id,r.postId,r.community,r.channel,r.source].join(' ')),g.title,g.community,...related.map(x=>x.title+' '+x.community+(g.kind.endsWith('_history')?' '+x.rows.map(r=>r.text+' '+r.author).join(' '):''))].join(' ').toLowerCase();
+}
+for(const account of [...new Set([...groups.values()].flatMap(g=>[...g.accounts]))].sort()){const option=el('option',account);option.value=account;byId('account').append(option);}
+const modes=[['chats','chat'],['discussions','discussion'],['post-history','post_history'],['community-history','community_history'],['communities','community'],['people','people'],['drafts','draft']];
+let mode=records.some(r=>r.kind==='post'||r.kind==='comment')?'discussion':'chat',selected='';
+function navigate(id){const target=groups.get(id);if(!target)return;mode=target.kind;selected=id;byId('search').value='';byId('account').value='';if(target.stub)byId('stubs').checked=true;render();}
+function relatedLinks(g, kinds, heading){
+ const matches=[...g.related.entries()].filter(([id])=>kinds.includes(groups.get(id).kind));
+ if(!matches.length)return null;
+ const box=el('div');box.append(el('h3',heading+' ('+matches.length+')','section-label'));
+ const links=el('div',undefined,'links');
+ for(const [id,bases] of matches){const target=groups.get(id);const button=el('button',target.title);button.title=[...bases].join('\n');button.addEventListener('click',()=>navigate(id));links.append(button);}
+ box.append(links);return box;
+}
+function fieldDetails(r){
+ const d=el('details');d.append(el('summary','All exported fields and source references'));
+ d.addEventListener('toggle',()=>{if(!d.open||d.dataset.loaded)return;d.dataset.loaded='true';const dl=el('dl',undefined,'source-fields');
+  for(const [key,value] of Object.entries({Artifact:r.table,'Export row':r.rowid,'Source account':r.account,'Source reference':r.source,'Source reference scope':r.fields['Source File']?'Per-row Source File field':'Artifact manifest; a per-row source file was not exported',...r.fields})){dl.append(el('dt',key),el('dd',value===null?'(null)':value));}
+  for(const link of r.links){const target=byRef.get(link.ref);dl.append(el('dt','Linked '+target.table+' row '+target.rowid),el('dd',link.basis+'\n'+target.source));}
+  d.append(dl);
+ });return d;
+}
+function card(r){
+ const direction=r.kind==='chat'?(r.direction!==''&&r.direction===r.sentValue?'outgoing':r.direction==='Incoming'?'incoming':'unknown'):r.kind;
+ const article=el('article',undefined,'card '+direction);article.dataset.ref=r.ref;
+ const labels={post:'Cached post',comment:'Cached comment',community:'Community source observation',profile:'Profile source observation',contact:'Legacy chat contact',matrix_user:'Matrix chat user',draft:'Unsent comment draft'};
+ article.append(el('div',(labels[r.kind]||r.event||'Chat message')+(r.kind==='chat'?' · '+(r.direction||'Direction unknown'):''),'badge'));
+ if(['post','comment','chat','draft'].includes(r.kind))article.append(el('p',(r.community?'r/'+r.community+' · ':'')+(r.author||'Author not retained')+' · '+stamp(r.created),'muted'));
+ if(r.title&&r.kind!=='comment')article.append(el('h3',r.title));
+ if(r.kind==='community'&&r.community)article.append(el('p','r/'+r.community,'badge'));
+ if(['profile','contact','matrix_user'].includes(r.kind))article.append(el('p','Stored ID: '+(r.id||'Not retained')+' · '+(r.account||'Source account not exported'),'muted'));
+ article.append(el('div',r.text||(['post','comment'].includes(r.kind)?'Text not retained in this cached record.':'No descriptive text exported.'),'body'+(!r.text?' missing':'')));
+ if(r.kind==='post'||r.kind==='comment'){
+  const values=[];for(const [field,label] of [['score','Score'],['commentCount','Comment count']]){try{const value=JSON.parse(r.fields['Object JSON']||'{}')[field];if(value!==undefined&&value!==null)values.push(label+' '+value+' (as stored)');}catch(e){/* Raw source remains available. */}}
+  if(values.length)article.append(el('p',values.join(' · '),'muted'));
+ }
+ if(r.attachment)article.append(el('p','Attachment reference: '+r.attachment,'muted'));
+ if(r.kind==='community'){
+  const states=Object.entries(r.fields).filter(([key,value])=>/Subscribed|Favourite|Favorite|Muted|Notification/.test(key)&&value!==''&&value!==null).map(([key,value])=>key+': '+value);
+  if(states.length)article.append(el('p',states.join(' · '),'muted'));
+ }
+ if(['profile','contact','matrix_user'].includes(r.kind)){
+  const values=Object.entries(r.fields).filter(([key,value])=>/Karma|Blocked|Current App User|Account Type|Accepting|Verified/.test(key)&&value!==''&&value!==null).map(([key,value])=>key+': '+value);
+  if(values.length)article.append(el('p',values.join(' · '),'muted'));
+ }
+ article.append(fieldDetails(r));return article;
+}
+function appendLinked(target,g,kinds,heading){const links=relatedLinks(g,kinds,heading);if(links)target.append(links);}
+function renderHistory(target,g){
+ for(const r of g.rows){const box=el('article',undefined,'card');box.append(el('div',g.kind==='post_history'?'Post-history record':'Community-history record','badge'));
+  box.append(el('p','Stored ID: '+r.id));const position=r.fields['List Position (zero-based)'];box.append(el('p','Stored list position: '+(position===null||position===undefined||position===''?'Not retained':position)+' · '+r.account,'muted'));
+  box.append(el('p','Storage order is not a timestamp. A history/cache match does not establish who viewed the content.','notice'),fieldDetails(r));target.append(box);
+ }
+ const candidates=[...g.related.keys()].map(id=>groups.get(id)).filter(x=>g.kind==='post_history'?x.kind==='discussion':x.kind==='community');
+ if(!candidates.length){target.append(el('p','No matching content was exported for this ID in the same source account.','missing'));return;}
+ if(candidates.length>1)target.append(el('p','More than one cache store matches. Each candidate is retained separately; none is selected as authoritative.','notice'));
+ for(const other of candidates){const link=el('button','Open '+other.title);link.addEventListener('click',()=>navigate(other.id));target.append(link);
+  if(other.kind==='discussion'){
+   for(const post of other.rows.filter(r=>r.kind==='post'))target.append(card(post));
+   if(!other.rows.some(r=>r.kind==='post'))target.append(el('p','Post body is missing; cached comments establish this post ID.','missing'));
+   if(other.comments)target.append(el('p',other.comments+' cached comments available with this post.','muted'));
+   const communityRows=[...other.related.keys()].map(id=>groups.get(id)).filter(x=>x.kind==='community');
+   for(const c of communityRows)target.append(el('p','Community: '+c.title,'muted'));
+  }else for(const row of other.rows)target.append(card(row));
+ }
+}
+function renderDetail(g){
+ const target=byId('detail');target.replaceChildren();
+ if(!g){target.append(el('p','Select a record to see its content and linked evidence.','empty'));return;}
+ target.append(el('h2',g.title),el('p',(g.community?'r/'+g.community+' · ':'')+[...g.accounts].join(' · '),'muted'));
+ if(g.kind==='post_history'||g.kind==='community_history'){renderHistory(target,g);return;}
+ target.append(el('p',g.kind==='discussion'?'Partial cached discussion. Comments share a validated post link within the same cache; reply nesting is not established. Content dates are not view dates.':g.kind==='chat'?'Conversation grouping and direction use the existing iLEAPP conversation configuration. Unknown direction, reactions and redactions remain labeled.':'Linked identities use explicit IDs. Each source observation retains its own account, state and provenance; differing values are not collapsed.','notice'));
+ appendLinked(target,g,['post_history','community_history'],'Linked history');
+ appendLinked(target,g,['community'],'Community records');
+ appendLinked(target,g,['people'],'Authors and contacts');
+ if(g.kind==='discussion'&&!g.rows.some(r=>r.kind==='post'))target.append(el('p','The root post was not retained in this cache.','missing'));
+ const sorted=[...g.rows].sort((a,b)=>{if(g.kind==='discussion'&&a.kind!==b.kind)return a.kind==='post'?-1:1;const av=a.created===''?Infinity:Number(a.created),bv=b.created===''?Infinity:Number(b.created);return av-bv||a.rowid-b.rowid;});
+ let comments=false;
+ for(const r of sorted){if(r.kind==='comment'&&!comments){target.append(el('h3',g.comments+' cached comments','section-label'));comments=true;}target.append(card(r));}
+ appendLinked(target,g,['discussion'],'Related posts and comments');
+ appendLinked(target,g,['chat'],'Related chats');
+}
+function render(){
+ for(const [id,value] of modes)byId(id).classList.toggle('active',mode===value);
+ byId('stub-label').hidden=mode!=='discussion';byId('linked-label').hidden=!mode.endsWith('_history');
+ const q=byId('search').value.toLowerCase().trim(),account=byId('account').value;
+ const visible=[...groups.values()].filter(g=>g.kind===mode&&(!account||g.accounts.has(account))&&(!g.stub||byId('stubs').checked)&&(!mode.endsWith('_history')||!byId('only-linked').checked||g.matches>0)&&(!q||g.search.includes(q))).sort((a,b)=>{
+  if(mode==='post_history'||mode==='community_history')return a.rows[0].source.localeCompare(b.rows[0].source)||(Number(a.rows[0].fields['List Position (zero-based)']??Infinity)-Number(b.rows[0].fields['List Position (zero-based)']??Infinity))||a.rows[0].rowid-b.rows[0].rowid;
+  return b.comments-a.comments||a.title.localeCompare(b.title);
+ });
+ const list=byId('groups');list.replaceChildren();
+ for(const g of visible){const button=el('button');if(g.id===selected)button.classList.add('selected');let sub=(g.community?'r/'+g.community+' · ':'')+(g.kind==='discussion'?g.comments+' cached comments':g.kind==='chat'?g.rows.length+' chat records':g.kind.endsWith('_history')?(g.matches||0)+' linked content groups':g.rows.length+' source observations');button.append(el('span',g.title,'group-title'),el('span',sub,'group-sub'));button.addEventListener('click',()=>{selected=g.id;render();});list.append(button);}
+ if(!visible.length)list.append(el('p','No matching records.','empty'));
+ byId('counts').textContent=visible.length+' items · '+visible.reduce((n,g)=>n+g.rows.length,0)+' source rows';
+ if(!visible.some(g=>g.id===selected))selected=visible[0]?.id||'';
+ for(const button of list.querySelectorAll('button'))button.classList.toggle('selected',button===list.children[visible.findIndex(g=>g.id===selected)]);
+ renderDetail(visible.find(g=>g.id===selected)||null);
+}
+for(const [id,value] of modes)byId(id).addEventListener('click',()=>{mode=value;selected='';render();});
+for(const id of ['search','account','stubs','only-linked'])byId(id).addEventListener('input',render);
+render();
+</script></body></html>
