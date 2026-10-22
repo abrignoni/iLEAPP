@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "module_name": "redditCache",
+    "artifact_name": "Reddit - Comment Drafts",
+    "function_name": "reddit_comment_drafts",
+    "case_number": "synthetic",
+    "number_of_columns": 10,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 140,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/redditCache/testdata.redditCache.reddit_comment_drafts.synthetic.zip",
+    "start_time": "2026-10-22T17:39:54.958164+00:00",
+    "end_time": "2026-10-22T17:39:54.973114+00:00",
+    "run_time_seconds": 0.00032711029052734375,
+    "last_commit": {
+      "hash": "fa5bb1037a5e0b022b167ea66d8de52cdc9b0749",
+      "author_name": "CyberMike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T13:38:58-04:00",
+      "message": "Add Reddit cached content, retained history and account-scoped drafts"
+    }
+  },
+  "headers": [
+    "Modified",
+    "Account",
+    "Row ID",
+    "Content",
+    "Draft ID",
+    "Parent Comment ID",
+    "Post ID",
+    "Post Title",
+    "Modified Raw (Core Data seconds)",
+    "Source File"
+  ],
+  "data": [
+    [
+      978307200,
+      "alpha",
+      1,
+      "Synthetic draft",
+      "draft-a",
+      null,
+      "t3_demo",
+      "Synthetic post",
+      0,
+      "Documents/release02/accountData/alpha/commentDrafts/CommentDraftEntity.sqlite"
+    ]
+  ]
+}
