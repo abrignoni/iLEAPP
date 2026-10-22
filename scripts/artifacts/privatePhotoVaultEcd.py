@@ -231,6 +231,11 @@ def _rows(path, table, display_path):
         logfunc(f'Private Photo Vault: could not open {table}; file={display_path}')
         return
     try:
+        present = db.execute("SELECT 1 FROM sqlite_master WHERE type IN ('table','view') "
+                             "AND name = ? COLLATE NOCASE", (table,)).fetchone()
+        if present is None:
+            logfunc(f'Private Photo Vault: table not present; table={table}; file={display_path}')
+            return
         cursor = db.execute('SELECT * FROM "' + table + '"')
         cols = [d[0] for d in cursor.description]
         for row in cursor:

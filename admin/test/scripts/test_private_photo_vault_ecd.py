@@ -83,6 +83,21 @@ class ParserTests(unittest.TestCase):
         assert hashlib.sha256(p.read_bytes()).digest() == before
 
 
+    def test_absent_optional_table_is_distinct_from_sqlite_read_failure(self):
+        path = store(self.root)
+        with sqlite3.connect(path) as db:
+            db.execute('DROP TABLE ecdPersistentMediaItemPart')
+        with patch.object(parser, 'logfunc') as log:
+            self.assertEqual(run(self.root, 'ppv_ecd_parts'), [])
+        messages = [call.args[0] for call in log.call_args_list]
+        self.assertTrue(any('table not present; table=ecdPersistentMediaItemPart' in m for m in messages))
+        self.assertFalse(any('unreadable' in m for m in messages))
+        with patch.object(parser, 'open_sqlite_db_readonly') as opener, patch.object(parser, 'logfunc') as log:
+            opener.return_value.execute.side_effect = sqlite3.DatabaseError('synthetic failure')
+            self.assertEqual(list(parser._rows(path, 'ecdPersistentMediaItemPart', 'synthetic/store')), [])  # pylint: disable=protected-access
+        self.assertIn('unsupported or unreadable', log.call_args.args[0])
+        opener.return_value.close.assert_called_once()
+
     def test_multiple_containers_keep_identical_syncids(self):
         tmp_path = self.root
         store(tmp_path, 'alpha')
