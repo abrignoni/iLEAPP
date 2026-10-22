@@ -32,7 +32,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                      'shape/entity checks and have distinct Source States and diagnostics. '
                                      'Earlier traversal can depend on later checkpointed main-file pages; '
                                      'these checks do not prove historical page ownership or reconstruct '
-                                     'historical schemas.',
+                                     'historical schemas.'
+                                     ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                     'table with a coincidentally matching entity-number field can pass.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/Library/Application Support/DriveModelStore.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -72,7 +74,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                         'the same shape/entity checks and have distinct Source States and '
                                         'diagnostics. Earlier traversal can depend on later checkpointed '
                                         'main-file pages; these checks do not prove historical page '
-                                        'ownership or reconstruct historical schemas.',
+                                        'ownership or reconstruct historical schemas.'
+                                        ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                        'table with a coincidentally matching entity-number field can pass.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -111,7 +115,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                        ' shape/entity checks and have distinct Source States and '
                                        'diagnostics. Earlier traversal can depend on later checkpointed '
                                        'main-file pages; these checks do not prove historical page '
-                                       'ownership or reconstruct historical schemas.',
+                                       'ownership or reconstruct historical schemas.'
+                                       ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                       'table with a coincidentally matching entity-number field can pass.',
                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                         '*/Library/Application Support/DriveModelStore.sqlite*',
                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -153,7 +159,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                         'checks do not prove historical page ownership or reconstruct '
                                         'historical schemas. Row Key is a SHA-256 digest of the grouped '
                                         'item and parent-version references for matching this report across'
-                                        ' exports; it is not a stored app identifier.',
+                                        ' exports; it is not a stored app identifier.'
+                                        ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                        'table with a coincidentally matching entity-number field can pass.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -197,7 +205,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                         'prove historical page ownership or reconstruct historical schemas.'
                                         ' Row Key is a SHA-256 digest of the grouped item and '
                                         'parent-version references for matching this report across exports;'
-                                        ' it is not a stored app identifier.',
+                                        ' it is not a stored app identifier.'
+                                        ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                        'table with a coincidentally matching entity-number field can pass.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -237,7 +247,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                      'assignment fails, pass the same shape/entity checks and have distinct'
                                      ' Source States and diagnostics. Earlier traversal can depend on later'
                                      ' checkpointed main-file pages; these checks do not prove historical '
-                                     'page ownership or reconstruct historical schemas.',
+                                     'page ownership or reconstruct historical schemas.'
+                                     ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                     'table with a coincidentally matching entity-number field can pass.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/Library/Application Support/DriveModelStore.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -271,7 +283,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                        'when assignment fails, pass the same shape/entity checks and have '
                                        'distinct Source States and diagnostics. Earlier traversal can '
                                        'depend on later checkpointed main-file pages; these checks do not '
-                                       'prove historical page ownership or reconstruct historical schemas.',
+                                       'prove historical page ownership or reconstruct historical schemas.'
+                                       ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                       'table with a coincidentally matching entity-number field can pass.',
                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
                               'output_types': 'all',
@@ -304,7 +318,9 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                      ' pass the same shape/entity checks and have distinct Source States '
                                      'and diagnostics. Earlier traversal can depend on later checkpointed '
                                      'main-file pages; these checks do not prove historical page ownership '
-                                     'or reconstruct historical schemas.',
+                                     'or reconstruct historical schemas.'
+                                     ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
+                                     'table with a coincidentally matching entity-number field can pass.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
                             'output_types': 'all',
