@@ -80,7 +80,26 @@ def show_history_menu(button, path_type):
                         command=lambda g=given: set_input_selection(g))
     x = input_entry.winfo_rootx()
     y = button.winfo_rooty() + button.winfo_height()
+
+    # On X11 (XWayland included) a posted menu stays on screen until it is unposted:
+    # close it when the window moves or the menu loses focus, or it is left behind.
+    closed = False
+
+    def close_menu(event=None):
+        nonlocal closed
+        # child widgets inherit the window's <Configure> binding; only the window counts
+        if closed or (event is not None and event.type == tk.EventType.Configure
+                      and event.widget is not main_window):
+            return
+        closed = True
+        main_window.unbind('<Configure>', configure_binding)
+        menu.unpost()
+        menu.destroy()
+
+    configure_binding = main_window.bind('<Configure>', close_menu, add='+')
+    menu.bind('<FocusOut>', close_menu)
     menu.post(x, y)
+    menu.focus_set()
 
 
 def pickModules():
