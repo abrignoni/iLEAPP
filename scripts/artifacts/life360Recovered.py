@@ -1,330 +1,293 @@
-__artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topic Records',
-                            'description': 'Non-live topic records read from main-file and earlier committed '
-                                           'WAL page images.',
-                            'author': '@CyberMike81, OpenAI Codex',
-                            'creation_date': '2026-10-22',
-                            'last_update_date': '2026-10-22',
-                            'requirements': 'none',
-                            'category': 'Life360',
-                            'notes': 'Logged Time is ZTIMESTAMP (Unix seconds). Payload retains the stored '
-                                     'ZDATA text; invalid UTF-8 is shown as hex with a diagnostic. Covers '
-                                     'the same eleven topic families as the current awareness parsers; '
-                                     'other topics are excluded. Exact current record contents are '
-                                     'excluded, ignoring Core Data bookkeeping columns. Identical recovered'
-                                     ' content is grouped per database, retaining decoded page/cell/frame '
-                                     'appearances. Source States distinguish the main-file view without WAL'
-                                     ' from checksum-valid page versions ending in a committed WAL '
-                                     'transaction. Main-file pages may reflect checkpoint state; these are '
-                                     'recovered records, not a guaranteed consistent historical database '
-                                     'snapshot. WAL overflow uses only available preceding WAL page '
-                                     'versions, never main-file bytes. Freeblocks, freelists, old-salt '
-                                     'frames, incomplete transactions and unsupported/incomplete cells are '
-                                     'not carved; failures and exclusions are logged. Overwriting or '
-                                     'absence from the live view does not establish user deletion. Times '
-                                     'render in UTC. Tested on Life360 26.34.0.5 / iOS 18.6; other schemas '
-                                     'may differ. Payload Format held one value, JSON object, in both '
-                                     'tested inputs. Source File and Store identify one database per store '
-                                     'in the single-container tests; Source File is retained to distinguish'
-                                     ' containers/copies. Complete payloads above 32 MiB are excluded with '
-                                     'a diagnostic. Z_ENT must match the current Z_PRIMARYKEY entity ID; '
-                                     'missing mappings suppress recovery. Committed WAL leaf cells outside '
-                                     'the inferred btree, or when assignment fails, pass the same '
-                                     'shape/entity checks and have distinct Source States and diagnostics. '
-                                     'Earlier traversal can depend on later checkpointed main-file pages; '
-                                     'these checks do not prove historical page ownership or reconstruct '
-                                     'historical schemas.'
-                                     ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                     'table with a coincidentally matching entity-number field can pass.',
-                            'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                      '*/Library/Application Support/DriveModelStore.sqlite*',
-                                      '*/.com.apple.mobile_container_manager.metadata.plist'),
-                            'output_types': 'standard',
-                            'artifact_icon': 'database'},
- 'life360RecoveredLocations': {'name': 'Life360 - Recovered Location Samples',
-                               'description': 'Location objects within non-live device-location and '
-                                              'failed-location topic records.',
-                               'author': '@CyberMike81, OpenAI Codex',
-                               'creation_date': '2026-10-22',
-                               'last_update_date': '2026-10-22',
-                               'requirements': 'none',
-                               'category': 'Life360',
-                               'notes': 'Location Time is the location timestamp (Cocoa seconds); Logged '
-                                        'Time is the parent ZTIMESTAMP (Unix seconds). Buffered samples are'
-                                        ' used when present, otherwise the headline location. Values and '
-                                        'units are as stored. A point can also occur in a different live '
-                                        'parent record. Exact current record contents are excluded, '
-                                        'ignoring Core Data bookkeeping columns. Identical recovered '
-                                        'content is grouped per database, retaining decoded page/cell/frame'
-                                        ' appearances. Source States distinguish the main-file view without'
-                                        ' WAL from checksum-valid page versions ending in a committed WAL '
-                                        'transaction. Main-file pages may reflect checkpoint state; these '
-                                        'are recovered records, not a guaranteed consistent historical '
-                                        'database snapshot. WAL overflow uses only available preceding WAL '
-                                        'page versions, never main-file bytes. Freeblocks, freelists, '
-                                        'old-salt frames, incomplete transactions and '
-                                        'unsupported/incomplete cells are not carved; failures and '
-                                        'exclusions are logged. Overwriting or absence from the live view '
-                                        'does not establish user deletion. Times render in UTC. Tested on '
-                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Store and '
-                                        'Sample Index were uniform in the tested extraction because every '
-                                        'recovered location came from a single headline location in '
-                                        'FailedLocationTopic. Z_ENT must match the current Z_PRIMARYKEY '
-                                        'entity ID; missing mappings suppress recovery. Committed WAL leaf '
-                                        'cells outside the inferred btree, or when assignment fails, pass '
-                                        'the same shape/entity checks and have distinct Source States and '
-                                        'diagnostics. Earlier traversal can depend on later checkpointed '
-                                        'main-file pages; these checks do not prove historical page '
-                                        'ownership or reconstruct historical schemas.'
-                                        ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                        'table with a coincidentally matching entity-number field can pass.',
-                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                         '*/Library/Application Support/DriveModelStore.sqlite*',
-                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
-                               'output_types': 'all',
-                               'artifact_icon': 'map-pin'},
- 'life360RecoveredMovement': {'name': 'Life360 - Recovered Movement Events',
-                              'description': 'Drive, trip and cancellation objects within non-live Life360 '
-                                             'topic records.',
-                              'author': '@CyberMike81, OpenAI Codex',
-                              'creation_date': '2026-10-22',
-                              'last_update_date': '2026-10-22',
-                              'requirements': 'none',
-                              'category': 'Life360',
-                              'notes': 'Drive/trip Event Time, Start Time and End Time are Cocoa seconds; '
-                                       'cancellation Event Time and parent Logged Time are Unix seconds. '
-                                       'Event labels and numeric fields are as stored. No sensor payload or'
-                                       ' physical crash conclusion is inferred. Exact current record '
-                                       'contents are excluded, ignoring Core Data bookkeeping columns. '
-                                       'Identical recovered content is grouped per database, retaining '
-                                       'decoded page/cell/frame appearances. Source States distinguish the '
-                                       'main-file view without WAL from checksum-valid page versions ending'
-                                       ' in a committed WAL transaction. Main-file pages may reflect '
-                                       'checkpoint state; these are recovered records, not a guaranteed '
-                                       'consistent historical database snapshot. WAL overflow uses only '
-                                       'available preceding WAL page versions, never main-file bytes. '
-                                       'Freeblocks, freelists, old-salt frames, incomplete transactions and'
-                                       ' unsupported/incomplete cells are not carved; failures and '
-                                       'exclusions are logged. Overwriting or absence from the live view '
-                                       'does not establish user deletion. Times render in UTC. Tested on '
-                                       'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. End Time is'
-                                       ' empty in the synthetic drive-only case. Source File identifies the'
-                                       ' originating database even when recovery provenance also identifies'
-                                       ' that file. Z_ENT must match the current Z_PRIMARYKEY entity ID; '
-                                       'missing mappings suppress recovery. Committed WAL leaf cells '
-                                       'outside the inferred btree, or when assignment fails, pass the same'
-                                       ' shape/entity checks and have distinct Source States and '
-                                       'diagnostics. Earlier traversal can depend on later checkpointed '
-                                       'main-file pages; these checks do not prove historical page '
-                                       'ownership or reconstruct historical schemas.'
-                                       ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                       'table with a coincidentally matching entity-number field can pass.',
-                              'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                        '*/Library/Application Support/DriveModelStore.sqlite*',
-                                        '*/.com.apple.mobile_container_manager.metadata.plist'),
-                              'output_types': 'all',
-                              'artifact_icon': 'route'},
- 'life360RecoveredWaypoints': {'name': 'Life360 - Recovered Movement Waypoints',
-                               'description': 'Distinct waypoint and route objects within non-live Life360 '
-                                              'movement records. Parent provenance is in the '
-                                              'TSV/LAVA Parent Records JSON column.',
-                               'author': '@CyberMike81, OpenAI Codex',
-                               'creation_date': '2026-10-22',
-                               'last_update_date': '2026-10-22',
-                               'requirements': 'none',
-                               'category': 'Life360',
-                               'notes': 'Waypoint Time is Unix seconds for drive waypoints and Cocoa '
-                                        'seconds for trip route points. Complete objects are grouped within'
-                                        ' a container and trip/session; conflicting payloads stay separate.'
-                                        ' Parent references retain enclosing records and recovery '
-                                        'provenance. A point can also occur in another live parent record. '
-                                        'Exact current record contents are excluded, ignoring Core Data '
-                                        'bookkeeping columns. Identical recovered content is grouped per '
-                                        'database, retaining decoded page/cell/frame appearances. Source '
-                                        'States distinguish the main-file view without WAL from '
-                                        'checksum-valid page versions ending in a committed WAL '
-                                        'transaction. Main-file pages may reflect checkpoint state; these '
-                                        'are recovered records, not a guaranteed consistent historical '
-                                        'database snapshot. WAL overflow uses only available preceding WAL '
-                                        'page versions, never main-file bytes. Freeblocks, freelists, '
-                                        'old-salt frames, incomplete transactions and '
-                                        'unsupported/incomplete cells are not carved; failures and '
-                                        'exclusions are logged. Overwriting or absence from the live view '
-                                        'does not establish user deletion. Times render in UTC. Tested on '
-                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Z_ENT must'
-                                        ' match the current Z_PRIMARYKEY entity ID; missing mappings '
-                                        'suppress recovery. Committed WAL leaf cells outside the inferred '
-                                        'btree, or when assignment fails, pass the same shape/entity checks'
-                                        ' and have distinct Source States and diagnostics. Earlier '
-                                        'traversal can depend on later checkpointed main-file pages; these '
-                                        'checks do not prove historical page ownership or reconstruct '
-                                        'historical schemas. Row Key is a SHA-256 digest of the grouped '
-                                        'item and parent-version references for matching this report across'
-                                        ' exports; it is not a stored app identifier.'
-                                        ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                        'table with a coincidentally matching entity-number field can pass.',
-                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                         '*/Library/Application Support/DriveModelStore.sqlite*',
-                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
-                               'output_types': 'all',
-                               'artifact_icon': 'map-pin'},
- 'life360RecoveredIncidents': {'name': 'Life360 - Recovered Driving Incidents',
-                               'description': 'Driving-incident objects within non-live Life360 movement '
-                                              'records. Parent provenance is in the TSV/LAVA '
-                                              'Parent Records JSON column.',
-                               'author': '@CyberMike81, OpenAI Codex',
-                               'creation_date': '2026-10-22',
-                               'last_update_date': '2026-10-22',
-                               'requirements': 'none',
-                               'category': 'Life360',
-                               'notes': 'Incident Time is the incident timestamp (Unix seconds). Complete '
-                                        'objects are grouped within a container/trip; conflicting payloads '
-                                        'stay separate. Labels are as stored. These are stored app incident'
-                                        ' objects, not independent evidence of a physical crash. An '
-                                        'incident can also occur in another live parent record. Exact '
-                                        'current record contents are excluded, ignoring Core Data '
-                                        'bookkeeping columns. Identical recovered content is grouped per '
-                                        'database, retaining decoded page/cell/frame appearances. Source '
-                                        'States distinguish the main-file view without WAL from '
-                                        'checksum-valid page versions ending in a committed WAL '
-                                        'transaction. Main-file pages may reflect checkpoint state; these '
-                                        'are recovered records, not a guaranteed consistent historical '
-                                        'database snapshot. WAL overflow uses only available preceding WAL '
-                                        'page versions, never main-file bytes. Freeblocks, freelists, '
-                                        'old-salt frames, incomplete transactions and '
-                                        'unsupported/incomplete cells are not carved; failures and '
-                                        'exclusions are logged. Overwriting or absence from the live view '
-                                        'does not establish user deletion. Times render in UTC. Tested on '
-                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Parent '
-                                        'Record Count was uniform in the tested extraction; each grouped '
-                                        'incident had one recovered parent record. Z_ENT must match the '
-                                        'current Z_PRIMARYKEY entity ID; missing mappings suppress '
-                                        'recovery. Committed WAL leaf cells outside the inferred btree, or '
-                                        'when assignment fails, pass the same shape/entity checks and have '
-                                        'distinct Source States and diagnostics. Earlier traversal can '
-                                        'depend on later checkpointed main-file pages; these checks do not '
-                                        'prove historical page ownership or reconstruct historical schemas.'
-                                        ' Row Key is a SHA-256 digest of the grouped item and '
-                                        'parent-version references for matching this report across exports;'
-                                        ' it is not a stored app identifier.'
-                                        ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                        'table with a coincidentally matching entity-number field can pass.',
-                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                         '*/Library/Application Support/DriveModelStore.sqlite*',
-                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
-                               'output_types': 'all',
-                               'artifact_icon': 'alert-triangle'},
- 'life360RecoveredDrives': {'name': 'Life360 - Recovered Drives',
-                            'description': 'Non-live ZDRIVEMODEL records from main-file and earlier '
-                                           'committed WAL page images.',
-                            'author': '@CyberMike81, OpenAI Codex',
-                            'creation_date': '2026-10-22',
-                            'last_update_date': '2026-10-22',
-                            'requirements': 'none',
-                            'category': 'Life360',
-                            'notes': 'Start Time, End Time, Created At, Updated At and Last Retrieved are '
-                                     'Cocoa seconds. Other numeric fields remain as stored; their units are'
-                                     ' not independently established. Circle associations are not joined '
-                                     'from the current relationship table because that would mix source '
-                                     'states. Exact current record contents are excluded, ignoring Core '
-                                     'Data bookkeeping columns. Identical recovered content is grouped per '
-                                     'database, retaining decoded page/cell/frame appearances. Source '
-                                     'States distinguish the main-file view without WAL from checksum-valid'
-                                     ' page versions ending in a committed WAL transaction. Main-file pages'
-                                     ' may reflect checkpoint state; these are recovered records, not a '
-                                     'guaranteed consistent historical database snapshot. WAL overflow uses'
-                                     ' only available preceding WAL page versions, never main-file bytes. '
-                                     'Freeblocks, freelists, old-salt frames, incomplete transactions and '
-                                     'unsupported/incomplete cells are not carved; failures and exclusions '
-                                     'are logged. Overwriting or absence from the live view does not '
-                                     'establish user deletion. Times render in UTC. Tested on Life360 '
-                                     '26.34.0.5 / iOS 18.6; other schemas may differ. Score, Speeding '
-                                     'Count, Drive Type, User Mode and User Tag were uniform in the tested '
-                                     'extraction; Rideshare Vendor was empty in real and fabricated inputs.'
-                                     ' Created At and Updated At were identical in the tested extraction; '
-                                     'both are retained as separately stored fields. Z_ENT must match the '
-                                     'current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. '
-                                     'Committed WAL leaf cells outside the inferred btree, or when '
-                                     'assignment fails, pass the same shape/entity checks and have distinct'
-                                     ' Source States and diagnostics. Earlier traversal can depend on later'
-                                     ' checkpointed main-file pages; these checks do not prove historical '
-                                     'page ownership or reconstruct historical schemas.'
-                                     ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                     'table with a coincidentally matching entity-number field can pass.',
-                            'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                      '*/Library/Application Support/DriveModelStore.sqlite*',
-                                      '*/.com.apple.mobile_container_manager.metadata.plist'),
-                            'output_types': 'standard',
-                            'artifact_icon': 'car'},
- 'life360RecoveredBreaches': {'name': 'Life360 - Recovered Geofence Breaches',
-                              'description': 'Geofence breach objects within non-live Life360 topic records.',
-                              'author': '@CyberMike81, OpenAI Codex',
-                              'creation_date': '2026-10-22',
-                              'last_update_date': '2026-10-22',
-                              'requirements': 'none',
-                              'category': 'Life360',
-                              'notes': 'Event Time is the JSON timestamp (Unix seconds); a missing or null '
-                                       'timestamp stays blank and is logged, without falling back to Logged'
-                                       ' Time. Location Time is the stored location timestamp (Cocoa '
-                                       'seconds). Place, direction, distance and unit values are as stored.'
-                                       ' Raw parent JSON retains unknown fields; no place is supplied from '
-                                       'another source. Only non-live parent records are selected, '
-                                       'comparing their stored content with the current database/WAL view. '
-                                       'Source States and Recovery Sources JSON distinguish main-file views'
-                                       ' from checksum-valid committed WAL page versions. These are '
-                                       'recovered observations, not proof of deletion or a consistent '
-                                       'historical snapshot. Unsupported/incomplete cells are logged; '
-                                       'freeblocks, freelists, old-salt frames and incomplete transactions '
-                                       'are excluded. Times render in UTC. Tested on Life360 26.34.0.5 / '
-                                       'iOS 18.6; other layouts may differ. Unit and Algorithm were uniform'
-                                       ' and Event Time and Logged Time were identical in the tested '
-                                       'extraction; the separate source fields are retained. Z_ENT must '
-                                       'match the current Z_PRIMARYKEY entity ID; missing mappings suppress'
-                                       ' recovery. Committed WAL leaf cells outside the inferred btree, or '
-                                       'when assignment fails, pass the same shape/entity checks and have '
-                                       'distinct Source States and diagnostics. Earlier traversal can '
-                                       'depend on later checkpointed main-file pages; these checks do not '
-                                       'prove historical page ownership or reconstruct historical schemas.'
-                                       ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                       'table with a coincidentally matching entity-number field can pass.',
-                              'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                        '*/.com.apple.mobile_container_manager.metadata.plist'),
-                              'output_types': 'all',
-                              'artifact_icon': 'map-pin'},
- 'life360RecoveredDwells': {'name': 'Life360 - Recovered Dwell Events',
-                            'description': 'Dwell objects within non-live Life360 topic and session records.',
-                            'author': '@CyberMike81, OpenAI Codex',
-                            'creation_date': '2026-10-22',
-                            'last_update_date': '2026-10-22',
-                            'requirements': 'none',
-                            'category': 'Life360',
-                            'notes': 'Event Time is dwell.timestamp (Cocoa seconds), Dwell Start and Dwell '
-                                     'End are location.startTime/endTime (Unix seconds), and Logged Time is'
-                                     ' the parent ZTIMESTAMP (Unix seconds). Labels are as stored. Separate'
-                                     ' parent payloads are retained without filling fields from each other.'
-                                     ' Only non-live parent records are selected, comparing their stored '
-                                     'content with the current database/WAL view. Source States and '
-                                     'Recovery Sources JSON distinguish main-file views from checksum-valid'
-                                     ' committed WAL page versions. These are recovered observations, not '
-                                     'proof of deletion or a consistent historical snapshot. '
-                                     'Unsupported/incomplete cells are logged; freeblocks, freelists, '
-                                     'old-salt frames and incomplete transactions are excluded. Times '
-                                     'render in UTC. Tested on Life360 26.34.0.5 / iOS 18.6; other layouts '
-                                     'may differ. Algorithm was uniform in the tested extraction. Session '
-                                     'ID and User ID are empty in the fabricated engine-topic case. Source '
-                                     'File and Store identify each database; the separate Source File '
-                                     'preserves container/copy provenance. Z_ENT must match the current '
-                                     'Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Committed'
-                                     ' WAL leaf cells outside the inferred btree, or when assignment fails,'
-                                     ' pass the same shape/entity checks and have distinct Source States '
-                                     'and diagnostics. Earlier traversal can depend on later checkpointed '
-                                     'main-file pages; these checks do not prove historical page ownership '
-                                     'or reconstruct historical schemas.'
-                                     ' Entity matching assumes Core Data-managed tables; an unmanaged same-width '
-                                     'table with a coincidentally matching entity-number field can pass.',
-                            'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
-                                      '*/.com.apple.mobile_container_manager.metadata.plist'),
-                            'output_types': 'all',
-                            'artifact_icon': 'map-pin'}}
+__artifacts_v2__ = {
+    'life360RecoveredTopics': {
+        'name': 'Life360 - Recovered Topic Records',
+        'description': (
+            'Non-live topic records read from main-file and earlier committed WAL '
+            'page images.'
+        ),
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Logged Time is ZTIMESTAMP (Unix seconds). Payload is ZDATA as UTF-8 '
+            'text, or hex when it does not decode (Payload Format). Covers the eleven'
+            ' topic stores the live Life360 artifacts parse. Versions of records '
+            'found in the main database file and in committed WAL transactions that '
+            'match no live row. They are earlier or removed records, not proof that a'
+            ' user deleted anything. Source States and Recovery Sources JSON give '
+            'where each version was found. Free pages, free space and uncommitted WAL'
+            ' frames are not searched. The other Recovered artifacts, except '
+            'Recovered Drives, break out these payloads, so do not add their counts '
+            'to this one. Rows were produced on Life360 24.28.0 and 24.34.0; 23.19.0 '
+            'and 23.43.1 produced none (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 111 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 453 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/Library/Application Support/DriveModelStore.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'database',
+    },
+    'life360RecoveredLocations': {
+        'name': 'Life360 - Recovered Location Samples',
+        'description': (
+            'Location objects within non-live device-location and failed-location '
+            'topic records.'
+        ),
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Location Time is the sample timestamp (Cocoa seconds); Logged Time is '
+            'the parent ZTIMESTAMP (Unix seconds). Buffered samples are used when '
+            'present, otherwise the single location. Speed and accuracy are as '
+            'stored. Versions of records found in the main database file and in '
+            'committed WAL transactions that match no live row. They are earlier or '
+            'removed records, not proof that a user deleted anything. Source States '
+            'and Recovery Sources JSON give where each version was found. Free pages,'
+            ' free space and uncommitted WAL frames are not searched. Rows were '
+            'produced on Life360 24.28.0 and 24.34.0; 23.19.0 and 23.43.1 produced '
+            'none (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 111 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 453 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/Library/Application Support/DriveModelStore.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'all',
+        'artifact_icon': 'map-pin',
+    },
+    'life360RecoveredMovement': {
+        'name': 'Life360 - Recovered Movement Events',
+        'description': (
+            'Drive, trip and cancellation objects within non-live Life360 topic '
+            'records.'
+        ),
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Drive and trip times are Cocoa seconds; cancellation Event Time and '
+            'Logged Time are Unix seconds. Event Type is as stored, or the single key'
+            ' of a one-key object. Distance is as stored. Versions of records found '
+            'in the main database file and in committed WAL transactions that match '
+            'no live row. They are earlier or removed records, not proof that a user '
+            'deleted anything. Source States and Recovery Sources JSON give where '
+            'each version was found. Free pages, free space and uncommitted WAL '
+            'frames are not searched. Developed against Life360 26.34.0.5; the four '
+            'public images produced no rows (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 0 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/Library/Application Support/DriveModelStore.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'all',
+        'artifact_icon': 'route',
+    },
+    'life360RecoveredWaypoints': {
+        'name': 'Life360 - Recovered Movement Waypoints',
+        'description': (
+            'Distinct waypoint and route objects within non-live Life360 movement '
+            'records. Parent provenance is in the TSV/LAVA Parent Records JSON '
+            'column.'
+        ),
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Waypoint Time is Unix seconds for drive waypoints and Cocoa seconds for '
+            'trip route points. A point found in several recovered parents of one '
+            'trip or session is shown once; Parent Records JSON (TSV and LAVA) lists '
+            'them. Row Key is made by the report to match HTML rows to the exports; '
+            'it is not a Life360 ID. Versions of records found in the main database '
+            'file and in committed WAL transactions that match no live row. They are '
+            'earlier or removed records, not proof that a user deleted anything. '
+            'Source States and Recovery Sources JSON give where each version was '
+            'found. Free pages, free space and uncommitted WAL frames are not '
+            'searched. Developed against Life360 26.34.0.5; the four public images '
+            'produced no rows (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 0 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/Library/Application Support/DriveModelStore.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'all',
+        'artifact_icon': 'map-pin',
+    },
+    'life360RecoveredIncidents': {
+        'name': 'Life360 - Recovered Driving Incidents',
+        'description': (
+            'Driving-incident objects within non-live Life360 movement records. '
+            'Parent provenance is in the TSV/LAVA Parent Records JSON column.'
+        ),
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Incident Time is Unix seconds. Types are as stored. An incident record '
+            'is not by itself evidence of a crash. Row Key is made by the report to '
+            'match HTML rows to the exports; it is not a Life360 ID. Versions of '
+            'records found in the main database file and in committed WAL '
+            'transactions that match no live row. They are earlier or removed '
+            'records, not proof that a user deleted anything. Source States and '
+            'Recovery Sources JSON give where each version was found. Free pages, '
+            'free space and uncommitted WAL frames are not searched. Developed '
+            'against Life360 26.34.0.5; the four public images produced no rows (see '
+            'sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 0 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/Library/Application Support/DriveModelStore.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'all',
+        'artifact_icon': 'alert-triangle',
+    },
+    'life360RecoveredDrives': {
+        'name': 'Life360 - Recovered Drives',
+        'description': (
+            'Non-live ZDRIVEMODEL records from main-file and earlier committed WAL '
+            'page images.'
+        ),
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'From DriveModelStore.sqlite. Start Time, End Time, Created At, Updated '
+            'At and Last Retrieved are Cocoa seconds. Other numbers are as stored. '
+            'Versions of records found in the main database file and in committed WAL'
+            ' transactions that match no live row. They are earlier or removed '
+            'records, not proof that a user deleted anything. Source States and '
+            'Recovery Sources JSON give where each version was found. Free pages, '
+            'free space and uncommitted WAL frames are not searched. Developed '
+            'against Life360 26.34.0.5; the four public images produced no rows (see '
+            'sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 0 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/Library/Application Support/DriveModelStore.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'car',
+    },
+    'life360RecoveredBreaches': {
+        'name': 'Life360 - Recovered Geofence Breaches',
+        'description': 'Geofence breach objects within non-live Life360 topic records.',
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Event Time is the breach timestamp (Unix seconds) and stays blank when '
+            'missing. Location Time is Cocoa seconds. Distance is as stored; Unit is '
+            'the stored unit symbol. Versions of records found in the main database '
+            'file and in committed WAL transactions that match no live row. They are '
+            'earlier or removed records, not proof that a user deleted anything. '
+            'Source States and Recovery Sources JSON give where each version was '
+            'found. Free pages, free space and uncommitted WAL frames are not '
+            'searched. Developed against Life360 26.34.0.5; the four public images '
+            'produced no rows (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 0 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'all',
+        'artifact_icon': 'map-pin',
+    },
+    'life360RecoveredDwells': {
+        'name': 'Life360 - Recovered Dwell Events',
+        'description': 'Dwell objects within non-live Life360 topic and session records.',
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Event Time is the dwell timestamp (Cocoa seconds); Dwell Start and Dwell'
+            ' End are Unix seconds; Logged Time is ZTIMESTAMP (Unix seconds). Event '
+            'Type and State are as stored, or the single key of a one-key object. '
+            'Versions of records found in the main database file and in committed WAL'
+            ' transactions that match no live row. They are earlier or removed '
+            'records, not proof that a user deleted anything. Source States and '
+            'Recovery Sources JSON give where each version was found. Free pages, '
+            'free space and uncommitted WAL frames are not searched. Developed '
+            'against Life360 26.34.0.5; the four public images produced no rows (see '
+            'sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 0 rows',
+        },
+        'paths': (
+            '*/Library/Application Support/com.eventkit/*/*.sqlite*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'all',
+        'artifact_icon': 'map-pin',
+    },
+}
 import json
 import math
 import os

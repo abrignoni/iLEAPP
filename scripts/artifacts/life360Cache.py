@@ -1,152 +1,183 @@
-__artifacts_v2__ = {'life360CachedLocations': {'name': 'Life360 - Cached Device Locations',
-                            'description': 'Device-location objects returned in cached Life360 API '
-                                           'responses.',
-                            'author': '@CyberMike81, OpenAI Codex',
-                            'creation_date': '2026-10-22',
-                            'last_update_date': '2026-10-22',
-                            'requirements': 'none',
-                            'category': 'Life360',
-                            'notes': 'Location Time is lastObserved; First Observed and Updated are the '
-                                     'separate response fields. These ISO times carry explicit offsets. '
-                                     'Cached Time is the CFURL cache time, not a location fix. Numeric '
-                                     'values are as stored; their units are not independently established; a '
-                                     'cached location is not continuous tracking or proof of who carried the '
-                                     'device. Each response item is retained with its complete JSON. Read '
-                                     'from Library/Caches/com.life360.safetymap/Cache.db with the current '
-                                     'WAL applied. Cached Time is SQLite CURRENT_TIMESTAMP text, read as '
-                                     'UTC; invalid times are left blank and logged. Only the validated main '
-                                     'app container is read. Tested on Life360 26.34.0.5 / iOS 18.6; other '
-                                     'layouts may differ. Body Source File was empty in the tested '
-                                     'extraction; inline responses have no external file. Cached Time, Cache '
-                                     'Entry ID and Request Path are uniform within this tested '
-                                     'single-response table.',
-                            'paths': ('*/Library/Caches/com.life360.safetymap/Cache.db*',
-                                      '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
-                                      '*/.com.apple.mobile_container_manager.metadata.plist'),
-                            'output_types': 'all',
-                            'artifact_icon': 'map-pin'},
- 'life360CachedDevices': {'name': 'Life360 - Cached Devices',
-                          'description': 'Device and owner objects returned in cached Life360 API responses.',
-                          'author': '@CyberMike81, OpenAI Codex',
-                          'creation_date': '2026-10-22',
-                          'last_update_date': '2026-10-22',
-                          'requirements': 'none',
-                          'category': 'Life360',
-                          'notes': 'Modified is the response modified field (ISO with an explicit offset). '
-                                   'Owner IDs come only from the item owners array; no profile or location '
-                                   'is joined by proximity. Device and owner fields are retained in Record '
-                                   'JSON. Read from Library/Caches/com.life360.safetymap/Cache.db with the '
-                                   'current WAL applied. Cached Time is SQLite CURRENT_TIMESTAMP text, read '
-                                   'as UTC; invalid times are left blank and logged. Only the validated main '
-                                   'app container is read. Tested on Life360 26.34.0.5 / iOS 18.6; other '
-                                   'layouts may differ. Body Source File was empty in the tested extraction; '
-                                   'inline responses have no external file. Cached Time, Cache Entry ID and '
-                                   'Request Path are uniform within this tested single-response table.',
-                          'paths': ('*/Library/Caches/com.life360.safetymap/Cache.db*',
-                                    '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
-                                    '*/.com.apple.mobile_container_manager.metadata.plist'),
-                          'output_types': 'standard',
-                          'artifact_icon': 'devices'},
- 'life360CachedDeviceIssues': {'name': 'Life360 - Cached Device Issues',
-                               'description': 'Device issue objects returned in cached Life360 API '
-                                              'responses.',
-                               'author': '@CyberMike81, OpenAI Codex',
-                               'creation_date': '2026-10-22',
-                               'last_update_date': '2026-10-22',
-                               'requirements': 'none',
-                               'category': 'Life360',
-                               'notes': 'Issue Start is the issue startTime field (ISO with an explicit '
-                                        'offset). Names and values are as stored; an issue does not '
-                                        'independently establish device capability or its duration. Record '
-                                        'JSON retains the complete enclosing item and the selected issue '
-                                        'as separate item and issue objects. Read from '
-                                        'Library/Caches/com.life360.safetymap/Cache.db with the current WAL '
-                                        'applied. Cached Time is SQLite CURRENT_TIMESTAMP text, read as UTC; '
-                                        'invalid times are left blank and logged. Only the validated main '
-                                        'app container is read. Tested on Life360 26.34.0.5 / iOS 18.6; '
-                                        'other layouts may differ. Body Source File was empty in the tested '
-                                        'extraction; inline responses have no external file. Cached Time, '
-                                        'Cache Entry ID and Request Path are uniform within this tested '
-                                        'single-response table.',
-                               'paths': ('*/Library/Caches/com.life360.safetymap/Cache.db*',
-                                         '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
-                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
-                               'output_types': 'standard',
-                               'artifact_icon': 'alert-triangle'},
- 'life360CachedCircles': {'name': 'Life360 - Cached Circles',
-                          'description': 'Circle objects returned in cached Life360 API responses.',
-                          'author': '@CyberMike81, OpenAI Codex',
-                          'creation_date': '2026-10-22',
-                          'last_update_date': '2026-10-22',
-                          'requirements': 'none',
-                          'category': 'Life360',
-                          'notes': 'Created is createdAt from the circle object (Unix seconds). A cached '
-                                   'circle list is not a history of membership. Record JSON retains the '
-                                   'stored fields. Read from Library/Caches/com.life360.safetymap/Cache.db '
-                                   'with the current WAL applied. Cached Time is SQLite CURRENT_TIMESTAMP '
-                                   'text, read as UTC; invalid times are left blank and logged. Only the '
-                                   'validated main app container is read. Tested on Life360 26.34.0.5 / iOS '
-                                   '18.6; other layouts may differ. Body Source File was empty in the tested '
-                                   'extraction because its response was inline. Cached Time, Cache Entry ID '
-                                   'and Request Path are uniform within this tested single-response table.',
-                          'paths': ('*/Library/Caches/com.life360.safetymap/Cache.db*',
-                                    '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
-                                    '*/.com.apple.mobile_container_manager.metadata.plist'),
-                          'output_types': 'standard',
-                          'artifact_icon': 'users'},
- 'life360CachedAccount': {'name': 'Life360 - Cached Account',
-                          'description': 'The account profile returned in a cached Life360 API response.',
-                          'author': '@CyberMike81, OpenAI Codex',
-                          'creation_date': '2026-10-22',
-                          'last_update_date': '2026-10-22',
-                          'requirements': 'none',
-                          'category': 'Life360',
-                          'notes': 'Profile Created has no explicit zone in the tested response and remains '
-                                   'as stored, without an assumed UTC time. Date of Birth also remains as '
-                                   'stored. The profile describes the cached service response, not a '
-                                   'verified identity. Settings and communications remain in Record JSON. '
-                                   'Read from Library/Caches/com.life360.safetymap/Cache.db with the current '
-                                   'WAL applied. Cached Time is SQLite CURRENT_TIMESTAMP text, read as UTC; '
-                                   'invalid times are left blank and logged. Only the validated main app '
-                                   'container is read. Tested on Life360 26.34.0.5 / iOS 18.6; other layouts '
-                                   'may differ. Body Source File was empty because the tested profile '
-                                   'response was inline.',
-                          'paths': ('*/Library/Caches/com.life360.safetymap/Cache.db*',
-                                    '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
-                                    '*/.com.apple.mobile_container_manager.metadata.plist'),
-                          'output_types': 'standard',
-                          'artifact_icon': 'user'},
- 'life360CacheResponses': {'name': 'Life360 - Cached API Responses',
-                           'description': 'An index of Life360 API responses and the availability of their '
-                                          'cached bodies.',
-                           'author': '@CyberMike81, OpenAI Codex',
-                           'creation_date': '2026-10-22',
-                           'last_update_date': '2026-10-22',
-                           'requirements': 'none',
-                           'category': 'Life360',
-                           'notes': 'One row per first-party Life360 API cache entry, including '
-                                    'missing/unreadable bodies. It indexes response availability, not user '
-                                    'interaction. Request Path omits query strings, fragments and URL '
-                                    'credentials. Third-party SDK, catalogue, image and configuration caches '
-                                    'are not decoded into user activity. External bodies are resolved only '
-                                    'by their recorded filename within this cache’s fsCachedData directory. '
-                                    'Read from Library/Caches/com.life360.safetymap/Cache.db with the '
-                                    'current WAL applied. Cached Time is SQLite CURRENT_TIMESTAMP text, read '
-                                    'as UTC; invalid times are left blank and logged. Only the validated '
-                                    'main app container is read. Tested on Life360 26.34.0.5 / iOS 18.6; '
-                                    'other layouts may differ. Body Source File was empty throughout the '
-                                    'tested extraction: its external references had no acquired bodies. The '
-                                    'synthetic case includes a resolvable external body and a missing-body '
-                                    'control, and Cached Time is uniform only in that fabricated case. '
-                                    'Expanded bodies above 32 MiB are excluded with a diagnostic. Cached '
-                                    'drive-feed, premium and experiments body references were missing in the '
-                                    'tested extraction; their contents are not parsed. Circle-member '
-                                    'profiles are not inferred from device-owner IDs.',
-                           'paths': ('*/Library/Caches/com.life360.safetymap/Cache.db*',
-                                     '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
-                                     '*/.com.apple.mobile_container_manager.metadata.plist'),
-                           'output_types': 'standard',
-                           'artifact_icon': 'database'}}
+__artifacts_v2__ = {
+    'life360CachedLocations': {
+        'name': 'Life360 - Cached Device Locations',
+        'description': 'Device-location objects returned in cached Life360 API responses.',
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'Location Time is lastObserved; First Observed and Updated are separate '
+            'fields of the same object. Speed, accuracy and battery values are as '
+            'stored. Read from Library/Caches/com.life360.safetymap/Cache.db. Cached '
+            'Time is when the response was cached, not when the event happened. Rows '
+            'were produced on Life360 23.19.0, 24.28.0 and 24.34.0 (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 1 row',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 20 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 16 rows',
+        },
+        'paths': (
+            '*/Library/Caches/com.life360.safetymap/Cache.db*',
+            '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'all',
+        'artifact_icon': 'map-pin',
+    },
+    'life360CachedDevices': {
+        'name': 'Life360 - Cached Devices',
+        'description': 'Device and owner objects returned in cached Life360 API responses.',
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            "Modified is the device object's modified field. Owner IDs come from its "
+            'owners array. Read from Library/Caches/com.life360.safetymap/Cache.db. '
+            'Cached Time is when the response was cached, not when the event '
+            'happened. Rows were produced on Life360 23.19.0, 24.28.0 and 24.34.0 '
+            '(see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 1 row',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 8 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 3 rows',
+        },
+        'paths': (
+            '*/Library/Caches/com.life360.safetymap/Cache.db*',
+            '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'devices',
+    },
+    'life360CachedDeviceIssues': {
+        'name': 'Life360 - Cached Device Issues',
+        'description': 'Device issue objects returned in cached Life360 API responses.',
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            "Issue Start is the issue's startTime. Issue names and values are as "
+            'stored. Read from Library/Caches/com.life360.safetymap/Cache.db. Cached '
+            'Time is when the response was cached, not when the event happened. Rows '
+            'were produced on Life360 23.19.0, 24.28.0 and 24.34.0 (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 1 row',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 6 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 2 rows',
+        },
+        'paths': (
+            '*/Library/Caches/com.life360.safetymap/Cache.db*',
+            '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'alert-triangle',
+    },
+    'life360CachedCircles': {
+        'name': 'Life360 - Cached Circles',
+        'description': 'Circle objects returned in cached Life360 API responses.',
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            "Created is the circle's createdAt (Unix seconds). The list shows circles"
+            ' when the response was cached, not membership history. Read from '
+            'Library/Caches/com.life360.safetymap/Cache.db. Cached Time is when the '
+            'response was cached, not when the event happened. Rows were produced on '
+            'Life360 23.19.0, 24.28.0 and 24.34.0 (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 1 row',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 2 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 2 rows',
+        },
+        'paths': (
+            '*/Library/Caches/com.life360.safetymap/Cache.db*',
+            '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'users',
+    },
+    'life360CachedAccount': {
+        'name': 'Life360 - Cached Account',
+        'description': 'The account profile returned in a cached Life360 API response.',
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'From the cached /v3/users/me or /v5/users/me response. Profile Created '
+            'and Date of Birth are as stored because the response gives no time zone.'
+            ' Read from Library/Caches/com.life360.safetymap/Cache.db. Cached Time is'
+            ' when the response was cached, not when the event happened. Rows were '
+            'produced on Life360 23.19.0, 24.28.0 and 24.34.0 (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 1 row',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 1 row',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 1 row',
+        },
+        'paths': (
+            '*/Library/Caches/com.life360.safetymap/Cache.db*',
+            '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'user',
+    },
+    'life360CacheResponses': {
+        'name': 'Life360 - Cached API Responses',
+        'description': (
+            'An index of Life360 API responses and the availability of their cached '
+            'bodies.'
+        ),
+        'author': '@CyberMike81, OpenAI Codex',
+        'creation_date': '2026-10-22',
+        'last_update_date': '2026-10-22',
+        'requirements': 'none',
+        'category': 'Life360',
+        'notes': (
+            'One row per cached Life360 API response, including bodies that are '
+            'missing or unreadable (Body Status). Request Path drops query strings '
+            'and credentials. Responses not parsed by the other Cached artifacts are '
+            'listed here only. Read from '
+            'Library/Caches/com.life360.safetymap/Cache.db. Cached Time is when the '
+            'response was cached, not when the event happened. Rows were produced on '
+            'Life360 23.19.0, 24.28.0 and 24.34.0 (see sample_data).'
+        ),
+        'sample_data': {
+            'abe_ios16': 'iOS 16.5 | Life360 23.19.0 | 26 rows',
+            'felix_ios17': 'iOS 17.6.1 | Life360 24.34.0 | 44 rows',
+            'fsfull002_ios17': 'iOS 17.1 | Life360 23.43.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Life360 24.28.0 | 31 rows',
+        },
+        'paths': (
+            '*/Library/Caches/com.life360.safetymap/Cache.db*',
+            '*/Library/Caches/com.life360.safetymap/fsCachedData/*',
+            '*/.com.apple.mobile_container_manager.metadata.plist',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'database',
+    },
+}
 import gzip
 import io
 import json
@@ -326,9 +357,9 @@ def _responses(context):
             yield response
 
 
-def _selected(context, endpoint):
+def _selected(context, *endpoints):
     for response in _responses(context):
-        if response['path'] != endpoint or response['body'] is None:
+        if response['path'] not in endpoints or response['body'] is None:
             continue
         if not isinstance(response['body'], dict):
             logfunc(f'Life360 cache expected an object in {response["file"]!r}, entry {response["entry"]}; response skipped')
@@ -456,7 +487,7 @@ def life360CachedAccount(context):
                'First Name', 'Last Name', 'Email', 'Phone', 'Date of Birth (as stored)', 'Locale',
                'Language', 'Request Path', 'Record JSON', 'Source File', 'Body Source File')
     rows = []
-    for response, body in _selected(context, '/v5/users/me'):
+    for response, body in _selected(context, '/v3/users/me', '/v5/users/me'):
         rows.append((response['cached'], response['entry'], _text(body.get('id')), _text(body.get('created'))) +
                     tuple(_text(body.get(k)) for k in ('firstName', 'lastName', 'loginEmail',
                                                      'loginPhone', 'dob', 'locale', 'language')) +

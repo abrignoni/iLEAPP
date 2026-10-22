@@ -212,6 +212,12 @@ class RoundTwoTests(unittest.TestCase):
         self.assertEqual(rows[0]['Profile Created (as stored)'], '2026-01-15 12:00:00')
         self.assertEqual(json.loads(rows[0]['Record JSON'])['extraProfileField'], 'retained')
 
+    def test_v3_profile_endpoint_is_read_like_v5(self):
+        self.mutate_cache("update cfurl_cache_response set request_key=replace(request_key, '/v5/users/me', '/v3/users/me')")
+        rows, _ = run(cache, 'life360CachedAccount', self.root)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['Request Path'], 'api-cloudfront.life360.com/v3/users/me')
+
     def test_missing_zone_is_not_replaced_with_local_time(self):
         self.assertEqual(cache._time('2026-01-15T12:00:00', 'synthetic'), '')
         self.assertTrue(any('invalid synthetic' in m for m in self.logs))
