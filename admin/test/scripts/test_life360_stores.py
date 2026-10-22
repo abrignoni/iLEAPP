@@ -396,6 +396,18 @@ class Life360StoreTests(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual(sum(row['Place Name'] == '' and row['Latitude'] == fixture.LAT for row in rows), 1)
 
+    @unittest.skipIf(sqlite3.sqlite_version_info < (3, 35, 0), 'DROP COLUMN needs SQLite 3.35')
+    def test_places_without_category_column_keeps_rows(self):
+        # The Life360 24.x ZPLACEMODEL has no ZCATEGORY column.
+        expected = _run(stores, 'life360Places', self.root)
+        path = self.root / 'Library/Application Support/L360CoreDataStore.sqlite'
+        with sqlite3.connect(path) as connection:
+            connection.execute('ALTER TABLE ZPLACEMODEL DROP COLUMN ZCATEGORY')
+        rows = _run(stores, 'life360Places', self.root)
+        self.assertEqual(len(rows), len(expected))
+        self.assertEqual({row['Name'] for row in rows}, {row['Name'] for row in expected})
+        self.assertTrue(all(row['Category'] == '' for row in rows))
+
     def test_preference_shape_and_setting_decode_failures_are_logged(self):
         path = self.root / 'Library/Preferences/com.life360.safetymap.plist'
         preferences = plistlib.loads(path.read_bytes())

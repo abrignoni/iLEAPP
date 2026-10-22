@@ -44,7 +44,7 @@ __artifacts_v2__ = {
             "falken_ios26": "iOS 26.2.1 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 324 rows",
-            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 811 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.43.1 | 811 rows",
             "hc_ios18_7": "iOS 18.7.8 | Life360: Family Safety & GPS 26.22.0 | 734 rows",
             "hc_ios26": "iOS 26.5.2 | 1407 rows",
             "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
             "falken_ios26": "iOS 26.2.1 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 324 rows",
-            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 811 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.43.1 | 811 rows",
             "hc_ios18_7": "iOS 18.7.8 | Life360: Family Safety & GPS 26.22.0 | 734 rows",
             "hc_ios26": "iOS 26.5.2 | 1407 rows",
             "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
@@ -134,7 +134,7 @@ __artifacts_v2__ = {
                  "in the sidecar-lpse logs across the tested images, blank on most sample lines. "
                  "Log Kind is main, sidecar or sidecar-lpse from the file name. Sample lines were "
                  "present on five of the eight tested images holding Life360 logs, the ones "
-                 "running app versions 23.15.0 through 24.34.0, and absent on the three newer ones "
+                 "running app versions 23.19.0 through 24.34.0, and absent on the three newer ones "
                  "(25.37.0, 26.22.0 and an iOS 26 image), so their absence on a device says "
                  "nothing about its movements. A row records that the app logged a sample carrying "
                  "that time and those coordinates; it does not say who carried "
@@ -250,7 +250,7 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "sample_data": {
             "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 8 rows",
-            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.43.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 5 rows",
             "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 0 rows",
@@ -280,7 +280,7 @@ __artifacts_v2__ = {
         "artifact_icon": "users",
         "sample_data": {
             "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 10 rows",
-            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.43.1 | 1 row",
             "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 4 rows",
             "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 10 rows",
             "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 1 row",
