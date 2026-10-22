@@ -51,8 +51,8 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                                         'Subscription, favorite, mute and notification fields are '
                                         'reported as stored. A cached subreddit does not establish '
                                         'a visit or who set a state. Object JSON preserves the '
-                                        'source fields. A blank cell means the field was absent or '
-                                        "null; Object JSON shows which. Reddit's app calls these "
+                                        'source fields. A blank cell means the field was absent, '
+                                        "null or empty; Object JSON shows which. Reddit's app calls these "
                                         'Communities.'},
  'reddit_cached_profiles': {'author': '@CyberMike81, OpenAI Codex',
                             'creation_date': '2026-10-22',
@@ -156,8 +156,9 @@ def _iso(value, location=''):
             raise ValueError('not a timestamp string')
         # Normalize basic calendar timestamps and hour-only offsets before
         # fromisoformat, whose accepted ISO forms differ between Python versions.
-        normalized = re.sub(r'^(\d{4})(\d{2})(\d{2})[Tt ](\d{2})(\d{2})(\d{2})(?=[.,Z+-]|$)',
-                            r'\1-\2-\3T\4:\5:\6', value)
+        normalized = re.sub(r'^(\d{4})(\d{2})(\d{2})(?=[Tt ])', r'\1-\2-\3', value)
+        normalized = re.sub(r'^(\d{4}-\d{2}-\d{2}[Tt ])(\d{2})(\d{2})(\d{2})?(?=[.,Z+-]|$)',
+                            lambda m: m[1] + m[2] + ':' + m[3] + ':' + (m[4] or '00'), normalized)
         normalized = re.sub(r'([Tt ]\d{2}:\d{2}(?::\d{2}(?:[.,]\d+)?)?)([+-]\d{2})$',
                             r'\1\2:00', normalized)
         # Python 3.10 needs a colon in offsets such as the observed +0000.

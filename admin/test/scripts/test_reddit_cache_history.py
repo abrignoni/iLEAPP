@@ -231,12 +231,15 @@ class AuditRegressionTests(unittest.TestCase):
         for value in ('2024-05-01T17:40:00.123456+05',
                       '2024-05-01T08:40:00.123456-04',
                       '20240501T124000.123456Z', '20240501T174000.123456+0500',
-                      '20240501T174000.123456+05'):
+                      '20240501T174000.123456+05',
+                      '20240501T1240.123456Z', '2024-05-01T124000.123456Z',
+                      '2024-05-01T0840.123456-04'):
             with self.subTest(value=value):
                 stamp = parser._iso(value, 'synthetic/cache')  # pylint: disable=protected-access
                 self.assertNotEqual(stamp, '')
                 self.assertEqual(stamp.isoformat(), '2024-05-01T12:40:00.123456+00:00')
-        for value in ('20240501T124000Z', '2024-05-01T17:40:00+05'):
+        for value in ('20240501T124000Z', '2024-05-01T17:40:00+05',
+                      '20240501T1240Z', '2024-05-01T124000Z', '2024-05-01T1240Z'):
             with self.subTest(value=value):
                 self.assertEqual(parser._iso(value).isoformat(),  # pylint: disable=protected-access
                                  '2024-05-01T12:40:00+00:00')
