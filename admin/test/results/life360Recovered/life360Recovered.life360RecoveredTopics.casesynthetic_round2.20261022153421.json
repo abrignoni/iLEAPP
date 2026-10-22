@@ -1,0 +1,134 @@
+{
+  "metadata": {
+    "module_name": "life360Recovered",
+    "artifact_name": "Life360 - Recovered Topic Records",
+    "function_name": "life360RecoveredTopics",
+    "case_number": "casesynthetic_round2",
+    "number_of_columns": 10,
+    "number_of_rows": 8,
+    "total_data_size_bytes": 18498,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Recovered/testdata.life360Recovered.life360RecoveredTopics.casesynthetic_round2.zip",
+    "start_time": "2026-10-22T15:34:21.682354+00:00",
+    "end_time": "2026-10-22T15:34:21.707088+00:00",
+    "run_time_seconds": 0.00562596321105957,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-22T15:34:21.694832",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Logged Time",
+    "Entry ID",
+    "Store",
+    "Payload Format",
+    "Payload (as stored)",
+    "Source States",
+    "Appearances",
+    "Record Fingerprint",
+    "Recovery Sources JSON",
+    "Source File"
+  ],
+  "data": [
+    [
+      1768478401,
+      "00000000-0000-0000-0000-00000000f000",
+      "BreachTopic",
+      "JSON object",
+      "{\"version\": 1, \"location\": {\"timestamp\": 790172199, \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.5}, \"altitude\": 10.5, \"horizontalAccuracy\": 5.0, \"verticalAccuracy\": 3.0, \"speed\": 1.5, \"course\": 90.0, \"speedAccuracy\": -1, \"courseAccuracy\": -1, \"lmode\": {\"serverTag\": {\"_0\": \"undefined\"}}, \"sampleOrigin\": {\"other\": {}}, \"sourceInformation\": {\"isSimulatedBySoftware\": false, \"isProducedByAccessory\": false}}, \"wifi\": {\"algorithm\": \"CLPv1\", \"enabled\": false}, \"places\": [{\"id\": \"00000000-0000-0000-0000-00000000a014\", \"name\": \"Home\", \"circleId\": \"00000000-0000-0000-0000-00000000a00a\", \"direction\": \"egress\", \"algorithm\": \"CLPv1\", \"distanceToFence\": {\"value\": 42.0, \"unit\": {\"symbol\": \"m\", \"converter\": {\"coefficient\": 1, \"constant\": 0}}}}], \"id\": \"00000000-0000-0000-0000-00000000F000\", \"timestamp\": 1768479400}",
+      "Committed WAL page version; Main-file view without WAL",
+      2,
+      "b280975b5085c3cae41d78c3e5b50debaa7d3a31cee3c33837b567d40b7b4442",
+      "[{\"cellOffset\": 178, \"commitFrame\": 0, \"fileOffset\": 1202, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 2330, \"frame\": 3, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite"
+    ],
+    [
+      1768478402,
+      "00000000-0000-0000-0000-00000000f001",
+      "BreachTopic",
+      "JSON object",
+      "{\"version\": 1, \"location\": {\"timestamp\": 790172199, \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.5}, \"altitude\": 10.5, \"horizontalAccuracy\": 5.0, \"verticalAccuracy\": 3.0, \"speed\": 1.5, \"course\": 90.0, \"speedAccuracy\": -1, \"courseAccuracy\": -1, \"lmode\": {\"serverTag\": {\"_0\": \"undefined\"}}, \"sampleOrigin\": {\"other\": {}}, \"sourceInformation\": {\"isSimulatedBySoftware\": false, \"isProducedByAccessory\": false}}, \"wifi\": {\"algorithm\": \"CLPv1\", \"enabled\": false}, \"places\": [{\"id\": \"00000000-0000-0000-0000-00000000a014\", \"name\": \"Home\", \"circleId\": \"00000000-0000-0000-0000-00000000a00a\", \"direction\": \"egress\", \"algorithm\": \"CLPv1\", \"distanceToFence\": {\"value\": 42.0, \"unit\": {\"symbol\": \"m\", \"converter\": {\"coefficient\": 1, \"constant\": 0}}}}], \"id\": \"00000000-0000-0000-0000-00000000F001\", \"timestamp\": 1768479400}",
+      "Committed WAL page version",
+      1,
+      "f62e8b6030f6a1c7694d9763920942aeecb6e2f48aa256d05319401e38a758a0",
+      "[{\"cellOffset\": 178, \"commitFrame\": 4, \"fileOffset\": 3378, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite"
+    ],
+    [
+      1768478402,
+      "00000000-0000-0000-0000-00000000f005",
+      "DwellTopic",
+      "JSON object",
+      "{\"version\": 2, \"dwell\": {\"id\": \"00000000-0000-0000-0000-000000000800\", \"algorithm\": \"CLPv1\", \"timestamp\": 790171900, \"eventType\": {\"start\": {}}, \"state\": {\"dwelling\": {}}, \"location\": {\"startTime\": 1768479000, \"endTime\": 1768479100, \"latitude\": 0.5, \"longitude\": -150.5, \"horizontalAccuracy\": 30.0}}, \"id\": \"00000000-0000-0000-0000-00000000F005\", \"timestamp\": 1768479100}",
+      "Committed WAL page version",
+      2,
+      "40654ac489b098efc67e0c786d404e713b5bb44b3f6376e2c02869a6eb5d010b",
+      "[{\"cellOffset\": 220, \"commitFrame\": 1, \"fileOffset\": 276, \"frame\": 1, \"overflow\": [], \"page\": 2, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 220, \"commitFrame\": 5, \"fileOffset\": 3420, \"frame\": 4, \"overflow\": [], \"page\": 4, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite"
+    ],
+    [
+      1768478401,
+      "00000000-0000-0000-0000-00000000f004",
+      "DwellTopic",
+      "JSON object",
+      "{\"version\": 2, \"dwell\": {\"id\": \"00000000-0000-0000-0000-000000000800\", \"algorithm\": \"CLPv1\", \"timestamp\": 790171900, \"eventType\": {\"start\": {}}, \"state\": {\"dwelling\": {}}, \"location\": {\"startTime\": 1768479000, \"endTime\": 1768479100, \"latitude\": 0.5, \"longitude\": -150.5, \"horizontalAccuracy\": 30.0}}, \"id\": \"00000000-0000-0000-0000-00000000F004\", \"timestamp\": 1768479100}",
+      "Committed WAL page version; Main-file view without WAL",
+      3,
+      "6f97b9ad299aa43f4d4811f04db4fac37c4c06cb584fbdfaaa34d9f76a78f054",
+      "[{\"cellOffset\": 622, \"commitFrame\": 0, \"fileOffset\": 1646, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 622, \"commitFrame\": 1, \"fileOffset\": 678, \"frame\": 1, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 622, \"commitFrame\": 5, \"fileOffset\": 3822, \"frame\": 4, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite"
+    ],
+    [
+      1768478402,
+      "00000000-0000-0000-0000-00000000e001",
+      "FailedLocationTopic",
+      "JSON object",
+      "{\"id\": \"00000000-0000-0000-0000-00000000E001\", \"location\": {\"timestamp\": 790171260, \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.5}, \"altitude\": 10.5, \"horizontalAccuracy\": 5.0, \"verticalAccuracy\": 3.0, \"speed\": 1.5, \"course\": 90.0, \"speedAccuracy\": -1, \"courseAccuracy\": -1, \"lmode\": {\"serverTag\": {\"_0\": \"undefined\"}}, \"sampleOrigin\": {\"locationEngine\": {}}, \"sourceInformation\": {\"isSimulatedBySoftware\": false, \"isProducedByAccessory\": false}}, \"batteryState\": {\"level\": 75, \"state\": \"unknown\"}}",
+      "Committed WAL page version",
+      1,
+      "b45f331991a026346f592ff4276627aa4ba88cb1cf8c7db4a2a1ce7ef760d8db",
+      "[{\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 3689, \"frame\": 4, \"overflow\": [], \"page\": 5, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
+    ],
+    [
+      1768478401,
+      "00000000-0000-0000-0000-00000000e000",
+      "FailedLocationTopic",
+      "JSON object",
+      "{\"id\": \"00000000-0000-0000-0000-00000000E000\", \"location\": {\"timestamp\": 790171200, \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.5}, \"altitude\": 10.5, \"horizontalAccuracy\": 5.0, \"verticalAccuracy\": 3.0, \"speed\": 1.5, \"course\": 90.0, \"speedAccuracy\": -1, \"courseAccuracy\": -1, \"lmode\": {\"serverTag\": {\"_0\": \"undefined\"}}, \"sampleOrigin\": {\"locationEngine\": {}}, \"sourceInformation\": {\"isSimulatedBySoftware\": false, \"isProducedByAccessory\": false}}, \"batteryState\": {\"level\": 75, \"state\": \"unknown\"}}",
+      "Committed WAL page version; Main-file view without WAL",
+      2,
+      "e56b0f2979bb50ddd2030c5ec9ae498fbfcf2bc71d651e1bff59f895b8505c09",
+      "[{\"cellOffset\": 489, \"commitFrame\": 0, \"fileOffset\": 1513, \"frame\": 0, \"overflow\": [], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite\", \"state\": \"Main-file view without WAL\"}, {\"cellOffset\": 489, \"commitFrame\": 4, \"fileOffset\": 2641, \"frame\": 3, \"overflow\": [], \"page\": 4, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
+    ],
+    [
+      1768478401,
+      "00000000-0000-0000-0000-00000000d000",
+      "drive_session",
+      "JSON object",
+      "{\"version\": 4, \"payloadVersion\": 1, \"sequenceNumber\": 1, \"userId\": \"00000000-0000-0000-0000-00000000a001\", \"sessionID\": \"00000000-0000-0000-0000-000000000501\", \"thirdPartyID\": \"20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\", \"startTime\": 790171300, \"drive\": {\"id\": \"00000000-0000-0000-0000-000000000890\", \"tripID\": \"20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\", \"timestamp\": 790171200, \"eventType\": {\"stop\": {}}, \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.49}, \"waypoints\": [{\"timestamp\": 1768478400, \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.5}, \"speed\": 0, \"course\": 90, \"horizontalAccuracy\": 5, \"unknownPoint\": \"retained\"}], \"drivingIncidents\": [{\"timestamp\": 1768478401, \"type\": \"synthetic\", \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.5}, \"unknownIncident\": \"retained\"}], \"distance\": 1234.5, \"averageSpeed\": 12.5, \"topSpeed\": 22.0, \"score\": 80, \"completionState\": \"complete\", \"driveType\": 2, \"sdkVendor\": \"synthetic\", \"sdkVersion\": \"1.0\"}, \"movementPOIData\": {\"startPoiDisplayable\": {\"scoring\": \"distanceSigmoid\", \"pois\": [{\"source\": \"rgc\", \"streetAddress\": \"1 Example Way\", \"city\": \"Nowhere\", \"region\": \"ZZ\", \"countryCode\": \"XX\"}]}}, \"id\": \"00000000-0000-0000-0000-00000000D000\", \"padding\": \"\"}",
+      "Main-file view without WAL",
+      1,
+      "74df7c060055aab599613264e03742d0262a363b85f7180d276a14d902bba01f",
+      "[{\"cellOffset\": 796, \"commitFrame\": 0, \"fileOffset\": 1820, \"frame\": 0, \"overflow\": [{\"frame\": 0, \"page\": 4}], \"page\": 2, \"rowID\": 1, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite\", \"state\": \"Main-file view without WAL\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite"
+    ],
+    [
+      1768478402,
+      "00000000-0000-0000-0000-00000000d001",
+      "drive_session",
+      "JSON object",
+      "{\"version\": 4, \"payloadVersion\": 1, \"sequenceNumber\": 1, \"userId\": \"00000000-0000-0000-0000-00000000a001\", \"sessionID\": \"00000000-0000-0000-0000-000000000501\", \"thirdPartyID\": \"20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\", \"startTime\": 790171300, \"drive\": {\"id\": \"00000000-0000-0000-0000-0000000008CC\", \"tripID\": \"20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\", \"timestamp\": 790171260, \"eventType\": {\"stop\": {}}, \"coordinate\": {\"latitude\": 0.5, \"longitude\": -150.49}, \"waypoints\": [{\"timestamp\": 1768478460, \"coordinate\": {\"latitude\": 0.51, \"longitude\": -150.5}, \"speed\": 0, \"course\": 90, \"horizontalAccuracy\": 5, \"unknownPoint\": \"retained\"}], \"drivingIncidents\": [{\"timestamp\": 1768478461, \"type\": \"synthetic\", \"coordinate\": {\"latitude\": 0.51, \"longitude\": -150.5}, \"unknownIncident\": \"retained\"}], \"distance\": 1234.5, \"averageSpeed\": 12.5, \"topSpeed\": 22.0, \"score\": 80, \"completionState\": \"complete\", \"driveType\": 2, \"sdkVendor\": \"synthetic\", \"sdkVersion\": \"1.0\"}, \"movementPOIData\": {\"startPoiDisplayable\": {\"scoring\": \"distanceSigmoid\", \"pois\": [{\"source\": \"rgc\", \"streetAddress\": \"1 Example Way\", \"city\": \"Nowhere\", \"region\": \"ZZ\", \"countryCode\": \"XX\"}]}}, \"id\": \"00000000-0000-0000-0000-00000000D001\", \"padding\": \"overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-overflow-control-\"}",
+      "Committed WAL page version",
+      2,
+      "db57e6f3641ddd43b4062a579a40f721ab5d41823fdef1658cee58f883b7848b",
+      "[{\"cellOffset\": 226, \"commitFrame\": 6, \"fileOffset\": 1330, \"frame\": 2, \"overflow\": [{\"frame\": 3, \"page\": 5}, {\"frame\": 4, \"page\": 6}, {\"frame\": 5, \"page\": 7}, {\"frame\": 6, \"page\": 8}], \"page\": 2, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite-wal\", \"state\": \"Committed WAL page version\"}, {\"cellOffset\": 226, \"commitFrame\": 11, \"fileOffset\": 9714, \"frame\": 10, \"overflow\": [{\"frame\": 3, \"page\": 5}, {\"frame\": 4, \"page\": 6}, {\"frame\": 5, \"page\": 7}, {\"frame\": 6, \"page\": 8}], \"page\": 10, \"rowID\": 2, \"rowRevision\": 1, \"sourceFile\": \"private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite-wal\", \"state\": \"Committed WAL page version\"}]",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite"
+    ]
+  ]
+}

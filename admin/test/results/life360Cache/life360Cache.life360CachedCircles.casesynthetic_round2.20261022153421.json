@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "module_name": "life360Cache",
+    "artifact_name": "Life360 - Cached Circles",
+    "function_name": "life360CachedCircles",
+    "case_number": "casesynthetic_round2",
+    "number_of_columns": 9,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 485,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Cache/testdata.life360Cache.life360CachedCircles.casesynthetic_round2.zip",
+    "start_time": "2026-10-22T15:34:21.502718+00:00",
+    "end_time": "2026-10-22T15:34:21.519066+00:00",
+    "run_time_seconds": 0.0012521743774414062,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-22T15:34:21.515098",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Created",
+    "Cached Time",
+    "Cache Entry ID",
+    "Circle ID",
+    "Name",
+    "Request Path",
+    "Record JSON",
+    "Source File",
+    "Body Source File"
+  ],
+  "data": [
+    [
+      1768478400,
+      1768482000,
+      4,
+      "00000000-0000-0000-0000-00000000a00a",
+      "Synthetic Circle",
+      "api-cloudfront.life360.com/v4/circles",
+      "{\"createdAt\": \"1768478400\", \"id\": \"00000000-0000-0000-0000-00000000a00a\", \"name\": \"Synthetic Circle\"}",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Caches/com.life360.safetymap/Cache.db",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Caches/com.life360.safetymap/fsCachedData/synthetic-4"
+    ]
+  ]
+}
