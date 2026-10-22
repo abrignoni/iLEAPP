@@ -2,7 +2,9 @@ __artifacts_v2__ = {
     'life360CrashDetection': {
         'name': 'Life360 - Crash Detection Diagnostics',
         'description': 'Crash/collision detections, detector intervals, collision data-exchange metadata and '
-                       'accelerometer-anomaly diagnostics Life360 wrote to its internal logs.',
+                       'accelerometer-anomaly diagnostics Life360 wrote to its internal logs. '
+                       'Speed is as stored: metres per second for the examined SDK 3.11.16 collision '
+                       'producer; other versions are unverified.',
         'author': '@CyberMike81, OpenAI Codex',
         'creation_date': '2026-10-21',
         'last_update_date': '2026-10-21',
@@ -46,7 +48,9 @@ __artifacts_v2__ = {
                  'SDK 3.11.16 and fabricated fixtures; other layouts '
                  'and producer versions may differ. Unrecognised crash/collision messages from '
                  'DriverBehavior retain their raw record with a log entry. Unreadable files are logged '
-                 'and other files continue. Other DriverBehavior telemetry, saved sensor files, upload '
+                 'and other files continue. Partial detector-detail records retain their available '
+                 'fields and raw text, with missing expected labels logged. Other DriverBehavior '
+                 'telemetry, saved sensor files, upload '
                  'queues, Cache.db API responses, and historical main-database/WAL recovery are outside '
                  'this artifact. The database Driving Incidents and Driver Reports artifacts read '
                  'different sources and are not treated as equivalent observations.',
@@ -95,8 +99,8 @@ def _kind(component, message):
     for label, pattern in _KINDS:
         if pattern.search(message):
             return label
-    if 'DvBArity' in component and all(key in message for key in
-                                      ('Confidence:', 'startTimestamp:', 'endTimestamp:', 'location:')):
+    if 'DvBArity' in component and any(re.search(r'\b' + field + r':', message) for field in
+                                      ('Confidence', 'startTimestamp', 'endTimestamp')):
         return 'Detector details'
     if re.search(r'\b(?:crash|collision)\b', message, re.IGNORECASE):
         return 'Other crash/collision diagnostic'
@@ -184,6 +188,11 @@ def _row(raw, start, end, relative):
         latitude, longitude = _coordinates(message, 'Location', True, where)
         accuracy, speed = _token(message, 'Accuracy'), _token(message, 'Speed')
     elif kind == 'Detector details':
+        missing = [field for field in ('Confidence', 'startTimestamp', 'endTimestamp', 'location')
+                   if not re.search(r'\b' + field + r':', message)]
+        if missing:
+            logfunc(f'Life360 detector detail fields absent at {where}: {", ".join(missing)}; '
+                    'available fields and raw record retained')
         begin, finish = (_field_time(message, field, where) for field in ('startTimestamp', 'endTimestamp'))
         confidence = _token(message, 'Confidence')
         latitude, longitude = _coordinates(message, 'location', False, where)

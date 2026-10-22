@@ -137,6 +137,20 @@ class DriverBehaviorTests(unittest.TestCase):
         self.assertEqual(crash['Speed (as stored)'], '11.176')
         self.assertTrue(any('location could not be decoded' in call.args[0] for call in log.call_args_list))
 
+    def test_partial_detector_details_are_retained_with_visible_missing_field_diagnostics(self):
+        original = self.main.read_text()
+        for field in ('Confidence', 'startTimestamp', 'endTimestamp', 'location'):
+            with self.subTest(field=field):
+                text = original.replace(field + ':', 'unknown' + field + ':')
+                self.main.write_text(text)
+                with patch.object(diagnostics, 'logfunc') as log:
+                    rows, _ = _run(_Context(self.root))
+                self.assertEqual(len(rows), 9)
+                details = next(row for row in rows if row['Record Kind'] == 'Detector details')
+                self.assertIn('unknown' + field + ':', details['Raw Log Record'])
+                self.assertTrue(any('detail fields absent' in call.args[0] and field in call.args[0]
+                                    for call in log.call_args_list))
+
     def test_copies_and_distinct_containers_survive_duplicate_views_collapse(self):
         initial, _ = _run(_Context(self.root))
         build_logs(self.root / 'two')
