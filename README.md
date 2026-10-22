@@ -24,6 +24,9 @@ Download a pre-built release — no Python installation required.
 
 Each download holds one program, `ileapp`. `SHA256SUMS.txt` in each release lets you check a download.
 
+**Linux compatibility:** The official AppImages are built on Ubuntu 22.04 and need glibc 2.35 or
+newer.
+
 **GUI** — open iLEAPP the usual way: by double-clicking `ileapp.exe` from the zip on
 Windows, iLEAPP in Applications on macOS, or the AppImage on Linux. Started without arguments, it opens the window; select your input
 type, source path, output folder, and modules to process.
@@ -287,6 +290,9 @@ python packaging/build.py installer    # Windows: Inno Setup installer; macOS: .
 instead. The Windows installer needs [Inno Setup](https://jrsoftware.org/isdl.php); on
 Linux, `smoke` needs a display, which `xvfb-run` provides. `python packaging/build.py --help`
 has the rest.
+
+A Linux build needs the glibc of the machine that built it, or newer. A build made on a newer
+distribution will not start on older ones; build on Ubuntu 22.04 to match the release builds.
 
 ## Code signing policy
 
