@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "module_name": "life360Awareness",
+    "artifact_name": "Life360 - Failed Location Reports",
+    "function_name": "life360FailedLocations",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 18,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 344,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Awareness/testdata.life360Awareness.life360FailedLocations.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T20:23:49.832781+00:00",
+    "end_time": "2026-10-21T20:23:49.845218+00:00",
+    "run_time_seconds": 0.0006079673767089844,
+    "last_commit": {
+      "hash": "027b1863890c12f5576b7f5db92305678e569fa2",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-21T19:47:17+00:00",
+      "message": "chore(life360): record sample_data for the private iOS 18.6 extraction"
+    }
+  },
+  "headers": [
+    "Location Time",
+    "Logged Time",
+    "Entry ID",
+    "Latitude",
+    "Longitude",
+    "Altitude",
+    "Speed",
+    "Course",
+    "Horizontal Accuracy",
+    "Vertical Accuracy",
+    "Server Tag (as stored)",
+    "Battery Level (as stored)",
+    "Battery State (as stored)",
+    "Wi-Fi Enabled",
+    "SSID",
+    "BSSID",
+    "Drive Detection Status (as stored)",
+    "Source File"
+  ],
+  "data": [
+    [
+      1768478419,
+      1768478420,
+      "00000000-0000-0000-0000-000000009001",
+      0.5,
+      -150.5,
+      10.5,
+      1.5,
+      90.0,
+      5.0,
+      3.0,
+      "drive",
+      -100,
+      "unknown",
+      "No",
+      "",
+      "",
+      "OFF",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
+    ]
+  ]
+}
