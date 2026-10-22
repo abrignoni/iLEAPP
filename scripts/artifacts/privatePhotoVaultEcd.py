@@ -149,6 +149,7 @@ import plistlib
 import re
 import sqlite3
 from datetime import datetime, timezone
+from xml.parsers.expat import ExpatError
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
 
@@ -212,7 +213,7 @@ def _app_containers(context):
         try:
             with open(path, 'rb') as handle:
                 metadata = plistlib.load(handle)
-        except (OSError, ValueError, TypeError, OverflowError, plistlib.InvalidFileException):
+        except (OSError, ValueError, TypeError, OverflowError, plistlib.InvalidFileException, ExpatError):
             logfunc(f'Private Photo Vault: unreadable container metadata; file={path}')
             continue
         if isinstance(metadata, dict) and metadata.get('MCMMetadataIdentifier') == BUNDLE_ID:

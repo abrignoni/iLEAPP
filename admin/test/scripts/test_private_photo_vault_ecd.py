@@ -316,3 +316,17 @@ class AuditRegressionTests(unittest.TestCase):
             for divisor in (1, 1000):
                 with self.subTest(value_type=type(value).__name__, divisor=divisor):
                     self.assertEqual(parser._seconds(value, divisor), '')  # pylint: disable=protected-access
+
+
+class ContainerMetadataTests(unittest.TestCase):
+    def test_malformed_metadata_does_not_hide_explicitly_identified_events(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            path = analytics(root, [{'event': 'good', 'properties': {
+                'bundleId': parser.BUNDLE_ID, 'time': 1700000000}}])
+            marker = path.parent.parent/'.com.apple.mobile_container_manager.metadata.plist'
+            marker.write_bytes(b'<?xml version="1.0"?><plist><dict>')
+            with patch.object(parser, 'logfunc') as log:
+                rows = run(root, 'ppv_activity_events')
+            self.assertEqual(len(rows), 1)
+            self.assertTrue(any(str(marker) in c.args[0] for c in log.call_args_list))
