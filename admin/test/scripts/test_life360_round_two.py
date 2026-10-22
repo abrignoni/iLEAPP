@@ -277,6 +277,55 @@ class RoundTwoTests(unittest.TestCase):
             self.assertEqual(rows, [])
         self.assertTrue(any('entity identity' in m for m in self.logs))
 
+    def test_checkpointed_target_leaf_outside_later_btree_is_recovered_and_labeled(self):
+        path = self.root / 'unreachable-target.sqlite'
+        connection = sqlite3.connect(path)
+        connection.execute('PRAGMA page_size=1024')
+        connection.execute('PRAGMA journal_mode=WAL')
+        connection.execute('PRAGMA wal_autocheckpoint=0')
+        for table in ('ZENTRY', 'ZOTHER'):
+            connection.execute(f'CREATE TABLE {table}(Z_PK INTEGER PRIMARY KEY,Z_ENT INTEGER,'
+                               'Z_OPT INTEGER,ZTIMESTAMP FLOAT,ZID BLOB,ZDATA BLOB)')
+        connection.executescript('CREATE TABLE Z_PRIMARYKEY(Z_ENT INTEGER PRIMARY KEY,Z_NAME TEXT);'
+                                 "INSERT INTO Z_PRIMARYKEY VALUES(1,'Entry'),(2,'Other');")
+        connection.executemany('INSERT INTO ZENTRY VALUES(?,1,1,1,NULL,?)',
+                               [(i, ('original-' + str(i)).encode().ljust(300, b'x')) for i in range(1, 31)])
+        connection.commit()
+        connection.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        edited = b'edited-30'.ljust(300, b'y')
+        connection.execute('UPDATE ZENTRY SET ZDATA=? WHERE Z_PK=30', (edited,))
+        connection.commit()
+        connection.execute('DELETE FROM ZENTRY WHERE Z_PK>=25')
+        connection.commit()
+        connection.executemany('INSERT INTO ZOTHER VALUES(?,2,1,2,NULL,?)',
+                               [(i, b'foreign'.ljust(300, b'z')) for i in range(1, 7)])
+        connection.commit()
+        connection.execute('PRAGMA wal_checkpoint(PASSIVE)')
+        snapshot = {suffix: Path(str(path) + suffix).read_bytes() for suffix in ('', '-wal', '-shm')}
+        connection.close()
+        for suffix, content in snapshot.items():
+            Path(str(path) + suffix).write_bytes(content)
+        rows = list(recovery.recover_rows(path, 'ZENTRY', 'synthetic-unreachable'))
+        self.assertTrue(any(row['values']['ZDATA'] == edited for row in rows))
+        self.assertTrue(any(row['values']['ZDATA'].startswith(b'original-29') for row in rows))
+        self.assertTrue(all(row['values']['Z_ENT'] == 1 for row in rows))
+        self.assertTrue(any('outside inferred btree' in row['source']['state'] for row in rows))
+        self.assertTrue(any('outside inferred btree' in message for message in self.logs))
+
+    def test_unassignable_btree_does_not_suppress_valid_target_leaf_versions(self):
+        with patch.object(recovery, '_leaves', side_effect=ValueError('synthetic btree failure')):
+            rows = list(recovery.recover_rows(self.topic, 'ZENTRY', 'synthetic-btree-failure'))
+        self.assertTrue(any(json.loads(row['values']['ZDATA'])['id'] == base.uid(0xD001) for row in rows))
+        self.assertTrue(all('btree assignment unavailable' in row['source']['state'] for row in rows))
+
+    def test_missing_entity_table_is_logged_as_missing_entity_metadata(self):
+        path = self.root / 'missing-entity-table.sqlite'
+        fixture._history(path, [{'id': base.uid(i)} for i in range(3)])
+        with sqlite3.connect(path) as connection:
+            connection.execute('DROP TABLE Z_PRIMARYKEY')
+        self.assertEqual(list(recovery.recover_rows(path, 'ZENTRY', 'synthetic-missing-mapping')), [])
+        self.assertTrue(any('Z_PRIMARYKEY missing' in message for message in self.logs))
+
     def test_nested_parent_states_are_a_union_not_joined_strings(self):
         documents = list(recovered._documents(Context(self.root,
                          recovered.__artifacts_v2__['life360RecoveredTopics']['paths'])))
@@ -304,6 +353,27 @@ class RoundTwoTests(unittest.TestCase):
                 self.assertIn('TSV/LAVA export', html_row[column])
                 self.assertEqual(row[:column] + row[column + 1:], html_row[:column] + html_row[column + 1:])
 
+    def test_export_row_key_distinguishes_same_time_same_ids_with_conflicting_items(self):
+        for name, field in (('life360RecoveredWaypoints', 'waypoints'),
+                            ('life360RecoveredIncidents', 'drivingIncidents')):
+            documents = list(recovered._documents(Context(self.root,
+                             recovered.__artifacts_v2__['life360RecoveredTopics']['paths'])))
+            parents = [r for r in documents if r['topic'] == 'drive_session']
+            item = parents[0]['document']['drive'][field][0]
+            for index, parent in enumerate(parents):
+                parent['entry_id'] = base.uid(0xD000)
+                parent['document']['drive'][field] = [dict(item, unknownQuality=index)]
+            with patch.object(recovered, '_documents', return_value=iter(parents)):
+                headers, (rows, html_rows), _ = inspect.unwrap(getattr(recovered, name))(
+                    Context(self.root, recovered.__artifacts_v2__[name]['paths']))
+            key_column = headers.index('Row Key')
+            provenance_column = headers.index('Parent Records JSON')
+            self.assertEqual(len(rows), 2)
+            self.assertEqual(len({row[key_column] for row in rows}), 2)
+            self.assertEqual(rows[0][0], rows[1][0])
+            for row, html_row in zip(rows, html_rows):
+                self.assertIn(row[key_column], html_row[provenance_column])
+
     def test_missing_breach_event_timestamp_does_not_inherit_logged_time(self):
         documents = list(recovered._documents(Context(self.root,
                          recovered.__artifacts_v2__['life360RecoveredTopics']['paths'])))
@@ -316,6 +386,18 @@ class RoundTwoTests(unittest.TestCase):
         self.assertTrue(rows)
         self.assertTrue(all(row['Event Time'] == '' and row['Logged Time'] for row in rows))
         self.assertTrue(any('missing breach timestamp' in m for m in self.logs))
+
+    def test_null_breach_timestamp_is_logged_without_inheriting_logged_time(self):
+        documents = list(recovered._documents(Context(self.root,
+                         recovered.__artifacts_v2__['life360RecoveredTopics']['paths'])))
+        breaches = [r for r in documents if r['topic'] == 'BreachTopic']
+        for record in breaches:
+            record['document']['timestamp'] = None
+        with patch.object(recovered, '_documents', return_value=iter(breaches)):
+            rows, _ = run(recovered, 'life360RecoveredBreaches', self.root)
+        self.assertTrue(rows)
+        self.assertTrue(all(row['Event Time'] == '' and row['Logged Time'] for row in rows))
+        self.assertTrue(any('missing breach timestamp' in message for message in self.logs))
 
     def test_repeated_structural_failure_logs_once_per_run_but_again_next_run(self):
         context = Context(self.root, cache.__artifacts_v2__['life360CacheResponses']['paths'])

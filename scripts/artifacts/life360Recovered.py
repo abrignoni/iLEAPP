@@ -8,25 +8,31 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                             'category': 'Life360',
                             'notes': 'Logged Time is ZTIMESTAMP (Unix seconds). Payload retains the stored '
                                      'ZDATA text; invalid UTF-8 is shown as hex with a diagnostic. Covers '
-                                     'the same eleven topic families as the current awareness parsers; other '
-                                     'topics are excluded. Exact current record contents are excluded, '
-                                     'ignoring Core Data bookkeeping columns. Identical recovered content is '
-                                     'grouped per database, retaining all page/cell/frame appearances. '
-                                     'Source States distinguish the main-file view without WAL from '
-                                     'checksum-valid page versions ending in a committed WAL transaction. '
-                                     'Main-file pages may reflect checkpoint state; these are recovered '
-                                     'records, not a guaranteed consistent historical database snapshot. WAL '
-                                     'overflow uses only available preceding WAL page versions, never '
-                                     'main-file bytes. Freeblocks, freelists, old-salt frames, incomplete '
-                                     'transactions and unsupported/incomplete cells are not carved; failures '
-                                     'and exclusions are logged. Overwriting or absence from the live view '
-                                     'does not establish user deletion. Times render in UTC. Tested on '
-                                     'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Payload Format '
-                                     'held one value, JSON object, in both tested inputs. Source File and '
-                                     'Store identify one database per store in the single-container tests; '
-                                     'Source File is retained to distinguish containers/copies. Complete '
-                                     'payloads above 32 MiB are excluded with a diagnostic.'
-                                     ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                                     'the same eleven topic families as the current awareness parsers; '
+                                     'other topics are excluded. Exact current record contents are '
+                                     'excluded, ignoring Core Data bookkeeping columns. Identical recovered'
+                                     ' content is grouped per database, retaining decoded page/cell/frame '
+                                     'appearances. Source States distinguish the main-file view without WAL'
+                                     ' from checksum-valid page versions ending in a committed WAL '
+                                     'transaction. Main-file pages may reflect checkpoint state; these are '
+                                     'recovered records, not a guaranteed consistent historical database '
+                                     'snapshot. WAL overflow uses only available preceding WAL page '
+                                     'versions, never main-file bytes. Freeblocks, freelists, old-salt '
+                                     'frames, incomplete transactions and unsupported/incomplete cells are '
+                                     'not carved; failures and exclusions are logged. Overwriting or '
+                                     'absence from the live view does not establish user deletion. Times '
+                                     'render in UTC. Tested on Life360 26.34.0.5 / iOS 18.6; other schemas '
+                                     'may differ. Payload Format held one value, JSON object, in both '
+                                     'tested inputs. Source File and Store identify one database per store '
+                                     'in the single-container tests; Source File is retained to distinguish'
+                                     ' containers/copies. Complete payloads above 32 MiB are excluded with '
+                                     'a diagnostic. Z_ENT must match the current Z_PRIMARYKEY entity ID; '
+                                     'missing mappings suppress recovery. Committed WAL leaf cells outside '
+                                     'the inferred btree, or when assignment fails, pass the same '
+                                     'shape/entity checks and have distinct Source States and diagnostics. '
+                                     'Earlier traversal can depend on later checkpointed main-file pages; '
+                                     'these checks do not prove historical page ownership or reconstruct '
+                                     'historical schemas.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/Library/Application Support/DriveModelStore.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -41,26 +47,32 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                'requirements': 'none',
                                'category': 'Life360',
                                'notes': 'Location Time is the location timestamp (Cocoa seconds); Logged '
-                                        'Time is the parent ZTIMESTAMP (Unix seconds). Buffered samples are '
-                                        'used when present, otherwise the headline location. Values and '
+                                        'Time is the parent ZTIMESTAMP (Unix seconds). Buffered samples are'
+                                        ' used when present, otherwise the headline location. Values and '
                                         'units are as stored. A point can also occur in a different live '
-                                        'parent record. Exact current record contents are excluded, ignoring '
-                                        'Core Data bookkeeping columns. Identical recovered content is '
-                                        'grouped per database, retaining all page/cell/frame appearances. '
-                                        'Source States distinguish the main-file view without WAL from '
-                                        'checksum-valid page versions ending in a committed WAL transaction. '
-                                        'Main-file pages may reflect checkpoint state; these are recovered '
-                                        'records, not a guaranteed consistent historical database snapshot. '
-                                        'WAL overflow uses only available preceding WAL page versions, never '
-                                        'main-file bytes. Freeblocks, freelists, old-salt frames, incomplete '
-                                        'transactions and unsupported/incomplete cells are not carved; '
-                                        'failures and exclusions are logged. Overwriting or absence from the '
-                                        'live view does not establish user deletion. Times render in UTC. '
-                                        'Tested on Life360 26.34.0.5 / iOS 18.6; other schemas may differ. '
-                                        'Store and Sample Index were uniform in the tested extraction '
-                                        'because every recovered location came from a single headline '
-                                        'location in FailedLocationTopic.'
-                                        ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                                        'parent record. Exact current record contents are excluded, '
+                                        'ignoring Core Data bookkeeping columns. Identical recovered '
+                                        'content is grouped per database, retaining decoded page/cell/frame'
+                                        ' appearances. Source States distinguish the main-file view without'
+                                        ' WAL from checksum-valid page versions ending in a committed WAL '
+                                        'transaction. Main-file pages may reflect checkpoint state; these '
+                                        'are recovered records, not a guaranteed consistent historical '
+                                        'database snapshot. WAL overflow uses only available preceding WAL '
+                                        'page versions, never main-file bytes. Freeblocks, freelists, '
+                                        'old-salt frames, incomplete transactions and '
+                                        'unsupported/incomplete cells are not carved; failures and '
+                                        'exclusions are logged. Overwriting or absence from the live view '
+                                        'does not establish user deletion. Times render in UTC. Tested on '
+                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Store and '
+                                        'Sample Index were uniform in the tested extraction because every '
+                                        'recovered location came from a single headline location in '
+                                        'FailedLocationTopic. Z_ENT must match the current Z_PRIMARYKEY '
+                                        'entity ID; missing mappings suppress recovery. Committed WAL leaf '
+                                        'cells outside the inferred btree, or when assignment fails, pass '
+                                        'the same shape/entity checks and have distinct Source States and '
+                                        'diagnostics. Earlier traversal can depend on later checkpointed '
+                                        'main-file pages; these checks do not prove historical page '
+                                        'ownership or reconstruct historical schemas.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -76,25 +88,30 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                               'category': 'Life360',
                               'notes': 'Drive/trip Event Time, Start Time and End Time are Cocoa seconds; '
                                        'cancellation Event Time and parent Logged Time are Unix seconds. '
-                                       'Event labels and numeric fields are as stored. No sensor payload or '
-                                       'physical crash conclusion is inferred. Exact current record contents '
-                                       'are excluded, ignoring Core Data bookkeeping columns. Identical '
-                                       'recovered content is grouped per database, retaining all '
-                                       'page/cell/frame appearances. Source States distinguish the main-file '
-                                       'view without WAL from checksum-valid page versions ending in a '
-                                       'committed WAL transaction. Main-file pages may reflect checkpoint '
-                                       'state; these are recovered records, not a guaranteed consistent '
-                                       'historical database snapshot. WAL overflow uses only available '
-                                       'preceding WAL page versions, never main-file bytes. Freeblocks, '
-                                       'freelists, old-salt frames, incomplete transactions and '
-                                       'unsupported/incomplete cells are not carved; failures and exclusions '
-                                       'are logged. Overwriting or absence from the live view does not '
-                                       'establish user deletion. Times render in UTC. Tested on Life360 '
-                                       '26.34.0.5 / iOS 18.6; other schemas may differ. End Time is empty in '
-                                       'the synthetic drive-only case. Source File identifies the '
-                                       'originating database even when recovery provenance also identifies '
-                                       'that file.'
-                                       ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                                       'Event labels and numeric fields are as stored. No sensor payload or'
+                                       ' physical crash conclusion is inferred. Exact current record '
+                                       'contents are excluded, ignoring Core Data bookkeeping columns. '
+                                       'Identical recovered content is grouped per database, retaining '
+                                       'decoded page/cell/frame appearances. Source States distinguish the '
+                                       'main-file view without WAL from checksum-valid page versions ending'
+                                       ' in a committed WAL transaction. Main-file pages may reflect '
+                                       'checkpoint state; these are recovered records, not a guaranteed '
+                                       'consistent historical database snapshot. WAL overflow uses only '
+                                       'available preceding WAL page versions, never main-file bytes. '
+                                       'Freeblocks, freelists, old-salt frames, incomplete transactions and'
+                                       ' unsupported/incomplete cells are not carved; failures and '
+                                       'exclusions are logged. Overwriting or absence from the live view '
+                                       'does not establish user deletion. Times render in UTC. Tested on '
+                                       'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. End Time is'
+                                       ' empty in the synthetic drive-only case. Source File identifies the'
+                                       ' originating database even when recovery provenance also identifies'
+                                       ' that file. Z_ENT must match the current Z_PRIMARYKEY entity ID; '
+                                       'missing mappings suppress recovery. Committed WAL leaf cells '
+                                       'outside the inferred btree, or when assignment fails, pass the same'
+                                       ' shape/entity checks and have distinct Source States and '
+                                       'diagnostics. Earlier traversal can depend on later checkpointed '
+                                       'main-file pages; these checks do not prove historical page '
+                                       'ownership or reconstruct historical schemas.',
                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                         '*/Library/Application Support/DriveModelStore.sqlite*',
                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -109,25 +126,34 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                'last_update_date': '2026-10-22',
                                'requirements': 'none',
                                'category': 'Life360',
-                               'notes': 'Waypoint Time is Unix seconds for drive waypoints and Cocoa seconds '
-                                        'for trip route points. Complete objects are grouped within a '
-                                        'container and trip/session; conflicting payloads stay separate. '
-                                        'Parent references retain enclosing records and recovery provenance. '
-                                        'A point can also occur in another live parent record. Exact current '
-                                        'record contents are excluded, ignoring Core Data bookkeeping '
-                                        'columns. Identical recovered content is grouped per database, '
-                                        'retaining all page/cell/frame appearances. Source States '
-                                        'distinguish the main-file view without WAL from checksum-valid page '
-                                        'versions ending in a committed WAL transaction. Main-file pages may '
-                                        'reflect checkpoint state; these are recovered records, not a '
-                                        'guaranteed consistent historical database snapshot. WAL overflow '
-                                        'uses only available preceding WAL page versions, never main-file '
-                                        'bytes. Freeblocks, freelists, old-salt frames, incomplete '
-                                        'transactions and unsupported/incomplete cells are not carved; '
-                                        'failures and exclusions are logged. Overwriting or absence from the '
-                                        'live view does not establish user deletion. Times render in UTC. '
-                                        'Tested on Life360 26.34.0.5 / iOS 18.6; other schemas may differ.'
-                                        ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                               'notes': 'Waypoint Time is Unix seconds for drive waypoints and Cocoa '
+                                        'seconds for trip route points. Complete objects are grouped within'
+                                        ' a container and trip/session; conflicting payloads stay separate.'
+                                        ' Parent references retain enclosing records and recovery '
+                                        'provenance. A point can also occur in another live parent record. '
+                                        'Exact current record contents are excluded, ignoring Core Data '
+                                        'bookkeeping columns. Identical recovered content is grouped per '
+                                        'database, retaining decoded page/cell/frame appearances. Source '
+                                        'States distinguish the main-file view without WAL from '
+                                        'checksum-valid page versions ending in a committed WAL '
+                                        'transaction. Main-file pages may reflect checkpoint state; these '
+                                        'are recovered records, not a guaranteed consistent historical '
+                                        'database snapshot. WAL overflow uses only available preceding WAL '
+                                        'page versions, never main-file bytes. Freeblocks, freelists, '
+                                        'old-salt frames, incomplete transactions and '
+                                        'unsupported/incomplete cells are not carved; failures and '
+                                        'exclusions are logged. Overwriting or absence from the live view '
+                                        'does not establish user deletion. Times render in UTC. Tested on '
+                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Z_ENT must'
+                                        ' match the current Z_PRIMARYKEY entity ID; missing mappings '
+                                        'suppress recovery. Committed WAL leaf cells outside the inferred '
+                                        'btree, or when assignment fails, pass the same shape/entity checks'
+                                        ' and have distinct Source States and diagnostics. Earlier '
+                                        'traversal can depend on later checkpointed main-file pages; these '
+                                        'checks do not prove historical page ownership or reconstruct '
+                                        'historical schemas. Row Key is a SHA-256 digest of the grouped '
+                                        'item and parent-version references for matching this report across'
+                                        ' exports; it is not a stored app identifier.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -144,25 +170,34 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                                'category': 'Life360',
                                'notes': 'Incident Time is the incident timestamp (Unix seconds). Complete '
                                         'objects are grouped within a container/trip; conflicting payloads '
-                                        'stay separate. Labels are as stored. These are stored app incident '
-                                        'objects, not independent evidence of a physical crash. An incident '
-                                        'can also occur in another live parent record. Exact current record '
-                                        'contents are excluded, ignoring Core Data bookkeeping columns. '
-                                        'Identical recovered content is grouped per database, retaining all '
-                                        'page/cell/frame appearances. Source States distinguish the '
-                                        'main-file view without WAL from checksum-valid page versions ending '
-                                        'in a committed WAL transaction. Main-file pages may reflect '
-                                        'checkpoint state; these are recovered records, not a guaranteed '
-                                        'consistent historical database snapshot. WAL overflow uses only '
-                                        'available preceding WAL page versions, never main-file bytes. '
-                                        'Freeblocks, freelists, old-salt frames, incomplete transactions and '
+                                        'stay separate. Labels are as stored. These are stored app incident'
+                                        ' objects, not independent evidence of a physical crash. An '
+                                        'incident can also occur in another live parent record. Exact '
+                                        'current record contents are excluded, ignoring Core Data '
+                                        'bookkeeping columns. Identical recovered content is grouped per '
+                                        'database, retaining decoded page/cell/frame appearances. Source '
+                                        'States distinguish the main-file view without WAL from '
+                                        'checksum-valid page versions ending in a committed WAL '
+                                        'transaction. Main-file pages may reflect checkpoint state; these '
+                                        'are recovered records, not a guaranteed consistent historical '
+                                        'database snapshot. WAL overflow uses only available preceding WAL '
+                                        'page versions, never main-file bytes. Freeblocks, freelists, '
+                                        'old-salt frames, incomplete transactions and '
                                         'unsupported/incomplete cells are not carved; failures and '
                                         'exclusions are logged. Overwriting or absence from the live view '
                                         'does not establish user deletion. Times render in UTC. Tested on '
-                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Parent Record '
-                                        'Count was uniform in the tested extraction; each grouped incident '
-                                        'had one recovered parent record.'
-                                        ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                                        'Life360 26.34.0.5 / iOS 18.6; other schemas may differ. Parent '
+                                        'Record Count was uniform in the tested extraction; each grouped '
+                                        'incident had one recovered parent record. Z_ENT must match the '
+                                        'current Z_PRIMARYKEY entity ID; missing mappings suppress '
+                                        'recovery. Committed WAL leaf cells outside the inferred btree, or '
+                                        'when assignment fails, pass the same shape/entity checks and have '
+                                        'distinct Source States and diagnostics. Earlier traversal can '
+                                        'depend on later checkpointed main-file pages; these checks do not '
+                                        'prove historical page ownership or reconstruct historical schemas.'
+                                        ' Row Key is a SHA-256 digest of the grouped item and '
+                                        'parent-version references for matching this report across exports;'
+                                        ' it is not a stored app identifier.',
                                'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                          '*/Library/Application Support/DriveModelStore.sqlite*',
                                          '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -177,27 +212,32 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                             'requirements': 'none',
                             'category': 'Life360',
                             'notes': 'Start Time, End Time, Created At, Updated At and Last Retrieved are '
-                                     'Cocoa seconds. Other numeric fields remain as stored; their units are '
-                                     'not independently established. Circle associations are not joined from '
-                                     'the current relationship table because that would mix source states. '
-                                     'Exact current record contents are excluded, ignoring Core Data '
-                                     'bookkeeping columns. Identical recovered content is grouped per '
-                                     'database, retaining all page/cell/frame appearances. Source States '
-                                     'distinguish the main-file view without WAL from checksum-valid page '
-                                     'versions ending in a committed WAL transaction. Main-file pages may '
-                                     'reflect checkpoint state; these are recovered records, not a '
-                                     'guaranteed consistent historical database snapshot. WAL overflow uses '
-                                     'only available preceding WAL page versions, never main-file bytes. '
+                                     'Cocoa seconds. Other numeric fields remain as stored; their units are'
+                                     ' not independently established. Circle associations are not joined '
+                                     'from the current relationship table because that would mix source '
+                                     'states. Exact current record contents are excluded, ignoring Core '
+                                     'Data bookkeeping columns. Identical recovered content is grouped per '
+                                     'database, retaining decoded page/cell/frame appearances. Source '
+                                     'States distinguish the main-file view without WAL from checksum-valid'
+                                     ' page versions ending in a committed WAL transaction. Main-file pages'
+                                     ' may reflect checkpoint state; these are recovered records, not a '
+                                     'guaranteed consistent historical database snapshot. WAL overflow uses'
+                                     ' only available preceding WAL page versions, never main-file bytes. '
                                      'Freeblocks, freelists, old-salt frames, incomplete transactions and '
                                      'unsupported/incomplete cells are not carved; failures and exclusions '
                                      'are logged. Overwriting or absence from the live view does not '
                                      'establish user deletion. Times render in UTC. Tested on Life360 '
-                                     '26.34.0.5 / iOS 18.6; other schemas may differ. Score, Speeding Count, '
-                                     'Drive Type, User Mode and User Tag were uniform in the tested '
-                                     'extraction; Rideshare Vendor was empty in real and fabricated inputs. '
-                                     'Created At and Updated At were identical in the tested extraction; '
-                                     'both are retained as separately stored fields.'
-                                     ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                                     '26.34.0.5 / iOS 18.6; other schemas may differ. Score, Speeding '
+                                     'Count, Drive Type, User Mode and User Tag were uniform in the tested '
+                                     'extraction; Rideshare Vendor was empty in real and fabricated inputs.'
+                                     ' Created At and Updated At were identical in the tested extraction; '
+                                     'both are retained as separately stored fields. Z_ENT must match the '
+                                     'current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. '
+                                     'Committed WAL leaf cells outside the inferred btree, or when '
+                                     'assignment fails, pass the same shape/entity checks and have distinct'
+                                     ' Source States and diagnostics. Earlier traversal can depend on later'
+                                     ' checkpointed main-file pages; these checks do not prove historical '
+                                     'page ownership or reconstruct historical schemas.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/Library/Application Support/DriveModelStore.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -210,23 +250,28 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                               'last_update_date': '2026-10-22',
                               'requirements': 'none',
                               'category': 'Life360',
-                              'notes': 'Event Time is the JSON timestamp (Unix seconds); a missing timestamp '
-                                       'stays blank and is logged, without falling back to Logged Time. Location Time is '
-                                       'the stored location timestamp (Cocoa seconds). Place, direction, '
-                                       'distance and unit values are as stored. Raw parent JSON retains '
-                                       'unknown fields; no place is supplied from another source. Only '
-                                       'non-live parent records are selected, comparing their stored content '
-                                       'with the current database/WAL view. Source States and Recovery '
-                                       'Sources JSON distinguish main-file views from checksum-valid '
-                                       'committed WAL page versions. These are recovered observations, not '
-                                       'proof of deletion or a consistent historical snapshot. '
-                                       'Unsupported/incomplete cells are logged; freeblocks, freelists, '
-                                       'old-salt frames and incomplete transactions are excluded. Times '
-                                       'render in UTC. Tested on Life360 26.34.0.5 / iOS 18.6; other layouts '
-                                       'may differ. Unit and Algorithm were uniform and Event Time and '
-                                       'Logged Time were identical in the tested extraction; the separate '
-                                       'source fields are retained.'
-                                       ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                              'notes': 'Event Time is the JSON timestamp (Unix seconds); a missing or null '
+                                       'timestamp stays blank and is logged, without falling back to Logged'
+                                       ' Time. Location Time is the stored location timestamp (Cocoa '
+                                       'seconds). Place, direction, distance and unit values are as stored.'
+                                       ' Raw parent JSON retains unknown fields; no place is supplied from '
+                                       'another source. Only non-live parent records are selected, '
+                                       'comparing their stored content with the current database/WAL view. '
+                                       'Source States and Recovery Sources JSON distinguish main-file views'
+                                       ' from checksum-valid committed WAL page versions. These are '
+                                       'recovered observations, not proof of deletion or a consistent '
+                                       'historical snapshot. Unsupported/incomplete cells are logged; '
+                                       'freeblocks, freelists, old-salt frames and incomplete transactions '
+                                       'are excluded. Times render in UTC. Tested on Life360 26.34.0.5 / '
+                                       'iOS 18.6; other layouts may differ. Unit and Algorithm were uniform'
+                                       ' and Event Time and Logged Time were identical in the tested '
+                                       'extraction; the separate source fields are retained. Z_ENT must '
+                                       'match the current Z_PRIMARYKEY entity ID; missing mappings suppress'
+                                       ' recovery. Committed WAL leaf cells outside the inferred btree, or '
+                                       'when assignment fails, pass the same shape/entity checks and have '
+                                       'distinct Source States and diagnostics. Earlier traversal can '
+                                       'depend on later checkpointed main-file pages; these checks do not '
+                                       'prove historical page ownership or reconstruct historical schemas.',
                               'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                         '*/.com.apple.mobile_container_manager.metadata.plist'),
                               'output_types': 'all',
@@ -239,22 +284,27 @@ __artifacts_v2__ = {'life360RecoveredTopics': {'name': 'Life360 - Recovered Topi
                             'requirements': 'none',
                             'category': 'Life360',
                             'notes': 'Event Time is dwell.timestamp (Cocoa seconds), Dwell Start and Dwell '
-                                     'End are location.startTime/endTime (Unix seconds), and Logged Time is '
-                                     'the parent ZTIMESTAMP (Unix seconds). Labels are as stored. Separate '
-                                     'parent payloads are retained without filling fields from each other. '
-                                     'Only non-live parent records are selected, comparing their stored '
-                                     'content with the current database/WAL view. Source States and Recovery '
-                                     'Sources JSON distinguish main-file views from checksum-valid committed '
-                                     'WAL page versions. These are recovered observations, not proof of '
-                                     'deletion or a consistent historical snapshot. Unsupported/incomplete '
-                                     'cells are logged; freeblocks, freelists, old-salt frames and '
-                                     'incomplete transactions are excluded. Times render in UTC. Tested on '
-                                     'Life360 26.34.0.5 / iOS 18.6; other layouts may differ. Algorithm was '
-                                     'uniform in the tested extraction. Session ID and User ID are empty in '
-                                     'the fabricated engine-topic case. Source File and Store identify each '
-                                     'database; the separate Source File preserves container/copy '
-                                     'provenance.'
-                                     ' Z_ENT must match the current Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Earlier btrees can include later main-file pages after checkpointing. The entity check rejects other entities but does not reconstruct historical schema or prove page ownership; unassignable commits are logged and skipped.',
+                                     'End are location.startTime/endTime (Unix seconds), and Logged Time is'
+                                     ' the parent ZTIMESTAMP (Unix seconds). Labels are as stored. Separate'
+                                     ' parent payloads are retained without filling fields from each other.'
+                                     ' Only non-live parent records are selected, comparing their stored '
+                                     'content with the current database/WAL view. Source States and '
+                                     'Recovery Sources JSON distinguish main-file views from checksum-valid'
+                                     ' committed WAL page versions. These are recovered observations, not '
+                                     'proof of deletion or a consistent historical snapshot. '
+                                     'Unsupported/incomplete cells are logged; freeblocks, freelists, '
+                                     'old-salt frames and incomplete transactions are excluded. Times '
+                                     'render in UTC. Tested on Life360 26.34.0.5 / iOS 18.6; other layouts '
+                                     'may differ. Algorithm was uniform in the tested extraction. Session '
+                                     'ID and User ID are empty in the fabricated engine-topic case. Source '
+                                     'File and Store identify each database; the separate Source File '
+                                     'preserves container/copy provenance. Z_ENT must match the current '
+                                     'Z_PRIMARYKEY entity ID; missing mappings suppress recovery. Committed'
+                                     ' WAL leaf cells outside the inferred btree, or when assignment fails,'
+                                     ' pass the same shape/entity checks and have distinct Source States '
+                                     'and diagnostics. Earlier traversal can depend on later checkpointed '
+                                     'main-file pages; these checks do not prove historical page ownership '
+                                     'or reconstruct historical schemas.',
                             'paths': ('*/Library/Application Support/com.eventkit/*/*.sqlite*',
                                       '*/.com.apple.mobile_container_manager.metadata.plist'),
                             'output_types': 'all',
@@ -267,7 +317,7 @@ import uuid
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.life360_common import get_life360_files, life360_logger, seconds_to_utc
-from scripts.life360_recovery import recover_rows
+from scripts.life360_recovery import fingerprint, recover_rows
 
 _TOPICS = {'DeviceLocationTopic', 'FailedLocationTopic', 'drive_session', 'trip_session',
            'DriveCancellationTopic', 'TripCancellationTopic', 'DriveEvent', 'DwellTopic',
@@ -498,21 +548,28 @@ def _nested(context, incidents):
 def _nested_output(headers, rows):
     """Keep full provenance in data exports without repeating it in every HTML point row."""
     column = headers.index('Parent Records JSON')
+    key_column = headers.index('Row Key')
     html_rows = [row[:column] + ('Complete JSON in this artifact\'s TSV/LAVA export; '
-                               'match trip/session and Parent Entry IDs.',) + row[column + 1:] for row in rows]
+                               f'match Row Key {row[key_column]}.',) + row[column + 1:] for row in rows]
     return rows, html_rows
+
+
+def _row_key(entry):
+    """Identify this report's grouped item and parent versions for matching export rows."""
+    return fingerprint((entry['kind'], entry['session'], _json(entry['item']), _json(entry['parents'])))
 
 
 @artifact_processor
 def life360RecoveredWaypoints(context):
-    headers = (('Waypoint Time', 'datetime'), 'Trip ID or Session ID', 'Parent Entry IDs', 'Kind',
+    headers = (('Waypoint Time', 'datetime'), 'Trip ID or Session ID', 'Parent Entry IDs', 'Row Key', 'Kind',
                'Latitude', 'Longitude', 'Speed (as stored)', 'Course (as stored)', 'Horizontal Accuracy (as stored)',
                'Point JSON', 'Source States', 'Parent Record Count', 'Parent Records JSON', 'Source Files')
     rows = []
     for entry in _nested(context, False):
         item = entry['item']
         rows.append((seconds_to_utc(item.get('timestamp'), 1970 if entry['kind'] == 'drive' else 2001),
-                     entry['session'], _json(sorted({p['entryID'] for p in entry['parents']})), entry['kind']) +
+                     entry['session'], _json(sorted({p['entryID'] for p in entry['parents']})),
+                     _row_key(entry), entry['kind']) +
                     _coordinates(item) + tuple(_text(item.get(k)) for k in ('speed', 'course', 'horizontalAccuracy')) +
                     (_json(item), '; '.join(sorted(entry['states'])), len(entry['parents']),
                      _json(entry['parents']), '\n'.join(sorted(entry['files']))))
@@ -521,13 +578,13 @@ def life360RecoveredWaypoints(context):
 
 @artifact_processor
 def life360RecoveredIncidents(context):
-    headers = (('Incident Time', 'datetime'), 'Trip ID', 'Parent Entry IDs', 'Type (as stored)', 'Latitude',
+    headers = (('Incident Time', 'datetime'), 'Trip ID', 'Parent Entry IDs', 'Row Key', 'Type (as stored)', 'Latitude',
                'Longitude', 'Incident JSON', 'Source States', 'Parent Record Count', 'Parent Records JSON', 'Source Files')
     rows = []
     for entry in _nested(context, True):
         item = entry['item']
         rows.append((seconds_to_utc(item.get('timestamp'), 1970), entry['session'],
-                     _json(sorted({p['entryID'] for p in entry['parents']})), _text(item.get('type'))) +
+                     _json(sorted({p['entryID'] for p in entry['parents']})), _row_key(entry), _text(item.get('type'))) +
                     _coordinates(item) + (_json(item), '; '.join(sorted(entry['states'])), len(entry['parents']),
                                          _json(entry['parents']), '\n'.join(sorted(entry['files']))))
     return headers, _nested_output(headers, rows), _sources(context)
@@ -565,7 +622,7 @@ def life360RecoveredBreaches(context):
         if record['topic'] != 'BreachTopic':
             continue
         doc = record['document']
-        if 'timestamp' not in doc:
+        if doc.get('timestamp') is None:
             life360_logger(context, logfunc)(f'Life360 recovered missing breach timestamp in '
                                             f'{record["file"]!r}, record {record["key"]}; Event Time left blank')
         location = _object(doc.get('location'), 'breach location')

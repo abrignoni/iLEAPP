@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/life360Recovered/testdata.life360Recovered.life360RecoveredLocations.casesynthetic_round2.zip",
-    "start_time": "2026-10-22T16:54:56.805999+00:00",
-    "end_time": "2026-10-22T16:54:56.827823+00:00",
-    "run_time_seconds": 0.0052738189697265625,
+    "start_time": "2026-10-22T17:23:13.972799+00:00",
+    "end_time": "2026-10-22T17:23:13.995038+00:00",
+    "run_time_seconds": 0.0055980682373046875,
     "last_commit": {
-      "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+      "hash": "d1e1e75d3a18fa0c6a6bb89a752f7819a5aac3a0",
       "author_name": "cybermike81",
       "author_email": "cybermike81@users.noreply.github.com",
-      "date": "2026-10-22T11:48:53-04:00",
-      "message": "feat(life360): parse API cache and recover historical page records"
+      "date": "2026-10-22T13:02:01-04:00",
+      "message": "fix(life360): address cache and recovery audit findings"
     }
   },
   "headers": [

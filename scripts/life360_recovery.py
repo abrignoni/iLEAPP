@@ -1,9 +1,9 @@
-"""Read allocated table cells in main-file and checksum-valid committed WAL page versions.
+"""Read table-leaf cells in main-file and checksum-valid committed WAL page versions.
 
 Format: https://www.sqlite.org/fileformat2.html (btree, record, overflow and WAL sections).
 No freeblock, freelist, old-salt, uncommitted-tail or raw-string carving is attempted.
-Current Core Data entity IDs reject sibling entities. Historical btree/schema ownership is
-not guaranteed where traversal needs main-file pages backfilled after the WAL transaction.
+Current Core Data entity IDs reject sibling entities. Eligible committed WAL leaf cells
+outside the inferred btree are labeled separately; historical page ownership is not proven.
 """
 import hashlib
 import json
@@ -237,6 +237,7 @@ def recover_rows(path, table, label, logger=None):
     if connection is None:
         logger(f'Life360 recovery {label!r}: live comparison unavailable; recovery suppressed')
         return
+    stage = 'schema'
     try:
         columns = connection.execute(f'PRAGMA table_info({table})').fetchall()
         root_row = connection.execute('SELECT rootpage FROM sqlite_master WHERE type=? AND name=?',
@@ -244,18 +245,24 @@ def recover_rows(path, table, label, logger=None):
         if not columns or not root_row or [c[1] for c in columns[:3]] != ['Z_PK', 'Z_ENT', 'Z_OPT']:
             logger(f'Life360 recovery {label!r}: unsupported or missing {table} schema')
             return
+        stage = 'entity identity'
+        if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Z_PRIMARYKEY'").fetchone() is None:
+            logger(f'Life360 recovery {label!r}: entity identity unavailable for {table}: '
+                   'Z_PRIMARYKEY missing; recovery suppressed')
+            return
         entities = connection.execute('SELECT Z_ENT FROM Z_PRIMARYKEY WHERE upper(Z_NAME)=?',
                                       (table[1:],)).fetchall()
         if len(entities) != 1 or not isinstance(entities[0][0], int):
             logger(f'Life360 recovery {label!r}: entity identity unavailable for {table}; recovery suppressed')
             return
         entity = entities[0][0]
+        stage = 'live comparison'
         names = [c[1] for c in columns]
         live_encoding = connection.execute('PRAGMA encoding').fetchone()[0]
         real = [i for i, c in enumerate(columns) if 'FLOA' in c[2].upper() or 'REAL' in c[2].upper() or 'DOUB' in c[2].upper()]
         live = {fingerprint(tuple(row)[3:]) for row in connection.execute(f'SELECT * FROM {table}')}
-    except (sqlite3.Error, ValueError, TypeError):
-        logger(f'Life360 recovery {label!r}: schema/entity identity/live comparison failed; recovery suppressed')
+    except (sqlite3.Error, ValueError, TypeError) as error:
+        logger(f'Life360 recovery {label!r}: {stage} read failed ({type(error).__name__}); recovery suppressed')
         return
     finally:
         connection.close()
@@ -283,18 +290,20 @@ def recover_rows(path, table, label, logger=None):
         begin = (number - 1) * size
         return (main[begin:begin + size], 0) if 0 < number <= len(main) // size else (None, 0)
 
-    def records(number, page, provider, state, frame, commit):
+    def records(number, page, provider, state, frame, commit, assigned=True):
         try:
             def failure(index):
                 logger(f'Life360 recovery {label!r}: page {number}, frame {frame}, cell {index} '
                         'was incomplete/unsupported; other cells continue')
             for rowid, values, offset, overflow in _cells(page, number, usable, provider, encoding, failure):
                 if len(values) != len(names) or values[0] is not None:
-                    logger(f'Life360 recovery {label!r}: schema-shaped cell check failed on page {number}; cell skipped')
+                    if assigned or (len(values) > 1 and values[0] is None and values[1] == entity):
+                        logger(f'Life360 recovery {label!r}: schema-shaped cell check failed on page {number}; cell skipped')
                     continue
                 if values[1] != entity:
-                    logger(f'Life360 recovery {label!r}: entity identity mismatch on page {number}, '
-                           f'frame {frame}, cell offset {offset}; cell skipped')
+                    if assigned:
+                        logger(f'Life360 recovery {label!r}: entity identity mismatch on page {number}, '
+                               f'frame {frame}, cell offset {offset}; cell skipped')
                     continue
                 values[0] = rowid
                 for index in real:
@@ -336,8 +345,20 @@ def recover_rows(path, table, label, logger=None):
         try:
             leaves = _leaves(root_row[0], snapshot_page, usable)
         except ValueError:
-            logger(f'Life360 recovery {label!r}: btree could not be assigned at commit frame {commit}; transaction skipped')
-            continue
+            leaves = None
+            logger(f'Life360 recovery {label!r}: btree could not be assigned at commit frame {commit}; '
+                   'eligible committed leaf cells considered with a separate source state')
         for number, (page, frame) in sorted(pages.items()):
-            if number in leaves and number <= database_size:
-                yield from records(number, page, overflow_page, 'Committed WAL page version', frame, commit)
+            if number > database_size or page[100 if number == 1 else 0] != 13:
+                continue
+            assigned = leaves is not None and number in leaves
+            state = ('Committed WAL page version' if assigned else
+                     'Committed WAL page version (btree assignment unavailable)' if leaves is None else
+                     'Committed WAL page version (outside inferred btree)')
+            count = 0
+            for record in records(number, page, overflow_page, state, frame, commit, assigned):
+                count += 1
+                yield record
+            if count and not assigned:
+                logger(f'Life360 recovery {label!r}: page {number}, frame {frame}, commit frame {commit}: '
+                       f'{count} non-live target-entity cells retained as {state!r}')
