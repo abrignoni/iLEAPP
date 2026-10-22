@@ -1,25 +1,53 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reddit — Linked examiner workspace</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#172b3a;font:15px system-ui,sans-serif;overflow-wrap:anywhere}header{padding:18px 24px;background:#fff;border-bottom:1px solid #d8e0e6}h1{font-size:24px;margin:0 0 7px}h2{font-size:21px}h3{font-size:17px}p{margin:7px 0;line-height:1.5}.muted{color:#536777;font-size:13px}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}button,input,select{font:inherit;padding:9px;border:1px solid #a7b6c2;border-radius:7px;background:white;max-width:100%}button{cursor:pointer;overflow-wrap:anywhere}button.active{background:#174d71;color:#fff}input[type=search]{min-width:0;flex:1;flex-basis:250px}main{display:grid;grid-template-columns:minmax(210px,310px) minmax(0,1fr);height:calc(100vh - 260px);min-height:430px}aside{overflow:auto;border-right:1px solid #d8e0e6;padding:12px;min-width:0}#detail{overflow:auto;padding:20px;min-width:0}#groups button{display:block;width:100%;text-align:left;margin:0 0 8px;padding:12px}#groups button.selected{border:2px solid #174d71}.group-title{display:block;font-weight:650}.group-sub{display:block;font-size:12px;color:#526776;margin-top:6px}.card{background:white;border:1px solid #d8e0e6;border-radius:10px;margin:12px 0;padding:16px;max-width:850px;min-width:0;overflow-wrap:anywhere}.card.post{border-top:4px solid #bc5519}.card.comment{border-left:3px solid #b9c9d5;margin-left:18px}.card.outgoing{margin-left:10%;background:#e6f1fa}.card.incoming{margin-right:10%}.card.unknown{border-left:4px solid #a7b6c2}.card h3{margin:10px 0}.body{white-space:pre-wrap;line-height:1.6;margin:10px 0;max-width:74ch;overflow-wrap:anywhere}.card details{margin-top:12px;font-size:12px;color:#526776}.source-fields{display:grid;grid-template-columns:minmax(100px,180px) minmax(0,1fr);gap:5px 12px;margin:12px 0}.source-fields dt{font-weight:650}.source-fields dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.badge{font-size:12px;font-weight:650;color:#174d71}.notice{padding:10px 13px;border-radius:7px;background:#fff3d6;font-size:13px;line-height:1.5;max-width:850px}.empty{padding:24px;color:#526776}a{color:#174d71}.links{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;max-width:850px}.links button{font-size:12px;padding:6px 8px}.section-label{margin-top:24px}.count-badge{background:#edf3f7;padding:2px 7px;border-radius:10px;font-size:12px}summary{cursor:pointer}.missing{font-style:italic;color:#536777}
-@media(max-width:750px){header{padding:15px}main{grid-template-columns:minmax(0,1fr);height:auto}aside{max-height:32vh}#detail{padding:12px}.source-fields{grid-template-columns:minmax(0,1fr)}.source-fields dd{margin-bottom:10px}.card.comment{margin-left:10px}}
+__REPORT_FONTS__
+:root{--bg:#fff;--surface:#fff;--text:#212529;--muted:#6c757d;--border:#dee2e6;--control:#fff;--accent:#4285f4;--notice:#fff3cd;--notice-text:#664d03;--out:#94c2ed;--in:#86bb71}
+body[data-theme="dark"]{--bg:#111;--surface:#202020;--text:#eee;--muted:#bdbdbd;--border:#555;--control:#333;--accent:#81b6ff;--notice:#493c13;--notice-text:#ffe6a1;--out:#1e4c73;--in:#285633;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:400 .875rem Roboto,Arial,sans-serif;overflow-wrap:anywhere}p{margin:7px 0;line-height:1.5}a{color:var(--accent)}.navbar{min-height:48px;background:#343a40;color:white;display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:16px;box-shadow:0 2px 5px #0003}.navbar a{color:#fff;text-decoration:none}.navbar-brand{padding:14px 22px;align-self:stretch;background:rgba(227,6,19,.2);box-shadow:inset -1px 0 #0004;font-size:1rem}.navbar label{display:flex;align-items:center;gap:7px}.navbar select{background:#343a40;color:#fff;border-color:#666}header{padding:18px 24px;border-bottom:1px solid var(--border)}.report-brand{max-width:400px;width:100%;height:auto;display:block;margin-bottom:12px}h1{font-size:1.75rem;font-weight:400;margin:0 0 8px}h2{font-size:1.4rem;font-weight:400}h3{font-size:1.05rem;font-weight:500}.muted{color:var(--muted);font-size:12px}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.controls label{display:flex;gap:6px;align-items:center;flex-wrap:wrap}button,input,select{font:inherit;padding:8px;border:1px solid var(--border);border-radius:3px;background:var(--control);color:var(--text);max-width:100%}button{cursor:pointer;overflow-wrap:anywhere;box-shadow:0 2px 4px #0002}button.active{background:#4285f4;color:#fff}button:disabled{opacity:.5;cursor:default}input[type=search]{min-width:0;flex:1;flex-basis:240px}input[type=checkbox]{accent-color:#4285f4}#timezone{max-width:245px}.review-options{border:1px solid var(--border);padding:8px 12px;margin-top:12px;border-radius:3px}.review-options summary{font-weight:500}.settings-note{font-size:12px;color:var(--muted)}main{display:grid;grid-template-columns:minmax(210px,300px) minmax(0,1fr);min-height:450px}aside{overflow:auto;max-height:75vh;background:#343a40;padding:10px;min-width:0}#detail{overflow:auto;padding:20px;min-width:0;max-height:80vh}#groups button{display:block;width:100%;text-align:left;margin:0;padding:12px;background:transparent;color:#bbb;border:0;border-radius:0;box-shadow:none;border-left:3px solid transparent}#groups button:hover{background:#ffffff12;color:#eee}#groups button.selected{border-left-color:#d02e26;color:#fff;background:#ffffff12}.group-title{display:block;font-weight:400}.group-sub{display:block;font-size:12px;color:#aaa;margin-top:6px}.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;margin:12px 0;padding:16px;max-width:850px;min-width:0;overflow-wrap:anywhere;box-shadow:0 2px 5px #0002}.card.post{border-top:3px solid #d02e26}.card.comment{border-left:3px solid var(--border);margin-left:18px}.card h3{margin:10px 0}.body{white-space:pre-wrap;line-height:1.6;margin:10px 0;max-width:74ch;overflow-wrap:anywhere}.card details{margin-top:12px;font-size:12px;color:var(--muted)}.source-fields{display:grid;grid-template-columns:minmax(100px,180px) minmax(0,1fr);gap:5px 12px;margin:12px 0}.source-fields dt{font-weight:500}.source-fields dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.badge{font-size:12px;font-weight:500;color:var(--accent)}.notice{padding:10px 13px;border-left:4px solid #ffc107;border-radius:3px;background:var(--notice);color:var(--notice-text);font-size:12px;line-height:1.5;max-width:850px}.empty{padding:24px;color:var(--muted)}.links{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;max-width:850px}.links button{font-size:12px;padding:6px 8px}.section-label{margin-top:24px}summary{cursor:pointer}.missing{font-style:italic;color:var(--muted)}.context-only{border-style:dashed}.chat-message{background:transparent;border:0;box-shadow:none;padding:8px 0;max-width:850px}.chat-message.outgoing{margin-left:18%}.chat-message.incoming{margin-right:18%}.chat-message .body{position:relative;padding:18px 20px;border-radius:7px;font-size:16px;background:var(--in);color:#152515}.chat-message.outgoing .body{background:var(--out);color:#132d45}.chat-message.unknown .body,.chat-message.event .body{background:var(--surface);color:var(--text);border:1px solid var(--border)}.chat-message .body:before{content:"";position:absolute;bottom:100%;left:20px;border:8px solid transparent;border-bottom-color:var(--in)}.chat-message.outgoing .body:before{left:auto;right:20px;border-bottom-color:var(--out)}.chat-message.unknown .body:before,.chat-message.event .body:before{display:none}body[data-theme="dark"] .chat-message .body{color:#eee}.message-data{font-size:12px;color:var(--muted);margin-bottom:17px}.day-divider{font-size:12px;text-align:center;color:var(--muted);border-bottom:1px solid var(--border);padding:8px;margin:18px 0}.error{color:#c62828;font-weight:500}[hidden]{display:none!important}
+@media(max-width:750px){header{padding:12px}.navbar{flex-wrap:wrap;padding:0 10px 8px 0}.navbar-brand{padding:12px}main{grid-template-columns:minmax(0,1fr)}aside{max-height:32vh}#detail{padding:12px;max-height:none}.source-fields{grid-template-columns:minmax(0,1fr)}.source-fields dd{margin-bottom:10px}.card.comment{margin-left:8px}.chat-message.outgoing{margin-left:8%}.chat-message.incoming{margin-right:8%}.controls label{max-width:100%}}
+@media print{.navbar,header,aside,.links,button{display:none!important}main{display:block}#detail{max-height:none;overflow:visible}.card{break-inside:avoid;box-shadow:none}body{--bg:#fff;--surface:#fff;--text:#111;--muted:#444;--border:#ccc;color:#111;background:#fff}}
 </style></head><body>
-<header><h1>Reddit examiner workspace</h1>
+<nav class="navbar" aria-label="iLEAPP report"><a class="navbar-brand" href="_HTML/index.html">iLEAPP · Reddit Reader</a><label>Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label></nav>
+<header>__REPORT_BRAND__<h1>Reddit Reader</h1>
 <p>History, cached posts and comments, communities, profiles and chats connected across the available iLEAPP results.</p>
-<p class="muted"><a href="_HTML/index.html">Full iLEAPP tables</a> · Times in UTC · Partial reconstruction from retained records · No web or media requests</p>
+<p class="muted"><a href="_HTML/index.html">Full iLEAPP tables</a> · <span id="time-label">Times in UTC</span> · Partial reconstruction from retained records · No web or media requests</p>
 <nav class="controls" aria-label="Reddit sections"><button id="chats" class="active">Chats</button><button id="discussions">Posts &amp; comments</button><button id="post-history">Post history</button><button id="community-history">Community history</button><button id="communities">Communities</button><button id="people">People &amp; contacts</button><button id="drafts">Drafts</button></nav>
-<div class="controls"><input id="search" type="search" placeholder="Search text, community, author or ID" aria-label="Search Reddit records"><select id="account" aria-label="Filter by source account"><option value="">All source accounts</option></select><label id="stub-label"><input type="checkbox" id="stubs"> Include ID-only posts</label><label id="linked-label" hidden><input type="checkbox" id="only-linked" checked> Only linked history</label><span id="counts" class="muted"></span></div></header>
+<div class="controls"><input id="search" type="search" placeholder="Search text, community, author or ID" aria-label="Search Reddit records"><select id="account" aria-label="Filter by source account"><option value="">All source accounts</option></select><label id="stub-label"><input type="checkbox" id="stubs"> Include ID-only posts</label><label id="linked-label" hidden><input type="checkbox" id="only-linked" checked> Only linked history</label><span id="counts" class="muted"></span></div>
+<details class="review-options" open><summary>Display, dates and export</summary>
+<div class="controls"><label>Timezone <select id="timezone"></select></label><label>Date format <select id="date-format"><option value="iso">YYYY-MM-DD</option><option value="mdy">MM/DD/YYYY</option><option value="dmy">DD/MM/YYYY</option></select></label><label>Clock <select id="clock"><option value="24">24-hour</option><option value="12">12-hour</option></select></label><label>Sort <select id="sort"><option value="context">Default / stored order</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option><option value="title-desc">Title Z–A</option><option value="comments">Most cached comments</option><option value="count">Most records</option><option value="source">Source / stored position</option></select></label></div>
+<div class="controls"><label>From <input type="date" id="date-from"></label><label>Through <input type="date" id="date-to"></label><label><input type="checkbox" id="include-undated" checked> Include undated records</label><button id="reset-filters">Reset filters</button></div>
+<p class="settings-note">Date bounds include the whole selected day in the display timezone. They filter each record’s labeled source date. History has no inferred view date. Context-only post cards are excluded from filtered exports.</p>
+<div class="controls"><label>Export <select id="export-scope"><option value="selected">Selected item · matching rows</option><option value="filtered">Filtered list · matching rows</option><option value="all">All Reddit records · ignore filters</option></select></label><button id="export-csv">CSV</button><button id="export-json">JSON</button><button id="print-view">Print selected view / PDF</button><span id="export-count" class="muted"></span></div>
+</details><p id="filter-error" class="error" role="alert"></p><p id="navigation-note" class="muted" aria-live="polite"></p></header>
 <main><aside aria-label="Record list"><div id="groups"></div></aside><section id="detail" aria-live="polite"></section></main>
 <script id="records" type="application/json">__RECORDS__</script>
+<script>
+__CONTROLS__
+</script>
 <script>
 'use strict';
 const records=JSON.parse(document.getElementById('records').textContent);
 const byId=id=>document.getElementById(id);
 function el(tag,text,cls){const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);if(cls)node.className=cls;return node;}
-function stamp(raw){if(raw===''||raw===null||raw===undefined)return 'Date not retained';const n=Number(raw);if(!Number.isFinite(n))return 'Date not retained';const date=new Date(n*1000);return Number.isNaN(date.getTime())?'Date not retained':date.toISOString().replace('T',' ').replace('.000Z',' UTC').replace('Z',' UTC');}
+const preferencesKey='ileapp-reddit-reader-preferences-v1';
+const safeStorage={get(key){try{return localStorage.getItem(key);}catch(e){return null;}},set(key,value){try{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);}catch(e){/* Local file storage can be unavailable. */}}};
+let preferences={theme:safeStorage.get('darkSwitch')==='dark'?'dark':'light',timeZone:'UTC',dateFormat:'iso',clock:'24',sort:'context'};
+try{const saved=JSON.parse(safeStorage.get(preferencesKey)||'{}');for(const key of Object.keys(preferences))if(typeof saved[key]==='string')preferences[key]=saved[key];}catch(e){/* Invalid saved preferences do not affect evidence. */}
+const zoneValues=new Set(['UTC','System','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','Pacific/Honolulu','Europe/London','Asia/Tokyo']);
+if(Intl.supportedValuesOf)for(const name of Intl.supportedValuesOf('timeZone'))zoneValues.add(name);
+for(const value of zoneValues){const option=el('option',value==='System'?'System timezone':value);option.value=value;byId('timezone').append(option);}
+const preferenceControls={theme:'theme',timeZone:'timezone',dateFormat:'date-format',clock:'clock',sort:'sort'};
+for(const [key,id] of Object.entries(preferenceControls)){if([...byId(id).options].some(option=>option.value===preferences[key]))byId(id).value=preferences[key];else preferences[key]=byId(id).value;}
+function settings(){return {timeZone:ReaderControls.zone(byId('timezone').value),timezoneSelection:byId('timezone').value,dateFormat:byId('date-format').value,clock:byId('clock').value,sort:byId('sort').value,from:byId('date-from').value,to:byId('date-to').value,includeUndated:byId('include-undated').checked,search:byId('search').value,account:byId('account').value,includeIdOnly:byId('stubs').checked,onlyLinkedHistory:byId('only-linked').checked};}
+function applyTheme(){const value=byId('theme').value;const dark=value==='dark'||value==='system'&&matchMedia('(prefers-color-scheme: dark)').matches;document.body.toggleAttribute('data-dark',dark);if(dark)document.body.dataset.theme='dark';else document.body.removeAttribute('data-theme');safeStorage.set('darkSwitch',dark?'dark':null);}
+function savePreferences(){for(const [key,id] of Object.entries(preferenceControls))preferences[key]=byId(id).value;safeStorage.set(preferencesKey,JSON.stringify(preferences));applyTheme();}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(byId('theme').value==='system')applyTheme();});
+applyTheme();
+function stamp(raw){return ReaderControls.stamp(raw,settings());}
 const byRef=new Map(records.map(r=>[r.ref,r])),groups=new Map();
 const section=r=>r.kind==='post'||r.kind==='comment'?'discussion':['profile','matrix_user','contact'].includes(r.kind)?'people':r.kind;
 for(const r of records){if(!groups.has(r.group))groups.set(r.group,{id:r.group,rows:[],kind:section(r),related:new Map()});groups.get(r.group).rows.push(r);}
@@ -47,7 +75,8 @@ for(const g of groups.values()){
 for(const account of [...new Set([...groups.values()].flatMap(g=>[...g.accounts]))].sort()){const option=el('option',account);option.value=account;byId('account').append(option);}
 const modes=[['chats','chat'],['discussions','discussion'],['post-history','post_history'],['community-history','community_history'],['communities','community'],['people','people'],['drafts','draft']];
 let mode=records.some(r=>r.kind==='post'||r.kind==='comment')?'discussion':'chat',selected='';
-function navigate(id){const target=groups.get(id);if(!target)return;mode=target.kind;selected=id;byId('search').value='';byId('account').value='';if(target.stub)byId('stubs').checked=true;render();}
+function clearDates(){byId('date-from').value='';byId('date-to').value='';byId('include-undated').checked=true;}
+function navigate(id){const target=groups.get(id);if(!target)return;mode=target.kind;selected=id;byId('search').value='';byId('account').value='';clearDates();byId('navigation-note').textContent='Opened linked record; search, account and date filters cleared.';if(target.stub)byId('stubs').checked=true;render();}
 function relatedLinks(g, kinds, heading){
  const matches=[...g.related.entries()].filter(([id])=>kinds.includes(groups.get(id).kind));
  if(!matches.length)return null;
@@ -59,19 +88,21 @@ function relatedLinks(g, kinds, heading){
 function fieldDetails(r){
  const d=el('details');d.append(el('summary','All exported fields and source references'));
  d.addEventListener('toggle',()=>{if(!d.open||d.dataset.loaded)return;d.dataset.loaded='true';const dl=el('dl',undefined,'source-fields');
-  for(const [key,value] of Object.entries({Artifact:r.table,'Export row':r.rowid,'Source account':r.account,'Source reference':r.source,'Source reference scope':r.fields['Source File']?'Per-row Source File field':'Artifact manifest; a per-row source file was not exported',...r.fields})){dl.append(el('dt',key),el('dd',value===null?'(null)':value));}
+  for(const [key,value] of Object.entries({Artifact:r.table,'Export row':r.rowid,'Source account':r.account,'Source reference':r.source,'Source reference scope':r.fields['Source File']?'Per-row Source File field':'Artifact manifest; a per-row source file was not exported',...r.fields})){dl.append(el('dt',key),el('dd',(r.dateFields||[]).includes(key)?stamp(value)+'\nRaw UTC epoch: '+String(value):value===null?'(null)':value));}
   for(const link of r.links){const target=byRef.get(link.ref);dl.append(el('dt','Linked '+target.table+' row '+target.rowid),el('dd',link.basis+'\n'+target.source));}
   d.append(dl);
  });return d;
 }
-function card(r){
+function card(r,contextOnly=false){
  const direction=r.kind==='chat'?(r.direction!==''&&r.direction===r.sentValue?'outgoing':r.direction==='Incoming'?'incoming':'unknown'):r.kind;
- const article=el('article',undefined,'card '+direction);article.dataset.ref=r.ref;
+ const article=el('article',undefined,'card '+direction+(r.kind==='chat'?' chat-message':'')+(r.kind==='chat'&&r.event&&r.event!=='m.room.message'?' event':'')+(contextOnly?' context-only':''));article.dataset.ref=r.ref;
  const labels={post:'Cached post',comment:'Cached comment',community:'Community source observation',profile:'Profile source observation',contact:'Legacy chat contact',matrix_user:'Matrix chat user',draft:'Unsent comment draft'};
  article.append(el('div',(labels[r.kind]||r.event||'Chat message')+(r.kind==='chat'?' · '+(r.direction||'Direction unknown'):''),'badge'));
- if(['post','comment','chat','draft'].includes(r.kind))article.append(el('p',(r.community?'r/'+r.community+' · ':'')+(r.author||'Author not retained')+' · '+stamp(r.created),'muted'));
+ if(contextOnly)article.append(el('p','Context only — outside the date filter; excluded from matching-row exports.','notice'));
+ if(['post','comment','chat','draft'].includes(r.kind))article.append(el('p',(r.community?'r/'+r.community+' · ':'')+(r.author||'Author not retained')+' · '+stamp(r.created)+(r.dateLabel?' · '+r.dateLabel:''),'message-data'));
  if(r.title&&r.kind!=='comment')article.append(el('h3',r.title));
  if(r.kind==='community'&&r.community)article.append(el('p','r/'+r.community,'badge'));
+ if(['community','profile','contact','matrix_user'].includes(r.kind)&&r.dateLabel)article.append(el('p',r.dateLabel+': '+stamp(r.created),'muted'));
  if(['profile','contact','matrix_user'].includes(r.kind))article.append(el('p','Stored ID: '+(r.id||'Not retained')+' · '+(r.account||'Source account not exported'),'muted'));
  article.append(el('div',r.text||(['post','comment'].includes(r.kind)?'Text not retained in this cached record.':'No descriptive text exported.'),'body'+(!r.text?' missing':'')));
  if(r.kind==='post'||r.kind==='comment'){
@@ -118,29 +149,40 @@ function renderDetail(g){
  appendLinked(target,g,['community'],'Community records');
  appendLinked(target,g,['people'],'Authors and contacts');
  if(g.kind==='discussion'&&!g.rows.some(r=>r.kind==='post'))target.append(el('p','The root post was not retained in this cache.','missing'));
- const sorted=[...g.rows].sort((a,b)=>{if(g.kind==='discussion'&&a.kind!==b.kind)return a.kind==='post'?-1:1;const av=a.created===''?Infinity:Number(a.created),bv=b.created===''?Infinity:Number(b.created);return av-bv||a.rowid-b.rowid;});
+ const matching=g.viewRows||g.rows;
+ const context=g.kind==='discussion'?g.rows.filter(r=>r.kind==='post'&&!matching.includes(r)):[];
+ const sorted=[...context,...matching].sort((a,b)=>ReaderControls.compareRows(a,b,byId('sort').value));
  let comments=false;
- for(const r of sorted){if(r.kind==='comment'&&!comments){target.append(el('h3',g.comments+' cached comments','section-label'));comments=true;}target.append(card(r));}
+ let lastDay='';
+ for(const r of sorted){if(r.kind==='chat'){const day=ReaderControls.day(r.created,byId('timezone').value)||'Undated';if(day!==lastDay){target.append(el('div',day,'day-divider'));lastDay=day;}}if(r.kind==='comment'&&!comments){target.append(el('h3',matching.filter(row=>row.kind==='comment').length+' matching cached comments','section-label'));comments=true;}target.append(card(r,context.includes(r)));}
  appendLinked(target,g,['discussion'],'Related posts and comments');
  appendLinked(target,g,['chat'],'Related chats');
 }
+let visibleGroups=[];
+function visibleRowsForExport(){const scope=byId('export-scope').value;if(scope==='all')return [...records];const chosen=scope==='selected'?visibleGroups.filter(g=>g.id===selected):visibleGroups;return chosen.flatMap(g=>[...g.viewRows].sort((a,b)=>ReaderControls.compareRows(a,b,byId('sort').value)));}
+function makeExport(){return ReaderControls.exportBundle(visibleRowsForExport(),{exportedAtUTC:new Date().toISOString(),scope:byId('export-scope').value,section:byId('export-scope').value==='all'?'all':mode,settings:settings()});}
+function download(format){const bundle=makeExport();if(!bundle.count)return;const content=format==='json'?JSON.stringify(bundle,null,2):ReaderControls.csv(bundle);const blob=new Blob([content],{type:format==='json'?'application/json;charset=utf-8':'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Reddit_Reader_'+bundle.scope+'.'+format;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function render(){
  for(const [id,value] of modes)byId(id).classList.toggle('active',mode===value);
  byId('stub-label').hidden=mode!=='discussion';byId('linked-label').hidden=!mode.endsWith('_history');
- const q=byId('search').value.toLowerCase().trim(),account=byId('account').value;
- const visible=[...groups.values()].filter(g=>g.kind===mode&&(!account||g.accounts.has(account))&&(!g.stub||byId('stubs').checked)&&(!mode.endsWith('_history')||!byId('only-linked').checked||g.matches>0)&&(!q||g.search.includes(q))).sort((a,b)=>{
-  if(mode==='post_history'||mode==='community_history')return a.rows[0].source.localeCompare(b.rows[0].source)||(Number(a.rows[0].fields['List Position (zero-based)']??Infinity)-Number(b.rows[0].fields['List Position (zero-based)']??Infinity))||a.rows[0].rowid-b.rows[0].rowid;
-  return b.comments-a.comments||a.title.localeCompare(b.title);
- });
+ const q=byId('search').value.toLowerCase().trim(),account=byId('account').value,options=settings();
+ const invalid=options.from&&options.to&&options.from>options.to;
+ byId('filter-error').textContent=invalid?'The From date must be on or before the Through date.':'';
+ byId('time-label').textContent='Display timezone: '+ReaderControls.zone(options.timeZone)+' · '+options.dateFormat.toUpperCase()+' · '+options.clock+'-hour';
+ for(const g of groups.values())g.viewRows=g.rows.filter(r=>ReaderControls.inRange(r,options)&&(!account||String(r.account||'Account not exported for this source')===account));
+ visibleGroups=invalid?[]:[...groups.values()].filter(g=>g.kind===mode&&g.viewRows.length&&(!account||g.accounts.has(account))&&(!g.stub||byId('stubs').checked)&&(!mode.endsWith('_history')||!byId('only-linked').checked||g.matches>0)&&(!q||g.search.includes(q))).sort((a,b)=>ReaderControls.compareGroups(a,b,options.sort));
  const list=byId('groups');list.replaceChildren();
- for(const g of visible){const button=el('button');if(g.id===selected)button.classList.add('selected');let sub=(g.community?'r/'+g.community+' · ':'')+(g.kind==='discussion'?g.comments+' cached comments':g.kind==='chat'?g.rows.length+' chat records':g.kind.endsWith('_history')?(g.matches||0)+' linked content groups':g.rows.length+' source observations');button.append(el('span',g.title,'group-title'),el('span',sub,'group-sub'));button.addEventListener('click',()=>{selected=g.id;render();});list.append(button);}
- if(!visible.length)list.append(el('p','No matching records.','empty'));
- byId('counts').textContent=visible.length+' items · '+visible.reduce((n,g)=>n+g.rows.length,0)+' source rows';
- if(!visible.some(g=>g.id===selected))selected=visible[0]?.id||'';
- for(const button of list.querySelectorAll('button'))button.classList.toggle('selected',button===list.children[visible.findIndex(g=>g.id===selected)]);
- renderDetail(visible.find(g=>g.id===selected)||null);
+ if(!visibleGroups.some(g=>g.id===selected))selected=visibleGroups[0]?.id||'';
+ for(const g of visibleGroups){const button=el('button');if(g.id===selected)button.classList.add('selected');const sub=(g.community?'r/'+g.community+' · ':'')+(g.kind==='discussion'?g.viewRows.filter(r=>r.kind==='comment').length+' matching comments':g.kind==='chat'?g.viewRows.length+' matching chat records':g.kind.endsWith('_history')?(g.matches||0)+' linked content groups':g.viewRows.length+' source observations');button.append(el('span',g.title,'group-title'),el('span',sub,'group-sub'));button.addEventListener('click',()=>{selected=g.id;render();});list.append(button);}
+ if(!visibleGroups.length)list.append(el('p','No matching records.','empty'));
+ byId('counts').textContent=visibleGroups.length+' items · '+visibleGroups.reduce((n,g)=>n+g.viewRows.length,0)+' matching source rows';
+ renderDetail(visibleGroups.find(g=>g.id===selected)||null);
+ const count=visibleRowsForExport().length;byId('export-count').textContent=count+' rows to export';byId('export-csv').disabled=!count;byId('export-json').disabled=!count;
 }
 for(const [id,value] of modes)byId(id).addEventListener('click',()=>{mode=value;selected='';render();});
-for(const id of ['search','account','stubs','only-linked'])byId(id).addEventListener('input',render);
+for(const id of ['search','account','stubs','only-linked','date-from','date-to','include-undated','export-scope'])byId(id).addEventListener('input',render);
+for(const id of Object.values(preferenceControls))byId(id).addEventListener('change',()=>{savePreferences();render();});
+byId('reset-filters').addEventListener('click',()=>{byId('search').value='';byId('account').value='';byId('stubs').checked=false;byId('only-linked').checked=true;clearDates();byId('navigation-note').textContent='';render();});
+byId('export-csv').addEventListener('click',()=>download('csv'));byId('export-json').addEventListener('click',()=>download('json'));byId('print-view').addEventListener('click',()=>window.print());
 render();
 </script></body></html>

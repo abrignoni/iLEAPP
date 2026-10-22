@@ -4,6 +4,10 @@ The workspace combines the original Reddit artifacts and the optional cache/hist
 artifacts. Joins preserve source observations; they do not infer reading or authorship.
 """
 import argparse
+import base64
+import html
+import os
+import shutil
 import json
 import re
 import sqlite3
@@ -137,6 +141,13 @@ def load_records(report):
                     record.update(id=_value(row, 'Draft ID'), postId=_value(row, 'Post ID'),
                                   title=_value(row, 'Post Title'), text=_value(row, 'Content'),
                                   created=_value(row, 'Modified'))
+                date_labels = {'reddit_cached_posts': 'Content Created', 'reddit_cached_comments': 'Content Created',
+                    'reddit_chats': 'Server Timestamp', 'reddit_chat_messages': 'Timestamp',
+                    'reddit_subreddit_subscriptions': 'Community Created', 'reddit_users': 'Profile Created',
+                    'reddit_chat_users': 'Updated Date', 'reddit_chat_contacts': 'Created', 'reddit_comment_drafts': 'Modified'}
+                record['dateLabel'] = date_labels.get(table, '')
+                record['dateFields'] = [columns[item['name']] for item in artifact.get('object_columns', [])
+                                        if item.get('type') == 'datetime' and item.get('name') in columns]
                 if 'group' not in record:
                     namespace = record['scope'] if kind == 'community' else record['container']
                     if kind in ('community', 'profile', 'contact', 'matrix_user') and namespace and record['id']:
@@ -255,16 +266,123 @@ def wrap_tables(report):
     return count
 
 
-def build(report, output=None, format_tables=False):
+
+def report_branding():
+    """Embed iLEAPP's own local assets; no external stylesheet/font requests."""
+    assets = Path(__file__).resolve().parents[2] / 'scripts' / '_elements'
+    fonts = []
+    files = {400: 'KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
+             500: 'KFOlCnqEu92Fr1MmEU9fBBc4AMP6lQ.woff2'}
+    for weight, filename in files.items():
+        path = assets / 'fonts' / 'roboto' / 'v32' / filename
+        if path.is_file() and path.stat().st_size < 1024 * 1024:
+            encoded = base64.b64encode(path.read_bytes()).decode('ascii')
+            fonts.append(f"@font-face{{font-family:Roboto;font-style:normal;font-weight:{weight};"
+                         f"font-display:swap;src:url(data:font/woff2;base64,{encoded}) format('woff2')}}")
+    logo = assets / 'iLEAPP_banner.png'
+    brand = ''
+    if logo.is_file() and logo.stat().st_size < 1024 * 1024:
+        encoded = base64.b64encode(logo.read_bytes()).decode('ascii')
+        brand = f'<img class="report-brand" alt="iLEAPP" src="data:image/png;base64,{encoded}">'
+    return '\n'.join(fonts), brand
+
+
+def add_navigation(report):
+    """Add generated report shortcuts using LAVA's existing document/media contract.
+
+    Only an explicitly selected output report is updated. Original extraction rows
+    are untouched; original report database/manifest copies are retained first.
+    """
+    report = Path(report).resolve()
+    manifest_path = report / '_lava_data.lava'
+    database_path = report / '_lava_artifacts.db'
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    backup = report / '_Reader_Originals'
+    backup.mkdir(exist_ok=True)
+    if not (backup / '_lava_data.lava').exists():
+        shutil.copy2(manifest_path, backup / '_lava_data.lava')
+        with sqlite3.connect(database_path.as_uri() + '?mode=ro', uri=True) as original:
+            with sqlite3.connect(backup / '_lava_artifacts.db') as saved:
+                original.backup(saved)
+    item_id = 'reddit-reader-generated-document-v1'
+    reference_id = 'reddit-reader-generated-reference-v1'
+    with sqlite3.connect(database_path) as db:
+        db.execute('CREATE TABLE IF NOT EXISTS _lava_media_items (id TEXT PRIMARY KEY, '
+                   'source_path TEXT, extraction_path TEXT, type TEXT, metadata TEXT, '
+                   'created_at INTEGER, updated_at INTEGER, is_embedded INTEGER)')
+        db.execute('CREATE TABLE IF NOT EXISTS _lava_media_references (id TEXT PRIMARY KEY, '
+                   'media_item_id TEXT, module_name TEXT, artifact_name TEXT, name TEXT)')
+        existing = db.execute('SELECT metadata FROM _lava_media_items WHERE id=?', (item_id,)).fetchone()
+        if existing and json.loads(existing[0]).get('generator') != 'RedditReader':
+            raise ValueError('Generated navigation identifier is already in use')
+        db.execute('INSERT OR REPLACE INTO _lava_media_items VALUES (?,?,?,?,?,?,?,?)',
+                   (item_id, 'Generated report navigation; no device source', 'Reddit_Reader.html',
+                    'text/html', json.dumps({'generator': 'RedditReader', 'generated_report': True}),
+                    None, None, 0))
+        db.execute('INSERT OR REPLACE INTO _lava_media_references VALUES (?,?,?,?,?)',
+                   (reference_id, item_id, 'RedditReader', 'Reddit Reader (generated report link)',
+                    'Open Reddit Reader'))
+        exists = db.execute("SELECT name FROM sqlite_master WHERE name='reddit_reader_navigation'").fetchone()
+        if exists:
+            columns = [column[1] for column in db.execute('PRAGMA table_info(reddit_reader_navigation)')]
+            if columns != ['reader_link', 'description']:
+                raise ValueError('Navigation table name is already in use')
+            if db.execute('SELECT count(*) FROM reddit_reader_navigation WHERE reader_link != ?',
+                          (reference_id,)).fetchone()[0]:
+                raise ValueError('Navigation table contains unrecognized rows')
+        db.execute('CREATE TABLE IF NOT EXISTS reddit_reader_navigation (reader_link TEXT PRIMARY KEY, description TEXT)')
+        db.execute('INSERT OR REPLACE INTO reddit_reader_navigation VALUES (?,?)',
+                   (reference_id, 'Generated navigation only. Click Open Reddit Reader to open the local linked report.'))
+    artifact = {'artifact_key': 'reddit_reader_navigation', 'name': 'Reddit Reader (generated report link)',
+                'tablename': 'reddit_reader_navigation', 'module': 'RedditReader',
+                'column_map': {'reader_link': 'Open Reddit Reader', 'description': 'Description'},
+                'object_columns': [{'name': 'reader_link', 'type': 'media'}],
+                'record_count': 1, 'artifact_icon': 'brand-reddit'}
+    categories = manifest.setdefault('artifacts', {})
+    navigation = [entry for entry in categories.get('Report Navigation', [])
+                  if entry.get('tablename') != 'reddit_reader_navigation']
+    manifest['artifacts'] = {'Report Navigation': [artifact, *navigation],
+                             **{key: value for key, value in categories.items() if key != 'Report Navigation'}}
+    modules = manifest.setdefault('meta', {}).setdefault('modules', [])
+    modules[:] = [module for module in modules if module.get('module_name') != 'RedditReader']
+    modules.append({'module_name': 'RedditReader', 'module_filename': 'build_reddit_reader.py',
+                    'artifacts': [{**artifact, 'category': 'Report Navigation',
+                                   'description': 'Generated report shortcut; not an extracted artifact.',
+                                   'notes': 'Opens an existing local report using LAVA document handling.'}]})
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=True), encoding='utf-8')
+    folder = report / '_HTML'
+    folder.mkdir(exist_ok=True)
+    (folder / 'Reddit_Reader.html').write_text('<!doctype html><meta charset="utf-8">'
+        '<meta http-equiv="refresh" content="0;url=../Reddit_Reader.html">'
+        '<a href="../Reddit_Reader.html">Open Reddit Reader</a>', encoding='utf-8')
+    pages = set(folder.glob('*.html')) | set((folder / 'Reddit').glob('*.html'))
+    count = 0
+    for page in sorted(pages):
+        content = page.read_text(encoding='utf-8')
+        if 'id="reddit-reader-link"' in content or '</nav>' not in content:
+            continue
+        target = html.escape(os.path.relpath(folder / 'Reddit_Reader.html', page.parent).replace(os.sep, '/'), quote=True)
+        link = f'<a class="nav-link text-white" id="reddit-reader-link" href="{target}">Reddit Reader</a>'
+        page.write_text(content.replace('</nav>', link + '</nav>', 1), encoding='utf-8')
+        count += 1
+    return count
+
+
+def build(report, output=None, format_tables=False, navigation=False):
     """Write the workspace; table formatting is an explicit, optional report-only edit."""
     report = Path(report)
     destination = Path(output) if output else report / 'Reddit_Reader.html'
     records = load_records(report)
     payload = json.dumps(records, ensure_ascii=True).replace('<', r'\u003c')
     page = Path(__file__).with_name('reddit_reader.html').read_text(encoding='utf-8')
+    controls = Path(__file__).with_name('reddit_reader_controls.js').read_text(encoding='utf-8')
+    fonts, brand = report_branding()
+    page = page.replace('__CONTROLS__', controls).replace('__REPORT_FONTS__', fonts).replace('__REPORT_BRAND__', brand)
     destination.write_text(page.replace('__RECORDS__', payload), encoding='utf-8')
     if format_tables:
         wrap_tables(report)
+    if navigation:
+        add_navigation(report)
     return len(records)
 
 
@@ -272,8 +390,9 @@ def main():
     command = argparse.ArgumentParser(description=__doc__)
     command.add_argument('report', type=Path, help='iLEAPP report containing _lava_data.lava')
     command.add_argument('--wrap-tables', action='store_true', help='Also wrap long cells in the report\'s Reddit HTML tables')
+    command.add_argument('--add-navigation', action='store_true', help='Add iLEAPP links and a generated LAVA navigation entry, preserving the original report first')
     args = command.parse_args()
-    count = build(args.report, format_tables=args.wrap_tables)
+    count = build(args.report, format_tables=args.wrap_tables, navigation=args.add_navigation)
     print(f'Wrote Reddit_Reader.html containing {count} exported records')
 
 

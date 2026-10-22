@@ -33,9 +33,8 @@ source-tree utility, not an addition to the packaged iLEAPP application.
   unsent text and link to cached posts where supported; this is not a sent-comment claim.
 
 Search, source-account filtering and direct links connect these sections. Identity
-groups can retain observations from multiple source accounts; the filter selects
-groups containing that account and their headers/details still identify every retained
-observation. Long text wraps inside bounded cards. All original exported fields,
+groups can retain observations from multiple source accounts. Account and date filters
+select individual source rows; linked identities retain their separate observations. Long text wraps inside bounded cards. All original exported fields,
 artifact/table row references, source references and relationship bases are expandable.
 Where the original artifact supplies only a manifest source, its scope is labeled;
 the reader does not claim a new per-row source path.
@@ -88,11 +87,10 @@ They cover source/account boundaries, duplicate/missing IDs, multiple candidate 
 old/new joins, conflicting state preservation, ambiguous sources, Matrix IDs, script
 escaping, database immutability and optional table formatting.
 
-Python 3.10/3.12 focused and full suites pass. Desktop/mobile browser checks cover
-real-data navigation, combined observations, filters, source details and wrapping;
-fabricated long words and script-closing text remain inert. Twelve real table pages
-retain byte-identical cell content after removing only the added CSS. Real LAVA
-database/manifest bytes and reader records match across both runtimes.
+The regression suite includes source-preserving joins and actual JavaScript controls.
+JavaScript unit checks use Node when available and explicitly skip if it is absent;
+the standalone reader itself needs no Node runtime. Browser and native LAVA checks
+are separate from Python unit tests. Generated outputs and test logs remain local.
 
 The private validation report contributes 7,072 source rows: 594 posts, 1,029 comments,
 2,036 chat events/messages, 231 community observations, 869 Reddit profile observations,
@@ -106,3 +104,55 @@ add exact-ID context for 22 comments. These counts describe this sample only.
 Other Python versions/platforms, packaged applications, native LAVA GUI, other report
 layouts and large-report performance remain unverified. No private input, generated
 report, raw browser dump or case identifier is included in the contribution.
+
+## Review controls and iLEAPP appearance
+
+The reader uses iLEAPP's local Roboto fonts, banner, dark header, sidebar and control
+colors. Font and banner data are embedded from the source tree so the reader fetches
+no network assets. Chats use left/right conversation bubbles, sender/date labels and
+day separators; direction/grouping still come from existing exported roles. Unknown
+direction, reactions and redactions remain labeled.
+
+Display options include Light/Dark/System themes, UTC/System/IANA timezones,
+YYYY-MM-DD, MM/DD/YYYY and DD/MM/YYYY dates, and 12/24-hour clocks. Every displayed
+time includes the resolved timezone and UTC offset, including repeated DST hours.
+Original UTC epochs and raw fields remain available. Only theme/time/format/sort
+preferences are stored locally; search, accounts, dates and evidence are not persisted.
+
+Sort choices include stored/default order, newest/oldest, title, comment count, row
+count and source/position. Undated rows stay last for date sorts; root posts stay
+before comments. Date bounds are inclusive calendar days in the selected timezone,
+including 23/25-hour DST days. Each record's labeled primary source date is used;
+no history view date is invented. Undated records are optional. A post shown only
+for context outside the date range is marked and excluded from matching-row exports.
+Following an explicit related-record link clears search/account/date filters, with
+a notice, so the linked source can be examined.
+
+CSV and JSON downloads offer selected-item matching rows, filtered-list matching
+rows, or all Reddit records ignoring filters. Search locates groups/conversations;
+date/account filters apply to their rows. Exports record the scope, settings,
+resolved timezone, source references, raw fields and relationships. JSON retains
+exact raw values. CSV quotes multiline/Unicode fields and prefixes potentially
+active spreadsheet text with an apostrophe; exact text remains in its raw-fields
+JSON column and the JSON export. Linked references can point to other report rows
+outside a selected subset. Print/PDF uses the browser's local print dialog.
+
+## Links from iLEAPP and LAVA
+
+```sh
+python admin/scripts/build_reddit_reader.py /path/to/report --wrap-tables --add-navigation
+```
+
+`--add-navigation` explicitly extends this generated output report. It preserves the
+original LAVA database/manifest under `_Reader_Originals/`, adds a separate **Report
+Navigation → Reddit Reader (generated report link)** entry, registers its generated
+HTML document through LAVA's existing media/file-opening contract, and adds a top-bar
+Reader link to existing iLEAPP HTML pages. The HTML wrapper stays inside `_HTML` and
+opens the reader one level above it. It adds no new LAVA view type or application code.
+
+Original extracted rows and original artifact metadata remain unchanged; only
+generated navigation rows/media references and their metadata are added. This row is
+not evidence or a device artifact. Integration is idempotent. By default the builder
+still writes only its own companion, and `--wrap-tables` alone changes only CSS.
+These flags target produced report copies, never the UFDR or prepared extraction.
+Final cross-platform integration and independent audit remain separate checks.
