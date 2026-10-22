@@ -40,7 +40,10 @@ __artifacts_v2__ = {
                  'without magnitude-based unit inference. A stored zero renders as the declared epoch instant (1970-01-01 '
                  'or 2001-01-01), not as a missing value. Missing dates remain blank. Unexpected nonnumeric and '
                  'out-of-range numeric dates render blank with a log entry. Decode failures and unexpected stored '
-                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.',
+                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/DriveModelStore.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "standard",
@@ -85,7 +88,10 @@ __artifacts_v2__ = {
                  'declared epoch instant (1970-01-01 or 2001-01-01), not as a missing value. Missing dates remain blank. '
                  'Unexpected nonnumeric and out-of-range numeric dates render blank with a log entry. Decode failures and '
                  'unexpected stored object/array shapes are logged; valid outer rows and raw values are retained where '
-                 'supported.',
+                 'supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/L360CoreDataStore.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "all",
@@ -123,7 +129,10 @@ __artifacts_v2__ = {
                  'without magnitude-based unit inference. A stored zero renders as the declared epoch instant (1970-01-01 '
                  'or 2001-01-01), not as a missing value. Missing dates remain blank. Unexpected nonnumeric and '
                  'out-of-range numeric dates render blank with a log entry. Decode failures and unexpected stored '
-                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.',
+                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/L360CoreDataStore.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "standard",
@@ -166,7 +175,10 @@ __artifacts_v2__ = {
                  'without magnitude-based unit inference. A stored zero renders as the declared epoch instant (1970-01-01 '
                  'or 2001-01-01), not as a missing value. Missing dates remain blank. Unexpected nonnumeric and '
                  'out-of-range numeric dates render blank with a log entry. Decode failures and unexpected stored '
-                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.',
+                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/L360CoreDataStore.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "standard",
@@ -440,11 +452,12 @@ __artifacts_v2__ = {
 import base64
 import json
 import plistlib
+from xml.parsers.expat import ExpatError
 from datetime import datetime, timezone
 
-from scripts.ilapfuncs import (artifact_processor, device_info, get_plist_file_content,
-                               get_sqlite_db_records, logfunc)
-from scripts.life360_common import get_life360_files, seconds_to_utc, stored_dict, stored_list
+from scripts.ilapfuncs import artifact_processor, device_info, get_plist_file_content, logfunc
+from scripts.life360_common import (get_life360_files, read_life360_rows, seconds_to_utc,
+                                   stored_dict, stored_list)
 
 _JSON_ERRORS = (json.JSONDecodeError, TypeError, ValueError, UnicodeDecodeError)
 
@@ -474,10 +487,6 @@ def _find(context, suffix):
     return found
 
 
-def _rows(path, query):
-    return get_sqlite_db_records(path, query)
-
-
 @artifact_processor
 def life360CircleDrives(context):
     data_headers = (
@@ -501,7 +510,7 @@ def life360CircleDrives(context):
     '''
     for path in paths:
         rel = context.get_relative_path(path)
-        for row in _rows(path, query):
+        for row in read_life360_rows(path, query):
             data_list.append((_cocoa(row[0]), _cocoa(row[1])) + tuple(_as_stored(v) for v in row[2:18]) +
                              (_cocoa(row[18]), _cocoa(row[19]), _cocoa(row[20]), rel))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
@@ -523,7 +532,7 @@ def life360Places(context):
     '''
     for path in paths:
         rel = context.get_relative_path(path)
-        for row in _rows(path, query):
+        for row in read_life360_rows(path, query):
             data_list.append(tuple(_as_stored(v) for v in row[:5]) + (_yes_no(row[5]),) +
                              tuple(_as_stored(v) for v in row[6:14]) + (_cocoa(row[14]), rel))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
@@ -545,7 +554,7 @@ def life360PlaceAlerts(context):
     '''
     for path in paths:
         rel = context.get_relative_path(path)
-        for row in _rows(path, query):
+        for row in read_life360_rows(path, query):
             data_list.append((_as_stored(row[0]), _as_stored(row[1]), _yes_no(row[2]), _yes_no(row[3])) +
                              tuple(_as_stored(v) for v in row[4:9]) + (_cocoa(row[9]), rel))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
@@ -577,7 +586,7 @@ def life360DriverReports(context):
     '''
     for path in paths:
         rel = context.get_relative_path(path)
-        for row in _rows(path, query):
+        for row in read_life360_rows(path, query):
             data_list.append((_cocoa(row[0]), _cocoa(row[1])) + tuple(_as_stored(v) for v in row[2:17]) +
                              (_cocoa(row[17]), _cocoa(row[18])) + tuple(_as_stored(v) for v in row[19:22]) +
                              (_cocoa(row[22]), rel))
@@ -853,8 +862,8 @@ def life360PopDwells(context):
         if isinstance(raw, bytes):
             try:
                 entries = plistlib.loads(raw)
-            except (plistlib.InvalidFileException, ValueError, OverflowError):
-                logfunc('Life360 pop-dwell_seen did not parse as a plist and was skipped')
+            except (plistlib.InvalidFileException, ValueError, OverflowError, ExpatError):
+                logfunc(f'Life360 pop-dwell_seen in {rel!r} did not parse as a plist and was skipped')
                 continue
         entries = stored_list(entries, 'pop-dwell_seen')
         for entry in entries:

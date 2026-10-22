@@ -13,6 +13,7 @@ import unittest
 from unittest.mock import patch
 
 from admin.test.fixtures.life360 import make_synthetic_life360 as fixture
+from scripts import ilapfuncs, life360_common
 from scripts.artifacts import life360Awareness as awareness, life360Stores as stores
 from scripts.life360_common import get_life360_files, seconds_to_utc
 
@@ -199,6 +200,102 @@ class Life360StoreTests(unittest.TestCase):
             rows = _run(awareness, 'life360DeviceLocationSamples', self.root)
         self.assertEqual(len(rows), 3)
         self.assertTrue(any('3 ZENTRY row(s)' in str(call) for call in log.call_args_list))
+
+    def test_deferred_sqlite_read_failure_preserves_good_files(self):
+        tree = self.root.parent
+        artifacts = [(module, name) for module in (awareness, stores)
+                     for name, metadata in module.__artifacts_v2__.items()
+                     if any('.sqlite' in pattern for pattern in metadata['paths'])]
+        expected = {(module, name): _run(module, name, tree) for module, name in artifacts}
+        bad = tree / '0_bad'
+        _container(bad)
+        (bad / 'Library/Preferences/com.life360.safetymap.plist').unlink()
+        original = ilapfuncs.get_sqlite_db_records
+        closed = []
+
+        def records(path, query):
+            found = original(path, query)
+            if bad not in Path(path).parents:
+                return found
+
+            def fail_late():
+                try:
+                    yield next(iter(found))
+                    raise sqlite3.DatabaseError('synthetic-private-payload')
+                finally:
+                    found.close()
+                    closed.append(path)
+
+            return fail_late()
+
+        for module, name in artifacts:
+            with self.subTest(artifact=name), \
+                    patch.object(life360_common, 'get_sqlite_db_records', side_effect=records), \
+                    patch.object(life360_common, 'logfunc') as log:
+                closed.clear()
+                rows = _run(module, name, tree)
+                before = collections.Counter(json.dumps(row, sort_keys=True, default=str)
+                                             for row in expected[module, name])
+                after = collections.Counter(json.dumps(row, sort_keys=True, default=str) for row in rows)
+                self.assertFalse(before - after)
+                self.assertTrue(closed)
+                messages = [call.args[0] for call in log.call_args_list]
+                self.assertTrue(any('0_bad' in message and 'SQLite read failed' in message
+                                    and 'earlier rows retained' in message for message in messages))
+                self.assertTrue(all('synthetic-private-payload' not in message for message in messages))
+
+    def test_unrecognised_location_entry_is_logged_beside_good_rows(self):
+        path = _topic(self.root, 'DeviceLocationTopic')
+        _append(path, fixture.T0 + 1500, {'unsupported_layout': True})
+        with patch.object(awareness, 'logfunc') as log:
+            rows = _run(awareness, 'life360DeviceLocationSamples', self.root)
+        self.assertEqual(len(rows), 3)
+        self.assertTrue(any('DeviceLocationTopic.sqlite' in call.args[0]
+                            and 'neither buffered samples nor a headline location' in call.args[0]
+                            for call in log.call_args_list))
+
+    def test_corrupt_and_unrecognised_sqlite_stores_are_logged_beside_good_files(self):
+        tree = self.root.parent
+        artifacts = [(module, name) for module in (awareness, stores)
+                     for name, metadata in module.__artifacts_v2__.items()
+                     if any('.sqlite' in pattern for pattern in metadata['paths'])]
+        expected = {(module, name): _run(module, name, tree) for module, name in artifacts}
+        for mode in ('corrupt', 'unrecognised_schema'):
+            bad = tree / mode
+            _container(bad)
+            (bad / 'Library/Preferences/com.life360.safetymap.plist').unlink()
+            for path in bad.rglob('*'):
+                if path.name.endswith(('-wal', '-shm')):
+                    path.unlink()
+            for path in bad.rglob('*.sqlite'):
+                path.unlink()
+                if mode == 'corrupt':
+                    path.write_bytes(b'not a SQLite database')
+                else:
+                    with sqlite3.connect(path) as connection:
+                        connection.execute('CREATE TABLE unsupported_layout (value TEXT)')
+        for module, name in artifacts:
+            with self.subTest(artifact=name), patch.object(ilapfuncs, 'logfunc') as log:
+                rows = _run(module, name, tree)
+                self.assertCountEqual(rows, expected[module, name])
+                messages = [call.args[0] for call in log.call_args_list]
+                for mode in ('corrupt', 'unrecognised_schema'):
+                    self.assertTrue(any(mode in message and '.sqlite' in message for message in messages))
+
+    def test_malformed_embedded_xml_plist_is_logged_and_good_file_survives(self):
+        tree = self.root.parent
+        expected = _run(stores, 'life360PopDwells', tree)
+        bad = tree / '0_bad'
+        _container(bad)
+        path = bad / 'Library/Preferences/com.life360.safetymap.plist'
+        preferences = plistlib.loads(path.read_bytes())
+        preferences['pop-dwell_seen'] = b'<?xml version="1.0"?><plist><array><dict><key>date</key>'
+        path.write_bytes(plistlib.dumps(preferences))
+        with patch.object(stores, 'logfunc') as log:
+            rows = _run(stores, 'life360PopDwells', tree)
+        self.assertEqual(rows, expected)
+        self.assertTrue(any('0_bad/Library/Preferences/com.life360.safetymap.plist' in call.args[0]
+                            and 'did not parse as a plist' in call.args[0] for call in log.call_args_list))
 
     def test_raw_event_forms_and_bad_base64_preserve_outer_entry(self):
         path = _topic(self.root, 'active_modality')

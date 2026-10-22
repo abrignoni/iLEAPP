@@ -1,8 +1,9 @@
 """Life360 container validation and conversion of documented seconds-based timestamps."""
 import os
+import sqlite3
 from datetime import datetime, timedelta, timezone
 
-from scripts.ilapfuncs import get_plist_file_content, logfunc
+from scripts.ilapfuncs import get_plist_file_content, get_sqlite_db_records, logfunc
 
 
 def seconds_to_utc(value, epoch_year):
@@ -35,6 +36,21 @@ def stored_list(value, label):
     if value is not None:
         logfunc(f'Life360 {label} was not an array; its elements were skipped')
     return []
+
+
+def read_life360_rows(path, query):
+    """Keep a deferred SQLite read failure local to its source file."""
+    try:
+        records = get_sqlite_db_records(path, query)
+        try:
+            yield from records
+        finally:
+            close = getattr(records, 'close', None)
+            if close is not None:
+                close()
+    except sqlite3.Error as error:
+        logfunc(f'Life360 SQLite read failed in {str(path)!r} ({type(error).__name__}); '
+                'remaining rows skipped, earlier rows retained')
 
 
 def get_life360_files(context):

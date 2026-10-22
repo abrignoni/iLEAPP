@@ -14,7 +14,8 @@ __artifacts_v2__ = {
                  'One row is reported per bufferedSamples element; the top-level location object was the last buffered '
                  'sample on 108 of 109 entries and present somewhere in the array on all 109 entries of the tested '
                  'image; it is not reported separately when bufferedSamples is populated. A missing or empty '
-                 "bufferedSamples array falls back to the headline location. Sample Time is the sample's timestamp key, "
+                 'bufferedSamples array falls back to the headline location. If neither location form is available, '
+                 "the entry is skipped with a log message. Sample Time is the sample's timestamp key, "
                  "seconds since 2001-01-01 (Cocoa), and Logged Time is the row's ZTIMESTAMP, Unix seconds; both "
                  'rendered in UTC. Latitude, Longitude, Altitude, Speed, Course, Horizontal Accuracy and Vertical '
                  'Accuracy are the coordinate.latitude, coordinate.longitude, altitude, speed, course, '
@@ -57,7 +58,10 @@ __artifacts_v2__ = {
                  'ZDRIVEMODEL drive IDs (1,127 live). These are stale main-file views, not additional live rows; they are '
                  'not emitted here. Separate stale-state support needs source-state labels, ID/payload reconciliation and '
                  'epoch validation before reporting these records. Older WAL frames and deleted-record carving remain '
-                 'outside coverage.',
+                 'outside coverage.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.DeviceLocationTopic/com.life360.DeviceLocationTopic.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "all",
@@ -100,7 +104,10 @@ __artifacts_v2__ = {
                  'without magnitude-based unit inference. A stored zero renders as the declared epoch instant (1970-01-01 '
                  'or 2001-01-01), not as a missing value. Missing dates remain blank. Unexpected nonnumeric and '
                  'out-of-range numeric dates render blank with a log entry. Decode failures and unexpected stored '
-                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.',
+                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "all",
@@ -155,7 +162,10 @@ __artifacts_v2__ = {
                  'declared epoch instant (1970-01-01 or 2001-01-01), not as a missing value. Missing dates remain blank. '
                  'Unexpected nonnumeric and out-of-range numeric dates render blank with a log entry. Decode failures and '
                  'unexpected stored object/array shapes are logged; valid outer rows and raw values are retained where '
-                 'supported.',
+                 'supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite*',
                   '*/Library/Application Support/com.eventkit/com.life360.L360Driving.Topics.DriveEvent/com.life360.L360Driving.Topics.DriveEvent.sqlite*',
                   '*/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.trip_session/com.life360.event_history_core.topics.trip_session.sqlite*',
@@ -219,7 +229,10 @@ __artifacts_v2__ = {
                  'unexpected stored object/array shapes are logged; valid outer rows and raw values are retained where '
                  'supported.'
                  ' On the tested image Source Files and Stores identify each other one to one; Source Files is retained to '
-                 'distinguish matching store names in different containers.',
+                 'distinguish matching store names in different containers.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite*',
                   '*/Library/Application Support/com.eventkit/com.life360.L360Driving.Topics.DriveEvent/com.life360.L360Driving.Topics.DriveEvent.sqlite*',
                   '*/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.trip_session/com.life360.event_history_core.topics.trip_session.sqlite*',
@@ -273,7 +286,10 @@ __artifacts_v2__ = {
                  'unexpected stored object/array shapes are logged; valid outer rows and raw values are retained where '
                  'supported.'
                  ' On the tested image Source Files and Stores identify each other one to one; Source Files is retained to '
-                 'distinguish matching store names in different containers.',
+                 'distinguish matching store names in different containers.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite*',
                   '*/Library/Application Support/com.eventkit/com.life360.L360Driving.Topics.DriveEvent/com.life360.L360Driving.Topics.DriveEvent.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
@@ -331,7 +347,10 @@ __artifacts_v2__ = {
                  'unexpected stored object/array shapes are logged; valid outer rows and raw values are retained where '
                  'supported.'
                  ' On the tested image Source Files and Stores identify each other one to one; Source Files is retained to '
-                 'distinguish matching store names in different containers.',
+                 'distinguish matching store names in different containers.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.dwell_session/com.life360.event_history_core.topics.dwell_session.sqlite*',
                   '*/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.DwellTopic/com.life360.AwarenessEngine.Topics.DwellTopic.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
@@ -375,7 +394,10 @@ __artifacts_v2__ = {
                  'without magnitude-based unit inference. A stored zero renders as the declared epoch instant (1970-01-01 '
                  'or 2001-01-01), not as a missing value. Missing dates remain blank. Unexpected nonnumeric and '
                  'out-of-range numeric dates render blank with a log entry. Decode failures and unexpected stored '
-                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.',
+                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.BreachTopic/com.life360.AwarenessEngine.Topics.BreachTopic.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "all",
@@ -419,7 +441,10 @@ __artifacts_v2__ = {
                  'without magnitude-based unit inference. A stored zero renders as the declared epoch instant (1970-01-01 '
                  'or 2001-01-01), not as a missing value. Missing dates remain blank. Unexpected nonnumeric and '
                  'out-of-range numeric dates render blank with a log entry. Decode failures and unexpected stored '
-                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.',
+                 'object/array shapes are logged; valid outer rows and raw values are retained where supported.'
+                 ' SQLite read failures are logged. A deferred error retains earlier rows and skips the unread '
+                 'remainder of that file; other matching files continue. Check the run log for incomplete '
+                 'reads.',
         "paths": ('*/Library/Application Support/com.eventkit/com.life360.activity_recognition.topics.active_modality/com.life360.activity_recognition.topics.active_modality.sqlite*',
                   '*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "all",
@@ -434,9 +459,9 @@ import base64
 import json
 import os
 
-from scripts.ilapfuncs import (artifact_processor, get_plist_file_content,
-                               get_sqlite_db_records, logfunc)
-from scripts.life360_common import get_life360_files, seconds_to_utc, stored_dict, stored_list
+from scripts.ilapfuncs import artifact_processor, get_plist_file_content, logfunc
+from scripts.life360_common import (get_life360_files, read_life360_rows, seconds_to_utc,
+                                   stored_dict, stored_list)
 
 _JSON_ERRORS = (json.JSONDecodeError, TypeError, ValueError, UnicodeDecodeError)
 _TRIP_START_KEY = 'DriveEventPublishingComponent.tripStartTimes'
@@ -531,7 +556,7 @@ def _topic_files(context, wanted=None):
 
 def _entries(path):
     """Yield (ZTIMESTAMP, parsed JSON) for each ZENTRY row, logging rows that do not parse."""
-    rows = get_sqlite_db_records(path, 'SELECT ZTIMESTAMP, ZDATA FROM ZENTRY ORDER BY ZTIMESTAMP')
+    rows = read_life360_rows(path, 'SELECT ZTIMESTAMP, ZDATA FROM ZENTRY ORDER BY ZTIMESTAMP')
     bad = 0
     for row in rows:
         data = row[1]
@@ -606,6 +631,9 @@ def life360DeviceLocationSamples(context):
             if not samples:
                 location = stored_dict(doc.get('location'), 'headline location')
                 samples = [location] if isinstance(doc.get('location'), dict) else []
+            if not samples:
+                logfunc(f'Life360 location entry in {rel!r} had neither buffered samples nor a headline '
+                        'location and was skipped')
             for index, sample in enumerate(samples, 1):
                 if not isinstance(sample, dict):
                     logfunc('Life360 bufferedSamples element was not an object and was skipped')
