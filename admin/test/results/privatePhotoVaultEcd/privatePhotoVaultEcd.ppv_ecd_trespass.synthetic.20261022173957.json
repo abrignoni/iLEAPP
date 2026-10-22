@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "module_name": "privatePhotoVaultEcd",
+    "artifact_name": "Private Photo Vault - ECD Trespass Records",
+    "function_name": "ppv_ecd_trespass",
+    "case_number": "synthetic",
+    "number_of_columns": 12,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 421,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/privatePhotoVaultEcd/testdata.privatePhotoVaultEcd.ppv_ecd_trespass.synthetic.zip",
+    "start_time": "2026-10-22T17:39:57.986310+00:00",
+    "end_time": "2026-10-22T17:39:58.003043+00:00",
+    "run_time_seconds": 0.0007679462432861328,
+    "last_commit": {
+      "hash": "6f7fbebf87cf4a7e8dad20ffa34ff7c004ee97a3",
+      "author_name": "CyberMike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T13:38:58-04:00",
+      "message": "Add schema-verified Private Photo Vault ECD and resilient activity parsing"
+    }
+  },
+  "headers": [
+    "date",
+    "Object Row ID",
+    "syncId (as stored)",
+    "loginType (as stored)",
+    "deviceName (as stored)",
+    "latitude (as stored)",
+    "longitude (as stored)",
+    "fileName (as stored)",
+    "thumbFileName (as stored)",
+    "isEncrypted (as stored)",
+    "Selected Metadata JSON",
+    "Source File"
+  ],
+  "data": [
+    [
+      1700000000,
+      1,
+      null,
+      7,
+      null,
+      null,
+      null,
+      "synthetic.enc",
+      null,
+      null,
+      "{\"__objectid\": 1, \"date\": 1700000000.5, \"fileName\": \"synthetic.enc\", \"loginType\": 7}",
+      "private/var/mobile/Containers/Data/Application/alpha/Library/PPV.ecd.decrypted"
+    ],
+    [
+      1700000000,
+      1,
+      null,
+      7,
+      null,
+      null,
+      null,
+      "synthetic.enc",
+      null,
+      null,
+      "{\"__objectid\": 1, \"date\": 1700000000.5, \"fileName\": \"synthetic.enc\", \"loginType\": 7}",
+      "private/var/mobile/Containers/Data/Application/beta/Library/PPV.ecd.decrypted"
+    ]
+  ]
+}

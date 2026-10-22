@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "module_name": "privatePhotoVaultEcd",
+    "artifact_name": "Private Photo Vault - Diagnostic Log",
+    "function_name": "ppv_diagnostic_log",
+    "case_number": "synthetic",
+    "number_of_columns": 7,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 180,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/privatePhotoVaultEcd/testdata.privatePhotoVaultEcd.ppv_diagnostic_log.synthetic.zip",
+    "start_time": "2026-10-22T17:39:58.020659+00:00",
+    "end_time": "2026-10-22T17:39:58.035191+00:00",
+    "run_time_seconds": 0.00015687942504882812,
+    "last_commit": {
+      "hash": "6f7fbebf87cf4a7e8dad20ffa34ff7c004ee97a3",
+      "author_name": "CyberMike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T13:38:58-04:00",
+      "message": "Add schema-verified Private Photo Vault ECD and resilient activity parsing"
+    }
+  },
+  "headers": [
+    "Log Time",
+    "Message",
+    "Line Number",
+    "Time Raw (Unix milliseconds)",
+    "Message Hex",
+    "Decode Status",
+    "Source File"
+  ],
+  "data": [
+    [
+      1700000000,
+      "Synthetic unlock",
+      1,
+      1700000000125,
+      "53796e74686574696320756e6c6f636b",
+      "Decoded hex UTF-8",
+      "Library/Caches/com.crashlytics.data/com.enchantedcloud.photovault/v5/report/log_a.clsrecord"
+    ]
+  ]
+}
