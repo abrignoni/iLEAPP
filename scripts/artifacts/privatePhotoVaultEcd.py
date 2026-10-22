@@ -6,21 +6,14 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                     'output_types': ['html', 'tsv', 'lava'],
                     'artifact_icon': 'lock',
                     'name': 'Private Photo Vault - ECD Albums',
-                    'description': 'Album rows from a plaintext or already decrypted PPV.ecd '
-                                   'store.',
+                    'description': 'Vault album IDs, titles, relationships and stored states.',
                     'paths': ('*/PPV.ecd*',),
-                    'notes': 'Reads plaintext/already decrypted ECD SQLite only; does not decrypt '
-                             'or render media. Supported ECD table signatures are required, not '
-                             'merely a matching filename. Dates use Unix seconds. Raw numeric '
-                             'dates remain in Selected Metadata JSON; invalid dates display blank. '
-                             'Zero is displayed literally as 1970-01-01 UTC; whether it means '
-                             'unset is unverified. Password fields are excluded. Unknown flags are '
-                             'reported as stored. deletedDate, parentId (as stored) and '
-                             'coverSyncId (as stored) were empty in private validation; retained '
-                             'for populated stores. coverType (as stored) and '
-                             'isExcludedFromScanning (as stored) were uniform but are independent '
-                             'configuration fields. See admin/docs/private_photo_vault_ecd.md for '
-                             'exclusions and validation boundaries. '},
+                    'notes': 'createdDate, modifiedDate and deletedDate are the corresponding '
+                             'album-record fields in Unix seconds. Zero displays as 1970-01-01 '
+                             'UTC; its application meaning is unknown. Invalid dates are blank; '
+                             'raw values remain in Selected Metadata JSON. Parent/cover IDs and '
+                             'flags are reported as stored. Only plaintext or already decrypted '
+                             'stores are read; passwords are omitted.'},
  'ppv_ecd_media': {'author': '@CyberMike81, OpenAI Codex',
                    'creation_date': '2026-10-22',
                    'last_update_date': '2026-10-22',
@@ -29,23 +22,17 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                    'output_types': ['html', 'tsv', 'lava'],
                    'artifact_icon': 'lock',
                    'name': 'Private Photo Vault - ECD Media Records',
-                   'description': 'Stored media metadata, album references and l_viewCount values '
-                                  'from PPV.ecd.',
+                   'description': 'Vault media IDs, album references, lifecycle dates and stored '
+                                  'view counters.',
                    'paths': ('*/PPV.ecd*',),
-                   'notes': 'Reads plaintext/already decrypted ECD SQLite only; does not decrypt '
-                            'or render media. Supported ECD table signatures are required, not '
-                            'merely a matching filename. Dates use Unix seconds. Raw numeric dates '
-                            'remain in Selected Metadata JSON; invalid dates display blank. Zero '
-                            'is displayed literally as 1970-01-01 UTC; whether it means unset is '
-                            'unverified. Encryption keys are excluded. l_viewCount is a cumulative '
-                            'stored field, not a timestamped sequence or operator identity. '
-                            'Session itemsViewed is separate and cannot be allocated to media '
-                            'counters. favoriteDate, trashedDate, uploadedDate and '
-                            'l_cloudDownloadDate were empty in private validation; retained as '
-                            'source lifecycle fields. l_isDownloaded (as stored), isDecoy (as '
-                            'stored) and purged (as stored) were uniform, retained as independent '
-                            'states. See admin/docs/private_photo_vault_ecd.md for exclusions and '
-                            'validation boundaries. '},
+                   'notes': 'Dates are vault-record fields in Unix seconds: creation, '
+                            'modification, favorite, trash, upload and local cloud-download. They '
+                            'are not established original-file dates. Zero displays as 1970-01-01 '
+                            'UTC with unknown application meaning; raw values remain in Selected '
+                            'Metadata JSON. l_viewCount is a cumulative stored counter, not a '
+                            'timed viewing sequence or operator identity. Session itemsViewed '
+                            'cannot be allocated to individual files. Only plaintext/already '
+                            'decrypted records are read; media and keys are not included.'},
  'ppv_ecd_parts': {'author': '@CyberMike81, OpenAI Codex',
                    'creation_date': '2026-10-22',
                    'last_update_date': '2026-10-22',
@@ -54,16 +41,14 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                    'output_types': ['html', 'tsv', 'lava'],
                    'artifact_icon': 'lock',
                    'name': 'Private Photo Vault - ECD Media Parts',
-                   'description': 'Stored part references, byte sizes and content hashes from '
-                                  'PPV.ecd.',
+                   'description': 'Stored media-part IDs, parent media IDs, sizes, offsets and '
+                                  'hashes.',
                    'paths': ('*/PPV.ecd*',),
-                   'notes': 'Reads plaintext/already decrypted ECD SQLite only; does not decrypt '
-                            'or render media. Supported ECD table signatures are required, not '
-                            'merely a matching filename. Part/media IDs, sizes, offsets, hashes '
-                            'and local/cloud flags are reported as stored. The private table was '
-                            'empty; populated rows are synthetic-tested only. See '
-                            'admin/docs/private_photo_vault_ecd.md for exclusions and validation '
-                            'boundaries. '},
+                   'notes': 'mediaItemSyncId links a part to its media record. Sizes, offsets, '
+                            'hashes and local/cloud flags are reported as stored; the rows do not '
+                            'establish current file availability or content. Selected Metadata '
+                            'JSON retains the reported fields. Only plaintext or already decrypted '
+                            'stores are read; media bytes are not included.'},
  'ppv_ecd_trespass': {'author': '@CyberMike81, OpenAI Codex',
                       'creation_date': '2026-10-22',
                       'last_update_date': '2026-10-22',
@@ -72,21 +57,17 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                       'output_types': ['html', 'tsv', 'lava'],
                       'artifact_icon': 'lock',
                       'name': 'Private Photo Vault - ECD Trespass Records',
-                      'description': 'Rows of ecdPersistentTresspassRecord, with stored login type '
-                                     'and file references.',
+                      'description': 'App-stored login-related records, locations and file '
+                                     'references.',
                       'paths': ('*/PPV.ecd*',),
-                      'notes': 'Reads plaintext/already decrypted ECD SQLite only; does not '
-                               'decrypt or render media. Supported ECD table signatures are '
-                               'required, not merely a matching filename. Dates use Unix seconds. '
-                               'Raw numeric dates remain in Selected Metadata JSON; invalid dates '
-                               'display blank. Zero is displayed literally as 1970-01-01 UTC; '
-                               'whether it means unset is unverified. The table name does not '
-                               'prove a failed login or identify an operator. loginType and '
-                               'isEncrypted are reported as stored. fileName and thumbFileName are '
-                               'text references only: media bytes are not selected or rendered by '
-                               'this artifact. The private table was empty; populated rows are '
-                               'synthetic-tested only. See admin/docs/private_photo_vault_ecd.md '
-                               'for exclusions and validation boundaries. '},
+                      'notes': 'date is the stored record time in Unix seconds. Zero displays as '
+                               '1970-01-01 UTC with unknown application meaning; invalid dates are '
+                               'blank and raw values remain in Selected Metadata JSON. loginType, '
+                               'device/location fields and encryption state are reported as '
+                               'stored. The record does not by itself establish a failed login or '
+                               'identify an operator. File and thumbnail names are references, not '
+                               'displayed media; only plaintext/already decrypted stores are '
+                               'read.'},
  'ppv_activity_events': {'author': '@CyberMike81, OpenAI Codex',
                          'creation_date': '2026-10-22',
                          'last_update_date': '2026-10-22',
@@ -95,60 +76,32 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                          'output_types': ['html', 'tsv', 'lava'],
                          'artifact_icon': 'lock',
                          'name': 'Private Photo Vault - Activity Events',
-                         'description': 'Mixpanel event records and session metrics associated '
-                                        'with Private Photo Vault.',
+                         'description': 'App-associated analytics events and stored session '
+                                        'metrics.',
                          'paths': ('*/PPV.ecd*',
                                    '*/Library/*_MPDB.sqlite*',
                                    '*/.com.apple.mobile_container_manager.metadata.plist'),
-                         'notes': 'Both outer and session bundleId fields are checked: any '
-                                  'nonempty foreign or conflicting ID is rejected and logged. An '
-                                  'event with neither ID requires a schema-verified ECD store or a '
-                                  'matching MCMMetadataIdentifier in the same container. '
-                                  'Non-SQLite PPV.ecd bytes alone do not identify the app; '
-                                  'encrypted/non-plaintext stores need independent container '
-                                  'metadata. App Association lists every available supporting '
-                                  'basis; bundle labels and container association do not prove a '
-                                  'PPV UI action. Event Time uses properties.time; absolute '
-                                  'numeric values at least 100000000000 are divided by 1000, '
-                                  'otherwise by 1. Invalid times remain blank; properties.time '
-                                  'Raw, Time Divisor and complete Event JSON are retained. SQL '
-                                  'Queue Time Raw is not event time. Session itemsViewed is '
-                                  'separate from l_viewCount, not allocated to media counters and '
-                                  'does not identify the operator. Bad tables/records are logged '
-                                  'with file/table/row context and do not suppress later tables. '
-                                  'SQL Queue Time Raw and Source Table were uniform in private '
-                                  'validation; retained as independent queue metadata and record '
-                                  'provenance. See admin/docs/private_photo_vault_ecd.md for '
-                                  'exclusions and validation boundaries. Integers outside SQLite '
-                                  'signed 64-bit range are exact decimal text in scalar columns; '
-                                  'Event JSON retains the typed original. A matching event label '
-                                  'or verified ECD schema in a container named for another app is '
-                                  'retained with a conflict warning, Container Bundle ID (as '
-                                  'stored), and Container Identity Status. This preserves '
-                                  'contradictory source evidence without treating its label as '
-                                  'verified app identity. Container Bundle ID (as stored) and '
-                                  'Container Identity Status were uniform in private validation; '
-                                  'retained to expose conflicts or missing metadata on other '
-                                  'inputs.'},
+                         'notes': 'Event Time comes from properties.time; Time Divisor shows '
+                                  'whether the raw value was treated as seconds or milliseconds. '
+                                  'SQL Queue Time Raw is separate queue metadata. Event JSON '
+                                  'preserves the event and raw values; invalid dates remain blank. '
+                                  'App Association identifies the available app/container '
+                                  'evidence; Container Identity Status flags conflicts or missing '
+                                  'metadata. Labels and association do not prove a UI action or '
+                                  'operator. Session itemsViewed is separate from per-file '
+                                  'l_viewCount and cannot be allocated to files.'},
  'ppv_diagnostic_log': {'name': 'Private Photo Vault - Diagnostic Log',
-                        'description': 'Timestamped diagnostic text from the app-scoped '
-                                       'Crashlytics log records.',
+                        'description': 'App diagnostic messages, record times and decoding status.',
                         'author': '@CyberMike81, OpenAI Codex',
                         'creation_date': '2026-10-22',
                         'last_update_date': '2026-10-22',
                         'requirements': 'none',
                         'category': 'Private Photo Vault',
-                        'notes': 'Reads app-scoped newline-delimited JSON log objects; msg is hex '
-                                 'UTF-8 and time is Unix milliseconds. Message is reported text, '
-                                 'not an identified operator or proof a media file was viewed. '
-                                 'Malformed JSON and unsupported shapes are logged with file/line '
-                                 'context and skipped. Undecodable messages retain Message Hex and '
-                                 'Decode Status. Invalid dates remain blank with Time Raw '
-                                 'retained. Decode Status was uniform in private validation; '
-                                 'retained for raw-only records on other inputs. See '
-                                 'admin/docs/private_photo_vault_ecd.md for exclusions and '
-                                 'validation boundaries.  Oversized integers are exact decimal '
-                                 'text in Time Raw; the source log retains the typed original.',
+                        'notes': 'Time is the source log time in Unix milliseconds; Time Raw '
+                                 'retains the stored value and invalid dates remain blank. Message '
+                                 'contains decoded diagnostic text; Message Hex and Decode Status '
+                                 'preserve undecoded content. A diagnostic message is not proof '
+                                 'that a file was viewed and does not identify the operator.',
                         'paths': ('*/Caches/com.crashlytics.data/com.enchantedcloud.photovault/*/log_*.clsrecord',),
                         'output_types': ['html', 'tsv', 'lava'],
                         'artifact_icon': 'file-text'}}
