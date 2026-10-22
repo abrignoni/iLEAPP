@@ -1,0 +1,56 @@
+{
+  "synthetic": {
+    "description": "Fabricated cache, multi-account, history and draft records.",
+    "maker": "@CyberMike81",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "reddit_cached_posts": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/sqlNormalizedCache*"
+        ],
+        "file_count": 2
+      },
+      "reddit_cached_comments": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/sqlNormalizedCache*"
+        ],
+        "file_count": 2
+      },
+      "reddit_cached_communities": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/sqlNormalizedCache*"
+        ],
+        "file_count": 2
+      },
+      "reddit_cached_profiles": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/sqlNormalizedCache*"
+        ],
+        "file_count": 2
+      },
+      "reddit_post_history": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/PostHistory"
+        ],
+        "file_count": 2
+      },
+      "reddit_community_history": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/SubredditHistory"
+        ],
+        "file_count": 2
+      },
+      "reddit_comment_drafts": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/commentDrafts/CommentDraftEntity.sqlite*"
+        ],
+        "file_count": 1
+      }
+    }
+  }
+}
