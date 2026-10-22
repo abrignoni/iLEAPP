@@ -45,7 +45,7 @@ assert.equal(value,1706965445.125);assert.throws(()=>C.zone('Invalid/Zone'));
         self.check_js(r"""
 for(const value of ['',null,undefined,' '])assert.equal(C.dateDetail(value),'Date not retained');
 assert.ok(C.dateDetail(0).endsWith('Raw UTC epoch: 0'));
-assert.ok(C.dateDetail('invalid').endsWith('Raw UTC epoch: invalid'));
+assert.ok(C.dateDetail('invalid').endsWith('Raw stored value: invalid'));
 assert.ok(C.dateDetail('1706965445.123456').endsWith('Raw UTC epoch: 1706965445.123456'));
 """)
 

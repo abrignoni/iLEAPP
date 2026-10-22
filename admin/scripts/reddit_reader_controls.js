@@ -45,7 +45,8 @@ const ReaderControls = (() => {
   function dateDetail(value, options = {}) {
     const display = stamp(value, options);
     if (value === null || value === undefined || (typeof value === 'string' && !value.trim())) return display;
-    return display + '\nRaw UTC epoch: ' + String(value);
+    const label = epoch(value) === null ? 'Raw stored value' : 'Raw UTC epoch';
+    return display + '\n' + label + ': ' + String(value);
   }
   function inRange(row, options) {
     if (!options.from && !options.to) return options.includeUndated !== false || epoch(row.created) !== null;
