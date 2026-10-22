@@ -6,24 +6,17 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                          'output_types': ['html', 'tsv', 'lava'],
                          'artifact_icon': 'brand-reddit',
                          'name': 'Reddit - Cached Posts',
-                         'description': 'Post objects and resolved content, author and community '
-                                        'references in the normalized cache.',
+                         'description': 'Cached post text, author, community and stored post '
+                                        'states.',
                          'paths': ('*/Documents/release02/accountData/*/sqlNormalizedCache*',),
-                         'notes': 'Account is the containing accountData directory, not a verified '
-                                  'person. Cached content can be prefetched; presence does not '
-                                  'establish reading, authorship or intent. References resolve '
-                                  'only within each database. Missing values remain blank; stored '
-                                  'false and zero are retained. Content Created and Content Edited '
-                                  'are content dates, not cache receipt or view times. Only dates '
-                                  'with an explicit timezone are converted; invalid dates are '
-                                  'logged with source, key and field. See '
-                                  'admin/docs/reddit_cache_history.md for excluded stores and '
-                                  'validation boundaries. Content Created was sparse in private '
-                                  'validation. Content Edited and Is Removed (as stored) were '
-                                  'empty; retained for populated stores. Is Own (as stored) and Is '
-                                  'Saved (as stored) were identical in this sample but are '
-                                  'independent stored flags. Source File distinguishes multiple '
-                                  'stores for an Account; Account and Source File were one-to-one in this sample.'},
+                         'notes': 'Content Created and Content Edited are post creation/edit '
+                                  'dates, not view or cache-receipt times. Dates without a '
+                                  'timezone remain blank; original values are in Object JSON. '
+                                  'Account is the source account directory, not a verified person. '
+                                  'Source File separates cache stores. Author/community references '
+                                  'come from the same cache. Cached content may be prefetched and '
+                                  'does not establish reading or authorship; own/saved/vote flags '
+                                  'are reported as stored.'},
  'reddit_cached_comments': {'author': '@CyberMike81, OpenAI Codex',
                             'creation_date': '2026-10-22',
                             'last_update_date': '2026-10-22',
@@ -32,28 +25,16 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                             'output_types': ['html', 'tsv', 'lava'],
                             'artifact_icon': 'brand-reddit',
                             'name': 'Reddit - Cached Comments',
-                            'description': 'Comment objects, linked post context, and resolved '
-                                           'text and author references in the normalized cache.',
+                            'description': 'Cached comment text, author and linked post context.',
                             'paths': ('*/Documents/release02/accountData/*/sqlNormalizedCache*',),
-                            'notes': 'Account is the containing accountData directory, not a '
-                                     'verified person. Cached content can be prefetched; presence '
-                                     'does not establish reading, authorship or intent. References '
-                                     'resolve only within each database. Missing values remain '
-                                     'blank; stored false and zero are retained. Content Created '
-                                     'and Content Edited are content dates, not cache receipt or '
-                                     'view times. Only dates with an explicit timezone are '
-                                     'converted; invalid dates are logged with source, key and '
-                                     'field. See admin/docs/reddit_cache_history.md for excluded '
-                                     'stores and validation boundaries. Post ID (from permalink) '
-                                     'and Community (from permalink) require a stored Reddit '
-                                     'permalink matching the comment ID. Cached Post Title and '
-                                     'Post Cache Key require a matching post in the same database; '
-                                     'only 28 of 1029 private comments had a cached title. Missing '
-                                     'or mismatched links remain unlinked; reply hierarchy is not '
-                                     'inferred. Account, Is Own (as stored), Is Saved (as stored), '
-                                     'and Vote State (as stored) were uniform in private '
-                                     'validation; retained for source separation and independent '
-                                     'stored states.'},
+                            'notes': 'Content Created and Content Edited are comment creation/edit '
+                                     'dates, not view times. Original values are in Object JSON. '
+                                     'Post ID and community come from a stored permalink matching '
+                                     'the comment ID; Cached Post Title requires a matching post '
+                                     'in the same cache. Missing links remain blank; reply nesting '
+                                     'is not established. Account and Source File identify the '
+                                     'source context. Cached comments and own/saved/vote flags do '
+                                     'not establish reading or device-owner authorship.'},
  'reddit_cached_communities': {'author': '@CyberMike81, OpenAI Codex',
                                'creation_date': '2026-10-22',
                                'last_update_date': '2026-10-22',
@@ -62,21 +43,16 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                                'output_types': ['html', 'tsv', 'lava'],
                                'artifact_icon': 'brand-reddit',
                                'name': 'Reddit - Cached Communities',
-                               'description': 'Community descriptions and stored '
-                                              'subscription/notification state in the normalized '
-                                              'cache.',
+                               'description': 'Cached community IDs, names, descriptions and '
+                                              'subscription/notification states.',
                                'paths': ('*/Documents/release02/accountData/*/sqlNormalizedCache*',),
-                               'notes': 'Account is the containing accountData directory, not a '
-                                        'verified person. Cached content can be prefetched; '
-                                        'presence does not establish reading, authorship or '
-                                        'intent. References resolve only within each database. '
-                                        'Missing values remain blank; stored false and zero are '
-                                        'retained. See admin/docs/reddit_cache_history.md for '
-                                        'excluded stores and validation boundaries. Subscription '
-                                        'and notification fields are reported as stored without '
-                                        'inferring their writer. Account was uniform in private '
-                                        'validation; retained to separate source accounts across '
-                                        'inputs.'},
+                               'notes': 'Community ID identifies the stored subreddit; Account and '
+                                        'Source File distinguish source accounts and caches. '
+                                        'Subscription, favorite, mute and notification fields are '
+                                        'reported as stored. A cached community does not establish '
+                                        'a visit or who set a state. Object JSON preserves the '
+                                        'source fields; blank values were not retained in the '
+                                        'object.'},
  'reddit_cached_profiles': {'author': '@CyberMike81, OpenAI Codex',
                             'creation_date': '2026-10-22',
                             'last_update_date': '2026-10-22',
@@ -85,17 +61,16 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                             'output_types': ['html', 'tsv', 'lava'],
                             'artifact_icon': 'brand-reddit',
                             'name': 'Reddit - Cached Profiles',
-                            'description': 'Redditor objects retained in the normalized cache, '
-                                           'separated by source account.',
+                            'description': 'Cached Reddit user IDs, names, account types and '
+                                           'blocked states.',
                             'paths': ('*/Documents/release02/accountData/*/sqlNormalizedCache*',),
-                            'notes': 'Account is the containing accountData directory, not a '
-                                     'verified person. Cached content can be prefetched; presence '
-                                     'does not establish reading, authorship or intent. References '
-                                     'resolve only within each database. Missing values remain '
-                                     'blank; stored false and zero are retained. See '
-                                     'admin/docs/reddit_cache_history.md for excluded stores and '
-                                     'validation boundaries. Only Redditor roots are reported; '
-                                     'Profile roots and suggestions are outside this artifact.'},
+                            'notes': 'Profile ID identifies the cached Redditor object. Account is '
+                                     'the containing source account, not necessarily the profile '
+                                     'being described. Source File separates caches; Object JSON '
+                                     'preserves additional fields. Blocked and account-type values '
+                                     'are reported as stored. Profile presence does not establish '
+                                     'contact or a visit. Separate Profile objects and suggestions '
+                                     'are not included.'},
  'reddit_post_history': {'author': '@CyberMike81, OpenAI Codex',
                          'creation_date': '2026-10-22',
                          'last_update_date': '2026-10-22',
@@ -104,18 +79,14 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                          'output_types': ['html', 'tsv', 'lava'],
                          'artifact_icon': 'brand-reddit',
                          'name': 'Reddit - Post History Store',
-                         'description': 'Post identifiers, stored list positions and glance flags '
-                                        'in PostHistory.',
+                         'description': 'Stored post IDs, list positions and glance flags.',
                          'paths': ('*/Documents/release02/accountData/*/PostHistory',),
-                         'notes': 'Account is the containing accountData directory, not a verified '
-                                  'person. List Position (zero-based) is storage order, not a '
-                                  'timestamp or established chronology. Duplicate list entries and '
-                                  'info-only entries are retained. kGlanceInfoKey (as stored) is '
-                                  'not interpreted as a view. Missing values remain blank; stored '
-                                  'false and zero are retained. Source File distinguishes multiple '
-                                  'history stores for an Account. See '
-                                  'admin/docs/reddit_cache_history.md for excluded stores and '
-                                  'validation boundaries. '},
+                         'notes': 'List Position is zero-based storage order, not a timestamp or '
+                                  'established viewing sequence. Membership distinguishes list '
+                                  'entries from info-dictionary-only entries; duplicate entries '
+                                  'are retained. kGlanceInfoKey is reported as stored and is not a '
+                                  'read receipt. Account and Source File distinguish history '
+                                  'stores; Info JSON retains the entry metadata.'},
  'reddit_community_history': {'author': '@CyberMike81, OpenAI Codex',
                               'creation_date': '2026-10-22',
                               'last_update_date': '2026-10-22',
@@ -124,16 +95,14 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                               'output_types': ['html', 'tsv', 'lava'],
                               'artifact_icon': 'brand-reddit',
                               'name': 'Reddit - Community History Store',
-                              'description': 'Entries and stored positions in SubredditHistory.',
+                              'description': 'Stored community-history entries and list positions.',
                               'paths': ('*/Documents/release02/accountData/*/SubredditHistory',),
-                              'notes': 'Account is the containing accountData directory, not a '
-                                       'verified person. List Position (zero-based) is storage '
-                                       'order, not established chronology. Entries do not '
-                                       'establish subscription, a visit time or deliberate '
-                                       'reading. Raw Entry JSON is retained. Source File '
-                                       'distinguishes multiple stores for an Account. See '
-                                       'admin/docs/reddit_cache_history.md for excluded stores and '
-                                       'validation boundaries. '},
+                              'notes': 'List Position is zero-based storage order, not a timestamp '
+                                       'or established visit sequence. Entry holds the stored '
+                                       'identifier; Entry JSON preserves the original value. '
+                                       'Account and Source File distinguish history stores. An '
+                                       'entry does not establish subscription, deliberate reading '
+                                       'or a visit time.'},
  'reddit_comment_drafts': {'author': '@CyberMike81, OpenAI Codex',
                            'creation_date': '2026-10-22',
                            'last_update_date': '2026-10-22',
@@ -142,20 +111,15 @@ __artifacts_v2__ = {'reddit_cached_posts': {'author': '@CyberMike81, OpenAI Code
                            'output_types': ['html', 'tsv', 'lava'],
                            'artifact_icon': 'brand-reddit',
                            'name': 'Reddit - Comment Drafts',
-                           'description': 'Comment draft rows, parent identifiers and stored '
-                                          'modification dates.',
+                           'description': 'Stored comment drafts, parent/post IDs and modification '
+                                          'dates.',
                            'paths': ('*/Documents/release02/accountData/*/commentDrafts/CommentDraftEntity.sqlite*',),
-                           'notes': 'Account is the containing accountData directory, not a '
-                                    'verified person. Only '
-                                    'Documents/release02/accountData/*/commentDrafts/CommentDraftEntity.sqlite '
-                                    'stores are selected. Modified uses Core Data seconds; '
-                                    'Modified Raw (Core Data seconds) preserves the original '
-                                    'value. A stored zero converts to 2001-01-01 UTC; its '
-                                    'application meaning is unverified. Draft text is not proof of '
-                                    'sending. Populated draft rows are synthetic-tested only; the '
-                                    'private validation store was empty. See '
-                                    'admin/docs/reddit_cache_history.md for excluded stores and '
-                                    'validation boundaries. '}}
+                           'notes': 'Modified is the draft modification field in Core Data seconds '
+                                    'since 2001-01-01 UTC; Modified Raw retains the stored value. '
+                                    'Zero displays as 2001-01-01 UTC, but its application meaning '
+                                    'is unknown. Content is draft text, not proof of sending. '
+                                    'Parent Comment ID, Post ID and Post Title are stored context; '
+                                    'Account and Source File identify the source store.'}}
 
 import json
 import os
