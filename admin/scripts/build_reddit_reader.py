@@ -8,6 +8,7 @@ import base64
 import html
 import os
 import shutil
+import tempfile
 import json
 import re
 import sqlite3
@@ -287,6 +288,24 @@ def report_branding():
     return '\n'.join(fonts), brand
 
 
+def _preserve_report(report, manifest_path, database_path):
+    """Publish a complete backup directory only after both files are saved."""
+    backup = report / '_Reader_Originals'
+    if backup.exists():
+        expected = (backup / '_lava_data.lava', backup / '_lava_artifacts.db')
+        if not all(path.is_file() for path in expected):
+            raise ValueError('Incomplete original report backup; use a fresh report copy')
+        return
+    with tempfile.TemporaryDirectory(prefix='_reader_backup_', dir=report) as temporary:
+        staged = Path(temporary) / '_Reader_Originals'
+        staged.mkdir()
+        with sqlite3.connect(database_path.as_uri() + '?mode=ro', uri=True) as original:
+            with sqlite3.connect(staged / '_lava_artifacts.db') as saved:
+                original.backup(saved)
+        shutil.copy2(manifest_path, staged / '_lava_data.lava')
+        staged.rename(backup)
+
+
 def add_navigation(report):
     """Add generated report shortcuts using LAVA's existing document/media contract.
 
@@ -297,13 +316,14 @@ def add_navigation(report):
     manifest_path = report / '_lava_data.lava'
     database_path = report / '_lava_artifacts.db'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-    backup = report / '_Reader_Originals'
-    backup.mkdir(exist_ok=True)
-    if not (backup / '_lava_data.lava').exists():
-        shutil.copy2(manifest_path, backup / '_lava_data.lava')
-        with sqlite3.connect(database_path.as_uri() + '?mode=ro', uri=True) as original:
-            with sqlite3.connect(backup / '_lava_artifacts.db') as saved:
-                original.backup(saved)
+    for category in manifest.get('artifacts', {}).values():
+        for artifact in category:
+            if artifact.get('tablename') == 'reddit_reader_navigation' and artifact.get('module') != 'RedditReader':
+                raise ValueError('Navigation artifact name is already in use')
+    for module in manifest.get('meta', {}).get('modules', []):
+        if module.get('module_name') == 'RedditReader' and module.get('module_filename') != 'build_reddit_reader.py':
+            raise ValueError('Navigation module name is already in use')
+    _preserve_report(report, manifest_path, database_path)
     item_id = 'reddit-reader-generated-document-v1'
     reference_id = 'reddit-reader-generated-reference-v1'
     with sqlite3.connect(database_path) as db:
@@ -315,6 +335,10 @@ def add_navigation(report):
         existing = db.execute('SELECT metadata FROM _lava_media_items WHERE id=?', (item_id,)).fetchone()
         if existing and json.loads(existing[0]).get('generator') != 'RedditReader':
             raise ValueError('Generated navigation identifier is already in use')
+        existing_reference = db.execute('SELECT media_item_id,module_name FROM _lava_media_references WHERE id=?',
+                                        (reference_id,)).fetchone()
+        if existing_reference and existing_reference != (item_id, 'RedditReader'):
+            raise ValueError('Generated navigation reference is already in use')
         db.execute('INSERT OR REPLACE INTO _lava_media_items VALUES (?,?,?,?,?,?,?,?)',
                    (item_id, 'Generated report navigation; no device source', 'Reddit_Reader.html',
                     'text/html', json.dumps({'generator': 'RedditReader', 'generated_report': True}),
@@ -348,7 +372,7 @@ def add_navigation(report):
     modules.append({'module_name': 'RedditReader', 'module_filename': 'build_reddit_reader.py',
                     'artifacts': [{**artifact, 'category': 'Report Navigation',
                                    'description': 'Generated report shortcut; not an extracted artifact.',
-                                   'notes': 'Opens an existing local report using LAVA document handling.'}]})
+                                   'notes': 'Linked Reddit content, history and chats. This entry is navigation, not evidence.'}]})
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=True), encoding='utf-8')
     folder = report / '_HTML'
     folder.mkdir(exist_ok=True)
@@ -372,6 +396,8 @@ def build(report, output=None, format_tables=False, navigation=False):
     """Write the workspace; table formatting is an explicit, optional report-only edit."""
     report = Path(report)
     destination = Path(output) if output else report / 'Reddit_Reader.html'
+    if navigation and destination.resolve() != (report / 'Reddit_Reader.html').resolve():
+        raise ValueError('Navigation requires the standard report-local Reddit_Reader.html destination')
     records = load_records(report)
     payload = json.dumps(records, ensure_ascii=True).replace('<', r'\u003c')
     page = Path(__file__).with_name('reddit_reader.html').read_text(encoding='utf-8')

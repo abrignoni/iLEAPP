@@ -1,158 +1,92 @@
-# Offline linked Reddit examiner workspace
+# Reddit Reader
 
-This optional companion connects the existing `reddit.py` outputs with the separate
-`redditCache.py` cache/history contribution. It reads the report's LAVA database and
-manifest; no raw extraction, new parser import, external service or browser download
-is required.
-
-```sh
-python admin/scripts/build_reddit_reader.py /path/to/iLEAPP_report
-```
-
-Open `Reddit_Reader.html` in that report folder. Keep `reddit_reader.html` beside the
-builder script: it supplies the self-contained presentation template. This is a
-source-tree utility, not an addition to the packaged iLEAPP application.
-
-## Examiner workflow
-
-- **Posts & comments:** cached post cards, associated comments, authors, community,
-  content dates, stored score/comment count, and links to history and identity records.
-  ID-only posts are optional. A missing root post or missing text is stated explicitly.
-- **Post history:** retained list entries open available cached content directly.
-  Each source entry/position remains distinct, including duplicate IDs and info-only
-  entries. The default linked-only filter can be cleared to see unmatched records.
-- **Community history:** stored IDs connect to normalized-cache communities and the
-  existing subscription artifact. Descriptions and source-specific states remain visible.
-- **Communities:** cache and subscription observations of the same source-account
-  community appear together, with related cached content and history links.
-- **People & contacts:** cached Redditor profiles, existing Reddit users, Matrix chat
-  users and legacy contacts. Exact-ID matches provide source observations and related
-  content/chat links. Differing names and flags are not overwritten.
-- **Chats:** existing Matrix and legacy conversation grouping/direction, including
-  reactions, redactions, unknown direction and attachment references. **Drafts** retain
-  unsent text and link to cached posts where supported; this is not a sent-comment claim.
-
-Search, source-account filtering and direct links connect these sections. Identity
-groups can retain observations from multiple source accounts. Account and date filters
-select individual source rows; linked identities retain their separate observations. Long text wraps inside bounded cards. All original exported fields,
-artifact/table row references, source references and relationship bases are expandable.
-Where the original artifact supplies only a manifest source, its scope is labeled;
-the reader does not claim a new per-row source path.
-
-## Relationship rules
-
-| Relationship | Required evidence and boundary |
-|---|---|
-| History/draft to a post discussion | Exact post ID, same `accountData` directory including its containing path. Each matching cache store remains a separate candidate. A comment's validated exported post link can support a discussion with no root post. |
-| Community history to community observations | Exact community ID, same account directory; both existing subscriptions and new cached communities contribute. |
-| Post to community | Exported community ID or explicit `Subreddit:` reference, within the same normalized cache or same source-account directory. |
-| Comment to community | Exported validated permalink community name, only when one community ID with that name exists in the same cache. This name-based basis is labeled distinctly from ID matches. |
-| Content to cached author | Exact exported author ID and same normalized cache. |
-| Content/legacy sender to existing Reddit user/contact | Exact unmodified Reddit ID, same application container. Account-specific states stay in their separate observations; the identity match does not prove matching account ownership. |
-| Matrix sender to Matrix user | Exact stored sender/Matrix user ID, same application container, separate from the Reddit ID namespace. |
-
-Missing/contradictory account-directory scope, multiple manifest source paths, absent
-IDs and unmatched records never become ID-only joins across unrelated sources.
-Equal row IDs in different artifact tables cannot create a relationship. Multiple
-matching cache stores are all shown; none is silently chosen as authoritative.
-There is no fuzzy username matching, bare-ID prefix guessing or cross-container join.
-Raw source field values remain unchanged; borrowed history labels are display context.
-
-This is a partial reconstruction of retained exports. Public comments are grouped by
-validated post link within one cache, displayed flat, and not presented as a recovered
-reply hierarchy. Missing text/media, forests, deleted records and absent content are
-not restored by joining IDs. Content dates are not view dates. History positions and
-glance flags are not read receipts, and stored flags do not establish the device
-owner's authorship or actions. The reader does not fetch or render external/media content.
-
-## Optional wrapping of existing tables
-
-```sh
-python admin/scripts/build_reddit_reader.py /path/to/iLEAPP_report --wrap-tables
-```
-
-This explicitly adds idempotent CSS to the report's Reddit HTML pages, supporting both
-the current flat `_HTML/Reddit_*.html` layout and nested `_HTML/Reddit/*.html` pages.
-Long cells wrap at a bounded width. Wide tables still have many parallel columns;
-the workspace is the reading view. By default only the new companion is written.
-Neither mode changes database, manifest, TSV or original cell values. Shared iLEAPP
-HTML helpers, installed applications and native LAVA conversation views are unchanged.
-
-## Validation and separate contribution
-
-The reader is an independent branch based on the common upstream base, with a
-report-data dependency on the cache parser for its newer sections. Existing-only
-reports remain usable. Tests use fabricated exports and the real LAVA writer contract.
-They cover source/account boundaries, duplicate/missing IDs, multiple candidate caches,
-old/new joins, conflicting state preservation, ambiguous sources, Matrix IDs, script
-escaping, database immutability and optional table formatting.
-
-The regression suite includes source-preserving joins and actual JavaScript controls.
-JavaScript unit checks use Node when available and explicitly skip if it is absent;
-the standalone reader itself needs no Node runtime. Browser and native LAVA checks
-are separate from Python unit tests. Generated outputs and test logs remain local.
-
-The private validation report contributes 7,072 source rows: 594 posts, 1,029 comments,
-2,036 chat events/messages, 231 community observations, 869 Reddit profile observations,
-271 Matrix users, 27 legacy contacts, 1,514 post-history and 501 community-history rows.
-There are 597 source-separated discussion groups. Post history links 195 entries:
-194 to cached root posts and one to comments with no root post. Only six matching
-history entries retain a post title. Community history links 81 entries, of which 80
-have a retained name; the new cache alone links 45. Existing Reddit-user observations
-add exact-ID context for 22 comments. These counts describe this sample only.
-
-Other Python versions/platforms, packaged applications, native LAVA GUI, other report
-layouts and large-report performance remain unverified. No private input, generated
-report, raw browser dump or case identifier is included in the contribution.
-
-## Review controls and iLEAPP appearance
-
-The reader uses iLEAPP's local Roboto fonts, banner, dark header, sidebar and control
-colors. Font and banner data are embedded from the source tree so the reader fetches
-no network assets. Chats use left/right conversation bubbles, sender/date labels and
-day separators; direction/grouping still come from existing exported roles. Unknown
-direction, reactions and redactions remain labeled.
-
-Display options include Light/Dark/System themes, UTC/System/IANA timezones,
-YYYY-MM-DD, MM/DD/YYYY and DD/MM/YYYY dates, and 12/24-hour clocks. Every displayed
-time includes the resolved timezone and UTC offset, including repeated DST hours.
-Original UTC epochs and raw fields remain available. Only theme/time/format/sort
-preferences are stored locally; search, accounts, dates and evidence are not persisted.
-
-Sort choices include stored/default order, newest/oldest, title, comment count, row
-count and source/position. Undated rows stay last for date sorts; root posts stay
-before comments. Date bounds are inclusive calendar days in the selected timezone,
-including 23/25-hour DST days. Each record's labeled primary source date is used;
-no history view date is invented. Undated records are optional. A post shown only
-for context outside the date range is marked and excluded from matching-row exports.
-Following an explicit related-record link clears search/account/date filters, with
-a notice, so the linked source can be examined.
-
-CSV and JSON downloads offer selected-item matching rows, filtered-list matching
-rows, or all Reddit records ignoring filters. Search locates groups/conversations;
-date/account filters apply to their rows. Exports record the scope, settings,
-resolved timezone, source references, raw fields and relationships. JSON retains
-exact raw values. CSV quotes multiline/Unicode fields and prefixes potentially
-active spreadsheet text with an apostrophe; exact text remains in its raw-fields
-JSON column and the JSON export. Linked references can point to other report rows
-outside a selected subset. Print/PDF uses the browser's local print dialog.
-
-## Links from iLEAPP and LAVA
+An offline companion that combines existing iLEAPP Reddit results with the separate
+cache/history parser's outputs. It needs the report's `_lava_data.lava` and
+`_lava_artifacts.db`; older-only reports remain usable.
 
 ```sh
 python admin/scripts/build_reddit_reader.py /path/to/report --wrap-tables --add-navigation
 ```
 
-`--add-navigation` explicitly extends this generated output report. It preserves the
-original LAVA database/manifest under `_Reader_Originals/`, adds a separate **Report
-Navigation → Reddit Reader (generated report link)** entry, registers its generated
-HTML document through LAVA's existing media/file-opening contract, and adds a top-bar
-Reader link to existing iLEAPP HTML pages. The HTML wrapper stays inside `_HTML` and
-opens the reader one level above it. It adds no new LAVA view type or application code.
+Open `Reddit_Reader.html`. Keep `reddit_reader.html` and
+`reddit_reader_controls.js` beside the builder. Run from an iLEAPP source tree;
+this utility is not part of the packaged application.
 
-Original extracted rows and original artifact metadata remain unchanged; only
-generated navigation rows/media references and their metadata are added. This row is
-not evidence or a device artifact. Integration is idempotent. By default the builder
-still writes only its own companion, and `--wrap-tables` alone changes only CSS.
-These flags target produced report copies, never the UFDR or prepared extraction.
-Final cross-platform integration and independent audit remain separate checks.
+## Reading the results
+
+- **Posts & comments:** retained text, author/community, source dates and stored
+  states. Comments link to a post through the exported validated permalink.
+  Missing root posts/text stay explicit; reply nesting is not reconstructed.
+- **Post/community history:** each stored entry keeps its source and position.
+  Exact IDs link to retained content or community records in the same account
+  directory. Multiple cache candidates stay separate. Uncheck “Only linked
+  history” to see unmatched entries.
+- **Communities/people:** cached and older-parser observations are shown together
+  when explicit IDs and source scope support the relationship. Each card retains
+  its own names, flags and provenance; conflicting values are not overwritten.
+- **Chats:** existing iLEAPP conversation grouping and direction, with sender,
+  timestamp and day separators. Unknown direction, reactions and redactions are
+  labeled. Attachment references do not cause media downloads.
+- **Drafts:** retained unsent text, parent/post context and modification dates.
+
+“All exported fields and source references” shows the original fields, source
+reference scope and the basis of each link. Account identifies a source account
+directory, not a verified person. A manifest-only source is labeled accordingly.
+Cached content/history does not establish reading, intent or device-owner authorship.
+
+## Dates, filters and exports
+
+Choose Light/Dark/System theme, UTC/System/IANA timezone, YYYY-MM-DD/MM-DD/DD-MM
+date order, and a 12/24-hour clock. Displayed times include the timezone and UTC
+offset; raw UTC epochs remain available. Theme/time/format/sort preferences are
+stored locally. Evidence, search/account selections and date bounds are not saved.
+
+The date label identifies the source field used for each record: content creation
+for posts/comments, server/message time for chats, profile/community creation,
+Matrix-user update, or draft modification. History has no inferred view date.
+Blank/invalid dates remain undated. Bounds include each whole selected calendar
+day in the chosen timezone, including daylight-saving changes. The undated option
+controls whether those rows remain visible.
+
+Search finds groups/conversations; account/date filters select their source rows.
+A root post outside the date range may appear as marked context and is excluded
+from matching-row exports. Following a related-record link clears search/account/
+date filters with a notice. Sorts include stored/default order, source/position,
+newest/oldest, title, comment count and row count. Date sorts put undated items last.
+
+CSV/JSON export scopes are selected item, filtered list, or all Reddit records
+ignoring filters. Exports include scope/settings, resolved timezone, raw fields
+and source references. JSON preserves raw values. CSV prefixes potentially active
+spreadsheet text with an apostrophe; exact text remains in Raw fields JSON and the
+JSON export. Links may refer to rows outside an exported subset. Print/PDF uses
+the browser's print dialog for the current view.
+
+## Relationship boundaries
+
+History/post/community links require exact IDs and the complete source-account
+directory. Discussions stay separate by source cache. Content-author links use
+exact IDs in the same cache; older Reddit-user/contact matches require the same
+application container. Account-specific states remain separate observations.
+Matrix IDs use their own namespace. Comment-community name matches are permitted
+only for the exported validated permalink and a unique same-cache community ID.
+Each basis is labeled. No fuzzy username, guessed ID prefix or cross-container join
+is made. Missing IDs cannot group unrelated table-local row numbers.
+
+## Report integration
+
+By default only the companion is written. `--wrap-tables` adds bounded wrapping CSS
+to existing Reddit HTML pages; it leaves cell text, TSV, database and manifest intact.
+
+`--add-navigation` explicitly extends a generated report copy: it retains the
+original database/manifest under `_Reader_Originals`, adds a **Report Navigation →
+Reddit Reader** document link in LAVA, and adds a Reader link to iLEAPP HTML headers.
+Original extracted rows and artifact metadata stay unchanged. Added navigation
+rows/media references are generated report content, not device evidence. The HTML
+wrapper resolves inside the report, so the directory can be moved intact. Repeated
+integration is idempotent; incomplete backups/name collisions are rejected.
+
+The reader uses iLEAPP's local fonts/banner and conversation styling. No network
+content is fetched. Neither installed iLEAPP/LAVA nor their shared renderers change.
+Parser and reader are separate contributions; the newer sections need the parser's
+report tables. Validation, sample counts and platform gaps belong in the PR and
+development records rather than examiner-facing notes.

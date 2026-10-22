@@ -6,6 +6,7 @@ import sqlite3
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from admin.scripts import build_reddit_reader as reader
@@ -133,6 +134,49 @@ class GeneratedNavigationTests(unittest.TestCase):
         self.assertTrue((self.root/'_Reader_Originals/_lava_data.lava').is_file())
         with sqlite3.connect(self.root/'_Reader_Originals/_lava_artifacts.db') as backup:
             self.assertEqual(backup.execute('SELECT count(*) FROM reddit_cached_posts').fetchone()[0],1)
+
+    def test_incomplete_backup_blocks_integration_without_changing_originals(self):
+        backup = self.root/'_Reader_Originals'
+        backup.mkdir()
+        (backup/'_lava_data.lava').write_text('{}')
+        database = self.root/'_lava_artifacts.db'
+        before = database.read_bytes()
+        with self.assertRaisesRegex(ValueError, 'Incomplete original report backup'):
+            reader.add_navigation(self.root)
+        self.assertEqual(database.read_bytes(), before)
+
+    def test_backup_copy_failure_never_publishes_a_partial_backup(self):
+        database = self.root/'_lava_artifacts.db'
+        before = database.read_bytes()
+        with mock.patch.object(reader.shutil, 'copy2', side_effect=OSError('fabricated copy error')):
+            with self.assertRaisesRegex(OSError, 'fabricated copy error'):
+                reader.add_navigation(self.root)
+        self.assertFalse((self.root/'_Reader_Originals').exists())
+        self.assertEqual(database.read_bytes(), before)
+
+    def test_existing_media_reference_is_not_silently_overwritten(self):
+        with sqlite3.connect(self.root/'_lava_artifacts.db') as db:
+            db.execute('CREATE TABLE _lava_media_references (id TEXT PRIMARY KEY, media_item_id, module_name, artifact_name, name)')
+            db.execute("INSERT INTO _lava_media_references VALUES ('reddit-reader-generated-reference-v1','foreign','Other','Other','Preserve')")
+        with self.assertRaisesRegex(ValueError, 'reference is already in use'):
+            reader.add_navigation(self.root)
+        with sqlite3.connect(self.root/'_lava_artifacts.db') as db:
+            self.assertEqual(db.execute('SELECT media_item_id FROM _lava_media_references').fetchone()[0], 'foreign')
+
+    def test_navigation_rejects_an_unrelated_manifest_module(self):
+        path = self.root/'_lava_data.lava'
+        manifest = json.loads(path.read_text())
+        manifest['meta'] = {'modules': [{'module_name':'RedditReader','module_filename':'unrelated.py'}]}
+        path.write_text(json.dumps(manifest))
+        original = path.read_bytes()
+        with self.assertRaisesRegex(ValueError, 'module name is already in use'):
+            reader.add_navigation(self.root)
+        self.assertEqual(path.read_bytes(), original)
+
+    def test_navigation_rejects_a_nonstandard_destination(self):
+        with self.assertRaisesRegex(ValueError, 'standard report-local'):
+            reader.build(self.root, output=self.root/'other.html', navigation=True)
+        self.assertFalse((self.root/'other.html').exists())
 
     def test_existing_navigation_table_is_not_silently_overwritten(self):
         with sqlite3.connect(self.root/'_lava_artifacts.db') as db:
