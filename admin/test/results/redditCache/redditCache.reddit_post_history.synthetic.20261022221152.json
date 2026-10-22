@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/redditCache/testdata.redditCache.reddit_post_history.synthetic.zip",
-    "start_time": "2026-10-22T18:29:40.849501+00:00",
-    "end_time": "2026-10-22T18:29:40.861321+00:00",
-    "run_time_seconds": 0.00020599365234375,
+    "start_time": "2026-10-22T22:11:52.280463+00:00",
+    "end_time": "2026-10-22T22:11:52.292298+00:00",
+    "run_time_seconds": 0.0005869865417480469,
     "last_commit": {
-      "hash": "b3962c2a6143e8e5495498b2a6155b86b784a9d3",
+      "hash": "33c7fa23d219d54e6ee8cf6b6974021870b080a8",
       "author_name": "CyberMike81",
       "author_email": "cybermike81@users.noreply.github.com",
-      "date": "2026-10-22T14:28:49-04:00",
-      "message": "Normalize Reddit fractional dates across Python versions and use source-relative diagnostics"
+      "date": "2026-10-22T18:11:32-04:00",
+      "message": "Clarify subreddit labels and normalize remaining calendar date forms"
     }
   },
   "headers": [
