@@ -226,7 +226,7 @@ class AuditRegressionTests(unittest.TestCase):
             rows = run(self.root, 'ppv_activity_events')
         self.assertEqual(len(rows), 6)
         self.assertEqual([r['Event Row ID'] for r in rows], list(range(6)))
-        self.assertTrue(any(str(path) in c.args[0] and 'mixpanel_aaa_events' in c.args[0] for c in log.call_args_list))
+        self.assertTrue(any(path.relative_to(self.root).as_posix() in c.args[0] and 'mixpanel_aaa_events' in c.args[0] for c in log.call_args_list))
 
     def test_identity_matrix_rejects_any_explicit_foreign_id(self):
         store(self.root)
@@ -272,7 +272,8 @@ class AuditRegressionTests(unittest.TestCase):
         self.assertEqual(rows[1]['Log Time'], '')
         self.assertEqual(rows[1]['Time Raw (Unix milliseconds)'], str(huge))
         messages = [c.args[0] for c in log.call_args_list]
-        self.assertTrue(all(str(path) in msg for msg in messages))
+        self.assertTrue(all(path.relative_to(self.root).as_posix() in msg for msg in messages))
+        self.assertTrue(all(str(self.root) not in msg for msg in messages))
         for line in (2, 4, 5):
             self.assertTrue(any(f'line={line}' in msg for msg in messages))
 
@@ -285,7 +286,7 @@ class AuditRegressionTests(unittest.TestCase):
         with patch.object(parser, 'logfunc') as log:
             self.assertEqual(run(self.root, 'ppv_activity_events'), [])
             self.assertEqual(run(self.root, 'ppv_ecd_media'), [])
-        self.assertTrue(any('no supported ECD table signature' in c.args[0] and str(path) in c.args[0] for c in log.call_args_list))
+        self.assertTrue(any('no supported ECD table signature' in c.args[0] and path.relative_to(self.root).as_posix() in c.args[0] for c in log.call_args_list))
 
     def test_nonplaintext_store_requires_independent_container_identity(self):
         # This tests identity policy, not a claim to decode genuine ciphertext.
@@ -329,7 +330,7 @@ class ContainerMetadataTests(unittest.TestCase):
             with patch.object(parser, 'logfunc') as log:
                 rows = run(root, 'ppv_activity_events')
             self.assertEqual(len(rows), 1)
-            self.assertTrue(any(str(marker) in c.args[0] for c in log.call_args_list))
+            self.assertTrue(any(marker.relative_to(root).as_posix() in c.args[0] for c in log.call_args_list))
 
 
 class WriterContractTests(unittest.TestCase):
@@ -367,3 +368,59 @@ class WriterContractTests(unittest.TestCase):
                     lavafuncs.lava_db = None
                 lavafuncs.lava_data = None
                 ReportContext.clear()
+
+
+class ContainerIdentityTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+
+    def metadata(self, bundle):
+        path = self.root/'private/var/mobile/Containers/Data/Application/alpha/.com.apple.mobile_container_manager.metadata.plist'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(plistlib.dumps({'MCMMetadataIdentifier': bundle}))
+
+    def test_matching_metadata_and_store_keep_all_supporting_bases(self):
+        store(self.root)
+        self.metadata(parser.BUNDLE_ID)
+        analytics(self.root, [
+            {'event': 'labelled', 'properties': {'bundleId': parser.BUNDLE_ID, 'time': 1700000000}},
+            {'event': 'unlabelled', 'properties': {'bundleId': None, 'time': 1700000001}}])
+        rows = run(self.root, 'ppv_activity_events')
+        expected = 'Verified ECD schema in same container; Container metadata bundle ID'
+        self.assertEqual(rows[0]['App Association'], 'Event bundle ID; '+expected)
+        self.assertEqual(rows[1]['App Association'], expected)
+        self.assertTrue(all(r['Container Bundle ID (as stored)'] == parser.BUNDLE_ID for r in rows))
+        self.assertTrue(all(r['Container Identity Status'] == 'Container metadata matches' for r in rows))
+
+    def test_labelled_event_in_foreign_container_is_kept_and_flagged(self):
+        self.metadata('com.example.other')
+        path = analytics(self.root, [
+            {'event': 'labelled', 'properties': {'bundleId': parser.BUNDLE_ID, 'time': 1700000000}},
+            {'event': 'unknown', 'properties': {'time': 1700000001}}])
+        with patch.object(parser, 'logfunc') as log:
+            rows = run(self.root, 'ppv_activity_events')
+        self.assertEqual([r['Event Name (as stored)'] for r in rows], ['labelled'])
+        self.assertEqual(rows[0]['Container Bundle ID (as stored)'], 'com.example.other')
+        self.assertEqual(rows[0]['Container Identity Status'], 'Conflict: container metadata names another app')
+        self.assertEqual(rows[0]['App Association'], 'Event bundle ID')
+        messages = [c.args[0] for c in log.call_args_list]
+        self.assertTrue(any('conflicts with container metadata' in msg for msg in messages))
+        self.assertTrue(all(str(self.root) not in msg for msg in messages))
+        self.assertTrue(all(path.relative_to(self.root).as_posix() in msg for msg in messages))
+
+    def test_verified_store_with_foreign_metadata_retains_the_contradiction(self):
+        store(self.root)
+        self.metadata('com.example.other')
+        analytics(self.root, [{'event': 'unlabelled', 'properties': {'time': 1700000000}}])
+        with patch.object(parser, 'logfunc'):
+            row = run(self.root, 'ppv_activity_events')[0]
+        self.assertEqual(row['App Association'], 'Verified ECD schema in same container')
+        self.assertEqual(row['Container Identity Status'], 'Conflict: container metadata names another app')
+
+    def test_absent_metadata_is_not_reported_as_agreement(self):
+        analytics(self.root, [{'event': 'labelled', 'properties': {'bundleId': parser.BUNDLE_ID, 'time': 1700000000}}])
+        row = run(self.root, 'ppv_activity_events')[0]
+        self.assertEqual(row['Container Identity Status'], 'Container metadata unavailable')
+        self.assertIsNone(row['Container Bundle ID (as stored)'])

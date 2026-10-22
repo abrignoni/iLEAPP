@@ -1,6 +1,7 @@
 """Build only fabricated PPV records for the committed regression snapshots."""
 import fnmatch
 import json
+import plistlib
 import tempfile
 import zipfile
 from pathlib import Path
@@ -19,6 +20,14 @@ def main():
         root = Path(temp)
         store(root)
         store(root, 'beta')
+        for container, bundle in (('alpha', 'com.enchantedcloud.photovault'),
+                                  ('beta', 'com.enchantedcloud.photovault'),
+                                  ('foreign', 'com.example.other')):
+            marker = root/'private/var/mobile/Containers/Data/Application'/container/'.com.apple.mobile_container_manager.metadata.plist'
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            marker.write_bytes(plistlib.dumps({'MCMMetadataIdentifier': bundle}))
+        analytics(root, [{'event': 'Synthetic conflicting container', 'properties': {
+            'bundleId': 'com.enchantedcloud.photovault', 'time': 1700000000}}], 'foreign')
         analytics(root, [
             {'event': 'app_unlock', 'properties': {'time': 1700000000.125,
                 'bundleId': 'com.enchantedcloud.photovault'}},
@@ -29,6 +38,7 @@ def main():
                 'bundleId': 'com.enchantedcloud.photovault'}},
             {'event': 'Synthetic after oversized time', 'properties': {'time': 1700000001,
                 'bundleId': 'com.enchantedcloud.photovault'}},
+            {'event': 'Synthetic unlabelled event', 'properties': {'time': 1700000002}},
         ])
         log = root / 'Library/Caches/com.crashlytics.data/com.enchantedcloud.photovault/v5/report/log_a.clsrecord'
         log.parent.mkdir(parents=True)

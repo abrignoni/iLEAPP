@@ -106,22 +106,30 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                                   'matching MCMMetadataIdentifier in the same container. '
                                   'Non-SQLite PPV.ecd bytes alone do not identify the app; '
                                   'encrypted/non-plaintext stores need independent container '
-                                  'metadata. App Association records the acceptance basis; bundle '
-                                  'labels and container association do not prove a PPV UI action. '
-                                  'Event Time uses properties.time; absolute numeric values at '
-                                  'least 100000000000 are divided by 1000, otherwise by 1. Invalid '
-                                  'times remain blank; properties.time Raw, Time Divisor and '
-                                  'complete Event JSON are retained. SQL Queue Time Raw is not '
-                                  'event time. Session itemsViewed is separate from l_viewCount, '
-                                  'not allocated to media counters and does not identify the '
-                                  'operator. Bad tables/records are logged with file/table/row '
-                                  'context and do not suppress later tables. SQL Queue Time Raw '
-                                  'and Source Table were uniform in private validation; retained '
-                                  'as independent queue metadata and record provenance. See '
-                                  'admin/docs/private_photo_vault_ecd.md for exclusions and '
-                                  'validation boundaries.  Integers outside SQLite signed 64-bit '
-                                  'range are exact decimal text in scalar columns; Event JSON '
-                                  'retains the typed original.'},
+                                  'metadata. App Association lists every available supporting '
+                                  'basis; bundle labels and container association do not prove a '
+                                  'PPV UI action. Event Time uses properties.time; absolute '
+                                  'numeric values at least 100000000000 are divided by 1000, '
+                                  'otherwise by 1. Invalid times remain blank; properties.time '
+                                  'Raw, Time Divisor and complete Event JSON are retained. SQL '
+                                  'Queue Time Raw is not event time. Session itemsViewed is '
+                                  'separate from l_viewCount, not allocated to media counters and '
+                                  'does not identify the operator. Bad tables/records are logged '
+                                  'with file/table/row context and do not suppress later tables. '
+                                  'SQL Queue Time Raw and Source Table were uniform in private '
+                                  'validation; retained as independent queue metadata and record '
+                                  'provenance. See admin/docs/private_photo_vault_ecd.md for '
+                                  'exclusions and validation boundaries. Integers outside SQLite '
+                                  'signed 64-bit range are exact decimal text in scalar columns; '
+                                  'Event JSON retains the typed original. A matching event label '
+                                  'or verified ECD schema in a container named for another app is '
+                                  'retained with a conflict warning, Container Bundle ID (as '
+                                  'stored), and Container Identity Status. This preserves '
+                                  'contradictory source evidence without treating its label as '
+                                  'verified app identity. Container Bundle ID (as stored) and '
+                                  'Container Identity Status were uniform in private validation; '
+                                  'retained to expose conflicts or missing metadata on other '
+                                  'inputs.'},
  'ppv_diagnostic_log': {'name': 'Private Photo Vault - Diagnostic Log',
                         'description': 'Timestamped diagnostic text from the app-scoped '
                                        'Crashlytics log records.',
@@ -171,7 +179,7 @@ ECD_SIGNATURES = {
 }
 
 
-def _ecd_schema(path):
+def _ecd_schema(path, display_path):
     db = open_sqlite_db_readonly(path)
     if db is None:
         return False
@@ -181,7 +189,7 @@ def _ecd_schema(path):
             if required <= columns:
                 return True
     except sqlite3.Error:
-        logfunc(f'Private Photo Vault: unreadable ECD schema; file={path}')
+        logfunc(f'Private Photo Vault: unreadable ECD schema; file={display_path}')
     finally:
         db.close()
     return False
@@ -194,34 +202,44 @@ def _stores(context):
         try:
             with open(path, 'rb') as handle:
                 if handle.read(16) != b'SQLite format 3\x00':
-                    logfunc(f'Private Photo Vault: not plaintext SQLite; cannot decode ECD; file={path}')
+                    logfunc(f'Private Photo Vault: not plaintext SQLite; cannot decode ECD; file={context.get_relative_path(path)}')
                     continue
         except OSError:
-            logfunc(f'Private Photo Vault: could not read store signature; file={path}')
+            logfunc(f'Private Photo Vault: could not read store signature; file={context.get_relative_path(path)}')
             continue
-        if not _ecd_schema(path):
-            logfunc(f'Private Photo Vault: no supported ECD table signature; file={path}')
+        if not _ecd_schema(path, context.get_relative_path(path)):
+            logfunc(f'Private Photo Vault: no supported ECD table signature; file={context.get_relative_path(path)}')
             continue
         yield path
 
 
 def _app_containers(context):
-    containers = {_container(p): 'Verified ECD schema in same container' for p in _stores(context)}
+    containers = {}
+    for path in _stores(context):
+        container = _container(path)
+        if container:
+            containers[container] = {'bases': ['Verified ECD schema in same container'],
+                                     'bundle_id': None}
     for path in sorted({str(p) for p in context.get_files_found()}):
         if os.path.basename(path) != '.com.apple.mobile_container_manager.metadata.plist':
             continue
         container = _container(path)
-        if str(path).replace('\\', '/').rsplit('/', 1)[0] != container:
+        if not container or str(path).replace('\\', '/').rsplit('/', 1)[0] != container:
             continue
         try:
             with open(path, 'rb') as handle:
                 metadata = plistlib.load(handle)
         except (OSError, ValueError, TypeError, OverflowError, plistlib.InvalidFileException, ExpatError):
-            logfunc(f'Private Photo Vault: unreadable container metadata; file={path}')
+            logfunc(f'Private Photo Vault: unreadable container metadata; file={context.get_relative_path(path)}')
             continue
-        if isinstance(metadata, dict) and metadata.get('MCMMetadataIdentifier') == BUNDLE_ID:
-            containers[_container(path)] = 'Container metadata bundle ID'
-    containers.pop('', None)
+        bundle = metadata.get('MCMMetadataIdentifier') if isinstance(metadata, dict) else None
+        if not isinstance(bundle, str) or not bundle:
+            logfunc(f'Private Photo Vault: missing or unsupported container identifier; file={context.get_relative_path(path)}')
+            continue
+        info = containers.setdefault(container, {'bases': [], 'bundle_id': None})
+        info['bundle_id'] = bundle
+        if bundle == BUNDLE_ID:
+            info['bases'].append('Container metadata bundle ID')
     return containers
 
 
@@ -254,10 +272,10 @@ def _report_scalar(value):
     return value
 
 
-def _rows(path, table):
+def _rows(path, table, display_path):
     db = open_sqlite_db_readonly(path)
     if db is None:
-        logfunc(f'Private Photo Vault: could not open {table}; file={path}')
+        logfunc(f'Private Photo Vault: could not open {table}; file={display_path}')
         return
     try:
         cursor = db.execute('SELECT * FROM "' + table + '"')
@@ -265,7 +283,7 @@ def _rows(path, table):
         for row in cursor:
             yield dict(zip(cols, row))
     except sqlite3.Error:
-        logfunc(f'Private Photo Vault: unsupported or unreadable table={table}; file={path}')
+        logfunc(f'Private Photo Vault: unsupported or unreadable table={table}; file={display_path}')
     finally:
         db.close()
 
@@ -275,7 +293,7 @@ def _records(context, table, fields, dates):
     source = ''
     for path in _stores(context):
         source = source or path
-        for row in _rows(path, table):
+        for row in _rows(path, table, context.get_relative_path(path)):
             # Key/password fields are deliberately not copied into the selected metadata JSON.
             selected = {k: row[k] for k in dict.fromkeys(['__objectid'] + list(dates) + list(fields))
                         if k in row}
@@ -327,7 +345,7 @@ def _event_time(value):
     return _seconds(value, divisor), divisor
 
 
-def _events(db, path):
+def _events(db, display_path):
     tables = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
               if re.fullmatch(r'mixpanel_[A-Za-z0-9_]+_events', r[0])]
     for table in tables:
@@ -335,7 +353,7 @@ def _events(db, path):
             for row in db.execute('SELECT id,data,time FROM "' + table + '" ORDER BY id'):
                 yield table, row
         except sqlite3.Error:
-            logfunc(f'Private Photo Vault: unsupported or unreadable analytics table={table}; file={path}')
+            logfunc(f'Private Photo Vault: unsupported or unreadable analytics table={table}; file={display_path}')
 
 
 @artifact_processor
@@ -348,11 +366,11 @@ def ppv_activity_events(context):
             continue
         db = open_sqlite_db_readonly(path)
         if db is None:
-            logfunc(f'Private Photo Vault: could not open analytics; file={path}')
+            logfunc(f'Private Photo Vault: could not open analytics; file={context.get_relative_path(path)}')
             continue
         try:
-            for table, (rowid, raw, queue_time) in _events(db, path):
-                location = f'file={path}; table={table}; row={rowid}'
+            for table, (rowid, raw, queue_time) in _events(db, context.get_relative_path(path)):
+                location = f'file={context.get_relative_path(path)}; table={table}; row={rowid}'
                 try:
                     event = json.loads(raw)
                 except (ValueError, TypeError, UnicodeError):
@@ -369,10 +387,20 @@ def ppv_activity_events(context):
                 if any(v != BUNDLE_ID for v in identifiers):
                     logfunc(f'Private Photo Vault: rejected foreign/conflicting app identifier; {location}')
                     continue
-                association = 'Event bundle ID' if identifiers else containers.get(_container(path))
-                if not association:
+                info = containers.get(_container(path), {})
+                bases = (['Event bundle ID'] if identifiers else []) + info.get('bases', [])
+                if not bases:
                     logfunc(f'Private Photo Vault: skipped unlabelled event without verified app container; {location}')
                     continue
+                association = '; '.join(bases)
+                container_bundle = info.get('bundle_id')
+                if container_bundle and container_bundle != BUNDLE_ID:
+                    identity_status = 'Conflict: container metadata names another app'
+                    logfunc(f'Private Photo Vault: app association conflicts with container metadata; {location}')
+                elif container_bundle == BUNDLE_ID:
+                    identity_status = 'Container metadata matches'
+                else:
+                    identity_status = 'Container metadata unavailable'
                 source = source or path
                 stamp, divisor = _event_time(props.get('time'))
                 if stamp == '' and props.get('time') is not None:
@@ -385,10 +413,11 @@ def ppv_activity_events(context):
                              session.get('itemsViewed'), session.get('albumsViewed'),
                              spent.get('thumbnails'), spent.get('gallery'),
                              props.get('$app_version_string', props.get('$app_version')),
-                             props.get('$os_version'), outer, inner, association, table, _json(event),
+                             props.get('$os_version'), outer, inner, association, container_bundle,
+                             identity_status, table, _json(event),
                              context.get_relative_path(path))))
         except sqlite3.Error:
-            logfunc(f'Private Photo Vault: unreadable analytics database; file={path}')
+            logfunc(f'Private Photo Vault: unreadable analytics database; file={context.get_relative_path(path)}')
         finally:
             db.close()
     return (('Event Time', 'datetime'), 'Event Name (as stored)', 'Event Row ID',
@@ -396,7 +425,8 @@ def ppv_activity_events(context):
             'Session Length (as stored)', 'itemsViewed (as stored)', 'albumsViewed (as stored)',
             'timeSpent.thumbnails (as stored)', 'timeSpent.gallery (as stored)',
             'App Version', 'OS Version', 'Outer Bundle ID (as stored)', 'Session Bundle ID (as stored)',
-            'App Association', 'Source Table', 'Event JSON', 'Source File'), rows, source
+            'App Association', 'Container Bundle ID (as stored)', 'Container Identity Status',
+            'Source Table', 'Event JSON', 'Source File'), rows, source
 
 
 @artifact_processor
@@ -413,15 +443,15 @@ def ppv_diagnostic_log(context):
                     try:
                         obj = json.loads(line)
                     except (ValueError, UnicodeError):
-                        logfunc(f'Private Photo Vault diagnostics: skipped malformed JSON; file={path}; line={line_number}')
+                        logfunc(f'Private Photo Vault diagnostics: skipped malformed JSON; file={context.get_relative_path(path)}; line={line_number}')
                         continue
                     entry = obj.get('log') if isinstance(obj, dict) else None
                     if not isinstance(entry, dict):
-                        logfunc(f'Private Photo Vault diagnostics: unsupported log shape; file={path}; line={line_number}')
+                        logfunc(f'Private Photo Vault diagnostics: unsupported log shape; file={context.get_relative_path(path)}; line={line_number}')
                         continue
                     raw = entry.get('msg')
                     if not isinstance(raw, str):
-                        logfunc(f'Private Photo Vault diagnostics: non-string msg; file={path}; line={line_number}')
+                        logfunc(f'Private Photo Vault diagnostics: non-string msg; file={context.get_relative_path(path)}; line={line_number}')
                         continue
                     try:
                         text = bytes.fromhex(raw).decode('utf-8')
@@ -432,10 +462,10 @@ def ppv_diagnostic_log(context):
                     time_raw = entry.get('time')
                     stamp = _seconds(time_raw, 1000)
                     if stamp == '' and time_raw is not None:
-                        logfunc(f'Private Photo Vault diagnostics: invalid time; raw retained; file={path}; line={line_number}')
+                        logfunc(f'Private Photo Vault diagnostics: invalid time; raw retained; file={context.get_relative_path(path)}; line={line_number}')
                     rows.append((stamp, text, line_number, _report_scalar(time_raw), raw, status,
                                  context.get_relative_path(path)))
         except OSError:
-            logfunc(f'Private Photo Vault diagnostics: could not read file={path}')
+            logfunc(f'Private Photo Vault diagnostics: could not read file={context.get_relative_path(path)}')
     return (('Log Time', 'datetime'), 'Message', 'Line Number', 'Time Raw (Unix milliseconds)',
             'Message Hex', 'Decode Status', 'Source File'), rows, source
