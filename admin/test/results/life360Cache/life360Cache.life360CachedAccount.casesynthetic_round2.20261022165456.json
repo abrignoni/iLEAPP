@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "module_name": "life360Cache",
+    "artifact_name": "Life360 - Cached Account",
+    "function_name": "life360CachedAccount",
+    "case_number": "casesynthetic_round2",
+    "number_of_columns": 15,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 582,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Cache/testdata.life360Cache.life360CachedAccount.casesynthetic_round2.zip",
+    "start_time": "2026-10-22T16:54:56.587157+00:00",
+    "end_time": "2026-10-22T16:54:56.602446+00:00",
+    "run_time_seconds": 0.001470804214477539,
+    "last_commit": {
+      "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T11:48:53-04:00",
+      "message": "feat(life360): parse API cache and recover historical page records"
+    }
+  },
+  "headers": [
+    "Cached Time",
+    "Cache Entry ID",
+    "User ID",
+    "Profile Created (as stored)",
+    "First Name",
+    "Last Name",
+    "Email",
+    "Phone",
+    "Date of Birth (as stored)",
+    "Locale",
+    "Language",
+    "Request Path",
+    "Record JSON",
+    "Source File",
+    "Body Source File"
+  ],
+  "data": [
+    [
+      1768482000,
+      5,
+      "00000000-0000-0000-0000-00000000a001",
+      "2026-01-15 12:00:00",
+      "Sample",
+      "Person",
+      "sample@example.invalid",
+      "+15550100001",
+      "2000-01-01",
+      "en_US",
+      "en",
+      "api-cloudfront.life360.com/v5/users/me",
+      "{\"created\": \"2026-01-15 12:00:00\", \"dob\": \"2000-01-01\", \"extraProfileField\": \"retained\", \"firstName\": \"Sample\", \"id\": \"00000000-0000-0000-0000-00000000a001\", \"language\": \"en\", \"lastName\": \"Person\", \"locale\": \"en_US\", \"loginEmail\": \"sample@example.invalid\", \"loginPhone\": \"+15550100001\"}",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Caches/com.life360.safetymap/Cache.db",
+      ""
+    ]
+  ]
+}
