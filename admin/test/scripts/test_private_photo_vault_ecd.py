@@ -254,7 +254,7 @@ class AuditRegressionTests(unittest.TestCase):
             rows = run(self.root, 'ppv_activity_events')
         self.assertEqual(len(rows), 3)
         self.assertEqual(rows[1]['Event Time'], '')
-        self.assertEqual(rows[1]['properties.time Raw'], huge)
+        self.assertEqual(rows[1]['properties.time Raw'], str(huge))
         self.assertEqual(rows[1]['Time Divisor'], 1000)
         self.assertNotEqual(rows[0]['Event Time'], '')
         self.assertNotEqual(rows[2]['Event Time'], '')
@@ -270,7 +270,7 @@ class AuditRegressionTests(unittest.TestCase):
             rows = run(self.root, 'ppv_diagnostic_log')
         self.assertEqual(len(rows), 3)
         self.assertEqual(rows[1]['Log Time'], '')
-        self.assertEqual(rows[1]['Time Raw (Unix milliseconds)'], huge)
+        self.assertEqual(rows[1]['Time Raw (Unix milliseconds)'], str(huge))
         messages = [c.args[0] for c in log.call_args_list]
         self.assertTrue(all(str(path) in msg for msg in messages))
         for line in (2, 4, 5):
@@ -330,3 +330,40 @@ class ContainerMetadataTests(unittest.TestCase):
                 rows = run(root, 'ppv_activity_events')
             self.assertEqual(len(rows), 1)
             self.assertTrue(any(str(marker) in c.args[0] for c in log.call_args_list))
+
+
+class WriterContractTests(unittest.TestCase):
+    def test_oversized_raw_fields_survive_real_lava_writer(self):
+        from scripts import lavafuncs  # pylint: disable=import-outside-toplevel
+        from scripts.context import Context as ReportContext  # pylint: disable=import-outside-toplevel
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            huge = 10**399
+            analytics(root, [{'event': str(n), 'properties': {'bundleId': parser.BUNDLE_ID,
+                'time': stamp}} for n, stamp in enumerate((1700000000, huge, 1700000001))])
+            log = root/'Library/Caches/com.crashlytics.data/com.enchantedcloud.photovault/v5/report/log_a.clsrecord'
+            log.parent.mkdir(parents=True)
+            log.write_text('\n'.join(json.dumps({'log': {'msg': '74657374', 'time': stamp}})
+                                     for stamp in (1700000000000, huge, 1700000001000)))
+            try:
+                lavafuncs.initialize_lava(str(root), str(root), 'fs')
+                for name, raw_column in (('ppv_activity_events', 'properties.time Raw'),
+                                         ('ppv_diagnostic_log', 'Time Raw (Unix milliseconds)')):
+                    headers, rows, _ = inspect.unwrap(getattr(parser, name))(Context(root, name))
+                    ReportContext.set_artifact_info(parser.__artifacts_v2__[name])
+                    ReportContext.set_module_file_path('scripts/artifacts/privatePhotoVaultEcd.py')
+                    table, objects, column_map = lavafuncs.lava_process_artifact(
+                        'Private Photo Vault', 'privatePhotoVaultEcd', name, headers,
+                        record_count=len(rows), func_name=name)
+                    lavafuncs.lava_insert_sqlite_data(table, rows, objects, headers, column_map)
+                    lavafuncs.lava_db.commit()
+                    raw_sql = next(sql for sql, label in column_map.items() if label == raw_column)
+                    values = lavafuncs.lava_db.execute(f'SELECT "{raw_sql}" FROM "{table}"').fetchall()
+                    self.assertEqual(len(values), 3)
+                    self.assertEqual(values[1][0], str(huge))
+            finally:
+                if lavafuncs.lava_db is not None:
+                    lavafuncs.lava_db.close()
+                    lavafuncs.lava_db = None
+                lavafuncs.lava_data = None
+                ReportContext.clear()

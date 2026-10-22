@@ -119,7 +119,9 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                                   'and Source Table were uniform in private validation; retained '
                                   'as independent queue metadata and record provenance. See '
                                   'admin/docs/private_photo_vault_ecd.md for exclusions and '
-                                  'validation boundaries. '},
+                                  'validation boundaries.  Integers outside SQLite signed 64-bit '
+                                  'range are exact decimal text in scalar columns; Event JSON '
+                                  'retains the typed original.'},
  'ppv_diagnostic_log': {'name': 'Private Photo Vault - Diagnostic Log',
                         'description': 'Timestamped diagnostic text from the app-scoped '
                                        'Crashlytics log records.',
@@ -137,7 +139,8 @@ __artifacts_v2__ = {'ppv_ecd_albums': {'author': '@CyberMike81, OpenAI Codex',
                                  'retained. Decode Status was uniform in private validation; '
                                  'retained for raw-only records on other inputs. See '
                                  'admin/docs/private_photo_vault_ecd.md for exclusions and '
-                                 'validation boundaries. ',
+                                 'validation boundaries.  Oversized integers are exact decimal '
+                                 'text in Time Raw; the source log retains the typed original.',
                         'paths': ('*/Caches/com.crashlytics.data/com.enchantedcloud.photovault/*/log_*.clsrecord',),
                         'output_types': ['html', 'tsv', 'lava'],
                         'artifact_icon': 'file-text'}}
@@ -235,6 +238,20 @@ def _seconds(value, divisor=1):
 
 def _json(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+
+
+def _report_scalar(value):
+    # SQLite's Python binder rejects integers beyond signed 64-bit even for TEXT
+    # columns. Keep their exact digits; typed event values remain in Event JSON.
+    if isinstance(value, bool):
+        return str(value)
+    if isinstance(value, int) and not -(2**63) <= value < 2**63:
+        return str(value)
+    if isinstance(value, float) and not math.isfinite(value):
+        return str(value)
+    if isinstance(value, (dict, list)):
+        return _json(value)
+    return value
 
 
 def _rows(path, table):
@@ -362,13 +379,14 @@ def ppv_activity_events(context):
                     logfunc(f'Private Photo Vault: invalid event time; raw retained; {location}')
                 spent = session.get('timeSpent')
                 spent = spent if isinstance(spent, dict) else {}
-                rows.append((stamp, event.get('event'), rowid, props.get('time'), divisor,
+                rows.append(tuple(_report_scalar(value) for value in (
+                             stamp, event.get('event'), rowid, props.get('time'), divisor,
                              queue_time, props.get('$ae_session_length'),
                              session.get('itemsViewed'), session.get('albumsViewed'),
                              spent.get('thumbnails'), spent.get('gallery'),
                              props.get('$app_version_string', props.get('$app_version')),
                              props.get('$os_version'), outer, inner, association, table, _json(event),
-                             context.get_relative_path(path)))
+                             context.get_relative_path(path))))
         except sqlite3.Error:
             logfunc(f'Private Photo Vault: unreadable analytics database; file={path}')
         finally:
@@ -415,7 +433,7 @@ def ppv_diagnostic_log(context):
                     stamp = _seconds(time_raw, 1000)
                     if stamp == '' and time_raw is not None:
                         logfunc(f'Private Photo Vault diagnostics: invalid time; raw retained; file={path}; line={line_number}')
-                    rows.append((stamp, text, line_number, time_raw, raw, status,
+                    rows.append((stamp, text, line_number, _report_scalar(time_raw), raw, status,
                                  context.get_relative_path(path)))
         except OSError:
             logfunc(f'Private Photo Vault diagnostics: could not read file={path}')

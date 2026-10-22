@@ -25,10 +25,15 @@ def main():
             {'event': '$ae_session', 'properties': {'time': 1700000000125,
                 '$ae_session_length': 12, 'sessionParams': {'bundleId': 'com.enchantedcloud.photovault',
                 'itemsViewed': 8, 'albumsViewed': 0, 'timeSpent': {'gallery': 0, 'thumbnails': 4.5}}}},
+            {'event': 'Synthetic oversized time', 'properties': {'time': 10**399,
+                'bundleId': 'com.enchantedcloud.photovault'}},
+            {'event': 'Synthetic after oversized time', 'properties': {'time': 1700000001,
+                'bundleId': 'com.enchantedcloud.photovault'}},
         ])
         log = root / 'Library/Caches/com.crashlytics.data/com.enchantedcloud.photovault/v5/report/log_a.clsrecord'
         log.parent.mkdir(parents=True)
-        log.write_text(json.dumps({'log': {'msg': 'Synthetic unlock'.encode().hex(), 'time': 1700000000125}}) + '\n')
+        log.write_text('\n'.join(json.dumps({'log': {'msg': 'Synthetic unlock'.encode().hex(), 'time': stamp}})
+                                 for stamp in (1700000000125, 10**399, 1700000001000)) + '\n')
         for name, meta in parser.__artifacts_v2__.items():
             paths = [p for p in root.rglob('*') if p.is_file() and any(
                 fnmatch.fnmatchcase('root/' + p.relative_to(root).as_posix(), pat) for pat in meta['paths'])]
