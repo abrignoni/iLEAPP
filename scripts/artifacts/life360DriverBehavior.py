@@ -10,8 +10,11 @@ __artifacts_v2__ = {
         'last_update_date': '2026-10-21',
         'requirements': 'none',
         'category': 'Life360',
-        'notes': 'Reads com.life360.safetymap*.log files, including logs in a shared app-group container. '
-                 'The application-specific filename and the logged component/message select records; no '
+        'notes': 'Reads files whose basename matches com.life360.safetymap*.log, including logs in a '
+                 'shared app-group container. The search wildcard can also match through same-named '
+                 'directories; these non-application basenames, including Crashlytics sdk.log, are '
+                 'excluded with a named log entry and do not enter the source list. '
+                 'The application-specific basename and the logged component/message select records; no '
                  'container marker is required. One row represents one diagnostic log record, including '
                  'its continuation lines. Repeated records, copies in separate files and separate '
                  'containers remain separate observations. Duplicate file-list entries and physical '
@@ -25,6 +28,8 @@ __artifacts_v2__ = {
                  'subseconds up to microsecond precision. No time zone is taken from the filename or '
                  'the examiner computer. Missing times remain blank; invalid times or offsets are '
                  'logged and left blank with the raw record retained. '
+                 'A present scalar label with no value, including one followed by another field label, '
+                 'is logged and left blank; the following label is not used as its value. '
                  'Record Kind is a parser classification of the message: Crash detected, High confidence '
                  'collision detected, Collision detected, Detector details, Collision data exchange, '
                  'Accelerometer anomaly warning/diagnostic, or Other crash/collision diagnostic. The '
@@ -126,13 +131,22 @@ def _field_time(message, field, where):
     label = re.search(r'\b' + re.escape(field) + r':\s*', message)
     if label is None:
         return ''
-    match = re.match(_STAMP, message[label.end():])
+    match = re.match(_STAMP + r'(?=\s|\||$)', message[label.end():])
     return _time(match.group() if match else '', field, where)
 
 
-def _token(message, field):
-    match = re.search(r'\b' + re.escape(field) + r':\s*([^\s|]+)', message)
-    return match.group(1) if match else ''
+def _token(message, field, where):
+    label = re.search(r'\b' + re.escape(field) + r':\s*', message)
+    if label is None:
+        return ''
+    remainder = message[label.end():]
+    match = re.match(r'([^\s|]+)', remainder)
+    value = match.group(1) if match else ''
+    if (not value or value.endswith(':') or
+            re.match(r'(?:Event Type|Data exchange type|payload size)\s*:', remainder)):
+        logfunc(f'Life360 {field} was empty at {where}; value left blank and raw record retained')
+        return ''
+    return value
 
 
 def _coordinates(message, field, bracketed, where):
@@ -159,12 +173,12 @@ def _records(path, relative):
                 logfunc(f'Life360 log UTF-8 decode failed in {relative!r}, line {number}; '
                         'replacement characters used for display')
             if _START.match(text) and lines:
-                yield start, end, ''.join(lines).rstrip('\r\n')
+                yield start, end, ''.join(lines).removesuffix('\n').removesuffix('\r')
                 start, lines = number, []
             lines.append(text)
             end = number
         if lines:
-            yield start, end, ''.join(lines).rstrip('\r\n')
+            yield start, end, ''.join(lines).removesuffix('\n').removesuffix('\r')
 
 
 def _row(raw, start, end, relative):
@@ -183,10 +197,10 @@ def _row(raw, start, end, relative):
     exchange = size = ''
     if kind == 'Crash detected':
         event = _field_time(message, 'Timestamp', where)
-        trip, event_id = _token(message, 'TripID'), _token(message, 'EventID')
-        event_type = _token(message, 'Event Type')
+        trip, event_id = _token(message, 'TripID', where), _token(message, 'EventID', where)
+        event_type = _token(message, 'Event Type', where)
         latitude, longitude = _coordinates(message, 'Location', True, where)
-        accuracy, speed = _token(message, 'Accuracy'), _token(message, 'Speed')
+        accuracy, speed = _token(message, 'Accuracy', where), _token(message, 'Speed', where)
     elif kind == 'Detector details':
         missing = [field for field in ('Confidence', 'startTimestamp', 'endTimestamp', 'location')
                    if not re.search(r'\b' + field + r':', message)]
@@ -194,10 +208,10 @@ def _row(raw, start, end, relative):
             logfunc(f'Life360 detector detail fields absent at {where}: {", ".join(missing)}; '
                     'available fields and raw record retained')
         begin, finish = (_field_time(message, field, where) for field in ('startTimestamp', 'endTimestamp'))
-        confidence = _token(message, 'Confidence')
+        confidence = _token(message, 'Confidence', where)
         latitude, longitude = _coordinates(message, 'location', False, where)
     elif kind == 'Collision data exchange':
-        exchange = _token(message, 'Data exchange type')
+        exchange = _token(message, 'Data exchange type', where)
         match = re.search(r'\bpayload size:\s*(.*)$', message)
         size = match.group(1).strip() if match else ''
     elif kind == 'Other crash/collision diagnostic':
@@ -216,7 +230,11 @@ def life360CrashDetection(context):
     paths = {}
     for candidate in sorted({str(path) for path in context.get_files_found()},
                             key=context.get_relative_path):
-        if not candidate.lower().endswith('.log') or os.path.isdir(candidate):
+        basename = os.path.basename(candidate)
+        if (not basename.startswith('com.life360.safetymap') or not basename.lower().endswith('.log') or
+                os.path.isdir(candidate)):
+            logfunc(f'Life360 skipped matching diagnostic path {context.get_relative_path(candidate)!r}: '
+                    'basename is not a com.life360.safetymap*.log application file')
             continue
         physical = os.path.normcase(os.path.realpath(candidate))
         paths.setdefault(physical, candidate)

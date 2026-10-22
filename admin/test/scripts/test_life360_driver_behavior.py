@@ -68,7 +68,9 @@ class DriverBehaviorTests(unittest.TestCase):
         for row in rows:
             path = self.root / row['Source File']
             lines = path.read_text().splitlines(keepends=True)
-            observed = ''.join(lines[row['Source Line'] - 1:row['Source Line End']]).rstrip('\r\n')
+            observed = ''.join(lines[row['Source Line'] - 1:row['Source Line End']])
+            if observed.endswith('\n'):
+                observed = observed[:-1]
             self.assertEqual(row['Raw Log Record'], observed)
 
     def test_unknown_diagnostic_is_retained_and_unrelated_component_is_not_reported(self):
@@ -150,6 +152,105 @@ class DriverBehaviorTests(unittest.TestCase):
                 self.assertIn('unknown' + field + ':', details['Raw Log Record'])
                 self.assertTrue(any('detail fields absent' in call.args[0] and field in call.args[0]
                                     for call in log.call_args_list))
+
+    def test_empty_scalar_fields_do_not_consume_following_labels(self):
+        original = self.main.read_text()
+        cases = (
+            ('TripID: synthetic-trip-a', 'TripID:', 'Trip ID', 'TripID'),
+            ('TripID: synthetic-trip-a', 'TripID: Event Type:', 'Trip ID', 'TripID'),
+            ('EventID: 00000000-0000-0000-0000-00000000d101', 'EventID:', 'Event ID', 'EventID'),
+            ('Event Type: crash', 'Event Type:', 'Event Type (as stored)', 'Event Type'),
+            ('Accuracy: 45.0', 'Accuracy:', 'Accuracy (as stored)', 'Accuracy'),
+            ('Speed: 11.176', 'Speed:', 'Speed (as stored)', 'Speed'),
+        )
+        for before, after, column, field in cases:
+            with self.subTest(field=field, following=after):
+                self.main.write_text(original.replace(before, after))
+                with patch.object(diagnostics, 'logfunc') as log:
+                    rows, _ = _run(_Context(self.root))
+                self.assertEqual(len(rows), 9)
+                crash = next(row for row in rows if 'UnmappedSetting: keep-me' in row['Raw Log Record'])
+                self.assertEqual(crash[column], '')
+                self.assertIn(after, crash['Raw Log Record'])
+                self.assertTrue(any(field in call.args[0] and 'empty' in call.args[0]
+                                    for call in log.call_args_list))
+
+    def test_empty_pipe_separated_scalar_is_logged_without_changing_other_fields(self):
+        self.main.write_text(self.main.read_text().replace('Confidence: 0.8125 |', 'Confidence:  |'))
+        with patch.object(diagnostics, 'logfunc') as log:
+            rows, _ = _run(_Context(self.root))
+        details = next(row for row in rows if row['Record Kind'] == 'Detector details')
+        self.assertEqual(details['Confidence (as stored)'], '')
+        self.assertEqual(details['Detector End'], datetime(2026, 1, 15, 7, 0, 30, tzinfo=timezone.utc))
+        self.assertTrue(any('Confidence' in call.args[0] and 'empty' in call.args[0]
+                            for call in log.call_args_list))
+
+    def test_embedded_time_zone_suffix_garbage_is_rejected_for_all_time_fields(self):
+        original = self.main.read_text()
+        for field, value, column in (
+            ('Timestamp', '2026-01-15 07:00:30', 'Event Time'),
+            ('startTimestamp', '2026-01-15 07:00:00', 'Detector Start'),
+            ('endTimestamp', '2026-01-15 07:00:30', 'Detector End'),
+        ):
+            for zone in ('+05300', '+0530abc', '+05:30:00', '+0530Z'):
+                with self.subTest(field=field, zone=zone):
+                    self.main.write_text(original.replace(f'{field}: {value} +0000',
+                                                        f'{field}: {value} {zone}'))
+                    with patch.object(diagnostics, 'logfunc') as log:
+                        rows, _ = _run(_Context(self.root))
+                    row = next(row for row in rows if row['Record Kind'] ==
+                               ('Crash detected' if field == 'Timestamp' else 'Detector details'))
+                    self.assertEqual(len(rows), 9)
+                    self.assertEqual(row[column], '')
+                    self.assertIn(zone, row['Raw Log Record'])
+                    self.assertTrue(any(field in call.args[0] and 'could not be converted' in call.args[0]
+                                        for call in log.call_args_list))
+                    self.assertTrue(all(zone not in call.args[0] for call in log.call_args_list))
+
+    def test_valid_embedded_time_zone_boundaries_keep_exact_times(self):
+        original = self.main.read_text()
+        for zone, expected_hour, expected_minute in (('Z', 7, 0), ('+05:30', 1, 30), ('-0400', 11, 0)):
+            with self.subTest(zone=zone):
+                self.main.write_text(original.replace('07:00:30 +0000', '07:00:30 ' + zone))
+                rows, _ = _run(_Context(self.root))
+                crash = next(row for row in rows if row['Trip ID'] == 'synthetic-trip-a')
+                details = next(row for row in rows if row['Record Kind'] == 'Detector details')
+                expected = datetime(2026, 1, 15, expected_hour, expected_minute, 30, tzinfo=timezone.utc)
+                self.assertEqual(crash['Event Time'], expected)
+                self.assertEqual(details['Detector End'], expected)
+
+    def test_filename_guard_excludes_sdk_log_admitted_by_directory_glob(self):
+        decoy = self.root / 'com.crashlytics.data/com.life360.safetymap/v5/reports/active/synthetic/sdk.log'
+        decoy.parent.mkdir(parents=True)
+        decoy.write_bytes(self.main.read_bytes())
+        context = _Context(self.root)
+        self.assertIn(str(decoy), context.files)
+        with patch.object(diagnostics, 'logfunc') as log:
+            rows, sources = _run(context)
+        self.assertEqual(len(rows), 9)
+        self.assertEqual(len(sources.splitlines()), 2)
+        self.assertNotIn('sdk.log', sources)
+        self.assertTrue(any('sdk.log' in call.args[0] and 'basename' in call.args[0]
+                            for call in log.call_args_list))
+
+    def test_raw_records_preserve_blank_lines_crlf_bom_and_unterminated_final_line(self):
+        path = self.main.with_name('com.life360.safetymap boundaries.log')
+        first = '2026-01-15T07:00:00.000+0000 Life360[1:2] I | [DriverBehavior] - Collision detected!\rinside'
+        middle = '2026-01-15T07:00:01.000+0000 Life360[1:2] I | [DriverBehavior] - Collision detected!'
+        final = '2026-01-15T07:00:02.000+0000 Life360[1:2] I | [DriverBehavior] - Collision detected!'
+        for ending in ('\n', '\r\n'):
+            with self.subTest(ending=repr(ending)):
+                path.write_bytes(('\ufeff' + first + ending * 3 + middle + ending + final).encode('utf-8'))
+                context = _Context(self.root)
+                context.files = [str(path)]
+                with patch.object(diagnostics, 'logfunc') as log:
+                    rows, _ = _run(context)
+                self.assertEqual(len(rows), 3)
+                self.assertEqual([(r['Source Line'], r['Source Line End']) for r in rows],
+                                 [(1, 3), (4, 4), (5, 5)])
+                self.assertEqual([r['Raw Log Record'] for r in rows],
+                                 ['\ufeff' + first + ending * 2, middle, final])
+                log.assert_not_called()
 
     def test_copies_and_distinct_containers_survive_duplicate_views_collapse(self):
         initial, _ = _run(_Context(self.root))
