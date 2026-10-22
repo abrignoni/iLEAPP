@@ -24,6 +24,7 @@
   "headers": [
     "Location Time",
     "Logged Time",
+    "Entry ID",
     "Latitude",
     "Longitude",
     "Altitude",
@@ -38,13 +39,13 @@
     "SSID",
     "BSSID",
     "Drive Detection Status (as stored)",
-    "Entry ID",
     "Source File"
   ],
   "data": [
     [
       1768478419,
       1768478420,
+      "00000000-0000-0000-0000-000000009001",
       0.5,
       -150.5,
       10.5,
@@ -59,7 +60,6 @@
       "",
       "",
       "OFF",
-      "00000000-0000-0000-0000-000000009001",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.AwarenessEngine.Topics.FailedLocationTopic/com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite"
     ]
   ]

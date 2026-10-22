@@ -42,6 +42,7 @@ import re
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.life360_common import columns_first
 
 _START = re.compile(r'^\ufeff?\d{4}-\d{2}-\d{2}[T ]')
 _STAMP = (r'\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?'
@@ -214,4 +215,6 @@ def life360CrashDetection(context):
         except OSError as error:
             logfunc(f'Life360 diagnostic log read failed in {relative!r} ({type(error).__name__}); '
                     'earlier rows retained and other files continue')
+    headers, rows = columns_first(headers, rows, ('Logged Time', 'Event Time', 'Detector Start', 'Detector End',
+                                                  'Trip ID', 'Event ID'))
     return headers, rows, '\n'.join(sources)

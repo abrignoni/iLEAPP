@@ -274,8 +274,8 @@ import json
 import os
 
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content, logfunc
-from scripts.life360_common import (get_life360_files, read_life360_rows, seconds_to_utc,
-                                   stored_dict, stored_list)
+from scripts.life360_common import (columns_first, get_life360_files, read_life360_rows,
+                                   seconds_to_utc, stored_dict, stored_list)
 
 _JSON_ERRORS = (json.JSONDecodeError, TypeError, ValueError, UnicodeDecodeError)
 _TRIP_START_KEY = 'DriveEventPublishingComponent.tripStartTimes'
@@ -459,6 +459,8 @@ def life360DeviceLocationSamples(context):
                     _bool(_get(sample, 'sourceInformation', 'isProducedByAccessory')),
                     index, len(samples), _as_stored(doc.get('id')), rel,
                 ))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Sample Time', 'Logged Time',
+        'Entry ID'))
     return data_headers, data_list, _sources(paths, context)
 
 
@@ -482,6 +484,8 @@ def life360FailedLocations(context):
                 _bool(doc.get('wifiEnabled')), _as_stored(doc.get('ssid')), _as_stored(doc.get('bssid')),
                 _as_stored(doc.get('driveDetectionStatus')), _as_stored(doc.get('id')), rel,
             ))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Location Time', 'Logged Time',
+        'Entry ID'))
     return data_headers, data_list, _sources(paths, context)
 
 
@@ -576,6 +580,8 @@ def life360MovementEvents(context):
                 '', '', '', '', _as_stored(trip_id), '', '', '', '', '', '', '', _TRIP_START_KEY, rel,
             ))
     data_list.sort(key=lambda row: (str(row[0]), row[27]))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Event Time', 'Start Time', 'End Time',
+        'Logged Time', 'Trip ID', 'Session ID', 'Event ID', 'User ID'))
     return data_headers, data_list, _sources(sources, context)
 
 
@@ -636,6 +642,8 @@ def life360MovementWaypoints(context):
         data_list.append(entry['values'] + (', '.join(sorted(entry['events'])),) +
                          _provenance(entry) + (key[-1],))
     data_list.sort(key=lambda row: tuple(str(value) for value in row))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Waypoint Time',
+        'Trip ID or Session ID', 'Kind'))
     return data_headers, data_list, _sources(paths, context)
 
 
@@ -671,6 +679,8 @@ def life360DrivingIncidents(context):
         data_list.append(entry['values'] + (', '.join(sorted(entry['events'])),) +
                          _provenance(entry) + (key[-1],))
     data_list.sort(key=lambda row: tuple(str(value) for value in row))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Incident Time', 'Trip ID',
+        'Event IDs'))
     return data_headers, data_list, _sources(paths, context)
 
 
@@ -708,6 +718,8 @@ def life360DwellEvents(context):
             _add_occurrence(entry, doc, logged, topic, rel, dwell.get('id'))
     data_list = [entry['values'] + _provenance(entry) + (key[1],) for key, entry in dwells.items()]
     data_list.sort(key=lambda row: tuple(str(value) for value in row))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Event Time', 'Dwell Start',
+        'Dwell End', 'Logged Time', 'Dwell ID', 'Session ID', 'User ID'))
     return data_headers, data_list, _sources(paths, context)
 
 
@@ -741,6 +753,8 @@ def life360GeofenceBreaches(context):
                     _as_stored(place.get('circleId'))) + _location_columns(loc) + (
                     _bool(_get(doc, 'wifi', 'enabled')), _as_stored(doc.get('id')), rel,
                 ))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Event Time', 'Location Time',
+        'Place ID', 'Circle ID', 'Entry ID'))
     return data_headers, data_list, _sources(paths, context)
 
 
@@ -789,4 +803,6 @@ def life360ActivityModality(context):
                 ) + _location_columns(loc) + (
                 _as_stored(_get(loc, 'lmode', 'serverTag', '_0')), trip_id, _as_stored(doc.get('id')), rel,
             ))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Event Time', 'Logged Time',
+        'Location Time', 'Trip ID', 'Entry ID'))
     return data_headers, data_list, _sources(paths, context)

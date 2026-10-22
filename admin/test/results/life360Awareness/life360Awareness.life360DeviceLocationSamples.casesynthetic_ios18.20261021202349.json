@@ -24,6 +24,7 @@
   "headers": [
     "Sample Time",
     "Logged Time",
+    "Entry ID",
     "Latitude",
     "Longitude",
     "Altitude",
@@ -37,13 +38,13 @@
     "Produced By Accessory",
     "Sample Index",
     "Sample Count",
-    "Entry ID",
     "Source File"
   ],
   "data": [
     [
       1768478405,
       1768478410,
+      "00000000-0000-0000-0000-000000009001",
       0.5,
       -150.5,
       10.5,
@@ -57,12 +58,12 @@
       "No",
       1,
       2,
-      "00000000-0000-0000-0000-000000009001",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.DeviceLocationTopic/com.life360.DeviceLocationTopic.sqlite"
     ],
     [
       1768478409,
       1768478410,
+      "00000000-0000-0000-0000-000000009001",
       0.5005,
       -150.5,
       10.5,
@@ -76,12 +77,12 @@
       "No",
       2,
       2,
-      "00000000-0000-0000-0000-000000009001",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.DeviceLocationTopic/com.life360.DeviceLocationTopic.sqlite"
     ],
     [
       1768478469,
       1768478470,
+      "00000000-0000-0000-0000-000000009002",
       0.501,
       -150.5,
       10.5,
@@ -95,7 +96,6 @@
       "No",
       1,
       1,
-      "00000000-0000-0000-0000-000000009002",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.DeviceLocationTopic/com.life360.DeviceLocationTopic.sqlite"
     ]
   ]

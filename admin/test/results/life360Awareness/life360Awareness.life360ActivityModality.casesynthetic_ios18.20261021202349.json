@@ -25,6 +25,8 @@
     "Event Time",
     "Logged Time",
     "Location Time",
+    "Trip ID",
+    "Entry ID",
     "Modality (as stored)",
     "Confidence (as stored)",
     "Raw Event Type (as stored)",
@@ -36,8 +38,6 @@
     "Horizontal Accuracy",
     "Vertical Accuracy",
     "Server Tag (as stored)",
-    "Trip ID",
-    "Entry ID",
     "Source File"
   ],
   "data": [
@@ -45,6 +45,8 @@
       1768479500,
       1768479500,
       1768479499,
+      "",
+      "00000000-0000-0000-0000-000000009001",
       "driving",
       "high",
       "modalityLocation",
@@ -56,14 +58,14 @@
       5.0,
       3.0,
       "undefined",
-      "",
-      "00000000-0000-0000-0000-000000009001",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.activity_recognition.topics.active_modality/com.life360.activity_recognition.topics.active_modality.sqlite"
     ],
     [
       1768478700,
       1768479501,
       1768478700,
+      "20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "00000000-0000-0000-0000-000000009002",
       "unknown",
       "",
       "driveEvent",
@@ -75,8 +77,6 @@
       "",
       "",
       "",
-      "20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-      "00000000-0000-0000-0000-000000009002",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.activity_recognition.topics.active_modality/com.life360.activity_recognition.topics.active_modality.sqlite"
     ]
   ]

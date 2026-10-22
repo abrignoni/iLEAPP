@@ -22,43 +22,43 @@
     }
   },
   "headers": [
-    "Place Name",
+    "Last Retrieved",
+    "Alert ID",
+    "Place ID",
     "Member ID",
+    "Circle ID",
+    "Place Name",
     "Arrival Alerts",
     "Departure Alerts",
     "Latitude",
     "Longitude",
-    "Circle ID",
-    "Place ID",
-    "Alert ID",
-    "Last Retrieved",
     "Source File"
   ],
   "data": [
     [
-      "Home",
+      1768478400,
+      "00000000-0000-0000-0000-00000000a03c",
+      "00000000-0000-0000-0000-00000000a014",
       "00000000-0000-0000-0000-00000000a001",
+      "00000000-0000-0000-0000-00000000a00a",
+      "Home",
       "Yes",
       "Yes",
       0.5,
       -150.5,
-      "00000000-0000-0000-0000-00000000a00a",
-      "00000000-0000-0000-0000-00000000a014",
-      "00000000-0000-0000-0000-00000000a03c",
-      1768478400,
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/L360CoreDataStore.sqlite"
     ],
     [
-      "Home",
+      1768478400,
+      "00000000-0000-0000-0000-00000000a03d",
+      "00000000-0000-0000-0000-00000000a014",
       "00000000-0000-0000-0000-00000000a002",
+      "00000000-0000-0000-0000-00000000a00a",
+      "Home",
       "No",
       "Yes",
       0.5,
       -150.5,
-      "00000000-0000-0000-0000-00000000a00a",
-      "00000000-0000-0000-0000-00000000a014",
-      "00000000-0000-0000-0000-00000000a03d",
-      1768478400,
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/L360CoreDataStore.sqlite"
     ]
   ]

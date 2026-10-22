@@ -22,37 +22,37 @@
     }
   },
   "headers": [
+    "Place ID",
+    "Circle ID",
     "Place Name",
     "Direction (as stored)",
     "Latitude",
     "Longitude",
     "Radius",
     "Unit",
-    "Circle ID",
-    "Place ID",
     "Source File"
   ],
   "data": [
     [
+      "00000000-0000-0000-0000-00000000a014",
+      "00000000-0000-0000-0000-00000000a00a",
       "Home",
       "egress",
       0.5,
       -150.5,
       150.0,
       "m",
-      "00000000-0000-0000-0000-00000000a00a",
-      "00000000-0000-0000-0000-00000000a014",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
     ],
     [
+      "00000000-0000-0000-0000-00000000a015",
+      "00000000-0000-0000-0000-00000000a00a",
       "Work",
       "ingress",
       0.6,
       -150.4,
       250.0,
       "m",
-      "00000000-0000-0000-0000-00000000a00a",
-      "00000000-0000-0000-0000-00000000a015",
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
     ]
   ]

@@ -284,8 +284,8 @@ from datetime import datetime, timezone
 
 from scripts.ilapfuncs import (artifact_processor, device_info, does_column_exist_in_db,
                                get_plist_file_content, logfunc)
-from scripts.life360_common import (get_life360_files, read_life360_rows, seconds_to_utc,
-                                   stored_dict, stored_list)
+from scripts.life360_common import (columns_first, get_life360_files, read_life360_rows,
+                                   seconds_to_utc, stored_dict, stored_list)
 
 _JSON_ERRORS = (json.JSONDecodeError, TypeError, ValueError, UnicodeDecodeError)
 
@@ -341,6 +341,8 @@ def life360CircleDrives(context):
         for row in read_life360_rows(path, query, rel):
             data_list.append((_cocoa(row[0]), _cocoa(row[1])) + tuple(_as_stored(v) for v in row[2:18]) +
                              (_cocoa(row[18]), _cocoa(row[19]), _cocoa(row[20]), rel))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Start Time', 'End Time', 'Created At',
+        'Updated At', 'Last Retrieved', 'Drive ID', 'User ID', 'Circle IDs'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
 
 
@@ -365,6 +367,8 @@ def life360Places(context):
         for row in read_life360_rows(path, query, rel):
             data_list.append(tuple(_as_stored(v) for v in row[:5]) + (_yes_no(row[5]),) +
                              tuple(_as_stored(v) for v in row[6:14]) + (_cocoa(row[14]), rel))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Last Retrieved', 'Place ID',
+        'Circle ID', 'Owner ID', 'Source ID'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
 
 
@@ -387,6 +391,8 @@ def life360PlaceAlerts(context):
         for row in read_life360_rows(path, query, rel):
             data_list.append((_as_stored(row[0]), _as_stored(row[1]), _yes_no(row[2]), _yes_no(row[3])) +
                              tuple(_as_stored(v) for v in row[4:9]) + (_cocoa(row[9]), rel))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Last Retrieved', 'Alert ID',
+        'Place ID', 'Member ID', 'Circle ID'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
 
 
@@ -420,6 +426,8 @@ def life360DriverReports(context):
             data_list.append((_cocoa(row[0]), _cocoa(row[1])) + tuple(_as_stored(v) for v in row[2:17]) +
                              (_cocoa(row[17]), _cocoa(row[18])) + tuple(_as_stored(v) for v in row[19:22]) +
                              (_cocoa(row[22]), rel))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Start Day', 'End Day',
+        'Coverage Start', 'Coverage End', 'Last Retrieved', 'Report ID', 'Item ID', 'Member ID', 'Circle ID'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
 
 
@@ -596,6 +604,8 @@ def life360Circles(context):
             data_list.append(('', _as_stored(circle_id), '', '', _as_stored(roles.get(circle_id)),
                               _as_stored(code.get('code')), _as_stored(code.get('deeplink')),
                               _cocoa(code.get('expiration')), _cocoa(code.get('lastRetrieved')), rel))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Created At', 'Invite Expiration',
+        'Last Retrieved', 'Circle ID'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
 
 
@@ -639,6 +649,8 @@ def life360MemberSettings(context):
                     data_list.append((scope, _as_stored(block.get('memberID')), _as_stored(block.get('circleID')),
                                       _as_stored(store[index]), _decode_setting(store[index + 1]),
                                       _cocoa(block.get('lastRetrieved')), rel))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Last Retrieved', 'Member ID',
+        'Circle ID'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
 
 
@@ -673,6 +685,7 @@ def life360GeofenceStates(context):
                               _as_stored(radius.get('value')), _as_stored(unit.get('symbol')),
                               _as_stored(state.get('circleId')), _as_stored(state.get('id', place_id)), rel))
     data_list.sort(key=lambda row: (str(row[6]), str(row[0])))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Place ID', 'Circle ID'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
 
 
@@ -704,4 +717,5 @@ def life360PopDwells(context):
                               _as_stored(entry.get('longitude')), _as_stored(entry.get('circleId')),
                               _as_stored(entry.get('recurrenceId')), rel))
     data_list.sort(key=lambda row: str(row[0]))
+    data_headers, data_list = columns_first(data_headers, data_list, ('Date', 'Circle ID', 'Recurrence ID'))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)

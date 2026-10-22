@@ -23,19 +23,19 @@
   },
   "headers": [
     "Date",
-    "Latitude",
-    "Longitude",
     "Circle ID",
     "Recurrence ID",
+    "Latitude",
+    "Longitude",
     "Source File"
   ],
   "data": [
     [
       1768032000,
-      0.7,
-      -150.3,
       "00000000-0000-0000-0000-00000000a00a",
       "r1",
+      0.7,
+      -150.3,
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
     ]
   ]

@@ -22,40 +22,40 @@
     }
   },
   "headers": [
-    "Circle Name",
-    "Circle ID",
-    "Type (as stored)",
     "Created At",
+    "Invite Expiration",
+    "Last Retrieved",
+    "Circle ID",
+    "Circle Name",
+    "Type (as stored)",
     "Role (as stored)",
     "Invite Code",
     "Invite Deeplink",
-    "Invite Expiration",
-    "Last Retrieved",
     "Source File"
   ],
   "data": [
     [
-      "Family",
-      "00000000-0000-0000-0000-00000000a00a",
-      "basic",
       1742558400,
+      1768737600,
+      1768478400,
+      "00000000-0000-0000-0000-00000000a00a",
+      "Family",
+      "basic",
       1,
       "ABC-123",
       "https://example.invalid/join",
-      1768737600,
-      1768478400,
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
     ],
     [
       "",
+      1768564800,
+      1768478400,
       "00000000-0000-0000-0000-00000000a00b",
       "",
       "",
       "",
       "XYZ-789",
       "https://example.invalid/other-circle",
-      1768564800,
-      1768478400,
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
     ]
   ]

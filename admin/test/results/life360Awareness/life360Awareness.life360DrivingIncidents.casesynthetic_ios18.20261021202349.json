@@ -23,11 +23,11 @@
   },
   "headers": [
     "Incident Time",
+    "Trip ID",
+    "Event IDs",
     "Type (as stored)",
     "Latitude",
     "Longitude",
-    "Trip ID",
-    "Event IDs",
     "Stores",
     "Occurrences",
     "Source Files",
@@ -37,11 +37,11 @@
   "data": [
     [
       1768478550,
+      "20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "00000000-0000-0000-0000-000000000930, 00000000-0000-0000-0000-0000000009BC",
       "distractedDriving",
       0.502,
       -150.5,
-      "20260115AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-      "00000000-0000-0000-0000-000000000930, 00000000-0000-0000-0000-0000000009BC",
       "DriveEvent, drive_session",
       3,
       "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.L360Driving.Topics.DriveEvent/com.life360.L360Driving.Topics.DriveEvent.sqlite\nprivate/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Application Support/com.eventkit/com.life360.event_history_core.topics.drive_session/com.life360.event_history_core.topics.drive_session.sqlite",

@@ -20,6 +20,14 @@ def seconds_to_utc(value, epoch_year):
         return ''
 
 
+def columns_first(headers, rows, first):
+    """Move the named columns to the front in the given order; the rest keep their order."""
+    names = [h[0] if isinstance(h, tuple) else h for h in headers]
+    order = [names.index(name) for name in first]
+    order += [i for i in range(len(names)) if i not in order]
+    return tuple(headers[i] for i in order), [tuple(row[i] for i in order) for row in rows]
+
+
 def stored_dict(value, label):
     """Keep an optional object; report a present value with the wrong shape."""
     if isinstance(value, dict):
