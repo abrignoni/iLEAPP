@@ -24,17 +24,24 @@ __artifacts_v2__ = {
             "establish a reboot or a complete log. The log is read from every file the "
             "paths match: the live shutdown.log and "
             "the copy a packed sysdiagnose (sysdiagnose_*.tar.gz) holds under "
-            "system_logs.logarchive/Extra, named shutdown.log or shutdown.0.log on test data. A row "
-            "identical to one already reported from another copy is reported once, from the copy "
-            "read first; entry numbers restart per file. On the three test images holding packed "
-            "sysdiagnoses, the lines of each packed copy were the opening lines of the live log. "
-            "On felix23_ios16 and hickman_ios14 every process row read from the packed copies "
-            "repeated a row of the live log (265 and 172 rows), so the counts equal those from the "
-            "live log alone. On hickman_ios13 the packed copy ends inside a shutdown block: 295 of "
-            "its 375 process rows repeated a live row, and the other 80 have no SIGTERM line after "
-            "them in that copy, so they are reported again with no Timestamp although the live rows "
-            "with the same entry number, PID, path and delay carry one (537 rows from the live log, "
-            "617 in all)."
+            "system_logs.logarchive/Extra. The packed copies on the test images are named "
+            "shutdown.log; the two iOS 26 sysdiagnose images hold the file in that folder as "
+            "shutdown.0.log. A row identical to one already reported from another copy is reported once, from the copy "
+            "read first; entry numbers restart per file. A row with no Timestamp is also dropped "
+            "when a row from another copy has the same entry number, PID, path and delay and "
+            "carries a Timestamp, whichever copy is read first; that time is not given to the "
+            "dropped row. A row with no Timestamp and no such twin is kept. The twin match relies "
+            "on entry numbers lining up between copies. On the three test images holding packed "
+            "sysdiagnoses, each packed copy was a byte prefix of the live log, so they did; copies "
+            "that do not share their opening lines were not tested. On felix23_ios16 and "
+            "hickman_ios14 every process row read from the packed copies repeated a row of the "
+            "live log (265 and 172 rows). On hickman_ios13 the packed copy ends inside a shutdown "
+            "block: 295 of its 375 process rows repeated a live row, and the other 80 have no "
+            "SIGTERM line after them in that copy and each has a dated twin in the live log. On all "
+            "three the counts equal those from the live log alone. Location Indicator was empty "
+            "on every row of the test images except fsfull002_ios17, where it marked 7 of 539 "
+            "rows. On ctf2020_ios12 the live log holds one SIGTERM line, so Timestamp is filled on "
+            "10 of its 626 rows and the other 616 are client lines after it."
         ),
         "paths": (
             '*/shutdown*.log',
@@ -43,7 +50,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "power",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 10 rows",
+            "ctf2020_ios12": "iOS 12.4 | 626 rows",
             "dexter_ios18": "iOS 18.3.2 | 253 rows",
             "fsfull002_ios17": "iOS 17.1 | 539 rows",
             "hc_ios18_7": "iOS 18.7.8 | 1064 rows",
@@ -52,7 +59,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 188 rows",
             "abe_ios16": "iOS 16.5 | 644 rows",
             "felix23_ios16": "iOS 16.5 | 501 rows",
-            "hickman_ios13": "iOS 13.3.1 | 617 rows",
+            "hickman_ios13": "iOS 13.3.1 | 537 rows",
             "hickman_ios14": "iOS 14.3 | 217 rows",
             "jess_ios15": "iOS 15.0.2 | 448 rows",
             "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 554 rows",
@@ -67,7 +74,7 @@ __artifacts_v2__ = {
                        "the count of shutdown delay notices and the longest delay per reboot",
         "author": "@KevinPagano3",
         "creation_date": "2024-02-13",
-        "last_update_date": "2026-09-18",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": (
@@ -76,10 +83,11 @@ __artifacts_v2__ = {
             "and Pegasus-related processes in more than four, and treats more than four as an "
             "anomaly to investigate "
             "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/"
-            "). Elevated counts also occur for benign reasons. The log is read from every file the "
+            "). A high count is a lead to review, not a finding. The log is read from every file the "
             "paths match: the live shutdown.log and the copy a packed sysdiagnose "
-            "(sysdiagnose_*.tar.gz) holds under system_logs.logarchive/Extra, named shutdown.log "
-            "or shutdown.0.log on test data. A row identical to one already reported from another "
+            "(sysdiagnose_*.tar.gz) holds under system_logs.logarchive/Extra. The packed copies on "
+            "the test images are named shutdown.log; the two iOS 26 sysdiagnose images hold the "
+            "file in that folder as shutdown.0.log. A row identical to one already reported from another "
             "copy is reported once, from the copy read first; reboot numbers restart per file. On "
             "the three test images holding packed sysdiagnoses, every reboot row read from the "
             "packed copies repeated a row of the live log, so the counts equal those "
@@ -209,7 +217,24 @@ def _parse_shutdown_logs(context):
             entry_num += 1
         sources.append(rel)
 
-    return processes, reboots, '\n'.join(dict.fromkeys(sources))
+    return _drop_undated_twins(processes), reboots, '\n'.join(dict.fromkeys(sources))
+
+
+def _drop_undated_twins(processes):
+    """Drop an undated process row whose dated twin was read from another copy.
+
+    A copy that ends inside a shutdown block leaves that block's client lines with no
+    SIGTERM after them, so they come out undated while the longer copy reports the same
+    lines dated. The twin key leaves out the timestamp: entry number, PID, path and
+    delay. The match runs over every copy after all are read, so the read order does
+    not matter. An undated row with no dated twin is kept, and no row is given a time.
+    """
+    dated_sources = {}
+    for row in processes:
+        if row[0] is not None:
+            dated_sources.setdefault(row[1:5], set()).add(row[-1])
+    return [row for row in processes
+            if row[0] is not None or not dated_sources.get(row[1:5], set()) - {row[-1]}]
 
 
 @artifact_processor
