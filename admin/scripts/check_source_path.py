@@ -28,6 +28,15 @@ The wrapper splits on newlines only, so the whole list reaches it as one piece. 
 is then one entry in the LAVA manifest, and a path that itself holds ', ' cannot be
 told apart from two paths.
 
+The third is a label or prose composed into the value with an f-string or a '+'
+chain, around real paths or instead of them:
+
+    return data_headers, data_list, f'ATX Database: {atx_db}'              # WRONG
+    return data_headers, data_list, f'{count} databases - see Source File'  # WRONG
+
+Each line of the result is taken as a path, so the label becomes part of the path
+the report prints and the manifest records.
+
 The shape to write instead, accumulating after the function's own skip guards so a
 file that was matched but not parsed is not claimed as a source:
 
@@ -48,21 +57,38 @@ and into a helper function defined in the same module. A streamed result's
 `source_path=` keyword and `set_source_path(...)` argument are followed the same
 way. It reports the line where the separator is written, which is the line to fix.
 
+The composed-label check follows the value the same way and reads the literal text
+of each f-string and '+' chain it reaches. ' >> ' counts as a path separator. The
+text is split into lines at '\n', and a line is reported as a label or prose when:
+
+  * it is all literal, with no interpolated value on it, and holds neither '/' nor
+    '\\' (a hardcoded path keeps its separators; 'See Source File column' has none),
+  * or it is written next to an interpolated value with whitespace on the side
+    that touches the value ('ATX Database: {path}', '{count} databases').
+
+A path built from values is joined to them by a separator or a suffix with no
+space at the join ('{folder}/{name}', '{db}-wal', '{root}/Application Support/x'),
+so neither rule fires on it. A literal touching a value with no space between them
+('{path}(copy)') is not caught.
+
 What deliberately does NOT fail:
 
   * `''` on a branch that also returns an empty `data_list`. The wrapper writes no
     report at all when there are no rows, so that string never reaches a report.
     A "not found" message there is pointless but harmless, and `''` is correct.
     The same branch is not checked for joins either.
-  * A variable holding a real path, however it was built. Only string literals are
-    reported as prose, including a literal reached through a variable that is never
-    assigned anything else.
+  * A variable holding a real path, however it was built. Only literal text is
+    reported as prose: a string literal, a literal reached through a variable that
+    is never assigned anything else, and the literal text of an f-string or '+'
+    chain that the rule above reads as a label.
   * Building one path: `'/'.join(parts)`, `''.join(parts)`, `os.path.join(...)`,
     `f'{folder}/{name}'`, and archive member notation, `f'{archive} >> {member}'`.
 
 The prose check was found by sweeping all five cores in 2026-08: 54 sites. iLEAPP
 had already been swept once (PRs #2022 and #2024, 140 modules) and the class had
 come back in ALEAPP and RLEAPP, which is why it is now a check rather than a sweep.
+The composed-label check was added after a sweep of all five cores in 2026-10 found
+four sites the literal check could not see, three in ALEAPP and one in iLEAPP.
 
 Usage:
   check_source_path.py [--root REPO_ROOT]
@@ -223,6 +249,25 @@ def lists_values(text):
     return bool(rest) and not rest.strip() and '\n' not in rest
 
 
+def composes_prose(text, touches_left, touches_right):
+    """Whether literal text placed in a composed source path is a label or prose.
+
+    `touches_left` and `touches_right` say whether an interpolated value sits
+    directly before or after the text in the composed string.
+    """
+    lines = text.replace(MEMBER_NOTATION, '/').split('\n')
+    last = len(lines) - 1
+    for index, line in enumerate(lines):
+        left = touches_left and index == 0
+        right = touches_right and index == last
+        if not left and not right:
+            if line.strip() and '/' not in line and '\\' not in line:
+                return True
+        elif (left and line[:1].isspace()) or (right and line[-1:].isspace()):
+            return True
+    return False
+
+
 def flatten_add(node):
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
         return flatten_add(node.left) + flatten_add(node.right)
@@ -236,6 +281,8 @@ class JoinFinder:
         self.helpers = {n.name: n for n in tree.body
                         if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
         self.constants = module_constants(tree)
+        # (line, text) for each label or prose composed into a source path.
+        self.prose = set()
 
     def literal(self, func, node):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
@@ -268,8 +315,31 @@ class JoinFinder:
                 value = value.elts[position]
             yield from self.find(helper, value, seen)
 
+    def note_prose(self, func, parts, leading_counts):
+        """Record literal text in an f-string or '+' chain that reads as a label."""
+        runs = []  # [line, text] for each run of adjacent literal parts, None for a value
+        for part in parts:
+            text = (part.value if isinstance(part, ast.Constant)
+                    and isinstance(part.value, str) else None)
+            if text is None and not isinstance(part, (ast.Constant, ast.FormattedValue)):
+                text = self.literal(func, part)
+            if text is None:
+                runs.append(None)
+            elif runs and runs[-1] is not None:
+                runs[-1][1] += text
+            else:
+                runs.append([part.lineno, text])
+        for index, run in enumerate(runs):
+            if run is None or lists_values(run[1]):
+                continue
+            touches_left = index > 0 or leading_counts
+            touches_right = index < len(runs) - 1
+            if composes_prose(run[1], touches_left, touches_right):
+                self.prose.add((run[0], run[1]))
+
     def pieces(self, func, parts, seen, leading_counts=False):
         """Findings for the parts of an f-string or a '+' chain."""
+        self.note_prose(func, parts, leading_counts)
         for index, part in enumerate(parts):
             if isinstance(part, ast.Constant):
                 if isinstance(part.value, str) and lists_values(part.value):
@@ -347,6 +417,39 @@ def scan_module(path):
     return violations, None
 
 
+def reaching_values(node):
+    """Every expression of a decorated function that becomes its source path."""
+    reaching = [ret.value.elts[2] for ret in own_triples(node)
+                if not returns_no_rows(ret)]
+    # A streamed result carries the same value on the ArtifactResult instead.
+    for call in own_scope(node):
+        if not isinstance(call, ast.Call):
+            continue
+        called = (call.func.attr if isinstance(call.func, ast.Attribute)
+                  else getattr(call.func, 'id', ''))
+        if called in RESULT_BUILDERS:
+            reaching.extend(k.value for k in call.keywords if k.arg == 'source_path')
+        elif called == 'set_source_path' and call.args:
+            reaching.append(call.args[0])
+    return reaching
+
+
+def follow(tree):
+    """Run the finder over every decorated function: (joins, composed prose).
+
+    Each is a set of (function, line, text).
+    """
+    finder = JoinFinder(tree)
+    joins, prose = set(), set()
+    for node in decorated(tree):
+        finder.prose = set()
+        for value in reaching_values(node):
+            for line, separator in finder.find(node, value, set()):
+                joins.add((node.name, line, separator))
+        prose.update((node.name, line, text) for line, text in finder.prose)
+    return joins, prose
+
+
 def scan_module_joins(path):
     """Paths listed with a separator other than a newline.
 
@@ -356,24 +459,22 @@ def scan_module_joins(path):
     module, tree, problem = parse(path)
     if problem:
         return [], problem
-    finder = JoinFinder(tree)
-    violations = set()
-    for node in decorated(tree):
-        reaching = [ret.value.elts[2] for ret in own_triples(node)
-                    if not returns_no_rows(ret)]
-        # A streamed result carries the same value on the ArtifactResult instead.
-        for call in own_scope(node):
-            if not isinstance(call, ast.Call):
-                continue
-            called = (call.func.attr if isinstance(call.func, ast.Attribute)
-                      else getattr(call.func, 'id', ''))
-            if called in RESULT_BUILDERS:
-                reaching.extend(k.value for k in call.keywords if k.arg == 'source_path')
-            elif called == 'set_source_path' and call.args:
-                reaching.append(call.args[0])
-        for value in reaching:
-            for line, separator in finder.find(node, value, set()):
-                violations.add((module, node.name, line, separator))
+    joins, _ = follow(tree)
+    violations = [(module, func, line, separator) for func, line, separator in joins]
+    return sorted(violations, key=lambda v: (v[2], v[1], v[3])), None
+
+
+def scan_module_composed(path):
+    """A label or prose composed into a source path with an f-string or '+'.
+
+    Returns [(module, function, line, text)], the line being where the text is
+    written.
+    """
+    module, tree, problem = parse(path)
+    if problem:
+        return [], problem
+    _, prose = follow(tree)
+    violations = [(module, func, line, text) for func, line, text in prose]
     return sorted(violations, key=lambda v: (v[2], v[1], v[3])), None
 
 
@@ -390,7 +491,7 @@ def main():
         print(f'No scripts/artifacts under {root}', file=sys.stderr)
         return 2
 
-    violations, joins, unreadable, modules = [], [], [], 0
+    violations, joins, composed, unreadable, modules = [], [], [], [], 0
     for name in sorted(os.listdir(artifacts)):
         if not name.endswith('.py'):
             continue
@@ -403,6 +504,8 @@ def main():
             continue
         found, _ = scan_module_joins(path)
         joins.extend(found)
+        found, _ = scan_module_composed(path)
+        composed.extend(found)
 
     if violations:
         print(f'Artifacts returning prose as source_path ({len(violations)}):')
@@ -415,12 +518,18 @@ def main():
         for module, func, line, separator in joins:
             print(f'  {module}:{line}  {func}()  joined with {separator!r}')
         print()
-    if violations or joins:
+    if composed:
+        print('Artifacts composing a label or prose into a source path '
+              f'({len(composed)}):')
+        for module, func, line, text in composed:
+            print(f'  {module}:{line}  {func}()  {text!r}')
+        print()
+    if violations or joins or composed:
         print(STANDARD_NOTE)
         return 1
 
-    summary = (f'Checked {modules} artifact module(s): '
-               'no prose and no non-newline join returned as a source path.')
+    summary = (f'Checked {modules} artifact module(s): no prose, no composed label '
+               'and no non-newline join returned as a source path.')
     if unreadable:
         summary += f' {len(unreadable)} module(s) NOT checked.'
     print(summary)
