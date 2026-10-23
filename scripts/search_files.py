@@ -1034,7 +1034,9 @@ class FileSeekerTar(FileSeekerBase):
         reads a link that stays inside the input. Read as themselves they staged as
         empty files, and a link to a folder staged that way blocked every file under
         its name: in an Android full file system tar, data/user/0 is a hard link to
-        data/data."""
+        data/data. A link whose target the archive does not hold is handed back by
+        search with nothing staged, as the folder seeker hands back a link that
+        resolves outside the input, so an artifact can still report the link."""
         if member.isdir():
             return None
         if member.islnk() or member.issym():
@@ -1071,8 +1073,13 @@ class FileSeekerTar(FileSeekerBase):
                     try:
                         content = self._member_content(member)
                         if content is _NOT_IN_ARCHIVE:
-                            continue
-                        if content is None:
+                            # nothing is written; the path is returned, as the folder
+                            # seeker returns a link that resolves outside the input
+                            full_path = self._unique_data_path(str(full_path), member.name)
+                            self.file_infos[full_path] = FileInfo(
+                                member.name, 0, member.mtime, kind='link outside the input')
+                            self.copied[member.name] = full_path
+                        elif content is None:
                             # a folder, or a link to one: no file to hand over
                             os.makedirs(full_path, exist_ok=True)
                         else:
