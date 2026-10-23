@@ -94,4 +94,4 @@ def notificationsXI(context):
         if matched:
             sources.append(context.get_relative_path(filepath))
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

@@ -533,7 +533,7 @@ def box_all_files(context):
         # Ensure the database connection is closed safely
         db.close()
 
-    return data_headers, (data_list, data_list_html), '; '.join(source_paths)
+    return data_headers, (data_list, data_list_html), '\n'.join(source_paths)
 
 
 def extract_user_id_safe(path: str, context) -> str | None:
@@ -674,7 +674,7 @@ def box_previews(context):
                     f"{source_path}: {ex}")
             continue
 
-    return data_headers, data_list, '; '.join(source_paths)
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor

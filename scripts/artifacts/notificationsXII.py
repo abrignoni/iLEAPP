@@ -279,4 +279,4 @@ def notificationsXII(context):
     if embedded:
         logfunc(f'Notifications: recovered {embedded} image(s) embedded in notification payloads')
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

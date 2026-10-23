@@ -143,7 +143,7 @@ def firefox_ios_history(context):
         'Page GUID',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))
 
 
 @artifact_processor
@@ -191,4 +191,4 @@ def firefox_ios_bookmarks(context):
         'GUID',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))

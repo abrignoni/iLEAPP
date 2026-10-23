@@ -311,7 +311,7 @@ def grindr_messages(context):
         'Account',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))
 
 
 @artifact_processor
@@ -381,7 +381,7 @@ def grindr_conversations(context):
         'Account',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))
 
 
 @artifact_processor
@@ -462,7 +462,7 @@ def grindr_profiles(context):
         'Account',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))
 
 
 @artifact_processor
@@ -524,4 +524,4 @@ def grindr_account(context):
         'Disable Appearing In Remote Search (as stored)',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))

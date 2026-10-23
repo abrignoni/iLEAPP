@@ -89,5 +89,5 @@ def mobileActivationLogs(context):
                 data_list.append((dtime_obj, f'Mobile Activation Startup at line: {linecount}', log_name))
 
     # 4. Join the fully prepared, deduplicated strings
-    source_path = ', '.join(source_files)
+    source_path = '\n'.join(source_files)
     return data_headers, data_list, source_path

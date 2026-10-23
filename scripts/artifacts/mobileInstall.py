@@ -354,7 +354,7 @@ def _events_and_source(context):
                 new_lines.append(line)
         events.extend(_parse_events(new_lines))
 
-    return events, ', '.join(sources)
+    return events, '\n'.join(sources)
 
 
 def _latest_state_per_bundle(events):

@@ -150,7 +150,7 @@ def icloudSharedOwnerInfo(context):
                           pl.get('cloudRelationshipState', ''),
                           pl.get('cloudOwnerHashedPersonID', ''), rel))
         sources.append(rel)
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor
@@ -170,7 +170,7 @@ def icloudSharedAlbumData(context):
         data_list.append((album_id, pl.get('DCIMLastDirectoryNumber', ''),
                           pl.get('DCIMLastFileNumber', ''), rel))
         sources.append(rel)
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 def _person_value_node(value):
@@ -232,7 +232,7 @@ def icloudSharedPersonInfo(context):
                               info.get('fullName', ''), identifier,
                               _person_field_json(info, 'emails'), _person_field_json(info, 'email')))
         sources.append(context.get_relative_path(file_found))
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor
@@ -249,4 +249,4 @@ def icloudSharedEmails(context):
         for key, value in pl.items():
             data_list.append((key, value))
         sources.append(context.get_relative_path(file_found))
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

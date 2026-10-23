@@ -522,4 +522,4 @@ def photosDbexif(context):
     order = (0, 1, 8, 9, 10, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
     data_headers = tuple(data_headers[i] for i in order)
     data_list = [tuple(row[i] for i in order) for row in data_list]
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

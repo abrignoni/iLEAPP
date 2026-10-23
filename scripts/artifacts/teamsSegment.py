@@ -195,7 +195,7 @@ def _iter_records(context):
             logfunc(f'Failed to read {file_found}: {ex}')
             continue
         sources.append(context.get_relative_path(file_found))
-    return records, ', '.join(dict.fromkeys(sources))
+    return records, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor

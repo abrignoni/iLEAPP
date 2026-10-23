@@ -201,7 +201,7 @@ def coinbase_wallets(context):
         'Platform (as stored)',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))
 
 
 @artifact_processor
@@ -245,4 +245,4 @@ def coinbase_account(context):
         'Appearance (as stored)',
         'Source File',
     )
-    return data_headers, data_list, '; '.join(sorted(set(source_files)))
+    return data_headers, data_list, '\n'.join(sorted(set(source_files)))

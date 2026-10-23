@@ -36,7 +36,7 @@ class TestICloudMetadataExports(unittest.TestCase):
                 get_relative_path=lambda path: Path(path).name)
             headers, rows, source = inspect.unwrap(icloudPhotoMeta)(context)
             self.assertEqual(len(headers), 22)
-            self.assertEqual(source, 'first.txt, second.txt')
+            self.assertEqual(source, 'first.txt\nsecond.txt')
             self.assertEqual(len(rows), 19)
             self.assertEqual([row[1] for row in rows],
                              ['0', '1', '2', '3', '4', '5', '6', '0', '1', '0',

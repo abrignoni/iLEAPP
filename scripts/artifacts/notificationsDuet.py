@@ -109,4 +109,4 @@ def get_notificationsDuet(context):
                                   None, None, None, None, None, None, filename,
                                   record.data_start_offset))
 
-    return data_headers, data_list, ', '.join(sources)
+    return data_headers, data_list, '\n'.join(sources)

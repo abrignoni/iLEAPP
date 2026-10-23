@@ -9,6 +9,11 @@ The negative cases matter as much as the positive ones. A check wired into CI th
 fails correct code gets switched off, so the shapes that must stay silent are
 pinned here too: an empty string on a branch that returns no rows never reaches a
 report, and a variable holding a real path is not a literal.
+
+The join check is pinned the same way. Each positive case below is a shape found
+on main in 2026-10 (a ', ' or '; ' join, a '+' chain, a helper that returns the
+joined string, a streamed result's source_path), and each negative case is a way
+of building ONE path that must stay silent.
 """
 import importlib.util
 import pathlib
@@ -35,6 +40,16 @@ def findings_for(source):
     if problem:
         raise AssertionError(problem)
     return violations
+
+
+def joins_for(source):
+    with tempfile.TemporaryDirectory() as folder:
+        path = pathlib.Path(folder) / 'sample.py'
+        path.write_text(textwrap.dedent(source), encoding='utf-8')
+        violations, problem = csp.scan_module_joins(str(path))
+    if problem:
+        raise AssertionError(problem)
+    return [(line, separator) for _, _, line, separator in violations]
 
 
 class Prose(unittest.TestCase):
@@ -97,6 +112,116 @@ class MustStaySilent(unittest.TestCase):
         '''), [])
 
 
+class SeparatorJoins(unittest.TestCase):
+    def test_flags_a_comma_join_in_the_return(self):
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                sources = []
+                return (), [1], ', '.join(sources)
+        '''), [(5, ', ')])
+
+    def test_flags_a_join_reached_through_a_variable(self):
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                source_path = '; '.join(dict.fromkeys(sources))
+                return (), [1], source_path
+        '''), [(4, '; ')])
+
+    def test_flags_a_separator_named_by_a_module_constant(self):
+        self.assertEqual(joins_for('''
+            SEPARATOR = ', '
+
+            @artifact_processor
+            def demo(context):
+                return (), [1], SEPARATOR.join(sources)
+        '''), [(6, ', ')])
+
+    def test_flags_a_join_returned_by_a_helper_and_unpacked(self):
+        """sysShutdown's shape: the helper hands back rows and the joined string."""
+        self.assertEqual(joins_for('''
+            def _parse(context):
+                sources = []
+                return [1], [2], ', '.join(dict.fromkeys(sources))
+
+            @artifact_processor
+            def demo(context):
+                rows, _other, source_path = _parse(context)
+                return (), rows, source_path
+        '''), [(4, ', ')])
+
+    def test_flags_a_plus_chain(self):
+        """The Chrome modules' shape."""
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                report_file = 'Unknown'
+                for file_found in context.get_files_found():
+                    report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+                return (), [1], report_file
+        '''), [(6, ', ')])
+
+    def test_flags_an_fstring_and_an_augmented_assignment(self):
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                listed = f'{db_path}; {wal_path}'
+                listed += ', ' + str(other)
+                return (), [1], listed
+        '''), [(4, '; '), (5, ', ')])
+
+    def test_flags_a_streamed_results_source_path(self):
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                results = context.create_artifact_result(
+                    headers=(), source_path=', '.join(sources))
+                results.set_source_path(' '.join(str(x) for x in in_dirs))
+                return results
+        '''), [(5, ', '), (6, ' ')])
+
+    def test_accepts_newline_joins(self):
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                source_path = '\\n'.join(dict.fromkeys(sources))
+                return (), [1], '\\n'.join(sorted(set(sources))) if sources else source_path
+        '''), [])
+
+    def test_accepts_building_one_path(self):
+        self.assertEqual(joins_for('''
+            import os
+
+            @artifact_processor
+            def demo(context):
+                first = '/'.join(parts)
+                second = os.path.join(folder, name)
+                third = f'{folder}/{name}'
+                fourth = f'{archive} >> {member}'
+                fifth = ''.join(pieces)
+                return (), [1], '\\n'.join((first, second, third, fourth, fifth))
+        '''), [])
+
+    def test_ignores_a_nested_functions_return(self):
+        """allTrails' shape: a nested helper returns a 3-tuple that is not the artifact's."""
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                def place(location_id):
+                    names = ', '.join(parts)
+                    return lat, lng, names
+                return (), [1], source_path
+        '''), [])
+
+    def test_a_join_on_a_no_rows_branch_is_fine(self):
+        self.assertEqual(joins_for('''
+            @artifact_processor
+            def demo(context):
+                return (), [], ', '.join(sources)
+        '''), [])
+
+
 class TheRepoItself(unittest.TestCase):
     def test_no_artifact_in_this_repo_returns_prose(self):
         artifacts = REPO_ROOT / 'scripts' / 'artifacts'
@@ -105,6 +230,14 @@ class TheRepoItself(unittest.TestCase):
             violations, _ = csp.scan_module(str(module))
             offenders.extend(violations)
         self.assertEqual(offenders, [], f'{len(offenders)} artifact(s) return prose')
+
+    def test_no_artifact_in_this_repo_lists_paths_with_another_separator(self):
+        artifacts = REPO_ROOT / 'scripts' / 'artifacts'
+        offenders = []
+        for module in sorted(artifacts.glob('*.py')):
+            violations, _ = csp.scan_module_joins(str(module))
+            offenders.extend(violations)
+        self.assertEqual(offenders, [], f'{len(offenders)} artifact join(s) found')
 
 
 if __name__ == '__main__':

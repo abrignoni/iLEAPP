@@ -41,4 +41,4 @@ def dhcpHotspotClients(context):
                     data_list.append((splitline[0], splitline[1], rel))
         sources.append(rel)
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
