@@ -272,7 +272,20 @@ class ParserTests(unittest.TestCase):
         firmware = bytes((1, 0, 2, 8, 56, 0))
         _, rows = module.parse_txt(log(6, record(40, serial, 6) + record(15, firmware, 6)))
         self.assertEqual((rows[0]['component'], rows[0]['serial']), ('Aircraft (2)', 'SN0001'))
-        self.assertEqual((rows[1]['component'], rows[1]['component_sub'], rows[1]['firmware']), ('Camera (1)', 0, '2.8.56'))
+        self.assertEqual(rows[0]['component'], 'Aircraft (2)')
+        self.assertEqual(rows[1]['firmware'], 'Camera (1) / 0: 2.8.56')
+        self.assertNotIn('component', rows[1])
+
+    def test_firmware_lists_every_entry(self):
+        payload = bytes((1, 0, 2, 8, 56, 68, 3, 6, 3, 2, 44, 7, 9, 0, 0, 1, 0, 1))
+        _, rows = module.parse_txt(log(6, record(15, payload, 6)))
+        self.assertEqual(rows[0]['firmware'], 'Camera (1) / 0: 2.8.56; MC (3) / 6: 3.2.44; Unknown (9) / 0: 0.1.0')
+        self.assertEqual(rows[0]['status'], 'Decoded')
+
+    def test_firmware_trailing_bytes_noted(self):
+        _, rows = module.parse_txt(log(6, record(15, bytes((11, 0, 1, 0, 7, 32, 4, 0)), 6)))
+        self.assertEqual(rows[0]['firmware'], 'Battery (11) / 0: 1.0.7')
+        self.assertEqual(rows[0]['status'], 'Decoded; 2 trailing bytes are not a whole entry')
 
     def test_short_component_serial(self):
         _, rows = module.parse_txt(log(6, record(40, struct.pack('<HB', 2, 9) + b'SN', 6)))

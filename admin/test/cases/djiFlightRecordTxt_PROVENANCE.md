@@ -49,7 +49,7 @@ changed. Archive paths and member times are the originals.
 Together the two copies contain every record type the Records artifact decodes into
 fields, App Tip and App Warning messages, and types it counts without reporting. App
 Serious Warning (type 24) does not occur in DF020. The dataset's MIT notice is preserved in
-`DF020_DATASET_LICENSE.txt` beside the fixture zips.
+`djiFlightRecordTxt_DF020_DATASET_LICENSE.txt` beside this file.
 
 The case 2 public example is distributed with this license:
 
@@ -82,6 +82,8 @@ All six fixture archives retain their accepted ALEAPP member bytes; only member 
 New iLEAPP snapshots were recorded only after all six path-adapted accepted baselines passed. Headers and decoded row multisets were identical; row ordering alone differed. The original evidence content and legacy Android platform fields were retained.
 
 ## Real iOS case4 — DF020 August 2017
+
+Corpus key: df020_mavic_pro_ios (VTO-published MD5 b6f1280375b0c8512dcbcf440bd7a362, SHA1 3d507bd020bd35873bb1c06d5476a37a20edc656).
 
 Source archive: df020_flight_ios_backup.zip (698544846 bytes), supplied locally by Neal from VTO/NIST DF020. Unencrypted iTunes backup. Info.plist reports iOS 10.3.2 and product iPad5,1. Backup application metadata identifies DJI GO 4, bundle com.dji.go, build 2952. The original TXT Details reports IOS (1), app 4.1.5 and log v8. These observations are separate metadata sources, not invented device versions.
 

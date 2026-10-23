@@ -1,179 +1,105 @@
-__artifacts_v2__ = {'djiFlightRecordTxtRecords': {'name': 'DJI Drone - TXT Flight Records',
-                               'description': 'Reads DJI GO, DJI GO 4 and DJI Fly TXT flight '
-                                              'records offline. Versions 1 to 12 give one row per '
-                                              'record of a defined type; version 13 and later give '
-                                              'no record rows (see the Summary artifact).',
-                               'author': 'Neal (@Blackwater1224), @AlexisBrignoni, Claude',
-                               'creation_date': '2026-10-23',
-                               'last_update_date': '2026-10-23',
-                               'requirements': 'none',
-                               'category': 'DJI Drone',
-                               'notes': 'Versions 1-6 are read as stored and 7-12 use local XOR '
-                                        'decoding. Version 13+ telemetry is encrypted and is not '
-                                        'decrypted; see TXT Flight Log Summary. Record types, '
-                                        'layouts, units and enum names follow dji-log-parser '
-                                        'v0.5.7 (https://github.com/lvauvillier/dji-log-parser, '
-                                        'MIT). A record of a type it does not define is not '
-                                        "listed; each log's count of those is in the summary's "
-                                        'Records Not Reported column. A header without a unit, or '
-                                        'marked as stored or raw, has no unit documented there. '
-                                        'Camera Mode is shown as the stored number; dji-log-parser '
-                                        'defines names for it that are not applied. Horizontal '
-                                        'Speed is derived from Speed X and Speed Y. Timestamp '
-                                        'comes from Custom records in UTC. Other records use the '
-                                        'preceding Custom timestamp, labeled in Timestamp Basis; '
-                                        'records before it have no timestamp. Telemetry is not '
-                                        'carried between rows. Relative Height is the OSD altitude '
-                                        'field. dji-log-parser adds the Home altitude to it to get '
-                                        'absolute altitude and pydjirecord describes it as height '
-                                        'above the take-off point. It is not altitude above sea '
-                                        'level. Latitude and Longitude are the aircraft (OSD) '
-                                        'position and are the only coordinates in the KML; Home, '
-                                        'App GPS (the mobile device) and RC GPS (the remote '
-                                        'controller) keep their own columns. App GPS is read '
-                                        'latitude first. dji-log-parser and pydjirecord name the '
-                                        'first value longitude, but in all three DF020 logs the '
-                                        'first value is the latitude of the site the OSD and Home '
-                                        'positions in the same log place the flight (and RC GPS, '
-                                        'in the version 9 log that has it). RC GPS coordinates are '
-                                        'the stored integers divided by 1e7 and RC GPS Accuracy is '
-                                        'in metres, per pydjirecord '
-                                        '(https://github.com/rembish/pydjirecord, MIT). RC GPS '
-                                        'Date and Time is shown as stored; the record holds no '
-                                        "zone. In DF020 it ran 1 to 3 seconds behind the row's "
-                                        'Timestamp (the preceding Custom record) on all 320 RC GPS '
-                                        'rows. The Firmware record is decoded as one 6-byte entry, '
-                                        'as both references define it, and Firmware Version is the '
-                                        'first three of its four version bytes. In DF020 the '
-                                        'payload held 3 to 20 such entries; only the first is '
-                                        'shown in Component, Firmware Sub Sender and Firmware '
-                                        'Version, and on all 18 rows that first entry was Camera '
-                                        '(1) with Sub Sender 0. The remaining entries stay in '
-                                        'Decoded Payload Hex. OSD Battery has no documented unit; '
-                                        'Battery Percent is the Smart Battery percent. Payloads '
-                                        'are kept as hex on every record row; Embedded JPEG rows '
-                                        'carry none. In DF020: RC Return Button, RC Shutter Button '
-                                        'and RC Record Button are identical, false on all 3207 RC '
-                                        'rows and blank on other record types; Home Recorded held '
-                                        'true on all 693 Home rows; Camera Single Photo held '
-                                        'false, Camera SD Present held true and Camera Mode held 1 '
-                                        'on all 1037 Camera rows; RC GPS Valid Data held 1 on all '
-                                        '320 RC GPS rows. They remain separate fields because each '
-                                        'reads a different stored value. Real logs: DF020 versions '
-                                        '9 and 11 decode records; the public pydjirecord version '
-                                        '14 example yields none. DF020 iOS v8 also validates '
-                                        'embedded JPEG framing; other unlisted versions are '
-                                        'covered by synthetic tests only. iOS adaptation of '
-                                        'accepted ALEAPP v0.3. DJI documents the FlightRecords '
-                                        'file-sharing folder for GO 4 and Fly; published iOS GO/GO '
-                                        '4 research places it under Documents. The pattern also '
-                                        'covers reconstructed iTunes AppDomain paths. Real iOS '
-                                        'validation: DF020 August 2017 iTunes backup, iOS 10.3.2, '
-                                        'DJI GO 4.1.5, TXT v8; GO and Fly remain unvalidated. '
-                                        'Android corpus results above validate decoding only. '
-                                        'DF020 iOS v8 has an observed 39 30 00 00 prefix before '
-                                        'eight embedded JPEGs; the exact prefix is skipped only '
-                                        'when followed immediately by JPEG SOI. Images stay in the '
-                                        'source and are not extracted.',
-                               'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',),
-                               'output_types': 'all',
-                               'artifact_icon': 'map-pin',
-                               'sample_data': {'df020_mavic_pro_android': 'VTO/NIST DF020 Android '
-                                                                          'logical | DJI GO 4 '
-                                                                          '4.2.16 and DJI GO '
-                                                                          '3.1.11 | 36815 rows '
-                                                                          'from three TXT logs '
-                                                                          '(v11, v11, v9): 10403 '
-                                                                          'OSD positions, 362 App '
-                                                                          'GPS, 320 RC GPS, 6 '
-                                                                          'Component Serial, 18 '
-                                                                          'Firmware; 17840 records '
-                                                                          'of undefined types '
-                                                                          'counted in the summary, '
-                                                                          'not listed | Android '
-                                                                          'decoding only; no real '
-                                                                          'iOS extraction '
-                                                                          'validation',
-                                               'df020_august_ios': 'iOS 10.3.2 | DJI GO 4.1.5 (TXT '
-                                                                   'metadata), backup app build '
-                                                                   '2952 | 16441 rows: 16433 '
-                                                                   'defined records and 8 embedded '
-                                                                   'JPEG entries; 4515 OSD '
-                                                                   'positions'}},
- 'djiFlightRecordTxtSummary': {'name': 'DJI Drone - TXT Flight Log Summary',
-                               'description': 'Reports unencrypted flight metadata, aircraft and '
-                                              'component identifiers, encryption and parsing '
-                                              'status.',
-                               'author': 'Neal (@Blackwater1224), @AlexisBrignoni, Claude',
-                               'creation_date': '2026-10-23',
-                               'last_update_date': '2026-10-23',
-                               'requirements': 'none',
-                               'category': 'DJI Drone',
-                               'notes': 'Metadata is from Details, locally XOR-decoded from '
-                                        'Auxiliary Info on version 13+. No network requests, API '
-                                        'keys, external executable or CSV import. Offsets, units '
-                                        'and enum names follow dji-log-parser v0.5.7 '
-                                        'layout/details.rs '
-                                        '(https://github.com/lvauvillier/dji-log-parser, MIT). '
-                                        'Product Type and App Platform show its enum name with the '
-                                        'stored number, or Unknown with the number. Version 5 and '
-                                        'earlier use different identifier offsets, covered by '
-                                        'synthetic tests only. Takeoff Altitude has no documented '
-                                        'unit and is shown as stored. Latitude and Longitude are '
-                                        'the Details position; the reference does not say when in '
-                                        'the flight it is taken. In DF020 it equalled the first '
-                                        'OSD position with a fix in all three logs. Video Time is '
-                                        'documented in seconds by dji-log-parser; pydjirecord '
-                                        'reports no consistent unit. In DF020 it matched the '
-                                        'Camera Record Time within 1 second in both version 11 '
-                                        'logs and was 0 in the version 9 log, whose camera '
-                                        'recorded 311 seconds. Records Not Reported counts records '
-                                        'of types dji-log-parser does not define. When parsing '
-                                        'stops early, Status gives how many bytes of the record '
-                                        'area were left unread and Warnings says why. DF020 '
-                                        'validation includes two June 2018 logs and one older '
-                                        'October 2017 log. Both version 11 logs stop 4 bytes '
-                                        'before the end of the record area, where a record '
-                                        'declares more bytes than remain; the version 9 log parses '
-                                        'to the end. In DF020, App Platform held Android (2) and '
-                                        'Photos Taken held 0 on all 3 rows. Sub Street and City '
-                                        'held the same single string on all 3 rows. Street and '
-                                        'Area are empty in these three logs. Camera Serial Number '
-                                        'and RC Serial Number were each present in one of the '
-                                        'three logs. Location columns retain the source Details '
-                                        'strings when present. iOS adaptation of accepted ALEAPP '
-                                        'v0.3. DJI documents the FlightRecords file-sharing folder '
-                                        'for GO 4 and Fly; published iOS GO/GO 4 research places '
-                                        'it under Documents. The pattern also covers reconstructed '
-                                        'iTunes AppDomain paths. Real iOS validation: DF020 August '
-                                        '2017 iTunes backup, iOS 10.3.2, DJI GO 4.1.5, TXT v8; GO '
-                                        'and Fly remain unvalidated. Android corpus results above '
-                                        'validate decoding only. DF020 iOS v8 has an observed 39 '
-                                        '30 00 00 prefix before eight embedded JPEGs; the exact '
-                                        'prefix is skipped only when followed immediately by JPEG '
-                                        'SOI. Images stay in the source and are not extracted.',
-                               'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',),
-                               'output_types': ['html', 'tsv', 'lava', 'timeline'],
-                               'artifact_icon': 'file-text',
-                               'sample_data': {'df020_mavic_pro_android': 'VTO/NIST DF020 Android '
-                                                                          'logical | DJI GO 4 '
-                                                                          '4.2.16 and DJI GO '
-                                                                          '3.1.11 | 3 rows; '
-                                                                          'aircraft and battery '
-                                                                          'serial numbers in all '
-                                                                          'three, camera and RC '
-                                                                          'serial numbers in one '
-                                                                          'each; both v11 logs '
-                                                                          'stop 4 bytes before the '
-                                                                          'end of the record area '
-                                                                          '| Android decoding '
-                                                                          'only; no real iOS '
-                                                                          'extraction validation',
-                                               'df020_august_ios': 'iOS 10.3.2 | DJI GO 4.1.5 (TXT '
-                                                                   'metadata), backup app build '
-                                                                   '2952 | 1 row; TXT v8; 2718 '
-                                                                   'undefined-type records '
-                                                                   'counted; no parse warnings'}}}
+__artifacts_v2__ = {
+    'djiFlightRecordTxtRecords': {
+        'name': 'DJI Drone - TXT Flight Records',
+        'description': 'Reads DJI GO, DJI GO 4 and DJI Fly TXT flight records offline. Versions 1 to 12 '
+                       'give one row per record of a defined type; version 13 and later give no '
+                       'record rows (see the Summary artifact).',
+        'author': 'Neal (@Blackwater1224), @AlexisBrignoni, Claude',
+        'creation_date': '2026-10-23',
+        'last_update_date': '2026-10-23',
+        'requirements': 'none',
+        'category': 'DJI Drone',
+        'notes': 'Versions 1-6 are read as stored and 7-12 use local XOR decoding. Version 13+ '
+                 'telemetry is encrypted and is not decrypted; see TXT Flight Log Summary. '
+                 'Record types, layouts, units and enum names follow dji-log-parser v0.5.7 '
+                 '(https://github.com/lvauvillier/dji-log-parser, MIT). A record of a type it does '
+                 'not define is not listed; each log\'s count of those is in the summary\'s Records '
+                 'Not Reported column. A header without a unit, or marked as stored or raw, has no unit '
+                 'documented there. Camera Mode is shown as the stored number; dji-log-parser '
+                 'defines names for it that are not applied. Horizontal Speed is derived from Speed X and Speed Y. '
+                 'Timestamp comes from Custom records in UTC. Other records use the preceding '
+                 'Custom timestamp, labeled in Timestamp Basis; records before it have no timestamp. '
+                 'Telemetry is not carried between rows. Relative Height is the OSD altitude field. '
+                 'dji-log-parser adds the Home altitude to it to get absolute altitude and '
+                 'pydjirecord describes it as height above the take-off point. It is not '
+                 'altitude above sea level. '
+                 'Latitude and Longitude are the aircraft (OSD) position and are the only '
+                 'coordinates in the KML; Home, App GPS (the mobile device) and RC GPS (the remote '
+                 'controller) keep their own columns. '
+                 'App GPS is read latitude first. dji-log-parser and pydjirecord name the first '
+                 'value longitude, but in the three DF020 Android logs (df020_mavic_pro_android, '
+                 'read with ALEAPP) the first value is the latitude of the site the OSD and Home '
+                 'positions in the same log place the flight. '
+                 'RC GPS coordinates are the stored integers divided by 1e7 and RC GPS Accuracy is '
+                 'in metres, per pydjirecord (https://github.com/rembish/pydjirecord, MIT). '
+                 'RC GPS Date and Time is shown as stored; the record holds no zone. '
+                 'Both references define the Firmware record as one 6-byte entry: sender, sub '
+                 'sender and four version bytes, of which they show the first three. Firmware '
+                 'Entries lists every whole entry as sender (number) / sub sender: version, in '
+                 'stored order, with the version read as the references read it. Senders outside '
+                 'the references\' list show as Unknown with the number. Bytes past the last whole '
+                 'entry are noted in Decode Status. '
+                 'OSD Battery has no documented unit; Battery Percent is the Smart Battery percent. '
+                 'Payloads are kept as hex on every record row; Embedded JPEG rows carry none. '
+                 'Four bytes 39 30 00 00 directly before a JPEG start marker are skipped; no other '
+                 'search for a next record is made after damaged framing. Images stay in the source and are not extracted. '
+                 'In df020_mavic_pro_ios (DJI GO 4, TXT version 8): App GPS Latitude, App GPS '
+                 'Longitude, RC GPS Date and Time, RC GPS Latitude, RC GPS Longitude, RC GPS '
+                 'Satellites, RC GPS Accuracy (m), RC GPS Valid Data, Component and Serial Number are '
+                 'empty, because the log holds no App GPS, RC GPS or Component Serial records; Log '
+                 'Version held 8 on all rows; RC Return Button, RC Shutter Button and RC Record '
+                 'Button are identical, false on all 631 RC rows and blank on other record types; Home Recorded held true on all 218 Home rows; Camera SD '
+                 'Present held true on all 491 Camera rows. They remain separate fields because '
+                 'each reads a different stored value. '
+                 'Real logs: version 8 in df020_mavic_pro_ios; versions 9 and 11 in the DF020 Android '
+                 'logs with ALEAPP\'s copy of this decoder; the public pydjirecord version 14 example '
+                 'yields no records. Other versions are covered by synthetic tests only. On iOS only '
+                 'DJI GO 4 has been run; DJI GO and DJI Fly have not.',
+        'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',),
+        'output_types': 'all',
+        'artifact_icon': 'map-pin',
+        'sample_data': {
+            'df020_mavic_pro_ios': 'iOS 10.3.2 | DJI GO 4 (com.dji.go build 2952), TXT v8 | '
+                '16441 rows: 16433 records and 8 Embedded JPEG rows; 4515 OSD positions',
+        },
+    },
+    'djiFlightRecordTxtSummary': {
+        'name': 'DJI Drone - TXT Flight Log Summary',
+        'description': 'Reports unencrypted flight metadata, aircraft and component identifiers, '
+                       'encryption and parsing status.',
+        'author': 'Neal (@Blackwater1224), @AlexisBrignoni, Claude',
+        'creation_date': '2026-10-23',
+        'last_update_date': '2026-10-23',
+        'requirements': 'none',
+        'category': 'DJI Drone',
+        'notes': 'Metadata is from Details, locally XOR-decoded from Auxiliary Info on version 13+. '
+                 'No network requests, API keys, external executable or CSV import. '
+                 'Offsets, units and enum names follow dji-log-parser v0.5.7 layout/details.rs '
+                 '(https://github.com/lvauvillier/dji-log-parser, MIT). Product Type and App '
+                 'Platform show its enum name with the stored number, or Unknown with the number. '
+                 'Version 5 and earlier use different identifier offsets, covered by synthetic '
+                 'tests only. Takeoff Altitude has no documented unit and is shown as stored. '
+                 'Latitude and Longitude are the Details position; the reference does not say '
+                 'when in the flight it is taken. In df020_mavic_pro_ios it matched the first OSD '
+                 'position with a fix. Video Time is documented in seconds by dji-log-parser; '
+                 'pydjirecord reports no consistent unit. In df020_mavic_pro_ios it held 429 while '
+                 'the largest Camera Record Time in the same log was 312. '
+                 'Records Not Reported counts records of types dji-log-parser does not define. '
+                 'When parsing stops early, Status gives how many bytes of the record area were '
+                 'left unread and Warnings says why. In df020_mavic_pro_ios the log parsed to the '
+                 'end of the record area and Warnings is empty. RC Serial Number is empty in that '
+                 'log, Street and Area are empty, and Sub Street and City held the same string. '
+                 'Location columns retain the source Details strings when present. On iOS only '
+                 'DJI GO 4 has been run; DJI GO and DJI Fly have not.',
+        'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',),
+        'output_types': ['html', 'tsv', 'lava', 'timeline'],
+        'artifact_icon': 'file-text',
+        'sample_data': {
+            'df020_mavic_pro_ios': 'iOS 10.3.2 | DJI GO 4 (com.dji.go build 2952), TXT v8 | '
+                '1 row; 2718 records of undefined types counted; no warnings',
+        },
+    },
+}
 
 # Author: Neal (@Blackwater1224), https://github.com/Blackwater1224
 # Developed with AI assistance from OpenAI Codex for Python implementation,
@@ -520,8 +446,14 @@ def parse_txt(data):
             elif kind == 15:
                 if len(payload) < 6:
                     raise ValueError('Short Firmware payload')
-                row.update(component=_enum(_SENDERS, payload[0]), component_sub=payload[1],
-                           firmware='.'.join(str(byte) for byte in payload[2:5]))
+                # The references read one 6-byte entry; DF020 payloads hold several.
+                whole = len(payload) - len(payload) % 6
+                row['firmware'] = '; '.join(
+                    f'{_enum(_SENDERS, payload[k])} / {payload[k + 1]}: '
+                    + '.'.join(str(byte) for byte in payload[k + 2:k + 5])
+                    for k in range(0, whole, 6))
+                if whole < len(payload):
+                    row['status'] = f'Decoded; {len(payload) - whole} trailing bytes are not a whole entry'
             elif kind in (9, 10, 24):
                 row['message'] = payload.decode('utf-8', errors='replace').rstrip('\0')
             else:
@@ -565,7 +497,7 @@ def djiFlightRecordTxtRecords(context):
               'home_latitude', 'home_longitude', 'home_altitude', 'home_recorded', 'return_height',
               'app_latitude', 'app_longitude',
               'rc_gps_time', 'rc_latitude', 'rc_longitude', 'rc_satellites', 'rc_accuracy', 'rc_valid',
-              'component', 'component_sub', 'serial', 'firmware',
+              'component', 'serial', 'firmware',
               'rc_aileron', 'rc_elevator', 'rc_throttle', 'rc_rudder', 'rc_gimbal',
               'rc_return', 'rc_shutter', 'rc_record', 'battery_percent', 'battery_voltage', 'battery_time',
               'camera_photo', 'camera_recording', 'camera_sd', 'camera_mode', 'camera_record_time',
@@ -580,7 +512,7 @@ def djiFlightRecordTxtRecords(context):
                'App GPS Latitude', 'App GPS Longitude',
                'RC GPS Date and Time (as stored)', 'RC GPS Latitude', 'RC GPS Longitude',
                'RC GPS Satellites', 'RC GPS Accuracy (m)', 'RC GPS Valid Data (as stored)',
-               'Component', 'Firmware Sub Sender (as stored)', 'Serial Number', 'Firmware Version',
+               'Component', 'Serial Number', 'Firmware Entries',
                'RC Aileron (raw)', 'RC Elevator (raw)', 'RC Throttle (raw)', 'RC Rudder (raw)', 'RC Gimbal (raw)',
                'RC Return Button', 'RC Shutter Button', 'RC Record Button',
                'Battery Percent', 'Battery Voltage (stored / 1000)', 'Battery Useful Time (as stored)',

@@ -126,7 +126,7 @@
       "publisher_archive": "Android_Logical.zip",
       "md5": "6bc5cdc147e813f8744c04814a89e18a",
       "sample_data_key": "df020_mavic_pro_android",
-      "license": "MIT, Copyright (c) 2017 VTO Inc.; see DF020_DATASET_LICENSE.txt"
+      "license": "MIT, Copyright (c) 2017 VTO Inc.; see djiFlightRecordTxt_DF020_DATASET_LICENSE.txt"
     },
     "os_name": "Unknown",
     "os_version": "Unknown (no iOS extraction)",
@@ -155,6 +155,7 @@
     },
     "provenance": {
       "archive": "df020_flight_ios_backup.zip",
+      "sample_data_key": "df020_mavic_pro_ios",
       "domain": "AppDomain-com.dji.go",
       "relativePath": "Documents/FlightRecords/DJIFlightRecord_2017-08-29_[12-21-48].txt",
       "fileID": "cf2db800671979863d7f97d14983f99f1b323159",
