@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'brand-twitter',
         'sample_data': {
-            'iphone11_ios17': 'iOS 17.3 | 523 rows',
+            'iphone11_ios17': 'iOS 17.3 | 520 rows',
         },
     },
     'twitterCachedUsers': {
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
-            'iphone11_ios17': 'iOS 17.3 | 340 rows',
+            'iphone11_ios17': 'iOS 17.3 | 306 rows',
         },
     },
     'twitterNotifications': {
