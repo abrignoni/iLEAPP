@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "module_name": "crashlytics",
+    "artifact_name": "Crashlytics - Analytics Events",
+    "function_name": "crashlytics_logs",
+    "case_number": "synthetic",
+    "number_of_columns": 10,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 1125,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/crashlytics/testdata.crashlytics.crashlytics_logs.synthetic.zip",
+    "start_time": "2026-10-23T13:21:16.928618+00:00",
+    "end_time": "2026-10-23T13:21:16.955006+00:00",
+    "run_time_seconds": 0.0003457069396972656,
+    "last_commit": {
+      "hash": "5a368f950a3c97d82b0deda1fc2ba672a0aa4b90",
+      "author_name": "CyberMike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-23T00:20:08-04:00",
+      "message": "Narrow contribution to generic Mixpanel and Crashlytics parsers"
+    }
+  },
+  "headers": [
+    "Log Time",
+    "Bundle ID",
+    "Event",
+    "Screen Name",
+    "Screen Class",
+    "Message",
+    "Line Number",
+    "Raw Time (Unix milliseconds)",
+    "Breadcrumb Status",
+    "Source File"
+  ],
+  "data": [
+    [
+      1700000000,
+      "com.example.alpha",
+      "_vs",
+      "Home",
+      "RootController",
+      "$A$:{\"name\": \"_vs\", \"parameters\": {\"_sn\": \"Home\", \"_sc\": \"RootController\"}}",
+      2,
+      1700000000125,
+      "Parsed analytics event",
+      "private/var/mobile/Containers/Data/Application/alpha/Library/Caches/com.crashlytics.data/com.example.alpha/v5/report/log_a.clsrecord"
+    ],
+    [
+      1700000001,
+      "com.example.alpha",
+      "select_content",
+      "",
+      "",
+      "$A$:{\"name\": \"select_content\", \"parameters\": {\"item_id\": \"synthetic\"}}",
+      3,
+      1700000001000,
+      "Parsed analytics event",
+      "private/var/mobile/Containers/Data/Application/alpha/Library/Caches/com.crashlytics.data/com.example.alpha/v5/report/log_a.clsrecord"
+    ],
+    [
+      1700000004,
+      "com.example.beta",
+      "",
+      "",
+      "",
+      "$A$:{",
+      1,
+      1700000004000,
+      "Malformed analytics JSON",
+      "private/var/mobile/Containers/Data/Application/beta/Library/Caches/com.crashlytics.data/com.example.beta/v5/report/log_a.clsrecord"
+    ],
+    [
+      1700000003,
+      "com.enchantedcloud.photovaultpro",
+      "screen_view",
+      "Vault",
+      "VaultController",
+      "$A$:{\"name\": \"screen_view\", \"parameters\": {\"screen_name\": \"Vault\", \"screen_class\": \"VaultController\"}}",
+      1,
+      1700000003000,
+      "Parsed analytics event",
+      "private/var/mobile/Containers/Data/Application/pro/Library/Caches/com.crashlytics.data/com.enchantedcloud.photovaultpro/v5/report/log_a.clsrecord"
+    ]
+  ]
+}

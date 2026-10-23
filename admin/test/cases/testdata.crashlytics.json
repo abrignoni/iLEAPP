@@ -1,0 +1,20 @@
+{
+  "synthetic": {
+    "description": "Fabricated multi-app Crashlytics messages and analytics breadcrumbs.",
+    "maker": "@CyberMike81",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "crashlytics_logs": {
+        "search_patterns": [
+          "*/Caches/com.crashlytics.data/*/*/log_*.clsrecord"
+        ],
+        "file_count": 4
+      }
+    }
+  }
+}

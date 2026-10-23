@@ -1,0 +1,21 @@
+{
+  "synthetic": {
+    "description": "Fabricated Multi-app Mixpanel queues including absent and conflicting app IDs and zero timestamps.",
+    "maker": "@CyberMike81",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "mixpanel_events": {
+        "search_patterns": [
+          "*/Library/*_MPDB.sqlite*",
+          "*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 5
+      }
+    }
+  }
+}
