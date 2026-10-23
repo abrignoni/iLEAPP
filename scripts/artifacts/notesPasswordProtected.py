@@ -53,40 +53,66 @@ __artifacts_v2__ = {
         }
     },
     "notesEncryptionKeys": {
-        "name": "Notes - Encryption Keys (John the Ripper)",
-        "description": "The PBKDF2 salt, iteration count and wrapped key held against each locked "
-                       "Apple Notes record, assembled into the hash string that hashcat (-m 16200, "
-                       "Apple Secure Notes) consumes.",
-        "author": "@Rugikex",
+        "name": "Notes - Encryption Key Hashes",
+        "description": "Apple Notes records that carry a PBKDF2 salt, a non-zero iteration count "
+                       "and a 24-byte wrapped key or verifier, each assembled into the $ASN$ hash "
+                       "string that hashcat mode 16200 (Apple Secure Notes) and John the Ripper "
+                       "take as input.",
+        "author": "@Rugikex, @AlexisBrignoni, Claude",
         "creation_date": "2026-10-20",
-        "last_update_date": "2026-10-20",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Notes",
-        "notes": "Each ZICCLOUDSYNCINGOBJECT row that carries Notes key material becomes one "
-                 "hashcat/John hash string, reproducing the field order of John the Ripper's "
-                 "run/applenotes2john.py: $ASN$*<Z_PK>*<ZCRYPTOITERATIONCOUNT>*<ZCRYPTOSALT hex>*"
-                 "<ZCRYPTOWRAPPEDKEY hex>, falling back to ZCRYPTOVERIFIER when ZCRYPTOWRAPPEDKEY "
-                 "is NULL. A row is skipped when the iteration count is zero or missing, or when "
-                 "neither a wrapped key nor a verifier is stored. "
-                 "Unlike the Notes - Password Protected artifact this does NOT filter on "
-                 "ZISPASSWORDPROTECTED: an account-wide ('universal') Notes password is stored on "
-                 "the account record (entity ICAccount), and applenotes2john.py's own comment "
-                 "records that ZISPASSWORDPROTECTED can be 0 there while the iteration count is "
-                 "non-zero, so filtering on that flag drops the account hash. The Entity column is "
-                 "resolved from each row's Z_ENT through the Core Data Z_PRIMARYKEY table "
-                 "(Z_ENT and Z_NAME); an ICAccount hash recovers one password that unlocks every "
-                 "note secured with it, an ICNote hash recovers a single note's password. "
-                 "To crack, save a hash string to a file and run "
-                 "'hashcat -m 16200 -a 0 <file> <wordlist>' "
-                 "Reference: John The Ripper's repository, "
-                 "https://github.com/openwall/john/blob/bleeding-jumbo/run/applenotes2john.py",
+        "notes": "Each ZICCLOUDSYNCINGOBJECT row with key material becomes one hash string in "
+                 "the field order John the Ripper's run/applenotes2john.py writes: "
+                 "$ASN$*<Z_PK>*<ZCRYPTOITERATIONCOUNT>*<ZCRYPTOSALT hex>*<key hex>, where the key "
+                 "is ZCRYPTOWRAPPEDKEY, or ZCRYPTOVERIFIER when ZCRYPTOWRAPPEDKEY is NULL, as "
+                 "applenotes2john.py does. Hash Source Column names which one was used. "
+                 "A row is emitted only when hashcat's mode 16200 parser would accept it: an "
+                 "iteration count of at least 1, a 16-byte salt and a 24-byte key "
+                 "(hashcat src/modules/module_16200.c). Rows with an iteration count of 0 are "
+                 "not read; in tested samples every such row held a 16-byte wrapped key, the "
+                 "layout the Notes - Password Protected artifact labels as not covered by its "
+                 "cited research. A row read but refused for its salt or key length is "
+                 "counted in the log. "
+                 "This artifact does not filter on ZISPASSWORDPROTECTED. applenotes2john.py "
+                 "notes that the flag can be 0 while the iteration count is non-zero, and in "
+                 "tested samples the ICAccount row carried a 24-byte ZCRYPTOVERIFIER with "
+                 "ZISPASSWORDPROTECTED 0 on hickman_ios13 and otto_ios17, so that row is "
+                 "missing from the Notes - Password Protected artifact on those images. "
+                 "Entity is the Core Data entity name, resolved from each row's Z_ENT through "
+                 "Z_PRIMARYKEY. Entities seen in tested samples: ICAccount, ICNote, "
+                 "ICAttachment, ICAttachmentPreviewImage and ICMedia. Attachment and media rows "
+                 "carry their own salt and key; whether they share the note's password was not "
+                 "tested. On iphone11_ios17 and hc_ios18_7 the ICAccount row was the only one "
+                 "emitted, while their notes held 16-byte keys with 0 iterations; whether the "
+                 "account password opens those notes was not tested. In tested samples KDF "
+                 "Iterations held 20000 on every emitted row, and Password Hint held one value "
+                 "across all rows of an image, or was empty on all of them (hc_ios18_7). This "
+                 "artifact does not "
+                 "crack or decrypt anything. To try a password list, save the hash string to "
+                 "a file and run 'hashcat -m 16200 -a 0 <file> <wordlist>'. "
+                 "References: John the Ripper, "
+                 "https://github.com/openwall/john/blob/bleeding-jumbo/run/applenotes2john.py; "
+                 "hashcat, https://github.com/hashcat/hashcat/blob/master/src/modules/module_16200.c",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "key",
+        "sample_data": {
+            "hickman_ios13": "iOS 13.3.1 | 3 rows (1 ICAccount, 2 ICNote)",
+            "hickman_ios14": "iOS 14.3 | 4 rows (1 ICAccount, 3 ICNote)",
+            "hickman_ios15": "iOS 15 | 5 rows (1 ICAccount, 4 ICNote)",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row (ICAccount)",
+            "otto_ios17": "iOS 17.5.1 | 6 rows (1 ICAccount, 1 ICNote, 4 attachment and media)",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row (ICAccount)",
+        }
     }
 }
-
-import binascii
 
 from scripts.ilapfuncs import (artifact_processor, convert_cocoa_core_data_ts_to_utc,
                                does_table_exist_in_db, get_sqlite_db_records, logfunc)
@@ -212,29 +238,32 @@ def _entity_names(file_found):
         file_found, 'SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY')}
 
 
-def _asn_hash(z_pk, iterations, salt_blob, key_blob):
-    """Assemble the hashcat/John ``$ASN$`` string body for one record.
+# hashcat's mode 16200 parser (src/modules/module_16200.c) takes the salt as exactly
+# 32 hex characters, the key as exactly 48, and refuses an iteration count below 1.
+HASH_SALT_LEN = 16
+HASH_KEY_LEN = 24
 
-    Reproduces the field order of John the Ripper's applenotes2john.py:
-    ``$ASN$*<Z_PK>*<iterations>*<salt hex>*<key hex>``. Returns '' when the salt
-    or key bytes are missing, since the hash cannot be built without them.
+
+def _asn_hash(z_pk, iterations, salt_blob, key_blob):
+    """Assemble the ``$ASN$`` string for one record, or '' when hashcat would refuse it.
+
+    Field order follows John the Ripper's applenotes2john.py:
+    ``$ASN$*<Z_PK>*<iterations>*<salt hex>*<key hex>``.
     """
-    if not iterations or salt_blob is None or key_blob is None:
+    if (not iterations or iterations < 1 or salt_blob is None or key_blob is None
+            or len(salt_blob) != HASH_SALT_LEN or len(key_blob) != HASH_KEY_LEN):
         return ''
-    salt_hex = binascii.hexlify(salt_blob).decode('ascii')
-    key_hex = binascii.hexlify(key_blob).decode('ascii')
-    return f'$ASN$*{z_pk}*{iterations}*{salt_hex}*{key_hex}'
+    return f'$ASN$*{z_pk}*{iterations}*{bytes(salt_blob).hex()}*{bytes(key_blob).hex()}'
 
 
 @artifact_processor
 def notesEncryptionKeys(context):
     data_headers = (
         'Entity', 'Record ID', 'Password Protected Flag', 'Password Hint',
-        'KDF Iterations', 'Wrapped Key Bytes', 'Salt (hex)',
-        'Wrapped Key / Verifier (hex)', 'Hash Source Column',
-        'hashcat/John Hash String ($ASN$, -m 16200)')
+        'KDF Iterations', 'Hash Source Column', 'Hash String ($ASN$, hashcat -m 16200)')
     data_list = []
     sources = []
+    skipped = 0
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -272,25 +301,30 @@ def notesEncryptionKeys(context):
         if not rows:
             continue
 
+        emitted = 0
         for (z_pk, z_ent, is_protected, note_hint, iters,
              salt_blob, wrapped_blob, verifier_blob) in rows:
             key_blob = wrapped_blob if wrapped_blob is not None else verifier_blob
-            source_col = ('ZCRYPTOWRAPPEDKEY' if wrapped_blob is not None
-                          else 'ZCRYPTOVERIFIER')
+            hash_string = _asn_hash(z_pk, iters, salt_blob, key_blob)
+            if not hash_string:
+                skipped += 1
+                continue
             data_list.append((
                 entity_names.get(z_ent, f'Z_ENT {z_ent}'),
                 z_pk,
                 is_protected if is_protected is not None else '',
                 note_hint or '',
                 iters,
-                len(key_blob) if key_blob is not None else '',
-                binascii.hexlify(salt_blob).decode('ascii') if salt_blob is not None else '',
-                binascii.hexlify(key_blob).decode('ascii') if key_blob is not None else '',
-                source_col,
-                _asn_hash(z_pk, iters, salt_blob, key_blob)))
+                'ZCRYPTOWRAPPEDKEY' if wrapped_blob is not None else 'ZCRYPTOVERIFIER',
+                hash_string))
+            emitted += 1
 
-        sources.append(context.get_relative_path(file_found))
+        if emitted:
+            sources.append(context.get_relative_path(file_found))
 
+    if skipped:
+        logfunc(f'Notes: {skipped} record(s) with key material skipped: salt, key length '
+                'or iteration count outside what hashcat mode 16200 accepts')
     if data_list:
         accounts = sum(1 for row in data_list if row[0] == 'ICAccount')
         logfunc(f'Notes: {len(data_list)} encryption-key hash(es) built, '
