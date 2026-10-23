@@ -423,6 +423,10 @@ def _disambiguated_data_path(data_path, source_key, dest_claims, folds_case,
         return alt
 
 
+# _member_content's answer for a link whose target the archive does not hold
+_NOT_IN_ARCHIVE = object()
+
+
 class FileInfo:
     """
     A class to store file metadata information.
@@ -995,6 +999,27 @@ class FileSeekerTar(FileSeekerBase):
                     f'position in the archive. Artifacts read the version under the name.')
         return search_members, other_versions
 
+    def _member_content(self, member):
+        """A file object over what the member holds, None for a folder or a link to
+        one, or _NOT_IN_ARCHIVE for a link whose target the archive does not hold.
+
+        A hard link stores no data of its own and a symbolic link only its target's
+        name, so both are read as the member they point to, as the folder seeker
+        reads a link that stays inside the input. Read as themselves they staged as
+        empty files, and a link to a folder staged that way blocked every file under
+        its name: in an Android full file system tar, data/user/0 is a hard link to
+        data/data."""
+        if member.isdir():
+            return None
+        if member.islnk() or member.issym():
+            try:
+                return self.tar_file.extractfile(member)
+            except KeyError:
+                logfunc(f"INFO: Link '{member.name}' points to '{member.linkname}', which "
+                        "is not in the archive. Its target was not staged.")
+                return _NOT_IN_ARCHIVE
+        return tarfile.ExFileObject(self.tar_file, member)
+
     def _member_content_key(self, member):
         """What a member holds: the digest of a regular file's bytes, else its type and link target."""
         if not member.isreg():
@@ -1018,19 +1043,22 @@ class FileSeekerTar(FileSeekerBase):
                 full_path = os.path.join(self.data_folder, Path(clean_name))
                 if member.name not in self.copied or force:
                     try:
-                        if member.isdir():
+                        content = self._member_content(member)
+                        if content is _NOT_IN_ARCHIVE:
+                            continue
+                        if content is None:
+                            # a folder, or a link to one: no file to hand over
                             os.makedirs(full_path, exist_ok=True)
                         else:
                             full_path = self._unique_data_path(str(full_path), member.name)
                             parent_dir = os.path.dirname(full_path)
                             if not os.path.exists(parent_dir):
                                 os.makedirs(parent_dir)
-                            with open(full_path, "wb") as fout:
-                                fout.write(tarfile.ExFileObject(self.tar_file, member).read())
-                                fout.close()
-                                file_info = FileInfo(member.name, 0, member.mtime)
-                                self.file_infos[full_path] = file_info
-                                self.copied[member.name] = full_path
+                            with content, open(full_path, "wb") as fout:
+                                copyfileobj(content, fout, 1 << 20)
+                            file_info = FileInfo(member.name, 0, member.mtime)
+                            self.file_infos[full_path] = file_info
+                            self.copied[member.name] = full_path
                             os.utime(full_path, (member.mtime, member.mtime))
                             self._stage_other_versions(member.name)
                     except OSError as ex:
