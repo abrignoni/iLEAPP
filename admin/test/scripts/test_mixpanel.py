@@ -219,7 +219,8 @@ class WriterTests(unittest.TestCase):
             analytics(root, [{'event': str(n), 'properties': {'time': t}} for n, t in enumerate((1700000000, huge, 1700000001))])
             log = root/'Library/Caches/com.crashlytics.data/com.enchantedcloud.photovault/v5/report/log_a.clsrecord'
             log.parent.mkdir(parents=True)
-            log.write_text('\n'.join(json.dumps({'log': {'msg': '74657374', 'time': t}}) for t in (1700000000000, huge, 1700000001000)))
+            msg = '$A$:{"name":"test","parameters":{}}'.encode().hex()
+            log.write_text('\n'.join(json.dumps({'log': {'msg': msg, 'time': t}}) for t in (1700000000000, huge, 1700000001000)))
             try:
                 lavafuncs.initialize_lava(str(root), str(root), 'fs')
                 for module, name, context, raw_column in [

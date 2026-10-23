@@ -1,24 +1,24 @@
 {
   "metadata": {
     "module_name": "crashlytics",
-    "artifact_name": "Crashlytics - Logs",
+    "artifact_name": "Crashlytics - Analytics Events",
     "function_name": "crashlytics_logs",
     "case_number": "synthetic",
-    "number_of_columns": 12,
-    "number_of_rows": 6,
-    "total_data_size_bytes": 2214,
+    "number_of_columns": 10,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 1125,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/crashlytics/testdata.crashlytics.crashlytics_logs.synthetic.zip",
-    "start_time": "2026-10-23T04:16:29.130953+00:00",
-    "end_time": "2026-10-23T04:16:29.157345+00:00",
-    "run_time_seconds": 0.00039196014404296875,
+    "start_time": "2026-10-23T13:21:16.928618+00:00",
+    "end_time": "2026-10-23T13:21:16.955006+00:00",
+    "run_time_seconds": 0.0003457069396972656,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-23T04:16:29.148571",
-      "message": "File not yet committed to git"
+      "hash": "5a368f950a3c97d82b0deda1fc2ba672a0aa4b90",
+      "author_name": "CyberMike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-23T00:20:08-04:00",
+      "message": "Narrow contribution to generic Mixpanel and Crashlytics parsers"
     }
   },
   "headers": [
@@ -30,26 +30,10 @@
     "Message",
     "Line Number",
     "Raw Time (Unix milliseconds)",
-    "Message Hex",
-    "Decode Status",
     "Breadcrumb Status",
     "Source File"
   ],
   "data": [
-    [
-      "",
-      "com.example.alpha",
-      "",
-      "",
-      "",
-      "Synthetic activity breadcrumb",
-      1,
-      0,
-      "53796e7468657469632061637469766974792062726561646372756d62",
-      "Decoded hex UTF-8",
-      "",
-      "private/var/mobile/Containers/Data/Application/alpha/Library/Caches/com.crashlytics.data/com.example.alpha/v5/report/log_a.clsrecord"
-    ],
     [
       1700000000,
       "com.example.alpha",
@@ -59,8 +43,6 @@
       "$A$:{\"name\": \"_vs\", \"parameters\": {\"_sn\": \"Home\", \"_sc\": \"RootController\"}}",
       2,
       1700000000125,
-      "2441243a7b226e616d65223a20225f7673222c2022706172616d6574657273223a207b225f736e223a2022486f6d65222c20225f7363223a2022526f6f74436f6e74726f6c6c6572227d7d",
-      "Decoded hex UTF-8",
       "Parsed analytics event",
       "private/var/mobile/Containers/Data/Application/alpha/Library/Caches/com.crashlytics.data/com.example.alpha/v5/report/log_a.clsrecord"
     ],
@@ -73,8 +55,6 @@
       "$A$:{\"name\": \"select_content\", \"parameters\": {\"item_id\": \"synthetic\"}}",
       3,
       1700000001000,
-      "2441243a7b226e616d65223a202273656c6563745f636f6e74656e74222c2022706172616d6574657273223a207b226974656d5f6964223a202273796e746865746963227d7d",
-      "Decoded hex UTF-8",
       "Parsed analytics event",
       "private/var/mobile/Containers/Data/Application/alpha/Library/Caches/com.crashlytics.data/com.example.alpha/v5/report/log_a.clsrecord"
     ],
@@ -87,8 +67,6 @@
       "$A$:{",
       1,
       1700000004000,
-      "2441243a7b",
-      "Decoded hex UTF-8",
       "Malformed analytics JSON",
       "private/var/mobile/Containers/Data/Application/beta/Library/Caches/com.crashlytics.data/com.example.beta/v5/report/log_a.clsrecord"
     ],
@@ -101,24 +79,8 @@
       "$A$:{\"name\": \"screen_view\", \"parameters\": {\"screen_name\": \"Vault\", \"screen_class\": \"VaultController\"}}",
       1,
       1700000003000,
-      "2441243a7b226e616d65223a202273637265656e5f76696577222c2022706172616d6574657273223a207b2273637265656e5f6e616d65223a20225661756c74222c202273637265656e5f636c617373223a20225661756c74436f6e74726f6c6c6572227d7d",
-      "Decoded hex UTF-8",
       "Parsed analytics event",
       "private/var/mobile/Containers/Data/Application/pro/Library/Caches/com.crashlytics.data/com.enchantedcloud.photovaultpro/v5/report/log_a.clsrecord"
-    ],
-    [
-      1700000002,
-      "com.enchantedcloud.photovault",
-      "",
-      "",
-      "",
-      "Synthetic unlock",
-      1,
-      1700000002000,
-      "53796e74686574696320756e6c6f636b",
-      "Decoded hex UTF-8",
-      "",
-      "private/var/mobile/Containers/Data/Application/vault/Library/Caches/com.crashlytics.data/com.enchantedcloud.photovault/v5/report/log_a.clsrecord"
     ]
   ]
 }

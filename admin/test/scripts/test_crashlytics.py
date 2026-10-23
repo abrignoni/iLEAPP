@@ -55,7 +55,7 @@ class CrashlyticsTests(unittest.TestCase):
         bundles = ['com.example.reader', 'com.enchantedcloud.photovault',
                    'com.enchantedcloud.photovaultpro']
         for n, bundle in enumerate(bundles):
-            write_log(self.root, [('Synthetic app message', 1700000000000)], bundle, str(n))
+            write_log(self.root, [(breadcrumb('synthetic', {}), 1700000000000)], bundle, str(n))
         with patch.object(parser, 'logfunc') as log:
             rows = run(self.root)
         self.assertEqual([r['Bundle ID'] for r in rows], bundles)
@@ -78,12 +78,15 @@ class CrashlyticsTests(unittest.TestCase):
         self.assertEqual([r['Screen Class'] for r in rows], ['RootController', 'VaultController', '', 'ClassOnly', 'CompactController'])
         self.assertTrue(all(r['Breadcrumb Status'] == 'Parsed analytics event' for r in rows))
 
-    def test_plain_messages_and_embedded_prefix_are_not_inferred_as_events(self):
-        texts = ['screen_view: Home', 'Synthetic app unlock', 'Prefix ' + breadcrumb('event', {})]
+    def test_plain_messages_and_embedded_prefix_are_not_reported(self):
+        texts = ['screen_view: Home', 'Synthetic app unlock', 'Prefix ' + breadcrumb('event', {}),
+                 breadcrumb('kept', {})]
         write_log(self.root, [(text, 1700000000000) for text in texts])
-        rows = run(self.root)
-        self.assertEqual([r['Message'] for r in rows], texts)
-        self.assertTrue(all(r['Event'] == '' and r['Breadcrumb Status'] == '' for r in rows))
+        with patch.object(parser, 'logfunc') as log:
+            rows = run(self.root)
+        self.assertEqual([r['Event'] for r in rows], ['kept'])
+        self.assertEqual(rows[0]['Line Number'], 4)
+        self.assertFalse(log.called)
 
     def test_malformed_breadcrumbs_are_retained_without_hiding_neighbors(self):
         texts = ['$A$:{', '$A$:[]', '$A$:{"name":12}', '$A$:{"name":"example","parameters":[]}',
@@ -103,13 +106,14 @@ class CrashlyticsTests(unittest.TestCase):
 
     def test_bad_json_shapes_and_non_string_messages_are_isolated_and_source_is_relative(self):
         path = write_log(self.root, [])
+        text = breadcrumb('test', {})
         lines = ['{', '[]', '{"log":[]}', '{"log":{"msg":12}}',
-                 json.dumps({'log': {'msg': '74657374', 'time': 1700000000125}})]
+                 json.dumps({'log': {'msg': text.encode().hex(), 'time': 1700000000125}})]
         path.write_text('\n'.join(lines), encoding='utf-8')
         with patch.object(parser, 'logfunc') as log:
             rows = run(self.root)
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]['Message'], 'test')
+        self.assertEqual(rows[0]['Message'], text)
         self.assertEqual(rows[0]['Line Number'], 5)
         self.assertEqual(rows[0]['Log Time'].microsecond, 125000)
         self.assertEqual(len(log.call_args_list), 4)
@@ -118,19 +122,22 @@ class CrashlyticsTests(unittest.TestCase):
             self.assertIn(path.relative_to(self.root).as_posix(), call.args[0])
             self.assertNotIn(str(self.root), call.args[0])
 
-    def test_undecodable_hex_remains_a_row_with_original_message_hex(self):
+    def test_undecodable_hex_is_skipped_and_counted_once_per_file(self):
         path = write_log(self.root, [])
         path.write_text('\n'.join(json.dumps({'log': {'msg': raw, 'time': 0}})
-                                 for raw in ['not hex', 'ff', '']), encoding='utf-8')
-        rows = run(self.root)
-        self.assertEqual([r['Message Hex'] for r in rows], ['not hex', 'ff', ''])
-        self.assertEqual([r['Decode Status'] for r in rows[:2]], ['Undecoded; see message hex'] * 2)
-        self.assertTrue(all(r['Message'] == '' for r in rows))
+                                 for raw in ['not hex', 'ff', '', breadcrumb('kept', {}).encode().hex()]),
+                        encoding='utf-8')
+        with patch.object(parser, 'logfunc') as log:
+            rows = run(self.root)
+        self.assertEqual([r['Event'] for r in rows], ['kept'])
+        self.assertEqual(len(log.call_args_list), 1)
+        self.assertIn('skipped 2 message(s)', log.call_args.args[0])
+        self.assertIn(path.relative_to(self.root).as_posix(), log.call_args.args[0])
 
     def test_zero_missing_and_oversized_times_preserve_raw_and_good_rows(self):
         huge = 10**399
         stamps = [0, None, 1700000000125, huge, -huge, 1700000001000]
-        write_log(self.root, [('Synthetic message', stamp) for stamp in stamps])
+        write_log(self.root, [(breadcrumb('synthetic', {}), stamp) for stamp in stamps])
         with patch.object(parser, 'logfunc') as log:
             rows = run(self.root)
         self.assertEqual(len(rows), len(stamps))
@@ -143,7 +150,7 @@ class CrashlyticsTests(unittest.TestCase):
         self.assertEqual(len(log.call_args_list), 2)
 
     def test_source_bytes_are_unchanged_and_duplicate_found_files_not_duplicated(self):
-        path = write_log(self.root, [('Synthetic message', 1700000000000)])
+        path = write_log(self.root, [(breadcrumb('synthetic', {}), 1700000000000)])
         before = hashlib.sha256(path.read_bytes()).digest()
         self.assertEqual(len(run(self.root)), 1)
         self.assertEqual(hashlib.sha256(path.read_bytes()).digest(), before)
@@ -171,6 +178,6 @@ class CrashlyticsTests(unittest.TestCase):
         for archive in destination.glob('admin/test/cases/data/*/*.zip'):
             with zipfile.ZipFile(archive) as handle:
                 handle.extractall(unpacked)
-        self.assertEqual(len(run(unpacked)), 6)
+        self.assertEqual(len(run(unpacked)), 4)
         self.assertEqual(len(mixpanel_rows(unpacked)), 7)
         self.assertFalse(list(destination.rglob('*ECD*')))
