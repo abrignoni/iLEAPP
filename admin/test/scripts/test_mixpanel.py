@@ -120,10 +120,13 @@ class MixpanelTests(unittest.TestCase):
         self.assertEqual([r['Time Divisor'] for r in rows], [1, 1000])
         self.assertEqual(rows[0]['Event Time'], rows[1]['Event Time'])
         self.assertEqual(rows[0]['Raw Queue Time'], 99)
-        self.assertIsNone(rows[0]['Items Viewed'])
-        self.assertEqual(rows[1]['Items Viewed'], 8)
-        self.assertEqual(rows[1]['Albums Viewed'], 0)
-        self.assertEqual(rows[1]['Gallery Time'], 0)
+        session = json.loads(rows[1]['Event JSON'])['properties']['sessionParams']
+        self.assertEqual(session['itemsViewed'], 8)
+        self.assertEqual(session['albumsViewed'], 0)
+        self.assertEqual(session['timeSpent']['gallery'], 0)
+        self.assertEqual(session['bundleId'], 'com.example.beta')
+        for label in ['Items Viewed', 'Albums Viewed', 'Thumbnail Time', 'Gallery Time', 'Session Bundle ID']:
+            self.assertNotIn(label, rows[1])
         self.assertEqual(rows[1]['SDK Library'], 'iphone')
 
     def test_zero_date_is_blank_raw_zero_and_zero_metrics_retained(self):
@@ -132,7 +135,7 @@ class MixpanelTests(unittest.TestCase):
             row = run(self.root)[0]
         self.assertEqual(row['Event Time'], '')
         self.assertEqual(row['Raw Event Time'], 0)
-        self.assertEqual(row['Items Viewed'], 0)
+        self.assertEqual(json.loads(row['Event JSON'])['properties']['sessionParams']['itemsViewed'], 0)
         self.assertFalse(log.called)
 
     def test_oversized_time_does_not_hide_good_neighbors(self):
@@ -208,8 +211,8 @@ class WriterTests(unittest.TestCase):
     def test_oversized_event_and_diagnostic_raw_values_survive_lava(self):
         from scripts import lavafuncs  # pylint: disable=import-outside-toplevel
         from scripts.context import Context as ReportContext  # pylint: disable=import-outside-toplevel
-        from scripts.artifacts import privatePhotoVaultEcd as ppv  # pylint: disable=import-outside-toplevel
-        from admin.test.scripts.test_private_photo_vault_ecd import Context as PPVContext  # pylint: disable=import-outside-toplevel
+        from scripts.artifacts import crashlytics as crash  # pylint: disable=import-outside-toplevel
+        from admin.test.scripts.test_crashlytics import Context as CrashContext  # pylint: disable=import-outside-toplevel
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             huge = 10**399
@@ -221,7 +224,7 @@ class WriterTests(unittest.TestCase):
                 lavafuncs.initialize_lava(str(root), str(root), 'fs')
                 for module, name, context, raw_column in [
                     (parser, 'mixpanel_events', Context(root), 'Raw Event Time'),
-                    (ppv, 'ppv_diagnostic_log', PPVContext(root, 'ppv_diagnostic_log'), 'Raw Time (Unix milliseconds)')]:
+                    (crash, 'crashlytics_logs', CrashContext(root), 'Raw Time (Unix milliseconds)')]:
                     headers, rows, _ = inspect.unwrap(getattr(module, name))(context)
                     module_name = module.__name__.rsplit('.', 1)[-1]
                     ReportContext.set_artifact_info(module.__artifacts_v2__[name])

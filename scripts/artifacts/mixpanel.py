@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Queued analytics events and app-defined properties from iOS Mixpanel stores.',
         'author': '@CyberMike81, OpenAI Codex',
         'creation_date': '2026-10-22',
-        'last_update_date': '2026-10-22',
+        'last_update_date': '2026-10-23',
         'requirements': 'none',
         'category': 'Mixpanel',
         'output_types': ['html', 'tsv', 'lava'],
@@ -13,10 +13,10 @@ __artifacts_v2__ = {
                   '*/.com.apple.mobile_container_manager.metadata.plist'),
         'notes': 'Event Time is properties.time; Time Divisor records the seconds/milliseconds '
                  'conversion. Zero dates are blank and Raw Event Time is retained. Bundle ID '
-                 'uses consistent event/session IDs, otherwise container metadata; conflicts '
-                 'remain visible. Session metrics are app-defined; Event JSON retains all '
-                 'properties. Processed queue batches may be deleted, so this is not a complete '
-                 'activity history.',
+                 'uses consistent event/session IDs, or container metadata when those are absent; '
+                 'conflicts are flagged. Event JSON retains all app-defined properties and '
+                 'session identifiers. Session Length is $ae_session_length as stored. Processed '
+                 'queue batches may be deleted, so this is not a complete activity history.',
     },
 }
 
@@ -163,14 +163,10 @@ def mixpanel_events(context):
                 stamp, divisor = _event_time(props.get('time'))
                 if stamp == '' and props.get('time') not in (None, 0):
                     logfunc(f'Mixpanel: invalid event time; raw retained; {location}')
-                spent = session.get('timeSpent')
-                spent = spent if isinstance(spent, dict) else {}
                 source = source or path
                 rows.append(tuple(_report_scalar(value) for value in (
-                    stamp, event.get('event'), bundle, origin, status, outer, inner, container,
+                    stamp, event.get('event'), bundle, origin, status, outer, container,
                     rowid, props.get('time'), divisor, queue_time, props.get('$ae_session_length'),
-                    session.get('itemsViewed'), session.get('albumsViewed'),
-                    spent.get('thumbnails'), spent.get('gallery'),
                     props.get('$app_version_string', props.get('$app_version')), props.get('$os_version'),
                     props.get('mp_lib'), props.get('$lib_version'), table, _json(event), display_path)))
         except sqlite3.Error:
@@ -180,8 +176,7 @@ def mixpanel_events(context):
     # SDK 5.0.8 removes processed batches after flush (including API-rejected items):
     # https://github.com/mixpanel/mixpanel-iphone/blob/v5.0.8/Sources/MPNetwork.m#L89-L115
     return (('Event Time', 'datetime'), 'Event', 'Bundle ID', 'Bundle ID Source', 'Bundle ID Status',
-            'Event Bundle ID', 'Session Bundle ID', 'Container Bundle ID', 'Event Row ID',
+            'Event Bundle ID', 'Container Bundle ID', 'Event Row ID',
             'Raw Event Time', 'Time Divisor', 'Raw Queue Time', 'Session Length',
-            'Items Viewed', 'Albums Viewed', 'Thumbnail Time', 'Gallery Time',
             'App Version', 'OS Version', 'SDK Library', 'SDK Version', 'Source Table',
             'Event JSON', 'Source File'), rows, source

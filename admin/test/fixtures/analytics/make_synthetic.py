@@ -1,28 +1,13 @@
-"""Build fabricated Private Photo Vault and Mixpanel regression fixtures."""
+"""Build fabricated generic Mixpanel and Crashlytics regression fixtures."""
 import fnmatch
 import json
-import sqlite3
 import tempfile
 import zipfile
 from pathlib import Path
 
-from admin.test.scripts.test_private_photo_vault_ecd import store
+from admin.test.scripts.test_crashlytics import write_log, breadcrumb
 from admin.test.scripts.test_mixpanel import analytics, metadata
-from scripts.artifacts import privatePhotoVaultEcd, mixpanel
-
-
-def _ecd_sources(root):
-    for container in ('alpha', 'beta'):
-        path = store(root, container)
-        with sqlite3.connect(path) as db:
-            db.execute('ALTER TABLE ecdPersistentAlbum ADD COLUMN albumType')
-            db.execute('ALTER TABLE ecdPersistentMediaItem ADD COLUMN fileType')
-            db.execute('UPDATE ecdPersistentAlbum SET albumType=7')
-            db.execute('UPDATE ecdPersistentMediaItem SET fileType=2')
-            if container == 'alpha':
-                db.execute('UPDATE ecdPersistentAlbum SET createdDate=0')
-                db.execute('UPDATE ecdPersistentMediaItem SET createdDate=0,modifiedDate=0 '
-                           'WHERE __objectid=1')
+from scripts.artifacts import crashlytics, mixpanel
 
 
 def _mixpanel_sources(root):
@@ -46,13 +31,18 @@ def _mixpanel_sources(root):
     analytics(root, [{'event': 'synthetic_unknown', 'properties': {'time': 1700000004}}], 'unknown')
 
 
-def _diagnostic_source(root):
-    log = root / ('private/var/mobile/Containers/Data/Application/alpha/Library/Caches/'
-                  'com.crashlytics.data/com.enchantedcloud.photovault/v5/report/log_a.clsrecord')
-    log.parent.mkdir(parents=True)
-    message = 'Synthetic activity breadcrumb'.encode().hex()
-    log.write_text('\n'.join(json.dumps({'log': {'msg': message, 'time': stamp}})
-                             for stamp in (0, 1700000000125)), encoding='utf-8')
+def _crashlytics_sources(root):
+    write_log(root, [
+        ('Synthetic activity breadcrumb', 0),
+        (breadcrumb('_vs', {'_sn': 'Home', '_sc': 'RootController'}), 1700000000125),
+        (breadcrumb('select_content', {'item_id': 'synthetic'}), 1700000001000),
+    ])
+    write_log(root, [('Synthetic unlock', 1700000002000)],
+              'com.enchantedcloud.photovault', 'vault')
+    write_log(root, [(breadcrumb('screen_view', {'screen_name': 'Vault',
+                                              'screen_class': 'VaultController'}), 1700000003000)],
+              'com.enchantedcloud.photovaultpro', 'pro')
+    write_log(root, [('$A$:{', 1700000004000)], 'com.example.beta', 'beta')
 
 
 def _write_case(repo, root, parser, description):
@@ -82,11 +72,10 @@ def main(destination_repo=None):
     repo = Path(destination_repo) if destination_repo is not None else Path(__file__).resolve().parents[4]
     with tempfile.TemporaryDirectory() as temp:
         root = Path(temp)
-        _ecd_sources(root)
         _mixpanel_sources(root)
-        _diagnostic_source(root)
-        _write_case(repo, root, privatePhotoVaultEcd,
-                    'Fabricated ECD album/media and Crashlytics records with zero timestamps.')
+        _crashlytics_sources(root)
+        _write_case(repo, root, crashlytics,
+                    'Fabricated multi-app Crashlytics messages and analytics breadcrumbs.')
         _write_case(repo, root, mixpanel,
                     'Fabricated Multi-app Mixpanel queues including absent and conflicting app IDs '
                     'and zero timestamps.')
