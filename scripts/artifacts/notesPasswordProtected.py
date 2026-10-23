@@ -2,14 +2,15 @@ __artifacts_v2__ = {
     "notesPasswordProtected": {
         "name": "Notes - Password Protected",
         "description": "Password-protected Apple Notes records (notes, their attachments and media, "
-                       "and the account record): the Core Data entity, the password hint and the "
-                       "wrapped-key length that classifies the encryption scheme of each, as stored.",
+                       "and the account record): the Core Data entity name, the password hint as stored, "
+                       "and the length of the wrapped key, which labels the encryption scheme of each.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Notes",
-        "notes": "The main Notes artifact reports that a note is locked but not how it is locked. "
+        "notes": "The main Notes artifact reports that a note is locked and its password hint, but not "
+                 "how it is locked. "
                  "This surfaces ZPASSWORDHINT and labels each row from the stored length of "
                  "ZCRYPTOWRAPPEDKEY alone; the iteration count is reported and not used. A 24-byte "
                  "wrapped key matches the scheme described in the cited "
@@ -19,21 +20,25 @@ __artifacts_v2__ = {
                  "key is a layout the cited research does not cover, so its row reads 'Not covered "
                  "by the cited research'; that is a statement about the research, not that the "
                  "note cannot be recovered. In tested samples 24 byte keys were found on iOS "
-                 "13.3.1, 15 and 17.5.1 and 16 byte keys on iOS 16.5, 17.3, 18.3.2, 18.7 and "
+                 "13.3.1, 14.3, 15.3.1 and 17.5.1 and 16 byte keys on iOS 16.5, 17.3, 18.3.2, 18.7 and "
                  "18.7.8, so the key length does not follow the iOS version alone; what decides it "
                  "is not established here. "
-                 "A row is any ZICCLOUDSYNCINGOBJECT record with ZISPASSWORDPROTECTED 1, and that "
-                 "table holds several Core Data entities; Entity is the entity name resolved from "
-                 "the row's Z_ENT through Z_PRIMARYKEY. In tested samples the rows were ICNote, "
+                 "A row is any ZICCLOUDSYNCINGOBJECT record with ZISPASSWORDPROTECTED 1 that holds a "
+                 "wrapped key or a password hint; flagged records with neither are not reported (14 "
+                 "of 33 on iphone12_ios18 and 3 of 5 on abe_ios16, all attachment or preview-image "
+                 "records). An account record whose ZISPASSWORDPROTECTED is 0 is not reported either "
+                 "(hickman_ios13, otto_ios17); the Notes - Encryption Key Hashes artifact reports it. "
+                 "That table holds several Core Data entities; Entity is the entity name resolved from "
+                 "the row's Z_ENT through Z_PRIMARYKEY, or the raw Z_ENT number when Z_PRIMARYKEY has "
+                 "no entry for it. In tested samples the rows were ICNote, "
                  "ICAttachment, ICAttachmentPreviewImage, ICMedia and ICAccount records (on "
                  "iphone12_ios18, 6 ICNote, 7 ICAttachment, 5 ICMedia and 1 ICAccount). A row with "
                  "a hint and no wrapped key is labelled 'Hint stored, no wrapped key'; in tested "
                  "samples every such row was the ICAccount record. "
-                 "Core Data stores a property that several entities define in numbered columns "
-                 "(ZTITLE, ZTITLE1 and so on), so Title, Creation Date and Last Modified are each "
-                 "taken from whichever variant of ZTITLE, ZCREATIONDATE or ZMODIFICATIONDATE the "
-                 "row fills; no row in the tested stores filled more than one variant of any of "
-                 "the three. In tested samples Title and both dates were filled on every ICNote "
+                 "The table carries numbered variants of some property columns (ZTITLE, ZTITLE1 and "
+                 "so on), and no row in the tested stores filled more than one variant of ZTITLE, "
+                 "ZCREATIONDATE or ZMODIFICATIONDATE, so Title, Creation Date and Last Modified are "
+                 "each taken from whichever variant the row fills. In tested samples Title and both dates were filled on every ICNote "
                  "row, both dates but not Title on every ICAttachment row, and none of the three "
                  "on ICMedia, ICAttachmentPreviewImage and ICAccount rows. The cited research found "
                  "ZTITLE1 left unencrypted on a locked note. Record ID is the row's Z_PK. The note "
@@ -46,20 +51,20 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | 2 rows (24-byte keys)",
-            "hickman_ios14": "iOS 14.3 | 4 rows (24-byte keys)",
+            "hickman_ios14": "iOS 14.3 | 4 rows (3 with 24-byte keys, 1 account row with hint only)",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
-            "hickman_ios15": "iOS 15 | 5 rows (24-byte keys)",
+            "hickman_ios15": "iOS 15.3.1 | 5 rows (4 with 24-byte keys, 1 account row with hint only)",
             "abe_ios16": "iOS 16.5 | 2 rows (16-byte keys)",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 7 rows (16-byte keys)",
+            "iphone11_ios17": "iOS 17.3 | 7 rows (6 with 16-byte keys, 1 account row with hint only)",
             "otto_ios17": "iOS 17.5.1 | 5 rows (24-byte keys)",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 2 rows (16-byte keys)",
-            "iphone12_ios18": "iOS 18.7 | 19 rows (16-byte keys)",
-            "hc_ios18_7": "iOS 18.7.8 | 9 rows (16-byte keys)",
+            "iphone12_ios18": "iOS 18.7 | 19 rows (18 with 16-byte keys, 1 account row with hint only)",
+            "hc_ios18_7": "iOS 18.7.8 | 9 rows (8 with 16-byte keys, 1 account row with hint only)",
         }
     },
     "notesEncryptionKeys": {
@@ -142,8 +147,9 @@ from scripts.ilapfuncs import (artifact_processor, convert_cocoa_core_data_ts_to
 TABLE = 'ZICCLOUDSYNCINGOBJECT'
 
 # The documented scheme wraps a 16-byte note key with AES Key Wrap, which is 24 bytes
-# on disk, and derives the wrapping key with PBKDF2. The revised scheme, seen from
-# iOS 16 onward, stores a 16-byte wrapped key with the iteration count zeroed.
+# on disk, and derives the wrapping key with PBKDF2. Some stores instead hold a 16-byte
+# wrapped key with the iteration count zeroed; which one a store uses does not follow
+# the iOS version alone (17.3 held 16-byte keys, 17.5.1 held 24-byte keys).
 CLASSIC_WRAPPED_LEN = 24
 REVISED_WRAPPED_LEN = 16
 
