@@ -83,6 +83,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | coinbaseWallet |
 | coverMe |
 | discordChats |
+| discordServers |
 | discord_a |
 | dubox |
 | duckduckgo |
@@ -264,6 +265,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | lidl_plus |
 | life360Cache |
 | mapsSync |
+| mixpanel |
 | nest |
 | netflix |
 | odnoklassniki |
