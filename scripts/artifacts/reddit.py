@@ -247,7 +247,7 @@ __artifacts_v2__ = {
     "reddit_post_history": {
         "name": "Reddit Post History",
         "description": "Post IDs from the PostHistory archive, in stored list order, with the "
-                       "kGlanceInfoKey value stored for each.",
+                       "kGlanceInfoKey value where the archive holds an info entry for the ID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-22",
@@ -261,9 +261,10 @@ __artifacts_v2__ = {
             "images the archive held no time for an entry, so the order is reported as stored "
             "and is not a timeline.\n"
             "Post ID is reported as stored. The t3_ prefix is Reddit's type prefix for a "
-            "submission (a post): PRAW glossary, "
-            "https://praw.readthedocs.io/en/latest/package_info/glossary.html (read "
-            "2026-10-22). The archive holds IDs only; titles, authors and text are not in it.\n"
+            "submission (a post): PRAW glossary, https://github.com/praw-dev/praw/blob/"
+            "99e8a56de739dad51d0584c01d2dd2714c576d4b/docs/package_info/glossary.rst#L20. On "
+            "the tested images the archive held the IDs and the kGlanceInfoKey entries only; "
+            "no titles, authors or text.\n"
             "kGlanceInfoKey was the only key in an info entry on the tested images and held "
             "True wherever it was present (779 of 870 rows across eight images). The other 91 "
             "rows are listed posts with no info entry, and kGlanceInfoKey is blank for them. "
@@ -273,9 +274,11 @@ __artifacts_v2__ = {
             "The account folder name is reported as the Account column. Account held one value "
             "on each tested image except hickman_ios13, where PostHistory sits under two account "
             "folders, one of them named anonymous.\n"
-            "Not reported: CachedSDUIListingData.json in the same folder holds a cached home and "
-            "popular feed (base64 JSON cells, including ad payloads, with viewed False on every "
-            "tested entry). It is feed content the app fetched, not a list of posts opened.\n"
+            "Not reported: CachedSDUIListingData.json in the same folder holds cached feed "
+            "listings (type keys named home and, on one tested file, popular) of base64 JSON cells, "
+            "including ad payloads, with viewed False on every entry on three tested images. It "
+            "is cached feed content; what it records about the user's activity is not "
+            "established here.\n"
             "Store identified by @CyberMike81."
         ),
         "paths": ('*/Documents/release02/accountData/*/PostHistory',),
@@ -303,13 +306,13 @@ __artifacts_v2__ = {
         "category": "Reddit",
         "notes": (
             "Documents/release02/accountData/<account>/RecentPostCache.json is a JSON list of "
-            "post IDs. Position is the zero-based position in that list. The file holds no "
-            "times, so the order is reported as stored and is not a timeline. What adds an ID "
-            "to this list is not established here.\n"
+            "post IDs. Position is the zero-based position in that list. On the tested images "
+            "the file held only the ID list and no times, so the order is reported as stored "
+            "and is not a timeline. What adds an ID to this list is not established here.\n"
             "Post ID is reported as stored. The t3_ prefix is Reddit's type prefix for a "
-            "submission (a post): PRAW glossary, "
-            "https://praw.readthedocs.io/en/latest/package_info/glossary.html (read "
-            "2026-10-22). This is a different list from Reddit Post History: on the tested "
+            "submission (a post): PRAW glossary, https://github.com/praw-dev/praw/blob/"
+            "99e8a56de739dad51d0584c01d2dd2714c576d4b/docs/package_info/glossary.rst#L20. "
+            "This is a different list from Reddit Post History: on the tested "
             "images that held both, most IDs here were not in PostHistory. The account folder "
             "name is reported as the Account column; Account held one value on each tested "
             "image, because only one account folder per image held a non-empty list.\n"
@@ -344,14 +347,16 @@ __artifacts_v2__ = {
             "reading. List Position is the zero-based position in that list. On the tested "
             "images the archive held no time for an entry, so the order is reported as stored "
             "and is not a timeline. The t5_ prefix is Reddit's type prefix for a subreddit: "
-            "PRAW glossary, https://praw.readthedocs.io/en/latest/package_info/glossary.html "
-            "(read 2026-10-22).\n"
-            "Subreddit and Title are looked up by exact ID in the same account folder: first in "
+            "PRAW glossary, https://github.com/praw-dev/praw/blob/"
+            "99e8a56de739dad51d0584c01d2dd2714c576d4b/docs/package_info/glossary.rst#L22.\n"
+            "Subreddit is the record's displayName field and Title its title field. Both are "
+            "looked up by exact ID in the same account folder: first in "
             "subreddits/<subreddit id>, a per-subreddit archive whose PrimaryKey equalled its "
             "file name on all 2,298 tested files, then in the SubredditSubscriptions archive by "
             "PrimaryKey. Name Source names the file used and is blank when neither holds the "
             "ID; the ID is still reported. Where both held an ID on the tested images, their "
-            "names agreed (151 of 151 on ctf2020_ios12). Subreddit and Title were blank on the "
+            "names and titles agreed (175 of 175 across ctf2020_ios12, hickman_ios13 and "
+            "hickman_ios14). Subreddit and Title were blank on the "
             "single hexordia_ios1651 row, whose ID is in neither file.\n"
             "The account folder name is reported as the Account column; Account held one value "
             "on each tested image.\n"

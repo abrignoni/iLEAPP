@@ -48,7 +48,7 @@
     "os_name": "iOS"
   },
   "josh_ios17_ffs": {
-    "description": "Josh Hickman iOS 17.3 public image: PostHistory with one unlisted info entry, and RecentPostCache.json.",
+    "description": "Josh Hickman iOS 17.3 public image: PostHistory with one listed post that has no info entry, and RecentPostCache.json.",
     "maker": "@AlexisBrignoni",
     "make_data": {
       "input_data_path": "EXTRACTION_FFS.zip",
