@@ -666,14 +666,15 @@ def process(casedata):
             target=run_crunch,
             args=(GuiWindow.message_queue, selected_modules, extracttype, input_path,
                   out_params, wrap_text, casedata, time_offset, decryption_keys,
-                  image_password, found_members),
+                  image_password, found_members,
+                  hash_files_var.get()),
             daemon=True)
         worker.start()
         main_window.after(CRUNCH_POLL_MS, poll_crunch, GuiWindow.message_queue, out_params)
 
 
 def run_crunch(message_queue, selected_modules, extracttype, input_path, out_params, wrap_text,
-               case_info, time_offset, decryption_keys, image_password=None, found_members=None):
+               case_info, time_offset, decryption_keys, image_password=None, found_members=None, hash_files=False):
     '''Do the processing off the main thread. Touches no widget; reports on the queue.'''
     try:
         # LAVA's SQLite connection is opened here rather than in process(): a sqlite3
@@ -685,7 +686,7 @@ def run_crunch(message_queue, selected_modules, extracttype, input_path, out_par
             selected_modules, extracttype, input_path, out_params, wrap_text,
             loader, case_info, time_offset, profile_filename, None, decryption_keys,
             image_password=image_password,
-            found_members=found_members)
+            found_members=found_members, hash_files=hash_files)
         lava_finalize_output(out_params.output_folder_base)
     except Exception:  # pylint: disable=broad-exception-caught
         # Without this the GUI would poll an empty queue forever and look hung for real.
@@ -1195,6 +1196,11 @@ output_folder_name_entry.configure(
     validate='key',
     validatecommand=(main_window.register(allow_output_folder_name_chars), '%P'))
 output_folder_name_entry.pack(side='left', fill='x', expand=True)
+# Off at every start, never remembered: a run hashes its staged files only when this
+# run asks for it (the command line's --hash)
+hash_files_var = tk.BooleanVar(value=False)
+ttk.Checkbutton(output_frame, text='Hash staged files (SHA-256)',
+                variable=hash_files_var).pack(anchor='w', padx=5, pady=(0, 4))
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
