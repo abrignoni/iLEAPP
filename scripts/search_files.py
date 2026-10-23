@@ -1214,12 +1214,14 @@ def _ntfs_extra_times(data):
 def _extended_timestamp_times(data, problems):
     """(creation, modification) from an extended timestamp (0x5455) block's data.
 
-    Reads the field as this seeker always has: the modification time when flag
-    bit 0 is set, and when bit 2 is set the 4 bytes after it as the creation
-    time. Info-ZIP extrafld.txt orders the times by flag bit, so when bit 1 is
-    also set and the block holds the access time, those 4 bytes are the access
-    time; that reading is kept unchanged here. A value the block is too short to
-    hold is None, never read from the bytes after the block.
+    The times follow the flags byte in flag bit order (Info-ZIP extrafld.txt):
+    bit 0 modification, bit 1 access, bit 2 creation, 4 bytes each. Some writers
+    put all of them in the central directory copy and some set bit 3 and add a
+    fourth value, which is not read. Every read is bounded by the block's
+    declared size: a value the block is too short to hold is None. The same
+    bit-order reading is in Alexis Brignoni, 'Full file system extractions in
+    zip: MAC times', 2024-05-24,
+    https://abrignoni.blogspot.com/2024/05/full-file-system-extractions-in-zip-mac.html
     """
     if not data:
         problems.append('extended timestamp field (0x5455) not read: it holds no flags byte')
@@ -1233,6 +1235,8 @@ def _extended_timestamp_times(data, problems):
             return None
         modified, = struct.unpack_from('<I', data, offset)
         offset += 4
+    if flags & 2:
+        offset += 4  # access time, not recorded
     if flags & 4 and len(data) >= offset + 4:
         created, = struct.unpack_from('<I', data, offset)
     return created, modified

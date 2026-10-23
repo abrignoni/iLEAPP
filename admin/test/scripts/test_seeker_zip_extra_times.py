@@ -122,13 +122,20 @@ class ZipExtraTimesTests(unittest.TestCase):
         self.assertAlmostEqual(info.modification_date, MODIFIED, places=6)
         self.assertAlmostEqual(mtime, MODIFIED, places=5)
 
-    def test_extended_timestamp_creation_is_read_as_before(self):
-        # Flags 0x07 with all three times in the central directory: the 4 bytes after
-        # the modification time are what creation_date has always held.
-        info, _ = self.stage(ut_field(0x07, UT_MODIFIED, 0, 0))
-        self.assertEqual((info.creation_date, info.modification_date), (0, UT_MODIFIED))
+    def test_extended_timestamp_times_are_read_in_flag_bit_order(self):
+        # Flags 0x07 with all three times in the central directory: modification,
+        # access, creation. The access time is stepped over, not read as creation.
+        info, _ = self.stage(ut_field(0x07, UT_MODIFIED, 1, UT_CREATED))
+        self.assertEqual((info.creation_date, info.modification_date), (UT_CREATED, UT_MODIFIED))
         info, _ = self.stage(ut_field(0x05, UT_MODIFIED, UT_CREATED))
         self.assertEqual((info.creation_date, info.modification_date), (UT_CREATED, UT_MODIFIED))
+        # Bit 3 adds a fourth value; it is not read and does not shift the others.
+        info, mtime = self.stage(ut_field(0x0f, UT_MODIFIED, 1, UT_CREATED, 2))
+        self.assertEqual((info.creation_date, info.modification_date), (UT_CREATED, UT_MODIFIED))
+        self.assertEqual(mtime, UT_MODIFIED)
+        # Access flagged but the block ends before the creation time: none is read.
+        info, _ = self.stage(ut_field(0x07, UT_MODIFIED, 1))
+        self.assertEqual((info.creation_date, info.modification_date), (None, UT_MODIFIED))
 
     def test_a_creation_time_the_central_copy_omits_is_not_read_from_the_next_field(self):
         # Flags describe the local header, so 0x07 with 5 bytes holds only the mtime.
