@@ -1,0 +1,170 @@
+{
+  "case1": {
+    "description": "Synthetic version 6 and 12 logs: OSD units, Custom UTC timestamps, Gimbal and unknown payloads. Not a real extraction or DF020. Repackaged under a SYNTHETIC iOS Documents/FlightRecords path; original file bytes unchanged. This is decoding/packaging coverage, not real iOS validation.",
+    "maker": "Neal (@Blackwater1224)",
+    "make_data": {
+      "input_data_path": "dji_txt_synthetic_input.zip",
+      "os": "Windows-11-10.0.26200-SP0",
+      "timestamp": "2026-10-01T14:09:38.243358",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-01T14:09:38.156639",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "djiFlightRecordTxtRecords": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "djiFlightRecordTxtSummary": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "Unknown",
+    "os_version": "Unknown (no iOS extraction)",
+    "provenance_note": "See djiFlightRecordTxt_PROVENANCE.md. Synthetic iOS packaging; no real iOS acquisition or version is asserted."
+  },
+  "case2": {
+    "description": "Public pydjirecord example DJIFlightRecord_2024-09-01_[14-55-49].txt, version 14: local auxiliary metadata and explicit encrypted telemetry status. Source is not DF020; Android-style paths are fixture packaging, not proven acquisition paths. Repackaged under a SYNTHETIC iOS Documents/FlightRecords path; original file bytes unchanged. This is decoding/packaging coverage, not real iOS validation.",
+    "maker": "Neal (@Blackwater1224)",
+    "make_data": {
+      "input_data_path": "dji_txt_public_encrypted_input.zip",
+      "os": "Windows-11-10.0.26200-SP0",
+      "timestamp": "2026-10-01T14:09:39.577125",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-01T14:09:39.508547",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "djiFlightRecordTxtRecords": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "djiFlightRecordTxtSummary": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "provenance": {
+      "url": "https://github.com/rembish/pydjirecord/blob/cabbce1bb8c24bb00bd861af80aac7601c03e5f6/examples/DJIFlightRecord_2024-09-01_%5B14-55-49%5D.txt",
+      "license": "MIT; see djiFlightRecordTxt_PROVENANCE.md"
+    },
+    "os_name": "Unknown",
+    "os_version": "Unknown (no iOS extraction)",
+    "provenance_note": "See djiFlightRecordTxt_PROVENANCE.md. Synthetic iOS packaging; no real iOS acquisition or version is asserted."
+  },
+  "case3": {
+    "description": "VTO/NIST DF020 Android logical (publisher MD5 6bc5cdc147e813f8744c04814a89e18a). Summary: the three original logs, unchanged (two DJI GO 4 version 11 logs from 19 June 2018 and one DJI GO version 9 log from 10 October 2017). Records: shortened copies of two of them, built as described in djiFlightRecordTxt_PROVENANCE.md, so the baseline stays small. Repackaged under a SYNTHETIC iOS Documents/FlightRecords path; original file bytes unchanged. This is decoding/packaging coverage, not real iOS validation.",
+    "maker": "Neal (@Blackwater1224)",
+    "make_data": {
+      "input_data_path": "Android_Logical.zip",
+      "os": "Windows-11-10.0.26200-SP0",
+      "timestamp": "2026-10-01T14:54:21.196324",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-01T14:54:21.131067",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "djiFlightRecordTxtRecords": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "djiFlightRecordTxtSummary": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "provenance": {
+      "publisher_archive": "Android_Logical.zip",
+      "md5": "6bc5cdc147e813f8744c04814a89e18a",
+      "sample_data_key": "df020_mavic_pro_android",
+      "license": "MIT, Copyright (c) 2017 VTO Inc.; see djiFlightRecordTxt_DF020_DATASET_LICENSE.txt"
+    },
+    "os_name": "Unknown",
+    "os_version": "Unknown (no iOS extraction)",
+    "provenance_note": "See djiFlightRecordTxt_PROVENANCE.md. Synthetic iOS packaging; no real iOS acquisition or version is asserted."
+  },
+  "case4": {
+    "description": "Real VTO/NIST DF020 August 2017 iOS backup. Original Summary input: TXT v8 with 16433 defined records and 8 JPEG entries. Records input: first 160 displayed records, compacted with original Details. Original AppDomain and Documents path retained via iLEAPP reconstruction; no synthetic container identity.",
+    "maker": "Neal (@Blackwater1224)",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "10.3.2"
+    },
+    "artifacts": {
+      "djiFlightRecordTxtRecords": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 1
+      },
+      "djiFlightRecordTxtSummary": {
+        "search_patterns": [
+          "*/Documents/FlightRecords/DJIFlightRecord*.txt"
+        ],
+        "file_count": 1
+      }
+    },
+    "provenance": {
+      "archive": "df020_flight_ios_backup.zip",
+      "sample_data_key": "df020_mavic_pro_ios",
+      "domain": "AppDomain-com.dji.go",
+      "relativePath": "Documents/FlightRecords/DJIFlightRecord_2017-08-29_[12-21-48].txt",
+      "fileID": "cf2db800671979863d7f97d14983f99f1b323159",
+      "original_sha256": "50e7fcdef6db9490af4b058330ed0c03d2f3eccc80168fed4b263b431aef5c5a",
+      "compact_sha256": "0dff176c1cae3913b9649d73fd9cdc577e4a5704215365bcfad1640c2574d015",
+      "app_name": "DJI GO 4",
+      "app_build_from_backup": "2952",
+      "app_version_from_txt": "4.1.5",
+      "note": "Source paths reconstructed from real Manifest.db. See djiFlightRecordTxt_PROVENANCE.md."
+    }
+  }
+}
