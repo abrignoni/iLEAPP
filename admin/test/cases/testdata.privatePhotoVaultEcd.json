@@ -1,6 +1,6 @@
 {
   "synthetic": {
-    "description": "Fabricated multi-container ECD, analytics and diagnostic records.",
+    "description": "Fabricated ECD album/media and Crashlytics records with zero timestamps.",
     "maker": "@CyberMike81",
     "os_name": "iOS",
     "os_version": "synthetic",
@@ -20,26 +20,6 @@
           "*/PPV.ecd*"
         ],
         "file_count": 2
-      },
-      "ppv_ecd_parts": {
-        "search_patterns": [
-          "*/PPV.ecd*"
-        ],
-        "file_count": 2
-      },
-      "ppv_ecd_trespass": {
-        "search_patterns": [
-          "*/PPV.ecd*"
-        ],
-        "file_count": 2
-      },
-      "ppv_activity_events": {
-        "search_patterns": [
-          "*/PPV.ecd*",
-          "*/Library/*_MPDB.sqlite*",
-          "*/.com.apple.mobile_container_manager.metadata.plist"
-        ],
-        "file_count": 7
       },
       "ppv_diagnostic_log": {
         "search_patterns": [
