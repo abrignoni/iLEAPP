@@ -69,14 +69,28 @@ __artifacts_v2__ = {
     },
     "wireMessages": {
         "name": "Wire Secure Messenger Messages",
-        "description": "Wire messages, including message sender, associated user identifiers and message type",
+        "description": "Wire messages, including the sender's handle and display name, and message type",
         "author": 'Elliot Glendye, @AlexisBrignoni, Codex',
         "creation_date": "2024-01-21",
-        "last_update_date": '2026-10-04',
+        "last_update_date": '2026-10-23',
         "requirements": "",
         "category": "Business",
         "notes": "Rows with category 1 (undefined per the Wire source) are excluded; rows with "
-                 "no stored category are retained. Message is the ZNORMALIZEDTEXT column as stored. ZDURATION "
+                 "no stored category are retained. Handle and Display Name come from the ZUSER row that "
+                 "ZMESSAGE.ZSENDER points to (LEFT JOIN), so they are blank when no such row exists. Handle "
+                 "is ZUSER.ZHANDLE, the handle attribute of Wire's User entity, which Wire's header describes "
+                 "as the \"@name\" handle "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Public/ZMUser.h#L55-L56). "
+                 "ZMUser.m writes it from the handle field of the backend's user record "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L484-L487) and from search "
+                 "results (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L562-L573). "
+                 "The handle is not Wire's user ID, which ZMUser.m sets from the id of the backend's user record "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L442-L472) and the model "
+                 "stores as remoteIdentifier_data "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L381); "
+                 "this artifact does not report ZUSER.ZREMOTEIDENTIFIER_DATA. That code is newer than the Wire "
+                 "builds on the corpora below. "
+                 "Message is the ZNORMALIZEDTEXT column as stored. ZDURATION "
                  "is reported as stored; its unit is not sourced "
                  "here. Unrecognized category values (including bitmask combinations) are "
                  "reported as stored. Reference: Wire open source, wire-ios-data-model "
@@ -187,7 +201,7 @@ def wireMessages(context):
     query = '''
     SELECT
         ZMESSAGE.ZSERVERTIMESTAMP AS 'Date / Time',
-        ZUSER.ZHANDLE AS 'User ID',
+        ZUSER.ZHANDLE AS 'Handle',
         ZUSER.ZNAME AS 'Display Name',
         ZMESSAGE.ZNORMALIZEDTEXT AS 'Message',
         CASE ZMESSAGE.ZCACHEDCATEGORY
@@ -205,7 +219,7 @@ def wireMessages(context):
     '''
     data_headers = (
         ('Date / Time', 'datetime'),
-        'User ID',
+        'Handle',
         'Display Name',
         'Message',
         'Message Type',
