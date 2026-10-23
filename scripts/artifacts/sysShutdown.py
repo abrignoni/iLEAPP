@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        "a lead to review, not a finding",
         "author": "@KevinPagano3, @AlexisBrignoni, Codex",
         "creation_date": "2024-02-13",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": (
@@ -27,8 +27,14 @@ __artifacts_v2__ = {
             "system_logs.logarchive/Extra, named shutdown.log or shutdown.0.log on test data. A row "
             "identical to one already reported from another copy is reported once, from the copy "
             "read first; entry numbers restart per file. On the three test images holding packed "
-            "sysdiagnoses, every process row read from the packed copies repeated a row of the live "
-            "log (265, 295 and 172 rows), so the counts equal those from the live log alone."
+            "sysdiagnoses, the lines of each packed copy were the opening lines of the live log. "
+            "On felix23_ios16 and hickman_ios14 every process row read from the packed copies "
+            "repeated a row of the live log (265 and 172 rows), so the counts equal those from the "
+            "live log alone. On hickman_ios13 the packed copy ends inside a shutdown block: 295 of "
+            "its 375 process rows repeated a live row, and the other 80 have no SIGTERM line after "
+            "them in that copy, so they are reported again with no Timestamp although the live rows "
+            "with the same entry number, PID, path and delay carry one (537 rows from the live log, "
+            "617 in all)."
         ),
         "paths": (
             '*/shutdown*.log',
@@ -46,7 +52,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 188 rows",
             "abe_ios16": "iOS 16.5 | 644 rows",
             "felix23_ios16": "iOS 16.5 | 501 rows",
-            "hickman_ios13": "iOS 13.3.1 | 537 rows",
+            "hickman_ios13": "iOS 13.3.1 | 617 rows",
             "hickman_ios14": "iOS 14.3 | 217 rows",
             "jess_ios15": "iOS 15.0.2 | 448 rows",
             "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 554 rows",
