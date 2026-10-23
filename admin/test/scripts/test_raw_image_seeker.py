@@ -1482,6 +1482,23 @@ class SplitImageSiblingTest(unittest.TestCase):
     def test_an_e01_is_not_a_numbered_segment(self):
         self.assertIsNone(split_image_sibling(self.touch('image.E01')))
 
+    def test_segments_of_unequal_size_are_refused_saying_what_to_do(self):
+        # a middle segment cut short puts every byte after it at the wrong offset;
+        # qnxprobe refuses the set and this tool, which has no option to join it
+        # anyway, says to join the segments by hand
+        for n, size in ((1, 4096), (2, 4096 - 512), (3, 1000)):
+            with open(os.path.join(self.folder, f'disk.{n:03d}'), 'wb') as handle:
+                handle.write(bytes(size))
+        data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, data, True)
+        with mock.patch.object(raw_image, 'logfunc', lambda *_a, **_k: None):
+            with self.assertRaises(qnxprobe.SplitImageError) as caught:
+                FileSeekerRaw(os.path.join(self.folder, 'disk.001'), data)
+        message = str(caught.exception)
+        self.assertIn('disk.002 is 3,584 bytes', message)
+        self.assertIn('join the segments into one file in order', message)
+        self.assertNotIn('--allow-unequal-segments', message)
+
 
 
 # The files squashfs.src.sha256 lists for qnxprobe's SquashFS fixture, which its
@@ -1674,6 +1691,21 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         child = first.search('*/Parsed/Date')
         self.assertEqual(open(data[0], 'rb').read(), b'the plist itself')
         self.assertEqual(open(child[0], 'rb').read(), b'2012-07-05')
+
+    def test_two_l01_entries_at_one_path_both_reach_an_artifact(self):
+        entries = [_FakeLogicalEntry('Root', folder=True),
+                   _FakeLogicalEntry('Root/dir', folder=True),
+                   _FakeLogicalEntry('Root/dir/a.db', b'FIRST-COPY'),
+                   _FakeLogicalEntry('Root/dir/a.db', b'SECOND-COPY-X')]
+        with mock.patch.object(raw_image, 'open_logical', lambda path, keys=None: _FakeL01(entries)):
+            seeker = self._seeker(os.path.join(self.work, 'evidence.L01'))
+        staged = seeker.search('*a.db')
+        self.assertEqual(len(staged), 2)
+        held = {os.path.basename(p): open(p, 'rb').read() for p in staged}
+        # the later entry keeps the name, as before; the earlier is staged beside it
+        self.assertEqual(held, {'a.db': b'SECOND-COPY-X', 'a~entry-2.db': b'FIRST-COPY'})
+        self.assertEqual({seeker.file_infos[p].source_path for p in staged}, {'Root/dir/a.db'})
+        self.assertIn('1 entries share their path with a later entry', self.log.text())
 
     def test_an_ad1_leaves_out_only_the_kinds_that_hold_no_file(self):
         """Measured on a 316,682-entry AD1: type 6 is file slack, F is $I30, 10 is $DSC
@@ -2884,6 +2916,28 @@ class CompressedFilesAndImageDamageTest(unittest.TestCase):
         seeker.search('*/medium.bin', force=True)
         self.assertEqual(len([line for line in self.log.lines
                               if line.startswith('WARNING: reading ')]), 1)
+        # but each file read through it is named, the second read (from the reader's
+        # cache) as well as the first (ewfprobe 0.15.0's padded_zeros_read)
+        named = [line for line in self.log.lines
+                 if line.startswith('WARNING: lba0/medium.bin was read through')]
+        self.assertEqual(len(named), 2, self.log.lines)
+        self.assertGreater(seeker.padded_files[staged[0]], 0)
+
+    def test_a_clean_acquisition_names_no_file_as_padded(self):
+        with open(self.images['ntfs-fixture'], 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(dir=self.work)
+        seeker = self.seeker(write_ewf(folder, 'whole', data)[0])
+        seeker.search('*/medium.bin')
+        self.assertEqual(seeker.padded_files, {})
+        self.assertFalse([line for line in self.log.lines if 'was read through' in line])
+
+    def test_directories_past_the_depth_limit_are_said(self):
+        with mock.patch.object(raw_image, '_MAX_DEPTH', 0):
+            self.seeker(self.images['ntfs-fixture'])
+        said = [line for line in self.log.lines if 'levels deep' in line]
+        self.assertEqual(len(said), 1, self.log.lines)
+        self.assertIn('more than 0 levels deep', said[0])
 
     def test_a_folder_is_refused_by_name(self):
         folder = tempfile.mkdtemp(dir=self.work)

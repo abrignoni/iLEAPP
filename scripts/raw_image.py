@@ -1572,6 +1572,13 @@ class FileSeekerRaw(FileSeekerBase):
         self._deleted = {}
         self._size = 0
         self._entries = {}
+        # a member staged under another name than its path in the evidence: an
+        # earlier entry of logical evidence that shares its path with a later one
+        self._member_source = {}
+        self._too_deep = 0
+        self._renamed = 0
+        # staged path: zero bytes read in place of acquisition data that ran out
+        self.padded_files = {}
         self._image = None
         # what the run log has said of each reader's damage and of each
         # acquisition's padded units, so each is said once, when first met
@@ -1639,7 +1646,20 @@ class FileSeekerRaw(FileSeekerBase):
         # A set with a hole in its numbering raises SplitImageError here, by
         # name, and the run stops with that message rather than reading half a
         # disk as though it were whole.
-        segments = [] if acquisition else qnxprobe.split_segments(path)
+        try:
+            segments = [] if acquisition else qnxprobe.split_segments(path)
+        except qnxprobe.SplitSegmentSizeError as exc:
+            # qnxprobe's own advice names an option of its command line; this tool
+            # has none, so say what to do here instead
+            odd = ', '.join(f'{os.path.basename(exc.segments[i])} is {exc.sizes[i]:,} '
+                            f'bytes' for i in exc.odd[:3])
+            raise qnxprobe.SplitImageError(
+                f'{name} is one segment of a split image whose segments are not one '
+                f'size: {os.path.basename(exc.segments[0])} is {exc.sizes[0]:,} bytes '
+                f'and {odd}. Not read: a segment cut short or padded would put every '
+                f'byte after it at the wrong offset. Compare the segments with the '
+                f"acquisition's own record. If the set is whole as it is, join the "
+                f'segments into one file in order and give that file.') from None
         image = qnxprobe.open_image(path, segments, password=keys.password_for(path),
                                     private_key=keys.private_key_for(path))
         size = qnxprobe.image_size(image)
@@ -1835,9 +1855,14 @@ class FileSeekerRaw(FileSeekerBase):
             if walker is None:
                 continue
             started = timex.monotonic()
+            deep_before = self._too_deep
             files, dirs, streams, route = self._walk(walker, vol['name'])
             logfunc(f"  walked {vol['name']}: {files:,} files, {dirs:,} directories "
                     f"in {timex.monotonic() - started:.1f}s ({route})")
+            if self._too_deep > deep_before:
+                logfunc(f'  WARNING: {self._too_deep - deep_before:,} directories sit '
+                        f'more than {_MAX_DEPTH} levels deep in {vol["name"]} and were '
+                        f'not walked; the files under them are not listed')
             if streams:
                 logfunc(f'    and {streams:,} alternate data streams, matched only by a '
                         f'pattern that names one')
@@ -1885,6 +1910,12 @@ class FileSeekerRaw(FileSeekerBase):
                     f'pattern that names one')
         for why, count in sorted(left_out.items()):
             logfunc(f'  not searched: {count:,} {why}')
+        if self._renamed:
+            logfunc(f'  {self._renamed:,} entries share their path with a later entry. '
+                    f'An artifact matching the path is handed both: the later one '
+                    f'staged under the path, each earlier one beside it as '
+                    f'<name>~entry-<N><ext>, N its position in the evidence, both with '
+                    f'the path in the evidence as their source.')
         self._say_padding('  WARNING: the listing read ')
         logfunc(f'File listing complete - {len(self.name_list):,} members'
                 + (f' and {len(self.stream_list):,} streams' if self.stream_list else ''))
@@ -1905,13 +1936,14 @@ class FileSeekerRaw(FileSeekerBase):
         reader = _LogicalReader(image)
         ad1 = image.format == _ewfprobe.FORMAT_AD1
         member_of = {}
+        position_of = {}
         files = dirs = streams = 0
         left_out = {}
 
         def leave(why):
             left_out[why] = left_out.get(why, 0) + 1
 
-        for entry in image.logical_entries:
+        for position, entry in enumerate(image.logical_entries):
             path = entry.path
             if not path:
                 continue
@@ -1940,7 +1972,19 @@ class FileSeekerRaw(FileSeekerBase):
             elif ad1 and code in _AD1_NOT_FILES:
                 leave(_AD1_NOT_FILES[code])
                 continue
-            self.name_list.append(path)
+            if path in position_of:
+                # Two entries at one path. The later keeps the name, as it always
+                # has; the earlier is staged beside it, so its bytes still reach an
+                # artifact, and its source path stays the path in the evidence.
+                base, ext = os.path.splitext(path)
+                earlier = f'{base}~entry-{position_of[path]}{ext}'
+                self._entries[earlier] = self._entries[path]
+                self._member_source[earlier] = path
+                self.name_list.append(earlier)
+                self._renamed += 1
+            else:
+                self.name_list.append(path)
+            position_of[path] = position
             self._entries[path] = _Entry(reader, entry, entry.size, times[1],
                                          folder=entry.is_folder)
             member_of[id(entry)] = path
@@ -2003,6 +2047,16 @@ class FileSeekerRaw(FileSeekerBase):
             for line in lines[1:]:
                 logfunc(f'{" " * (len(start) - len(start.lstrip()))}{line}')
 
+    def _zeros_read(self):
+        """Zero bytes the acquisitions read so far have handed out where their data
+        ran out (ewfprobe's ``padded_zeros_read``, 0.15.0 or later). Each is taken
+        from the image the walker reads, which counts its parents' too, so a parent
+        is not counted twice."""
+        images = [image for _, image in self._acquired]
+        parents = {id(getattr(image, 'parent', None)) for image in images}
+        return sum(getattr(image, 'padded_zeros_read', 0) for image in images
+                   if id(image) not in parents)
+
     def _say_met(self, member):
         """Say what reading ``member`` met that was not said before: the damage its
         volume's reader recorded, and the acquisition units it read whose stored data
@@ -2059,7 +2113,10 @@ class FileSeekerRaw(FileSeekerBase):
         stack = [(walker.root, prefix, 0, '')]
         while stack:
             node, path, depth, within = stack.pop()
-            if depth > _MAX_DEPTH or node in seen:
+            if node in seen:
+                continue
+            if depth > _MAX_DEPTH:
+                self._too_deep += 1
                 continue
             seen.add(node)
             try:
@@ -2198,9 +2255,11 @@ class FileSeekerRaw(FileSeekerBase):
                 self._list_deleted()
             members = members + self.deleted_list
         for member in members:
-            if pat(root + normcase(member)) is None:
+            # matched by its path in the evidence, which a renamed member keeps
+            if pat(root + normcase(self._member_source.get(member, member))) is None:
                 continue
             if member not in self.copied or force:
+                zeros_before = self._zeros_read()
                 try:
                     staged = self._stage(member)
                 except OSError as ex:
@@ -2210,6 +2269,14 @@ class FileSeekerRaw(FileSeekerBase):
                     self._say_met(member)
                 if staged is None:
                     continue
+                zeros = self._zeros_read() - zeros_before
+                if zeros:
+                    # counted on every read (ewfprobe 0.15.0), so a file that reads a
+                    # damaged unit after another file did is named too
+                    self.padded_files[staged] = zeros
+                    logfunc(f'WARNING: {member} was read through acquisition data '
+                            f'that ran out: {zeros:,} zero bytes were read in its '
+                            f'place, so what was staged for it can hold zeros')
                 self.copied[member] = staged
             else:
                 staged = self.copied[member]
@@ -2326,7 +2393,8 @@ class FileSeekerRaw(FileSeekerBase):
                 created = stamps(entry.node)[0] or 0
             except Exception:  # pylint: disable=broad-exception-caught
                 created = 0
-        self.file_infos[dest_path] = FileInfo(member, created, modified)
+        self.file_infos[dest_path] = FileInfo(self._member_source.get(member, member),
+                                              created, modified)
         return dest_path
 
     def _list_deleted(self):

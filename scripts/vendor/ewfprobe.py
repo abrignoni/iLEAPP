@@ -112,7 +112,7 @@ try:
 except ImportError:
     lzma = None
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
 
 # ---------------------------------------------------------------- constants
 
@@ -3813,13 +3813,18 @@ def _zstd_decompressor():
         return None
 
     def bounded(blob, most):
-        reader = zstandard.ZstdDecompressor().stream_reader(blob)
+        # One frame, as the other two decode: the reader goes on into a frame that
+        # follows (the start of the next QCOW cluster, packed after this one) unless
+        # told not to, and even then a second read starts the next frame, so a read
+        # that comes back short ends it.
+        reader = zstandard.ZstdDecompressor().stream_reader(blob, read_across_frames=False)
         out = bytearray()
         while len(out) < most:
-            piece = reader.read(most - len(out))
-            if not piece:
-                break
+            want = most - len(out)
+            piece = reader.read(want)
             out += piece
+            if len(piece) < want:
+                break
         return bytes(out)
     return bounded
 
@@ -3944,6 +3949,13 @@ class EwfImage:
         # Chunks, grains and clusters read with zeros put where their data ran out,
         # keyed by (unit, index); see padded_chunks and _note_padded.
         self._padded: dict[tuple[str, int], dict] = {}
+        # Where on the disk those zeros sit, as sorted (start, end) byte ranges, and
+        # how many of them read() has handed out; see padded_zeros_read.
+        self._padded_zeros: list[tuple[int, int]] = []
+        self._padded_zeros_read = 0
+        # E01/L01 chunk tables that failed their Adler-32, and whether the table2
+        # copy was read in their place; see _add_table.
+        self.table_errors: list[dict] = []
         self.chunk_size = 0
         self.media_size = 0
         self.size = 0
@@ -3984,6 +3996,7 @@ class EwfImage:
         self.vhdx = None
         self._vhdx_bat: list[int] = []
         self._vhdx_overlay: dict[int, bytes | None] = {}
+        self._vhdx_extent = 0                      # the file's size once its log is replayed
         self.vmdk = None
         self._vmdk_extents: list[dict] = []
         self.qcow = None
@@ -4088,12 +4101,20 @@ class EwfImage:
             size_on_disk = (os.path.getsize(path) if self.encryption is None
                             else self._content_size(path))
             expect_segment = i + 1
+            # A table is indexed once the section after it is known: a table2
+            # there is its copy, read only when the table fails a checksum.
+            pending = None
             for segno, name, offset, size, _next in _sections(fh, path):
                 if segno != expect_segment:
                     raise EwfFormatError(
                         f"{os.path.basename(path)} says it is segment {segno}, "
                         f"but it sits at position {expect_segment} of the set")
                 last_name = name
+                if pending is not None:
+                    copy = (self._read_table(fh, name, offset, size)
+                            if name == "table2" and pending["failed"] else None)
+                    chunks += self._add_table(i, pending, chunks, size_on_disk, copy)
+                    pending = None
                 if name in ("header", "header2") and not self.metadata:
                     fh.seek(offset)
                     raw = _inflate(_read_exactly(fh, size), _SECTION_TEXT_MAX)
@@ -4107,13 +4128,15 @@ class EwfImage:
                     self._parse_volume(_read_exactly(fh, min(size, 1052)))
                     volume_seen = True
                 elif name == "table":
-                    chunks += self._parse_table(fh, i, offset, size, chunks, size_on_disk)
+                    pending = self._read_table(fh, name, offset, size)
                 elif name in ("hash", "digest"):
                     fh.seek(offset)
                     self._parse_hashes(name, _read_exactly(fh, size))
                 elif name == "ltree" and logical and self.logical_root is None:
                     fh.seek(offset)
                     self._parse_ltree(_read_exactly(fh, size))
+            if pending is not None:
+                chunks += self._add_table(i, pending, chunks, size_on_disk)
 
             if last_name == "next" and i == len(self.paths) - 1:
                 raise EwfIncompleteSetError(
@@ -5996,7 +6019,7 @@ class EwfImage:
         self.qcow = {"version": version, "cluster_size": cluster, "disk_size": disk,
                      "features": features, "snapshots": snapshots,
                      "backing_file": None, "backing_format": None, "backing_opened": None,
-                     "external_data_file": None, "compression": compression_name,
+                     "backing_outside": None, "external_data_file": None, "compression": compression_name,
                      "modified": (datetime.datetime.fromtimestamp(
                          mtime, datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
                          if mtime else None)}
@@ -6043,17 +6066,22 @@ class EwfImage:
         self.chunk_count = self._indexed_chunks = self._needed_chunks()
 
     def _qcow_open_backing(self, name, here, backing, fmt):
-        """Open a QCOW's backing file by its recorded name, relative to this file or
-        (when absolute and present) where it names, then by file name beside it. QCOW
-        records no identity for its backing file, so only the name ties them."""
+        """Open a QCOW's backing file by its recorded name: relative to this file, then
+        by file name beside it, and only then, when the name is absolute, where it
+        points. QCOW records no identity for its backing file, so only the name ties
+        them, and a file of that name elsewhere on the examiner's machine would be read
+        as the evidence's own; the evidence's folder is looked in first, and a backing
+        file found outside it is said in ``backing_outside``."""
         parts = [part for part in re.split(r"[\\/]", backing) if part not in ("", ".")]
         candidates = []
-        if os.path.isabs(backing):
-            candidates.append(backing)
-        elif not re.match(r"^[A-Za-z]:", backing) and not re.match(r"^[a-z]+:", backing):
+        absolute = os.path.isabs(backing)
+        if (not absolute and not re.match(r"^[A-Za-z]:", backing)
+                and not re.match(r"^[a-z]+:", backing)):
             candidates.append(os.path.join(here, *parts))
         if parts:
             candidates.append(os.path.join(here, parts[-1]))
+        if absolute:
+            candidates.append(backing)
         if len(_opening_parents) >= _VIRTUAL_MAX_PARENTS:
             raise EwfFormatError(f"{name} is more than {_VIRTUAL_MAX_PARENTS} backing files "
                                  f"deep")
@@ -6073,6 +6101,8 @@ class EwfImage:
                 else:
                     self.parent = EwfImage(real)
                 self.qcow["backing_opened"] = os.path.basename(real)
+                if path == backing and absolute:
+                    self.qcow["backing_outside"] = real
                 return
         finally:
             _opening_parents.pop()
@@ -6681,7 +6711,11 @@ class EwfImage:
                                         f"it was at least {head_entry[3]:,}; the file is "
                                         f"cut short")
         start = next(i for i, (at, _f) in enumerate(best) if at == head_entry[1])
-        for _at, (_seq, _tail, _len, _flushed, _last, updates) in best[start:]:
+        for _at, (_seq, _tail, _len, _flushed, last, updates) in best[start:]:
+            # Replay extends the file to the entry's LastFileOffset (MS-VHDX 2.3.3), so
+            # a block the log places there is in the file, read as zeros where nothing
+            # was written to it.
+            self._vhdx_extent = max(self._vhdx_extent, last)
             for file_off, length, content in updates:
                 for k in range(0, length, 4096):
                     self._vhdx_overlay[file_off + k] = (
@@ -6811,7 +6845,7 @@ class EwfImage:
                 if at < _MIB:
                     raise EwfFormatError(f"{name} places block {i:,} inside its header "
                                          f"section")
-                if at + want > size:
+                if at + want > max(size, self._vhdx_extent):
                     raise EwfIncompleteSetError(f"{name} ends inside block {i:,}; the "
                                                 f"file is cut short")
         self._vhdx_bat = bat
@@ -6923,10 +6957,8 @@ class EwfImage:
         entry = self._vhdx_bat[i + i // ratio]
         state = entry & 7
         if state == _VHDX_FULLY_PRESENT or state == _VHDX_PARTIALLY_PRESENT:
-            fh = self._handle(0)
-            fh.seek((entry >> 20) * _MIB + within)
-            data = fh.read(want)
-            data += bytes(want - len(data))
+            # through the replayed log, which can update payload as well as metadata
+            data = self._vhdx_read((entry >> 20) * _MIB + within, want)
             if state == _VHDX_FULLY_PRESENT:
                 return data
             return self._vhdx_merge(start, want, data)
@@ -7307,21 +7339,59 @@ class EwfImage:
         self.sector_size = bytes_per_sector
         self.sector_count = sector_count
 
-    def _parse_table(self, fh, segment_index, offset, size, first_chunk, size_on_disk):
+    def _read_table(self, fh, name, offset, size):
+        """One table or table2 section: its count, base offset and raw entries, and
+        which of its checksums failed ("header", "entries" or None).
+
+        The header's Adler-32 covers its first 20 bytes in every writer measured
+        (EnCase 1 to 7, FTK, Linen, EWFX, SMART, as libewf and the fixtures write
+        them). The entries' own Adler-32 follows them in a section that holds
+        nothing else; in one that goes on with chunk data (EnCase 1, libewf's
+        "ewf", SMART) the bytes after the entries are not one, so it is not read."""
         fh.seek(offset)
         header = _read_exactly(fh, TABLE_HEADER_SIZE)
-        count, _pad1, base, _pad2, _checksum = _TABLE_HEADER.unpack(header)
+        count, _pad1, base, _pad2, checksum = _TABLE_HEADER.unpack(header)
         if self.format == FORMAT_S01:
             # The original table header is a count and 16 bytes of padding, with
             # no base offset: the entries count from the start of the file.
             base = 0
-        if count == 0:
+        failed = None if zlib.adler32(header[:20]) == checksum else "header"
+        if failed and count * 4 > size - TABLE_HEADER_SIZE:
+            # a damaged count that runs past its own section: nothing to read
+            return {"name": name, "offset": offset, "count": count, "base": base,
+                    "raw": None, "failed": failed}
+        raw = _read_exactly(fh, count * 4) if count else b""
+        if failed is None and count and size == TABLE_HEADER_SIZE + count * 4 + 4:
+            if struct.unpack("<I", _read_exactly(fh, 4))[0] != zlib.adler32(raw):
+                failed = "entries"
+        return {"name": name, "offset": offset, "count": count, "base": base, "raw": raw,
+                "failed": failed}
+
+    def _add_table(self, segment_index, table, first_chunk, size_on_disk, copy=None):
+        """Index one segment's chunk table, from its table2 ``copy`` when the table
+        fails a checksum and the copy passes. A failure is recorded in
+        ``table_errors`` either way. Returns the chunks it covers."""
+        used = table
+        if table["failed"]:
+            good = copy is not None and copy["failed"] is None
+            if good:
+                used = copy
+            self.table_errors.append({
+                "file": os.path.basename(self.paths[segment_index]),
+                "section": table["name"], "offset": table["offset"],
+                "failed": table["failed"],
+                "used": "table2" if good else "table as stored"})
+            if used["raw"] is None:
+                raise EwfFormatError(
+                    f"{os.path.basename(self.paths[segment_index])}: its chunk table "
+                    f"fails its checksum, counts {used['count']:,} entries, more than "
+                    f"its section holds, and has no table2 copy that passes")
+        if used["count"] == 0:
             return 0
-        raw = _read_exactly(fh, count * 4)
-        table = _Table(segment_index, base, raw, first_chunk, size_on_disk)
         self._table_starts.append(first_chunk)
-        self._tables.append(table)
-        return count
+        self._tables.append(_Table(segment_index, used["base"], used["raw"], first_chunk,
+                                   size_on_disk))
+        return used["count"]
 
     def _parse_hashes(self, name, data):
         if name == "hash" and len(data) >= 16:
@@ -7382,6 +7452,9 @@ class EwfImage:
             return self._keep(n, data, want)
         if self.format in (FORMAT_AFF, FORMAT_AFD):
             data = self._chunk_data_aff(n)
+            if len(data) < want:
+                # a stored page cut short, or one that inflates or counts short
+                self._note_padded("page", n, n * self.chunk_size, want, len(data), False)
             return self._keep(n, data, want)
         if self.format == FORMAT_AFM:
             return self._keep(n, self._chunk_data_afm(n), want)
@@ -7437,7 +7510,15 @@ class EwfImage:
         """Record a chunk, grain or cluster whose data ran out before the bytes it
         covers did, or whose compressed stream stopped before its end marker. It is
         still read as before, with zeros where its data ran out; this only makes
-        that visible. Recorded once per unit, however often it is read."""
+        that visible. Recorded once per unit, however often it is read.
+
+        The zeros' place on the disk is kept apart, by offset rather than by
+        ``(unit, index)``, for padded_zeros_read."""
+        span = (offset + decoded, offset + covers)
+        if span[1] > span[0]:
+            at = bisect.bisect_left(self._padded_zeros, span)
+            if at == len(self._padded_zeros) or self._padded_zeros[at] != span:
+                self._padded_zeros.insert(at, span)
         key = (unit, index)
         if key not in self._padded:
             entry = {"unit": unit, "index": index, "offset": offset, "length": covers,
@@ -7448,10 +7529,11 @@ class EwfImage:
 
     @property
     def padded_chunks(self):
-        """The chunks (E01, SMART, Ex01), grains (VMDK) and clusters (QCOW) read so
-        far whose stored data ran out before the bytes they cover, so that zeros were
-        read in its place, or whose compressed stream stopped before its end marker.
-        A list of dicts in disk order: ``unit`` ("chunk", "grain" or "cluster"),
+        """The chunks (E01, SMART, Ex01), grains (VMDK), clusters (QCOW) and pages
+        (AFF, AFD) read so far whose stored data ran out before the bytes they cover,
+        so that zeros were read in its place, or whose compressed stream stopped
+        before its end marker. A list of dicts in disk order: ``unit`` ("chunk",
+        "grain", "cluster" or "page"),
         ``index``, ``offset`` (the byte on the disk where the unit starts),
         ``length`` (the bytes of the disk it covers), ``decoded`` (the bytes its data
         gave), ``zeros`` (the zeros put after them), ``cut`` (True when the stream
@@ -7461,6 +7543,27 @@ class EwfImage:
         Only the units read are known: ``verify()`` reads them all."""
         return sorted((dict(v) for v in self._padded.values()),
                       key=lambda e: (e["offset"], e["unit"], e["index"]))
+
+    @property
+    def padded_zeros_read(self):
+        """The bytes read() has handed out that are zeros put where a unit's data
+        ran out, counted on every read, a unit read again from a cache included,
+        where ``padded_chunks`` lists each unit once. A caller that reads a file out
+        of the disk can take the count before and after and know, per file, whether
+        what it read holds such zeros. A differencing disk's count includes what it
+        read from its parent."""
+        return self._padded_zeros_read + getattr(self.parent, "padded_zeros_read", 0)
+
+    def _count_padded_zeros(self, start, end):
+        """Add the bytes of [start, end) that are zeros put where a unit's data ran
+        out to padded_zeros_read."""
+        zeros = self._padded_zeros
+        at = max(bisect.bisect_right(zeros, (start, float("inf"))) - 1, 0)
+        while at < len(zeros) and zeros[at][0] < end:
+            low, high = max(start, zeros[at][0]), min(end, zeros[at][1])
+            if high > low:
+                self._padded_zeros_read += high - low
+            at += 1
 
     def _keep(self, n, data, want):
         """Fit a decoded chunk to the size it covers and cache it."""
@@ -7520,6 +7623,9 @@ class EwfImage:
                          else chunk)
             pos += take
             n -= take
+        if self._padded_zeros:
+            # after the reads, so a unit first decoded by this read is counted too
+            self._count_padded_zeros(self._pos, pos)
         self._pos = pos
         return b"".join(parts)
 
@@ -7626,6 +7732,7 @@ class EwfImage:
             "match": match,
             "bytes": done,
             "checksum_errors": list(self.checksum_errors),
+            "table_errors": [dict(e) for e in self.table_errors],
             "padded_chunks": self.padded_chunks,
             "missing_page_count": self.missing_page_count,
             "missing_page_ranges": list(self.missing_page_ranges),
@@ -7641,6 +7748,7 @@ class EwfImage:
         return {
             # only what has been read so far; verify() reads every chunk
             "padded_chunks": self.padded_chunks,
+            "table_errors": [dict(e) for e in self.table_errors],
             "segments": [os.path.basename(p) for p in self.paths],
             "segment_count": len(self.paths),
             "format": self.format,
@@ -7866,6 +7974,9 @@ def _cmd_info(args):
                           f"{' (' + _shown(q['backing_format']) + ')' if q['backing_format'] else ''}"
                           f", opened as {_shown(q['backing_opened'])}; qcow records no "
                           f"identity for it, so only its name ties them")
+                if q.get("backing_outside"):
+                    print(f"                not beside the image: read from "
+                          f"{_shown(q['backing_outside'])}, where its absolute name points")
                 if q["external_data_file"]:
                     print(f"external data   {_shown(q['external_data_file'])}")
                 for snap in q["snapshots"]:
@@ -8013,6 +8124,15 @@ def _cmd_verify(args):
                 print(f"{name:<6}{value}   DOES NOT MATCH stored {stored}")
         if result["checksum_errors"]:
             print(f"chunk checksum mismatches: {len(result['checksum_errors'])}")
+        tables = result["table_errors"]
+        if tables:
+            print(f"chunk tables that fail their checksum: {len(tables):,}")
+            for t in tables[:5]:
+                how = ("read from its table2 copy" if t["used"] == "table2" else
+                       "read as stored: no table2 copy passes")
+                print(f"  {t['file']} at byte {t['offset']:,} ({t['failed']}): {how}")
+            if len(tables) > 5:
+                print(f"  and {len(tables) - 5:,} more")
         padded = result["padded_chunks"]
         if padded:
             zeros = sum(p["zeros"] for p in padded)

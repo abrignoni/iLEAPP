@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.74"
+QNXPROBE_VERSION = "1.75"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -497,7 +497,19 @@ class SplitImageError(Exception):
     same stem numbered with a different width."""
 
 
-def split_segments(path):
+class SplitSegmentSizeError(SplitImageError):
+    """A numbered segment set whose segments are not one size (split_segments),
+    refused unless the caller allows it. Its own class, so a program that offers no
+    --allow-unequal-segments can say what to do instead: ``segments`` are the paths
+    in order, ``sizes`` their byte counts and ``odd`` the indexes of those that do
+    not fit."""
+
+    def __init__(self, message, segments=(), sizes=(), odd=()):
+        super().__init__(message)
+        self.segments, self.sizes, self.odd = list(segments), list(sizes), list(odd)
+
+
+def split_segments(path, allow_unequal=False):
     """The segment files of the split raw image that path belongs to, in order.
 
     FTK Imager and its peers write a raw image as numbered segments (.001,
@@ -514,6 +526,14 @@ def split_segments(path):
     SplitImageError naming what is missing or odd, rather than joined around:
     a join with a gap reads every volume past it at the wrong offset and
     answers wrong, not empty.
+
+    Since 1.75 so is a set whose segments before the last differ in size, or
+    whose last is larger than the first. A segment cut short (or padded) moves
+    every byte after it the same way a hole does, and a cut that falls in space
+    no volume uses draws no other warning. A tool that splits at a fixed segment
+    size writes no such set. ``allow_unequal`` joins
+    such a set as it is, for one known to be whole (``--allow-unequal-segments``
+    on the command line).
     """
     folder, name = os.path.split(os.path.abspath(path))
     stem, dot, suffix = name.rpartition(".")
@@ -555,6 +575,21 @@ def split_segments(path):
             f"{stem}.{n:0{width}d} is missing while {stem}.{max(present):0{width}d} "
             f"is here. Put the whole set in one folder; a set joined around a "
             f"hole reads every volume past it at the wrong offset.")
+    if not allow_unequal:
+        sizes = [os.path.getsize(p) for p in run]
+        odd = [i for i, s in enumerate(sizes[:-1]) if s != sizes[0]]
+        if sizes[-1] > sizes[0]:
+            odd.append(len(run) - 1)
+        if odd:
+            shown = ", ".join(f"{os.path.basename(run[i])} is {sizes[i]:,} bytes"
+                              for i in odd[:3])
+            raise SplitSegmentSizeError(
+                f"{name} is one segment of a split image whose segments are not one "
+                f"size: {os.path.basename(run[0])} is {sizes[0]:,} bytes and {shown}"
+                f"{', ...' if len(odd) > 3 else ''}. Not joined: a segment cut short "
+                f"or padded reads every byte after it at the wrong offset. Compare the "
+                f"segments with the acquisition's own record; if the set is whole as "
+                f"it is, read it with --allow-unequal-segments.", run, sizes, odd)
     return run
 
 
@@ -574,7 +609,7 @@ def disk_identity(path):
         elif kind == "AFD":
             first = _afd_folder(full) or full
         elif kind is None:
-            first = (split_segments(full) or [full])[0]
+            first = (split_segments(full, allow_unequal=True) or [full])[0]
     except (SplitImageError, OSError, ValueError,
             *((ewfprobe.EwfError,) if ewfprobe is not None else ())):
         first = full
@@ -778,7 +813,8 @@ def image_size(fh):
             fh.seek(here)
 
 
-def open_image(path, segments=None, password=None, private_key=None):
+def open_image(path, segments=None, password=None, private_key=None,
+               allow_unequal_segments=False):
     """Open an image read-only: the one file, or every segment of the split
     image it belongs to, joined. segments is split_segments(path) when the
     caller already has it. password opens an encrypted Apple disk image, an
@@ -787,7 +823,8 @@ def open_image(path, segments=None, password=None, private_key=None):
     unencrypted PEM or DER RSA key) an AFF, an Apple disk image or an AD-encrypted set
     sealed to a certificate; without what
     opens it, or with one that does not, ImagePasswordError is raised. Other
-    images ignore both."""
+    images ignore both. allow_unequal_segments joins a split set whose segments
+    are not one size (split_segments)."""
     kind = acquisition_format(path)
     name = os.path.basename(os.path.normpath(path))
     if kind in ("L01", "Lx01", "AD1"):
@@ -825,7 +862,7 @@ def open_image(path, segments=None, password=None, private_key=None):
         # IsADirectoryError traceback.
         raise ImageUnreadable(_folder_refusal(path))
     if segments is None:
-        segments = split_segments(path)
+        segments = split_segments(path, allow_unequal=allow_unequal_segments)
     if segments:
         return SegmentedImage(segments)
     return open(path, "rb")
@@ -7364,13 +7401,24 @@ def _hfs_fork(buf, off):
     return size, extents
 
 
-def _hfs_name(buf, off):
-    """An HFSUniStr255: a length in UTF-16 units, then that many big-endian units."""
+def _hfs_name(buf, off, posix=False):
+    """An HFSUniStr255: a length in UTF-16 units, then that many big-endian units.
+
+    With ``posix``, a catalog name as macOS's POSIX layer shows it: a file created
+    there as "a:b.txt" is stored in the catalog as "a/b.txt" (newfs_hfs and macOS
+    27, measured), and macOS swaps the two characters back, so it is one name,
+    not a folder "a" holding "b.txt"."""
     n = struct.unpack_from(">H", buf, off)[0]
     if n > 255:
         return "", off + 2
     end = off + 2 + n * 2
-    return buf[off + 2:end].decode("utf-16-be", "replace"), end
+    name = buf[off + 2:end].decode("utf-16-be", "replace")
+    if posix:
+        name = name.translate(_HFS_POSIX_SWAP)
+    return name, end
+
+
+_HFS_POSIX_SWAP = str.maketrans({"/": ":", ":": "/"})
 
 
 class _HfsTree:
@@ -7560,7 +7608,7 @@ class HfsPlusWalker:
             kind = struct.unpack_from(">H", data, 0)[0]
             if kind not in (HFSP_FOLDER, HFSP_FILE):
                 continue                        # thread records are not children
-            name, _ = _hfs_name(key, 4)
+            name, _ = _hfs_name(key, 4, posix=True)
             if not name:
                 continue
             child = struct.unpack_from(">I", data, 8)[0]
@@ -7586,7 +7634,7 @@ class HfsPlusWalker:
             if len(data) >= 2 and struct.unpack_from(">H", data, 0)[0] in (
                     HFSP_FOLDER_THREAD, HFSP_FILE_THREAD):
                 owner = struct.unpack_from(">I", data, 4)[0]
-                name, _ = _hfs_name(data, 8)
+                name, _ = _hfs_name(data, 8, posix=True)
                 for child_name, child, rec in self._children(owner):
                     if child_name == name and child == cnid:
                         return rec
@@ -29933,13 +29981,15 @@ def _cli_passwords(files, env_names):
 def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
          extract=None, only=None, zf=None, do_triage=False, exclude=None,
          reporter=None, manifest=None, passwords=(), key_files=(), private_keys=(),
-         unallocated=None, unallocated_log=None, image=None, name_prefix="", image_info=None):
+         unallocated=None, unallocated_log=None, image=None, name_prefix="", image_info=None,
+         allow_unequal_segments=False):
     # a set that is not whole raises SplitImageError; an acquisition's reader joins
     # its own files (an AD-encrypted raw set is numbered like a split image, and its
     # files are ciphertext until the reader decrypts them). An image already open
     # (an assembled RAID array, raid_assemble) is read as given, `path` naming it.
     if image is None:
-        segments = [] if acquisition_format(path) else split_segments(path)
+        segments = [] if acquisition_format(path) else split_segments(
+            path, allow_unequal=allow_unequal_segments)
         image = open_image_trying(path, segments, passwords, private_keys)
     else:
         segments = []
@@ -33430,13 +33480,45 @@ def self_test():
                                   for off, n in probes)
                           and read_at(si, len(whole) - 10, 100) == whole[-10:]
                           and read_at(si, len(whole) + 5, 10) == b"")
-        whole_set = split_segments(seg[1]) == seg
+        whole_set = split_segments(seg[1], allow_unequal=True) == seg
+        step = -(-len(whole) // 3)
+        # Segments of unequal size (these are, so every join above is proven at an
+        # unaligned boundary) are refused unless the caller says the set is whole:
+        # one cut short reads every byte after it at the wrong offset. Segments of
+        # one size and a shorter last one, as the tools write them, join as given.
+        try:
+            split_segments(seg[1])
+            unequal_msg = ""
+        except SplitImageError as exc:
+            unequal_msg = str(exc)
+        even = [os.path.join(d, f"qnx4_even.img.{i + 1:03d}") for i in range(3)]
+        for i, sp in enumerate(even):
+            open(sp, "wb").write(whole[i * step:(i + 1) * step])
+        even_joined = split_segments(even[0]) == even
+        cut_mid = [os.path.join(d, f"qnx4_cutmid.img.{i + 1:03d}") for i in range(3)]
+        for i, sp in enumerate(cut_mid):
+            open(sp, "wb").write(whole[i * step:(i + 1) * step - (16384 if i == 1 else 0)])
+        try:
+            split_segments(cut_mid[2])
+            cut_mid_msg = ""
+        except SplitSegmentSizeError as exc:
+            cut_mid_msg = str(exc)
+        try:
+            split_segments(cut_mid[0])
+            cut_mid_odd = []
+        except SplitSegmentSizeError as exc:
+            cut_mid_odd = [os.path.basename(exc.segments[i]) for i in exc.odd]
+        cut_mid_allowed = (split_segments(cut_mid[2], allow_unequal=True) == cut_mid
+                           and cut_mid_odd == ["qnx4_cutmid.img.002"])
+        for sp in even + cut_mid:
+            os.remove(sp)
 
         def run_extract(path, tag):
             zp = os.path.join(d, f"{tag}.zip")
             man, buf = [], io.StringIO()
             with zipfile.ZipFile(zp, "w") as zf, contextlib.redirect_stdout(buf):
-                main(path, extract="split.zip", zf=zf, manifest=man)
+                main(path, extract="split.zip", zf=zf, manifest=man,
+                     allow_unequal_segments=True)
             with zipfile.ZipFile(zp) as z:
                 files = {n: z.read(n) for n in z.namelist()}
             rep = buf.getvalue()
@@ -33445,9 +33527,15 @@ def self_test():
         w_body, w_files, w_man, _ = run_extract(wp, "split_whole")
         s1_body, s1_files, s1_man, s1_rep = run_extract(seg[0], "split_first")
         s2_body, s2_files, s2_man, s2_rep = run_extract(seg[1], "split_second")
-        os.remove(wp)                        # the three segments stay as the fixture
+        os.remove(wp)
         names = [os.path.basename(p) for p in seg]
         sizes = [bounds[i + 1] - bounds[i] for i in range(3)]
+        # The three segments stay as the fixture the build's discovery check opens
+        # (since 1.75 as segments of one size, the shape a split acquisition has, so
+        # they join without --allow-unequal-segments)
+        for i, sp in enumerate(seg):
+            open(sp, "wb").write(whole[i * step:(i + 1) * step])
+        fixture_joins = split_segments(seg[0]) == seg
 
         def refusal(path):
             try:
@@ -33493,7 +33581,17 @@ def self_test():
                 ("segments numbered at two widths are refused",
                  "different number of digits" in width_msg),
                 ("a lone first segment is read as the one file it is",
-                 split_segments(cut) == [])):
+                 split_segments(cut) == []),
+                ("segments of unequal size are refused naming them, unless the set "
+                 "is said to be whole",
+                 "not one size" in unequal_msg and names[0] in unequal_msg
+                 and "--allow-unequal-segments" in unequal_msg),
+                ("a set of one segment size with a shorter last segment joins, and "
+                 "the split set left as a fixture is one",
+                 even_joined and fixture_joins),
+                ("a middle segment cut short by 16 KiB is refused naming it, and "
+                 "joins only when allowed",
+                 "qnx4_cutmid.img.002" in cut_mid_msg and cut_mid_allowed)):
             if not cond:
                 ok = False
             print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
@@ -34593,6 +34691,11 @@ def self_test():
         # A name is a count of UTF-16 units and then that many, big endian.
         name_bytes = struct.pack(">H", 3) + "abc".encode("utf-16-be")
         name_ok = _hfs_name(name_bytes, 0) == ("abc", 8)
+        # A catalog name holding '/' is a POSIX name holding ':' ("a:b.txt" made at
+        # the POSIX layer is stored as "a/b.txt"), and the other way round.
+        slash = struct.pack(">H", 7) + "a/b:c.d".encode("utf-16-be")
+        name_ok = name_ok and _hfs_name(slash, 0, posix=True) == ("a:b/c.d", 16) \
+            and _hfs_name(slash, 0) == ("a/b:c.d", 16)
 
         # One B-tree node: a descriptor, two records, and the offset array at the
         # very end that says where they are, counted backwards.
@@ -34731,7 +34834,8 @@ def self_test():
                 ("a volume header with an impossible block size is refused",
                  hfs_refused),
                 ("a fork record yields its size and only its used extents", fork_ok),
-                ("a catalog name decodes from UTF-16 big endian", name_ok),
+                ("a catalog name decodes from UTF-16 big endian, with "
+                 "'/' and ':' swapped as macOS shows it", name_ok),
                 ("a B-tree node's records are found through its offset array",
                  node_ok),
                 ("the allocation file reads back as the runs of free space it "
@@ -38252,6 +38356,12 @@ if __name__ == "__main__":
                     help="how deep to walk with --list (default: 2)")
     ap.add_argument("--list-max", type=int, default=400, metavar="N",
                     help="stop after this many entries per filesystem (default: 400)")
+    ap.add_argument("--allow-unequal-segments", action="store_true",
+                    help="join a split image (.001, .002 ...) whose segments before the "
+                         "last are not one size, or whose last is the largest. Without "
+                         "it such a set is refused: a segment cut short or padded reads "
+                         "every byte after it at the wrong offset. Use it only for a set "
+                         "known to be whole as it is")
     ap.add_argument("--extract", metavar="OUT.zip",
                     help="copy the logical files out of every filesystem found "
                          "into a zip, ready for a LEAPP tool. No mounting, no "
@@ -38372,7 +38482,8 @@ if __name__ == "__main__":
                              reporter=reporter, manifest=manifest,
                              passwords=given_passwords or asked,
                              key_files=args.bitlocker_key, private_keys=args.private_key,
-                             unallocated=args.unallocated, unallocated_log=unalloc_log)
+                             unallocated=args.unallocated, unallocated_log=unalloc_log,
+                             allow_unequal_segments=args.allow_unequal_segments)
                         break
                     except ImagePasswordError as exc:
                         if exc.needs == "private key":
