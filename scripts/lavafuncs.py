@@ -333,9 +333,13 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None):
                         module_name TEXT NOT NULL,
                         artifact_name TEXT NOT NULL,
                         regex TEXT NOT NULL)''')
+    # sha256 is the staged copy's digest when staged files are hashed (--hash) and
+    # its kind is one that is; kind is what the evidence holds at file_path
     cursor.execute('''CREATE TABLE _file_path_list (
                         id INTEGER PRIMARY KEY,
-                        file_path TEXT NOT NULL)''')
+                        file_path TEXT NOT NULL,
+                        sha256 TEXT,
+                        kind TEXT)''')
     cursor.execute('''CREATE TABLE _artifact_pattern_to_file (
                         id INTEGER PRIMARY KEY,
                         artifact_search_pattern_id INTEGER NOT NULL,
@@ -1073,20 +1077,22 @@ def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, a
         print(str(e))
 
 
-def lava_insert_sqlite_file_path(file_id, file_path):
+def lava_insert_sqlite_file_path(file_id, file_path, sha256=None, kind=None):
     """
     Insert a file path record into the _file_path_list table.
     Args:
         file_id (int): Unique identifier for the file path entry.
         file_path (str): Relative file path to store.
+        sha256 (str): The staged copy's SHA-256, when staged files are hashed.
+        kind (str): What the evidence holds at file_path (FileInfo.kind).
     """
 
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _file_path_list
-                ("id", "file_path")
-                VALUES (?, ?)'''
+                ("id", "file_path", "sha256", "kind")
+                VALUES (?, ?, ?, ?)'''
 
-    data = (file_id, file_path)
+    data = (file_id, file_path, sha256, kind)
 
     try:
         cursor.execute(sql, data)

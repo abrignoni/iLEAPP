@@ -1579,6 +1579,7 @@ class FileSeekerRaw(FileSeekerBase):
         self._renamed = 0
         # staged path: zero bytes read in place of acquisition data that ran out
         self.padded_files = {}
+        self._kinds = None                         # member: kind, for streams and indexes
         self._image = None
         # what the run log has said of each reader's damage and of each
         # acquisition's padded units, so each is said once, when first met
@@ -2316,7 +2317,7 @@ class FileSeekerRaw(FileSeekerBase):
             # members take no guard. The zip seeker records a directory member
             # it returns, so the run cites it; do the same.
             os.makedirs(intended, exist_ok=True)
-            self.file_infos[intended] = FileInfo(member, 0, 0)
+            self.file_infos[intended] = FileInfo(member, 0, 0, kind='folder')
             return intended
         entry = self._entries[member]
         if entry.folder:
@@ -2394,8 +2395,16 @@ class FileSeekerRaw(FileSeekerBase):
             except Exception:  # pylint: disable=broad-exception-caught
                 created = 0
         self.file_infos[dest_path] = FileInfo(self._member_source.get(member, member),
-                                              created, modified)
+                                              created, modified, kind=self._kind_of(member))
         return dest_path
+
+    def _kind_of(self, member):
+        """What a listed member is: an alternate data stream, a directory's index
+        allocation, or a file."""
+        if self._kinds is None:
+            self._kinds = dict.fromkeys(self.stream_list, 'stream')
+            self._kinds.update(dict.fromkeys(self.index_list, 'directory index'))
+        return self._kinds.get(member, 'file')
 
     def _list_deleted(self):
         """List the deleted files each volume's reader can recover, once.
@@ -2468,7 +2477,7 @@ class FileSeekerRaw(FileSeekerBase):
                 os.utime(dest_path, (modified, modified))
             except (OSError, OverflowError, ValueError):
                 pass
-        self.file_infos[dest_path] = FileInfo(member, 0, modified)
+        self.file_infos[dest_path] = FileInfo(member, 0, modified, kind='deleted')
         return dest_path
 
     def _stage_free_space(self, member):
@@ -2495,7 +2504,7 @@ class FileSeekerRaw(FileSeekerBase):
             logfunc(f"Not staged, {member}: {record.get('status', 'no free space reported')}")
             return None
         staged = os.path.join(out_dir, record['file'])
-        self.file_infos[staged] = FileInfo(member, 0, 0)
+        self.file_infos[staged] = FileInfo(member, 0, 0, kind='free space')
         return staged
 
     @staticmethod

@@ -1,3 +1,4 @@
+import hashlib
 #!/usr/bin/env python3
 
 import pathlib
@@ -255,6 +256,11 @@ def main():
                         default=artifact_report.HTML_TABLE_ROW_LIMIT,
                         help="Rows above which an artifact's table is left off its HTML page, which then points at "
                              "the LAVA database and the TSV export instead (default %(default)s). 0 writes every table.")
+    parser.add_argument('--hash', required=False, action='store_true',
+                        help="Hash each staged file (SHA-256) after it is staged and before any "
+                             "artifact opens it, into LAVA's _file_path_list and "
+                             "'_TSV Exports/_Staged files SHA-256.tsv'. Off by default; links and "
+                             "folders are recorded by kind without a digest.")
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
     parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
     parser.add_argument('--keychain', required=False, action="store",
@@ -448,7 +454,7 @@ def main():
     history.record_output_path(output_path)
 
     crunch_successful = crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
-        profile_filename, itunes_backup_password, image_password=image_password, found_members=found_members)
+        profile_filename, itunes_backup_password, image_password=image_password, found_members=found_members, hash_files=args.hash)
 
     lava_finalize_output(out_params.output_folder_base)
     if crunch_successful:
@@ -470,12 +476,38 @@ def version_readers_first(plugins):
     return readers + [plugin for plugin in plugins if plugin.name not in VERSION_READERS]
 
 
+def staged_file_record(seeker, staged, file_info, hash_files):
+    """(SHA-256 or None, kind) for one staged path, as _file_path_list records it.
+
+    Only the kinds whose staged copy holds what the evidence holds under that name
+    are hashed (HASHED_KINDS); a link or a folder is recorded by kind alone. A file a
+    raw image read with zeros where its acquisition's data ran out is hashed and its
+    kind says so, so the digest is not read as the evidence's."""
+    base = getattr(file_info, 'kind', 'file')
+    kind = base
+    if staged in getattr(seeker, 'padded_files', {}):
+        kind += "; read with zeros where the acquisition's data ran out"
+    if not hash_files or base not in HASHED_KINDS:
+        return None, kind
+    if getattr(file_info, 'sha256', None) is None:
+        digest = hashlib.sha256()
+        try:
+            with open(staged, 'rb') as handle:
+                for chunk in iter(lambda: handle.read(1 << 20), b''):
+                    digest.update(chunk)
+        except OSError as ex:
+            logfunc(f'Could not hash {file_info.source_path}: {ex}')
+            return None, kind
+        file_info.sha256 = digest.hexdigest()
+    return file_info.sha256, kind
+
+
 @screen_log_session
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
         loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, itunes_backup_password=None, decryption_keys=None,
         image_password=None,
-        found_members=None):
+        found_members=None, hash_files=False):
     # input_path is one path, or for -t raw the list of images read together; then
     # found_members says what was found beside the image given (a RawInput, a MemberSearch, or paths)
     start = process_time()
@@ -554,6 +586,18 @@ def crunch_artifacts(
         logfunc(f'Artifact to parse: {len(plugins)}')
         input_path = input_text(input_path, found_members)
         logfunc(f'File/Directory selected: {input_path}')
+        hashes = None
+        if hash_files:
+            # opt in (--hash): each staged file is hashed once, after it is staged and
+            # before any artifact opens it, so the digest is of the bytes staged
+            logfunc("Staged files are hashed (SHA-256) as they are staged: in LAVA's "
+                    "_file_path_list and _TSV Exports/_Staged files SHA-256.tsv")
+            tsv_folder = os.path.join(out_params.output_folder_base, '_TSV Exports')
+            os.makedirs(tsv_folder, exist_ok=True)
+            hashes = open(os.path.join(tsv_folder, '_Staged files SHA-256.tsv'), 'w',
+                          encoding='utf8', newline='')
+            hashes.write('Path in evidence\tKind\tSHA-256\n')
+        hash_counts = {}
         logfunc('\n--------------------------------------------------------------------------------------')
 
         log = open(os.path.join(out_params.output_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
@@ -645,7 +689,16 @@ def crunch_artifacts(
                             if seeker.file_infos.get(pathh):
                                 file_path_id = id(seeker.file_infos.get(pathh))
                                 if not pattern_already_searched and file_path_id not in file_path_ids:
-                                    lava_insert_sqlite_file_path(file_path_id, seeker.file_infos.get(pathh).source_path)
+                                    file_info = seeker.file_infos.get(pathh)
+                                    digest, kind = staged_file_record(seeker, pathh, file_info,
+                                                                      hash_files)
+                                    lava_insert_sqlite_file_path(file_path_id, file_info.source_path,
+                                                                 digest, kind)
+                                    if hashes is not None:
+                                        hashes.write(f'{file_info.source_path}\t{kind}\t'
+                                                     f'{digest or ""}\n')
+                                        hash_counts[digest is not None] = \
+                                            hash_counts.get(digest is not None, 0) + 1
                                     file_path_ids.add(file_path_id)
                                 lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, file_path_id)
                         log.write('</li></ul>')
@@ -701,6 +754,10 @@ def crunch_artifacts(
             GuiWindow.SetProgressBar(parsed_modules, len(plugins))
             log.flush()
         log.close()
+        if hashes is not None:
+            hashes.close()
+            logfunc(f'Staged files hashed: {hash_counts.get(True, 0):,}; recorded without a '
+                    f'digest (folders, links): {hash_counts.get(False, 0):,}')
 
         write_device_info()
         if lava_only:

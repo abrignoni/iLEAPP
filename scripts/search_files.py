@@ -27,6 +27,7 @@ import fnmatch
 import os
 import tarfile
 import hashlib
+import stat
 import struct
 import zlib
 
@@ -437,12 +438,29 @@ class FileInfo:
             input. Never a path on the examiner's machine.
         creation_date (datetime): The date and time when the file was created.
         modification_date (datetime): The date and time when the file was last modified.
+        kind (str): What the evidence holds at source_path, as the seeker that
+            staged it knows: "file", or "link", "folder", "stream", "directory
+            index", "deleted", "free space", "link outside the input", "decrypted
+            file" (an encrypted iTunes backup's file, staged as plaintext). Only some
+            kinds are hashed (HASHED_KINDS): a link's or a folder's staged bytes are
+            not what the evidence holds there.
+        sha256 (str or None): The SHA-256 of the staged copy, set when staged files
+            are hashed (--hash) and the kind is one that is.
     """
 
-    def __init__(self, source_path, creation_date, modification_date):
+    def __init__(self, source_path, creation_date, modification_date, kind='file'):
         self.source_path = source_path
         self.creation_date = creation_date
         self.modification_date = modification_date
+        self.kind = kind
+        self.sha256 = None
+
+
+# The kinds whose staged copy holds the bytes the evidence holds under that name, so
+# its digest says something about the evidence. A link's copy holds its target's
+# bytes or its target's name, and a folder has none.
+HASHED_KINDS = frozenset(('file', 'stream', 'directory index', 'deleted', 'free space',
+                          'decrypted file'))
 
 
 class FileSeekerBase:
@@ -550,7 +568,8 @@ class FileSeekerDir(FileSeekerBase):
                 link_text = '(unreadable)'
             else:
                 self.file_infos[data_path] = FileInfo(source_path, link_stat.st_ctime,
-                                                      link_stat.st_mtime)
+                                                      link_stat.st_mtime,
+                                                      kind='link outside the input')
             logfunc(f"INFO: Link '{source_path}' points to '{link_text}', which resolves "
                     "outside the input folder. Its target was not staged.")
             self._links_outside[item] = data_path
@@ -588,7 +607,10 @@ class FileSeekerDir(FileSeekerBase):
                             self.copied[item] = data_path
                             creation_date = Path(item).stat().st_ctime
                             modification_date = Path(item).stat().st_mtime
-                            file_info = FileInfo(source_path, creation_date, modification_date)
+                            # a link inside the input is copied as its target, as a tar
+                            # or zip link now is; its kind says it was a link
+                            file_info = FileInfo(source_path, creation_date, modification_date,
+                                                 kind='link' if os.path.islink(item) else 'file')
                             self.file_infos[data_path] = file_info
                         else:
                             logfunc(f"INFO: Item '{item}' is neither a file nor a directory "
@@ -853,7 +875,11 @@ class FileSeekerItunes(FileSeekerBase):
                         copy2(original_location, data_path)
 
                     source_path = relative_path.replace('\\', '/')
-                    file_info = FileInfo(source_path, creation_date, modification_date)
+                    # an encrypted backup's file is staged as its plaintext, which is
+                    # not the bytes the backup holds; its kind says so
+                    file_info = FileInfo(source_path, creation_date, modification_date,
+                                         kind='decrypted file' if self.decryption_keys
+                                         else 'file')
                     self.file_infos[data_path] = file_info
                     self.copied[original_location] = data_path
                 except OSError as ex:
@@ -1056,7 +1082,9 @@ class FileSeekerTar(FileSeekerBase):
                                 os.makedirs(parent_dir)
                             with content, open(full_path, "wb") as fout:
                                 copyfileobj(content, fout, 1 << 20)
-                            file_info = FileInfo(member.name, 0, member.mtime)
+                            file_info = FileInfo(member.name, 0, member.mtime,
+                                                 kind='link' if member.issym() or member.islnk()
+                                                 else 'file')
                             self.file_infos[full_path] = file_info
                             self.copied[member.name] = full_path
                             os.utime(full_path, (member.mtime, member.mtime))
@@ -1286,7 +1314,10 @@ class FileSeekerZip(FileSeekerBase):
                                 member, dest_path=dest_path, source=source)
                         f = self.zip_file.getinfo(member) if source is member else source
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
-                        file_info = FileInfo(member, creation_date, modification_date)
+                        # a zip keeps a symbolic link as a member holding its target's name
+                        kind = ('folder' if member.endswith('/') else
+                                'link' if stat.S_ISLNK(f.external_attr >> 16) else 'file')
+                        file_info = FileInfo(member, creation_date, modification_date, kind)
                         self.file_infos[extracted_path] = file_info
                         date_time = f.date_time
                         date_time = timex.mktime(date_time + (0, 0, -1))
