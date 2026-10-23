@@ -11,8 +11,10 @@ __artifacts_v2__ = {
         "category": "Spotlight",
         "notes": "Staged Copy mtime is the numeric modification time of the copy the tool staged, "
                  "reported as text without an asserted evidence time zone. It is not read from a record inside the evidence. For a zip "
-                 "extraction the tool sets that time from the zip entry's date and time, which "
-                 "has no time zone and is read in the local zone of the machine that ran the tool.",
+                 "extraction the tool sets that time from the zip entry's NTFS or extended "
+                 "timestamp field, a UTC time, when the entry carries one, and otherwise from the "
+                 "entry's date and time, which has no time zone and is read in the local zone of "
+                 "the machine that ran the tool.",
         "paths": ('*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt'),
         "output_types": "standard",
         "artifact_icon": "search",

@@ -3,8 +3,8 @@
 process_artifact stages a case zip and hands the artifact a seeker. In a real run
 of the same zip, FileSeekerZip.search (scripts/search_files.py) records each staged
 file's member name as its source path and the creation and modification times its
-extended timestamp field carries, or None, and sets the staged file's modification
-time from the member's date and time. These tests run a probe artifact through
+NTFS or extended timestamp field carries, or None, and sets the staged file's
+modification time from that field, else from the member's date and time. These tests run a probe artifact through
 process_artifact and check it sees exactly that, the same way on every run.
 """
 import os
@@ -87,7 +87,7 @@ class HarnessFileInfosTests(unittest.TestCase):
         self.assertTrue(known)
         self.assertEqual(source, 'Dump/data/one.db')
         self.assertEqual((created, modified), (1_600_000_000, 1_700_000_000))
-        self.assertEqual(staged, time.mktime((2021, 5, 6, 7, 8, 10, 0, 0, -1)))
+        self.assertEqual(staged, 1_700_000_000)
         self.assertIsNone(other)
 
     def test_member_without_one_records_none(self):

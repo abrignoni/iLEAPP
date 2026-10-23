@@ -1142,6 +1142,137 @@ class FileSeekerTar(FileSeekerBase):
         self._spool_path = None
 
 
+# A zip member's DOS date and time records no time zone (APPNOTE.TXT 6.3.10,
+# 4.4.6). Two extra fields record the times in UTC:
+#
+# - NTFS (0x000a), APPNOTE.TXT 6.3.10 section 4.5.5: four reserved bytes, then
+#   attributes, each a tag, a size and data. Tag 0x0001 holds Mtime, Atime and
+#   Ctime (file creation time), 8 bytes each, which Info-ZIP extrafld.txt calls
+#   64-bit NTFS file times: 100-nanosecond intervals since 1601-01-01 UTC.
+# - Extended timestamp (0x5455), Info-ZIP extrafld.txt: a flags byte, then the
+#   times it flags as Unix seconds, UTC. The central directory copy, which is the
+#   one zipfile reads into ZipInfo.extra, need hold only the modification time,
+#   and its flags still describe the local header copy.
+#
+# The NTFS field is preferred, then the extended timestamp, then the DOS date and
+# time. A field that is malformed is logged and skipped, never fatal.
+_NTFS_EXTRA_ID = 0x000a
+_NTFS_TIMES_TAG = 0x0001
+_EXTENDED_TIMESTAMP_ID = 0x5455
+_FILETIME_AT_UNIX_EPOCH = 116444736000000000
+_LATEST_UNIX_SECONDS = 253402300799  # 9999-12-31 23:59:59 UTC, the last whole second datetime holds
+
+
+def _filetime_to_unix(value):
+    """Unix seconds for an NTFS file time; None for 0, which records no time."""
+    if value == 0:
+        return None
+    seconds = (value - _FILETIME_AT_UNIX_EPOCH) / 10_000_000
+    if seconds > _LATEST_UNIX_SECONDS:
+        raise ValueError(f'file time {value} is after the year 9999')
+    return seconds
+
+
+def _zip_extra_blocks(extra):
+    """Each (header id, data) in a zip extra field, and a problem for a cut block."""
+    blocks, offset = [], 0
+    while offset + 4 <= len(extra):
+        header_id, size = struct.unpack_from('<HH', extra, offset)
+        data = extra[offset + 4:offset + 4 + size]
+        if len(data) < size:
+            return blocks, (f'extra field block 0x{header_id:04x} declares {size} bytes '
+                            f'and {len(data)} remain')
+        blocks.append((header_id, data))
+        offset += 4 + size
+    return blocks, None
+
+
+def _ntfs_extra_times(data):
+    """(creation, modification) Unix seconds from an NTFS (0x000a) block's data.
+
+    Returns None when the block holds no times attribute. Raises ValueError when
+    the block or its times attribute is shorter than its layout needs, or a time
+    is out of range.
+    """
+    if len(data) < 4:
+        raise ValueError(f'{len(data)} bytes, fewer than its 4 reserved bytes')
+    offset = 4
+    while offset + 4 <= len(data):
+        tag, size = struct.unpack_from('<HH', data, offset)
+        if offset + 4 + size > len(data):
+            raise ValueError(f'attribute 0x{tag:04x} declares {size} bytes and '
+                             f'{len(data) - offset - 4} remain')
+        if tag == _NTFS_TIMES_TAG:
+            if size < 24:
+                raise ValueError(f'times attribute holds {size} bytes, not 24')
+            modified, _accessed, created = struct.unpack_from('<QQQ', data, offset + 4)
+            return _filetime_to_unix(created), _filetime_to_unix(modified)
+        offset += 4 + size
+    return None
+
+
+def _extended_timestamp_times(data, problems):
+    """(creation, modification) from an extended timestamp (0x5455) block's data.
+
+    The times follow the flags byte in flag bit order (Info-ZIP extrafld.txt):
+    bit 0 modification, bit 1 access, bit 2 creation, 4 bytes each. Some writers
+    put all of them in the central directory copy and some set bit 3 and add a
+    fourth value, which is not read. Every read is bounded by the block's
+    declared size: a value the block is too short to hold is None. The same
+    bit-order reading is in Alexis Brignoni, 'Full file system extractions in
+    zip: MAC times', 2024-05-24,
+    https://abrignoni.blogspot.com/2024/05/full-file-system-extractions-in-zip-mac.html
+    """
+    if not data:
+        problems.append('extended timestamp field (0x5455) not read: it holds no flags byte')
+        return None
+    flags, offset = data[0], 1
+    modified = created = None
+    if flags & 1:
+        if len(data) < offset + 4:
+            problems.append(f'extended timestamp field (0x5455) not read: flags 0x{flags:02x} '
+                            f'name a modification time and it holds {len(data)} bytes')
+            return None
+        modified, = struct.unpack_from('<I', data, offset)
+        offset += 4
+    if flags & 2:
+        offset += 4  # access time, not recorded
+    if flags & 4 and len(data) >= offset + 4:
+        created, = struct.unpack_from('<I', data, offset)
+    return created, modified
+
+
+def zip_member_times(info):
+    """The times FileSeekerZip records for a zip member, and what it could not read.
+
+    Returns (creation, modification, staged, problems). creation and modification
+    are the FileInfo times: Unix seconds, UTC, from the NTFS field, else from the
+    extended timestamp field, else None. staged is the modification time given to
+    the staged copy: the modification time above when it is nonzero, else the DOS
+    date and time read as local time. problems describes each field not read.
+    """
+    blocks, cut = _zip_extra_blocks(info.extra or b'')
+    problems = [cut] if cut else []
+    ntfs = unix = None
+    for header_id, data in blocks:
+        if header_id == _NTFS_EXTRA_ID and ntfs is None:
+            try:
+                ntfs = _ntfs_extra_times(data)
+            except ValueError as ex:
+                problems.append(f'NTFS extra field (0x000a) not read: {ex}')
+        elif header_id == _EXTENDED_TIMESTAMP_ID and unix is None:
+            unix = _extended_timestamp_times(data, problems)
+    created = modified = None
+    for times in (ntfs, unix):
+        if times:
+            if created is None:
+                created = times[0]
+            if modified is None:
+                modified = times[1]
+    staged = modified if modified else timex.mktime(info.date_time + (0, 0, -1))
+    return created, modified, staged, problems
+
+
 class FileSeekerZip(FileSeekerBase):
     """
     This is a class that extends FileSeekerBase to facilitate searching and extracting files from a ZIP archive.
@@ -1155,8 +1286,6 @@ class FileSeekerZip(FileSeekerBase):
     Methods:
         __init__(zip_file_path, data_folder):
             Initializes the FileSeekerZip instance with the specified ZIP file path and data folder.
-        decode_extended_timestamp(extra_data):
-            Decodes the extended timestamp information from the extra data of a file in the ZIP archive.
         search(filepattern, return_on_first_hit=False, force=False):
             Searches for files matching the specified pattern in the ZIP archive and extracts them if found.
         cleanup():
@@ -1170,7 +1299,14 @@ class FileSeekerZip(FileSeekerBase):
     version is staged beside it as <name>~zip-entry-<N><ext>, N being the
     entry's position in the archive, and logged. Those other versions are not
     returned to artifacts, so an artifact reads one version of each name.
+
+    A staged file's times come from zip_member_times: the NTFS extra field, else
+    the extended timestamp field, else (for the staged copy only) the DOS date and
+    time. A malformed field is logged and skipped.
     """
+
+    # How many members' unreadable time fields are logged one by one.
+    _TIME_PROBLEMS_LOGGED = 20
 
     def __init__(self, zip_file_path, data_folder):
         FileSeekerBase.__init__(self)
@@ -1182,6 +1318,7 @@ class FileSeekerZip(FileSeekerBase):
         self.file_infos = {}
         self._init_dest_guard(self.data_folder)
         self._search_names, self._chosen, self._other_versions = self._index_member_names()
+        self._time_problems = 0
 
     def _index_member_names(self):
         """Distinct member names, and how to stage a name stored more than once.
@@ -1237,9 +1374,9 @@ class FileSeekerZip(FileSeekerBase):
     def _recorded_mtimes(infos):
         """Modification times recorded for entries of one name, on one clock.
 
-        Uses the extended timestamp (0x5455) when every entry carries one, else
-        the NTFS times (0x000a), else the DOS date and time, so entries are only
-        ever compared on the same clock.
+        Uses the NTFS times (0x000a) when every entry carries them, else the
+        extended timestamp (0x5455), else the DOS date and time, so entries are
+        only ever compared on the same clock.
         """
         def fields(info):
             found = {}
@@ -1257,42 +1394,37 @@ class FileSeekerZip(FileSeekerBase):
             found['dos'] = info.date_time
             return found
         recorded = [fields(info) for info in infos]
-        for clock in ('unix', 'ntfs', 'dos'):
+        for clock in ('ntfs', 'unix', 'dos'):
             if all(clock in r for r in recorded):
                 return [r[clock] for r in recorded]
         return [r['dos'] for r in recorded]
 
-    def decode_extended_timestamp(self, extra_data):
-        """
-        Decode extended timestamps from the provided extra data.
-        Parameters:
-            extra_data (bytes): The byte sequence containing the extended timestamp
-                                information.
-        Returns:
-            tuple: A tuple containing the creation time and modification time as
-                   integers. If the timestamps are not found, returns (None, None).
-        """
+    def _member_times(self, member, info):
+        """zip_member_times for one member, logging any field it could not read."""
+        created, modified, staged, problems = zip_member_times(info)
+        if problems:
+            self._time_problems += 1
+            if self._time_problems <= self._TIME_PROBLEMS_LOGGED:
+                logfunc(f'INFO: {member}: {"; ".join(problems)}. Its times come from the '
+                        f'next field that holds them, or the zip date and time.')
+            if self._time_problems == self._TIME_PROBLEMS_LOGGED:
+                logfunc('INFO: further members with time fields that could not be read '
+                        'are not logged one by one.')
+        return created, modified, staged
 
-        offset = 0
-        length = len(extra_data)
-
-        while offset < length:
-            header_id, data_size = struct.unpack_from('<HH', extra_data, offset)
-            offset += 4
-            if header_id == 0x5455:
-                creation_time = modification_time = None
-                flags = struct.unpack_from('B', extra_data, offset)[0]
-                offset += 1
-                if flags & 1:  # Modification time
-                    modification_time, = struct.unpack_from('<I', extra_data, offset)
-                    offset += 4
-                if flags & 4:  # Creation time
-                    creation_time, = struct.unpack_from('<I', extra_data, offset)
-                    offset += 4
-                return creation_time, modification_time
-            else:
-                offset += data_size
-        return None, None
+    @staticmethod
+    def _set_staged_time(path, staged, info):
+        """Give the staged copy its time, falling back to the DOS date and time."""
+        try:
+            os.utime(path, (staged, staged))
+            return
+        except (OverflowError, ValueError, OSError) as ex:
+            dos = timex.mktime(info.date_time + (0, 0, -1))
+            if staged == dos:
+                raise
+            logfunc(f'INFO: {path}: time {staged} could not be set ({ex}); '
+                    f'the zip date and time is used.')
+        os.utime(path, (dos, dos))
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
@@ -1320,15 +1452,13 @@ class FileSeekerZip(FileSeekerBase):
                             extracted_path = self._extract_member(
                                 member, dest_path=dest_path, source=source)
                         f = self.zip_file.getinfo(member) if source is member else source
-                        creation_date, modification_date = self.decode_extended_timestamp(f.extra)
+                        creation_date, modification_date, staged = self._member_times(member, f)
                         # a zip keeps a symbolic link as a member holding its target's name
                         kind = ('folder' if member.endswith('/') else
                                 'link' if stat.S_ISLNK(f.external_attr >> 16) else 'file')
                         file_info = FileInfo(member, creation_date, modification_date, kind)
                         self.file_infos[extracted_path] = file_info
-                        date_time = f.date_time
-                        date_time = timex.mktime(date_time + (0, 0, -1))
-                        os.utime(extracted_path, (date_time, date_time))
+                        self._set_staged_time(extracted_path, staged, f)
                         self.copied[member] = extracted_path
                     except OSError as ex:
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
@@ -1361,8 +1491,7 @@ class FileSeekerZip(FileSeekerBase):
                     os.makedirs(parent, exist_ok=True)
                 with self.zip_file.open(info) as fin, open(dest_path, 'wb') as fout:
                     copyfileobj(fin, fout)
-                date_time = timex.mktime(info.date_time + (0, 0, -1))
-                os.utime(dest_path, (date_time, date_time))
+                self._set_staged_time(dest_path, self._member_times(member, info)[2], info)
                 logfunc(f'INFO: {member} is stored more than once with different content; '
                         f'entry {index} ({info.file_size} bytes) staged as {dest_path}')
             except OSError as ex:

@@ -289,8 +289,9 @@ def case_member_info(file_path, source):
     """Returns the ZipInfo for a case zip member, carrying its source member's times.
 
     The seekers record a staged file's times from the archive it came from.
-    FileSeekerZip reads the member's extended timestamp field (0x5455) and sets the
-    staged file's modification time from the member's date and time, and
+    FileSeekerZip reads the member's NTFS (0x000a) or extended timestamp (0x5455)
+    field and sets the staged file's modification time from it, else from the
+    member's date and time, and
     FileSeekerTar records the member's modification time and a creation time of 0.
     The test harness stages a case zip the way FileSeekerZip does, so the case zip
     member keeps what the source member recorded:
