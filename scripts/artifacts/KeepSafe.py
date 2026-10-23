@@ -17,9 +17,10 @@ __artifacts_v2__ = {
             "RocksDB *.sst tables are not read. A row is produced for each item file, with "
             "its matching resolved WAL fields when present; an item found only in the resolved "
             "WAL state also produces a row, with no linked item file. This is not a complete "
-            "count of what the vault holds or has held. 'breakin_alert' and "
-            "'fake' were empty directories with no live records on hickman_ios14, so their field "
-            "mapping is unexercised. The column labels (Original Filename, Album, GPS Latitude and Longitude, "
+            "count of what the vault holds or has held. On hickman_ios14 and iphone11_ios17 "
+            "'breakin_alert' and 'fake' held no item files, and their 3 and 2 live records were "
+            "only in the logs, so those rows are log-only and their field mapping has no item file "
+            "to check it against. The column labels (Original Filename, Album, GPS Latitude and Longitude, "
             "SHA-1, Dimensions and the rest) "
             "were assigned by this module to numbered keys of the log values; no KeepSafe source "
             "for them is cited, and how each was identified and on which image is not recorded "
@@ -54,13 +55,14 @@ __artifacts_v2__ = {
         "artifact_icon": "photo",
         "sample_data": {
             "hickman_ios14": (
-                "iOS 14.3 | KeepSafe 10.2.4 | 5 rows, all from the 'primary' table; "
-                "'breakin_alert' and 'fake' present as empty directories, 0 rows"
+                "iOS 14.3 | KeepSafe 10.2.4 | 13 rows: 'primary' 8 (5 with an item file, 3 log-only), "
+                "'breakin_alert' 3 and 'fake' 2, all log-only"
             ),
             "hickman_ios15": "iOS 15.3.1 | KeepSafe 11.7.3 (initial install version) | 7 rows, all from the 'primary' table",
             "iphone11_ios17": (
-                "iOS 17.3 | KeepSafe 11.10.1 (initial install version) | 9 rows, all from the 'primary' table, "
-                "sharded into two-letter folders"
+                "iOS 17.3 | KeepSafe 11.10.1 (initial install version) | 20 rows: 'primary' 15 (9 with an "
+                "item file, sharded into two-letter folders, 6 log-only), 'breakin_alert' 3 and 'fake' 2, "
+                "all log-only"
             ),
             "cookbook_ios1751": (
                 "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 7 rows, all log-only from "
