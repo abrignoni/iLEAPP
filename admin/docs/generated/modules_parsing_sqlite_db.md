@@ -262,6 +262,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | kikUsersgroups |
 | knowledgeC |
 | lidl_plus |
+| life360Cache |
 | mapsSync |
 | nest |
 | netflix |

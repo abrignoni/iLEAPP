@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "life360Cache",
+    "artifact_name": "Life360 - Cached Devices",
+    "function_name": "life360CachedDevices",
+    "case_number": "casesynthetic_round2",
+    "number_of_columns": 16,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 654,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Cache/testdata.life360Cache.life360CachedDevices.casesynthetic_round2.zip",
+    "start_time": "2026-10-22T16:54:56.542938+00:00",
+    "end_time": "2026-10-22T16:54:56.557557+00:00",
+    "run_time_seconds": 0.0012888908386230469,
+    "last_commit": {
+      "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-22T11:48:53-04:00",
+      "message": "feat(life360): parse API cache and recover historical page records"
+    }
+  },
+  "headers": [
+    "Modified",
+    "Cached Time",
+    "Cache Entry ID",
+    "Device ID",
+    "Owner IDs",
+    "Name",
+    "Provider",
+    "Device Type",
+    "Hardware Model",
+    "OS",
+    "OS Version",
+    "App Version",
+    "Request Path",
+    "Record JSON",
+    "Source File",
+    "Body Source File"
+  ],
+  "data": [
+    [
+      1768478400,
+      1768482000,
+      2,
+      "00000000-0000-0000-0000-00000000a0c8",
+      "[\"00000000-0000-0000-0000-00000000a001\"]",
+      "Synthetic Phone",
+      "synthetic",
+      "phone",
+      "Synthetic",
+      "iOS",
+      "18.6",
+      "26.34.0.5",
+      "api-cloudfront.life360.com/v5/circles/devices",
+      "{\"id\": \"00000000-0000-0000-0000-00000000a0c8\", \"modified\": \"2026-01-15T07:00:00.125-05:00\", \"name\": \"Synthetic Phone\", \"owners\": [{\"userId\": \"00000000-0000-0000-0000-00000000a001\"}], \"provider\": \"synthetic\", \"type\": \"phone\", \"typeData\": {\"appVersion\": \"26.34.0.5\", \"hardwareModel\": \"Synthetic\", \"os\": \"iOS\", \"osVersion\": \"18.6\"}}",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-00000000B000/Library/Caches/com.life360.safetymap/Cache.db",
+      ""
+    ]
+  ]
+}

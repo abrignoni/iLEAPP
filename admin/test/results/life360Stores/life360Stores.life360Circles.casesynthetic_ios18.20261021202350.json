@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "life360Stores",
+    "artifact_name": "Life360 - Circles",
+    "function_name": "life360Circles",
+    "case_number": "casesynthetic_ios18",
+    "number_of_columns": 10,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 474,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/life360Stores/testdata.life360Stores.life360Circles.casesynthetic_ios18.zip",
+    "start_time": "2026-10-21T20:23:50.325289+00:00",
+    "end_time": "2026-10-21T20:23:50.336663+00:00",
+    "run_time_seconds": 0.00037288665771484375,
+    "last_commit": {
+      "hash": "027b1863890c12f5576b7f5db92305678e569fa2",
+      "author_name": "cybermike81",
+      "author_email": "cybermike81@users.noreply.github.com",
+      "date": "2026-10-21T19:47:17+00:00",
+      "message": "chore(life360): record sample_data for the private iOS 18.6 extraction"
+    }
+  },
+  "headers": [
+    "Created At",
+    "Invite Expiration",
+    "Last Retrieved",
+    "Circle ID",
+    "Circle Name",
+    "Type (as stored)",
+    "Role (as stored)",
+    "Invite Code",
+    "Invite Deeplink",
+    "Source File"
+  ],
+  "data": [
+    [
+      1742558400,
+      1768737600,
+      1768478400,
+      "00000000-0000-0000-0000-00000000a00a",
+      "Family",
+      "basic",
+      1,
+      "ABC-123",
+      "https://example.invalid/join",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ],
+    [
+      "",
+      1768564800,
+      1768478400,
+      "00000000-0000-0000-0000-00000000a00b",
+      "",
+      "",
+      "",
+      "XYZ-789",
+      "https://example.invalid/other-circle",
+      "private/var/mobile/Containers/Data/Application/00000000-0000-0000-0000-0000000000C0/Library/Preferences/com.life360.safetymap.plist"
+    ]
+  ]
+}

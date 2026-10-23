@@ -1,0 +1,101 @@
+{
+  "casesynthetic_round2": {
+    "description": "SYNTHETIC DATA. All IDs, dates, coordinates, names, profile fields and cache bodies are fabricated by make_synthetic_round_two.py. Real SQLite transactions create main-file/WAL history, including overflow data and a current-record control. The API cache includes inline JSON, a referenced external JSON body and a missing-body control. No private subject data.",
+    "maker": "@CyberMike81 (OpenAI Codex assisted synthetic generator)",
+    "make_data": {
+      "input_data_path": "life360-round-two-synthetic.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit",
+      "timestamp": "2026-10-22T16:54:56.454536",
+      "last_commit": {
+        "hash": "c3ef0fe63e6c241d81c6c73bc9013d1e2f56893b",
+        "author_name": "cybermike81",
+        "author_email": "cybermike81@users.noreply.github.com",
+        "date": "2026-10-22T11:48:53-04:00",
+        "message": "feat(life360): parse API cache and recover historical page records"
+      }
+    },
+    "artifacts": {
+      "life360CachedLocations": {
+        "search_patterns": [
+          "*/Library/Caches/com.life360.safetymap/Cache.db*",
+          "*/Library/Caches/com.life360.safetymap/fsCachedData/*",
+          "*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "life360CachedDevices": {
+        "search_patterns": [
+          "*/Library/Caches/com.life360.safetymap/Cache.db*",
+          "*/Library/Caches/com.life360.safetymap/fsCachedData/*",
+          "*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "life360CachedDeviceIssues": {
+        "search_patterns": [
+          "*/Library/Caches/com.life360.safetymap/Cache.db*",
+          "*/Library/Caches/com.life360.safetymap/fsCachedData/*",
+          "*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "life360CachedCircles": {
+        "search_patterns": [
+          "*/Library/Caches/com.life360.safetymap/Cache.db*",
+          "*/Library/Caches/com.life360.safetymap/fsCachedData/*",
+          "*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "life360CachedAccount": {
+        "search_patterns": [
+          "*/Library/Caches/com.life360.safetymap/Cache.db*",
+          "*/Library/Caches/com.life360.safetymap/fsCachedData/*",
+          "*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "life360CacheResponses": {
+        "search_patterns": [
+          "*/Library/Caches/com.life360.safetymap/Cache.db*",
+          "*/Library/Caches/com.life360.safetymap/fsCachedData/*",
+          "*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "18.6",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "18.6",
+      "device_model": "synthetic",
+      "extraction_method": "Synthetic (generated)",
+      "extraction_tool": "make_synthetic_round_two.py"
+    }
+  }
+}

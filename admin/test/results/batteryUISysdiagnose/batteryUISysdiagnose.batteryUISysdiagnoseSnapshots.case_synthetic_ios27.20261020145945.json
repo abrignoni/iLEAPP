@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "module_name": "batteryUISysdiagnose",
+    "artifact_name": "Battery UI - Snapshots and Upgrade Marker",
+    "function_name": "batteryUISysdiagnoseSnapshots",
+    "case_number": "case_synthetic_ios27",
+    "number_of_columns": 13,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 381,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/batteryUISysdiagnose/testdata.batteryUISysdiagnose.batteryUISysdiagnoseSnapshots.case_synthetic_ios27.zip",
+    "start_time": "2026-10-20T14:59:45.994592+00:00",
+    "end_time": "2026-10-20T14:59:46.099774+00:00",
+    "run_time_seconds": 0.009121894836425781,
+    "last_commit": {
+      "hash": "cef6e74dae9e6d30e82ca0c4c180ba480200d970",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-20T10:52:07-04:00",
+      "message": "BatteryUI: real-structure test fixtures with identifiers replaced"
+    }
+  },
+  "headers": [
+    "Query Time (UTC)",
+    "Last Charge Time (UTC)",
+    "File Kind",
+    "Old Build (from file name)",
+    "New Build (from file name)",
+    "Last Charge Level (as stored)",
+    "Paused Charging State (as stored)",
+    "Paused Charging Percentage (as stored)",
+    "Data Duration (as stored)",
+    "XPC Version (as stored)",
+    "Range Entries",
+    "Notes",
+    "Source File"
+  ],
+  "data": [
+    [
+      1800000000,
+      1799966999,
+      "Main file",
+      "",
+      "",
+      77,
+      601,
+      87,
+      1036800.0,
+      1.0,
+      "DayKey, DayTapKey, WeekKey, WeekTapKey",
+      "",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUISysdiagnose.plist"
+    ],
+    [
+      1799568000,
+      1799563999,
+      "Upgrade file",
+      "00A001",
+      "00B002",
+      54,
+      601,
+      87,
+      1036800.0,
+      1.0,
+      "DayKey, DayTapKey, WeekKey, WeekTapKey",
+      "",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/BatteryUIPlist/BatteryUIUpgrade_00A001_00B002.plist"
+    ]
+  ]
+}

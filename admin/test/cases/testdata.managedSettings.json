@@ -1,0 +1,170 @@
+{
+  "case_synthetic_ios27": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated logs/ManagedSettings tree (com.example.* identifiers, SYNTH-CAT-* categories, generated UUIDs, fabricated key material) with the iOS 27.0 store names (ContentAndPrivacy, Restrictions, defaultGroup, downtime, scheduleDowntime, bedtime, UserSafety, Default), a store with no setting key, a store with an unknown key, an unreadable store file, tokenized copies, an AppleDouble sidecar and a decoy folder, built by admin/test/scripts/synthetic_managed_settings.py, packed in a sysdiagnose-shaped archive and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T10:59:34.640318",
+      "last_commit": {
+        "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T10:52:06-04:00",
+        "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
+      }
+    },
+    "artifacts": {
+      "managedSettings": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 29,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "managedSettingsStores": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 29,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "27.0"
+  },
+  "case_synthetic_ios26": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated logs/ManagedSettings tree (com.example.* identifiers, generated UUIDs) with the iOS 26.6 store names (Default, SafariStore, UserSafetyStore, UserSafety, DeviceActivityStore), built by admin/test/scripts/synthetic_managed_settings.py, packed in a sysdiagnose-shaped archive and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T10:59:35.648100",
+      "last_commit": {
+        "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T10:52:06-04:00",
+        "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
+      }
+    },
+    "artifacts": {
+      "managedSettings": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 27,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "managedSettingsStores": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 27,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.6"
+  },
+  "case_ios27_sanitized": {
+    "description": "Real iOS 27.0 (24A437) logs/ManagedSettings files from a sysdiagnose with every identifying value replaced: store and record UUIDs and the token key bytes are generated replacements, and the file times are shifted by one constant offset. Structure, key names, counts and order are as the device wrote them. Packed in a sysdiagnose-shaped archive and cut with make_test_data.py; the replacement mapping is not part of the repository.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_sanitized_iPhone-OS_iPhone_24A437.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T10:36:05.794553",
+      "last_commit": {
+        "hash": "59818bf7c4ab3481ce43bc91a87ac9ab9e248312",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T01:59:01-04:00",
+        "message": "ManagedSettings: notes name the Items column"
+      }
+    },
+    "artifacts": {
+      "managedSettings": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 26,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "managedSettingsStores": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 26,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "27.0"
+  },
+  "case_ios26_sanitized": {
+    "description": "Real iOS 26.6 (23G71) logs/ManagedSettings files from a sysdiagnose with every identifying value replaced: store and record UUIDs and the token key bytes are generated replacements, and the file times are shifted by one constant offset. Structure, key names, counts and order are as the device wrote them. Packed in a sysdiagnose-shaped archive and cut with make_test_data.py; the replacement mapping is not part of the repository.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_sanitized_iPhone-OS_iPhone_23G71.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-20T10:36:06.628877",
+      "last_commit": {
+        "hash": "59818bf7c4ab3481ce43bc91a87ac9ab9e248312",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-20T01:59:01-04:00",
+        "message": "ManagedSettings: notes name the Items column"
+      }
+    },
+    "artifacts": {
+      "managedSettings": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 16,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "managedSettingsStores": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 16,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.6"
+  }
+}

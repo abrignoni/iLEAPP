@@ -1,0 +1,39 @@
+{
+    "casesynthetic_driverbehavior": {
+        "description": "SYNTHETIC DATA. All identifiers, dates, coordinates, speeds, confidence values and payload sizes are invented by admin/test/fixtures/life360/make_synthetic_driver_behavior.py. The case covers a multiline SDK anomaly warning, its separate metrics diagnostic, detector interval details, a crash record, a later high-confidence message, collision exchange metadata and an unknown diagnostic. Includes a separate sidecar record and an unrelated component that must be ignored. No real subject data is included.",
+        "maker": "@CyberMike81 (OpenAI Codex assisted synthetic generator)",
+        "make_data": {
+            "input_data_path": "life360-driverbehavior-synth1.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-21T20:34:57.980917",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-21T20:34:57.969030",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "life360CrashDetection": {
+                "search_patterns": [
+                    "*/com.life360.safetymap*.log"
+                ],
+                "file_count": 2,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        },
+        "os_name": "iOS",
+        "os_version": "18.6",
+        "image_info": {
+            "os_name": "iOS",
+            "os_version": "18.6",
+            "device_model": "synthetic",
+            "extraction_method": "Synthetic (generated)",
+            "extraction_tool": "make_synthetic_driver_behavior.py"
+        }
+    }
+}

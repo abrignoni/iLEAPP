@@ -1489,20 +1489,22 @@ __artifacts_v2__ = {
     "logarchive_app_state": {
         "name": "logarchive app install and state",
         "description": "Unified log entries from installd in the com.apple.appinstallation "
-                       "TransactionLog category, and CommCenter ct.server entries beginning 'App "
+                       "TransactionLog category, installd entries naming a container it 'Made "
+                       "container live for', and CommCenter ct.server entries beginning 'App "
                        "state'; what each entry records about an app is reported as logged and is "
                        "not sourced here",
         "author": "@Hexordia",
         "creation_date": "2026-10-06",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-21",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms provided by Hexordia as part of private R&D work; what the entries "
-                 "mean is not sourced here, so they are reported as logged. Two filters feed this "
+                 "mean is not sourced here, so they are reported as logged. Three filters feed this "
                  "artifact. (1) Entries logged by /usr/libexec/installd in the TransactionLog "
                  "category of the com.apple.appinstallation subsystem. On the five tested images "
                  "each message ended with a phase and an action separated by ' : '. Phases seen: "
-                 "'Start', 'Success (End)' and 'Fail (End)'. Actions seen: 'Install (New)', "
+                 "'Start', 'Success (End)' and 'Fail (End)'. Actions seen on those five images: "
+                 "'Install (New)', "
                  "'Install (Placeholder)', 'Install (Parallel Placeholder)', 'Install (Promote From "
                  "Placeholder)', 'Install (Patch Update)', 'Uninstall (Application)', 'Uninstall "
                  "(Parallel Placeholder)', 'Staged Update Placeholder' and 'Apply Staged Update'. "
@@ -1510,9 +1512,9 @@ __artifacts_v2__ = {
                  "17.2.1, 18.3.2, 18.7 and 26.5.2 images a slash and a second value follow the "
                  "identifier, and on the iOS 12.4 image they do not. What the numbers and the "
                  "second value are is not established. No installd message held <private> on a "
-                 "tested image. Other processes log in the same category (19 to 53 processes per "
-                 "tested image, 1,992 to 21,210 entries against 20 to 468 from installd); their "
-                 "entries are not reported here. (2) CommCenter entries in the ct.server category "
+                 "tested image. The category held 1,992 to 21,210 entries from 19 to 53 processes "
+                 "per tested image; 20 to 468 of those entries were from installd. Entries from "
+                 "other processes are not reported here. (2) CommCenter entries in the ct.server category "
                  "that begin 'App state'. They read 'App state[...] is suspended' or 'App "
                  "state[...] is moving from <state> to <state>'. State names seen: kUnknown, "
                  "kInBackgroundUnknownRestriction, kInBackgroundRestricted, "
@@ -1521,18 +1523,30 @@ __artifacts_v2__ = {
                  "value was <private> on each of the 1,237 rows. On the other four images it was "
                  "not redacted, and it was a name followed by a number in parentheses on 514 of "
                  "515 rows; whether that name is a bundle or a process name, and what the number "
-                 "is, is not established. Only the direct tracev3 import was tested. A 'log show' "
-                 "JSON export was not, and the installd filter relies on the Process Image Path "
+                 "is, is not established. (3) Entries logged by /usr/libexec/installd whose "
+                 "message contains 'Made container live for', followed by an identifier and a "
+                 "container path. The iOS 12.4, 17.2.1, 18.3.2, 18.7 and 26.5.2 images held 60, "
+                 "5, 4, 44 and 0 of them; none held <private>, and Subsystem and Category were "
+                 "empty on all 113. The path was under /private/var/containers/Bundle/Application "
+                 "on all of them except six on the iOS 12.4 image: three under "
+                 "/private/var/mobile/Containers/Data/Application and three under "
+                 "/private/var/mobile/Containers/Data/PluginKitPlugin. Whether an entry marks an "
+                 "install, an update or another container change is not established. Most were "
+                 "logged after a TransactionLog Start entry for the same identifier and before a "
+                 "later End entry for the same action, but none of the four on the iOS 18.3.2 "
+                 "image was, nor five of the 60 on the iOS 12.4 image. Only the direct tracev3 "
+                 "import was tested. A 'log show' JSON export was not, and both installd filters "
+                 "rely on the Process Image Path "
                  "column holding the /usr/libexec/installd path. Trace ID held no value on any row "
                  "of the tested images: rows read from tracev3 data leave it empty.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "package",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 1449 rows",
-            "hc_ios17_2": "iOS 17.2.1 | 155 rows",
-            "dexter_ios18": "iOS 18.3.2 | 133 rows",
-            "iphone12_ios18": "iOS 18.7 | 335 rows",
+            "ctf2020_ios12": "iOS 12.4 | 1509 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 160 rows",
+            "dexter_ios18": "iOS 18.3.2 | 137 rows",
+            "iphone12_ios18": "iOS 18.7 | 379 rows",
             "hc_ios26": "iOS 26.5.2 | 590 rows",
         },
     },
@@ -1727,6 +1741,180 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 | 0 rows; no 'Family Hotspot State' entry in the parsed log",
         },
     },
+    # ---- TCC authorization cache and location manager state dumps (begin) ----
+    "logarchive_tcc_cache": {
+        "name": "logarchive TCC authorization cache dumps",
+        "description": "Statedump snapshots titled 'TCC Authorization Cache', one row per cached "
+                       "authorization entry in each dump: the service, the auth right, the reason and "
+                       "the version as logged, and the process that wrote the dump. A dump is the "
+                       "process's state when it was written, not an event, and the same entry is "
+                       "repeated by the later dumps that still hold it.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Statedump records carry no subsystem or category, and the logarchive table does not "
+                 "keep the record's event type, so they are found by the first line of the message, "
+                 "'title: TCC Authorization Cache'. The body is a JSON object of service name to a "
+                 "credential and an authorization record, each a text description. Each entry becomes a "
+                 "row: Service is the JSON key, Credential Object Address and Authorization Object Address are the hexadecimal "
+                 "addresses in the two descriptions, Auth Right, Reason and Version are the "
+                 "words and number after those labels, Other Flags is any text after the version, and "
+                 "Authorization Record is the description as logged. Values are copied as logged and "
+                 "this artifact assigns no meaning to them. In the logs read the two descriptions held "
+                 "object addresses and no client identifier, bundle id or process name, so a row does not "
+                 "name the application the entry is about; the only attribution is Process Image Path and "
+                 "Process ID, the process that wrote the dump, as stored. Whether the cache is that "
+                 "process's own, what a Version of 1 or 2 denotes, what 'Has Prompted For Allow' denotes, "
+                 "and how an entry relates to the TCC.db access table are not established here. An entry "
+                 "is the cache's content at the dump time, which is the record's time as stored, shown in "
+                 "UTC. It does not say when the permission was granted, changed or used, and a match is a "
+                 "lead, not proof of consent. Repeated dumps repeat entries: some processes wrote many dumps (up to 252 on "
+                 "ai16_ios26_sysdiag and 36 on hc_ios26_sysdiag, while about half wrote one), so the "
+                 "same entry can appear in many rows; the summary artifact "
+                 "collapses them and is a labelled view over these rows. Entries In Dump is the number of "
+                 "entries the dump held, counted over all its services. A dump with no entries (an empty object, or a service whose credential object is "
+                 "empty) is collected but gives no row, and a dump whose body cannot be read as JSON "
+                 "gives one row with the body in Authorization Record and every other field blank. An "
+                 "empty result is not evidence that no permission was cached: only processes that wrote "
+                 "a dump inside the log's window appear. Message shapes were read on iOS 26.6 and iOS "
+                 "27.0 sysdiagnose logs natively decoded with unifiedlog_iterator; the way these records "
+                 "appear in a 'log show' export was not examined. Those images are not in the public "
+                 "corpus and no fixture from them is committed. On ai16_ios26_sysdiag (iOS 26.5.2) and "
+                 "hc_ios26_sysdiag (iOS 26.6), read from tracev3 data, 518 and 331 dumps were collected "
+                 "and 481 and 254 of them gave 542 and 278 rows; the other dumps held no entries. No body "
+                 "failed to read as JSON and every authorization description matched the shape above. "
+                 "Auth Right read Allowed, Limited, Denied or Unknown, Reason Entitled, User Consent, "
+                 "Service Policy or None, Version 1 or 2, and Other Flags was blank except for 'Has "
+                 "Prompted For Allow' on 4 rows on ai16_ios26_sysdiag. Most rows were "
+                 "kTCCServiceAddressBook entries with Reason Entitled (381 of 542 and 230 of 278), "
+                 "most written by processes outside app bundles (341 of 381 and 195 of 230) and "
+                 "nearly all of the rest by processes in system app bundles. Both sysdiagnoses also held "
+                 "TCC.db, which the Application Permissions artifact reads; it names the client and "
+                 "gives a last modified time, while these dumps give the writing process and the dump "
+                 "time. The dumps held Reason Entitled AddressBook entries for 42 distinct process image paths on "
+                 "ai16_ios26_sysdiag and 38 on hc_ios26_sysdiag; TCC.db held AddressBook rows for 7 "
+                 "clients on each. How the two sources relate "
+                 "entry by entry is not established here. The test fixture is synthetic, with invented "
+                 "process paths, PIDs and addresses.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "shield",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 542 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 278 rows",
+        },
+    },
+    "logarchive_tcc_cache_summary": {
+        "name": "logarchive TCC authorization cache summary",
+        "description": "A collapsed view of the TCC authorization cache dumps: each distinct entry "
+                       "(process, process ID, service, auth right, reason, version, other flags) once, "
+                       "with the first and last dump that held it and the number of dumps.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "A view over the rows of the logarchive TCC authorization cache dumps artifact, not a "
+                 "change log. Two rows for the same process and service with different auth right, reason "
+                 "or version mean that dumps held different content, not that the permission changed "
+                 "between them: the dumps in between, or the dumps' own cache, may differ for reasons not "
+                 "established here. First Dump and Last Dump are the record times, as stored, of the "
+                 "earliest and latest dump holding the entry; Dumps is the number of dumps (distinct "
+                 "Row Number and time) holding it and Entries the number of entries counted, which can be "
+                 "larger when one dump holds the same description under more than one credential. The "
+                 "credential and authorization object addresses are left out of the key, so entries that "
+                 "differ only in address are merged. A process that restarted has a new Process ID and so a "
+                 "new row. Dumps with no entries add no row, and an unreadable dump adds a row with blank "
+                 "fields. Which dumps exist depends on the log window; absence of a service here does not "
+                 "show that it was not cached. The test fixture is synthetic.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "shield",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 103 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 99 rows",
+        },
+    },
+    "logarchive_location_state": {
+        "name": "logarchive location manager state dumps",
+        "description": "Statedump snapshots titled 'CLLocationManagerStateTracker', one row per dump: "
+                       "the location manager flags and settings the dump logged, and the process that "
+                       "wrote it. A dump is the state when it was written, not an event.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Statedump records carry no subsystem or category, so they are found by the first line "
+                 "of the message, 'title: CLLocationManagerStateTracker'. After two 'Object Type' lines "
+                 "the body is a brace-delimited list of \"key\":value lines. Each column named after a "
+                 "logged key (updatingLocation as Updating Location, and so on) holds the text after that "
+                 "key's colon, as logged: booleans as true or false, numbers as written. Keys that have no "
+                 "column of their own, including any a later release adds, are kept in Other Fields as "
+                 "key: value pairs in the order logged, and a key the dump does not hold leaves its column "
+                 "blank. If no key line can be read, Other Fields holds the body lines or, with no body, "
+                 "the message as logged. No meaning is assigned to any value: the numbers in "
+                 "previousAuthorizationStatus, activityType, desiredAccuracy and distanceFilter are not "
+                 "translated, and previousAuthorizationStatus is the field of that name, not the "
+                 "authorization in force. The dump does not name the application or the location manager "
+                 "it describes. The only attribution is Process Image Path and Process ID, the process "
+                 "that wrote the dump, as stored, Whether a dump describes one location manager or the whole process is not "
+                 "established here; on the two corpus images no two dumps shared a time, process and "
+                 "Process ID. A row with "
+                 "updatingLocation true shows that state in the dump at that time. It is a lead; it does "
+                 "not show that a position was obtained, stored or used, and the dump records no event "
+                 "between dumps. Repeated dumps repeat state: some processes wrote many dumps (up to 1,764 on "
+                 "ai16_ios26_sysdiag and 174 on hc_ios26_sysdiag), most of them with content identical "
+                 "to an earlier dump, and the summary artifact collapses them. "
+                 "Timestamp is the record time as stored, in UTC. An empty result is not evidence that no "
+                 "process used location: only processes that wrote a dump inside the log's window "
+                 "appear. Message shapes were read on iOS 26.6 and iOS 27.0 sysdiagnose logs natively "
+                 "decoded with unifiedlog_iterator; the way these records appear in a 'log show' export "
+                 "was not examined. Those images are not in the public corpus and no fixture from them is "
+                 "committed. On ai16_ios26_sysdiag (iOS 26.5.2) and hc_ios26_sysdiag (iOS 26.6), read "
+                 "from tracev3 data, 2,174 and 514 dumps came from 55 and 44 distinct process image paths. Every dump on "
+                 "both held the 16 keys with columns and the same 12 others, which fill Other Fields on "
+                 "every row, and no line that was not a key and value. Updating Location read true on 62 "
+                 "and 42 rows; 12 of the 62 on ai16_ios26_sysdiag were written by processes in app bundles under "
+                 "the user-installed application container, and none of the 42 on hc_ios26_sysdiag. The test fixture is "
+                 "synthetic, with invented process paths, PIDs and values.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 2174 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 514 rows",
+        },
+    },
+    "logarchive_location_state_summary": {
+        "name": "logarchive location manager state summary",
+        "description": "A collapsed view of the location manager state dumps: each distinct content "
+                       "(process, process ID and the logged keys and values) once, with the first and "
+                       "last dump that held it and the number of dumps.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "A view over the rows of the logarchive location manager state dumps artifact, not a "
+                 "change log. Two rows for one process with different content mean that dumps held "
+                 "different content, not when or why it changed. First Dump and Last Dump are the record "
+                 "times, as stored, of the earliest and latest dump with exactly that content; Dumps is "
+                 "the number of dumps (distinct Row Number and time) with it. The dump does not name which location manager it describes, so a row groups dumps by "
+                 "content; if one process wrote dumps for more than one manager with equal content, "
+                 "they are merged. A process that restarted has a new Process ID and so a new row. The value columns are the same as in the dumps artifact. An empty result is not evidence that no process used "
+                 "location. The test fixture is synthetic.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 119 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 156 rows",
+        },
+    },
+    # ---- TCC authorization cache and location manager state dumps (end) ----
     "logarchive_urlopens": {
         "name": "logarchive URL and link opens",
         "description": "Unified log lines matching three URL-open markers: UIOpenURLAction "
@@ -1767,8 +1955,257 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 | 5 rows",
         },
     },
+    "logarchive_capture_sessions": {
+        "name": "logarchive camera and microphone capture sessions",
+        "description": "Unified log lines from the camera capture daemon (subsystem "
+                       "com.apple.cameracapture) recording a capture session being created, a "
+                       "client calling start or stop, the session status changing, and the "
+                       "client's own startRunning and stopRunning calls. Each row is one log "
+                       "line, not one session. A start line is a lead; it does not establish "
+                       "that audio or video was recorded.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Lines are read from the table logarchive_artifacts builds. Kept: "
+                 "FigCaptureSessionCreate, captureSession_StartRunning and _StopRunning, "
+                 "captureSession_transitionToSessionStatus lines that carry a transition, "
+                 "captureSession_didStopRunning lines reporting the stop, "
+                 "FigCaptureSessionDetachFromClient, and the client-side -[AVCaptureSession "
+                 "startRunning] and -[AVCaptureSession stopRunning] lines, whose Process Image "
+                 "Path is the client process itself. The state lines that carry ClientStartedSession "
+                 "are kept only when ClientStartedSession is 1 or a micStolen or cameraStolen flag "
+                 "is 1; the state lines with all three at 0 are collected but not listed. "
+                 "Client App ID and Client PID are read from the tag the daemon writes before the "
+                 "message, in the form <object address[pid][app id]>, and from the 'Creating session "
+                 "for PID' line; in the logs read (iOS 26.6 and 27.0 privately, and ai16_ios26_sysdiag) the "
+                 "two PIDs agreed. "
+                 "Session Object is that address as logged: it groups the lines of one session, but an "
+                 "address can be reused, so compare the times as well. Cam/Audio, Background, Mic Stolen, "
+                 "Camera Stolen, Runtime Error, Interruption Error and Session Status are copied as "
+                 "logged; this artifact assigns no meaning to the numbers. Runtime Error, Interruption "
+                 "Error and Session Status are read from the iOS 27.0 state lines; the "
+                 "captureSession_updateRunningCondition state line on iOS 26.5.2 (ai16_ios26_sysdiag) "
+                 "and on the iOS 26.6 log read carried none of the three, so they stay blank there. "
+                 "In the iOS 27.0 log read Background, Mic Stolen, Camera Stolen, Runtime Error and "
+                 "Interruption Error were identical on every row that carried them, all 0, and every "
+                 "listed state line had Client Started Session 1 and Cam/Audio 1/0, so those columns "
+                 "were uniform there. They stay because a different value is what this artifact "
+                 "exists to surface: Camera Stolen read 1 on ai16_ios26_sysdiag (below), and the "
+                 "other flags have read 1 only in the synthetic test fixture. "
+                 "Timestamp is the time of the log record as stored, shown in UTC; no time inside a "
+                 "message is used. "
+                 "What a row does not establish: a client start line is the daemon's record of the "
+                 "client's request, not of frames being recorded, and nothing here says whether anything "
+                 "was saved. A system component can start a session on its own account: in the iOS 27.0 "
+                 "log read, every state line with ClientStartedSession at 1 carried the app id of an "
+                 "Apple system daemon (com.apple.biometrickitd), while the Camera app's state lines all "
+                 "read 0 although its sessions were created. An empty result is not evidence that nothing was captured: the log "
+                 "has a limited window and this artifact reads one daemon's lines. "
+                 "Not covered: microphone capture that does not go through this daemon (audio sessions, "
+                 "calls, voice recording) is not collected, and in no log read did the audio "
+                 "flag or Mic Stolen read 1, so those two have been exercised only by the synthetic "
+                 "test fixture. On ai16_ios26_sysdiag (iOS 26.5.2, read from tracev3 data) Camera "
+                 "Stolen read 1 on 6 rows, all captureSession_updateRunningCondition lines for "
+                 "com.apple.biometrickitd. On that image every row that carried a Client App ID (78 "
+                 "of 102) named com.apple.biometrickitd; the other 24 were 'Creating session for "
+                 "PID' lines with the same PID and client-side lines written by biometrickitd. No "
+                 "row there came from a third-party app or the Camera app, although the import held "
+                 "com.apple.cameracapture lines tagged with the Camera app id and lines written by a "
+                 "third-party app, in client state and device selection shapes this artifact does not "
+                 "collect. On hc_ios26_sysdiag "
+                 "(iOS 26.6) the import held 1,140 com.apple.cameracapture lines and none in the "
+                 "session or power-log shapes above. The com.apple.isp subsystem, written by the "
+                 "camera hardware daemon (appleh*camerad) and by cameracaptured, is not collected: the "
+                 "lines inspected were connection, ISP command, flicker-detector and similar "
+                 "bookkeeping with the client PID redacted. "
+                 "In the iOS 27.0 log read, FigFlashlightLocal (torch) lines from the same daemon and "
+                 "subsystem outnumbered the session lines by a wide margin; neither corpus image held "
+                 "that shape. They are not collected here, so a count of lines from that daemon is not a count of camera use; the "
+                 "device-vendor lines (ClientIsActive, device usage counts, close timers) are also left "
+                 "out because what they count is not established. Message shapes were read on "
+                 "iOS 26.6 and iOS 27.0 sysdiagnose logs; those images are not in the public corpus and "
+                 "no fixture from them is committed. The test fixture is synthetic, with invented app "
+                 "IDs, PIDs and dates.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "camera",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 102 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+        },
+    },
+    "logarchive_capture_streaming": {
+        "name": "logarchive camera streaming power events",
+        "description": "Unified log lines from the camera capture daemon's "
+                       "FigCaptureLogCameraStreamingPowerEvent function with the PID, application ID, "
+                       "device type, streaming flag and port type as logged. Each row is one log "
+                       "line.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Fields are copied as logged and no meaning is assigned to the numbers. In the logs "
+                 "read the streaming flag was logged as 1 and 0 and the application ID as <private>, "
+                 "so the client has to be taken from the PID, for example by matching it with Client PID "
+                 "in the capture sessions artifact; that match was not validated against a known capture. "
+                 "In the iOS 27.0 log read the lines came in 1/0 pairs for a single device type and port "
+                 "type, written for an Apple system daemon's session. A line records the daemon's power "
+                 "event, not a saved recording. The related cpls_logCameraStreamingPowerEvents lines, "
+                 "which carry a time inside the message, are not collected. Timestamp is the log record "
+                 "time as stored, in UTC. An empty result is not evidence that the camera was not "
+                 "streaming. In the iOS 27.0 log read Application ID (as logged) read <private>, Device Type "
+                 "(as logged) 20 and Port Type (as logged) PortTypeFrontInfrared on every row, and Process "
+                 "Image Path and Process ID held one value each. On ai16_ios26_sysdiag (iOS 26.5.2) "
+                 "the 12 rows had the same shape: 6 with Streaming 1 and 6 with 0, all <private>, "
+                 "20 and PortTypeFrontInfrared, and their PID matched the Client PID of that "
+                 "image's com.apple.biometrickitd session lines. The test fixture is synthetic.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "video",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 12 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+        },
+    },
+    "logarchive_recording_indicator": {
+        "name": "logarchive recording indicator lines",
+        "description": "SpringBoard '[Recording Indicator]' log lines: the camera/microphone "
+                       "activity-changed line, secure indicator layer creation, and the live "
+                       "rendering assertion line. Each row is one log line.",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-19",
+        "last_update_date": "2026-10-19",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "The whole message, prefix included, is in the Event Message column as logged. "
+                 "In the logs read the activity-changed line carried an empty set, so a row does not "
+                 "say which sensor was active; a set with entries was not seen, and the synthetic "
+                 "fixture's entry is invented to exercise the pass-through. Whether the on-screen "
+                 "indicator was visible at a time is not established by these lines. The same prefix is "
+                 "used by lines about layer opacity and brightness updates, which are not collected, "
+                 "and by 'Should force high level layer' lines, which are not collected either. Use "
+                 "this artifact to place indicator-related events in time, next to the capture "
+                 "sessions and streaming events, not as proof of recording. Timestamp is the log "
+                 "record time as stored, in UTC. An empty result is not evidence that the indicator "
+                 "was not shown. Process Image Path held one value (SpringBoard) on every row in the "
+                 "logs read. On hc_ios26_sysdiag (iOS 26.6) the one row was an activity-changed "
+                 "line with an empty set. On ai16_ios26_sysdiag (iOS 26.5.2) all 51 '[Recording "
+                 "Indicator]' lines were opacity or 'Should force high level layer' lines, so the "
+                 "artifact gave no row. The layer creation and rendering assertion shapes were seen "
+                 "only in the synthetic fixture.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "eye",
+        "sample_data": {
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 1 row",
+        },
+    },
+    "logarchive_app_snapshots": {
+        "name": "logarchive app snapshots",
+        "description": "Unified log entries from SpringBoard's com.apple.SplashBoard subsystem "
+                       "saying that snapshot data was written to a file. The message "
+                       "carries a bracketed identifier and the path of the .ktx file written",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-20",
+        "last_update_date": "2026-10-21",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the com.apple.SplashBoard subsystem whose message contains "
+                 "'Snapshot data for'. On every tested image, every entry containing that text "
+                 "came from that subsystem and from "
+                 "/System/Library/CoreServices/SpringBoard.app/SpringBoard (1,810 entries across "
+                 "seven images). The category was FileManifest on the iOS 17.2.1 to 26.6 images "
+                 "and Snapshot on the iOS 12.4 image, so the filter does not test the category. "
+                 "On iOS 17.2.1 and later each message read '<...> [identifier] Snapshot data for "
+                 "<XBApplicationSnapshot ...> [identifier] written to file: <path>'. On iOS 12.4 it "
+                 "read '[identifier] Snapshot data for <XBApplicationSnapshot ...> written to file: "
+                 "<path>'. Whether the identifier is a bundle identifier is not established here. "
+                 "Every path ended in .ktx, and none held <private>. Some paths contain spaces: on "
+                 "17, 83, 1 and 7 rows of the iOS 17.2.1, 18.7, 26.5.2 and 26.6 images a folder "
+                 "was named '<identifier> - {DEFAULT GROUP}'. "
+                 "Paths were under a data container path "
+                 "(/private/var/mobile/Containers/Data/Application/<UUID>/Library/SplashBoard/"
+                 "Snapshots, or Library/Caches/Snapshots on iOS 12.4) or under "
+                 "/var/mobile/Library/SplashBoard/Snapshots (/var/mobile/Library/Caches/Snapshots "
+                 "on iOS 12.4); some were in a 'downscaled' subfolder. A row records that a file "
+                 "was written, not that it still exists. Matching each logged path from /var/mobile/ "
+                 "on against the extraction, 19 of 233 on the iOS "
+                 "26.5.2 image, 83 of 429 on the iOS 18.7 image and 67 of 187 on the iOS 17.2.1 "
+                 "image were present in the extraction. The App Snapshots artifact "
+                 "(applicationSnapshots) reads .ktx files under those folders; it leaves out files "
+                 "under 2500 bytes and files that do not decode. The identifier and path are not split "
+                 "into their own columns; read them from Event Message. Process Image Path and "
+                 "Subsystem held one value on every row of every tested image, and Category held "
+                 "one value per image. Process ID held one value on six images and three values "
+                 "on the iOS 12.4 image. Trace ID held no value on any row: rows read from "
+                 "tracev3 data leave it empty. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "screenshot",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 900 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 187 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | 32 rows",
+            "iphone12_ios18": "iOS 18.7 | 429 rows",
+            "hc_ios26": "iOS 26.5.2 | 233 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 23 rows",
+        },
+    },
+    "logarchive_data_usage": {
+        "name": "logarchive data usage",
+        "description": "Unified log entries from symptomsd in the analytics category giving WiFi "
+                       "and Cell in/out values for a name on a numbered flow; the values are "
+                       "reported as logged",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-21",
+        "last_update_date": "2026-10-21",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the analytics category whose message contains 'Data Usage "
+                 "for'. On every tested image those entries came from /usr/libexec/symptomsd in "
+                 "the com.apple.symptomsd subsystem. Each message read 'Data Usage for <name> on "
+                 "flow <number> - WiFi in/out: <n>/<n>, WiFi delta_in/delta_out: <n>/<n>, Cell "
+                 "in/out: <n>/<n>, Cell delta_in/delta_out: <n>/<n>, RNF: <n>, subscriber tag: "
+                 "<n>', followed on the iOS 18.3.2 to 26.6 images by ', total duration: <n>'. On "
+                 "those images the name was followed by '(delegation: <name>)' on 12,902, "
+                 "15,504, 14,554 and 4,095 rows (iOS 18.3.2, 18.7, 26.5.2 and 26.6). Some names "
+                 "ended in '(viaNEHelper)' and some read '(null)'. The name is either a dotted "
+                 "reverse-DNS-shaped string or a single word; what either names is not established. "
+                 "None held <private>. What the in/out, delta, RNF, subscriber tag and duration "
+                 "values count, and in what unit, is not established: the message gives no unit. "
+                 "A flow number appeared on more than one row (24,593 rows held 14,841 distinct "
+                 "flow numbers on the iOS 17.2.1 image). No counter is labelled Bluetooth; "
+                 "Bluetooth appears only in the name, on 4, 6 and 7 rows of the iOS 17.2.1, "
+                 "18.3.2 and 26.6 images. The iOS 12.4 image and the iOS 17.3 sysdiagnose held no "
+                 "entry containing the text. CommCenter entries reading 'Data usage for "
+                 "tethering' (2 and 4 on the iOS 17.2.1 and 26.5.2 images) match the text but not "
+                 "the category and are not reported here. Network usage recorded in DataUsage.sqlite "
+                 "is reported by the Data Usage artifact (get_DataUsage). Process Image Path, "
+                 "Subsystem and Category held one value on every row of every tested image. "
+                 "Process ID held one value on the iOS 18.7 and 26.5.2 images and two to four "
+                 "values on the others. Trace ID held no value on any row: rows read from tracev3 "
+                 "data leave it empty. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "chart-line",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 24593 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 23400 rows",
+            "iphone12_ios18": "iOS 18.7 | 23480 rows",
+            "hc_ios26": "iOS 26.5.2 | 22242 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 6501 rows",
+        },
+    },
 }
 
+import json
 import os
 import re
 import shutil
@@ -1784,17 +2221,22 @@ DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', '
                 'Subsystem', 'Category', 'Event Message', 'Trace ID')
 
 
+_JSON_OFFSET = re.compile(r'([+-]\d{2})(\d{2})$')
+
+
 def convert_to_utc(timestamp):
-    # dt_local = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f%z")
-    # dt_utc = dt_local.astimezone(timezone.utc)
-    # return dt_utc.astimezone(timezone.utc)
-    # NOTE:
-    #   python 3.7-3.10 have datetime.fromisoformat() but it had a bug where it didn't
-    #   parse timezones correctly -- so this is now 3.11 onwards:
-    #   if you're on 3.10 and know your python-fun, uncomment the first 3 lines
-    #   but it'll run much slower than 3.11+ with this new version
-    
-    return datetime.fromisoformat(timestamp).astimezone(timezone.utc)
+    """Parse the 'log show --style json' timestamp, e.g. 2026-03-14 10:00:00.100000-0500.
+
+    The offset has no colon. datetime.fromisoformat() accepts that only from 3.11, and on
+    3.10 it also takes a fraction of exactly 3 or 6 digits, so normalize both here rather
+    than depend on the interpreter version.
+    """
+    normalized = _JSON_OFFSET.sub(r'\1:\2', timestamp)
+    if '.' in normalized:
+        whole, rest = normalized.split('.', 1)
+        digits = len(rest) - len(rest.lstrip('0123456789'))
+        normalized = f'{whole}.{rest[:digits][:6].ljust(6, "0")}{rest[digits:]}'
+    return datetime.fromisoformat(normalized).astimezone(timezone.utc)
 
 
 def truncate_after_last_bracket(file_path):
@@ -2403,6 +2845,7 @@ def logarchive_artifacts(context):
         -- logarchive_app_state
         OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        OR (process_image_path LIKE '%/usr/libexec/installd%' AND event_message LIKE '%Made container live for%')
         -- logarchive_device_id
         OR (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
         OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
@@ -2421,8 +2864,46 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%UIOpenURLAction%'
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
+        -- (statedump markers begin) logarchive_tcc_cache, logarchive_tcc_cache_summary,
+        -- logarchive_location_state and logarchive_location_state_summary. A statedump
+        -- record has no subsystem or category, and this table does not keep the event
+        -- type, so the first line of the message ('title: ...') is the only handle. The
+        -- patterns are anchored at the start of the message and must stay collected here
+        -- as well as filtered in the dependent artifacts, or the rows never reach the table
+        -- they read.
+        OR event_message LIKE 'title: TCC Authorization Cache%'
+        OR event_message LIKE 'title: CLLocationManagerStateTracker%'
+        -- (statedump markers end)
         -- logarchive_charging_state
         OR (process_image_path LIKE '%/powerd' AND event_message LIKE 'handleChargingStateUpdate %')
+        -- logarchive_capture_sessions and logarchive_capture_streaming. Collected here as
+        -- well as filtered in the dependent artifacts, or the rows never reach the table
+        -- they read. The subsystem condition keeps this to the capture daemon's session
+        -- and power-log lines: in the iOS 27.0 log read, the same subsystem carried tens of
+        -- thousands of torch (FigFlashlightLocal) and device-vendor lines that no marker below
+        -- matches. The
+        -- ClientStartedSession state lines are collected whole; the dependent artifact
+        -- lists only those with a start or a stolen flag set.
+        OR (subsystem = 'com.apple.cameracapture'
+            AND (event_message LIKE '%FigCaptureSessionCreate:%'
+                 OR event_message LIKE '%captureSession_StartRunning:%'
+                 OR event_message LIKE '%captureSession_StopRunning:%'
+                 OR event_message LIKE '%captureSession_transitionToSessionStatus:%'
+                 OR event_message LIKE '%captureSession_didStopRunning:%'
+                 OR event_message LIKE '%FigCaptureSessionDetachFromClient%'
+                 OR event_message LIKE '%-[AVCaptureSession startRunning]%'
+                 OR event_message LIKE '%-[AVCaptureSession stopRunning]%'
+                 OR event_message LIKE '%ClientStartedSession:%'
+                 OR event_message LIKE '%FigCaptureLogCameraStreamingPowerEvent:%'))
+        -- logarchive_recording_indicator
+        OR (subsystem = 'com.apple.SpringBoard'
+            AND (event_message LIKE '%[Recording Indicator] Active camera/microphone activity changed%'
+                 OR event_message LIKE '%[Recording Indicator] creating secure indicator layer%'
+                 OR event_message LIKE '%[Recording Indicator] updating live rendering assertion%'))
+        -- logarchive_app_snapshots
+        OR (subsystem LIKE 'com.apple.SplashBoard' AND event_message LIKE '%Snapshot data for%')
+        -- logarchive_data_usage
+        OR (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
     )
     '''
 
@@ -3011,6 +3492,230 @@ def logarchive_charging_state(context):
     return data_headers, data_list, source_path
 
 
+# ---- Statedump artifacts: TCC authorization cache and location manager state (begin) ----
+# A statedump is the state a process wrote at one instant. The record has no subsystem or category
+# and the logarchive table does not keep its event type, so each dump is found by the first line of
+# its message. The WHERE fragments below must stay within the markers logarchive_artifacts collects
+# (a test checks every pattern appears there), because these artifacts only read the table that
+# query builds.
+TCC_CACHE_WHERE = "event_message LIKE 'title: TCC Authorization Cache%'"
+LOCATION_STATE_WHERE = "event_message LIKE 'title: CLLocationManagerStateTracker%'"
+
+# The credential and the authorization record are text descriptions: '<Credential (0x...) | Requestor>'
+# and '<Authorization Record (0x...) | Service: S, AuthRight: A, Reason: R, Version: V, [flags,] >'.
+TCC_ADDRESS = re.compile(r'\((0x[0-9A-Fa-f]+)\)')
+TCC_AUTH_RECORD = re.compile(
+    r'^<Authorization Record \((?P<address>0x[0-9A-Fa-f]+)\) \| Service: (?P<service>[^,]*), '
+    r'AuthRight: (?P<right>[^,]*), Reason: (?P<reason>[^,]*), Version: (?P<version>[^,]*),'
+    r'(?P<rest>.*)>$', re.DOTALL)
+
+TCC_CACHE_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+    'Service (as logged)', 'Credential Object Address', 'Authorization Object Address',
+    'Auth Right (as logged)', 'Reason (as logged)', 'Version (as logged)',
+    'Other Flags (as logged)', 'Entries In Dump', 'Authorization Record (as logged)')
+
+TCC_CACHE_SUMMARY_HEADERS = (
+    ('First Dump', 'datetime'), ('Last Dump', 'datetime'), 'Dumps', 'Entries',
+    'Process Image Path', 'Process ID', 'Service (as logged)', 'Auth Right (as logged)',
+    'Reason (as logged)', 'Version (as logged)', 'Other Flags (as logged)')
+
+# '"key": value' lines of a CLLocationManagerStateTracker dump. The body is not valid JSON (the last
+# value is followed by a comma), so it is read line by line.
+LOCATION_KEY_VALUE = re.compile(r'^\s*"([^"]+)"\s*:\s*(.*?)\s*,?\s*$')
+# (logged key, column header) in column order. A key not listed goes to Other Fields.
+LOCATION_COLUMNS = (
+    ('updatingLocation', 'Updating Location (as logged)'),
+    ('requestingLocation', 'Requesting Location (as logged)'),
+    ('updatingHeading', 'Updating Heading (as logged)'),
+    ('updatingRanging', 'Updating Ranging (as logged)'),
+    ('requestingRanging', 'Requesting Ranging (as logged)'),
+    ('allowsBackgroundLocationUpdates', 'Allows Background Location Updates (as logged)'),
+    ('showsBackgroundLocationIndicator', 'Shows Background Location Indicator (as logged)'),
+    ('paused', 'Paused (as logged)'),
+    ('batchingLocation', 'Batching Location (as logged)'),
+    ('limitsPrecision', 'Limits Precision (as logged)'),
+    ('dynamicAccuracyReductionEnabled', 'Dynamic Accuracy Reduction Enabled (as logged)'),
+    ('previousAuthorizationStatusValid', 'Previous Authorization Status Valid (as logged)'),
+    ('previousAuthorizationStatus', 'Previous Authorization Status (as logged)'),
+    ('desiredAccuracy', 'Desired Accuracy (as logged)'),
+    ('distanceFilter', 'Distance Filter (as logged)'),
+    ('activityType', 'Activity Type (as logged)'),
+)
+LOCATION_STATE_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+    *(header for _key, header in LOCATION_COLUMNS), 'Other Fields (as logged)')
+LOCATION_STATE_SUMMARY_HEADERS = (
+    ('First Dump', 'datetime'), ('Last Dump', 'datetime'), 'Dumps', 'Process Image Path',
+    'Process ID', *(header for _key, header in LOCATION_COLUMNS), 'Other Fields (as logged)')
+
+
+def _statedump_body(message):
+    """The text of a statedump message from its first line that begins with a brace.
+
+    Statedump messages are a title line, two 'Object Type:' lines and then the body. Returns ''
+    when no line begins with a brace, so the caller can keep the whole message instead.
+    """
+    lines = str(message or '').split('\n')
+    for index, line in enumerate(lines):
+        if line.lstrip().startswith('{'):
+            return '\n'.join(lines[index:])
+    return ''
+
+
+def _logged_text(value):
+    return value if isinstance(value, str) else json.dumps(value)
+
+
+def _tcc_cache_entries(message):
+    """The authorization entries of a TCC Authorization Cache dump, or None when unreadable.
+
+    None means the body is missing or is not a JSON object; the caller then keeps the text as
+    logged. An empty list is a dump that holds no entries. Each entry is a dict of the service
+    (the JSON key), the two object addresses, the auth right, reason, version and any text after
+    the version, and the authorization description; a description of another shape leaves its
+    fields blank and is kept whole.
+    """
+    try:
+        cache = json.loads(_statedump_body(message))
+    except (ValueError, RecursionError):
+        return None
+    if not isinstance(cache, dict):
+        return None
+    entries = []
+    for service, credentials in cache.items():
+        if not isinstance(credentials, dict):
+            credentials = {'': credentials}
+        for credential, record in credentials.items():
+            entry = dict.fromkeys(('credential', 'authorization', 'right', 'reason', 'version', 'flags'), '')
+            entry['service'] = service
+            entry['record'] = _logged_text(record)
+            address = TCC_ADDRESS.search(str(credential))
+            entry['credential'] = address.group(1) if address else ''
+            parsed = TCC_AUTH_RECORD.match(entry['record'])
+            if parsed:
+                entry['authorization'] = parsed.group('address')
+                entry['right'] = parsed.group('right').strip()
+                entry['reason'] = parsed.group('reason').strip()
+                entry['version'] = parsed.group('version').strip()
+                entry['flags'] = parsed.group('rest').strip().strip(',').strip()
+            entries.append(entry)
+    return entries
+
+
+def _location_state_fields(message):
+    """The fields of a CLLocationManagerStateTracker dump: (column values, other fields).
+
+    Column values are in LOCATION_COLUMNS order, '' for a key the dump does not hold. Other
+    Fields lists the remaining keys as 'key: value' in the order logged, then any body line that
+    is not a key and value, joined with '; '. A message with no body is kept whole there.
+    """
+    body = _statedump_body(message)
+    pairs = []
+    leftover = []
+    for line in body.split('\n'):
+        match = LOCATION_KEY_VALUE.match(line)
+        if match:
+            pairs.append((match.group(1), match.group(2)))
+        elif line.strip() not in ('', '{', '}'):
+            leftover.append(line.strip())
+    known = {key for key, _header in LOCATION_COLUMNS}
+    values = {}
+    other = []
+    for key, value in pairs:
+        if key in known and key not in values:
+            values[key] = value
+        else:
+            other.append(f'{key}: {value}')
+    other.extend(leftover)
+    if not body:
+        other = [str(message or '').strip()]
+    return tuple(values.get(key, '') for key, _header in LOCATION_COLUMNS), '; '.join(other)
+
+
+def _widen_range(group, timestamp):
+    """Move a group's first and last record time outwards; a time that is not a number is ignored."""
+    if isinstance(timestamp, (int, float)) and not isinstance(timestamp, bool):
+        group['first'] = timestamp if group['first'] is None else min(group['first'], timestamp)
+        group['last'] = timestamp if group['last'] is None else max(group['last'], timestamp)
+
+
+@artifact_processor
+def logarchive_tcc_cache(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {TCC_CACHE_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        message = record['event_message']
+        entries = _tcc_cache_entries(message)
+        if entries is None:
+            body = _statedump_body(message)
+            data_list.append((_report_time(record['timestamp']), record['row_number'],
+                              record['process_image_path'], record['process_id'],
+                              '', '', '', '', '', '', '', '', body or str(message or '')))
+            continue
+        for entry in entries:
+            data_list.append((
+                _report_time(record['timestamp']), record['row_number'], record['process_image_path'],
+                record['process_id'], entry['service'], entry['credential'], entry['authorization'],
+                entry['right'], entry['reason'], entry['version'], entry['flags'], len(entries),
+                entry['record']))
+    return TCC_CACHE_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_tcc_cache_summary(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {TCC_CACHE_WHERE}'
+    groups = {}
+    for record in get_sqlite_db_records(source_path, query):
+        entries = _tcc_cache_entries(record['event_message'])
+        if entries is None:
+            entries = [dict.fromkeys(('service', 'right', 'reason', 'version', 'flags'), '')]
+        dump = (record['row_number'], record['timestamp'])
+        for entry in entries:
+            key = (record['process_image_path'], record['process_id'], entry['service'],
+                   entry['right'], entry['reason'], entry['version'], entry['flags'])
+            group = groups.setdefault(key, {'first': None, 'last': None, 'dumps': set(), 'entries': 0})
+            _widen_range(group, record['timestamp'])
+            group['dumps'].add(dump)
+            group['entries'] += 1
+    data_list = [(_report_time(group['first']), _report_time(group['last']), len(group['dumps']),
+                  group['entries'], key[0], key[1], key[2], key[3], key[4], key[5], key[6])
+                 for key, group in groups.items()]
+    return TCC_CACHE_SUMMARY_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_location_state(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {LOCATION_STATE_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        values, other = _location_state_fields(record['event_message'])
+        data_list.append((_report_time(record['timestamp']), record['row_number'],
+                          record['process_image_path'], record['process_id']) + values + (other,))
+    return LOCATION_STATE_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_location_state_summary(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {LOCATION_STATE_WHERE}'
+    groups = {}
+    for record in get_sqlite_db_records(source_path, query):
+        values, other = _location_state_fields(record['event_message'])
+        key = (record['process_image_path'], record['process_id'], values, other)
+        group = groups.setdefault(key, {'first': None, 'last': None, 'dumps': set()})
+        _widen_range(group, record['timestamp'])
+        group['dumps'].add((record['row_number'], record['timestamp']))
+    data_list = [(_report_time(group['first']), _report_time(group['last']), len(group['dumps']),
+                  key[0], key[1]) + key[2] + (key[3],)
+                 for key, group in groups.items()]
+    return LOCATION_STATE_SUMMARY_HEADERS, data_list, source_path
+# ---- Statedump artifacts: TCC authorization cache and location manager state (end) ----
+
+
 def _bc_unquote(text):
     """A value or key of an NSDictionary description without its quotes and escapes."""
     text = text.strip()
@@ -3273,6 +3978,7 @@ def logarchive_app_state(context):
     return _artifacts_table_records(context, '''
         (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        OR (process_image_path LIKE '%/usr/libexec/installd%' AND event_message LIKE '%Made container live for%')
     ''')
 
 @artifact_processor
@@ -3313,3 +4019,160 @@ def logarchive_urlopens(context):
         OR event_message LIKE '%openURLContexts%'
         OR event_message LIKE '%no registered handler for URL scheme%'
     ''')
+
+
+@artifact_processor
+def logarchive_app_snapshots(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE 'com.apple.SplashBoard' AND event_message LIKE '%Snapshot data for%')
+    ''')
+
+
+@artifact_processor
+def logarchive_data_usage(context):
+    return _artifacts_table_records(context, '''
+        (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
+    ''')
+
+
+# Camera and microphone capture. The WHERE fragments below must stay within the markers
+# logarchive_artifacts collects (a test checks every pattern appears there), because these
+# artifacts only read the table that query builds.
+CAPTURE_SESSION_WHERE = """
+    subsystem = 'com.apple.cameracapture'
+    AND (event_message LIKE '%FigCaptureSessionCreate:%'
+         OR event_message LIKE '%captureSession_StartRunning:%'
+         OR event_message LIKE '%captureSession_StopRunning:%'
+         OR (event_message LIKE '%captureSession_transitionToSessionStatus:%'
+             AND event_message LIKE '% -> %')
+         OR (event_message LIKE '%captureSession_didStopRunning:%'
+             AND event_message LIKE '%Stopped running%')
+         OR event_message LIKE '%FigCaptureSessionDetachFromClient%'
+         OR event_message LIKE '%-[AVCaptureSession startRunning]%'
+         OR event_message LIKE '%-[AVCaptureSession stopRunning]%'
+         OR (event_message LIKE '%ClientStartedSession:%'
+             AND (event_message LIKE '%ClientStartedSession:1%'
+                  OR event_message LIKE '%micStolen:1%'
+                  OR event_message LIKE '%cameraStolen:1%')))
+"""
+
+CAPTURE_STREAMING_WHERE = """
+    subsystem = 'com.apple.cameracapture'
+    AND event_message LIKE '%FigCaptureLogCameraStreamingPowerEvent:%'
+"""
+
+RECORDING_INDICATOR_WHERE = """
+    subsystem = 'com.apple.SpringBoard'
+    AND (event_message LIKE '%[Recording Indicator] Active camera/microphone activity changed%'
+         OR event_message LIKE '%[Recording Indicator] creating secure indicator layer%'
+         OR event_message LIKE '%[Recording Indicator] updating live rendering assertion%')
+"""
+
+# The tag the capture daemon writes in front of a session message: <object address[pid][app id]>.
+# The app id part is absent on some lines and is left blank then.
+CAPTURE_TAG = re.compile(r'<(0x[0-9A-Fa-f]+)\[(\d+)\](?:\[([^\]]*)\])?>')
+CAPTURE_FUNCTION = re.compile(r'FigCaptureSession >>>> (\w+):|AVCaptureSession >>>> (-\[AVCaptureSession \w+\])')
+CAPTURE_CREATE_PID = re.compile(r'Creating session for PID (\d+)')
+CAPTURE_TRANSITION = re.compile(r'captureSession_transitionToSessionStatus: (?:<[^>]*> )?(\S.* -> .*\S)')
+CAPTURE_STATE = re.compile(r'ClientStartedSession:(\d+) Cam/Audio:(\d+)/(\d+) bg:(\d+)')
+CAPTURE_FLAG_NAMES = (('mic_stolen', 'micStolen'), ('camera_stolen', 'cameraStolen'),
+                      ('runtime_error', 'runtimeError'), ('interruption_error', 'interruptionError'))
+CAPTURE_STATUS = re.compile(r'sessionStatus:(\w+)')
+CAPTURE_STREAMING = re.compile(
+    r'FigCaptureLogCameraStreamingPowerEvent: PID: (\d+), applicationID: (.*?), '
+    r'deviceType: (\d+), streaming: (\d+), portType: (\w+)')
+
+CAPTURE_SESSION_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Logged Function',
+    'Client App ID (as logged)', 'Client PID (as logged)', 'Session Object (as logged)',
+    'Client Started Session', 'Cam/Audio', 'Background', 'Mic Stolen', 'Camera Stolen',
+    'Runtime Error', 'Interruption Error', 'Session Status', 'Status Transition',
+    'Process Image Path', 'Process ID', 'Event Message')
+
+RECORDING_INDICATOR_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 'Event Message')
+
+CAPTURE_STREAMING_HEADERS = (
+    ('Timestamp', 'datetime'), 'Row Number', 'Client PID (as logged)',
+    'Application ID (as logged)', 'Device Type (as logged)', 'Streaming (as logged)',
+    'Port Type (as logged)', 'Process Image Path', 'Process ID', 'Event Message')
+
+
+def _capture_session_fields(message):
+    """The fields of one capture-daemon line, as logged; '' for any the line does not carry.
+
+    Nothing is interpreted: the numbers are copied, and a line in another shape yields blanks
+    rather than a guess, so the row still shows the full message.
+    """
+    message = str(message or '')
+    fields = dict.fromkeys(
+        ('function', 'app_id', 'pid', 'session_object', 'started', 'cam_audio', 'background',
+         'mic_stolen', 'camera_stolen', 'runtime_error', 'interruption_error', 'status',
+         'transition'), '')
+    function = CAPTURE_FUNCTION.search(message)
+    if function:
+        fields['function'] = function.group(1) or function.group(2)
+    tag = CAPTURE_TAG.search(message)
+    if tag:
+        fields['session_object'], fields['pid'], fields['app_id'] = (
+            tag.group(1), tag.group(2), tag.group(3) or '')
+    else:
+        created = CAPTURE_CREATE_PID.search(message)
+        if created:
+            fields['pid'] = created.group(1)
+    transition = CAPTURE_TRANSITION.search(message)
+    if transition:
+        fields['transition'] = transition.group(1)
+    state = CAPTURE_STATE.search(message)
+    if state:
+        fields['started'] = state.group(1)
+        fields['cam_audio'] = f'{state.group(2)}/{state.group(3)}'
+        fields['background'] = state.group(4)
+        for key, logged in CAPTURE_FLAG_NAMES:
+            flag = re.search(rf'\b{logged}:(\d+)', message)
+            if flag:
+                fields[key] = flag.group(1)
+        status = CAPTURE_STATUS.search(message)
+        if status:
+            fields['status'] = status.group(1)
+    return fields
+
+
+@artifact_processor
+def logarchive_capture_sessions(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {CAPTURE_SESSION_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        fields = _capture_session_fields(record[6])
+        data_list.append((
+            _report_time(record[0]), record[1], fields['function'], fields['app_id'],
+            fields['pid'], fields['session_object'], fields['started'], fields['cam_audio'],
+            fields['background'], fields['mic_stolen'], fields['camera_stolen'],
+            fields['runtime_error'], fields['interruption_error'], fields['status'],
+            fields['transition'], record[2], record[3], record[6]))
+    return CAPTURE_SESSION_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_capture_streaming(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {CAPTURE_STREAMING_WHERE}'
+    data_list = []
+    for record in get_sqlite_db_records(source_path, query):
+        logged = CAPTURE_STREAMING.search(str(record[6] or ''))
+        pid, application, device, streaming, port = logged.groups() if logged else ('',) * 5
+        data_list.append((_report_time(record[0]), record[1], pid, application, device,
+                          streaming, port, record[2], record[3], record[6]))
+    return CAPTURE_STREAMING_HEADERS, data_list, source_path
+
+
+@artifact_processor
+def logarchive_recording_indicator(context):
+    # Subsystem and category are fixed by the WHERE clause and Trace ID is empty on the native
+    # import, so none of the three is repeated here.
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {RECORDING_INDICATOR_WHERE}'
+    data_list = [(_report_time(record[0]), record[1], record[2], record[3], record[6])
+                 for record in get_sqlite_db_records(source_path, query)]
+    return RECORDING_INDICATOR_HEADERS, data_list, source_path

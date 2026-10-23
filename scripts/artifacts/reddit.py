@@ -243,7 +243,143 @@ __artifacts_v2__ = {
                            "hickman_ios15": "iOS 15.3.1 | Reddit | 2 rows",
                            "jess_ios15": "iOS 15.0.2 | Reddit | 0 rows",
                        },
-    }
+    },
+    "reddit_post_history": {
+        "name": "Reddit Post History",
+        "description": "Post IDs from the PostHistory archive, in stored list order, with the "
+                       "kGlanceInfoKey value where the archive holds an info entry for the ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-22",
+        "last_update_date": "2026-10-22",
+        "requirements": "none",
+        "category": "Reddit",
+        "notes": (
+            "Documents/release02/accountData/<account>/PostHistory is an NSKeyedArchiver "
+            "property list, deserialised before reading. Its kPostIDDictionaryKey value is an "
+            "ordered list of post IDs and its kInfoDictionaryKey value maps a post ID to a "
+            "dictionary. List Position is the zero-based position in that list. On the tested "
+            "images the archive held no time for an entry, so the order is reported as stored "
+            "and is not a timeline.\n"
+            "Post ID is reported as stored. The t3_ prefix is Reddit's type prefix for a "
+            "submission (a post): PRAW glossary, https://github.com/praw-dev/praw/blob/"
+            "99e8a56de739dad51d0584c01d2dd2714c576d4b/docs/package_info/glossary.rst#L20. On "
+            "the tested images the archive held the IDs and the kGlanceInfoKey entries only; "
+            "no titles, authors or text.\n"
+            "kGlanceInfoKey was the only key in an info entry on the tested images and held "
+            "True wherever it was present (779 of 870 rows across eight images). The other 91 "
+            "rows are listed posts with no info entry, and kGlanceInfoKey is blank for them. "
+            "Its meaning is not established here, so it is reported as stored. A post ID "
+            "present only in kInfoDictionaryKey is reported with a blank List Position; no "
+            "tested image held one, so that branch is unexercised.\n"
+            "The account folder name is reported as the Account column. Account held one value "
+            "on each tested image except hickman_ios13, where PostHistory sits under two account "
+            "folders, one of them named anonymous.\n"
+            "Not reported: CachedSDUIListingData.json in the same folder holds cached feed "
+            "listings (type keys named home and, on one tested file, popular) of base64 JSON cells, "
+            "including ad payloads, with viewed False on every entry on three tested images. It "
+            "is cached feed content; what it records about the user's activity is not "
+            "established here.\n"
+            "Store identified by @CyberMike81."
+        ),
+        "paths": ('*/Documents/release02/accountData/*/PostHistory',),
+        "output_types": "standard",
+        "artifact_icon": "list-numbers",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | Reddit 2020.10.0 | 250 rows",
+            "hickman_ios13": "iOS 13.3.1 | Reddit 2020.11.0 | 206 rows (two account folders)",
+            "hickman_ios14": "iOS 14.3 | Reddit 2021.03.1 | 250 rows",
+            "jess_ios15": "iOS 15.0.2 | Reddit 2022.02.0 | 40 rows",
+            "hickman_ios15": "iOS 15.3.1 | Reddit 2023.16.0 | 1 row",
+            "hexordia_ios1651": "iOS 16.5.1 | Reddit 2023.50.1 | 19 rows",
+            "iphone11_ios17": "iOS 17.3 | Reddit 2023.50.1 | 102 rows",
+            "otto_ios17": "iOS 17.5.1 | Reddit 2024.33.0 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | Reddit not installed | 0 rows",
+        },
+    },
+    "reddit_recent_post_cache": {
+        "name": "Reddit Recent Post Cache",
+        "description": "Post IDs from RecentPostCache.json, in stored list order.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-22",
+        "last_update_date": "2026-10-22",
+        "requirements": "none",
+        "category": "Reddit",
+        "notes": (
+            "Documents/release02/accountData/<account>/RecentPostCache.json is a JSON list of "
+            "post IDs. Position is the zero-based position in that list. On the tested images "
+            "the file held only the ID list and no times, so the order is reported as stored "
+            "and is not a timeline. What adds an ID to this list is not established here.\n"
+            "Post ID is reported as stored. The t3_ prefix is Reddit's type prefix for a "
+            "submission (a post): PRAW glossary, https://github.com/praw-dev/praw/blob/"
+            "99e8a56de739dad51d0584c01d2dd2714c576d4b/docs/package_info/glossary.rst#L20. "
+            "This is a different list from Reddit Post History: on the tested "
+            "images that held both, most IDs here were not in PostHistory. The account folder "
+            "name is reported as the Account column; Account held one value on each tested "
+            "image, because only one account folder per image held a non-empty list.\n"
+            "Store found while reviewing the PostHistory work by @CyberMike81."
+        ),
+        "paths": ('*/Documents/release02/accountData/*/RecentPostCache.json',),
+        "output_types": "standard",
+        "artifact_icon": "list-numbers",
+        "sample_data": {
+            "hexordia_ios1651": "iOS 16.5.1 | Reddit 2023.50.1 | 39 rows",
+            "iphone11_ios17": "iOS 17.3 | Reddit 2023.50.1 | 50 rows",
+            "otto_ios17": "iOS 17.5.1 | Reddit 2024.33.0 | 22 rows",
+            "hickman_ios15": "iOS 15.3.1 | Reddit 2023.16.0 | 0 rows (both files hold an empty list)",
+            "ctf2020_ios12": "iOS 12.4 | Reddit 2020.10.0 | 0 rows (no RecentPostCache.json found)",
+            "hickman_ios13": "iOS 13.3.1 | Reddit 2020.11.0 | 0 rows (no RecentPostCache.json found)",
+            "hickman_ios14": "iOS 14.3 | Reddit 2021.03.1 | 0 rows (no RecentPostCache.json found)",
+            "jess_ios15": "iOS 15.0.2 | Reddit 2022.02.0 | 0 rows (no RecentPostCache.json found)",
+        },
+    },
+    "reddit_subreddit_history": {
+        "name": "Reddit Subreddit History",
+        "description": "Subreddit IDs from the SubredditHistory archive, in stored list order, "
+                       "with the name and title stored for the same ID in the account folder.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-22",
+        "last_update_date": "2026-10-22",
+        "requirements": "none",
+        "category": "Reddit",
+        "notes": (
+            "Documents/release02/accountData/<account>/SubredditHistory is an NSKeyedArchiver "
+            "property list holding an ordered list of subreddit IDs, deserialised before "
+            "reading. List Position is the zero-based position in that list. On the tested "
+            "images the archive held no time for an entry, so the order is reported as stored "
+            "and is not a timeline. The t5_ prefix is Reddit's type prefix for a subreddit: "
+            "PRAW glossary, https://github.com/praw-dev/praw/blob/"
+            "99e8a56de739dad51d0584c01d2dd2714c576d4b/docs/package_info/glossary.rst#L22.\n"
+            "Subreddit is the record's displayName field and Title its title field. Both are "
+            "looked up by exact ID in the same account folder: first in "
+            "subreddits/<subreddit id>, a per-subreddit archive whose PrimaryKey equalled its "
+            "file name on all 2,298 tested files, then in the SubredditSubscriptions archive by "
+            "PrimaryKey. Name Source names the file used and is blank when neither holds the "
+            "ID; the ID is still reported. Where both held an ID on the tested images, their "
+            "names and titles agreed (175 of 175 across ctf2020_ios12, hickman_ios13 and "
+            "hickman_ios14). Subreddit and Title were blank on the "
+            "single hexordia_ios1651 row, whose ID is in neither file.\n"
+            "The account folder name is reported as the Account column; Account held one value "
+            "on each tested image.\n"
+            "Store identified by @CyberMike81."
+        ),
+        "paths": (
+            '*/Documents/release02/accountData/*/SubredditHistory',
+            '*/Documents/release02/accountData/*/SubredditSubscriptions',
+            '*/Documents/release02/accountData/*/subreddits/t5_*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "history",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | Reddit 2020.10.0 | 105 rows (105 named from subreddits/)",
+            "hickman_ios14": "iOS 14.3 | Reddit 2021.03.1 | 1 row (named from subreddits/)",
+            "jess_ios15": "iOS 15.0.2 | Reddit 2022.02.0 | 2 rows (named from SubredditSubscriptions)",
+            "hexordia_ios1651": "iOS 16.5.1 | Reddit 2023.50.1 | 1 row (ID in neither name source)",
+            "hickman_ios13": "iOS 13.3.1 | Reddit 2020.11.0 | 0 rows (no SubredditHistory found)",
+            "hickman_ios15": "iOS 15.3.1 | Reddit 2023.16.0 | 0 rows (no SubredditHistory found)",
+            "iphone11_ios17": "iOS 17.3 | Reddit 2023.50.1 | 0 rows (no SubredditHistory found)",
+            "otto_ios17": "iOS 17.5.1 | Reddit 2024.33.0 | 0 rows (no SubredditHistory found)",
+        },
+    },
 }
 
 import json
@@ -628,5 +764,150 @@ def reddit_chat_contacts(context):
         ('Created', 'datetime'), 'Username', 'User ID', 'Real Name', 'Link Karma (as stored)',
         'Comment Karma (as stored)', 'Blocked', 'Profile NSFW', 'Profile Thumbnail URL',
         'Account ID',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+def _named_files(context, name):
+    '''Matched files with this exact name, sorted so the row order does not depend on the volume.'''
+    return sorted(str(found) for found in context.get_files_found()
+                  if basename(str(found)) == name and not isdir(str(found)))
+
+
+def _glance(info, post_id):
+    '''kGlanceInfoKey of a post's info entry, or None when the post has no entry.'''
+    entry = info.get(post_id) if isinstance(post_id, str) else None
+    return entry.get('kGlanceInfoKey') if isinstance(entry, dict) else None
+
+
+@artifact_processor
+def reddit_post_history(context):
+    """ see artifact description """
+    data_list = []
+    sources = []
+    for file_found in _named_files(context, 'PostHistory'):
+        sources.append(file_found)
+        source_file = context.get_relative_path(file_found)
+        account = basename(dirname(file_found))
+        archive = get_plist_file_content(file_found)
+        if not isinstance(archive, dict):
+            logfunc(f'Reddit Post History: no dictionary in {source_file}')
+            continue
+        order = archive.get('kPostIDDictionaryKey')
+        info = archive.get('kInfoDictionaryKey')
+        if not isinstance(order, list):
+            logfunc(f'Reddit Post History: kPostIDDictionaryKey is not a list in {source_file}')
+            order = []
+        if not isinstance(info, dict):
+            if info is not None:
+                logfunc(f'Reddit Post History: kInfoDictionaryKey is not a dictionary in {source_file}')
+            info = {}
+        listed = set()
+        for position, post_id in enumerate(order):
+            if isinstance(post_id, str):
+                listed.add(post_id)
+            data_list.append((position, post_id, _glance(info, post_id), account, source_file))
+        for post_id in info:
+            if post_id not in listed:
+                data_list.append(('', post_id, _glance(info, post_id), account, source_file))
+    data_headers = (
+        'List Position',
+        'Post ID',
+        'kGlanceInfoKey (as stored)',
+        'Account',
+        'Source File',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def reddit_recent_post_cache(context):
+    """ see artifact description """
+    data_list = []
+    sources = []
+    for file_found in _named_files(context, 'RecentPostCache.json'):
+        sources.append(file_found)
+        source_file = context.get_relative_path(file_found)
+        account = basename(dirname(file_found))
+        try:
+            with open(file_found, 'r', encoding='utf-8') as cache_file:
+                post_ids = json.load(cache_file)
+        except (OSError, ValueError) as error:
+            logfunc(f'Reddit Recent Post Cache: could not read {source_file}: {type(error).__name__}')
+            continue
+        if not isinstance(post_ids, list):
+            logfunc(f'Reddit Recent Post Cache: no list in {source_file}')
+            continue
+        for position, post_id in enumerate(post_ids):
+            data_list.append((position, post_id, account, source_file))
+    data_headers = (
+        'Position',
+        'Post ID',
+        'Account',
+        'Source File',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def reddit_subreddit_history(context):
+    """ see artifact description """
+    # Name lookups are keyed on the account folder path, so two accounts never share names.
+    cached = {}
+    for found in context.get_files_found():
+        found = str(found)
+        if basename(dirname(found)) == 'subreddits' and not isdir(found):
+            cached[(dirname(dirname(found)), basename(found))] = found
+    subscriptions = {}
+    for found in _named_files(context, 'SubredditSubscriptions'):
+        subscriptions[dirname(found)] = found
+
+    data_list = []
+    sources = []
+    for file_found in _named_files(context, 'SubredditHistory'):
+        sources.append(file_found)
+        source_file = context.get_relative_path(file_found)
+        folder = dirname(file_found)
+        account = basename(folder)
+        entries = get_plist_file_content(file_found)
+        if not isinstance(entries, list):
+            logfunc(f'Reddit Subreddit History: no list in {source_file}')
+            continue
+        subscribed = None
+        for position, subreddit_id in enumerate(entries):
+            name = title = name_source = ''
+            if isinstance(subreddit_id, str):
+                cached_file = cached.get((folder, subreddit_id))
+                if cached_file:
+                    record = get_plist_file_content(cached_file)
+                    if isinstance(record, dict) and record.get('PrimaryKey') == subreddit_id:
+                        name = record.get('displayName', '')
+                        title = record.get('title', '')
+                        name_source = context.get_relative_path(cached_file)
+                        if cached_file not in sources:
+                            sources.append(cached_file)
+                if not name_source and folder in subscriptions:
+                    if subscribed is None:
+                        subscribed = {}
+                        listing = get_plist_file_content(subscriptions[folder])
+                        for entry in listing if isinstance(listing, list) else []:
+                            if isinstance(entry, dict) and isinstance(entry.get('PrimaryKey'), str):
+                                subscribed[entry['PrimaryKey']] = entry
+                    entry = subscribed.get(subreddit_id)
+                    if entry is not None:
+                        name = entry.get('displayName', '')
+                        title = entry.get('title', '')
+                        name_source = context.get_relative_path(subscriptions[folder])
+                        if subscriptions[folder] not in sources:
+                            sources.append(subscriptions[folder])
+            data_list.append((position, subreddit_id, name, title, name_source, account, source_file))
+    data_headers = (
+        'List Position',
+        'Subreddit ID',
+        'Subreddit',
+        'Title',
+        'Name Source',
+        'Account',
+        'Source File',
     )
     return data_headers, data_list, '\n'.join(sources)
