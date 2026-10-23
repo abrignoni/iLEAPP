@@ -73,6 +73,16 @@ Get these right, because they are the ones most often wrong:
   after, then identifiers, then descriptive fields.
 - **Never write to evidence.** Use `open_sqlite_db_readonly()`, and
   `attach_sqlite_db_readonly()` if you attach. See the `leapp-evidence-readonly` rule.
+- **Prefer a reader to a scan.** When a library that reads the store's format is already
+  available, vendored in the core under `scripts/` (the `ccl` readers, `ccl_leveldb`,
+  `blackboxprotobuf`) or used by another module, parse the store with it. Do not run a
+  regex or byte scan over the raw file. A reader knows the framing a scan cannot see: a
+  LevelDB log record split across 32 KiB blocks, a key whose latest record is a deletion,
+  a value that only means something next to its key. Grep `scripts/` and the other cores'
+  artifacts for the format before writing a parser. Write your own only when no reader
+  exists, and then from the format's published source. ALEAPP #1758 read a WebView Local
+  Storage value with a regex over the `.log` bytes while `scripts/ccl/ccl_leveldb.py` sat
+  vendored in the same repo.
 
 If the app has attachments, surface the media itself rather than its filename. See the
 `lava-media` rule. Link media by something the extraction **records** — a content hash, a
