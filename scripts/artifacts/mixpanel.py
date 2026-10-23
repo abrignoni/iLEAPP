@@ -17,6 +17,12 @@ __artifacts_v2__ = {
                  'conflicts are flagged. Event JSON retains all app-defined properties and '
                  'session identifiers. Session Length is $ae_session_length as stored. Processed '
                  'queue batches may be deleted, so this is not a complete activity history.',
+        'sample_data': {
+            'otto_ios17': 'iOS 17.5.1 | Viber | 278 rows',
+            'iphone11_ios17': 'iOS 17.3 | Viber | 6 rows',
+            'iphone12_ios18': 'iOS 18.7 | Notability | 8 rows',
+            'hc_ios26': 'iOS 26.5.2 | Viber | 12 rows',
+        },
     },
 }
 

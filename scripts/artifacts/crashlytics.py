@@ -18,6 +18,12 @@ __artifacts_v2__ = {
                  'reads _sc/firebase_screen_class/screen_class. Message keeps the event JSON '
                  'with its parameters; Breadcrumb Status flags malformed analytics data. '
                  'Events do not identify an operator.',
+        'sample_data': {
+            'otto_ios17': 'iOS 17.5.1 | 9 apps | 230 rows',
+            'iphone11_ios17': 'iOS 17.3 | 11 apps | 399 rows',
+            'iphone12_ios18': 'iOS 18.7 | 8 apps | 148 rows',
+            'falken_ios26': 'iOS 26.2.1 | 2 apps | 283 rows',
+        },
     },
 }
 
