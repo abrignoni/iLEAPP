@@ -77,7 +77,7 @@ SOFTWARE.
 
 ## iLEAPP adaptation (2026-10-23)
 
-All six fixture archives retain their accepted ALEAPP member bytes; only member paths were repackaged to private/var/mobile/Containers/Data/Application/SYNTHETIC-DJI/Documents/FlightRecords/. These are invented packaging paths, not evidence of an iOS acquisition. Android source metadata remains Android. Baselines are the accepted v0.3 outputs with only source-path substitution; any comparison failure must be investigated. No iOS or app version is asserted.
+All six fixture archives retain their accepted ALEAPP member bytes; only member paths were repackaged to private/var/mobile/Containers/Data/Application/SYNTHETIC-DJI/Documents/FlightRecords/. These are invented packaging paths, not evidence of an iOS acquisition. Android source metadata remains Android. Baselines are the accepted ALEAPP outputs (Records 0.4, Summary 0.3) with source-path substitution; row order differs; any comparison failure must be investigated. No iOS or app version is asserted.
 
 New iLEAPP snapshots were recorded only after all six path-adapted accepted baselines passed. Headers and decoded row multisets were identical; row ordering alone differed. The original evidence content and legacy Android platform fields were retained.
 

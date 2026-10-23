@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
     'djiFlightRecordTxtRecords': {
         'name': 'DJI Drone - TXT Flight Records',
-        'description': 'Reads DJI GO, DJI GO 4 and DJI Fly TXT flight records offline. Versions 1 to 12 '
-                       'give one row per record of a defined type; version 13 and later give no '
-                       'record rows (see the Summary artifact).',
+        'description': 'Reads DJI TXT flight records (DJIFlightRecord*.txt) offline. Versions 1 to 12 '
+                       'give one row per record of a defined type and one per embedded JPEG; '
+                       'versions 13 and 14 give no record rows (see the Summary artifact).',
         'author': 'Neal (@Blackwater1224), @AlexisBrignoni, Claude',
         'creation_date': '2026-10-23',
         'last_update_date': '2026-10-23',
@@ -14,8 +14,8 @@ __artifacts_v2__ = {
                  'Record types, layouts, units and enum names follow dji-log-parser v0.5.7 '
                  '(https://github.com/lvauvillier/dji-log-parser, MIT). A record of a type it does '
                  'not define is not listed; each log\'s count of those is in the summary\'s Records '
-                 'Not Reported column. A header without a unit, or marked as stored or raw, has no unit '
-                 'documented there. Camera Mode is shown as the stored number; dji-log-parser '
+                 'Not Reported column. A header marked as stored or raw has no unit documented in '
+                 'dji-log-parser. Camera Mode is shown as the stored number; dji-log-parser '
                  'defines names for it that are not applied. Horizontal Speed is derived from Speed X and Speed Y. '
                  'Timestamp comes from Custom records in UTC. Other records use the preceding '
                  'Custom timestamp, labeled in Timestamp Basis; records before it have no timestamp. '
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
                  'the references\' list show as Unknown with the number. Bytes past the last whole '
                  'entry are noted in Decode Status. '
                  'OSD Battery has no documented unit; Battery Percent is the Smart Battery percent. '
-                 'Payloads are kept as hex on every record row; Embedded JPEG rows carry none. '
+                 'Payloads are kept as hex on every record row that decodes; Embedded JPEG rows carry none. '
                  'Four bytes 39 30 00 00 directly before a JPEG start marker are skipped; no other '
                  'search for a next record is made after damaged framing. Images stay in the source and are not extracted. '
                  'In df020_mavic_pro_ios (DJI GO 4, TXT version 8): App GPS Latitude, App GPS '
@@ -53,7 +53,8 @@ __artifacts_v2__ = {
                  'each reads a different stored value. '
                  'Real logs: version 8 in df020_mavic_pro_ios; versions 9 and 11 in the DF020 Android '
                  'logs with ALEAPP\'s copy of this decoder; the public pydjirecord version 14 example '
-                 'yields no records. Other versions are covered by synthetic tests only. On iOS only '
+                 'yields no records. Versions 1, 5 to 7, 10 and 12 to 14 are covered by synthetic tests '
+                 'only; versions 2 to 4 are not tested. On iOS only '
                  'DJI GO 4 has been run; DJI GO and DJI Fly have not.',
         'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',),
         'output_types': 'all',
@@ -85,6 +86,7 @@ __artifacts_v2__ = {
                  'pydjirecord reports no consistent unit. In df020_mavic_pro_ios it held 429 while '
                  'the largest Camera Record Time in the same log was 312. '
                  'Records Not Reported counts records of types dji-log-parser does not define. '
+                 'Record Count and Timestamped Records include Embedded JPEG rows. '
                  'When parsing stops early, Status gives how many bytes of the record area were '
                  'left unread and Warnings says why. In df020_mavic_pro_ios the log parsed to the '
                  'end of the record area and Warnings is empty. RC Serial Number is empty in that '
