@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | 2 rows (24-byte keys)",
-            "hickman_ios14": "iOS 14.3 | 4 rows (no crypto columns)",
+            "hickman_ios14": "iOS 14.3 | 4 rows (24-byte keys)",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "hickman_ios15": "iOS 15 | 5 rows (24-byte keys)",
             "abe_ios16": "iOS 16.5 | 2 rows (16-byte keys)",
@@ -63,38 +63,48 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Notes",
-        "notes": "Each ZICCLOUDSYNCINGOBJECT row with key material becomes one hash string in "
-                 "the field order John the Ripper's run/applenotes2john.py writes: "
+        "notes": "Each ZICCLOUDSYNCINGOBJECT row whose key material passes the checks below "
+                 "becomes one hash string in the field order John the Ripper's "
+                 "run/applenotes2john.py writes: "
                  "$ASN$*<Z_PK>*<ZCRYPTOITERATIONCOUNT>*<ZCRYPTOSALT hex>*<key hex>, where the key "
                  "is ZCRYPTOWRAPPEDKEY, or ZCRYPTOVERIFIER when ZCRYPTOWRAPPEDKEY is NULL, as "
                  "applenotes2john.py does. Hash Source Column names which one was used. "
-                 "A row is emitted only when hashcat's mode 16200 parser would accept it: an "
-                 "iteration count of at least 1, a 16-byte salt and a 24-byte key "
-                 "(hashcat src/modules/module_16200.c). Rows with an iteration count of 0 are "
-                 "not read; in tested samples every such row held a 16-byte wrapped key, the "
-                 "layout the Notes - Password Protected artifact labels as not covered by its "
-                 "cited research. A row read but refused for its salt or key length is "
-                 "counted in the log. "
-                 "This artifact does not filter on ZISPASSWORDPROTECTED. applenotes2john.py "
-                 "notes that the flag can be 0 while the iteration count is non-zero, and in "
-                 "tested samples the ICAccount row carried a 24-byte ZCRYPTOVERIFIER with "
-                 "ZISPASSWORDPROTECTED 0 on hickman_ios13 and otto_ios17, so that row is "
-                 "missing from the Notes - Password Protected artifact on those images. "
+                 "A row is emitted only when its salt is 16 bytes, its key 24 bytes and its "
+                 "iteration count at least 1, the three field checks in hashcat's "
+                 "module_16200.c. hashcat also caps Z_PK at 10 digits and the iteration count "
+                 "at 6; this artifact does not check those. The strings were checked against "
+                 "that field layout, not run through hashcat or John. "
+                 "Rows with an iteration count of 0 are not read. In tested samples every "
+                 "0-iteration row that held a wrapped key held a 16-byte one, the layout the "
+                 "Notes - Password Protected artifact labels as not covered by its cited "
+                 "research, and one 0-iteration ICAccount row (iphone12_ios18) held a salt and "
+                 "no key. A row read but refused for its salt or key length is counted in the "
+                 "log; no tested sample had one. "
+                 "This artifact does not filter on ZISPASSWORDPROTECTED, which Password "
+                 "Protected Flag reports as stored. applenotes2john.py notes that the flag can "
+                 "be 0 while the iteration count is non-zero, and in tested samples the "
+                 "ICAccount row carried a 24-byte ZCRYPTOVERIFIER with ZISPASSWORDPROTECTED 0 "
+                 "on hickman_ios13 and otto_ios17, so that row is missing from the Notes - "
+                 "Password Protected artifact on those images. Password Hint is ZPASSWORDHINT "
+                 "as stored. "
                  "Entity is the Core Data entity name, resolved from each row's Z_ENT through "
                  "Z_PRIMARYKEY. Entities seen in tested samples: ICAccount, ICNote, "
-                 "ICAttachment, ICAttachmentPreviewImage and ICMedia. Attachment and media rows "
-                 "carry their own salt and key; whether they share the note's password was not "
-                 "tested. On iphone11_ios17 and hc_ios18_7 the ICAccount row was the only one "
-                 "emitted, while their notes held 16-byte keys with 0 iterations; whether the "
-                 "account password opens those notes was not tested. In tested samples KDF "
-                 "Iterations held 20000 on every emitted row, and Password Hint held one value "
-                 "across all rows of an image, or was empty on all of them (hc_ios18_7). This "
-                 "artifact does not "
-                 "crack or decrypt anything. To try a password list, save the hash string to "
-                 "a file and run 'hashcat -m 16200 -a 0 <file> <wordlist>'. "
-                 "References: John the Ripper, "
-                 "https://github.com/openwall/john/blob/bleeding-jumbo/run/applenotes2john.py; "
-                 "hashcat, https://github.com/hashcat/hashcat/blob/master/src/modules/module_16200.c",
+                 "ICAttachment, ICAttachmentPreviewImage and ICMedia. In tested samples every "
+                 "emitted row of an image, the ICAccount row included, held the same salt "
+                 "value, and on otto_ios17 the note, attachment, preview and media rows held "
+                 "the same wrapped key. Whether they share one password was not tested. "
+                 "On iphone11_ios17 and hc_ios18_7 the ICAccount row was the only one emitted, "
+                 "while their notes, attachments and media held 16-byte keys with 0 iterations; "
+                 "whether the account password opens those records was not tested. In tested "
+                 "samples KDF Iterations held 20000 on every emitted row, and Password Hint "
+                 "held one value across all rows of an image, or was empty on all of them "
+                 "(hc_ios18_7). This artifact does not crack or decrypt anything. To try a "
+                 "password list, save the hash string to a file and run "
+                 "'hashcat -m 16200 -a 0 <file> <wordlist>'. "
+                 "References: John the Ripper, https://github.com/openwall/john/blob/"
+                 "edf64e8690b7770ff18a193cecc52b1ff21f6a33/run/applenotes2john.py; hashcat, "
+                 "https://github.com/hashcat/hashcat/blob/"
+                 "19c84e076fa6627a60fa32e7e352b96e45422d3a/src/modules/module_16200.c",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "key",
