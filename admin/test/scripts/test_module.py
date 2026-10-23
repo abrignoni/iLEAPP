@@ -36,7 +36,7 @@ import inspect
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
-from scripts.search_files import FileInfo, FileSeekerZip, _compile_pattern
+from scripts.search_files import FileInfo, _compile_pattern, zip_member_times
 from leapp_functions.app.artifact_result import ArtifactResult
 
 
@@ -112,10 +112,11 @@ def stage_case_members(zip_ref, temp_dir, file_infos):
 
     For each file member, file_infos maps the extracted path to a FileInfo holding
     the member name and the creation and modification times the zip seeker's own
-    decoder reads from the member's extended timestamp field, or None where the
-    member has none. The extracted file's modification time is then set from the
-    member's date and time, read as local time, as the seeker does. So an artifact
-    sees the values a real run of the same zip gives it, not the time of the test.
+    reader (zip_member_times) takes from the member's NTFS or extended timestamp
+    field, or None where the member has neither. The extracted file's modification
+    time is then set as the seeker sets it: that modification time, else the
+    member's date and time read as local time. So an artifact sees the values a
+    real run of the same zip gives it, not the time of the test.
 
     Args:
         zip_ref (zipfile.ZipFile): The open case zip.
@@ -126,12 +127,9 @@ def stage_case_members(zip_ref, temp_dir, file_infos):
         extracted_path = zip_ref.extract(info, temp_dir)
         if info.is_dir():
             continue
-        # decode_extended_timestamp does not use the instance, so no seeker (and no
-        # archive handle) is needed to call it.
-        creation_date, modification_date = FileSeekerZip.decode_extended_timestamp(None, info.extra)
+        creation_date, modification_date, staged, _problems = zip_member_times(info)
         file_infos[extracted_path] = FileInfo(info.filename, creation_date, modification_date)
-        member_time = time.mktime(info.date_time + (0, 0, -1))
-        os.utime(extracted_path, (member_time, member_time))
+        os.utime(extracted_path, (staged, staged))
 
 
 def process_artifact(zip_path, module_name, artifact_name, _artifact_data, target_os_version=None):
