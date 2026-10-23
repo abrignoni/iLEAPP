@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Discord chats from \"a\" database",
         "author": "@stark4n6",
         "creation_date": "2025-03-31",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Discord",
         "notes": "Direction reads Outgoing when the message sender id equals the "
@@ -15,7 +15,18 @@ __artifacts_v2__ = {
                  "message type table in the Discord Developer Documentation; any other "
                  "type value is shown as stored. Reference for the four type values: "
                  "Discord Developer Documentation, 'Message Resource', "
-                 "https://docs.discord.com/developers/resources/message",
+                 "https://docs.discord.com/developers/resources/message. "
+                 "Conversation, Server Name, Server ID, Channel Name and DM Recipients come from "
+                 "the channel and server records cached in the kv_cache0 table of the same "
+                 "database, matched on Channel ID. For a server channel, Conversation is the "
+                 "server name (or the server id when no server record is cached) and #channel name; for a channel with no guild_id it is the "
+                 "channel name, or 'DM:' and the recipients from the record's rawRecipients "
+                 "(username and user id). When rawRecipients is absent the ids in recipients are used. The DM label is given to any cached channel with no guild_id and no name; the channel type is not checked. In tested samples every such channel had type 1, which the Discord Developer Documentation lists as a direct message between users (https://docs.discord.com/developers/resources/channel). When the channel is not cached those columns are "
+                 "blank and Conversation shows the Channel ID (not exercised on the tested images; every channel was cached). In tested samples every row "
+                 "resolved: 76 of 76 on dexter_ios18 in server channels, 25 of 50 on "
+                 "iphone11_ios17 in a server channel and 25 in a channel with no guild_id, and "
+                 "all 8 on hc_ios18_7 and all 4 on iphone12_ios18 in a channel with no guild_id. "
+                 "Channel Name was blank on every row in a channel with no guild_id.",
         "paths": ('*/Library/Caches/kv-storage/@account*/a*'),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "message-circle",
@@ -28,6 +39,7 @@ __artifacts_v2__ = {
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Channel ID",
+                "conversationLabelColumn": "Conversation",
                 "textColumn": "Message",
                 "directionColumn": "Direction",
                 "directionSentValue": "Outgoing",
@@ -42,6 +54,7 @@ import os
 import re
 import json
 
+from scripts.artifacts.discordServers import discord_channel_context, discord_kv_lookup
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
 _ACCOUNT_ID_RE = re.compile(r'@account\.(\d+)')
@@ -59,6 +72,7 @@ def DiscordChatsA(context):
         ('Edited Timestamp', 'datetime'),
         'Direction',
         'Sender Username',
+        'Conversation',
         'Message',
         'Sender Global Name',
         'Sender ID',
@@ -67,6 +81,10 @@ def DiscordChatsA(context):
         'Call Ended',
         'Message ID',
         'Channel ID',
+        'Server Name',
+        'Server ID',
+        'Channel Name',
+        'DM Recipients',
         'Account ID',
     )
 
@@ -79,6 +97,7 @@ def DiscordChatsA(context):
         # local account id is part of the kv-storage path
         account_match = _ACCOUNT_ID_RE.search(file_found)
         account_id = account_match.group(1) if account_match else ''
+        lookup = discord_kv_lookup([file_found])
 
         db_records = get_sqlite_db_records(file_found, query)
 
@@ -135,11 +154,14 @@ def DiscordChatsA(context):
             else:
                 direction = ''
 
+            conversation, server_name, server_id, channel_name, recipients = \
+                discord_channel_context(channel_id, *lookup)
             data_list.append((
                 message_ts,
                 edited_ts,
                 direction,
                 auth_username,
+                conversation,
                 message,
                 global_username,
                 sender_id,
@@ -148,6 +170,10 @@ def DiscordChatsA(context):
                 call_end,
                 blob_id,
                 channel_id,
+                server_name,
+                server_id,
+                channel_name,
+                recipients,
                 account_id,
             ))
 

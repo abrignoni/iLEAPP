@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Discord chat messages from fsCachedData and the local KV storage database",
         "author": "Original Unknown, John Hyla & @stark4n6",
         "creation_date": "2025-06-23",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Discord",
         "notes": "Direction is Sent when the message author id equals the account id taken from "
@@ -19,7 +19,21 @@ __artifacts_v2__ = {
                  "are not reported. Message Type shows Message, Call, User Joined and Reply for "
                  "type values 0, 3, 7 and 19; other values are shown as stored. Reference for the "
                  "four type values: Discord Developer Documentation, 'Message Resource', "
-                 "https://docs.discord.com/developers/resources/message",
+                 "https://docs.discord.com/developers/resources/message. "
+                 "Conversation, Server Name, Server ID, Channel Name and DM Recipients come from "
+                 "the channel and server records the app caches in the kv_cache0 table of the "
+                 "kv-storage database in the same app container, matched on Channel ID. For a "
+                 "server channel, Conversation is the server name (or the server id when no server record is cached) and #channel name; for a "
+                 "channel with no guild_id it is the channel name, or 'DM:' and the recipients "
+                 "from the record's rawRecipients (username and user id). When rawRecipients is absent the ids in recipients are used. The DM label is given to any cached channel with no guild_id and no name; the channel type is not checked. In tested samples every such channel had type 1, which the Discord Developer Documentation lists as a direct message between users (https://docs.discord.com/developers/resources/channel). When the channel is "
+                 "not cached those columns are blank and Conversation shows the Channel ID. In "
+                 "tested samples every row's channel was cached where the container held a "
+                 "kv-storage database: 127 of 127 rows on dexter_ios18 in server channels, 205 "
+                 "of 334 on iphone11_ios17 in a server channel and the other 129 in a channel "
+                 "with no guild_id, and all 22 on hc_ios18_7 and all 4 on iphone12_ios18 in a "
+                 "channel with no guild_id. No kv-storage database was found on hickman_ios13, so its 10 "
+                 "rows show the Channel ID. Channel Name was blank on every row in a channel "
+                 "with no guild_id.",
         "paths": (
             "*/activation_record.plist",
             "*/com.hammerandchisel.discord/fsCachedData/*",
@@ -31,7 +45,7 @@ __artifacts_v2__ = {
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Channel ID",
-                "conversationLabelColumn": "Channel ID",
+                "conversationLabelColumn": "Conversation",
                 "textColumn": "Content",
                 "directionColumn": "Direction",
                 "directionSentValue": "Sent",
@@ -70,6 +84,7 @@ from os.path import basename, dirname, isfile, normcase, normpath
 
 import biplist
 
+from scripts.artifacts.discordServers import discord_channel_context, discord_kv_lookup
 from scripts.ilapfuncs import (
     artifact_processor,
     check_in_media,
@@ -250,7 +265,14 @@ def _embed_values(message):
     return embed_author, author_url, author_icon_url, embedded_url, embedded_description, footer_text, footer_icon_url
 
 
-def _message_rows(message, files_found, resolution, source_type, source_file, context, account_id):
+def _kv_lookups_by_container(files_found):
+    dbs = {}
+    for db_file in _kv_storage_dbs(files_found):
+        dbs.setdefault(_application_container(db_file), []).append(db_file)
+    return {container: discord_kv_lookup(db_files) for container, db_files in dbs.items()}
+
+
+def _message_rows(message, files_found, resolution, source_type, source_file, context, account_id, lookup):
     # Some cached message entries are plain strings rather than objects
     if not isinstance(message, dict):
         return []
@@ -265,6 +287,8 @@ def _message_rows(message, files_found, resolution, source_type, source_file, co
     edited_timestamp = _discord_timestamp(message.get("edited_timestamp"))
     call_ended = _discord_timestamp((message.get("call") or {}).get("ended_timestamp"))
     embed_values = _embed_values(message)
+    channel_id = message.get("channel_id", "")
+    conversation, server_name, server_id, channel_name, recipients = discord_channel_context(channel_id, *lookup)
 
     rows = []
     for media_ref, attachment_filename, attachment_link in _attachment_rows(message, files_found, resolution):
@@ -274,9 +298,14 @@ def _message_rows(message, files_found, resolution, source_type, source_file, co
             call_ended,
             _direction(author_id, account_id),
             sender,
-            message.get("channel_id", ""),
+            conversation,
             message.get("content", ""),
             media_ref,
+            channel_id,
+            server_name,
+            server_id,
+            channel_name,
+            recipients,
             author.get("username", ""),
             author.get("global_name") or author.get("globalName") or author.get("display_name") or "",
             author.get("bot", ""),
@@ -347,6 +376,7 @@ def discordChats(context):
         logfunc("Cannot link Discord attachments due to missing resolution")
 
     account_ids = _account_ids_by_container(files_found)
+    lookups = _kv_lookups_by_container(files_found)
     data_list = []
     source_dirs = set()
     for source_file, message in _fs_cache_messages(files_found):
@@ -361,6 +391,7 @@ def discordChats(context):
                 source_file,
                 context,
                 account_id,
+                lookups.get(_application_container(source_file), ({}, {})),
             )
         )
 
@@ -377,6 +408,7 @@ def discordChats(context):
                     source_file,
                     context,
                     account_id,
+                    lookups.get(_application_container(source_file), ({}, {})),
                 )
             )
 
@@ -386,9 +418,14 @@ def discordChats(context):
         ("Call Ended", "datetime"),
         "Direction",
         "Sender",
-        "Channel ID",
+        "Conversation",
         "Content",
         ("Attachment", "media"),
+        "Channel ID",
+        "Server Name",
+        "Server ID",
+        "Channel Name",
+        "DM Recipients",
         "Username",
         "Global Name",
         "Bot?",
