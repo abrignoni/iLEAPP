@@ -14,7 +14,24 @@ __artifacts_v2__ = {
         "notes": "Each result of ZUSER LEFT JOIN ZUSERCLIENT is reported without DISTINCT: a user with several "
                  "clients gives one row per client, and a user with no client gives one row with the client "
                  "columns blank. Clients with no matching ZUSER are not selected. Only the first "
-                 "store.wiredatabase found is read. Client ID is ZUSERCLIENT.ZREMOTEIDENTIFIER. In the Wire code read, "
+                 "store.wiredatabase found is read. Client ID is ZUSERCLIENT.ZREMOTEIDENTIFIER. Handle is "
+                 "ZUSER.ZHANDLE, the handle attribute of Wire's User entity, which Wire's header describes as "
+                 "the \"@name\" handle "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Public/ZMUser.h#L55-L56). "
+                 "ZMUser.m writes it from the handle field of the backend's user record "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L484-L487) and from search "
+                 "results (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L562-L573), "
+                 "and the app's settings let the account owner choose one, shown after an @ prefix and sent "
+                 "to /self/handle "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios/Wire-iOS/Sources/UserInterface/Settings/ChangingDetails/ChangeHandleViewController.swift#L101, "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios/Wire-iOS/Sources/UserInterface/Settings/ChangingDetails/ChangeHandleViewController.swift#L328-L329, "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-sync-engine/Source/Synchronization/Strategies/UserProfileUpdateRequestStrategy.swift#L142-L145). "
+                 "The handle is not Wire's user ID, which ZMUser.m sets from the id of the backend's user record "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L442-L472) and the model "
+                 "stores as remoteIdentifier_data "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L381); "
+                 "this artifact does not report ZUSER.ZREMOTEIDENTIFIER_DATA. "
+                 "In the Wire code read, "
                  "Client ID, Device Class, Device Label, Device Model, Activation Date and Last Active Date are "
                  "written from the backend's record of the client (id, class, label, model, time and "
                  "last_active) (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/UserClient/UserClient.swift#L358-L379, "
@@ -126,7 +143,7 @@ def wireAccount(context):
         ('Activation Date', 'datetime'),
         ('Discovery Date', 'datetime'),
         ('Last Active Date', 'datetime'),
-        'User ID',
+        'Handle',
         'Display Name',
         ('Phone Number', 'phonenumber'),
         'Email Address',
