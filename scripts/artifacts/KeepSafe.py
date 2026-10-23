@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         ),
         "author": "@Gear-I, Claude, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-23",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
@@ -28,8 +28,19 @@ __artifacts_v2__ = {
             "search returns beside the files, and the rdb_backups/<timestamp> folder itself, are "
             "skipped. The KeepSafe version recorded in sample_data is the app's own "
             "initialVersionInstalled preference, the version first installed rather than the one "
-            "running at acquisition. On the iOS 17.5.1 image the container held the rdb stores "
-            "and no table directory, so no item is reported there."
+            "running at acquisition. On cookbook_ios1751 (iOS 17.5.1) the container held no table "
+            "directory, so all 7 rows are log-only: they come from the log in "
+            "rdb_backups/<timestamp>, since the live rdb log held no records and its .sst table is "
+            "not read. No item had a :100 record there, so MIME Type, Dimensions (WxH), Dominant "
+            "Color (as recorded), Recorded Byte Count (of original file), Recorded Byte Count (of "
+            "preview), Encrypted File Size on Disk (bytes), GPS Latitude, GPS Longitude and "
+            "Original Photos Asset ID are empty on all 7 rows. Key 30 was null, so SHA-1 (of "
+            "original file, as recorded) is empty; key 6 was an empty string, so Account Tracking "
+            "ID is empty; and key 32 held the boolean true, so Album shows 'True' on all 7 rows "
+            "and does not name an album on that version. Key 21 (as stored) and Key 22 (as "
+            "stored) held one value on all 7 rows, and Vault Deleted (tombstoned) was 'No' on all "
+            "7. That image's 25 vault file documents are in the photovault store, reported by "
+            "KeepSafe - Photo Vault Files."
         ),
         "paths": (
             "*/mobile/Containers/Data/Application/*/Documents/rdb/*",
@@ -52,8 +63,8 @@ __artifacts_v2__ = {
                 "sharded into two-letter folders"
             ),
             "cookbook_ios1751": (
-                "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 0 rows: the container holds the rdb "
-                "stores and no table directory"
+                "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 7 rows, all log-only from "
+                "rdb_backups: 2 'primary', 2 'fake', 3 'breakin_alert'; no table directory"
             ),
         },
     },
