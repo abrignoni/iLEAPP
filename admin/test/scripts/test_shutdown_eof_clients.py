@@ -73,11 +73,52 @@ class ShutdownEOFTests(unittest.TestCase):
         self.assertEqual(sources, 'shutdown.log\nshutdown.0.log')
 
     def test_later_file_sigterm_does_not_date_earlier_tail(self):
-        rows, reboots, _ = self.run_logs([('shutdown.log', client(7).encode()), ('shutdown.0.log', (client(7) + 'SIGTERM: [1700000000]\nAfter 3 s, these clients are still here\n').encode())])
-        self.assertIsNone(rows[0][0])
-        self.assertEqual(rows[1][0], reboots[0][0])
-        self.assertEqual(len(rows), 2)
+        # The earlier tail (pid 7) has no dated twin in the later file, so it stays undated.
+        rows, reboots, _ = self.run_logs([('shutdown.log', client(7).encode()), ('shutdown.0.log', (client(8) + 'SIGTERM: [1700000000]\nAfter 3 s, these clients are still here\n').encode())])
+        self.assertEqual([(r[0], r[2], r[-1]) for r in rows], [(None, '7', 'shutdown.log'), (reboots[0][0], '8', 'shutdown.0.log')])
         self.assertEqual(len(reboots), 1)
+
+    def test_later_file_sigterm_twin_drops_earlier_tail_without_dating_it(self):
+        # Same entry number, PID, path and delay: the undated copy is dropped, not dated.
+        rows, reboots, _ = self.run_logs([('shutdown.log', client(7).encode()), ('shutdown.0.log', (client(7) + 'SIGTERM: [1700000000]\nAfter 3 s, these clients are still here\n').encode())])
+        self.assertEqual(rows, [(reboots[0][0], 1, '7', '/usr/bin/tool', None, '', 'shutdown.0.log')])
+        self.assertEqual(len(reboots), 1)
+
+    def prefix_logs(self):
+        live = 'After 2 s, these clients are still here\n' + client(1) + 'SIGTERM: [1700000000]\n'
+        live += 'After 2 s, these clients are still here\n' + client(2) + client(3, '/private/var/tmp/x')
+        packed = live
+        live += 'SIGTERM: [1700000100]\n'
+        return live.encode(), packed.encode()
+
+    def test_undated_copy_read_second_is_dropped_by_dated_twin(self):
+        live, packed = self.prefix_logs()
+        rows, reboots, _ = self.run_logs([('shutdown.log', live), ('shutdown.0.log', packed)])
+        self.assertEqual([(r[1], r[2], r[-1]) for r in rows], [(1, '1', 'shutdown.log'), (2, '2', 'shutdown.log'), (3, '3', 'shutdown.log')])
+        self.assertTrue(all(r[0] is not None for r in rows))
+        self.assertEqual(len(reboots), 2)
+
+    def test_undated_copy_read_first_is_dropped_by_dated_twin(self):
+        live, packed = self.prefix_logs()
+        rows, reboots, _ = self.run_logs([('shutdown.0.log', packed), ('shutdown.log', live)])
+        self.assertEqual([(r[1], r[2], r[-1]) for r in rows], [(1, '1', 'shutdown.0.log'), (2, '2', 'shutdown.log'), (3, '3', 'shutdown.log')])
+        self.assertEqual([r[0] for r in rows[1:]], [reboots[1][0]] * 2)
+        self.assertEqual(len(reboots), 2)
+
+    def test_undated_row_without_dated_twin_is_kept_undated(self):
+        live, packed = self.prefix_logs()
+        packed += client(9).encode()  # a client line the live copy does not hold at that entry number
+        for order in ([('shutdown.log', live), ('shutdown.0.log', packed)], [('shutdown.0.log', packed), ('shutdown.log', live)]):
+            rows, _, _ = self.run_logs(order)
+            self.assertEqual([(r[0], r[1], r[2], r[-1]) for r in rows if r[0] is None], [(None, 4, '9', 'shutdown.0.log')])
+            self.assertEqual(len(rows), 4)
+
+    def test_twin_key_includes_delay(self):
+        # A dated row with another delay is not a twin, so the undated row is kept.
+        packed = client(5).encode()
+        live = ('After 3 s, these clients are still here\n' + client(5) + 'SIGTERM: [1700000000]\n').encode()
+        rows, _, _ = self.run_logs([('shutdown.log', live), ('shutdown.0.log', packed)])
+        self.assertEqual([(r[0] is None, r[4]) for r in rows], [(False, 3.0), (True, None)])
 
     def test_tar_actual_helper_and_appledouble(self):
         rows, reboots, sources = self.run_logs([('shutdown.log', client(1).encode()), ('shutdown.0.log', (client(2) + 'SIGTERM: [1700000000]\n').encode()), ('._shutdown.log', client(99).encode())], package=True)
