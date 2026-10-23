@@ -74,11 +74,6 @@ def atx_datastore(context):
         elif file_name.endswith('Local.sqlite'):
             localdb = str(file_found)
 
-    source_path = (
-        f"ATX Database: {context.get_relative_path(atxdb)}\n"
-        f"Local Database: {context.get_relative_path(localdb)}"
-    )
-
     if not atxdb or not localdb:
         missing_dbs = []
         if not atxdb:
@@ -87,7 +82,7 @@ def atx_datastore(context):
             missing_dbs.append('Local')
 
         logfunc(f"Required database(s) not found: {', '.join(missing_dbs)}")
-        return data_headers, data_list, source_path
+        return data_headers, data_list, ''
 
     query = '''
     SELECT
@@ -121,4 +116,4 @@ def atx_datastore(context):
             (timestamp, startdate, enddate, row[2], row[3], row[4], row[8], row[9], row[0])
         )
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join((atxdb, localdb))

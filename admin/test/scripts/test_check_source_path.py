@@ -10,6 +10,10 @@ fails correct code gets switched off, so the shapes that must stay silent are
 pinned here too: an empty string on a branch that returns no rows never reaches a
 report, and a variable holding a real path is not a literal.
 
+The composed-label check is pinned the same way: each positive case is a shape
+found on main in 2026-10 (a label before each path, a file count with a pointer to a
+column), and each negative case is a path built from values that must stay silent.
+
 The join check is pinned the same way. Each positive case below is a shape found
 on main in 2026-10 (a ', ' or '; ' join, a '+' chain, a helper that returns the
 joined string, a streamed result's source_path), and each negative case is a way
@@ -222,6 +226,101 @@ class SeparatorJoins(unittest.TestCase):
         '''), [])
 
 
+def composed_for(source):
+    with tempfile.TemporaryDirectory() as folder:
+        path = pathlib.Path(folder) / 'sample.py'
+        path.write_text(textwrap.dedent(source), encoding='utf-8')
+        violations, problem = csp.scan_module_composed(str(path))
+    if problem:
+        raise AssertionError(problem)
+    return [(line, text) for _, _, line, text in violations]
+
+
+class ComposedProse(unittest.TestCase):
+    def test_flags_a_label_before_each_path(self):
+        """atxDatastore's shape."""
+        self.assertEqual(composed_for('''
+            @artifact_processor
+            def demo(context):
+                source_path = (
+                    f"ATX Database: {context.get_relative_path(atxdb)}\\n"
+                    f"Local Database: {context.get_relative_path(localdb)}"
+                )
+                return (), [1], source_path
+        '''), [(5, '\nLocal Database: '), (5, 'ATX Database: ')])
+
+    def test_flags_a_count_that_points_at_a_column(self):
+        """knuddels' shape."""
+        self.assertEqual(composed_for('''
+            @artifact_processor
+            def demo(context):
+                db_count = len(db_files)
+                source_note = f"{db_count} Knuddels database{'s' if db_count != 1 else ''} - see Source File column"
+                return (), [1], source_note
+        '''), [(5, ' - see Source File column'), (5, ' Knuddels database')])
+
+    def test_flags_a_plus_chain_and_an_augmented_label(self):
+        self.assertEqual(composed_for('''
+            @artifact_processor
+            def demo(context):
+                listed = 'Database: ' + db_path
+                listed += '\\nWAL file at ' + wal_path
+                return (), [1], listed
+        '''), [(4, 'Database: '), (5, '\nWAL file at ')])
+
+    def test_flags_a_literal_line_with_no_separator(self):
+        self.assertEqual(composed_for('''
+            @artifact_processor
+            def demo(context):
+                return (), [1], f'{db_path}\\nSee Source File column'
+        '''), [(4, '\nSee Source File column')])
+
+    def test_flags_a_streamed_results_source_path(self):
+        self.assertEqual(composed_for('''
+            @artifact_processor
+            def demo(context):
+                results = context.create_artifact_result(
+                    headers=(), source_path=f'Cache: {cache}')
+                results.set_source_path(f'{count} files')
+                return results
+        '''), [(5, 'Cache: '), (6, ' files')])
+
+    def test_flags_a_label_returned_by_a_helper(self):
+        self.assertEqual(composed_for('''
+            def _parse(context):
+                return [1], f'Database: {db_path}'
+
+            @artifact_processor
+            def demo(context):
+                rows, source_path = _parse(context)
+                return (), rows, source_path
+        '''), [(3, 'Database: ')])
+
+    def test_accepts_paths_built_from_values(self):
+        self.assertEqual(composed_for('''
+            @artifact_processor
+            def demo(context):
+                first = f'{folder}/{name}'
+                second = f'{db_path}-wal'
+                third = f'{root}/Library/Application Support/{name}'
+                fourth = f'{archive} >> {member}'
+                fifth = f'{db_path}\\n{wal_path}'
+                sixth = str(db_path) + '\\n' + str(wal_path)
+                seventh = dirname(found).split('Keyboard', 1)[0] + 'Keyboard'
+                eighth = f'/private/var/mobile/Library/{name}'
+                ninth = f'{folder}\\\\{name}'
+                return (), [1], '\\n'.join((first, second, third, fourth, fifth,
+                                            sixth, seventh, eighth, ninth))
+        '''), [])
+
+    def test_accepts_a_label_on_a_no_rows_branch(self):
+        self.assertEqual(composed_for('''
+            @artifact_processor
+            def demo(context):
+                return (), [], f'No database found under {root}'
+        '''), [])
+
+
 class TheRepoItself(unittest.TestCase):
     def test_no_artifact_in_this_repo_returns_prose(self):
         artifacts = REPO_ROOT / 'scripts' / 'artifacts'
@@ -238,6 +337,14 @@ class TheRepoItself(unittest.TestCase):
             violations, _ = csp.scan_module_joins(str(module))
             offenders.extend(violations)
         self.assertEqual(offenders, [], f'{len(offenders)} artifact join(s) found')
+
+    def test_no_artifact_in_this_repo_composes_a_label_into_a_source_path(self):
+        artifacts = REPO_ROOT / 'scripts' / 'artifacts'
+        offenders = []
+        for module in sorted(artifacts.glob('*.py')):
+            violations, _ = csp.scan_module_composed(str(module))
+            offenders.extend(violations)
+        self.assertEqual(offenders, [], f'{len(offenders)} composed label(s) found')
 
 
 if __name__ == '__main__':
