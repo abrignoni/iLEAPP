@@ -1,14 +1,16 @@
 __artifacts_v2__ = {
     "notesPasswordProtected": {
         "name": "Notes - Password Protected",
-        "description": "Locked Apple Notes: the password hint and the wrapped-key length that "
-                       "classifies the encryption scheme of each note, as stored.",
+        "description": "Password-protected Apple Notes records (notes, their attachments and media, "
+                       "and the account record): the Core Data entity name, the password hint as stored, "
+                       "and the length of the wrapped key, which labels the encryption scheme of each.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Notes",
-        "notes": "The main Notes artifact reports that a note is locked but not how it is locked. "
+        "notes": "The main Notes artifact reports that a note is locked and its password hint, but not "
+                 "how it is locked. "
                  "This surfaces ZPASSWORDHINT and labels each row from the stored length of "
                  "ZCRYPTOWRAPPEDKEY alone; the iteration count is reported and not used. A 24-byte "
                  "wrapped key matches the scheme described in the cited "
@@ -18,16 +20,29 @@ __artifacts_v2__ = {
                  "key is a layout the cited research does not cover, so its row reads 'Not covered "
                  "by the cited research'; that is a statement about the research, not that the "
                  "note cannot be recovered. In tested samples 24 byte keys were found on iOS "
-                 "13.3.1, 15 and 17.5.1 and 16 byte keys on iOS 16.5, 17.3, 18.3.2, 18.7 and "
+                 "13.3.1, 14.3, 15.3.1 and 17.5.1 and 16 byte keys on iOS 16.5, 17.3, 18.3.2, 18.7 and "
                  "18.7.8, so the key length does not follow the iOS version alone; what decides it "
-                 "is not established here. A row with a hint and no wrapped key is labelled "
-                 "'Hint stored, no wrapped key'; what such a row is in the Notes data model is "
-                 "not established here. The note body stays encrypted and this artifact does "
-                 "not attempt to decrypt it. Note Title is the title column as stored (ZTITLE1, "
-                 "ZTITLE2 or ZTITLE, the first one the database has); the cited research found "
-                 "ZTITLE1 left unencrypted on a locked note. A non-empty Note Title was reported "
-                 "on 6 of the 18 rows that carry a wrapped key on iphone12_ios18 and on 1 of 8 on "
-                 "hc_ios18_7. Why the title is empty on the other rows was not established. "
+                 "is not established here. "
+                 "A row is any ZICCLOUDSYNCINGOBJECT record with ZISPASSWORDPROTECTED 1 that holds a "
+                 "wrapped key or a password hint; flagged records with neither are not reported (14 "
+                 "of 33 on iphone12_ios18 and 3 of 5 on abe_ios16, all attachment or preview-image "
+                 "records). An account record whose ZISPASSWORDPROTECTED is 0 is not reported either "
+                 "(hickman_ios13, otto_ios17); the Notes - Encryption Key Hashes artifact reports it. "
+                 "That table holds several Core Data entities; Entity is the entity name resolved from "
+                 "the row's Z_ENT through Z_PRIMARYKEY, or the raw Z_ENT number when Z_PRIMARYKEY has "
+                 "no entry for it. In tested samples the rows were ICNote, "
+                 "ICAttachment, ICAttachmentPreviewImage, ICMedia and ICAccount records (on "
+                 "iphone12_ios18, 6 ICNote, 7 ICAttachment, 5 ICMedia and 1 ICAccount). A row with "
+                 "a hint and no wrapped key is labelled 'Hint stored, no wrapped key'; in tested "
+                 "samples every such row was the ICAccount record. "
+                 "The table carries numbered variants of some property columns (ZTITLE, ZTITLE1 and "
+                 "so on), and no row in the tested stores filled more than one variant of ZTITLE, "
+                 "ZCREATIONDATE or ZMODIFICATIONDATE, so Title, Creation Date and Last Modified are "
+                 "each taken from whichever variant the row fills. In tested samples Title and both dates were filled on every ICNote "
+                 "row, both dates but not Title on every ICAttachment row, and none of the three "
+                 "on ICMedia, ICAttachmentPreviewImage and ICAccount rows. The cited research found "
+                 "ZTITLE1 left unencrypted on a locked note. Record ID is the row's Z_PK. The note "
+                 "body stays encrypted and this artifact does not attempt to decrypt it. "
                  "Reference: Ciofeca Forensics, 'Apple Notes Revisited: Encrypted Notes', "
                  "https://www.ciofecaforensics.com/2020/07/31/apple-notes-revisited-encrypted-notes/",
         "paths": ('*/NoteStore.sqlite*',),
@@ -36,20 +51,20 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | 2 rows (24-byte keys)",
-            "hickman_ios14": "iOS 14.3 | 4 rows (24-byte keys)",
+            "hickman_ios14": "iOS 14.3 | 4 rows (3 with 24-byte keys, 1 account row with hint only)",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
-            "hickman_ios15": "iOS 15 | 5 rows (24-byte keys)",
+            "hickman_ios15": "iOS 15.3.1 | 5 rows (4 with 24-byte keys, 1 account row with hint only)",
             "abe_ios16": "iOS 16.5 | 2 rows (16-byte keys)",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 7 rows (16-byte keys)",
+            "iphone11_ios17": "iOS 17.3 | 7 rows (6 with 16-byte keys, 1 account row with hint only)",
             "otto_ios17": "iOS 17.5.1 | 5 rows (24-byte keys)",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 2 rows (16-byte keys)",
-            "iphone12_ios18": "iOS 18.7 | 19 rows (16-byte keys)",
-            "hc_ios18_7": "iOS 18.7.8 | 9 rows (16-byte keys)",
+            "iphone12_ios18": "iOS 18.7 | 19 rows (18 with 16-byte keys, 1 account row with hint only)",
+            "hc_ios18_7": "iOS 18.7.8 | 9 rows (8 with 16-byte keys, 1 account row with hint only)",
         }
     },
     "notesEncryptionKeys": {
@@ -124,14 +139,17 @@ __artifacts_v2__ = {
     }
 }
 
+import re
+
 from scripts.ilapfuncs import (artifact_processor, convert_cocoa_core_data_ts_to_utc,
                                does_table_exist_in_db, get_sqlite_db_records, logfunc)
 
 TABLE = 'ZICCLOUDSYNCINGOBJECT'
 
 # The documented scheme wraps a 16-byte note key with AES Key Wrap, which is 24 bytes
-# on disk, and derives the wrapping key with PBKDF2. The revised scheme, seen from
-# iOS 16 onward, stores a 16-byte wrapped key with the iteration count zeroed.
+# on disk, and derives the wrapping key with PBKDF2. Some stores instead hold a 16-byte
+# wrapped key with the iteration count zeroed; which one a store uses does not follow
+# the iOS version alone (17.3 held 16-byte keys, 17.5.1 held 24-byte keys).
 CLASSIC_WRAPPED_LEN = 24
 REVISED_WRAPPED_LEN = 16
 
@@ -140,6 +158,20 @@ def _existing_columns(file_found):
     """Return the set of ZICCLOUDSYNCINGOBJECT column names present in this db."""
     return {row[0] for row in get_sqlite_db_records(
         file_found, f"SELECT name FROM pragma_table_info('{TABLE}')")}
+
+
+def _variants(columns, name):
+    """COALESCE over every numbered column Core Data made for one property name.
+
+    A property that several entities in the table define gets ZNAME, ZNAME1, ...;
+    a row fills only the variant of its own entity, so the first non-null one
+    is that row's value. 'NULL' when the table has none of them.
+    """
+    found = sorted((c for c in columns if re.fullmatch(f'Z{name}\\d*', c)),
+                   key=lambda c: (len(c), c))
+    if not found:
+        return 'NULL'
+    return found[0] if len(found) == 1 else f"COALESCE({', '.join(found)})"
 
 
 def _first_present(columns, *candidates):
@@ -166,17 +198,17 @@ def _classify(wrapped_len):
                 'Not covered by the cited research')
     if wrapped_len:
         return (f'Unrecognized ({wrapped_len}-byte wrapped key)', 'Unknown')
-    # A hint with no wrapped key. What that row is has not been sourced, so it
-    # is named by what is stored.
+    # A hint with no wrapped key; in tested samples always the ICAccount record,
+    # which the Entity column shows. Named by what is stored.
     return ('Hint stored, no wrapped key', 'n/a')
 
 
 @artifact_processor
 def notesPasswordProtected(context):
     data_headers = (
-        ('Creation Date', 'datetime'), ('Last Modified', 'datetime'), 'Note Title',
+        ('Creation Date', 'datetime'), ('Last Modified', 'datetime'), 'Entity', 'Title',
         'Password Hint', 'Encryption Scheme', 'KDF Iterations', 'Wrapped Key Bytes',
-        'Recoverability', 'Note Row ID')
+        'Recoverability', 'Record ID')
     data_list = []
     sources = []
 
@@ -191,18 +223,16 @@ def notesPasswordProtected(context):
         if 'ZISPASSWORDPROTECTED' not in columns:
             continue  # schema predates locked notes; nothing to report
 
-        creation = _first_present(columns, 'ZCREATIONDATE3', 'ZCREATIONDATE2',
-                                  'ZCREATIONDATE1', 'ZCREATIONDATE')
-        modified = _first_present(columns, 'ZMODIFICATIONDATE3', 'ZMODIFICATIONDATE2',
-                                  'ZMODIFICATIONDATE1', 'ZMODIFICATIONDATE')
-        title = _first_present(columns, 'ZTITLE1', 'ZTITLE2', 'ZTITLE')
+        creation = _variants(columns, 'CREATIONDATE')
+        modified = _variants(columns, 'MODIFICATIONDATE')
+        title = _variants(columns, 'TITLE')
         hint = _first_present(columns, 'ZPASSWORDHINT')
         wrapped = _first_present(columns, 'ZCRYPTOWRAPPEDKEY')
         iterations = _first_present(columns, 'ZCRYPTOITERATIONCOUNT')
 
         query = f'''
             SELECT {creation}, {modified}, {title}, {hint},
-                   LENGTH({wrapped}), {iterations}, Z_PK
+                   LENGTH({wrapped}), {iterations}, Z_PK, Z_ENT
             FROM {TABLE}
             WHERE ZISPASSWORDPROTECTED = 1
               AND ({wrapped} IS NOT NULL OR {hint} IS NOT NULL)
@@ -211,13 +241,15 @@ def notesPasswordProtected(context):
         rows = list(get_sqlite_db_records(file_found, query))
         if not rows:
             continue
+        entity_names = _entity_names(file_found)
 
-        for created, changed, note_title, note_hint, wrapped_len, iters, row_id in rows:
+        for created, changed, row_title, note_hint, wrapped_len, iters, row_id, z_ent in rows:
             scheme, recoverability = _classify(wrapped_len or 0)
             data_list.append((
                 convert_cocoa_core_data_ts_to_utc(created) if created else '',
                 convert_cocoa_core_data_ts_to_utc(changed) if changed else '',
-                note_title or '',            # title is itself encrypted, so usually blank
+                entity_names.get(z_ent, f'Z_ENT {z_ent}'),
+                row_title or '',
                 note_hint or '',
                 scheme,
                 iters if iters is not None else '',
@@ -228,21 +260,21 @@ def notesPasswordProtected(context):
         sources.append(context.get_relative_path(file_found))
 
     if data_list:
-        recoverable = sum(1 for row in data_list if row[7].startswith('Recoverable'))
-        logfunc(f'Notes: {len(data_list)} password-protected note(s), '
+        recoverable = sum(1 for row in data_list if row[8].startswith('Recoverable'))
+        logfunc(f'Notes: {len(data_list)} password-protected record(s), '
                 f'{recoverable} in the recoverable scheme')
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 def _entity_names(file_found):
     """Map Core Data Z_ENT integers to entity names via Z_PRIMARYKEY.
 
     ZICCLOUDSYNCINGOBJECT holds several entities in one table (Core Data
-    single-table inheritance); Z_ENT says which one a row is. Z_PRIMARYKEY names
-    them, which is how an account record (ICAccount, the account-wide password)
-    is told apart from a note record (ICNote, a single note's password). An
-    empty mapping when the table is absent leaves rows labelled by raw Z_ENT.
+    single-table inheritance); Z_ENT says which one a row is and Z_PRIMARYKEY
+    names it, so an account record (ICAccount) is told apart from a note
+    (ICNote) or an attachment. An empty mapping when the table is absent leaves
+    rows labelled by raw Z_ENT.
     """
     return {row[0]: row[1] for row in get_sqlite_db_records(
         file_found, 'SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY')}
@@ -340,4 +372,4 @@ def notesEncryptionKeys(context):
         logfunc(f'Notes: {len(data_list)} encryption-key hash(es) built, '
                 f'{accounts} on account records')
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
