@@ -1084,5 +1084,5 @@ def telegramMessages(context):
                 if db_connection:
                     db_connection.close()
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path

@@ -527,7 +527,7 @@ def chromeWebHistory(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
     
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -555,7 +555,7 @@ def chromeWebHistory(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web History'
@@ -591,7 +591,7 @@ def chromeWebHistory(context):
         else:
             logfunc(f'No {browser_name} - Web History data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -606,7 +606,7 @@ def chromeWebVisits(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -659,7 +659,7 @@ def chromeWebVisits(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web Visits'
@@ -697,7 +697,7 @@ def chromeWebVisits(context):
         else:
             logfunc(f'No {browser_name} - Web Visits data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 @artifact_processor
 def chromeWebSearch(context):
@@ -712,7 +712,7 @@ def chromeWebSearch(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -735,7 +735,7 @@ def chromeWebSearch(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web Search'
@@ -776,7 +776,7 @@ def chromeWebSearch(context):
         else:
             logfunc(f'No {browser_name} - Web Search Terms data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -795,7 +795,7 @@ def chromeDownloads(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -898,7 +898,7 @@ def chromeDownloads(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Downloads'
@@ -934,7 +934,7 @@ def chromeDownloads(context):
         else:
             logfunc(f'No {browser_name} - Downloads data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -949,7 +949,7 @@ def chromeKeywordSearchTerms(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -973,7 +973,7 @@ def chromeKeywordSearchTerms(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Keyword Search Terms'
@@ -1010,7 +1010,7 @@ def chromeKeywordSearchTerms(context):
         else:
             logfunc(f'No {browser_name} - Keyword Search Terms data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -1029,7 +1029,7 @@ def chromeAutofillEntries(context):
     category = "Chromium"
     module_name = "chromeAutofillEntries"
     
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1077,7 +1077,7 @@ def chromeAutofillEntries(context):
         finally:
             db.close()
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if modern_schema:
             if len(all_rows) > 0:
@@ -1149,7 +1149,7 @@ def chromeAutofillEntries(context):
             else:
                 logfunc(f'No {browser_name} - Autofill - Entries data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 # Chromium retired the autofill_profiles / autofill_profile_* join. Web Data v120-128
@@ -1211,7 +1211,7 @@ def chromeAutofillProfiles(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
-    report_file = 'Unknown'
+    report_files = []
     
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1267,7 +1267,7 @@ def chromeAutofillProfiles(context):
         finally:
             db.close()
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Autofill - Profiles'
@@ -1309,7 +1309,7 @@ def chromeAutofillProfiles(context):
         else:
             logfunc(f'No {browser_name} - Autofill - Profiles data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -1325,7 +1325,7 @@ def chromeBookmarks(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1334,7 +1334,7 @@ def chromeBookmarks(context):
         if not (file_path == 'Bookmarks' or file_path == 'Bookmarks.bak'):  # skip -journal and other files
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         browser_name = get_browser_name(file_found)
         if file_found.find('app_sbrowser') >= 0:
@@ -1396,7 +1396,7 @@ def chromeBookmarks(context):
         else:
             logfunc(f'No {browser_name} - Bookmarks data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -1414,7 +1414,7 @@ def chromeCookies(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1463,7 +1463,7 @@ def chromeCookies(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Cookies'
@@ -1503,7 +1503,7 @@ def chromeCookies(context):
         else:
             logfunc(f'No {browser_name} - Cookies data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 @artifact_processor
 def chromeLoginData(context):
@@ -1518,7 +1518,7 @@ def chromeLoginData(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Login Data':  # skip -journal and other files
@@ -1545,7 +1545,7 @@ def chromeLoginData(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Login Data'
@@ -1586,7 +1586,7 @@ def chromeLoginData(context):
         else:
             logfunc(f'No {browser_name} - Login Data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -1600,7 +1600,7 @@ def chromeTopSites(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1610,7 +1610,7 @@ def chromeTopSites(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -1674,7 +1674,7 @@ def chromeTopSites(context):
 
         db.close()
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -1691,7 +1691,7 @@ def chromeOfflinePages(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1715,7 +1715,7 @@ def chromeOfflinePages(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Offline Pages'
@@ -1753,7 +1753,7 @@ def chromeOfflinePages(context):
         else:
             logfunc(f'No {browser_name} - Offline Pages data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -1769,7 +1769,7 @@ def chromeMediaHistorySessions(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1796,7 +1796,7 @@ def chromeMediaHistorySessions(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Sessions'
@@ -1834,7 +1834,7 @@ def chromeMediaHistorySessions(context):
         else:
             logfunc(f'No {browser_name} - Media History - Sessions data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 @artifact_processor
 def chromeMediaHistoryPlaybacks(context):
@@ -1848,7 +1848,7 @@ def chromeMediaHistoryPlaybacks(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1879,7 +1879,7 @@ def chromeMediaHistoryPlaybacks(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Playbacks'
@@ -1917,7 +1917,7 @@ def chromeMediaHistoryPlaybacks(context):
         else:
             logfunc(f'No {browser_name} - Media History - Playbacks data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 @artifact_processor
 def chromeMediaHistoryOrigins(context):
@@ -1931,7 +1931,7 @@ def chromeMediaHistoryOrigins(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -1953,7 +1953,7 @@ def chromeMediaHistoryOrigins(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Origins'
@@ -1991,7 +1991,7 @@ def chromeMediaHistoryOrigins(context):
         else:
             logfunc(f'No {browser_name} - Media History - Origins data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)
 
 
 @artifact_processor
@@ -2006,7 +2006,7 @@ def chromeNetworkActionPredictor(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    report_file = 'Unknown'
+    report_files = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -2028,7 +2028,7 @@ def chromeNetworkActionPredictor(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
+        report_files.append(file_found)
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Network Action Predictor'
@@ -2066,4 +2066,4 @@ def chromeNetworkActionPredictor(context):
         else:
             logfunc(f'No {browser_name} - Network Action Predictor data available')
 
-    return all_data_headers, all_data, report_file
+    return all_data_headers, all_data, '\n'.join(report_files)

@@ -71,6 +71,20 @@ space at the join ('{folder}/{name}', '{db}-wal', '{root}/Application Support/x'
 so neither rule fires on it. A literal touching a value with no space between them
 ('{path}(copy)') is not caught.
 
+The reached-literal check follows the value the same way and reports a whole string
+literal that gets there by any route but the plain return the prose check reads:
+either side of a conditional expression, any operand of an 'or' or 'and', any one
+of several assignments to a variable, a module constant, or a helper's return:
+
+    return data_headers, data_list, source_path or 'activeUser'          # WRONG
+    source = 'See source paths in data' if sources else ''               # WRONG
+    report_file = 'Unknown'   # later replaced by real paths              # WRONG
+
+The literal is reported when one of its lines holds text and neither '/' nor '\\',
+the same reading the composed-label check gives a literal line. A fallback that is
+only ever returned with no rows is still reported, because the check cannot tell
+that from the code: write `''` there, or start from an empty list and join it.
+
 What deliberately does NOT fail:
 
   * `''` on a branch that also returns an empty `data_list`. The wrapper writes no
@@ -78,9 +92,10 @@ What deliberately does NOT fail:
     A "not found" message there is pointless but harmless, and `''` is correct.
     The same branch is not checked for joins either.
   * A variable holding a real path, however it was built. Only literal text is
-    reported as prose: a string literal, a literal reached through a variable that
-    is never assigned anything else, and the literal text of an f-string or '+'
-    chain that the rule above reads as a label.
+    reported as prose: a string literal, wherever it reaches the source path from,
+    and the literal text of an f-string or '+' chain that the rule above reads as a
+    label.
+  * `''` anywhere, including as the other side of a conditional or an 'or'.
   * Building one path: `'/'.join(parts)`, `''.join(parts)`, `os.path.join(...)`,
     `f'{folder}/{name}'`, and archive member notation, `f'{archive} >> {member}'`.
 
@@ -89,6 +104,8 @@ had already been swept once (PRs #2022 and #2024, 140 modules) and the class had
 come back in ALEAPP and RLEAPP, which is why it is now a check rather than a sweep.
 The composed-label check was added after a sweep of all five cores in 2026-10 found
 four sites the literal check could not see, three in ALEAPP and one in iLEAPP.
+The reached-literal check was added after a later 2026-10 sweep found 87 artifacts
+whose literal neither check could see, 17 in ALEAPP and 70 in iLEAPP.
 
 Usage:
   check_source_path.py [--root REPO_ROOT]
@@ -283,6 +300,14 @@ class JoinFinder:
         self.constants = module_constants(tree)
         # (line, text) for each label or prose composed into a source path.
         self.prose = set()
+        # (line, text) for each whole literal that reaches a source path through a
+        # branch, an 'or'/'and', a variable or a helper.
+        self.reached = set()
+
+    def note_literal(self, node, text):
+        """Record a whole literal that reaches a source path, when it reads as prose."""
+        if text and composes_prose(text, False, False):
+            self.reached.add((node.lineno, text))
 
     def literal(self, func, node):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
@@ -352,7 +377,10 @@ class JoinFinder:
 
     def find(self, func, node, seen):
         """(line, separator) for each listing separator that reaches `node`."""
-        if isinstance(node, ast.Call):
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, str):
+                self.note_literal(node, node.value)
+        elif isinstance(node, ast.Call):
             target = node.func
             if isinstance(target, ast.Attribute) and target.attr == 'join':
                 separator = self.literal(func, target.value)
@@ -375,7 +403,10 @@ class JoinFinder:
             if key in seen:
                 return
             seen.add(key)
-            for value, position, augmented in bindings(func, node.id):
+            found = bindings(func, node.id)
+            if not found and node.id in self.constants:
+                self.note_literal(node, self.constants[node.id])
+            for value, position, augmented in found:
                 if augmented:
                     if isinstance(value, ast.JoinedStr):
                         parts = value.values
@@ -435,19 +466,21 @@ def reaching_values(node):
 
 
 def follow(tree):
-    """Run the finder over every decorated function: (joins, composed prose).
+    """Run the finder over every decorated function.
 
-    Each is a set of (function, line, text).
+    Returns (joins, composed prose, reached literals), each a set of
+    (function, line, text).
     """
     finder = JoinFinder(tree)
-    joins, prose = set(), set()
+    joins, prose, reached = set(), set(), set()
     for node in decorated(tree):
-        finder.prose = set()
+        finder.prose, finder.reached = set(), set()
         for value in reaching_values(node):
             for line, separator in finder.find(node, value, set()):
                 joins.add((node.name, line, separator))
         prose.update((node.name, line, text) for line, text in finder.prose)
-    return joins, prose
+        reached.update((node.name, line, text) for line, text in finder.reached)
+    return joins, prose, reached
 
 
 def scan_module_joins(path):
@@ -459,7 +492,7 @@ def scan_module_joins(path):
     module, tree, problem = parse(path)
     if problem:
         return [], problem
-    joins, _ = follow(tree)
+    joins, _, _ = follow(tree)
     violations = [(module, func, line, separator) for func, line, separator in joins]
     return sorted(violations, key=lambda v: (v[2], v[1], v[3])), None
 
@@ -473,8 +506,29 @@ def scan_module_composed(path):
     module, tree, problem = parse(path)
     if problem:
         return [], problem
-    _, prose = follow(tree)
+    _, prose, _ = follow(tree)
     violations = [(module, func, line, text) for func, line, text in prose]
+    return sorted(violations, key=lambda v: (v[2], v[1], v[3])), None
+
+
+def scan_module_reached(path):
+    """A prose literal that reaches a source path by any route but the plain one.
+
+    The routes are a conditional expression, an 'or'/'and', any assignment of a
+    variable (not only a sole one), a module constant and a helper's return. A
+    literal the prose check already reports for the same function is left to it.
+
+    Returns [(module, function, line, text)], the line being where the literal is
+    written.
+    """
+    module, tree, problem = parse(path)
+    if problem:
+        return [], problem
+    plain = {(node.name, text) for node in decorated(tree)
+             for _, text in scan_function(node)}
+    _, _, reached = follow(tree)
+    violations = [(module, func, line, text) for func, line, text in reached
+                  if (func, text) not in plain]
     return sorted(violations, key=lambda v: (v[2], v[1], v[3])), None
 
 
@@ -491,7 +545,7 @@ def main():
         print(f'No scripts/artifacts under {root}', file=sys.stderr)
         return 2
 
-    violations, joins, composed, unreadable, modules = [], [], [], [], 0
+    violations, joins, composed, reached, unreadable, modules = [], [], [], [], [], 0
     for name in sorted(os.listdir(artifacts)):
         if not name.endswith('.py'):
             continue
@@ -506,6 +560,8 @@ def main():
         joins.extend(found)
         found, _ = scan_module_composed(path)
         composed.extend(found)
+        found, _ = scan_module_reached(path)
+        reached.extend(found)
 
     if violations:
         print(f'Artifacts returning prose as source_path ({len(violations)}):')
@@ -524,12 +580,18 @@ def main():
         for module, func, line, text in composed:
             print(f'  {module}:{line}  {func}()  {text!r}')
         print()
-    if violations or joins or composed:
+    if reached:
+        print('Artifacts reaching a source path with prose through a branch, an '
+              f"'or'/'and', a variable, a constant or a helper ({len(reached)}):")
+        for module, func, line, text in reached:
+            print(f'  {module}:{line}  {func}()  {text!r}')
+        print()
+    if violations or joins or composed or reached:
         print(STANDARD_NOTE)
         return 1
 
-    summary = (f'Checked {modules} artifact module(s): no prose, no composed label '
-               'and no non-newline join returned as a source path.')
+    summary = (f'Checked {modules} artifact module(s): no prose, no composed label, '
+               'no reached literal and no non-newline join returned as a source path.')
     if unreadable:
         summary += f' {len(unreadable)} module(s) NOT checked.'
     print(summary)

@@ -555,7 +555,7 @@ def telegramAccounts(context):
             info.get('environment', ''), info.get('datacenter', ''), '', '',
         ))
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
 
 
@@ -639,6 +639,7 @@ def telegramContacts(context):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
             continue
+        rows_before = len(data_list)
         try:
             cursor = db.cursor()
 
@@ -712,6 +713,9 @@ def telegramContacts(context):
             source_paths.append(db_path)
         except sqlite3.Error as err:
             logfunc(f'Telegram contacts: error reading {db_path}: {err}')
+            # Rows read before the error stay in the report, so their file is a source.
+            if len(data_list) > rows_before:
+                source_paths.append(db_path)
         finally:
             db.close()
 
@@ -720,7 +724,7 @@ def telegramContacts(context):
                 f'shown={contact_read_examples}, '
                 f'suppressed={contact_read_failures - contact_read_examples}; '
                 'membership may be incomplete.')
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
 
 
@@ -864,7 +868,7 @@ def telegramChats(context):
         finally:
             db.close()
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
 
 
@@ -931,7 +935,7 @@ def telegramDeviceContacts(context):
         finally:
             db.close()
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
 
 
@@ -1018,7 +1022,7 @@ def telegramPeerPresence(context):
         finally:
             db.close()
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
 
 
@@ -1079,7 +1083,7 @@ def telegramMessageTags(context):
         finally:
             db.close()
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
 
 
@@ -1248,7 +1252,7 @@ def telegramCachedPeerData(context):
         finally:
             db.close()
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
 
 
@@ -1391,5 +1395,5 @@ def telegramSettings(context):
                                     f'Account {account_id}', data_list):
                 source_paths.append(path)
 
-    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    source_path = '\n'.join(dict.fromkeys(source_paths))
     return data_headers, data_list, source_path
