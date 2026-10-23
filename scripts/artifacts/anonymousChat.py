@@ -33,11 +33,6 @@ __artifacts_v2__ = {
         ),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'package',
-        'sample_data': {
-            'anonymous_chat_synthetic': 'Synthetic test case built by '
-                                        'admin/test/scripts/build_anonymous_chat_fixture.py, '
-                                        'not a device extraction | 2 rows',
-        },
     },
     'anonymousChat_accounts': {
         'name': 'Anonymous Chat & Fun - Accounts',
@@ -70,11 +65,6 @@ __artifacts_v2__ = {
         ),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'user',
-        'sample_data': {
-            'anonymous_chat_synthetic': 'Synthetic test case built by '
-                                        'admin/test/scripts/build_anonymous_chat_fixture.py, '
-                                        'not a device extraction | 2 rows',
-        },
     },
     'anonymousChat_conversations': {
         'name': 'Anonymous Chat & Fun - Conversations',
@@ -107,11 +97,6 @@ __artifacts_v2__ = {
         ),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'message-circle',
-        'sample_data': {
-            'anonymous_chat_synthetic': 'Synthetic test case built by '
-                                        'admin/test/scripts/build_anonymous_chat_fixture.py, '
-                                        'not a device extraction | 1 row',
-        },
     },
     'anonymousChat_messages': {
         'name': 'Anonymous Chat & Fun - Messages',
@@ -168,11 +153,6 @@ __artifacts_v2__ = {
             }
         },
         'artifact_icon': 'message-square',
-        'sample_data': {
-            'anonymous_chat_synthetic': 'Synthetic test case built by '
-                                        'admin/test/scripts/build_anonymous_chat_fixture.py, '
-                                        'not a device extraction | 3 rows',
-        },
     },
     'anonymousChat_blocked': {
         'name': 'Anonymous Chat & Fun - Blocked Users',
@@ -192,11 +172,6 @@ __artifacts_v2__ = {
         ),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'slash',
-        'sample_data': {
-            'anonymous_chat_synthetic': 'Synthetic test case built by '
-                                        'admin/test/scripts/build_anonymous_chat_fixture.py, '
-                                        'not a device extraction | 1 row',
-        },
     },
     'anonymousChat_media': {
         'name': 'Anonymous Chat & Fun - Media',
@@ -229,11 +204,6 @@ __artifacts_v2__ = {
         ),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'image',
-        'sample_data': {
-            'anonymous_chat_synthetic': 'Synthetic test case built by '
-                                        'admin/test/scripts/build_anonymous_chat_fixture.py, '
-                                        'not a device extraction | 4 rows',
-        },
     },
 }
 
