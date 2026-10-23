@@ -572,7 +572,7 @@ def united_account(context):
         "Session ID",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -630,7 +630,7 @@ def united_saved_travelers(context):
         "Traveler Key",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -768,7 +768,7 @@ def united_trips(context):
         "Passenger Seats",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -877,7 +877,7 @@ def united_trip_passengers(context):
         "Source Type",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -953,7 +953,7 @@ def united_boarding_passes(context):
         ("Last Refreshed", "datetime"),
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -1049,7 +1049,7 @@ def united_pnr_documents(context):
         "Flights",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -1102,7 +1102,7 @@ def united_booking_searches(context):
         "Point of Sale Country",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -1157,7 +1157,7 @@ def united_flight_status_searches(context):
         "Type",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Core Data database found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -1228,7 +1228,7 @@ def united_boarding_status_log(context):
         "Trip Number",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United boarding log found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -1336,7 +1336,7 @@ def united_ife_watch_history(context):
         "Subtitle",
         "Source File",
     )
-    source_path = "\n".join(source_paths) if source_paths else "No United IFE artifacts found"
+    source_path = "\n".join(source_paths)
     return data_headers, data_list, source_path
 
 
@@ -1413,7 +1413,7 @@ def united_watch_complications(context):
         "Status",
         "Source File",
     )
-    return data_headers, data_list, source_path or "No United Watch complications plist found"
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -1501,7 +1501,5 @@ def united_imessage_recipients(context):
         "Local ID",
         "Source File",
     )
-    source_path = "\n".join(source_paths) if source_paths else (
-        "No United iMessage plugin recipient cache found"
-    )
+    source_path = "\n".join(source_paths)
     return data_headers, data_list, source_path

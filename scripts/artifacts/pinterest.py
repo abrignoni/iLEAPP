@@ -494,13 +494,14 @@ def _image_type(path):
     return '', ''
 
 
-def _account_records(files_found, roots=(), container=None):
+def _account_records(files_found, roots=(), container=None, sources=None):
     '''{account id: (record, [file names])} from the activeUser files matched.
 
     The app writes the record twice under two names. They were byte identical in
     both tested samples, so the id keys the row and both names are reported. When
     container is given, only that container's files are read, so an extraction
-    holding more than one container does not merge their accounts.
+    holding more than one container does not merge their accounts. When sources
+    is given, the path of each file a record was read from is added to it.
     '''
     accounts = {}
     for path in _paths(files_found):
@@ -516,6 +517,8 @@ def _account_records(files_found, roots=(), container=None):
             continue
         if not isinstance(record, dict):
             continue
+        if sources is not None:
+            sources.add(path)
         account_id = record.get('id') or name
         existing = accounts.setdefault(account_id, (record, []))
         existing[1].append(_source_label(path, roots) if roots else name)
@@ -602,7 +605,7 @@ def pinterestAccount(context):
         'Connected To YouTube', 'Connected To Etsy', 'Profile Image URL',
         'Account Type', 'Source File')
     data_list = []
-    source_path = ''
+    source_paths = set()
 
     roots = _preference_containers(files_found)
     kept, skipped = [], 0
@@ -616,8 +619,8 @@ def pinterestAccount(context):
     if skipped:
         logfunc(f'Pinterest: skipped {skipped} activeUser file(s) in a container that holds '
                 f'no Pinterest preference file; the file name is not specific to Pinterest.')
-    for account_id, (record, names) in sorted(_account_records(kept, roots).items()):
-        source_path = source_path or 'activeUser'
+    records = _account_records(kept, roots, sources=source_paths)
+    for account_id, (record, names) in sorted(records.items()):
         data_list.append((
             _rfc2822(record.get('created_at')),
             _rfc2822(record.get('last_board_created_at')),
@@ -656,7 +659,7 @@ def pinterestAccount(context):
             ', '.join(sorted(set(names))),
         ))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 def _image_index(files_found, roots):

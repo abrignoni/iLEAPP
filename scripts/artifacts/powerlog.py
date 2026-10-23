@@ -1467,6 +1467,8 @@ def _parse_powerlog_table(context, headers, table, columns, row_builder, optiona
     """
     results = context.create_artifact_result(headers=headers)
     sources = _powerlog_sources(context, extension)
+    # The files that rows were read from.
+    source_paths = set()
     for db_path, evidence_path in sources:
         actual_table = _resolve_table(db_path, table)
         if not actual_table:
@@ -1487,8 +1489,8 @@ def _parse_powerlog_table(context, headers, table, columns, row_builder, optiona
             '''):
             ts, offset = _corrected_utc(row[0], stamps, offsets)
             results.add_row(row_builder(ts, offset, row, relative_path))
-    source = "See source paths in data" if sources else ""
-    return results, source
+            source_paths.add(evidence_path)
+    return results, '\n'.join(sorted(source_paths))
 
 
 def _end_utc(start_dt, raw_start, raw_end):

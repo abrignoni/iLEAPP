@@ -18,6 +18,11 @@ The join check is pinned the same way. Each positive case below is a shape found
 on main in 2026-10 (a ', ' or '; ' join, a '+' chain, a helper that returns the
 joined string, a streamed result's source_path), and each negative case is a way
 of building ONE path that must stay silent.
+
+The reached-literal check is pinned the same way: each positive case is a route a
+literal took to the source path on main in 2026-10 (a conditional in a helper, an
+'or' fallback, a starting value later replaced, a module constant), and each
+negative case is an empty string or a path that must stay silent.
 """
 import importlib.util
 import pathlib
@@ -321,6 +326,122 @@ class ComposedProse(unittest.TestCase):
         '''), [])
 
 
+def reached_for(source):
+    with tempfile.TemporaryDirectory() as folder:
+        path = pathlib.Path(folder) / 'sample.py'
+        path.write_text(textwrap.dedent(source), encoding='utf-8')
+        violations, problem = csp.scan_module_reached(str(path))
+    if problem:
+        raise AssertionError(problem)
+    return [(line, text) for _, _, line, text in violations]
+
+
+class ReachedLiterals(unittest.TestCase):
+    def test_flags_a_conditional_returned_by_a_helper(self):
+        """powerlog's shape: one helper feeding many artifacts."""
+        self.assertEqual(reached_for('''
+            def _parse(context):
+                results = context.create_artifact_result(headers=())
+                sources = find(context)
+                source = "See source paths in data" if sources else ""
+                return results, source
+
+            @artifact_processor
+            def demo(context):
+                results, source = _parse(context)
+                return (), results, source
+        '''), [(5, 'See source paths in data')])
+
+    def test_flags_an_or_fallback(self):
+        """pinterest's shape."""
+        self.assertEqual(reached_for('''
+            @artifact_processor
+            def demo(context):
+                source_path = ''
+                data_list = []
+                for record in records(context):
+                    source_path = source_path or 'activeUser'
+                    data_list.append(record)
+                return (), data_list, source_path
+        '''), [(7, 'activeUser')])
+
+    def test_flags_an_or_in_the_return(self):
+        self.assertEqual(reached_for('''
+            @artifact_processor
+            def demo(context):
+                source_path = first_path(context)
+                return (), [1], source_path or "No database found"
+        '''), [(5, 'No database found')])
+
+    def test_flags_a_starting_value_that_is_later_replaced(self):
+        """The Chrome modules' shape: the prose check only reads sole assignments."""
+        self.assertEqual(reached_for('''
+            @artifact_processor
+            def demo(context):
+                report_file = 'Unknown'
+                for file_found in context.get_files_found():
+                    report_file = file_found if report_file == 'Unknown' else report_file + '\\n' + file_found
+                return (), rows, report_file
+        '''), [(4, 'Unknown')])
+
+    def test_flags_a_module_constant(self):
+        """booking's shape."""
+        self.assertEqual(reached_for('''
+            SOURCE_PATH_NOTE = "Refer to the 'Source file name' column"
+
+            @artifact_processor
+            def demo(context):
+                return (), [1], SOURCE_PATH_NOTE
+        '''), [(6, "Refer to the 'Source file name' column")])
+
+    def test_flags_a_streamed_results_source_path(self):
+        self.assertEqual(reached_for('''
+            @artifact_processor
+            def demo(context):
+                results = context.create_artifact_result(headers=())
+                results.set_source_path(db_path if db_path else 'Unknown')
+                return results
+        '''), [(5, 'Unknown')])
+
+    def test_leaves_a_plain_return_to_the_prose_check(self):
+        source = '''
+            @artifact_processor
+            def demo(context):
+                source_path = 'See source file(s) below'
+                return (), [1], source_path
+        '''
+        self.assertEqual(reached_for(source), [])
+        self.assertEqual(len(findings_for(source)), 1)
+
+    def test_accepts_an_empty_string_on_any_branch(self):
+        self.assertEqual(reached_for('''
+            @artifact_processor
+            def demo(context):
+                report_file = ''
+                for file_found in context.get_files_found():
+                    report_file = file_found
+                first = report_file if report_file else ''
+                return (), [1], first or ''
+        '''), [])
+
+    def test_accepts_a_path_literal_on_a_branch(self):
+        self.assertEqual(reached_for('''
+            @artifact_processor
+            def demo(context):
+                source_path = db_path or '/private/var/mobile/Library/x.db'
+                return (), [1], source_path
+        '''), [])
+
+    def test_accepts_prose_on_a_no_rows_branch(self):
+        self.assertEqual(reached_for('''
+            @artifact_processor
+            def demo(context):
+                if not found:
+                    return (), [], 'Unknown' if x else 'No database found'
+                return (), [1], '\\n'.join(sorted(paths))
+        '''), [])
+
+
 class TheRepoItself(unittest.TestCase):
     def test_no_artifact_in_this_repo_returns_prose(self):
         artifacts = REPO_ROOT / 'scripts' / 'artifacts'
@@ -345,6 +466,14 @@ class TheRepoItself(unittest.TestCase):
             violations, _ = csp.scan_module_composed(str(module))
             offenders.extend(violations)
         self.assertEqual(offenders, [], f'{len(offenders)} composed label(s) found')
+
+    def test_no_artifact_in_this_repo_reaches_a_source_path_with_a_literal(self):
+        artifacts = REPO_ROOT / 'scripts' / 'artifacts'
+        offenders = []
+        for module in sorted(artifacts.glob('*.py')):
+            violations, _ = csp.scan_module_reached(str(module))
+            offenders.extend(violations)
+        self.assertEqual(offenders, [], f'{len(offenders)} reached literal(s) found')
 
 
 if __name__ == '__main__':

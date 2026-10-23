@@ -277,8 +277,6 @@ LINE_BREAK = '\n'
 COMMA_SEP = ', '
 HTML_LINE_BREAK = '<br>'
 HTML_HORZ_RULE = '<hr>'
-SOURCE_PATH_NOTE = "Refer to the 'Source file name' column to identify the exact " \
-                   "device location of the origin file."
 
 LOCATION_TYPES = {
     0: 'City',
@@ -829,6 +827,7 @@ def booking_account(context):
     data_list = []
     data_list_html = []
 
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
@@ -847,6 +846,7 @@ def booking_account(context):
             plist_data = get_plist_file_content(file_found)
             if not plist_data:
                 continue
+            source_paths.add(file_found)
             device_path = get_device_file_path(file_found, context)
 
             # Determine which parser to use
@@ -887,7 +887,7 @@ def booking_account(context):
             logfunc(f"[{context.get_artifact_name()}] "
                     f"Error - Could not read {file_found}: {ex}")
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -1031,6 +1031,7 @@ def booking_payment_methods(context):
 
     data_list = []
 
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
@@ -1049,6 +1050,7 @@ def booking_payment_methods(context):
             plist_data = get_plist_file_content(file_found)
             if not plist_data:
                 continue
+            source_paths.add(file_found)
             device_path = get_device_file_path(file_found, context)
 
             # Determine which parser to use
@@ -1070,7 +1072,7 @@ def booking_payment_methods(context):
             logfunc(f"[{context.get_artifact_name()}] "
                     f"Error - Could not read {file_found}: {ex}")
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 def _get_destination_details(loc_dict: dict) -> tuple:
@@ -1494,6 +1496,7 @@ def booking_booked(context):
 
     booking_app_id = get_booking_app_id(context)
 
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
@@ -1506,6 +1509,7 @@ def booking_booked(context):
             plist_data = get_plist_file_content(file_found)
             if not plist_data:
                 continue
+            source_paths.add(file_found)
 
             device_path = get_device_file_path(file_found, context)
 
@@ -1606,7 +1610,7 @@ def booking_booked(context):
             logfunc(f"[{context.get_artifact_name()}] "
                     f"Error - Could not read {file_found}: {ex}")
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_paths))
 
 
 @artifact_processor

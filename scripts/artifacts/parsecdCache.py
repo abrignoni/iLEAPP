@@ -52,7 +52,7 @@ from scripts.ilapfuncs import (
 def parse_cd_cache(context):
     """ see artifact description """
     data_list = []
-    report_file = "Unknown"
+    report_file = ""
 
     for file_found in context.get_files_found():
         file_found = str(file_found)

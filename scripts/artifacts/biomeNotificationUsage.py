@@ -50,7 +50,7 @@ def get_biomeNotificationUsage(context):
               }
 
     data_list = []
-    report_file = 'Unknown'
+    report_file = ''
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
