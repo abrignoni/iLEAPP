@@ -158,7 +158,7 @@ def _parse(context):
                         rows.append((values[0], desc, values[1], rel))
                     break
 
-    return rows, ', '.join(sources)
+    return rows, '\n'.join(sources)
 
 
 def _add_rows(context, add_row):

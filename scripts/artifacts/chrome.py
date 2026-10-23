@@ -555,7 +555,7 @@ def chromeWebHistory(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web History'
@@ -659,7 +659,7 @@ def chromeWebVisits(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web Visits'
@@ -735,7 +735,7 @@ def chromeWebSearch(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web Search'
@@ -898,7 +898,7 @@ def chromeDownloads(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Downloads'
@@ -973,7 +973,7 @@ def chromeKeywordSearchTerms(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Keyword Search Terms'
@@ -1077,7 +1077,7 @@ def chromeAutofillEntries(context):
         finally:
             db.close()
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if modern_schema:
             if len(all_rows) > 0:
@@ -1267,7 +1267,7 @@ def chromeAutofillProfiles(context):
         finally:
             db.close()
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Autofill - Profiles'
@@ -1334,7 +1334,7 @@ def chromeBookmarks(context):
         if not (file_path == 'Bookmarks' or file_path == 'Bookmarks.bak'):  # skip -journal and other files
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         browser_name = get_browser_name(file_found)
         if file_found.find('app_sbrowser') >= 0:
@@ -1463,7 +1463,7 @@ def chromeCookies(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Cookies'
@@ -1545,7 +1545,7 @@ def chromeLoginData(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Login Data'
@@ -1610,7 +1610,7 @@ def chromeTopSites(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -1715,7 +1715,7 @@ def chromeOfflinePages(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Offline Pages'
@@ -1796,7 +1796,7 @@ def chromeMediaHistorySessions(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Sessions'
@@ -1879,7 +1879,7 @@ def chromeMediaHistoryPlaybacks(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Playbacks'
@@ -1953,7 +1953,7 @@ def chromeMediaHistoryOrigins(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Origins'
@@ -2028,7 +2028,7 @@ def chromeNetworkActionPredictor(context):
         if all_rows is None:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
 
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Network Action Predictor'

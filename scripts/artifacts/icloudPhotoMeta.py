@@ -163,4 +163,4 @@ def icloudPhotoMeta(context):
                                   rec_mod_date, res_org_filesize, rec_id, tiff, exif, exported_bplist))
         sources.append(rel)
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

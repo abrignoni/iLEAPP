@@ -63,4 +63,4 @@ def tileApp(context):
         if had_data:
             sources.append(context.get_relative_path(file_found))
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

@@ -209,7 +209,7 @@ def _parse_shutdown_logs(context):
             entry_num += 1
         sources.append(rel)
 
-    return processes, reboots, ', '.join(dict.fromkeys(sources))
+    return processes, reboots, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor

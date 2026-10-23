@@ -93,4 +93,4 @@ def mobileContainerManager(context):
                 continue
             data_list.append((dtime_obj, group, linecount, rel_path))
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

@@ -281,7 +281,7 @@ def notes(context):
 
         sources.append(context.get_relative_path(file_found))
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 # CloudKit share enumerations, as they appear in ZICINVITATION.ZSERVERSHAREDATA.
@@ -381,4 +381,4 @@ def notesParticipants(context):
         if found_any:
             sources.append(context.get_relative_path(file_found))
 
-    return data_headers, data_list, ', '.join(sources)
+    return data_headers, data_list, '\n'.join(sources)

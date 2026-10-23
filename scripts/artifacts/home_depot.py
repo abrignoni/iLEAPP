@@ -493,7 +493,7 @@ def home_depot_account(context):
         data_list.append(_build_account_row(user_info, preferred_store_ids, source))
         source_paths.append(rel_path)
 
-    return data_headers, data_list, '; '.join(source_paths)
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor
@@ -510,7 +510,7 @@ def home_depot_store(context):
         data_list.append(_build_store_row(user_info, preferred_store_ids, source))
         source_paths.append(rel_path)
 
-    return data_headers, data_list, '; '.join(source_paths)
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor

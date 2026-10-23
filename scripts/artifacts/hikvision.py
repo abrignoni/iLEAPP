@@ -213,4 +213,4 @@ def hikvisionMedia(context):
         data_list.append((rel_path, file_name, media_ref))
         sources.append(rel_path)
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

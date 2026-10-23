@@ -76,10 +76,9 @@ def skg_archive(context):
     #Build list of report files:
     result_parts = []
     for parent, filenames in grouped_files.items():
-        formatted_group = f"{parent}/{filenames[0]}" if len(filenames) == 1 else f"{parent}/" + ", ".join(filenames)
-        result_parts.append(formatted_group)
+        result_parts.extend(f"{parent}/{filename}" for filename in filenames)
 
-    report_files =  ", ".join(result_parts)
+    report_files =  "\n".join(result_parts)
 
     logfunc(f'{dedupe} SKG Archive records deduplicated')
 

@@ -844,4 +844,4 @@ def c2paProvenance(context):
                 rel,
             ))
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

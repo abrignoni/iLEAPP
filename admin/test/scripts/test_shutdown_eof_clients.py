@@ -70,7 +70,7 @@ class ShutdownEOFTests(unittest.TestCase):
         self.assertEqual([(r[0], r[1], r[2]) for r in rows], [(None, 1, '7'), (None, 2, '7')])
         self.assertEqual(reboots, [])
         self.assertTrue(all(r[-1] == 'shutdown.log' for r in rows))
-        self.assertEqual(sources, 'shutdown.log, shutdown.0.log')
+        self.assertEqual(sources, 'shutdown.log\nshutdown.0.log')
 
     def test_later_file_sigterm_does_not_date_earlier_tail(self):
         rows, reboots, _ = self.run_logs([('shutdown.log', client(7).encode()), ('shutdown.0.log', (client(7) + 'SIGTERM: [1700000000]\nAfter 3 s, these clients are still here\n').encode())])

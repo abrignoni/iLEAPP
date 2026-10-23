@@ -130,7 +130,7 @@ class TestPersonFields(unittest.TestCase):
             self.assertEqual([r[:5] for r in rows], expected)
             self.assertEqual(len(rows), 19)
             self.assertEqual([r[4] for r in rows].count('same-id'), 2)
-            self.assertEqual(sources, ', '.join(str(p.relative_to(root)) for p in files))
+            self.assertEqual(sources, '\n'.join(str(p.relative_to(root)) for p in files))
 
     def test_native_binary_null_uid_and_float_bits(self):
         original = {'value': [None, plistlib.UID(2**64 - 1), 2**64 - 1, -(2**63),

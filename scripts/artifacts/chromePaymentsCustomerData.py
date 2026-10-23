@@ -102,7 +102,7 @@ def get_chromePaymentsCustomerData(context):
         if not rows:
             continue
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+        report_file = file_found if report_file == 'Unknown' else report_file + '\n' + file_found
         source = context.get_relative_path(file_found)
 
         for row in rows:

@@ -230,7 +230,7 @@ def chatgptConversationsMetadata(context):
         except _JSON_ERRORS:
             logfunc(f'Error parsing ChatGPT conversation metadata from -> {file_found}')
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor
@@ -272,7 +272,7 @@ def chatgptConversations(context):
                 metadata.get('voice_mode_message', False), str(metadata), rel))
         sources.append(rel)
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor
@@ -295,7 +295,7 @@ def chatgptDraftConversations(context):
         except _JSON_ERRORS:
             logfunc(f'Error parsing ChatGPT draft messages from -> {file_found}')
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor
@@ -341,7 +341,7 @@ def chatgptPreferences(context):
                               plist_data.get('segment.events', '')))
             sources.append(context.get_relative_path(file_found))
 
-    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 def _checkin_tmp_media(context, extension):
