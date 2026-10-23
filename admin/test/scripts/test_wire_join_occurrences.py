@@ -53,21 +53,22 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                                            (key, stamp) + ((12.25, -45.5) if locations else ()))
                     connection.commit()
                     phone_sql = 'u.ZPHONENUMBER' if phone else 'NULL'
-                    columns = f'u.ZHANDLE,u.ZNAME,c.ZACTIVATIONDATE,{phone_sql},u.ZEMAILADDRESS'
+                    columns = (f'c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,u.ZNAME,{phone_sql},u.ZEMAILADDRESS,'
+                               'NULL,NULL,NULL,NULL')
                     if locations:
                         columns += ',c.ZACTIVATIONLOCATIONLATITUDE,c.ZACTIVATIONLOCATIONLONGITUDE'
                     suffix = ' FROM ZUSER u LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER'
                     raw = connection.execute('SELECT ' + columns + suffix).fetchall()
                     distinct = connection.execute('SELECT DISTINCT ' + columns + suffix).fetchall()
-                    expected = [row[:2] + ((datetime.datetime(2001, 1, 1,
-                                tzinfo=datetime.timezone.utc) + datetime.timedelta(seconds=row[2]))
-                                if row[2] else row[2],) + row[3:] for row in raw]
+                    expected = [((datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc) +
+                                  datetime.timedelta(seconds=row[0])) if row[0] else row[0],) + row[1:]
+                                for row in raw]
                     connection.close()
                     headers, rows, source = wire.wireAccount.__wrapped__(_Context([str(path)]))
                     self.assertEqual(rows, expected)
                     self.assertEqual(len(rows), 6)
                     self.assertEqual(len(distinct), 3)
-                    self.assertEqual(len(headers), 7 if locations else 5)
+                    self.assertEqual(len(headers), 13 if locations else 11)
                     self.assertEqual(source, str(path))
 
     def test_sqlite_storage_classes_collations_and_nonunique_left_keys(self):
@@ -84,14 +85,14 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                 connection.execute('INSERT INTO ZUSER VALUES (?,?,?,?)', (100, 'fanout', '', ''))
                 connection.executemany('INSERT INTO ZUSERCLIENT VALUES (?,?)', [(100, 0), (100, 0)])
                 connection.commit()
-                query = ('SELECT u.ZHANDLE,u.ZNAME,c.ZACTIVATIONDATE,NULL,u.ZEMAILADDRESS '
-                         'FROM ZUSER u LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER')
+                query = ('SELECT c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,u.ZNAME,NULL,u.ZEMAILADDRESS,'
+                         'NULL,NULL,NULL,NULL FROM ZUSER u LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER')
                 expected = connection.execute(query).fetchall()
                 old = connection.execute(query.replace('SELECT ', 'SELECT DISTINCT ', 1)).fetchall()
                 connection.close()
                 _, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
-                self.assertEqual([(type(row[0]), row) for row in rows],
-                                 [(type(row[0]), row) for row in expected])
+                self.assertEqual([(type(row[3]), row) for row in rows],
+                                 [(type(row[3]), row) for row in expected])
                 self.assertEqual(len(rows), 16)
                 self.assertLess(len(old), len(rows))
 
@@ -110,8 +111,8 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                     connection.executemany('INSERT INTO ZUSERCLIENT VALUES (?,0)',
                                            [(value,) for value in (1, '1', 1.0, 'CASE', None)])
                     connection.commit()
-                    query = ('SELECT u.ZHANDLE,u.ZNAME,c.ZACTIVATIONDATE,NULL,u.ZEMAILADDRESS '
-                             'FROM ZUSER u LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER')
+                    query = ('SELECT c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,u.ZNAME,NULL,u.ZEMAILADDRESS,'
+                             'NULL,NULL,NULL,NULL FROM ZUSER u LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER')
                     expected = connection.execute(query).fetchall()
                     distinct = connection.execute(query.replace('SELECT ', 'SELECT DISTINCT ', 1)).fetchall()
                     pairs = connection.execute('SELECT u.rowid,c.rowid FROM ZUSER u '
@@ -121,6 +122,32 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                     self.assertEqual(rows, expected)
                     self.assertEqual(len(rows), len(pairs))
                     self.assertGreater(len(rows), len(distinct))
+
+    def test_client_columns_tell_apart_clients_with_no_activation_date(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / 'store.wiredatabase'
+            connection = sqlite3.connect(path)
+            connection.execute('CREATE TABLE ZUSER (Z_PK, ZHANDLE, ZNAME, ZEMAILADDRESS, ZPHONENUMBER)')
+            connection.execute('CREATE TABLE ZUSERCLIENT (ZUSER, ZACTIVATIONDATE, ZDISCOVERYDATE, '
+                               'ZLASTACTIVEDATE, ZREMOTEIDENTIFIER, ZDEVICECLASS, ZLABEL, ZMODEL, '
+                               'ZACTIVATIONLOCATIONLATITUDE, ZACTIVATIONLOCATIONLONGITUDE)')
+            connection.execute("INSERT INTO ZUSER VALUES (1, 'other', 'name', NULL, NULL)")
+            connection.execute("INSERT INTO ZUSER VALUES (2, 'unmatched', 'name', NULL, NULL)")
+            connection.executemany('INSERT INTO ZUSERCLIENT VALUES (1, NULL, ?, NULL, ?, ?, NULL, NULL, 0.0, 0.0)',
+                                   [(600000000, 'aa', 'phone'), (600000010, 'bb', 'phone')])
+            connection.commit()
+            connection.close()
+            headers, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
+            self.assertEqual([h[0] if isinstance(h, tuple) else h for h in headers][:2],
+                             ['Activation Date', 'Discovery Date'])
+            self.assertEqual(len(headers), 13)
+            self.assertEqual(len(rows), 3)
+            self.assertEqual(len(set(rows)), 3)
+            epoch = datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc)
+            self.assertEqual(sorted((row[7], row[1]) for row in rows if row[7]),
+                             [('aa', epoch + datetime.timedelta(seconds=600000000)),
+                              ('bb', epoch + datetime.timedelta(seconds=600000010))])
+            self.assertEqual([row[3] for row in rows if row[7] is None], ['unmatched'])
 
     def test_own_wal_and_first_input_selection_and_message_sibling(self):
         with tempfile.TemporaryDirectory() as tmp:
