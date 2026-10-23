@@ -886,8 +886,14 @@ def _fleece_deref(buf, pos, wide):
         raw = struct.unpack_from(">H", buf, pos)[0]
         external, offset = raw & 0x4000, (raw & 0x3FFF) << 1
     if external:
-        # points into a separate base document (delta encoding), which this reader does not have
-        raise _FleeceError("external pointer")
+        # Pointer.cc derefExtern / carefulDeref (couchbase/fleece 8ce5f690): with no base
+        # document to resolve against, a narrow pointer is read as a legacy pointer from before
+        # the extern flag existed, whose offset is fifteen bits, and kept only if it lands
+        # inside the data. A wide one is refused.
+        legacy = (raw & 0x7FFF) << 1
+        if wide or legacy == 0 or legacy > pos:
+            raise _FleeceError("external pointer")
+        return pos - legacy
     if offset == 0 or offset > pos:
         raise _FleeceError(f"pointer at {pos} has an invalid offset {offset}")
     return pos - offset
