@@ -190,7 +190,7 @@ Releases are the easiest way to run iLEAPP. Use source if you are developing mod
 
 ### Requirements
 
-- Python 3.10 to 3.15
+- Python 3.11 to 3.15
 - Git
 
 ### Setup

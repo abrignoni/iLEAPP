@@ -2259,8 +2259,8 @@ def parse_iterator_timestamp(timestamp):
     """Parse the RFC 3339 timestamp unifiedlog_iterator emits, e.g. 2026-07-29T14:11:07.452774400Z.
 
     It carries nanosecond precision and a 'Z' suffix. datetime.fromisoformat() only learned
-    to accept either of those in 3.11, and iLEAPP still supports 3.10, so normalize both
-    here rather than depending on the interpreter version.
+    to accept either of those in 3.11, so normalize both here rather than depending on the
+    interpreter version.
     """
     if not timestamp:
         return ''

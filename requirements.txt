@@ -1,11 +1,10 @@
 # Windows wheels kept in whl_files/, for the Python versions and machines PyPI
 # has no wheel for, so a Windows install needs no compiler. A local wheel is used
 # only when its line comes before the bare requirement of the same name, so these
-# lines stay at the top. The cp310 to cp314 win_amd64 pyliblzfse wheels predate
+# lines stay at the top. The cp311 to cp314 win_amd64 pyliblzfse wheels predate
 # .github/workflows/build_windows_wheels.yml, which built every other wheel here.
 # The markers pin the machine as well as the OS, or pip would try a win_amd64
 # wheel on Windows ARM64.
-whl_files/pyliblzfse-0.4.1-cp310-cp310-win_amd64.whl; python_version == "3.10" and platform_system == "Windows" and platform_machine == "AMD64"
 whl_files/pyliblzfse-0.4.1-cp311-cp311-win_amd64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "AMD64"
 whl_files/pyliblzfse-0.4.1-cp312-cp312-win_amd64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "AMD64"
 whl_files/pyliblzfse-0.4.1-cp313-cp313-win_amd64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "AMD64"
@@ -35,8 +34,8 @@ astc_decomp_faster
 # 3.13 and later do everywhere.
 numpy==1.26.4; python_version < "3.13" and (platform_system != "Windows" or platform_machine != "ARM64")
 numpy>=2.1; python_version >= "3.13" or (platform_system == "Windows" and platform_machine == "ARM64")
-# Compiled Unified Log prefilter. Windows ARM64 on Python 3.10 uses the SQLite fallback.
-pyahocorasick==2.3.1; platform_system != "Windows" or platform_machine != "ARM64" or python_version >= "3.11"
+# Compiled Unified Log prefilter.
+pyahocorasick==2.3.1
 pytypedstream
 bencoding
 biplist
