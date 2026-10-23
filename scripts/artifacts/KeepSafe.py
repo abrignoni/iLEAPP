@@ -103,7 +103,7 @@ __artifacts_v2__ = {
         ),
         "author": "@Gear-I, Claude, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-23",
-        "last_update_date": "2026-10-08",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
@@ -114,7 +114,11 @@ __artifacts_v2__ = {
             "are blank. The app plist and the group plist are reported in one row only when "
             "exactly one of each is found; otherwise each plist is reported in its own row and no "
             "pairing is made. The shared-pin value is reported as stored. Whether it is the PIN "
-            "itself or a value derived from it is not established here."
+            "itself or a value derived from it is not established here. Initial App Version Installed "
+            "is read from KeepsafeAppInitialAppVersion.initialVersionInstalled, or from the same "
+            "name prefixed as (KeepsafeAppInitialAppVersion in _<hex>).initialVersionInstalled, "
+            "the form found on cookbook_ios1751; if both are present, every distinct value is "
+            "listed."
         ),
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Preferences/com.keepsafe.KeepSafe.plist",
@@ -714,6 +718,24 @@ def _load_plist(path):
         return {}
 
 
+# Older builds write "KeepsafeAppInitialAppVersion.initialVersionInstalled"; on the iOS 17.5.1
+# image the same preference carries a type prefix, "(KeepsafeAppInitialAppVersion in
+# _<32 hex>).initialVersionInstalled".
+_INITIAL_VERSION_KEY = "KeepsafeAppInitialAppVersion.initialVersionInstalled"
+_INITIAL_VERSION_KEY_RE = re.compile(
+    r"\(KeepsafeAppInitialAppVersion in _[0-9A-Fa-f]+\)\.initialVersionInstalled")
+
+
+def _initial_version_installed(app_prefs):
+    values = [app_prefs[_INITIAL_VERSION_KEY]] if _INITIAL_VERSION_KEY in app_prefs else []
+    values += [value for key, value in sorted(app_prefs.items())
+               if isinstance(key, str) and _INITIAL_VERSION_KEY_RE.fullmatch(key)]
+    values = list(dict.fromkeys(str(value) for value in values))
+    if len(values) > 1:
+        logfunc(f"KeepSafe: {len(values)} different initialVersionInstalled values; all are reported")
+    return ", ".join(values)
+
+
 @artifact_processor
 def keepsafe_account_security(context):
     files_found = [str(f) for f in context.get_files_found()]
@@ -782,7 +804,7 @@ def keepsafe_account_security(context):
             group_prefs.get("shared-pin-type", ""),
             invalid_pin_count,
             pin_timeout_remaining,
-            app_prefs.get("KeepsafeAppInitialAppVersion.initialVersionInstalled", ""),
+            _initial_version_installed(app_prefs),
             app_prefs.get("preference-app-previous-version-name", ""),
             convert_unix_ts_to_utc(join_date) if join_date is not None else "",
             convert_unix_ts_to_utc(close_time) if close_time is not None else "",
