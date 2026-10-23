@@ -1,0 +1,99 @@
+{
+  "hickman_ios14": {
+    "description": "Josh Hickman iOS 14.3 public image: PostHistory, and SubredditHistory named from subreddits/.",
+    "maker": "@AlexisBrignoni",
+    "make_data": {
+      "input_data_path": "iOS 14-3 - Apple iPhone SE.tar",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-22T23:35:21.355226",
+      "last_commit": {
+        "hash": "b8e052b5d15c78ded75a6eae7867386762ddd47b",
+        "author_name": "Brigs",
+        "author_email": "4n6@abrignoni.com",
+        "date": "2026-10-09T09:39:55-04:00",
+        "message": "Name headers after stored fields and drop unsourced labels in audited artifacts (#2427)"
+      }
+    },
+    "artifacts": {
+      "reddit_post_history": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/PostHistory"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "reddit_subreddit_history": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/SubredditHistory",
+          "*/Documents/release02/accountData/*/SubredditSubscriptions",
+          "*/Documents/release02/accountData/*/subreddits/t5_*"
+        ],
+        "file_count": 153,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "hickman_ios14",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "14.3",
+      "device_model": "iPhone SE"
+    },
+    "os_version": "14.3",
+    "os_name": "iOS"
+  },
+  "josh_ios17_ffs": {
+    "description": "Josh Hickman iOS 17.3 public image: PostHistory with one unlisted info entry, and RecentPostCache.json.",
+    "maker": "@AlexisBrignoni",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-22T23:35:48.614475",
+      "last_commit": {
+        "hash": "b8e052b5d15c78ded75a6eae7867386762ddd47b",
+        "author_name": "Brigs",
+        "author_email": "4n6@abrignoni.com",
+        "date": "2026-10-09T09:39:55-04:00",
+        "message": "Name headers after stored fields and drop unsourced labels in audited artifacts (#2427)"
+      }
+    },
+    "artifacts": {
+      "reddit_post_history": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/PostHistory"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "reddit_recent_post_cache": {
+        "search_patterns": [
+          "*/Documents/release02/accountData/*/RecentPostCache.json"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios17_ffs",
+    "image_info": {
+      "creation_date": "2024-07-28",
+      "os_name": "iPhone OS",
+      "os_version": "17.3",
+      "device_model": "iPhone 11",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    },
+    "os_version": "17.3",
+    "os_name": "iOS"
+  }
+}

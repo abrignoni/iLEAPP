@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "module_name": "reddit",
+    "artifact_name": "Reddit Subreddit History",
+    "function_name": "reddit_subreddit_history",
+    "case_number": "hickman_ios14",
+    "number_of_columns": 7,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 322,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/reddit/testdata.reddit.reddit_subreddit_history.hickman_ios14.zip",
+    "start_time": "2026-10-23T03:37:13.831208+00:00",
+    "end_time": "2026-10-23T03:37:13.884933+00:00",
+    "run_time_seconds": 0.0014262199401855469,
+    "last_commit": {
+      "hash": "b8e052b5d15c78ded75a6eae7867386762ddd47b",
+      "author_name": "Brigs",
+      "author_email": "4n6@abrignoni.com",
+      "date": "2026-10-09T09:39:55-04:00",
+      "message": "Name headers after stored fields and drop unsourced labels in audited artifacts (#2427)"
+    }
+  },
+  "headers": [
+    "List Position",
+    "Subreddit ID",
+    "Subreddit",
+    "Title",
+    "Name Source",
+    "Account",
+    "Source File"
+  ],
+  "data": [
+    [
+      0,
+      "t5_2rjli",
+      "teenagers",
+      "r/teenagers",
+      "private/var/mobile/Containers/Data/Application/1A3C27B2-D537-4834-A7D1-13AC9DA4EA97/Documents/release02/accountData/6099i3ch/subreddits/t5_2rjli",
+      "6099i3ch",
+      "private/var/mobile/Containers/Data/Application/1A3C27B2-D537-4834-A7D1-13AC9DA4EA97/Documents/release02/accountData/6099i3ch/SubredditHistory"
+    ]
+  ]
+}
