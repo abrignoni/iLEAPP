@@ -118,6 +118,109 @@ __artifacts_v2__ = {
             "cookbook_ios1751": "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 1 row",
         },
     },
+    "keepsafe_photovault_files": {
+        "name": "KeepSafe - Photo Vault Files",
+        "description": (
+            "Vault file documents from the Couchbase Lite store "
+            "Library/Application Support/photovault/photovault.cblite2, with the vault's copy of the "
+            "file shown in line when one is present. Document bodies are Fleece, decoded with the "
+            "SharedKeys record in the store's kv_info table; deleted-document tombstones are "
+            "reported by id."
+        ),
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-23",
+        "last_update_date": "2026-10-23",
+        "requirements": "none",
+        "category": "KeepSafe",
+        "notes": (
+            "One row per document whose modelType is 'file', plus any document whose body could "
+            "not be decoded and any tombstone in kv_del_default (Document State says which). "
+            "The -wal is read: without it the cookbook_ios1751 store reads at an older state "
+            "(highest sequence 252 instead of 256). "
+            "Media: the vault's copy is matched by the recorded localHash of the item's own "
+            "rendition, as Documents/com.getkeepsafe.userMedia/<localHash>_<type>. When that file "
+            "is absent the Library/Caches/com.getkeepsafe.userMedia/<localHash>_preview, then "
+            "_thumbnail, file is shown instead, and Rendition Shown names which one; the thumbnail "
+            "fallback is unexercised. Booleans are shown as Yes or No, whole-number floats as "
+            "integers, and lists joined with commas. On "
+            "cookbook_ios1751 all 25 photo files were present, the SHA-1 of each file equalled its "
+            "localHash, and Recorded Size (bytes) and Size of File Shown (bytes) were identical on all "
+            "25 rows. Format of File "
+            "Shown is read from the file's bytes; MIME Type is the stored value. Imported At and "
+            "Created At On Device are read as Unix seconds: on cookbook_ios1751 the modification "
+            "time of each of the 25 photo files equalled Created At On Device to the second. What "
+            "event each field records is taken from its stored name only; no KeepSafe source is "
+            "cited for it. Identifier On Device has the shape of an iOS Photos local identifier, but "
+            "none of the 25 UUIDs were in that image's Photos.sqlite ZASSET table, so that link is "
+            "unexercised. Pushed to Server is bit 0x08 of the LiteCore flags column, defined as "
+            "kSynced in couchbase-lite-core LiteCore/Storage/Record.hh line 25 at commit "
+            "3f90f2e97b9a07ca84af6ea56a8b1b0d25860e1f. On cookbook_ios1751 these columns held one "
+            "value on every row: Item Type 'photo', Rendition Shown 'photo', Duration '0', In Trash "
+            "'No', Is Deleted 'No', Backup State 'backedUp', Pushed to Server (LiteCore flag) 'Yes', "
+            "Document State "
+            "'live', and Owner ID one account id. kv_del_default was empty there and no document was "
+            "a video, so tombstone rows and video items are unexercised, as is the LiteCore 2.x "
+            "layout, where the body column "
+            "holds a revision tree (read here by the same path that decoded 7,194 documents of "
+            "another app's 2.x stores on ctf2020_ios12 without error). Not reported: "
+            "Documents/com.keepsafe.user-metadata.cblite2 (no documents on cookbook_ios1751), the "
+            "replication checkpoint and cookie records, the token value in "
+            "Documents/com.getkeepsafe.userSession/couchbase.json, and image files in the "
+            "container's tmp folder, which no document names. Earlier document versions left in "
+            "the -wal are not recovered."
+        ),
+        "paths": (
+            "*/mobile/Containers/Data/Application/*/Library/Application Support/photovault/photovault.cblite2/db.sqlite3*",
+            "*/mobile/Containers/Data/Application/*/Documents/com.getkeepsafe.userMedia/*",
+            "*/mobile/Containers/Data/Application/*/Library/Caches/com.getkeepsafe.userMedia/*",
+            "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+        ),
+        "output_types": "standard",
+        "artifact_icon": "photo",
+        "sample_data": {
+            "cookbook_ios1751": "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 25 rows, 25 with media",
+            "ctf2020_ios12": "iOS 12.4 | no KeepSafe container | 0 rows",
+        },
+    },
+    "keepsafe_photovault_albums": {
+        "name": "KeepSafe - Photo Vault Albums",
+        "description": (
+            "Album documents from the Couchbase Lite store "
+            "Library/Application Support/photovault/photovault.cblite2, with the number of file "
+            "documents in the same store that name each album."
+        ),
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-23",
+        "last_update_date": "2026-10-23",
+        "requirements": "none",
+        "category": "KeepSafe",
+        "notes": (
+            "One row per document whose modelType is 'album'. Booleans are shown as Yes or No and "
+            "lists joined with commas. File Documents Naming This Album "
+            "counts the file documents in the same store whose albumId is the album's document id. "
+            "Created At is read as Unix seconds, the same scale as the file documents' times. Album "
+            "Type and Special Type are reported as stored; what each value means in the app is not "
+            "established from KeepSafe source. Pushed to Server is bit 0x08 of the LiteCore flags "
+            "column (kSynced, couchbase-lite-core LiteCore/Storage/Record.hh line 25 at commit "
+            "3f90f2e97b9a07ca84af6ea56a8b1b0d25860e1f). On cookbook_ios1751 File Sort Mode held "
+            "'byImportedAt', Available Offline 'No', Is Deleted 'No', Pushed to Server (LiteCore "
+            "flag) 'Yes' and "
+            "Document State 'live' on all 5 rows, Owner ID held one account id, and Shared With "
+            "was an empty list on every row, so shared albums are unexercised. A tombstone with no "
+            "body cannot be told apart as an album or a file, and is reported in KeepSafe - Photo "
+            "Vault Files."
+        ),
+        "paths": (
+            "*/mobile/Containers/Data/Application/*/Library/Application Support/photovault/photovault.cblite2/db.sqlite3*",
+            "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+        ),
+        "output_types": "standard",
+        "artifact_icon": "folder",
+        "sample_data": {
+            "cookbook_ios1751": "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 5 rows",
+            "ctf2020_ios12": "iOS 12.4 | no KeepSafe container | 0 rows",
+        },
+    },
 }
 
 
@@ -126,10 +229,13 @@ import pathlib
 import re
 import struct
 import plistlib
+import sqlite3
 from datetime import timezone
 
 from scripts.ccl_leveldb import LogFile
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, logfunc
+from scripts.ilapfuncs import (
+    artifact_processor, check_in_media, convert_unix_ts_to_utc, logfunc, open_sqlite_db_readonly,
+)
 
 # ---------------------------------------------------------------------------
 # Minimal MessagePack decoder (nil/bool/int/float/str/array/map only).
@@ -697,3 +803,429 @@ def keepsafe_account_security(context):
     data_headers = tuple(data_headers[i] for i in order)
     data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, "\n".join(sorted(source_files))
+
+# ---------------------------------------------------------------------------
+# Couchbase Lite (LiteCore) store reader for photovault.cblite2.
+#
+# Document bodies are Fleece. The decoder follows couchbase/fleece at commit
+# 8ce5f690480b77c0f93d03f456a29828b5a55d66: Fleece.md, Fleece/Core/Value.cc,
+# Fleece/Core/Array.cc and Fleece/Core/Pointer.hh. Dict keys that are integers index
+# the store's SharedKeys array, kept in kv_info under the key 'SharedKeys'.
+# A kv_default table without an 'extra' column is the LiteCore 2.x layout, where 'body'
+# is a revision tree holding the Fleece body of each revision
+# (couchbase-lite-core LiteCore/RevTrees/RawRevTree.hh at 3f90f2e97b9a07ca84af6ea56a8b1b0d25860e1f);
+# the current revision is first.
+# ---------------------------------------------------------------------------
+
+class _FleeceError(ValueError):
+    pass
+
+
+_FLEECE_UNDEFINED = object()
+
+
+def _fleece_uvarint(buf, pos):
+    result = shift = 0
+    for i in range(10):
+        if pos + i >= len(buf):
+            raise _FleeceError("varint runs past the end of the data")
+        byte = buf[pos + i]
+        result |= (byte & 0x7F) << shift
+        if byte < 0x80:
+            return result, i + 1
+        shift += 7
+    raise _FleeceError("varint is too long")
+
+
+def _fleece_deref(buf, pos, wide):
+    if wide:
+        if pos + 4 > len(buf):
+            raise _FleeceError("wide pointer runs past the end of the data")
+        raw = struct.unpack_from(">I", buf, pos)[0]
+        external, offset = raw & 0x40000000, (raw & 0x3FFFFFFF) << 1
+    else:
+        raw = struct.unpack_from(">H", buf, pos)[0]
+        external, offset = raw & 0x4000, (raw & 0x3FFF) << 1
+    if external:
+        # points into a separate base document (delta encoding), which this reader does not have
+        raise _FleeceError("external pointer")
+    if offset == 0 or offset > pos:
+        raise _FleeceError(f"pointer at {pos} has an invalid offset {offset}")
+    return pos - offset
+
+
+def _fleece_slot(buf, pos, wide, shared_keys, depth):
+    if pos + 2 > len(buf):
+        raise _FleeceError("collection slot runs past the end of the data")
+    if buf[pos] & 0x80:
+        pos = _fleece_deref(buf, pos, wide)
+    return _fleece_value(buf, pos, shared_keys, depth + 1)
+
+
+def _fleece_value(buf, pos, shared_keys, depth):
+    if depth > 200:
+        raise _FleeceError("values are nested too deeply")
+    if pos + 2 > len(buf):
+        raise _FleeceError("value runs past the end of the data")
+    b0, b1 = buf[pos], buf[pos + 1]
+    tag = b0 >> 4
+    if tag == 0:
+        small = ((b0 & 0x0F) << 8) | b1
+        return small - 0x1000 if small & 0x800 else small
+    if tag == 1:
+        size = (b0 & 0x07) + 1
+        data = buf[pos + 1:pos + 1 + size]
+        if len(data) != size:
+            raise _FleeceError("integer runs past the end of the data")
+        return int.from_bytes(data, "little", signed=not b0 & 0x08)
+    if tag == 2:
+        fmt, size = ("<d", 8) if b0 & 0x08 else ("<f", 4)
+        if pos + 2 + size > len(buf):
+            raise _FleeceError("float runs past the end of the data")
+        return struct.unpack_from(fmt, buf, pos + 2)[0]
+    if tag == 3:
+        return {0x00: None, 0x04: False, 0x08: True, 0x0C: _FLEECE_UNDEFINED}[b0 & 0x0C]
+    if tag in (4, 5):
+        size, start = b0 & 0x0F, pos + 1
+        if size == 0x0F:
+            size, used = _fleece_uvarint(buf, start)
+            start += used
+        data = buf[start:start + size]
+        if len(data) != size:
+            raise _FleeceError("string runs past the end of the data")
+        return data.decode("utf-8", "replace") if tag == 4 else bytes(data)
+    if tag in (6, 7):
+        wide = bool(b0 & 0x08)
+        width = 4 if wide else 2
+        count = ((b0 & 0x07) << 8) | b1
+        first = pos + 2
+        if count == 0x7FF:
+            # the long count is 2047 plus a varint, padded to an even length (Array.cc)
+            extra, used = _fleece_uvarint(buf, first)
+            count += extra
+            first += used + (used & 1)
+        if tag == 6:
+            return [_fleece_slot(buf, first + i * width, wide, shared_keys, depth) for i in range(count)]
+        result = {}
+        for i in range(count):
+            key_pos = first + 2 * i * width
+            key = _fleece_slot(buf, key_pos, wide, None, depth)
+            value = _fleece_slot(buf, key_pos + width, wide, shared_keys, depth)
+            if key == -2048:
+                # dict inheritance: the value is the parent dict, overridden by the keys after it
+                if isinstance(value, dict):
+                    result.update(value)
+                continue
+            if isinstance(key, int) and shared_keys and 0 <= key < len(shared_keys):
+                key = shared_keys[key]
+            if value is _FLEECE_UNDEFINED:
+                result.pop(key, None)
+            else:
+                result[key] = value
+        return result
+    raise _FleeceError(f"unexpected pointer at {pos}")
+
+
+def _fleece_decode(data, shared_keys=None):
+    """Return the root value of a Fleece document. Raises _FleeceError on data it cannot read."""
+    buf = bytes(data)
+    if len(buf) < 2 or len(buf) % 2:
+        raise _FleeceError(f"length {len(buf)} is not a positive even number")
+    pos = len(buf) - 2
+    if buf[pos] & 0x80:
+        pos = _fleece_deref(buf, pos, False)
+        if buf[pos] & 0x80:
+            pos = _fleece_deref(buf, pos, True)
+    return _fleece_value(buf, pos, shared_keys, 0)
+
+
+def _revtree_current_body(data):
+    """Body of the first (current) revision in a LiteCore 2.x RawRevTree, or None when that
+    revision carries no body."""
+    buf = bytes(data)
+    if len(buf) < 12:
+        raise _FleeceError("revision tree is too short")
+    size = struct.unpack_from(">I", buf, 0)[0]
+    _parent, flags, rev_id_len = struct.unpack_from(">HBB", buf, 4)
+    if size < 8 + rev_id_len or size > len(buf):
+        raise _FleeceError(f"revision size {size} does not fit the data")
+    if not flags & 0x80:  # RawRevision::kHasData
+        return None
+    _sequence, used = _fleece_uvarint(buf, 8 + rev_id_len)
+    return buf[8 + rev_id_len + used:size]
+
+
+def _read_cblite(db_path):
+    """Yields (table, key, sequence, flags, document or None, error or None) for every row of
+    kv_default and kv_del_default. Returns nothing when the store cannot be opened."""
+    db = open_sqlite_db_readonly(db_path)
+    if db is None:
+        return
+    try:
+        tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        shared_keys = None
+        if "kv_info" in tables:
+            row = db.execute("SELECT body FROM kv_info WHERE key='SharedKeys'").fetchone()
+            if row and row[0]:
+                try:
+                    shared_keys = _fleece_decode(row[0])
+                except _FleeceError as ex:
+                    logfunc(f"KeepSafe: SharedKeys in {db_path} could not be decoded ({ex}); "
+                            "document keys are reported as integers")
+        if not isinstance(shared_keys, list):
+            shared_keys = None
+        for table in ("kv_default", "kv_del_default"):
+            if table not in tables:
+                continue
+            columns = {row[1] for row in db.execute(f'PRAGMA table_info("{table}")')}
+            rev_tree_layout = "extra" not in columns
+            for key, sequence, flags, body in db.execute(
+                    f'SELECT key, sequence, flags, body FROM "{table}" ORDER BY sequence'):
+                document, error = None, None
+                if body:
+                    try:
+                        fleece = _revtree_current_body(body) if rev_tree_layout else body
+                        document = _fleece_decode(fleece, shared_keys) if fleece else None
+                    except (_FleeceError, KeyError, struct.error) as ex:
+                        error = str(ex)
+                        logfunc(f"KeepSafe: document {key} in {db_path} could not be decoded: {ex}")
+                yield table, key, sequence, flags, document, error
+    except sqlite3.Error as ex:
+        logfunc(f"KeepSafe: error reading {db_path}: {ex}")
+    finally:
+        db.close()
+
+
+_APP_CONTAINER_RE = re.compile(r"^(.*/Containers/Data/Application/[^/]+)/")
+
+
+def _app_container(path):
+    match = _APP_CONTAINER_RE.match(str(path).replace("\\", "/"))
+    return match.group(1) if match else None
+
+
+def _photovault_stores(files_found):
+    """Photovault db.sqlite3 paths, skipping any container whose metadata plist names
+    another app."""
+    bundle_ids = {}
+    for path in files_found:
+        norm = str(path).replace("\\", "/")
+        if norm.endswith("/.com.apple.mobile_container_manager.metadata.plist"):
+            bundle_ids[_app_container(norm)] = _load_plist(path).get("MCMMetadataIdentifier")
+    stores = []
+    for path in files_found:
+        norm = str(path).replace("\\", "/")
+        if not norm.endswith("/photovault/photovault.cblite2/db.sqlite3") or os.path.isdir(path):
+            continue
+        bundle_id = bundle_ids.get(_app_container(norm))
+        if bundle_id and bundle_id != "com.keepsafe.KeepSafe":
+            logfunc(f"KeepSafe: skipping {path}, its container belongs to {bundle_id}")
+            continue
+        stores.append(path)
+    return sorted(stores)
+
+
+def _sniff_format(path):
+    try:
+        with open(path, "rb") as file_obj:
+            head = file_obj.read(32)
+    except OSError:
+        return ""
+    if head.startswith(b"\xff\xd8\xff"):
+        return "JPEG"
+    if head.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "PNG"
+    if head[:6] in (b"GIF87a", b"GIF89a"):
+        return "GIF"
+    if head[:4] == b"RIFF" and head[8:12] == b"WEBP":
+        return "WebP"
+    if head[4:8] == b"ftyp":
+        return f"ISO BMFF, brand '{head[8:12].decode('latin-1').strip()}'"
+    return f"unrecognised (first bytes {head[:8].hex()})"
+
+
+def _as_stored(value):
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, list):
+        return ", ".join(str(item) for item in value)
+    return value
+
+
+def _document_state(table, flags, error):
+    if error:
+        return "body not decoded"
+    if table == "kv_del_default":
+        return "deleted (tombstone)"
+    if flags and flags & 0x01:
+        return "deleted"
+    return "live"
+
+
+@artifact_processor
+def keepsafe_photovault_files(context):
+    files_found = [str(f) for f in context.get_files_found()]
+    media_index = {}
+    for path in files_found:
+        norm = path.replace("\\", "/")
+        for area in ("/Documents/com.getkeepsafe.userMedia/", "/Library/Caches/com.getkeepsafe.userMedia/"):
+            if area in norm and not os.path.isdir(path):
+                media_index[(_app_container(norm), area, os.path.basename(norm))] = path
+
+    data_list = []
+    source_files = []
+    for db_path in _photovault_stores(files_found):
+        container = _app_container(db_path)
+        rows = list(_read_cblite(db_path))
+        source_files.append(db_path)
+        albums = {key: doc.get("name") for _t, key, _s, _f, doc, _e in rows
+                  if isinstance(doc, dict) and doc.get("modelType") == "album"}
+        for table, key, _sequence, flags, doc, error in rows:
+            if isinstance(doc, dict) and doc.get("modelType") != "file":
+                if doc.get("modelType") != "album":  # albums are reported by keepsafe_photovault_albums
+                    logfunc(f"KeepSafe: document {key} in {db_path} has modelType "
+                            f"{doc.get('modelType')!r} and is not reported")
+                continue
+            if doc is not None and not isinstance(doc, dict):
+                logfunc(f"KeepSafe: document {key} in {db_path} decoded to a "
+                        f"{type(doc).__name__}, not a dict; reported with empty fields")
+                error = error or f"body decoded to a {type(doc).__name__}"
+            doc = doc if isinstance(doc, dict) else {}
+            media = [m for m in doc.get("media") or [] if isinstance(m, dict)]
+            primary = next((m for m in media if m.get("type") == doc.get("type")), None) or next(
+                (m for m in media if m.get("type") not in ("thumbnail", "preview")), {})
+            local_hash = primary.get("localHash") or ""
+            # the vault's copy is named <localHash>_<media type>; the preview and thumbnail
+            # in Caches carry the same <localHash>, the primary rendition's
+            candidates = []
+            if local_hash:
+                candidates = [
+                    (primary.get("type") or "", "/Documents/com.getkeepsafe.userMedia/",
+                     f"{local_hash}_{primary.get('type')}"),
+                    ("preview", "/Library/Caches/com.getkeepsafe.userMedia/", f"{local_hash}_preview"),
+                    ("thumbnail", "/Library/Caches/com.getkeepsafe.userMedia/", f"{local_hash}_thumbnail"),
+                ]
+            shown, media_path = "", ""
+            for rendition, area, name in candidates:
+                found = media_index.get((container, area, name))
+                if found:
+                    shown, media_path = rendition, found
+                    break
+            media_ref = ""
+            if media_path:
+                media_ref = check_in_media(media_path, doc.get("originalFilename") or "") or ""
+                source_files.append(media_path)
+            try:
+                size_on_disk = os.path.getsize(media_path) if media_path else ""
+            except OSError:
+                size_on_disk = ""
+            album_id = doc.get("albumId") or ""
+            data_list.append((
+                convert_unix_ts_to_utc(doc.get("importedAt")),
+                convert_unix_ts_to_utc(doc.get("createdAtOnDevice")),
+                media_ref,
+                doc.get("originalFilename") or "",
+                albums.get(album_id) or album_id,
+                doc.get("vaultType") or "",
+                doc.get("type") or "",
+                shown,
+                _sniff_format(media_path) if media_path else "",
+                primary.get("mimeType") or "",
+                _as_stored(primary.get("dataSize")),
+                size_on_disk,
+                _as_stored(primary.get("width")),
+                _as_stored(primary.get("height")),
+                _as_stored(primary.get("duration")),
+                local_hash,
+                doc.get("identifierOnDevice") or "",
+                _as_stored(doc.get("isInTrash")),
+                _as_stored(doc.get("isDeleted")),
+                doc.get("backupState") or "",
+                "Yes" if flags and flags & 0x08 else "No",
+                _document_state(table, flags, error),
+                key,
+                doc.get("ownerId") or "",
+                context.get_relative_path(media_path) if media_path else "",
+            ))
+
+    data_headers = (
+        ("Imported At", "datetime"),
+        ("Created At On Device", "datetime"),
+        ("Media", "media"),
+        "Original Filename",
+        "Album",
+        "Vault Type",
+        "Item Type",
+        "Rendition Shown",
+        "Format of File Shown (sniffed)",
+        "MIME Type (as stored)",
+        "Recorded Size (bytes)",
+        "Size of File Shown (bytes)",
+        "Width",
+        "Height",
+        "Duration",
+        "Local Hash (as stored)",
+        "Identifier On Device (as stored)",
+        "In Trash",
+        "Is Deleted",
+        "Backup State (as stored)",
+        "Pushed to Server (LiteCore flag)",
+        "Document State",
+        "Document ID",
+        "Owner ID",
+        "File Shown",
+    )
+    return data_headers, data_list, "\n".join(dict.fromkeys(source_files))
+
+
+@artifact_processor
+def keepsafe_photovault_albums(context):
+    files_found = [str(f) for f in context.get_files_found()]
+    data_list = []
+    source_files = []
+    for db_path in _photovault_stores(files_found):
+        rows = list(_read_cblite(db_path))
+        source_files.append(db_path)
+        file_counts = {}
+        for _t, _k, _s, _f, doc, _e in rows:
+            if isinstance(doc, dict) and doc.get("modelType") == "file":
+                file_counts[doc.get("albumId")] = file_counts.get(doc.get("albumId"), 0) + 1
+        for table, key, _sequence, flags, doc, error in rows:
+            if not isinstance(doc, dict) or doc.get("modelType") != "album":
+                continue
+            data_list.append((
+                convert_unix_ts_to_utc(doc.get("createdAt")),
+                doc.get("name") or "",
+                doc.get("type") or "",
+                doc.get("specialType") or "",
+                file_counts.get(key, 0),
+                doc.get("fileSortMode") or "",
+                _as_stored(doc.get("sharedWith")),
+                _as_stored(doc.get("isAvailableOffline")),
+                _as_stored(doc.get("isDeleted")),
+                "Yes" if flags and flags & 0x08 else "No",
+                _document_state(table, flags, error),
+                key,
+                doc.get("ownerId") or "",
+            ))
+
+    data_headers = (
+        ("Created At", "datetime"),
+        "Album Name",
+        "Album Type (as stored)",
+        "Special Type (as stored)",
+        "File Documents Naming This Album",
+        "File Sort Mode (as stored)",
+        "Shared With",
+        "Available Offline",
+        "Is Deleted",
+        "Pushed to Server (LiteCore flag)",
+        "Document State",
+        "Document ID",
+        "Owner ID",
+    )
+    return data_headers, data_list, "\n".join(source_files)
