@@ -53,7 +53,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                                            (key, stamp) + ((12.25, -45.5) if locations else ()))
                     connection.commit()
                     phone_sql = 'u.ZPHONENUMBER' if phone else 'NULL'
-                    columns = (f'c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,u.ZNAME,{phone_sql},u.ZEMAILADDRESS,'
+                    columns = (f'c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,NULL,u.ZNAME,{phone_sql},u.ZEMAILADDRESS,'
                                'NULL,NULL,NULL,NULL')
                     if locations:
                         columns += ',c.ZACTIVATIONLOCATIONLATITUDE,c.ZACTIVATIONLOCATIONLONGITUDE'
@@ -68,7 +68,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                     self.assertEqual(rows, expected)
                     self.assertEqual(len(rows), 6)
                     self.assertEqual(len(distinct), 3)
-                    self.assertEqual(len(headers), 13 if locations else 11)
+                    self.assertEqual(len(headers), 14 if locations else 12)
                     self.assertEqual(source, str(path))
 
     def test_sqlite_storage_classes_collations_and_nonunique_left_keys(self):
@@ -85,7 +85,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                 connection.execute('INSERT INTO ZUSER VALUES (?,?,?,?)', (100, 'fanout', '', ''))
                 connection.executemany('INSERT INTO ZUSERCLIENT VALUES (?,?)', [(100, 0), (100, 0)])
                 connection.commit()
-                query = ('SELECT c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,u.ZNAME,NULL,u.ZEMAILADDRESS,'
+                query = ('SELECT c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,NULL,u.ZNAME,NULL,u.ZEMAILADDRESS,'
                          'NULL,NULL,NULL,NULL FROM ZUSER u LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER')
                 expected = connection.execute(query).fetchall()
                 old = connection.execute(query.replace('SELECT ', 'SELECT DISTINCT ', 1)).fetchall()
@@ -111,7 +111,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                     connection.executemany('INSERT INTO ZUSERCLIENT VALUES (?,0)',
                                            [(value,) for value in (1, '1', 1.0, 'CASE', None)])
                     connection.commit()
-                    query = ('SELECT c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,u.ZNAME,NULL,u.ZEMAILADDRESS,'
+                    query = ('SELECT c.ZACTIVATIONDATE,NULL,NULL,u.ZHANDLE,NULL,u.ZNAME,NULL,u.ZEMAILADDRESS,'
                              'NULL,NULL,NULL,NULL FROM ZUSER u LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER')
                     expected = connection.execute(query).fetchall()
                     distinct = connection.execute(query.replace('SELECT ', 'SELECT DISTINCT ', 1)).fetchall()
@@ -140,14 +140,14 @@ class WireJoinOccurrencesTests(unittest.TestCase):
             headers, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
             self.assertEqual([h[0] if isinstance(h, tuple) else h for h in headers][:2],
                              ['Activation Date', 'Discovery Date'])
-            self.assertEqual(len(headers), 13)
+            self.assertEqual(len(headers), 14)
             self.assertEqual(len(rows), 3)
             self.assertEqual(len(set(rows)), 3)
             epoch = datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc)
-            self.assertEqual(sorted((row[7], row[1]) for row in rows if row[7]),
+            self.assertEqual(sorted((row[8], row[1]) for row in rows if row[8]),
                              [('aa', epoch + datetime.timedelta(seconds=600000000)),
                               ('bb', epoch + datetime.timedelta(seconds=600000010))])
-            self.assertEqual([row[3] for row in rows if row[7] is None], ['unmatched'])
+            self.assertEqual([row[3] for row in rows if row[8] is None], ['unmatched'])
 
     def test_own_wal_and_first_input_selection_and_message_sibling(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -177,8 +177,31 @@ class WireJoinOccurrencesTests(unittest.TestCase):
             self.assertEqual(empty, [])
             self.assertEqual(source, str(main))
             headers, messages, _ = wire.wireMessages.__wrapped__(_Context([str(full)]))
-            self.assertEqual(len(headers), 6)
-            self.assertEqual(messages, [(0, 'handle', 'name', 'included', None, 0)])
+            self.assertEqual(len(headers), 7)
+            self.assertEqual(messages, [(0, 'handle', None, 'name', 'included', None, 0)])
+
+    def test_user_id_renders_uuid_bytes_in_stored_order(self):
+        user_id = bytes(range(16))
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / 'store.wiredatabase'
+            connection = sqlite3.connect(path)
+            connection.execute('CREATE TABLE ZUSER (Z_PK, ZHANDLE, ZREMOTEIDENTIFIER_DATA, ZNAME, ZEMAILADDRESS)')
+            connection.execute('CREATE TABLE ZUSERCLIENT (ZUSER, ZACTIVATIONDATE)')
+            connection.execute('CREATE TABLE ZMESSAGE '
+                               '(ZSERVERTIMESTAMP, ZNORMALIZEDTEXT, ZCACHEDCATEGORY, ZDURATION, ZSENDER)')
+            connection.executemany('INSERT INTO ZUSER VALUES (?,?,?,?,?)',
+                                   [(1, 'one', user_id, 'name', None), (2, 'two', b'short', 'name', None),
+                                    (3, 'three', None, 'name', None)])
+            connection.execute("INSERT INTO ZMESSAGE VALUES (0, 'text', 2, NULL, 1)")
+            connection.commit()
+            connection.close()
+            headers, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
+            self.assertEqual(headers[3:5], ('Handle', 'User ID'))
+            self.assertEqual([row[4] for row in rows],
+                             ['00010203-0405-0607-0809-0a0b0c0d0e0f', b'short'.hex(), None])
+            headers, messages, _ = wire.wireMessages.__wrapped__(_Context([str(path)]))
+            self.assertEqual(headers[1:3], ('Handle', 'User ID'))
+            self.assertEqual(messages[0][2], '00010203-0405-0607-0809-0a0b0c0d0e0f')
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "wireAccount": {
         "name": "Wire Secure Messenger Account",
         "description": "Wire users joined to the clients recorded for them (ZUSER LEFT JOIN ZUSERCLIENT), one row "
-                       "per user and client, with handle, display name, phone and email as stored and each client's "
+                       "per user and client, with handle, display name, phone and email as stored, the user ID as a UUID, and each client's "
                        "ID, device class, label, model and activation, discovery and last active dates, and, where "
                        "the schema has them, the client's activation location as Latitude and Longitude. The query "
                        "is not limited to the account signed in on the device.",
@@ -26,11 +26,31 @@ __artifacts_v2__ = {
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios/Wire-iOS/Sources/UserInterface/Settings/ChangingDetails/ChangeHandleViewController.swift#L101, "
                  "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios/Wire-iOS/Sources/UserInterface/Settings/ChangingDetails/ChangeHandleViewController.swift#L328-L329, "
                  "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-sync-engine/Source/Synchronization/Strategies/UserProfileUpdateRequestStrategy.swift#L142-L145). "
-                 "The handle is not Wire's user ID, which ZMUser.m sets from the id of the backend's user record "
-                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L442-L472) and the model "
-                 "stores as remoteIdentifier_data "
-                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L381); "
-                 "this artifact does not report ZUSER.ZREMOTEIDENTIFIER_DATA. "
+                 "User ID is ZUSER.ZREMOTEIDENTIFIER_DATA, the remoteIdentifier_data attribute of the User entity "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L381). "
+                 "Wire reads its 16 bytes as the uuid_t of an NSUUID and writes NSUUID.data, which is getUUIDBytes "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/ZMManagedObject.m#L178-L209, "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-utilities/Source/NSUUID+Data.m#L23-L27), through the remoteIdentifier accessor in ZMUser.swift "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.swift#L343-L359) "
+                 "and the _data key suffix (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/ZMManagedObject.m#L27), "
+                 "so the bytes are shown in stored order as a lowercase UUID; a value that is not 16 bytes is shown as "
+                 "hex. "
+                 "When ZMUser.m updates a user from the backend's user record, it sets the ID only if none is stored, "
+                 "and an update carrying a different ID fails a RequireString check, which crashes rather than "
+                 "replacing it (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L442-L472, "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-system/Source/ZMSAsserts.h#L54-L58), "
+                 "while the same update replaces the handle whenever it carries one "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L484-L487) "
+                 "and the account owner can send a new one to /self/handle "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios/Wire-iOS/Sources/UserInterface/Settings/ChangingDetails/ChangeHandleViewController.swift#L328-L329). "
+                 "User ID was filled on every ZUSER row of hickman_ios13 (2 of 2) and iphone11_ios17 (4 of 4), both "
+                 "for the user that ZSESSION.ZSELFUSER names "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L301-L302) "
+                 "and for the others. On both, which hold the same account, the self user's User ID matches the "
+                 "AccountData folder name apart from letter case; Wire builds that folder from the account's user "
+                 "identifier as a Swift uuidString, which is uppercase "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/ManagedObjectContext/CoreDataStack.swift#L455-L458). "
+                 "No second record of the other users' IDs was checked. "
                  "In the Wire code read, "
                  "Client ID, Device Class, Device Label, Device Model, Activation Date and Last Active Date are "
                  "written from the backend's record of the client (id, class, label, model, time and "
@@ -69,14 +89,14 @@ __artifacts_v2__ = {
     },
     "wireMessages": {
         "name": "Wire Secure Messenger Messages",
-        "description": "Wire messages, including the sender's handle and display name, and message type",
+        "description": "Wire messages, including the sender's handle, user ID and display name, and message type",
         "author": 'Elliot Glendye, @AlexisBrignoni, Codex',
         "creation_date": "2024-01-21",
         "last_update_date": '2026-10-23',
         "requirements": "",
         "category": "Business",
         "notes": "Rows with category 1 (undefined per the Wire source) are excluded; rows with "
-                 "no stored category are retained. Handle and Display Name come from the ZUSER row that "
+                 "no stored category are retained. Handle, User ID and Display Name come from the ZUSER row that "
                  "ZMESSAGE.ZSENDER points to (LEFT JOIN), so they are blank when no such row exists. Handle "
                  "is ZUSER.ZHANDLE, the handle attribute of Wire's User entity, which Wire's header describes "
                  "as the \"@name\" handle "
@@ -84,11 +104,33 @@ __artifacts_v2__ = {
                  "ZMUser.m writes it from the handle field of the backend's user record "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L484-L487) and from search "
                  "results (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L562-L573). "
-                 "The handle is not Wire's user ID, which ZMUser.m sets from the id of the backend's user record "
-                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L442-L472) and the model "
-                 "stores as remoteIdentifier_data "
-                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L381); "
-                 "this artifact does not report ZUSER.ZREMOTEIDENTIFIER_DATA. That code is newer than the Wire "
+                 "User ID is ZUSER.ZREMOTEIDENTIFIER_DATA, the remoteIdentifier_data attribute of the User entity "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L381). "
+                 "Wire reads its 16 bytes as the uuid_t of an NSUUID and writes NSUUID.data, which is getUUIDBytes "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/ZMManagedObject.m#L178-L209, "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-utilities/Source/NSUUID+Data.m#L23-L27), through the remoteIdentifier accessor in ZMUser.swift "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.swift#L343-L359) "
+                 "and the _data key suffix (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/ZMManagedObject.m#L27), "
+                 "so the bytes are shown in stored order as a lowercase UUID; a value that is not 16 bytes is shown as "
+                 "hex. "
+                 "When ZMUser.m updates a user from the backend's user record, it sets the ID only if none is stored, "
+                 "and an update carrying a different ID fails a RequireString check, which crashes rather than "
+                 "replacing it (https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L442-L472, "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-system/Source/ZMSAsserts.h#L54-L58), "
+                 "while the same update replaces the handle whenever it carries one "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L484-L487) "
+                 "and the account owner can send a new one to /self/handle "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios/Wire-iOS/Sources/UserInterface/Settings/ChangingDetails/ChangeHandleViewController.swift#L328-L329, "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-sync-engine/Source/Synchronization/Strategies/UserProfileUpdateRequestStrategy.swift#L142-L145). "
+                 "User ID was filled on every ZUSER row of hickman_ios13 (2 of 2) and iphone11_ios17 (4 of 4), both "
+                 "for the user that ZSESSION.ZSELFUSER names "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L301-L302) "
+                 "and for the others. On both, which hold the same account, the self user's User ID matches the "
+                 "AccountData folder name apart from letter case; Wire builds that folder from the account's user "
+                 "identifier as a Swift uuidString, which is uppercase "
+                 "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/ManagedObjectContext/CoreDataStack.swift#L455-L458). "
+                 "No second record of the other users' IDs was checked. "
+                 "That code is newer than the Wire "
                  "builds on the corpora below. "
                  "Message is the ZNORMALIZEDTEXT column as stored. ZDURATION "
                  "is reported as stored; its unit is not sourced "
@@ -110,6 +152,8 @@ __artifacts_v2__ = {
     }
 }
 
+import uuid
+
 from scripts.ilapfuncs import (
     artifact_processor,
     get_file_path,
@@ -117,6 +161,15 @@ from scripts.ilapfuncs import (
     does_column_exist_in_db,
     convert_cocoa_core_data_ts_to_utc
     )
+
+
+def _uuid_text(value):
+    """Wire's remoteIdentifier_data: 16 uuid_t bytes as a lowercase UUID; other values as stored."""
+    if isinstance(value, bytes) and len(value) == 16:
+        return str(uuid.UUID(bytes=value))
+    if isinstance(value, bytes):
+        return value.hex()
+    return value
 
 
 def _optional_column(source_path, table, column):
@@ -145,6 +198,7 @@ def wireAccount(context):
         _optional_column(source_path, 'ZUSERCLIENT', 'ZDISCOVERYDATE'),
         _optional_column(source_path, 'ZUSERCLIENT', 'ZLASTACTIVEDATE'),
         'ZUSER.ZHANDLE',
+        _optional_column(source_path, 'ZUSER', 'ZREMOTEIDENTIFIER_DATA'),
         'ZUSER.ZNAME',
         _optional_column(source_path, 'ZUSER', 'ZPHONENUMBER'),
         'ZUSER.ZEMAILADDRESS',
@@ -158,6 +212,7 @@ def wireAccount(context):
         ('Discovery Date', 'datetime'),
         ('Last Active Date', 'datetime'),
         'Handle',
+        'User ID',
         'Display Name',
         ('Phone Number', 'phonenumber'),
         'Email Address',
@@ -187,7 +242,9 @@ def wireAccount(context):
             convert_cocoa_core_data_ts_to_utc(record[0]),
             convert_cocoa_core_data_ts_to_utc(record[1]),
             convert_cocoa_core_data_ts_to_utc(record[2]),
-            *tuple(record)[3:]
+            record[3],
+            _uuid_text(record[4]),
+            *tuple(record)[5:]
             ))
     return tuple(data_headers), data_list, source_path
 
@@ -198,10 +255,12 @@ def wireMessages(context):
     source_path = get_file_path(files_found, "store.wiredatabase")
     data_list = []
 
-    query = '''
+    user_id_column = _optional_column(source_path, 'ZUSER', 'ZREMOTEIDENTIFIER_DATA')
+    query = f'''
     SELECT
         ZMESSAGE.ZSERVERTIMESTAMP AS 'Date / Time',
         ZUSER.ZHANDLE AS 'Handle',
+        {user_id_column} AS 'User ID',
         ZUSER.ZNAME AS 'Display Name',
         ZMESSAGE.ZNORMALIZEDTEXT AS 'Message',
         CASE ZMESSAGE.ZCACHEDCATEGORY
@@ -220,6 +279,7 @@ def wireMessages(context):
     data_headers = (
         ('Date / Time', 'datetime'),
         'Handle',
+        'User ID',
         'Display Name',
         'Message',
         'Message Type',
@@ -231,10 +291,11 @@ def wireMessages(context):
         data_list.append((
             date_time,
             record[1],
-            record[2],
+            _uuid_text(record[2]),
             record[3],
             record[4],
-            record[5]
+            record[5],
+            record[6]
             ))
 
     return data_headers, data_list, source_path
