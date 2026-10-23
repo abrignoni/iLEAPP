@@ -15,8 +15,8 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 2 rows",
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 8 rows",
             "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 2 rows",
-            "hickman_ios13": "iOS 13.3.1 | Wire • Secure Messenger 3.54 | 7 rows",
-            "hickman_ios14": "iOS 14.3 | Wire • Secure Messenger 3.73 | 9 rows",
+            "hickman_ios13": "iOS 13.3.1 | Wire • Secure Messenger 3.54 | 12 rows",
+            "hickman_ios14": "iOS 14.3 | Wire • Secure Messenger 3.73 | 10 rows",
             "jess_ios15": "iOS 15.0.2 | Wire • Secure Messenger 3.94 | 1 row",
         }
     },
