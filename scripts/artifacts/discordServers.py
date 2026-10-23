@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "discordServers": {
         "name": "Discord - Servers",
         "description": "Discord servers (guilds) cached in the app's kv-storage database for each "
-                       "logged-in account, with the joinedAt time, owner id and the number of "
+                       "@account.<id> folder, with the joinedAt time, owner id and the number of "
                        "that server's channels cached beside it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-23",
@@ -10,22 +10,27 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Discord",
         "notes": "Read from the kv_cache0 table of Library/Caches/kv-storage/@account.<id>/a, "
-                 "one row per record of kind guilds. Each record's data is a one-byte prefix "
-                 "followed by JSON, the same layout the Discord chat artifacts read from "
-                 "messages0; what the prefix byte encodes is not established. Joined At is the "
+                 "one row per server id among the records of kind guilds. For records of kind "
+                 "guilds and guild_channels, data is one byte followed by JSON, as messages0 "
+                 "rows are; what that byte encodes is not established, and some other kinds in "
+                 "the table did not decode as JSON after it. Joined At is the "
                  "record's joinedAt value (ISO 8601). The Discord Developer Documentation "
                  "describes joined_at on the Guild Create gateway event as when the guild was "
-                 "joined (https://docs.discord.com/developers/events/gateway-events#guild-create); "
-                 "that the cached joinedAt holds the same value for the logged-in account was "
-                 "not tested. Owner Is Account is True when ownerId equals the account id in the "
+                 "joined (https://docs.discord.com/developers/events/gateway-events#guild-create; "
+                 "source https://github.com/discord/discord-api-docs/blob/aaef8ae4c3398fcdabeec0d1dd5a3e69be587ad8/developers/events/gateway-events.mdx#L762); "
+                 "that the cached joinedAt holds the same value for the account in the folder "
+                 "name was not tested. A joinedAt value that does not parse is left blank and "
+                 "counted in the log. Owner Is Account is True when ownerId equals the account id in the "
                  "@account.<id> path. Cached Channels counts the guild_channels records in the "
                  "same table whose guild_id is the server's id; it is the channel list the app "
-                 "cached, not a list of channels the user opened. In tested samples each image "
+                 "cached; this artifact does not report which of those channels were viewed. In tested "
+                 "samples each image "
                  "with a server held exactly one server record, Description held text on "
                  "dexter_ios18 only, Owner Is Account was False on every row, and Cached "
-                 "Channels was 80 on dexter_ios18 and 4 on iphone11_ios17. The same table also caches "
-                 "emoji, sticker, read-state and settings records, which this artifact does not "
-                 "report. Channel and server names from this table are also added to the "
+                 "Channels was 80 on dexter_ios18 and 4 on iphone11_ios17; on dexter_ios18 the chat "
+                 "artifacts held messages in 3 of those 80 channels. The same table also caches "
+                 "other record kinds, among them emoji, sticker, read-state and settings records, "
+                 "which this artifact does not report. Channel and server names from this table are also added to the "
                  "Discord - Chats and Discord Chats (KV Storage) artifacts.",
         "paths": ('*/Library/Caches/kv-storage/@account*/a*',),
         "output_types": "standard",
@@ -35,7 +40,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Discord - Talk, Play, Hang Out 238.0 | 1 row",
             "iphone12_ios18": "iOS 18.7 | Discord - Talk, Play, Hang Out 306.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | Discord - Talk, Play, Hang Out 324.0 | 0 rows",
-            "hickman_ios13": "iOS 13.3.1 | Discord 15.0 | 0 rows (no kv-storage database)",
+            "hickman_ios13": "iOS 13.3.1 | Discord 15.0 | 0 rows (no kv-storage database found)",
         },
     }
 }
@@ -119,12 +124,13 @@ def discord_channel_context(channel_id, guilds, channels):
 
 
 def _joined_at(value):
+    """Parsed joinedAt, or None when it is missing or does not parse."""
     if not value:
-        return ''
+        return None
     try:
         return datetime.fromisoformat(str(value).replace('Z', '+00:00'))
     except ValueError:
-        return str(value)
+        return None
 
 
 @artifact_processor
@@ -142,6 +148,7 @@ def discordServers(context):
     data_list = []
     sources = []
     seen = set()
+    unparsed = 0
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -162,8 +169,11 @@ def discordServers(context):
                 continue
             seen.add((account_id, guild_id))
             owner_id = str(guild.get('ownerId') or '')
+            joined_at = _joined_at(guild.get('joinedAt'))
+            if joined_at is None and guild.get('joinedAt'):
+                unparsed += 1
             data_list.append((
-                _joined_at(guild.get('joinedAt')),
+                joined_at or '',
                 guild.get('name') or '',
                 guild_id,
                 owner_id,
@@ -174,6 +184,8 @@ def discordServers(context):
             ))
         sources.append(context.get_relative_path(file_found))
 
+    if unparsed:
+        logfunc(f'Discord: {unparsed} joinedAt value(s) did not parse and were left blank')
     if data_list:
         logfunc(f'Discord: {len(data_list)} cached server record(s)')
     return data_headers, data_list, '\n'.join(dict.fromkeys(sources))

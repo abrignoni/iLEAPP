@@ -23,15 +23,15 @@ __artifacts_v2__ = {
                  "Conversation, Server Name, Server ID, Channel Name and DM Recipients come from "
                  "the channel and server records the app caches in the kv_cache0 table of the "
                  "kv-storage database in the same app container, matched on Channel ID. For a "
-                 "server channel, Conversation is the server name and #channel name; for a "
+                 "server channel, Conversation is the server name (or the server id when no server record is cached) and #channel name; for a "
                  "channel with no guild_id it is the channel name, or 'DM:' and the recipients "
-                 "from the record's rawRecipients (username and user id). When the channel is "
+                 "from the record's rawRecipients (username and user id). When rawRecipients is absent the ids in recipients are used. The DM label is given to any cached channel with no guild_id and no name; the channel type is not checked. In tested samples every such channel had type 1, which the Discord Developer Documentation lists as a direct message between users (https://docs.discord.com/developers/resources/channel). When the channel is "
                  "not cached those columns are blank and Conversation shows the Channel ID. In "
                  "tested samples every row's channel was cached where the container held a "
                  "kv-storage database: 127 of 127 rows on dexter_ios18 in server channels, 205 "
                  "of 334 on iphone11_ios17 in a server channel and the other 129 in a channel "
                  "with no guild_id, and all 22 on hc_ios18_7 and all 4 on iphone12_ios18 in a "
-                 "channel with no guild_id. hickman_ios13 has no kv-storage database, so its 10 "
+                 "channel with no guild_id. No kv-storage database was found on hickman_ios13, so its 10 "
                  "rows show the Channel ID. Channel Name was blank on every row in a channel "
                  "with no guild_id.",
         "paths": (
