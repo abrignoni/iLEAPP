@@ -137,9 +137,8 @@ def _iso_to_utc(value, assume_utc=False):
     """Parse an ISO 8601 string, or '' when unusable.
 
     The service writes a trailing Z, an explicit offset, or, from the Devices endpoint,
-    no zone at all. Python 3.10 is still in the runtime contract and rejects the Z spelling
-    and any fraction that is not three or six digits, so both are normalised rather than
-    relying on a newer interpreter. A value with no zone is only accepted when the caller
+    no zone at all. Python 3.10 rejects the Z spelling and any fraction that is not three
+    or six digits, so both are normalised rather than relying on a newer interpreter. A value with no zone is only accepted when the caller
     passes assume_utc, which is set on the one endpoint where the same instant was observed
     with an explicit +00:00 offset from a sibling endpoint.
     """

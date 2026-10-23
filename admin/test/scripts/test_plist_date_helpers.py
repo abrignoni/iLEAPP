@@ -7,8 +7,8 @@ string ending in Z and parsed that string back with datetime.fromisoformat:
     return datetime.fromisoformat(str_date)
 
 datetime.fromisoformat did not accept a trailing Z until Python 3.11, so on 3.10 both
-raised ValueError for every input. README.md lists 3.10 as a supported version and the
-runtime contract job runs it, but that job imports the artifact modules rather than
+raised ValueError for every input. README.md then listed 3.10 as a supported version and
+the runtime contract job ran it, but that job imports the artifact modules rather than
 calling into them, so a break inside a helper body was invisible to it. Fourteen artifact
 modules call convert_plist_date_to_utc.
 

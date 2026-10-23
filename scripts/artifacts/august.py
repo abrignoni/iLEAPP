@@ -240,10 +240,9 @@ _ISO_FRACTION = re.compile(r'\.(\d+)')
 def _iso_to_utc(value):
     """Parse an ISO 8601 string that carries its own offset, or '' when unusable.
 
-    The service writes a trailing Z and three fractional digits. Python 3.10, which the
-    runtime contract still covers, rejects the Z spelling and accepts only three or six
-    fractional digits, so both are normalised before parsing rather than relying on a
-    newer interpreter being more lenient.
+    The service writes a trailing Z and three fractional digits. Python 3.10 rejects the
+    Z spelling and accepts only three or six fractional digits, so both are normalised
+    before parsing rather than relying on a newer interpreter being more lenient.
     """
     if not value or not isinstance(value, str):
         return ''
