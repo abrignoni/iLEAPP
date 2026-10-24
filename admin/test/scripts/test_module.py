@@ -31,12 +31,13 @@ import shutil
 import subprocess
 import argparse
 import inspect
+import stat
 
 # Adjust import paths as necessary
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
-from scripts.search_files import FileInfo, _compile_pattern, zip_member_times
+from scripts.search_files import FileInfo, FileSeekerZip, _CLBX_VERSION_MEMBER, _compile_pattern
 from leapp_functions.app.artifact_result import ArtifactResult
 
 
@@ -111,25 +112,37 @@ def stage_case_members(zip_ref, temp_dir, file_infos):
     Extracts a case zip into temp_dir recording what FileSeekerZip.search records.
 
     For each file member, file_infos maps the extracted path to a FileInfo holding
-    the member name and the creation and modification times the zip seeker's own
-    reader (zip_member_times) takes from the member's NTFS or extended timestamp
-    field, or None where the member has neither. The extracted file's modification
-    time is then set as the seeker sets it: that modification time, else the
-    member's date and time read as local time. So an artifact sees the values a
-    real run of the same zip gives it, not the time of the test.
+    the member name and the times FileSeekerZip itself reads for it (_member_times):
+    from the member's NTFS or extended timestamp field (None where it has neither),
+    or, in a CLBX zip, from the member's record in the CLBX metadata. The
+    extracted file's modification time is then set as the seeker sets it: that
+    modification time, else the member's date and time read as local time. So an
+    artifact sees the values a real run of the same zip gives it, not the time of
+    the test. A CLBX zip's version and metadata members are not staged: a run hands
+    an artifact only the members its patterns match.
 
     Args:
-        zip_ref (zipfile.ZipFile): The open case zip.
+        zip_ref (zipfile.ZipFile): The open case zip, opened from a path.
         temp_dir (Path): Folder to extract into.
         file_infos (dict): Filled in place, keyed by extracted path.
     """
-    for info in zip_ref.infolist():
-        extracted_path = zip_ref.extract(info, temp_dir)
-        if info.is_dir():
-            continue
-        creation_date, modification_date, staged, _problems = zip_member_times(info)
-        file_infos[extracted_path] = FileInfo(info.filename, creation_date, modification_date)
-        os.utime(extracted_path, (staged, staged))
+    # pylint: disable=protected-access
+    seeker = FileSeekerZip(zip_ref.filename, str(temp_dir))
+    try:
+        clbx_own = {_CLBX_VERSION_MEMBER, *seeker._clbx.values()} if seeker._clbx else set()
+        for info in zip_ref.infolist():
+            if info.filename in clbx_own:
+                continue
+            extracted_path = zip_ref.extract(info, temp_dir)
+            if info.is_dir():
+                continue
+            creation_date, modification_date, staged, times = seeker._member_times(info.filename, info)
+            kind = 'link' if stat.S_ISLNK(info.external_attr >> 16) else 'file'
+            file_infos[extracted_path] = FileInfo(info.filename, creation_date, modification_date, kind,
+                                                  times=times)
+            seeker._set_staged_time(extracted_path, staged, info)
+    finally:
+        seeker.cleanup()
 
 
 def process_artifact(zip_path, module_name, artifact_name, _artifact_data, target_os_version=None):
