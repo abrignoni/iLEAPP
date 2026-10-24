@@ -501,11 +501,12 @@ class StagedTimes(collections.namedtuple(
     UTC, or None where none was read: the source records none, the field omits it, or
     the value is malformed or out of range. None is never filled from another time or
     from the staged copy. A time stored as 0 is read as none for the zip extra fields
-    and the image reader: an NTFS file time of 0 and the readers' 0 mean unset, and the
-    extended timestamp field defines no unset value, so its 0 is read the same way. A
-    tar header's or the CLBX metadata's 0 is kept as stored. A time past the year 9999
-    is not kept (an NTFS field holding one is skipped and logged; a CLBX or PAX value
-    becomes None); within that range a far-future value is kept as stored. The
+    and the disk image readers: an NTFS file time of 0 and the readers' 0 mean unset,
+    and the extended timestamp field defines no unset value, so its 0 is read the same
+    way. A tar header's, the CLBX metadata's or an L01 or AD1 entry's 0 is kept as
+    stored (an unset L01 or AD1 time is not in what ewfprobe reads, so it is None). A
+    time past the year 9999 is not kept (an NTFS field holding one is skipped and
+    logged; a CLBX or PAX value becomes None); within that range a far-future value is kept as stored. The
     four-byte extended timestamp value is read as unsigned. source names where they
     came from (TIME_SOURCES), TIME_SOURCE_NONE when no time was read.
 

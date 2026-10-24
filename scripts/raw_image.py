@@ -1497,6 +1497,28 @@ class _LogicalReader:
         return (times.get('created', times.get('cr', 0)) or 0,
                 times.get('modified', times.get('wr', 0)) or 0)
 
+    # The keys of the times an entry records, in the order (modified, accessed,
+    # changed, created). An L01's are the ltree columns the EWF specification
+    # (libyal/libewf, "Expert Witness Compression Format (EWF).asciidoc") names wr,
+    # the file's last written time, ac its access time, mo the file system entry's
+    # modification time and cr its creation time. It gives cr, ac and wr as POSIX
+    # times, and libewf reads all four as POSIX times (libewf_lef_file_entry.c). An
+    # AD1's are the three records ewfprobe names created, modified and accessed, as
+    # FTK Imager's own listing names them; none of the three is a change time.
+    _L01_KEYS = ('wr', 'ac', 'mo', 'cr')
+    _AD1_KEYS = ('modified', 'accessed', None, 'created')
+
+    def recorded_times(self, entry):
+        """(modified, accessed, changed, created) as POSIX times, None where the entry
+        records none. ewfprobe's ``times`` holds only the L01 values that are whole
+        numbers and the AD1 records that read as times, so an empty L01 value or an
+        absent AD1 record is None; a recorded 0 is kept as stored, since neither
+        source defines it as unset. An L01's deletion (dl) and acquisition (aq)
+        times are not among these."""
+        times = entry.times or {}
+        keys = self._AD1_KEYS if self.image.format == _ewfprobe.FORMAT_AD1 else self._L01_KEYS
+        return tuple(times.get(key) if key else None for key in keys)
+
 
 def volume_times(walker, node, modified, accessed, created, recorded=None):
     """The StagedTimes of a file read from a volume: what its reader exposes.
@@ -1504,11 +1526,12 @@ def volume_times(walker, node, modified, accessed, created, recorded=None):
     Every reader gives the modification time a listing needs (0 when the
     volume records an instant for none: FAT keeps a wall clock with no zone, and
     exFAT a wall clock with a UTC offset beside it). The NTFS, ReFS and F2FS readers
-    also give the creation and access times (stamps), the L01 and AD1 reader the
-    creation time (ewfprobe also reads their access time, which that reader does not
-    pass on), and the Btrfs reader all four (times), the change time among them. No
-    other reader exposes an access, change or creation instant to this code, so those
-    stay empty.
+    also give the creation and access times (stamps), and the Btrfs reader all four
+    (times), the change time among them. No other volume reader exposes an access,
+    change or creation instant to this code, so those stay empty. An entry of logical
+    evidence gives what it records (_LogicalReader.recorded_times): an L01 all four,
+    its file system entry modification time as the change time, and an AD1 all but
+    the change time.
 
     FAT12, FAT16 and FAT32 record a wall clock and no zone. exFAT records a wall clock
     with a UTC offset beside it, which qnxprobe reports and does not apply (_exfat_offset
@@ -1517,6 +1540,9 @@ def volume_times(walker, node, modified, accessed, created, recorded=None):
     an exFAT orphan entry's ``times``), is kept as text with no zone
     (directory_entry_readings).
     """
+    if isinstance(walker, _LogicalReader):
+        return staged_times(*walker.recorded_times(node), sources=TIME_SOURCE_FILE_SYSTEM,
+                            zero_is_unset=False)
     changed = 0
     times_of = getattr(walker, 'times', None)
     if times_of is not None and getattr(walker, 'stamps', None) is None:
