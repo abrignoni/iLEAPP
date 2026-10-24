@@ -1099,20 +1099,132 @@ def _pax_seconds(value):
     return seconds if _EARLIEST_UNIX_SECONDS <= seconds <= _LATEST_UNIX_SECONDS else None
 
 
-def tar_member_times(member):
-    """The StagedTimes a tar member records: its header's modification time, and the
-    access and change times only when a PAX header carries them (atime, ctime).
+# A GNU-format tar header: the magic and version fields hold "ustar  \0" (OLDGNU_MAGIC
+# in GNU tar's tar.h, used by its gnu and oldgnu formats). Where a POSIX header keeps
+# its name prefix (bytes 345 to 500), this header keeps atime (345, 12 bytes) and ctime
+# (357, 12 bytes), which GNU tar fills only for --incremental (-G) and
+# --listed-incremental (-g) archives and leaves as NULs otherwise.
+_GNU_TAR_MAGIC = b'ustar  \0'
+_GNU_TAR_TIME_FIELDS = (('access', 345), ('change', 357))
+# GNU tar's incremental archives store each folder as a dumpdir member (type 'D',
+# GNUTYPE_DUMPDIR in tar.h: "a dir entry that contains the names of files that were
+# in the dir at the time the dump was made"). tarfile does not know the type and
+# reads it as a file.
+_GNUTYPE_DUMPDIR = b'D'
 
-    A ustar header records the modification time alone (a GNU-format header's atime
-    and ctime fields are not read by tarfile and not recorded here). A PAX extended header can
-    replace it with a fractional one, which tarfile reads into member.mtime, and can
-    add atime and ctime, which tarfile leaves in member.pax_headers. Nothing in a
-    tar header records a creation time here. A time of 0 is kept: tar stores it, and
-    0 is a legal value.
+
+class _GnuTimesTarInfo(tarfile.TarInfo):
+    """A TarInfo that keeps a GNU-format header's atime and ctime fields.
+
+    tarfile reads bytes 345 to 500 of every header as a POSIX name prefix, whatever
+    the magic says, so a member whose GNU header holds atime and ctime was staged and
+    reported as '<atime digits>/<name>', and the two times were dropped. GNU tar reads
+    a prefix only from a POSIX header (magic "ustar" and a NUL). Here a GNU header's
+    name is put back as stored and its two time fields are kept, raw, for
+    tar_member_times(). Every other header is read exactly as tarfile reads it.
+
+    tarfile builds a member with frombuf(), or on newer patch releases with
+    _frombuf(), which frombuf() calls; both are covered and the work is done once.
+    """
+    __slots__ = ('gnu_time_fields',)
+
+    @classmethod
+    def frombuf(cls, buf, encoding, errors):
+        return cls._keep_gnu_fields(super().frombuf(buf, encoding, errors), buf, encoding, errors)
+
+    @classmethod
+    def _frombuf(cls, buf, encoding, errors, **kwargs):
+        built = super()._frombuf(buf, encoding, errors, **kwargs)
+        return cls._keep_gnu_fields(built, buf, encoding, errors)
+
+    @staticmethod
+    def _keep_gnu_fields(member, buf, encoding, errors):
+        if hasattr(member, 'gnu_time_fields'):
+            return member
+        fields = None
+        if bytes(buf[257:265]) == _GNU_TAR_MAGIC:
+            raw = bytes(buf[345:369])
+            fields = raw if raw.strip(b'\0') else None
+            prefix = tarfile.nts(buf[345:500], encoding, errors)
+            if (prefix and member.type not in tarfile.GNU_TYPES
+                    and member.name.startswith(prefix + '/')):
+                member.name = member.name[len(prefix) + 1:]
+        member.gnu_time_fields = fields
+        return member
+
+
+def _gnu_header_seconds(member, field_name, field):
+    """Unix seconds from a 12-byte GNU header time field, or None.
+
+    GNU tar writes the seconds as 11 octal digits and a NUL, or, when they do not fit,
+    a leading 0x80 (0xFF for a negative time) and the other 11 bytes as a big-endian
+    base-256 number in two's complement (to_chars in create.c). The octal form is
+    read as GNU tar reads it (from_header in list.c): one leading NUL and leading
+    spaces skipped, the digits ended by a NUL or a space. An all-NUL field was not
+    written and is None. 0 is kept as stored, as the header's mtime is. A field that
+    does not parse, or a time outside the datetime range, is logged and None.
+    """
+    if not field.strip(b'\0'):
+        return None
+    seconds = None
+    if field[0] in (0x80, 0xFF):
+        seconds = int.from_bytes(field[1:], 'big')
+        if field[0] == 0xFF:
+            seconds -= 1 << (8 * (len(field) - 1))
+    else:
+        text = field[1:] if field[:1] == b'\0' else field
+        text = text.lstrip(b' ')
+        digits = len(text) - len(text.lstrip(b'01234567'))
+        if digits and not text[digits:].strip(b'\0 '):
+            seconds = int(text[:digits], 8)
+    if seconds is None or not _EARLIEST_UNIX_SECONDS <= seconds <= _LATEST_UNIX_SECONDS:
+        what = 'is not a number' if seconds is None else 'is outside the range a date can hold'
+        logfunc(f"INFO: Tar member '{member.name}': the {field_name} time field of its "
+                f"GNU-format header ({field.hex()}) {what}. That time is not recorded.")
+        return None
+    return seconds
+
+
+def _tar_pax_time(member, pax, keyword):
+    """(found, seconds) for one PAX time record of a member. A record that is present
+    but empty deletes the value (POSIX pax), so it is found with None; a record that
+    does not parse is logged and found with None."""
+    if keyword not in pax:
+        return False, None
+    value = pax[keyword]
+    if value == '':
+        return True, None
+    seconds = _pax_seconds(value)
+    if seconds is None:
+        logfunc(f"INFO: Tar member '{member.name}': its PAX {keyword} record ({value[:40]!r}) "
+                "is not a time a date can hold. That time is not recorded.")
+    return True, seconds
+
+
+def tar_member_times(member):
+    """The StagedTimes a tar member records, all from its headers.
+
+    modified: the header's mtime, which a PAX mtime record replaces (tarfile reads
+    that into member.mtime). accessed and changed: a PAX atime or ctime record, or
+    else the atime or ctime field of a GNU-format header (written by GNU tar for
+    incremental archives; read here from _GnuTimesTarInfo). A PAX record wins over
+    the header field: POSIX pax takes an attribute from an extended header record
+    before the header block, and GNU tar decodes its extended header after the header
+    block, over it. created:
+    the PAX LIBARCHIVE.creationtime record, which libarchive (bsdtar) writes from a
+    file's birth time and reads back as one. A ustar header records the modification
+    time alone. A time of 0 is kept: tar stores it, and 0 is a legal value.
     """
     pax = member.pax_headers or {}
-    return staged_times(member.mtime, _pax_seconds(pax.get('atime')),
-                        _pax_seconds(pax.get('ctime')), None, sources=TIME_SOURCE_TAR,
+    gnu = getattr(member, 'gnu_time_fields', None)
+    times = []
+    for (field_name, start), keyword in zip(_GNU_TAR_TIME_FIELDS, ('atime', 'ctime')):
+        found, seconds = _tar_pax_time(member, pax, keyword)
+        if not found and gnu:
+            seconds = _gnu_header_seconds(member, field_name, gnu[start - 345:start - 333])
+        times.append(seconds)
+    created = _tar_pax_time(member, pax, 'LIBARCHIVE.creationtime')[1]
+    return staged_times(member.mtime, times[0], times[1], created, sources=TIME_SOURCE_TAR,
                         zero_is_unset=False)
 
 
@@ -1151,7 +1263,7 @@ class FileSeekerTar(FileSeekerBase):
         FileSeekerBase.__init__(self)
         self.is_gzip = tar_file_path.lower().endswith('gz')
         mode = 'r:gz' if self.is_gzip else 'r'
-        self.tar_file = tarfile.open(tar_file_path, mode)
+        self.tar_file = tarfile.open(tar_file_path, mode, tarinfo=_GnuTimesTarInfo)
         self.data_folder = data_folder
         self._spool_path = None
         if isinstance(self.tar_file.fileobj, _compressed_tar_streams()):
@@ -1191,11 +1303,11 @@ class FileSeekerTar(FileSeekerBase):
                 os.remove(spool)
         self.tar_file.close()
         if not written:
-            self.tar_file = tarfile.open(tar_file_path, mode)
+            self.tar_file = tarfile.open(tar_file_path, mode, tarinfo=_GnuTimesTarInfo)
             return
         self._spool_path = spool
         atexit.register(self._discard_spool)
-        self.tar_file = tarfile.open(spool, 'r:')
+        self.tar_file = tarfile.open(spool, 'r:', tarinfo=_GnuTimesTarInfo)
         logfunc(f'Decompressed {os.path.getsize(spool):,} bytes in {timex.time() - started:.0f} s')
 
     def _index_member_names(self):
@@ -1246,8 +1358,10 @@ class FileSeekerTar(FileSeekerBase):
         its name: in an Android full file system tar, data/user/0 is a hard link to
         data/data. A link whose target the archive does not hold is handed back by
         search with nothing staged, as the folder seeker hands back a link that
-        resolves outside the input, so an artifact can still report the link."""
-        if member.isdir():
+        resolves outside the input, so an artifact can still report the link.
+        A GNU dumpdir member is a folder too: staged as a file, it blocked every
+        file under its name."""
+        if member.isdir() or member.type == _GNUTYPE_DUMPDIR:
             return None
         if member.islnk() or member.issym():
             try:
