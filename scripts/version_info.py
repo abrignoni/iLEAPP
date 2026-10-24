@@ -5,7 +5,7 @@ Leave blank if not available
 """
 
 leapp_name = 'iLEAPP'
-leapp_version = '2026.4.5-dev'
+leapp_version = '2026.4.5'
 
 # Minimum protobuf runtime required by the vendored scripts/blackboxprotobuf and
 # the security pin in requirements.txt. The PyPI 'blackboxprotobuf' package
