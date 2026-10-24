@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         ),
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-10-24",
         "requirements": "Python packages: mmh3",
         "category": "Telegram",
         "notes": "Original Gist: "
@@ -24,7 +24,11 @@ __artifacts_v2__ = {
                  "and media files are looked up inside the same account folder as the message. "
                  "Media files are linked from that account's postbox/media directory by file "
                  "name. A database that raises an SQLite error is named in the run log; rows "
-                 "read from it before the error are kept. The located-at path lists every "
+                 "read from it before the error are kept. A media entry the decoder cannot "
+                 "read, whether embedded in the message or referenced from it, is named in the "
+                 "run log and the row's Action Data says it could not be read; the message row "
+                 "is kept. This handling was exercised on constructed test data; no tested "
+                 "image produced such an entry. The located-at path lists every "
                  "database read. In the client's "
                  "TelegramMediaMap record 'bt' is liveBroadcastingTimeout, printed here as "
                  "'bt (liveBroadcastingTimeout)' with the stored number and no unit, and 'hdg' "
@@ -86,6 +90,17 @@ import enum
 import mmh3
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media, logfunc
+
+# A media entry the decoder cannot read raises one of these: struct.error on a short
+# read, ValueError on an unknown value or entry type or a referenced media record that
+# is not found. The entry is reported as unreadable and the message row is kept.
+MEDIA_DECODE_ERRORS = (ValueError, struct.error)
+UNREADABLE_MEDIA = object()
+
+
+def error_name(err):
+    """struct.error's own name is the bare word 'error', which says nothing in a log."""
+    return 'struct.error' if isinstance(err, struct.error) else type(err).__name__
 
 # Code courtesy of Stek29 / Victor Oreshkin
 # Github: https://gist.github.com/stek29
@@ -263,7 +278,13 @@ def telegramMessages(context):
             data_bytes = v[0]
             bio = byteutil(io.BytesIO(data_bytes))
             # Pass con and caches down if read_media_entry needs them for get_message
-            media_data = read_media_entry(key, bio, con, cache, message_idx_for_ref_lookup)
+            try:
+                media_data = read_media_entry(key, bio, con, cache, message_idx_for_ref_lookup)
+            except MEDIA_DECODE_ERRORS as err:
+                # One unreadable media record costs its own entry, not the artifact.
+                logfunc(f'Telegram messages: referenced media ns={ns}, id={mid} '
+                        f'could not be read ({error_name(err)}: {err})')
+                media_data = UNREADABLE_MEDIA
             cache[key] = media_data
             # refcnt = bio.read_int32() # refcnt not used elsewhere
             return media_data
@@ -503,13 +524,21 @@ def telegramMessages(context):
         media_search_ids = []
 
         for m_emb in msg_data.get('embeddedMedia', []):
+            if m_emb is UNREADABLE_MEDIA:
+                action_data_parts.append('Embedded media could not be read')
+                continue
             details = print_media_info(m_emb)
             action_data_parts.append(details['text_for_report'])
             media_search_ids.extend(details['identifiers_for_file_search'])
 
         for mref_id_tuple in msg_data.get("referencedMediaIds", []):
             m_ref = get_ref_media(mref_id_tuple[0], mref_id_tuple[1], con_param, media_cache_param, idx)
-            if m_ref:
+            if m_ref is UNREADABLE_MEDIA:
+                action_data_parts.append(
+                    f"Referenced media could not be read: ns={mref_id_tuple[0]}, "
+                    f"id={mref_id_tuple[1]}"
+                )
+            elif m_ref:
                 details = print_media_info(m_ref)
                 action_data_parts.append(details['text_for_report'])
                 media_search_ids.extend(details['identifiers_for_file_search'])
@@ -665,8 +694,14 @@ def telegramMessages(context):
         embeddedMediaCount = buf.read_int32()
         embeddedMedia = [None]*embeddedMediaCount
         for i in range(embeddedMediaCount):
-            # Pass con_param to PostboxDecoder if it needs it
-            embeddedMedia[i] = PostboxDecoder(buf.read_bytes()).decodeRootObject()
+            # The entry is length-prefixed, so a failed decode leaves the message buffer in step.
+            media_bytes = buf.read_bytes()
+            try:
+                embeddedMedia[i] = PostboxDecoder(media_bytes).decodeRootObject()
+            except MEDIA_DECODE_ERRORS as err:
+                logfunc(f'Telegram messages: embedded media entry {i} ({len(media_bytes)} bytes) '
+                        f'could not be read ({error_name(err)}: {err})')
+                embeddedMedia[i] = UNREADABLE_MEDIA
 
         referencedMediaIds = []
         referencedMediaIdsCount = buf.read_int32()
