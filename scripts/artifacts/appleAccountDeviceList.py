@@ -2,23 +2,24 @@ __artifacts_v2__ = {
     'appleAccountDeviceList': {
         'name': 'Apple Account - Device List',
         'description': 'Rows of the device_list table in the Apple authentication daemon (akd) '
-                       'database, with device name, model, OS, serial number and the stored trust '
-                       'and circle status values',
+                       'database, with device name, model, OS, serial number, the trusted flag '
+                       'and the circle status value',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-24',
         'requirements': 'none',
         'category': 'Accounts',
         'notes': ("The list is read from the akd database; when it was last refreshed and "
                   "whether it matches the account state at extraction time are not established. "
-                  "Columns dc, clcg, "
-                  'clbg, clhs and dec are reported with their database names because their '
-                  'meaning is not documented.'),
+                  "Trusted shows a stored 1 as Yes and 0 as No, and any other value as stored. "
+                  "Columns mid, dc, clcg, "
+                  'clbg, clhs and dec are reported with their database names because no source '
+                  'establishing their meaning was found.'),
         'paths': ('*/mobile/Library/Application Support/com.apple.akd/devicelist.db*',),
         'output_types': 'standard',
         'artifact_icon': 'devices',
         'sample_data': {
-            'hc_ios18_7': 'iOS 18.7.8 | 1 row (the device itself); additional_info held an IMEI',
+            'hc_ios18_7': 'iOS 18.7.8 | 1 row; additional_info held an IMEI',
         },
     },
     'appleAccountDeletedDeviceList': {
@@ -28,12 +29,14 @@ __artifacts_v2__ = {
                        "seconds and the reason as stored",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-24',
         'requirements': 'none',
         'category': 'Accounts',
-        'notes': ('The reason column is an integer code whose values are not documented, so it is '
+        'notes': ('The reason column is an integer; no source for its values was found, so it is '
                   'reported as stored. The table was empty on the recorded image (hc_ios18_7), so '
-                  'the Unix seconds reading of the two dates is not exercised on real data.'),
+                  'the Unix seconds reading of the two dates is not exercised on real data. '
+                  'The mid column is reported with its database name because no source for its '
+                  'meaning was found.'),
         'paths': ('*/mobile/Library/Application Support/com.apple.akd/devicelist.db*',),
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-off',
@@ -90,7 +93,7 @@ def appleAccountDeviceList(context):
     data_headers = (
         ('Last Updated', 'datetime'), ('Last Cache Updated', 'datetime'), 'Device Name',
         'Model', 'OS', 'OS Version', 'Build Number', 'Serial Number', 'IMEI', 'Trusted',
-        'Circle Status', 'Services', 'Machine ID (mid)', 'altDSID', 'dc', 'clcg', 'clbg',
+        'Circle Status', 'Services', 'mid', 'altDSID', 'dc', 'clcg', 'clbg',
         'clhs', 'dec', 'Additional Info')
     if not source_path:
         return data_headers, data_list, ''
@@ -137,7 +140,7 @@ def appleAccountDeletedDeviceList(context):
     data_list = []
     data_headers = (
         ('Deleted', 'datetime'), ('Last Updated', 'datetime'), 'Reason Code',
-        'Machine ID (mid)', 'altDSID')
+        'mid', 'altDSID')
     if not source_path or not does_table_exist_in_db(source_path, 'deleted_device_list'):
         return data_headers, data_list, source_path
 
