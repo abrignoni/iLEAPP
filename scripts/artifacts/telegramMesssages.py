@@ -44,7 +44,9 @@ __artifacts_v2__ = {
                  "row says so. The row text calls it an incomplete download; what the suffix "
                  "marks is not sourced here. File, image and webpage IDs shorter than 12 bytes "
                  "remain unknown; nonempty short IDs are logged with media type and byte length. "
-                 "Message text and independently decoded media metadata are retained.",
+                 "Message text and independently decoded media metadata are retained. This "
+                 "handling was exercised on constructed test data; no tested image produced "
+                 "a short ID.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
