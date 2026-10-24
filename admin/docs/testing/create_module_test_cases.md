@@ -56,6 +56,10 @@ This command will create test data for the keyboard module, using the specified 
   test harness stages a case zip the way the zip seeker does, so an artifact that reads those
   times gets the values a run of the source gives it. A tar member's time is carried as a UTC
   date, so record baselines with TZ=UTC. Older case zips carry the time they were cut instead.
+- A case cut from a Cellebrite CLBX zip also keeps the root `version` member and, in
+  `metadata<suffix>/metadata.msgpack`, only the metadata records of the files it holds, keyed as
+  the source keys them. The zip seeker and the harness read a CLBX zip's times from those records,
+  not from its extra fields.
 - Test data is stored in the `admin/test/cases/data` directory.
 - JSON metadata files are stored in the `admin/test/cases` directory.
 - Always review and update the generated JSON file with additional test case details as needed.

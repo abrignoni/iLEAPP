@@ -36,6 +36,10 @@ import textwrap
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(repo_root)
 
+import msgpack  # noqa: E402  pylint: disable=wrong-import-position
+from scripts.search_files import (  # noqa: E402  pylint: disable=wrong-import-position
+    _CLBX_VERSION_MEMBER, _clbx_member_names, clbx_metadata_members)
+
 def get_artifact_info(module_name):
     """Dynamically imports an artifact module and retrieves its artifact definitions.
 
@@ -460,10 +464,100 @@ def find_file_in_tar(tar_archive, target_path, tar_filename):
     # If both attempts fail, return None
     return None
 
+# How much of a CLBX metadata.msgpack is read at a time while copying its records out.
+CLBX_COPY_CHUNK = 1 << 20
+
+
+def clbx_metadata_for(source_archive, metadata_member, prefix, names):
+    """A CLBX metadata.msgpack holding only the records for the named members.
+
+    A CLBX zip records each file's times in metadata<suffix>/metadata.msgpack, a
+    MessagePack map keyed by the path under filesystem<suffix>/, and FileSeekerZip
+    reads them from there, never from the member's extra field. A record is kept when
+    its key names one of names the way the seeker resolves it against the source
+    (read_clbx_metadata in scripts/search_files.py): the key's bytes read as UTF-8,
+    then as Latin-1, under prefix, as a file or a directory member. Each kept key and
+    record is copied byte for byte, in the source's order, under a new map header.
+    The source map is read twice, as a stream, so neither pass holds it whole.
+
+    Args:
+        source_archive (zipfile.ZipFile): The open CLBX source zip.
+        metadata_member (str): Its metadata<suffix>/metadata.msgpack member.
+        prefix (str): The filesystem<suffix>/ folder those records describe.
+        names (set): The member names the case zip holds.
+
+    Returns:
+        tuple: (number of records kept, the metadata.msgpack bytes).
+    """
+    by_name = getattr(source_archive, 'NameToInfo', None)
+    if by_name is None:
+        by_name = {info.filename: info for info in source_archive.infolist()}
+    spans = []
+    with source_archive.open(metadata_member) as stream:
+        unpacker = msgpack.Unpacker(stream, raw=True)
+        for _ in range(unpacker.read_map_header()):
+            start = unpacker.tell()
+            key = unpacker.unpack()
+            unpacker.skip()
+            if not isinstance(key, bytes):
+                continue
+            for name in _clbx_member_names(prefix, key):
+                info = by_name.get(name) or by_name.get(name + '/')
+                if info is not None:
+                    if info.filename in names:
+                        spans.append((start, unpacker.tell()))
+                    break
+    parts = [msgpack.Packer().pack_map_header(len(spans))]
+    with source_archive.open(metadata_member) as stream:
+        position = 0
+        for start, end in spans:
+            while position < start:
+                skipped = len(stream.read(min(CLBX_COPY_CHUNK, start - position)))
+                if not skipped:
+                    raise EOFError(f'{metadata_member} ended at byte {position} on the second read')
+                position += skipped
+            record = stream.read(end - start)
+            if len(record) != end - start:
+                raise EOFError(f'{metadata_member} ended inside the record at byte {start}')
+            parts.append(record)
+            position = end
+    return len(spans), b''.join(parts)
+
+
+def write_clbx_members(zip_file, source_archive, clbx, names):
+    """Writes the CLBX members a case zip cut from a CLBX zip needs to be read as one.
+
+    FileSeekerZip reads a zip as CLBX, and takes its file times from the metadata,
+    only when it holds the root version member and a metadata<suffix>/metadata.msgpack
+    for the filesystem<suffix>/ folder a member is under. So the case zip gets the
+    version member as stored, and for each filesystem<suffix>/ folder it holds members
+    of, a metadata.msgpack holding only those members' records (clbx_metadata_for).
+    Both keep their source member's times (see case_member_info).
+
+    Args:
+        zip_file (zipfile.ZipFile): The case zip being written.
+        source_archive (zipfile.ZipFile): The open CLBX source zip.
+        clbx (dict): clbx_metadata_members(source_archive).
+        names (set): The member names already written to the case zip.
+    """
+    zip_file.writestr(case_member_info(_CLBX_VERSION_MEMBER, source_archive.getinfo(_CLBX_VERSION_MEMBER)),
+                      source_archive.read(_CLBX_VERSION_MEMBER))
+    for prefix, metadata_member in sorted(clbx.items()):
+        if not any(name.startswith(prefix) for name in names):
+            continue
+        kept, metadata = clbx_metadata_for(source_archive, metadata_member, prefix, names)
+        zip_file.writestr(case_member_info(metadata_member, source_archive.getinfo(metadata_member)),
+                          metadata)
+        print(f"CLBX source: {metadata_member} carries {kept} record(s) for this case zip")
+
+
 def write_case_zip(file_name, matched, source_archive, input_file):
     """Writes one artifact's case zip from the files matched in the source archive.
 
     Each member keeps the times its source member recorded (see case_member_info).
+    A case cut from a CLBX zip also gets the version member and the metadata records
+    of the members it holds (see write_clbx_members), so the seeker and the test
+    harness read its times from the metadata, as they do for the source.
 
     Args:
         file_name (str): Path of the case zip to write.
@@ -472,14 +566,22 @@ def write_case_zip(file_name, matched, source_archive, input_file):
         source_archive (zipfile.ZipFile or tarfile.TarFile): The open source archive.
         input_file (str): The source archive's path, for prefixed tar member names.
     """
+    clbx = (clbx_metadata_members(source_archive)
+            if isinstance(source_archive, zipfile.ZipFile) else None)
+    # The CLBX members are written by write_clbx_members, never copied as matched files.
+    clbx_own = {_CLBX_VERSION_MEMBER, *clbx.values()} if clbx else set()
+    names = set()
     with zipfile.ZipFile(file_name, 'w') as zip_file:
         if isinstance(matched, list):
             # If using filepath_list, we only have file paths
             for file_path in matched:
+                if file_path in clbx_own:
+                    continue
                 if isinstance(source_archive, zipfile.ZipFile):
                     if file_path in source_archive.namelist():
                         zip_file.writestr(case_member_info(file_path, source_archive.getinfo(file_path)),
                                           source_archive.read(file_path))
+                        names.add(file_path)
                     else:
                         print(f"Warning: File not found in zip: {file_path}")
                 else:  # tarfile
@@ -492,7 +594,12 @@ def write_case_zip(file_name, matched, source_archive, input_file):
         else:
             # If processing archive directly, we have each file's content and source member
             for file_path, recorded in matched.items():
+                if file_path in clbx_own:
+                    continue
                 zip_file.writestr(case_member_info(file_path, recorded.source), recorded.content)
+                names.add(file_path)
+        if clbx:
+            write_clbx_members(zip_file, source_archive, clbx, names)
 
 
 def create_test_data(module_name, image_name=None, case_number=None, input_file=None, image_metadata=None):
