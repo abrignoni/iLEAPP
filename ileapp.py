@@ -258,9 +258,12 @@ def main():
                              "the LAVA database and the TSV export instead (default %(default)s). 0 writes every table.")
     parser.add_argument('--hash', required=False, action='store_true',
                         help="Hash each staged file (SHA-256) after it is staged and before any "
-                             "artifact opens it, into LAVA's _file_path_list and "
-                             "'_TSV Exports/_Staged files SHA-256.tsv'. Off by default; links and "
-                             "folders are recorded by kind without a digest.")
+                             "artifact opens it, and record the times its archive or image records "
+                             "for it (UTC; a zip member's DOS date and time is kept as text with no "
+                             "zone) and where they came from, into LAVA's _file_path_list and "
+                             "'_TSV Exports/_Staged files SHA-256.tsv'. A folder or single-file input "
+                             "records no times. Off by default; links and folders are recorded by "
+                             "kind without a digest.")
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
     parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
     parser.add_argument('--keychain', required=False, action="store",
@@ -590,13 +593,14 @@ def crunch_artifacts(
         if hash_files:
             # opt in (--hash): each staged file is hashed once, after it is staged and
             # before any artifact opens it, so the digest is of the bytes staged
-            logfunc("Staged files are hashed (SHA-256) as they are staged: in LAVA's "
-                    "_file_path_list and _TSV Exports/_Staged files SHA-256.tsv")
+            logfunc("Staged files are hashed (SHA-256) as they are staged, and their recorded "
+                    "times kept: in LAVA's _file_path_list and _TSV Exports/_Staged files SHA-256.tsv")
             tsv_folder = os.path.join(out_params.output_folder_base, '_TSV Exports')
             os.makedirs(tsv_folder, exist_ok=True)
             hashes = open(os.path.join(tsv_folder, '_Staged files SHA-256.tsv'), 'w',
                           encoding='utf8', newline='')
-            hashes.write('Path in evidence\tKind\tSHA-256\n')
+            hashes.write(STAGED_FILES_TSV_HEADER)
+            lava_add_file_path_columns(STAGED_TIME_SQL_COLUMNS)
         hash_counts = {}
         logfunc('\n--------------------------------------------------------------------------------------')
 
@@ -693,10 +697,10 @@ def crunch_artifacts(
                                     digest, kind = staged_file_record(seeker, pathh, file_info,
                                                                       hash_files)
                                     lava_insert_sqlite_file_path(file_path_id, file_info.source_path,
-                                                                 digest, kind)
+                                                                 digest, kind,
+                                                                 staged_time_values(file_info) if hash_files else None)
                                     if hashes is not None:
-                                        hashes.write(f'{file_info.source_path}\t{kind}\t'
-                                                     f'{digest or ""}\n')
+                                        hashes.write(staged_files_tsv_line(file_info, kind, digest))
                                         hash_counts[digest is not None] = \
                                             hash_counts.get(digest is not None, 0) + 1
                                     file_path_ids.add(file_path_id)

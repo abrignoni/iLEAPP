@@ -1196,10 +1196,10 @@ output_folder_name_entry.configure(
     validate='key',
     validatecommand=(main_window.register(allow_output_folder_name_chars), '%P'))
 output_folder_name_entry.pack(side='left', fill='x', expand=True)
-# Off at every start, never remembered: a run hashes its staged files only when this
-# run asks for it (the command line's --hash)
+# Off at every start, never remembered: a run hashes its staged files and records
+# their times only when this run asks for it (the command line's --hash)
 hash_files_var = tk.BooleanVar(value=False)
-ttk.Checkbutton(output_frame, text='Hash staged files (SHA-256)',
+ttk.Checkbutton(output_frame, text='Hash staged files (SHA-256) and record the times the evidence gives them',
                 variable=hash_files_var).pack(anchor='w', padx=5, pady=(0, 4))
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')

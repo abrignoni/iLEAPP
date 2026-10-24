@@ -1077,7 +1077,19 @@ def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, a
         print(str(e))
 
 
-def lava_insert_sqlite_file_path(file_id, file_path, sha256=None, kind=None):
+def lava_add_file_path_columns(columns):
+    """
+    Add columns to the _file_path_list table, for the staged files' times when they
+    are recorded (--hash); without them the table keeps the columns it is created with.
+    Args:
+        columns (iterable): (column name, SQLite type) pairs.
+    """
+    cursor = lava_db.cursor()
+    for name, sql_type in columns:
+        cursor.execute(f'ALTER TABLE _file_path_list ADD COLUMN {quote_sql_name(name)} {sql_type}')
+
+
+def lava_insert_sqlite_file_path(file_id, file_path, sha256=None, kind=None, times=None):
     """
     Insert a file path record into the _file_path_list table.
     Args:
@@ -1085,14 +1097,19 @@ def lava_insert_sqlite_file_path(file_id, file_path, sha256=None, kind=None):
         file_path (str): Relative file path to store.
         sha256 (str): The staged copy's SHA-256, when staged files are hashed.
         kind (str): What the evidence holds at file_path (FileInfo.kind).
+        times (dict): {column: value} for the columns lava_add_file_path_columns
+            added, when staged files are hashed; None leaves them out.
     """
 
+    columns = ['id', 'file_path', 'sha256', 'kind']
+    data = [file_id, file_path, sha256, kind]
+    for name, value in (times or {}).items():
+        columns.append(name)
+        data.append(value)
     cursor = lava_db.cursor()
-    sql = '''INSERT INTO _file_path_list
-                ("id", "file_path", "sha256", "kind")
-                VALUES (?, ?, ?, ?)'''
-
-    data = (file_id, file_path, sha256, kind)
+    sql = f'''INSERT INTO _file_path_list
+                ({", ".join(quote_sql_name(name) for name in columns)})
+                VALUES ({", ".join("?" for _ in columns)})'''
 
     try:
         cursor.execute(sql, data)
