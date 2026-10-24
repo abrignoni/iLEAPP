@@ -28,8 +28,10 @@ import os
 import tarfile
 import hashlib
 import stat
+import collections
 import struct
 import zlib
+from datetime import datetime as _datetime, timedelta as _timedelta, timezone as _timezone
 
 from pathlib import Path
 from shutil import copy2, copyfileobj
@@ -446,14 +448,18 @@ class FileInfo:
             not what the evidence holds there.
         sha256 (str or None): The SHA-256 of the staged copy, set when staged files
             are hashed (--hash) and the kind is one that is.
+        times (StagedTimes): The times the evidence records for the file and where
+            they came from, set by the seeker that staged it (NO_STAGED_TIMES when
+            it records none), and written beside sha256 and kind with --hash.
     """
 
-    def __init__(self, source_path, creation_date, modification_date, kind='file'):
+    def __init__(self, source_path, creation_date, modification_date, kind='file', times=None):
         self.source_path = source_path
         self.creation_date = creation_date
         self.modification_date = modification_date
         self.kind = kind
         self.sha256 = None
+        self.times = NO_STAGED_TIMES if times is None else times
 
 
 # The kinds whose staged copy holds the bytes the evidence holds under that name, so
@@ -461,6 +467,123 @@ class FileInfo:
 # bytes or its target's name, and a folder has none.
 HASHED_KINDS = frozenset(('file', 'stream', 'directory index', 'deleted', 'free space',
                           'decrypted file'))
+
+
+# Where a staged file's times came from (StagedTimes.source). One fixed vocabulary,
+# the same in every LEAPP. A zip member whose times came from two of its fields names
+# both, in the order they were preferred, joined by '; '.
+TIME_SOURCE_CLBX = 'CLBX metadata'
+TIME_SOURCE_FOUR_VALUE = 'four-value extended timestamp'
+TIME_SOURCE_EXTENDED = 'Info-ZIP extended timestamp'
+TIME_SOURCE_NTFS = 'NTFS extra field'
+TIME_SOURCE_TAR = 'tar header'
+TIME_SOURCE_FILE_SYSTEM = 'file system'
+TIME_SOURCE_MANIFEST = 'iTunes Manifest.db'
+TIME_SOURCE_NONE = 'none'
+# In the order a source is named when a record has more than one: the zip seeker
+# prefers the NTFS field to the extended timestamp field.
+TIME_SOURCES = (TIME_SOURCE_NTFS, TIME_SOURCE_FOUR_VALUE, TIME_SOURCE_EXTENDED, TIME_SOURCE_CLBX,
+                TIME_SOURCE_TAR, TIME_SOURCE_FILE_SYSTEM, TIME_SOURCE_MANIFEST, TIME_SOURCE_NONE)
+
+
+class StagedTimes(collections.namedtuple(
+        'StagedTimes', 'modified accessed changed created source zip_time',
+        defaults=(None, None, None, None, TIME_SOURCE_NONE, None))):
+    """The times the evidence records for one staged file, as its seeker read them.
+
+    modified, accessed, changed (status change) and created (birth) are Unix seconds,
+    UTC, or None where none was read: the source records none, the field omits it, or
+    the value is malformed or out of range. None is never filled from another time or
+    from the staged copy. A time stored as 0 is read as none for the zip extra fields
+    and the image reader: an NTFS file time of 0 and the readers' 0 mean unset, and the
+    extended timestamp field defines no unset value, so its 0 is read the same way. A
+    tar header's or the CLBX metadata's 0 is kept as stored. A time past the year 9999
+    is not kept (an NTFS field holding one is skipped and logged; a CLBX or PAX value
+    becomes None); within that range a far-future value is kept as stored. The
+    four-byte extended timestamp value is read as unsigned. source names where they
+    came from (TIME_SOURCES), TIME_SOURCE_NONE when no time was read. zip_time is a zip
+    member's DOS date and time as text, YYYY-MM-DD HH:MM:SS, as zipfile decodes it from
+    the central directory: a wall clock with no zone (writers commonly store local
+    time), so it is never read as an instant. It is None for anything that is not a
+    zip member.
+    """
+    __slots__ = ()
+
+
+NO_STAGED_TIMES = StagedTimes()
+
+
+def staged_times(modified=None, accessed=None, changed=None, created=None, sources=(),
+                 zip_time=None, zero_is_unset=True):
+    """A StagedTimes, with each time stored as 0 read as none when zero_is_unset.
+
+    sources is one source, or a source per time (modified, accessed, changed,
+    created) for a record taken from more than one; only the sources of the times
+    kept are named, in TIME_SOURCES order, so a record with no time is TIME_SOURCE_NONE.
+    """
+    times = [None if value is None or (zero_is_unset and value == 0) else value
+             for value in (modified, accessed, changed, created)]
+    if isinstance(sources, str):
+        sources = (sources,) * 4
+    named = []
+    for value, source in zip(times, sources or (None,) * 4):
+        if value is not None and source and source not in named:
+            named.append(source)
+    named.sort(key=lambda source: TIME_SOURCES.index(source) if source in TIME_SOURCES
+               else len(TIME_SOURCES))
+    return StagedTimes(*times, '; '.join(named) or TIME_SOURCE_NONE, zip_time)
+
+
+# The staged-file record's time columns, in order: the _file_path_list column, its
+# SQLite type and the staged-files TSV header. The four times are Unix seconds, UTC
+# (REAL, NULL when not recorded), written to the TSV as ISO 8601 UTC text ending in Z
+# (or the number stored when datetime cannot hold it);
+# the source and the zip date and time are text. They are written only when staged
+# files are hashed (--hash): without it _file_path_list keeps its columns.
+STAGED_TIME_COLUMNS = (
+    ('modified_time', 'REAL', 'Modified'),
+    ('accessed_time', 'REAL', 'Accessed'),
+    ('changed_time', 'REAL', 'Changed'),
+    ('created_time', 'REAL', 'Created'),
+    ('time_source', 'TEXT', 'Time Source'),
+    ('zip_dos_time', 'TEXT', 'Zip Time (no zone, as stored)'),
+)
+STAGED_TIME_SQL_COLUMNS = tuple((name, sql_type) for name, sql_type, _ in STAGED_TIME_COLUMNS)
+STAGED_FILES_TSV_HEADER = ('Path in evidence\tKind\tSHA-256\t'
+                           + '\t'.join(header for *_, header in STAGED_TIME_COLUMNS) + '\n')
+_UNIX_EPOCH = _datetime(1970, 1, 1, tzinfo=_timezone.utc)
+
+
+def staged_time_values(file_info):
+    """{_file_path_list column: value} for a staged file's times."""
+    times = getattr(file_info, 'times', None) or NO_STAGED_TIMES
+    return dict(zip((name for name, *_ in STAGED_TIME_COLUMNS),
+                    (times.modified, times.accessed, times.changed, times.created,
+                     times.source, times.zip_time)))
+
+
+def utc_text(seconds):
+    """Unix seconds as ISO 8601 UTC text, YYYY-MM-DDTHH:MM:SSZ, with microseconds
+    (YYYY-MM-DDTHH:MM:SS.ffffffZ) when there are any.
+
+    '' for None. A value datetime cannot hold is written as the number stored.
+    """
+    if seconds is None:
+        return ''
+    try:
+        when = _UNIX_EPOCH + _timedelta(seconds=seconds)
+    except (OverflowError, ValueError, TypeError):
+        return str(seconds)
+    return when.strftime('%Y-%m-%dT%H:%M:%S.%fZ' if when.microsecond else '%Y-%m-%dT%H:%M:%SZ')
+
+
+def staged_files_tsv_line(file_info, kind, digest):
+    """One row of _TSV Exports/_Staged files SHA-256.tsv (STAGED_FILES_TSV_HEADER)."""
+    times = getattr(file_info, 'times', None) or NO_STAGED_TIMES
+    cells = [file_info.source_path, kind, digest or '',
+             utc_text(times.modified), utc_text(times.accessed), utc_text(times.changed),
+             utc_text(times.created), times.source, times.zip_time or '']
+    return '\t'.join(cells) + '\n'
 
 
 class FileSeekerBase:
@@ -515,6 +638,12 @@ class FileSeekerDir(FileSeekerBase):
     machine, so nothing is staged for it: it is logged, its path is returned with no
     file behind it, and file_infos holds the link's own times, so an artifact can
     still report the link.
+
+    The staged-file record's times (FileInfo.times) are left empty, source
+    TIME_SOURCE_NONE: what os.stat reads here are the times of the copy on the
+    examiner's disk, set by whatever copied the extraction there, not times the
+    evidence records. (The creation_date and modification_date this seeker keeps
+    are those same copy times.)
     """
 
     def __init__(self, directory, data_folder):
@@ -625,6 +754,24 @@ class FileSeekerDir(FileSeekerBase):
                     return data_path
         self.searched[filepattern] = pathlist
         return pathlist
+
+
+def _manifest_times(metadata):
+    """The StagedTimes of an iTunes backup file, from its Manifest.db Files.file record.
+
+    The record is the MBFile the seeker already reads Birth and LastModified from
+    (creation_date and modification_date). LastModified is the modification time,
+    LastStatusChange the status change time and Birth the creation time, Unix seconds;
+    the record holds no access time. LastStatusChange was in all 322 file records of
+    the df020_mavic_pro_ios backup's Manifest.db (checked 2026-10-23). A key the
+    record does not hold, or a value that is not a number, is no time; a 0 is kept as
+    stored, since nothing defines it as unset.
+    """
+    def seconds(key):
+        value = metadata.get(key)
+        return value if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+    return staged_times(seconds('LastModified'), None, seconds('LastStatusChange'),
+                        seconds('Birth'), sources=TIME_SOURCE_MANIFEST, zero_is_unset=False)
 
 
 class FileSeekerItunes(FileSeekerBase):
@@ -827,11 +974,13 @@ class FileSeekerItunes(FileSeekerBase):
                 metadata = get_plist_content(self.files_metadata[hash_filename])
                 creation_date = metadata.get('Birth', 0)
                 modification_date = metadata.get('LastModified', 0)
+                times = _manifest_times(metadata)
             else:
                 original_location = os.path.join(self.directory, hash_filename)
                 # TO DO: extract creation and modification dates from manifest.mbdb
                 creation_date = 0
                 modification_date = 0
+                times = None  # the mbdb record's times are not read
             data_path = os.path.join(self.data_folder, sanitize_file_path(relative_path))
             if is_platform_windows():
                 data_path = data_path.replace('/', '\\')
@@ -879,7 +1028,7 @@ class FileSeekerItunes(FileSeekerBase):
                     # not the bytes the backup holds; its kind says so
                     file_info = FileInfo(source_path, creation_date, modification_date,
                                          kind='decrypted file' if self.decryption_keys
-                                         else 'file')
+                                         else 'file', times=times)
                     self.file_infos[data_path] = file_info
                     self.copied[original_location] = data_path
                 except OSError as ex:
@@ -904,6 +1053,33 @@ def _compressed_tar_streams():
         except (ImportError, AttributeError):
             pass
     return tuple(streams)
+
+
+def _pax_seconds(value):
+    """Unix seconds from a PAX header time (decimal text, UTC); None when it does not
+    parse or is outside the datetime range."""
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return None
+    return seconds if _EARLIEST_UNIX_SECONDS <= seconds <= _LATEST_UNIX_SECONDS else None
+
+
+def tar_member_times(member):
+    """The StagedTimes a tar member records: its header's modification time, and the
+    access and change times only when a PAX header carries them (atime, ctime).
+
+    A ustar header records the modification time alone (a GNU-format header's atime
+    and ctime fields are not read by tarfile and not recorded here). A PAX extended header can
+    replace it with a fractional one, which tarfile reads into member.mtime, and can
+    add atime and ctime, which tarfile leaves in member.pax_headers. Nothing in a
+    tar header records a creation time here. A time of 0 is kept: tar stores it, and
+    0 is a legal value.
+    """
+    pax = member.pax_headers or {}
+    return staged_times(member.mtime, _pax_seconds(pax.get('atime')),
+                        _pax_seconds(pax.get('ctime')), None, sources=TIME_SOURCE_TAR,
+                        zero_is_unset=False)
 
 
 class FileSeekerTar(FileSeekerBase):
@@ -1077,7 +1253,8 @@ class FileSeekerTar(FileSeekerBase):
                             # seeker returns a link that resolves outside the input
                             full_path = self._unique_data_path(str(full_path), member.name)
                             self.file_infos[full_path] = FileInfo(
-                                member.name, 0, member.mtime, kind='link outside the input')
+                                member.name, 0, member.mtime, kind='link outside the input',
+                                times=tar_member_times(member))
                             self.copied[member.name] = full_path
                         elif content is None:
                             # a folder, or a link to one: no file to hand over
@@ -1091,7 +1268,7 @@ class FileSeekerTar(FileSeekerBase):
                                 copyfileobj(content, fout, 1 << 20)
                             file_info = FileInfo(member.name, 0, member.mtime,
                                                  kind='link' if member.issym() or member.islnk()
-                                                 else 'file')
+                                                 else 'file', times=tar_member_times(member))
                             self.file_infos[full_path] = file_info
                             self.copied[member.name] = full_path
                             os.utime(full_path, (member.mtime, member.mtime))
@@ -1152,10 +1329,10 @@ class FileSeekerTar(FileSeekerBase):
 # - Extended timestamp (0x5455), Info-ZIP extrafld.txt: a flags byte, then the
 #   times it flags as Unix seconds, UTC. The central directory copy, which is the
 #   one zipfile reads into ZipInfo.extra, need hold only the modification time,
-#   and its flags still describe the local header copy. One writer, that of the
-#   GrayKey-style files_full.zip, also sets bit 3 and stores four values in both
-#   copies: modification, access, change (ctime) and birth (creation) time. That
-#   layout is documented by gkls (slo-sleuth, https://github.com/slo-sleuth/gkls,
+#   and its flags still describe the local header copy. A block can also set bit 3
+#   and store four values in both copies: modification, access, change (ctime) and
+#   birth (creation) time. That layout is documented for GrayKey zips (files_full.zip)
+#   by gkls (slo-sleuth, https://github.com/slo-sleuth/gkls,
 #   commit 1b8690309c0270ae6f74c83df89ebe976fb83b6b, README.md lines 140 to 152)
 #   and read the same way by FFS-Explorer (KlasScripts, commit
 #   15a52d0f48847e8387059e07e846bbf2b33f3d50, app/adapters/graykey.py lines 149
@@ -1196,7 +1373,9 @@ _CLBX_FILESYSTEM_DIR = 'filesystem'
 # of the seven corpus CLBX zips above, which hold zero in some time fields instead.
 _CLBX_NO_TIME = -(1 << 63)  # INT64_MIN, also what a time that is not an integer is packed as
 _CLBX_NO_TIMES = (_CLBX_NO_TIME, (1 << 63) - 1)
-_CLBX_PACKED_TIMES = struct.Struct('<qq')  # (btime, mtime) in nanoseconds, kept per member
+# (btime, mtime, atime, ctime) in nanoseconds, kept per member
+_CLBX_PACKED_TIMES = struct.Struct('<qqqq')
+_CLBX_TIME_FIELDS = (b'btime', b'mtime', b'atime', b'ctime')
 
 
 def _filetime_to_unix(value):
@@ -1224,7 +1403,9 @@ def _zip_extra_blocks(extra):
 
 
 def _ntfs_extra_times(data):
-    """(creation, modification) Unix seconds from an NTFS (0x000a) block's data.
+    """(modified, accessed, changed, created) Unix seconds from an NTFS (0x000a) block's data.
+
+    The field records no change time, so changed is always None.
 
     Returns None when the block holds no times attribute. Raises ValueError when
     the block or its times attribute is shorter than its layout needs, or a time
@@ -1241,23 +1422,26 @@ def _ntfs_extra_times(data):
         if tag == _NTFS_TIMES_TAG:
             if size < 24:
                 raise ValueError(f'times attribute holds {size} bytes, not 24')
-            modified, _accessed, created = struct.unpack_from('<QQQ', data, offset + 4)
-            return _filetime_to_unix(created), _filetime_to_unix(modified)
+            modified, accessed, created = struct.unpack_from('<QQQ', data, offset + 4)
+            return (_filetime_to_unix(modified), _filetime_to_unix(accessed), None,
+                    _filetime_to_unix(created))
         offset += 4 + size
     return None
 
 
 def _extended_timestamp_times(data, problems):
-    """(creation, modification) from an extended timestamp (0x5455) block's data.
+    """(modified, accessed, changed, created, four_value) from an extended timestamp
+    (0x5455) block's data.
 
     The times follow the flags byte in flag bit order, 4 bytes each: bit 0
     modification, bit 1 access, bit 2 creation (Info-ZIP extrafld.txt). Some
     writers put all of them in the central directory copy. When bit 3 is set the
     block is read as the four-value layout described above (gkls for the layout,
     FFS-Explorer for the flag reading): bit 2 is then a change time, which is
-    stepped over, and the bit 3 value is the creation (birth) time.
-    The access and change times are not recorded. Every read is bounded by the
-    block's declared size: a value the block is too short to hold is None. The
+    read as the change time, and the bit 3 value is the creation (birth) time.
+    four_value says the block was read that way. Every read is bounded by the
+    block's declared size: a value the block is too short to hold is None (a block too
+    short for its flagged modification time is not read at all, and logged). The
     same flag bit order reading of the three-value block is in extract_timestamps.py
     (abrignoni/Misc-Scripts, commit 922d1ab8314790d79e32f616a12562e89bf2dbd0,
     zipMACtimes/extract_timestamps.py lines 12 to 26), the script for Alexis
@@ -1268,7 +1452,11 @@ def _extended_timestamp_times(data, problems):
         problems.append('extended timestamp field (0x5455) not read: it holds no flags byte')
         return None
     flags, offset = data[0], 1
-    modified = created = None
+    modified = accessed = changed = created = None
+
+    def value_at(at):
+        return struct.unpack_from('<I', data, at)[0] if len(data) >= at + 4 else None
+
     if flags & 1:
         if len(data) < offset + 4:
             problems.append(f'extended timestamp field (0x5455) not read: flags 0x{flags:02x} '
@@ -1277,25 +1465,33 @@ def _extended_timestamp_times(data, problems):
         modified, = struct.unpack_from('<I', data, offset)
         offset += 4
     if flags & 2:
-        offset += 4  # access time, not recorded
-    if flags & 8:
+        accessed = value_at(offset)
+        offset += 4
+    four_value = bool(flags & 8)
+    if four_value:
         if flags & 4:
-            offset += 4  # change time in the four-value layout, never a creation time
-        if len(data) >= offset + 4:
-            created, = struct.unpack_from('<I', data, offset)
-    elif flags & 4 and len(data) >= offset + 4:
-        created, = struct.unpack_from('<I', data, offset)
-    return created, modified
+            # the change time in the four-value layout, never a creation time
+            changed = value_at(offset)
+            offset += 4
+        created = value_at(offset)
+    elif flags & 4:
+        created = value_at(offset)
+    return modified, accessed, changed, created, four_value
 
 
-def zip_member_times(info):
-    """The times FileSeekerZip records for a zip member, and what it could not read.
+def zip_dos_time_text(info):
+    """A zip member's DOS date and time as text, exactly as zipfile decodes it from the
+    central directory: no zone, and no check that it is a valid date."""
+    return '{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}'.format(*info.date_time)
 
-    Returns (creation, modification, staged, problems). creation and modification
-    are the FileInfo times: Unix seconds, UTC, from the NTFS field, else from the
-    extended timestamp field, else None. staged is the modification time given to
-    the staged copy: the modification time above when it is nonzero, else the DOS
-    date and time read as local time. problems describes each field not read.
+
+def _zip_recorded_times(info):
+    """Each time the extra fields record, by field, and what could not be read.
+
+    Returns (values, sources, problems): values is [modified, accessed, changed,
+    created], sources the field each came from, None where none.
+    Each time comes from the NTFS field, else from the extended timestamp field,
+    else is None, chosen time by time.
     """
     blocks, cut = _zip_extra_blocks(info.extra or b'')
     problems = [cut] if cut else []
@@ -1308,14 +1504,44 @@ def zip_member_times(info):
                 problems.append(f'NTFS extra field (0x000a) not read: {ex}')
         elif header_id == _EXTENDED_TIMESTAMP_ID and unix is None:
             unix = _extended_timestamp_times(data, problems)
-    created = modified = None
-    for times in (ntfs, unix):
-        if times:
-            if created is None:
-                created = times[0]
-            if modified is None:
-                modified = times[1]
+    fields = []
+    if ntfs:
+        fields.append((ntfs, TIME_SOURCE_NTFS))
+    if unix:
+        fields.append((unix[:4], TIME_SOURCE_FOUR_VALUE if unix[4] else TIME_SOURCE_EXTENDED))
+    values, sources = [None] * 4, [None] * 4
+    for times, source in fields:
+        for slot, value in enumerate(times):
+            if values[slot] is None and value is not None:
+                values[slot], sources[slot] = value, source
+    return values, sources, problems
+
+
+def zip_member_reading(info):
+    """Everything FileSeekerZip records about a zip member's times, from one reading.
+
+    Returns (creation, modification, staged, times, problems): the four values
+    zip_member_times returns, and times, the StagedTimes of the same reading: the
+    four times, their sources and the DOS date and time as text. A member of a CLBX
+    zip takes its times from the CLBX metadata instead (FileSeekerZip).
+    """
+    values, sources, problems = _zip_recorded_times(info)
+    modified, created = values[0], values[3]
     staged = modified if modified else timex.mktime(info.date_time + (0, 0, -1))
+    times = staged_times(*values, sources=sources, zip_time=zip_dos_time_text(info))
+    return created, modified, staged, times, problems
+
+
+def zip_member_times(info):
+    """The times FileSeekerZip records for a zip member, and what it could not read.
+
+    Returns (creation, modification, staged, problems). creation and modification
+    are the FileInfo times: Unix seconds, UTC, from the NTFS field, else from the
+    extended timestamp field, else None. staged is the modification time given to
+    the staged copy: the modification time above when it is nonzero, else the DOS
+    date and time read as local time. problems describes each field not read.
+    """
+    created, modified, staged, _times, problems = zip_member_reading(info)
     return created, modified, staged, problems
 
 
@@ -1360,13 +1586,13 @@ def _clbx_member_names(prefix, key):
 
 
 def read_clbx_metadata(zip_file, metadata_member, prefix, records, msgpack):
-    """Add the (btime, mtime) of each member a CLBX metadata.msgpack names to records.
+    """Add the (btime, mtime, atime, ctime) of each member a CLBX metadata.msgpack names to records.
 
-    records maps the member name, as zipfile stores it, to the two times in
+    records maps the member name, as zipfile stores it, to the four times in
     nanoseconds packed by _CLBX_PACKED_TIMES; a time the record does not hold as an
     integer is packed as _CLBX_NO_TIME. A record whose path is not a member of the
     zip is skipped: the specification says the file can list files whose content
-    was not extracted. The map is streamed one record at a time and only the two
+    was not extracted. The map is streamed one record at a time and only the four
     times are kept, so the other stat values and extended attributes of at most one
     record are held at once.
     Returns the number of records added. Raises what msgpack or zipfile raise for
@@ -1389,7 +1615,7 @@ def read_clbx_metadata(zip_file, metadata_member, prefix, records, msgpack):
                     break
             else:
                 continue
-            times = [record.get(field) for field in (b'btime', b'mtime')]
+            times = [record.get(field) for field in _CLBX_TIME_FIELDS]
             times = [value if isinstance(value, int) and not isinstance(value, bool)
                      and _CLBX_NO_TIME <= value < (1 << 63) else _CLBX_NO_TIME for value in times]
             records[info.filename] = _CLBX_PACKED_TIMES.pack(*times)
@@ -1438,7 +1664,7 @@ class FileSeekerZip(FileSeekerBase):
     entry's position in the archive, and logged. Those other versions are not
     returned to artifacts, so an artifact reads one version of each name.
 
-    A staged file's times come from zip_member_times: the NTFS extra field, else
+    A staged file's times come from zip_member_reading: the NTFS extra field, else
     the extended timestamp field, else (for the staged copy only) the DOS date and
     time. A malformed field is logged and skipped. In a CLBX zip they come from
     the member's record in the CLBX metadata instead (see _clbx_member_times).
@@ -1549,13 +1775,14 @@ class FileSeekerZip(FileSeekerBase):
         return [r['dos'] for r in recorded]
 
     def _member_times(self, member, info):
-        """zip_member_times for one member, logging any field it could not read.
+        """(creation, modification, staged, times) for one member, from
+        zip_member_reading, logging any field it could not read.
 
         A CLBX member's times come from _clbx_member_times instead.
         """
         if self._clbx:
             return self._clbx_member_times(member, info)
-        created, modified, staged, problems = zip_member_times(info)
+        created, modified, staged, times, problems = zip_member_reading(info)
         if problems:
             self._time_problems += 1
             if self._time_problems <= self._TIME_PROBLEMS_LOGGED:
@@ -1564,7 +1791,7 @@ class FileSeekerZip(FileSeekerBase):
             if self._time_problems == self._TIME_PROBLEMS_LOGGED:
                 logfunc('INFO: further members with time fields that could not be read '
                         'are not logged one by one.')
-        return created, modified, staged
+        return created, modified, staged, times
 
     def _clbx_times(self):
         """The CLBX records by member name, read from the metadata on first use."""
@@ -1588,26 +1815,33 @@ class FileSeekerZip(FileSeekerBase):
         return self._clbx_records
 
     def _clbx_member_times(self, member, info):
-        """(creation, modification, staged) for a CLBX member, from its metadata record.
+        """(creation, modification, staged, times) for a CLBX member, from its metadata record.
 
         creation is the record's btime and modification its mtime, as Unix seconds.
+        times holds those and the record's atime and ctime, with the DOS date and time
+        as text; a record's int64 extreme, or a value outside the datetime range, is no
+        time there, and 0 is kept.
         staged is that modification time when there is one. A member with no record,
         or a record with no mtime, takes the zip date and time read in this
         computer's zone for its staged copy, as the seeker did before it read extra
         fields. The first member with no record is logged.
         """
         packed = self._clbx_times().get(info.filename)
-        created = modified = None
+        created = modified = accessed = changed = None
         if packed is not None:
-            btime, mtime = _CLBX_PACKED_TIMES.unpack(packed)
+            btime, mtime, atime, ctime = _CLBX_PACKED_TIMES.unpack(packed)
             created, modified = _clbx_seconds(btime), _clbx_seconds(mtime)
+            accessed, changed = _clbx_seconds(atime), _clbx_seconds(ctime)
         elif not self._clbx_missing_logged:
             self._clbx_missing_logged = True
             logfunc(f'INFO: CLBX zip: {member} has no record in the metadata; it and any other '
                     f'member without one get no creation or modification time, and the zip date '
                     f'and time read in this computer\'s time zone for the staged copy.')
         staged = modified if modified else timex.mktime(info.date_time + (0, 0, -1))
-        return created, modified, staged
+        # 0 is kept: the specification does not define it as no time
+        times = staged_times(modified, accessed, changed, created, sources=TIME_SOURCE_CLBX,
+                             zip_time=zip_dos_time_text(info), zero_is_unset=False)
+        return created, modified, staged, times
 
     @staticmethod
     def _set_staged_time(path, staged, info):
@@ -1649,11 +1883,12 @@ class FileSeekerZip(FileSeekerBase):
                             extracted_path = self._extract_member(
                                 member, dest_path=dest_path, source=source)
                         f = self.zip_file.getinfo(member) if source is member else source
-                        creation_date, modification_date, staged = self._member_times(member, f)
+                        creation_date, modification_date, staged, times = self._member_times(member, f)
                         # a zip keeps a symbolic link as a member holding its target's name
                         kind = ('folder' if member.endswith('/') else
                                 'link' if stat.S_ISLNK(f.external_attr >> 16) else 'file')
-                        file_info = FileInfo(member, creation_date, modification_date, kind)
+                        file_info = FileInfo(member, creation_date, modification_date, kind,
+                                             times=times)
                         self.file_infos[extracted_path] = file_info
                         self._set_staged_time(extracted_path, staged, f)
                         self.copied[member] = extracted_path
@@ -1759,6 +1994,9 @@ class FileSeekerFile(FileSeekerBase):
             to the data folder if a match is found.
         cleanup():
             Placeholder method for cleanup operations (currently does nothing).
+
+    As for a folder input, the staged-file record's times are left empty (source
+    TIME_SOURCE_NONE): os.stat reads the times of the examiner's copy of the file.
     """
 
     def __init__(self, file_path, data_folder):

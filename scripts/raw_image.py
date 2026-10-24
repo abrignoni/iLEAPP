@@ -105,7 +105,8 @@ import time as timex
 from fnmatch import _compile_pattern
 
 from scripts.ilapfuncs import logfunc, sanitize_file_path
-from scripts.search_files import FileInfo, FileSeekerBase, normcase
+from scripts.search_files import (FileInfo, FileSeekerBase, TIME_SOURCE_FILE_SYSTEM, normcase,
+                                  staged_times)
 
 # qnxprobe reaches its acquisition reader with a bare ``import ewfprobe``,
 # falling back to a sys.path insert of its own directory when that fails.
@@ -1494,6 +1495,35 @@ class _LogicalReader:
                 times.get('modified', times.get('wr', 0)) or 0)
 
 
+def volume_times(walker, node, modified, accessed, created):
+    """The StagedTimes of a file read from a volume: what its reader exposes.
+
+    Every reader gives the modification time a listing needs (0 when the
+    volume records an instant for none: FAT keeps a wall clock with no zone, and
+    exFAT a wall clock with a UTC offset beside it that the reader reports as stored
+    and does not apply; neither is recorded here). The NTFS, ReFS and F2FS readers
+    also give the creation and access times (stamps), the L01 and AD1 reader the
+    creation time (ewfprobe also reads their access time, which that reader does not
+    pass on), and the Btrfs reader all four (times), the change time among them. No
+    other reader exposes an access, change or creation instant to this code (FAT and
+    exFAT list created and accessed readings as text, which are not taken), so those
+    stay empty.
+    """
+    changed = 0
+    times_of = getattr(walker, 'times', None)
+    if times_of is not None and getattr(walker, 'stamps', None) is None:
+        try:
+            recorded = times_of(node) or {}
+            # (seconds, nanoseconds) pairs from the inode item
+            accessed, changed, created = (
+                recorded[name][0] + recorded[name][1] / 1_000_000_000
+                if recorded.get(name) else 0 for name in ('accessed', 'changed', 'created'))
+        except Exception:  # pylint: disable=broad-exception-caught
+            accessed = changed = 0
+    return staged_times(modified, accessed, changed, created,
+                        sources=TIME_SOURCE_FILE_SYSTEM)
+
+
 class FileSeekerRaw(FileSeekerBase):
     """Search a raw disk image or an acquisition and stage the files that match.
 
@@ -2387,15 +2417,21 @@ class FileSeekerRaw(FileSeekerBase):
         stamp = modified or _reading_as_local_instant(entry.reading)
         if stamp:
             os.utime(dest_path, (stamp, stamp))
-        created = 0
+        created = accessed = 0
         stamps = getattr(entry.walker, 'stamps', None)
         if stamps is not None:
             try:
-                created = stamps(entry.node)[0] or 0
+                # (created, modified, accessed) from a volume reader, (created,
+                # modified) from the logical evidence reader above
+                recorded = stamps(entry.node)
+                created = recorded[0] or 0
+                accessed = (recorded[2] or 0) if len(recorded) > 2 else 0
             except Exception:  # pylint: disable=broad-exception-caught
-                created = 0
-        self.file_infos[dest_path] = FileInfo(self._member_source.get(member, member),
-                                              created, modified, kind=self._kind_of(member))
+                created = accessed = 0
+        self.file_infos[dest_path] = FileInfo(
+            self._member_source.get(member, member), created, modified,
+            kind=self._kind_of(member),
+            times=volume_times(entry.walker, entry.node, modified, accessed, created))
         return dest_path
 
     def _kind_of(self, member):
@@ -2477,7 +2513,8 @@ class FileSeekerRaw(FileSeekerBase):
                 os.utime(dest_path, (modified, modified))
             except (OSError, OverflowError, ValueError):
                 pass
-        self.file_infos[dest_path] = FileInfo(member, 0, modified, kind='deleted')
+        self.file_infos[dest_path] = FileInfo(member, 0, modified, kind='deleted',
+                                              times=volume_times(None, None, modified, 0, 0))
         return dest_path
 
     def _stage_free_space(self, member):
