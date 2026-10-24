@@ -21,6 +21,9 @@ reader other than the one under test.
 | `decmpfs-apfs.img.gz` | APFS, 8 MiB, 25 files: `ditto --hfsCompression` output and files laid out by hand with decmpfs methods 1, 3, 4 and 7 to 14 (zlib, LZVN, LZFSE and stored, in the attribute or the resource fork), among them two LZBITMAP files (methods 13 and 14) the reader refuses and two that carry a compression attribute without being flagged compressed | 25 | macOS itself: `decmpfs-apfs.sha256` holds, per file, the decmpfs method the image holds and the SHA-256 of what macOS read back through the mounted volume (qnxprobe `tools/make_decmpfs_fixture.py`) |
 | `decmpfs-hfsplus.img.gz` | HFS+, 8 MiB, 13 files laid out by hand with decmpfs methods 1, 3, 4 and 7 to 14, among them the two LZBITMAP files and two not flagged compressed | 13 | macOS itself, as for the APFS image (`decmpfs-hfsplus.sha256`) |
 | `ntfs-windows.img.gz` | NTFS in an MBR partition, 40 MiB, written by Windows 11: files compressed by the Windows Overlay Filter in each algorithm, NTFS compressed and sparse files, a file with two names, three online-only cloud placeholders and a cloud file that is all there | 35 | Windows itself: `ntfs-windows.known.tsv` holds the length, size on disk and SHA-256 Windows reported for each file, and whether Windows could read it |
+| `ext4-times.img.gz` | ext4, 8 MiB, 256-byte inodes, files whose time fields `debugfs -w` set to chosen raw values: nanoseconds, the epoch bits past 2038, a base with its top bit set (before 1970), a time stored as 0, an inode with no room for a creation time and one with no extra fields | 7 and a folder | no hash list: `test_staged_volume_times.py` holds each file's times as e2fsprogs 1.47.4's `debugfs stat` prints the stored fields, decoded by the kernel's rule |
+| `apfs-times.img.gz` | APFS, 8 MiB, no partition map, files whose times macOS set with setattrlist(2): nanoseconds, a time stored as 0, a hard link (two names of one file) | 4 and a folder | no hash list: `test_staged_volume_times.py` holds each file's times as macOS reads them back from the image attached read only |
+| `hfsplus-times.img.gz` | HFS+, 8 MiB, no partition map, the same files and a file dated before 1970 | 5 and a folder | as for `apfs-times` |
 
 The two AD1s and the test key are copies of fixtures committed in
 [abrignoni/ewfprobe](https://github.com/abrignoni/ewfprobe) under `tests/fixtures/` at
@@ -37,6 +40,9 @@ tab-separated, after a few `#` lines naming the columns.
 The FAT16 and FAT12 images are copies of the fixtures in qnxprobe at
 `57124947f42c799a9174e1e5717e634a7acae99e`, each file the same git blob as there,
 built by its `tools/make_fat16_fixtures.sh`.
+The three times images are copies of the fixtures in qnxprobe at its v1.76 tag
+(`0ae8334ed22468a4fd46d5985987f4437badc676`), each file the same git blob as there, built by
+its `tools/make_ext_times_fixture.sh` (ext4) and `tools/make_times_fixtures.sh` (APFS, HFS+).
 
 The images are copies of the fixtures committed in
 [abrignoni/qnxprobe](https://github.com/abrignoni/qnxprobe) under `tests/fixtures/`,

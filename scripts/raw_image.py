@@ -1523,15 +1523,27 @@ class _LogicalReader:
 def volume_times(walker, node, modified, accessed, created, recorded=None):
     """The StagedTimes of a file read from a volume: what its reader exposes.
 
-    Every reader gives the modification time a listing needs (0 when the
-    volume records an instant for none: FAT keeps a wall clock with no zone, and
-    exFAT a wall clock with a UTC offset beside it). The NTFS, ReFS and F2FS readers
-    also give the creation and access times (stamps), and the Btrfs reader all four
-    (times), the change time among them. No other volume reader exposes an access,
-    change or creation instant to this code, so those stay empty. An entry of logical
-    evidence gives what it records (_LogicalReader.recorded_times): an L01 all four,
-    its file system entry modification time as the change time, and an AD1 all but
-    the change time.
+    ``modified`` is the modification time the reader's listing gives (entry()), 0
+    when the volume records an instant for none: FAT keeps a wall clock with no
+    zone, and exFAT a wall clock with a UTC offset beside it. The NTFS, ReFS and
+    F2FS readers also give the creation and access times (stamps). The ext2/3/4,
+    APFS, HFS+ and Btrfs readers give all four, the change time among them, as
+    (seconds, nanoseconds) pairs (times), and the record takes all four from
+    there, the nanoseconds kept, with ``modified`` used only when times() gives
+    nothing for the node. times() reads the modification time as
+    the file system defines it where entry() does not: an ext inode's signed
+    seconds with the epoch bits of its extra field (entry() reads the 32 bits
+    unsigned), an HFS+ record flagged for expanded times as Unix seconds (entry()
+    always counts from 1904), and an APFS time to the nanosecond (entry() keeps
+    whole seconds and gives 0 for one before 1970-01-01 00:00:01 or from 2100 on).
+    A time times() gives as None (an ext inode with no creation time, an HFS+ date
+    stored as 0) stays empty; a time stored as 0 is read as none, as for every
+    disk image reader (staged_times). HFS+ also stores a backup date, which has no
+    column here. No other volume reader exposes an access, change or creation
+    instant to this code, so those stay empty. An entry of logical evidence gives
+    what it records (_LogicalReader.recorded_times): an L01 all four, its file
+    system entry modification time as the change time, and an AD1 all but the
+    change time.
 
     FAT12, FAT16 and FAT32 record a wall clock and no zone. exFAT records a wall clock
     with a UTC offset beside it, which qnxprobe reports and does not apply (_exfat_offset
@@ -1547,13 +1559,15 @@ def volume_times(walker, node, modified, accessed, created, recorded=None):
     times_of = getattr(walker, 'times', None)
     if times_of is not None and getattr(walker, 'stamps', None) is None:
         try:
-            recorded = times_of(node) or {}
-            # (seconds, nanoseconds) pairs from the inode item
-            accessed, changed, created = (
-                recorded[name][0] + recorded[name][1] / 1_000_000_000
-                if recorded.get(name) else 0 for name in ('accessed', 'changed', 'created'))
+            read = times_of(node)
         except Exception:  # pylint: disable=broad-exception-caught
-            accessed = changed = 0
+            read = None
+        if read is not None:
+            # (seconds, nanoseconds) pairs, each None where the volume holds none
+            modified, accessed, changed, created = (
+                read[name][0] + read[name][1] / 1_000_000_000
+                if read.get(name) is not None else 0
+                for name in ('modified', 'accessed', 'changed', 'created'))
     return staged_times(modified, accessed, changed, created,
                         sources=TIME_SOURCE_FILE_SYSTEM,
                         **directory_entry_readings(walker, recorded))
@@ -2490,7 +2504,10 @@ class FileSeekerRaw(FileSeekerBase):
         modified = entry.mtime or 0
         # The staged copy's own mtime is unchanged: a FAT or exFAT reading is placed
         # in this machine's zone for it, as before. The record below keeps the
-        # readings as text with no zone and its UTC times empty.
+        # readings as text with no zone and its UTC times empty. An ext, APFS or HFS+
+        # copy keeps the listing's whole seconds (entry()) even where the record's
+        # modification time comes from times() (volume_times), so a run without
+        # --hash stages the same copies it did before.
         stamp = modified or _reading_as_local_instant(entry.reading)
         if stamp:
             os.utime(dest_path, (stamp, stamp))

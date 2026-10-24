@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.75"
+QNXPROBE_VERSION = "1.76"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -1348,6 +1348,10 @@ EXT_F = dict(inodes_count=0, blocks_count=4, free_blocks=12, first_data_block=20
 EXT_INCOMPAT_EXTENTS  = 0x0040   # ext4.h
 EXT_COMPAT_HAS_JOURNAL = 0x0004  # ext4.h
 EXT_VALID_FS = 0x0001            # ext4.h
+EXT_GOOD_OLD_INODE_SIZE = 128    # ext4.h EXT4_GOOD_OLD_INODE_SIZE
+EXT4_EPOCH_BITS = 2              # ext4.h; the low bits of an i_*time_extra field
+EXT4_EPOCH_MASK = (1 << EXT4_EPOCH_BITS) - 1
+EXT4_EA_INODE_FL = 0x200000      # ext4.h; the inode holds an extended attribute value
 
 
 def _e(sb, k, n=4):
@@ -1751,6 +1755,67 @@ class ExtWalker:
         size = (struct.unpack_from("<I", raw, 4)[0]
                 | struct.unpack_from("<I", raw, 108)[0] << 32)
         return mode, size, struct.unpack_from("<I", raw, 16)[0]
+
+    def times(self, num):
+        """{"modified", "accessed", "changed", "created"} as (seconds,
+        nanoseconds) since 1970-01-01 UTC, each None where the inode does not
+        hold it, or None for an inode that cannot be read. The shape
+        BtrfsWalker.times() gives. entry() keeps its unsigned 32-bit mtime.
+
+        Read the way the kernel reads them (fs/ext4/ext4.h and fs/ext4/inode.c
+        at v7.3, c03c1a14507dfaf8b856c2608f9ac216021fc222; the layout in
+        Documentation/filesystems/ext4/inodes.rst at the same commit):
+
+        - i_atime, i_ctime and i_mtime (0x08, 0x0C, 0x10) are signed 32-bit
+          seconds (EXT4_INODE_GET_XTIME_VAL casts them signed). The kernel has
+          no unset value for them, so a stored 0 is returned as stored.
+        - i_ctime_extra, i_mtime_extra and i_atime_extra (0x84, 0x88, 0x8C) and
+          i_crtime with i_crtime_extra (0x90, 0x94) are read only when they fit
+          in 128 + i_extra_isize bytes (EXT4_FITS_IN_INODE). An extra field's
+          low two bits add that many 2^32 seconds and its upper 30 bits are the
+          nanoseconds (ext4_decode_extra_time, EXT4_EPOCH_BITS).
+        - created is None unless i_crtime fits; the kernel then reports no
+          birth time (ext4_getattr sets STATX_BTIME only when it fits).
+        - i_extra_isize is read only when the superblock's inode size is past
+          128 (on a 128-byte inode the next inode starts there). A value that
+          runs past the inode or is not a multiple of 4 makes the kernel refuse
+          the inode ("iget: bad extra_isize" in __ext4_iget), and this returns
+          None for it.
+        - An inode flagged EXT4_EA_INODE_FL (0x200000 in i_flags, 0x20) holds an
+          extended attribute value, and inodes.rst says its atime, ctime and
+          mtime fields then hold a checksum, a reference count and an owner, so
+          those three are None.
+
+        e2fsprogs 1.47.4 reads the base as unsigned (ext2fs_inode_xtime_get), so
+        debugfs disagrees with this for a base with its top bit set: a time
+        before 1970, or one the kernel encodes between 2038 and 2106."""
+        raw = self.inode(num)
+        if not raw:
+            return None
+        extra = 0
+        if self.isz > EXT_GOOD_OLD_INODE_SIZE:
+            if len(raw) < EXT_GOOD_OLD_INODE_SIZE + 2:
+                return None
+            extra = struct.unpack_from("<H", raw, EXT_GOOD_OLD_INODE_SIZE)[0]
+            if EXT_GOOD_OLD_INODE_SIZE + extra > self.isz or extra & 3:
+                return None
+        room = min(EXT_GOOD_OLD_INODE_SIZE + extra, len(raw))
+
+        def stamp(base_at, extra_at):
+            sec = struct.unpack_from("<i", raw, base_at)[0]
+            if extra_at + 4 > room:
+                return (sec, 0)
+            bits = struct.unpack_from("<I", raw, extra_at)[0]
+            return (sec + ((bits & EXT4_EPOCH_MASK) << 32), bits >> EXT4_EPOCH_BITS)
+
+        out = {"modified": None, "accessed": None, "changed": None, "created": None}
+        if not struct.unpack_from("<I", raw, 0x20)[0] & EXT4_EA_INODE_FL:
+            out["accessed"] = stamp(0x08, 0x8C)
+            out["changed"] = stamp(0x0C, 0x84)
+            out["modified"] = stamp(0x10, 0x88)
+        if 0x90 + 4 <= room:
+            out["created"] = stamp(0x90, 0x94)
+        return out
 
     def read_file(self, num, size):
         """Yield the file's bytes, exactly ``size`` of them, holes and all."""
@@ -7106,6 +7171,31 @@ class ApfsWalker:
                 size = struct.unpack_from("<Q", head, 8)[0]
         return (mode or 0o100644, size, mtime)
 
+    def times(self, node):
+        """{"modified", "accessed", "changed", "created"} as (seconds,
+        nanoseconds) since 1970-01-01 UTC, or None for the container or a node
+        with no inode. The shape BtrfsWalker.times() gives.
+
+        j_inode_val_t (Apple File System Reference, edition 2020-06-22, pages
+        74-75) holds create_time, mod_time, change_time and access_time at
+        offsets 16, 24, 32 and 40, each a uint64_t count of nanoseconds since
+        1970-01-01 00:00 UTC, disregarding leap seconds: "the time that this
+        record was created", "last modified", "attributes were last modified"
+        (the change time) and "last accessed". The reference gives no unset
+        value, so each is returned as stored, 0 included. entry() keeps its
+        whole-second mod_time with 0 for a value it treats as unset."""
+        if node == APFS_CONTAINER:
+            return None
+        oid = self._select(node)
+        if oid is None:
+            return None
+        val = self._inode(oid)
+        if not val or len(val) < 48:
+            return None
+        created, modified, changed, accessed = struct.unpack_from("<4Q", val, 16)
+        return {"modified": divmod(modified, APFS_NANO), "accessed": divmod(accessed, APFS_NANO),
+                "changed": divmod(changed, APFS_NANO), "created": divmod(created, APFS_NANO)}
+
     def allocation(self, node):
         """What the volume stores for a file, beside the size it records. The
         same dict NtfsWalker.allocation() returns, less the two NTFS fields:
@@ -7361,6 +7451,10 @@ HFSP_FOLDER, HFSP_FILE, HFSP_FOLDER_THREAD, HFSP_FILE_THREAD = 1, 2, 3, 4
 
 # HFS+ counts seconds from 1904-01-01; this is the gap to the Unix epoch.
 HFSP_EPOCH_DELTA = 2082844800
+# A catalog file or folder record's flags bit saying its dates are Unix seconds
+# rather than seconds since 1904 (kHFSCatExpandedTimesMask, core/hfs_format.h in
+# Apple's hfs-715.120.4, 124b970fd5390f1c2cd6f985478616a04f6eeb1f).
+HFSP_CAT_EXPANDED_TIMES = 0x1000
 
 # A hard link is a file whose Finder type and creator say so; the number of the
 # indirect node it points at is in the BSD info's special field.
@@ -7852,6 +7946,52 @@ class HfsPlusWalker:
         if blob and len(blob) >= 16:
             size = struct.unpack_from("<Q", blob, 8)[0]
         return (mode or 0o100644, size, mtime)
+
+    def times(self, cnid):
+        """{"modified", "accessed", "changed", "created", "backup"} as (seconds,
+        0) since 1970-01-01 UTC, each None where the record holds no date, or
+        None for a node with no file or folder record. A hard link gives its
+        indirect node's dates, as entry() gives its size. The four shared names
+        are the shape BtrfsWalker.times() gives; "backup" has no counterpart.
+
+        TN1150 ("HFS Plus Volume Format", HFSPlusCatalogFolder and
+        HFSPlusCatalogFile, and "HFS Plus Dates") puts createDate,
+        contentModDate, attributeModDate, accessDate and backupDate at the same
+        offsets, 12 to 28, in both records: UInt32 seconds since 1904-01-01 GMT.
+        Only the volume header's createDate is local time, and it is not read
+        here. attributeModDate is "the last date and time that any field in the
+        file's catalog record was changed", which TN1150 says the Mac OS X BSD
+        APIs return as st_ctime, so it is the change time.
+
+        Apple's HFS (hfs-715.120.4, 124b970fd5390f1c2cd6f985478616a04f6eeb1f)
+        adds two rules TN1150 predates. A record whose flags carry
+        kHFSCatExpandedTimesMask stores Unix seconds instead (hfs_catalog.c reads
+        each record's own bit; to_bsd_time in core/MacOSStubs.c returns them
+        unconverted, and to_hfs_time says zero is then 1970-01-01). Otherwise
+        to_hfs_time stores an unset time as 0 ("treat as uninitialized"), so a
+        stored 0 is None. A date stored before 1970 is returned as TN1150 counts
+        it, negative; macOS's own to_bsd_time shows it as 1970-01-01."""
+        rec = self._record(cnid)
+        if not rec or len(rec) < 2:
+            return None
+        kind = struct.unpack_from(">H", rec, 0)[0]
+        if kind == HFSP_FILE:
+            _target, rec = self._resolve(cnid, rec)
+        elif kind != HFSP_FOLDER:
+            return None
+        if len(rec) < 32:
+            return None
+        expanded = struct.unpack_from(">H", rec, 2)[0] & HFSP_CAT_EXPANDED_TIMES
+
+        def stamp(v):
+            if expanded:
+                return (v, 0)
+            return (v - HFSP_EPOCH_DELTA, 0) if v else None
+
+        created, content, attributes, accessed, backup = struct.unpack_from(">5I", rec, 12)
+        return {"modified": stamp(content), "accessed": stamp(accessed),
+                "changed": stamp(attributes), "created": stamp(created),
+                "backup": stamp(backup)}
 
     def listdir(self, cnid):
         out = []
@@ -30891,6 +31031,89 @@ def _ntfs_deleted_check(image_gz, listing):
     return matched, len(want), missing, different
 
 
+def _times_fixture_checks(fixtures):
+    """[(label, passed)] for times() of the ext, APFS and HFS+ walkers against
+    known data no qnxprobe code produced: ext-times.json (debugfs's stored
+    fields, decoded by the kernel's rule; tools/make_ext_times_fixture.sh) and
+    mac-times.json (macOS's own getattrlist reading of images it wrote;
+    tools/make_times_fixtures.sh). Every name each file lists is compared,
+    None included, so a time read from the wrong field, a value invented where
+    the volume holds none, or a hard link answered from its own record fails."""
+    import gzip, io, json
+    out = []
+
+    def node_of(w, path):
+        node = w.root
+        for part in path.strip("/").split("/"):
+            node = dict(w.listdir(node)).get(part)
+            if node is None:
+                return None
+        return node
+
+    for listing, stems in (("ext-times.json", ("ext4-times", "ext2-times128")),
+                           ("mac-times.json", ("apfs-times", "hfsplus-times"))):
+        with open(os.path.join(fixtures, listing), encoding="utf-8") as fh:
+            known = json.load(fh)
+        for stem in stems:
+            with gzip.open(os.path.join(fixtures, stem + ".img.gz"), "rb") as gz:
+                img = io.BytesIO(gz.read())
+            size = img.getbuffer().nbytes
+            kind = (identify_fs(img, 0, size) or (None,))[0]
+            w = walker_for(kind, img, 0, size) if kind else None
+            wrong, rows = [], known[stem]
+            for path, row in sorted(rows.items()):
+                if kind == "apfs":
+                    path = "QNXTIMES/" + path
+                node = node_of(w, path) if w is not None else None
+                want = row["expected"]
+                if want is not None:
+                    want = {k: tuple(v) if v is not None else None for k, v in want.items()}
+                got = None
+                if node is not None:
+                    try:
+                        got = w.times(node)
+                    except Exception as exc:         # pylint: disable=broad-except
+                        wrong.append(f"{path}: times() raised {type(exc).__name__}: {exc}")
+                        continue
+                    if got is not None and want is not None:
+                        got = {k: got.get(k) for k in want}
+                if node is None or got != want:
+                    wrong.append(f"{path}: {got} where {want}")
+            out.append((f"{stem}: times() of {len(rows)} files and folders match the known "
+                        f"data in {listing}" + (f"; {'; '.join(wrong)}" if wrong else ""),
+                        not wrong))
+            if kind == "hfs+" and w is not None:
+                try:
+                    out.append(_hfs_expanded_times_check(img, w, node_of(w, "plain.txt")))
+                except Exception as exc:             # pylint: disable=broad-except
+                    out.append(("an HFS+ record flagged for expanded times reads its dates as "
+                                f"Unix seconds ({type(exc).__name__}: {exc})", False))
+    return out
+
+
+def _hfs_expanded_times_check(img, w, cnid):
+    """A record flagged kHFSCatExpandedTimesMask holds Unix seconds (Apple's
+    to_bsd_time returns them unconverted). macOS writes no such record here, so
+    the bit is set in a copy of one the fixture holds: the same five stored
+    words must then read 2082844800 seconds later, and a stored 0 as 1970."""
+    import io
+    rec = w._record(cnid)
+    buf = bytearray(img.getvalue())
+    at = buf.find(rec)
+    ok = at >= 0 and buf.find(rec, at + 1) < 0
+    label = "an HFS+ record flagged for expanded times reads its dates as Unix seconds"
+    if not ok:
+        return (label + " (the record was not found once in the image)", False)
+    struct.pack_into(">H", buf, at + 2, struct.unpack_from(">H", rec, 2)[0]
+                     | HFSP_CAT_EXPANDED_TIMES)
+    struct.pack_into(">I", buf, at + 28, 0)                 # backupDate 0
+    plain = w.times(cnid)
+    got = HfsPlusWalker(io.BytesIO(bytes(buf)), 0).times(cnid)
+    want = {k: (v[0] + HFSP_EPOCH_DELTA, 0) for k, v in plain.items() if k != "backup"}
+    want["backup"] = (0, 0)
+    return (label + ("" if got == want else f"; {got} where {want}"), got == want)
+
+
 def _ext_fixture_check(image_gz, listing):
     """Walk a committed ext fixture and compare every file against the hashes
     sha256sum recorded over the tree the image was built from.
@@ -34876,6 +35099,25 @@ def self_test():
         else:
             print("  [SKIP] the HFS+ fixture is not beside this script, so the "
                   "walk was not compared against it")
+
+        # ---- ext, APFS and HFS+ times() -------------------------------
+        # Known data from debugfs (ext) and from macOS's own reading of the
+        # images it wrote (APFS, HFS+), never from this reader.
+        times_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+        if all(os.path.isfile(os.path.join(times_dir, n)) for n in (
+                "ext-times.json", "mac-times.json", "ext4-times.img.gz",
+                "ext2-times128.img.gz", "apfs-times.img.gz", "hfsplus-times.img.gz")):
+            try:
+                times_checks = _times_fixture_checks(times_dir)
+            except Exception as exc:                 # pylint: disable=broad-except
+                times_checks = [(f"the times() checks ran ({type(exc).__name__}: {exc})", False)]
+            for label, cond in times_checks:
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+        else:
+            print("  [SKIP] the times fixtures are not beside this script, so times() "
+                  "was not compared against them")
 
         # ---- NTFS ----------------------------------------------------
         # A boot sector built by hand, so identification is tested against bytes
