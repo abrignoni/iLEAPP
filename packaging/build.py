@@ -104,6 +104,7 @@ FIXED_HIDDEN_IMPORTS = (
     "liblzfse",
     "mdplist",
     "mmh3",
+    "msgpack",  # imported by the zip seeker only when it opens a CLBX zip
     "nska_deserialize",
     "pandas",
     "pgpy",

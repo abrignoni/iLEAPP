@@ -48,6 +48,8 @@ certifi
 ijson
 mmh3
 mdplistlib
+# The zip seeker reads a CLBX zip's file times from its metadata.msgpack.
+msgpack==1.2.3
 nska-deserialize>=1.3.1
 nska_deserialize
 packaging>=24.0
