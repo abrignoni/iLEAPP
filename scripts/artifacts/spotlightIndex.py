@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "tool's staged copy of each file.",
         "author": '@snoop168, @AlexisBrignoni, Codex',
         "creation_date": "2025-10-09",
-        "last_update_date": '2026-10-04',
+        "last_update_date": '2026-10-23',
         "requirements": "none",
         "category": "Spotlight",
         "notes": "Staged Copy mtime is the numeric modification time of the copy the tool staged, "
@@ -14,7 +14,10 @@ __artifacts_v2__ = {
                  "extraction the tool sets that time from the zip entry's NTFS or extended "
                  "timestamp field, a UTC time, when the entry carries one, and otherwise from the "
                  "entry's date and time, which has no time zone and is read in the local zone of "
-                 "the machine that ran the tool.",
+                 "the machine that ran the tool. For a Cellebrite CLBX zip it sets that time from "
+                 "the file's mtime in the zip's metadata.msgpack, a UTC time, and from the entry's "
+                 "date and time when the member has no record there, the record holds no "
+                 "usable mtime, or the msgpack package is not installed.",
         "paths": ('*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt'),
         "output_types": "standard",
         "artifact_icon": "search",

@@ -1152,15 +1152,51 @@ class FileSeekerTar(FileSeekerBase):
 # - Extended timestamp (0x5455), Info-ZIP extrafld.txt: a flags byte, then the
 #   times it flags as Unix seconds, UTC. The central directory copy, which is the
 #   one zipfile reads into ZipInfo.extra, need hold only the modification time,
-#   and its flags still describe the local header copy.
+#   and its flags still describe the local header copy. One writer, that of the
+#   GrayKey-style files_full.zip, also sets bit 3 and stores four values in both
+#   copies: modification, access, change (ctime) and birth (creation) time. That
+#   layout is documented by gkls (slo-sleuth, https://github.com/slo-sleuth/gkls,
+#   commit 1b8690309c0270ae6f74c83df89ebe976fb83b6b, README.md lines 140 to 152)
+#   and read the same way by FFS-Explorer (KlasScripts, commit
+#   15a52d0f48847e8387059e07e846bbf2b33f3d50, app/adapters/graykey.py lines 149
+#   to 156). So a block with bit 3 set takes its creation time from the fourth
+#   value, and its third value, a change time, is never read as one.
 #
 # The NTFS field is preferred, then the extended timestamp, then the DOS date and
 # time. A field that is malformed is logged and skipped, never fatal.
+#
+# A Cellebrite CLBX zip is told apart by a root member named version that starts
+# with CLBX-, beside metadata<suffix>/metadata.msgpack for each filesystem<suffix>/
+# it holds. The CLBX specification (https://github.com/cellebrite-labs/clbx,
+# commit 3fc10c5f626d75c3265bc745ef0e6ef67a4d6224, README.md) names that file the
+# authoritative per-file metadata: a MessagePack map from the path under
+# filesystem<suffix>/ to the file's stat values, with mtime, ctime, atime and btime
+# in nanoseconds. A CLBX member's times come from that record only, never from its
+# extended timestamp field: on the corpus CLBX zips checked on 2026-10-23
+# (felix_ios17, otto_ios17, dexter_ios18, iphone11_ios17, felix23_ios16, abe_ios16
+# and adams_iphone12mini) the field's three values were equal to each other on
+# every file member, and equal to the record's atime on all but 16 members of
+# iphone11_ios17 and 18,573 of felix_ios17, whose records hold an atime of INT64_MAX
+# or past the year 2100 while the field holds zero (nonzero on 223 of the
+# felix_ios17 members).
 _NTFS_EXTRA_ID = 0x000a
 _NTFS_TIMES_TAG = 0x0001
 _EXTENDED_TIMESTAMP_ID = 0x5455
 _FILETIME_AT_UNIX_EPOCH = 116444736000000000
 _LATEST_UNIX_SECONDS = 253402300799  # 9999-12-31 23:59:59 UTC, the last whole second datetime holds
+_EARLIEST_UNIX_SECONDS = -62135596800  # 0001-01-01 00:00:00 UTC, the first second datetime holds
+_CLBX_VERSION_MEMBER = 'version'
+_CLBX_MAGIC = b'CLBX-'
+_CLBX_METADATA_DIR = 'metadata'
+_CLBX_METADATA_FILE = '/metadata.msgpack'
+_CLBX_FILESYSTEM_DIR = 'filesystem'
+# The int64 extremes are read as no time. The specification defines no value for a
+# missing time. INT64_MAX was found as an mtime or atime on felix_ios17 (8,993 and
+# 10,030 records) and iphone11_ios17 (16 each); INT64_MIN was found in no time field
+# of the seven corpus CLBX zips above, which hold zero in some time fields instead.
+_CLBX_NO_TIME = -(1 << 63)  # INT64_MIN, also what a time that is not an integer is packed as
+_CLBX_NO_TIMES = (_CLBX_NO_TIME, (1 << 63) - 1)
+_CLBX_PACKED_TIMES = struct.Struct('<qq')  # (btime, mtime) in nanoseconds, kept per member
 
 
 def _filetime_to_unix(value):
@@ -1214,13 +1250,18 @@ def _ntfs_extra_times(data):
 def _extended_timestamp_times(data, problems):
     """(creation, modification) from an extended timestamp (0x5455) block's data.
 
-    The times follow the flags byte in flag bit order (Info-ZIP extrafld.txt):
-    bit 0 modification, bit 1 access, bit 2 creation, 4 bytes each. Some writers
-    put all of them in the central directory copy and some set bit 3 and add a
-    fourth value, which is not read. Every read is bounded by the block's
-    declared size: a value the block is too short to hold is None. The same
-    bit-order reading is in Alexis Brignoni, 'Full file system extractions in
-    zip: MAC times', 2024-05-24,
+    The times follow the flags byte in flag bit order, 4 bytes each: bit 0
+    modification, bit 1 access, bit 2 creation (Info-ZIP extrafld.txt). Some
+    writers put all of them in the central directory copy. When bit 3 is set the
+    block is read as the four-value layout described above (gkls for the layout,
+    FFS-Explorer for the flag reading): bit 2 is then a change time, which is
+    stepped over, and the bit 3 value is the creation (birth) time.
+    The access and change times are not recorded. Every read is bounded by the
+    block's declared size: a value the block is too short to hold is None. The
+    same flag bit order reading of the three-value block is in extract_timestamps.py
+    (abrignoni/Misc-Scripts, commit 922d1ab8314790d79e32f616a12562e89bf2dbd0,
+    zipMACtimes/extract_timestamps.py lines 12 to 26), the script for Alexis
+    Brignoni, 'Full file system extractions in zip: MAC times', 2024-05-24,
     https://abrignoni.blogspot.com/2024/05/full-file-system-extractions-in-zip-mac.html
     """
     if not data:
@@ -1237,7 +1278,12 @@ def _extended_timestamp_times(data, problems):
         offset += 4
     if flags & 2:
         offset += 4  # access time, not recorded
-    if flags & 4 and len(data) >= offset + 4:
+    if flags & 8:
+        if flags & 4:
+            offset += 4  # change time in the four-value layout, never a creation time
+        if len(data) >= offset + 4:
+            created, = struct.unpack_from('<I', data, offset)
+    elif flags & 4 and len(data) >= offset + 4:
         created, = struct.unpack_from('<I', data, offset)
     return created, modified
 
@@ -1273,6 +1319,98 @@ def zip_member_times(info):
     return created, modified, staged, problems
 
 
+def clbx_metadata_members(zip_file):
+    """{filesystem<suffix>/: metadata<suffix>/metadata.msgpack} for a CLBX zip, else None.
+
+    A zip is read as CLBX when its root version member starts with CLBX- and it
+    holds at least one metadata<suffix>/metadata.msgpack. A version member that
+    cannot be read means the zip is not read as CLBX.
+    """
+    try:
+        with zip_file.open(_CLBX_VERSION_MEMBER) as version:
+            if version.read(len(_CLBX_MAGIC)) != _CLBX_MAGIC:
+                return None
+    except (KeyError, OSError, EOFError) + _ZIP_MEMBER_ERRORS:
+        return None
+    members = {}
+    for name in zip_file.namelist():
+        if (name.startswith(_CLBX_METADATA_DIR) and name.endswith(_CLBX_METADATA_FILE)
+                and name.count('/') == 1):
+            suffix = name[len(_CLBX_METADATA_DIR):-len(_CLBX_METADATA_FILE)]
+            members[f'{_CLBX_FILESYSTEM_DIR}{suffix}/'] = name
+    return members or None
+
+
+def _clbx_member_names(prefix, key):
+    """The member names a CLBX metadata key can be stored under.
+
+    The key is the path's bytes. The member name is normally those bytes read as
+    UTF-8. On felix23_ios16 (369 members) and abe_ios16 (366), checked on
+    2026-10-23, every member with no record under that name had the UTF-8 flag
+    set and a name equal to the key's bytes read as Latin-1, so that name is tried
+    next. With both, every member below filesystem<suffix>/ on the seven corpus
+    CLBX zips named above had a record; the filesystem<suffix>/ directory member
+    itself has none on five of them.
+    """
+    try:
+        yield prefix + key.decode('utf-8')
+    except UnicodeDecodeError:
+        pass
+    yield prefix + key.decode('latin-1')
+
+
+def read_clbx_metadata(zip_file, metadata_member, prefix, records, msgpack):
+    """Add the (btime, mtime) of each member a CLBX metadata.msgpack names to records.
+
+    records maps the member name, as zipfile stores it, to the two times in
+    nanoseconds packed by _CLBX_PACKED_TIMES; a time the record does not hold as an
+    integer is packed as _CLBX_NO_TIME. A record whose path is not a member of the
+    zip is skipped: the specification says the file can list files whose content
+    was not extracted. The map is streamed one record at a time and only the two
+    times are kept, so the other stat values and extended attributes of at most one
+    record are held at once.
+    Returns the number of records added. Raises what msgpack or zipfile raise for
+    a damaged file; the records read before it stay in records.
+    """
+    by_name = getattr(zip_file, 'NameToInfo', None)
+    if by_name is None:
+        by_name = {info.filename: info for info in zip_file.infolist()}
+    added = 0
+    with zip_file.open(metadata_member) as stream:
+        unpacker = msgpack.Unpacker(stream, raw=True)
+        for _ in range(unpacker.read_map_header()):
+            key = unpacker.unpack()
+            record = unpacker.unpack()
+            if not isinstance(key, bytes) or not isinstance(record, dict):
+                continue
+            for name in _clbx_member_names(prefix, key):
+                info = by_name.get(name) or by_name.get(name + '/')
+                if info is not None:
+                    break
+            else:
+                continue
+            times = [record.get(field) for field in (b'btime', b'mtime')]
+            times = [value if isinstance(value, int) and not isinstance(value, bool)
+                     and _CLBX_NO_TIME <= value < (1 << 63) else _CLBX_NO_TIME for value in times]
+            records[info.filename] = _CLBX_PACKED_TIMES.pack(*times)
+            added += 1
+    return added
+
+
+def _clbx_seconds(nanoseconds):
+    """Unix seconds for a CLBX stat time; None for an int64 extreme or a value datetime cannot hold.
+
+    Any other value is returned as stored, including a time past the year 2100
+    (9,772 mtimes on felix_ios17, checked 2026-10-23).
+    """
+    if nanoseconds in _CLBX_NO_TIMES:
+        return None
+    seconds = nanoseconds / 1_000_000_000
+    if not _EARLIEST_UNIX_SECONDS <= seconds <= _LATEST_UNIX_SECONDS:
+        return None
+    return seconds
+
+
 class FileSeekerZip(FileSeekerBase):
     """
     This is a class that extends FileSeekerBase to facilitate searching and extracting files from a ZIP archive.
@@ -1302,7 +1440,8 @@ class FileSeekerZip(FileSeekerBase):
 
     A staged file's times come from zip_member_times: the NTFS extra field, else
     the extended timestamp field, else (for the staged copy only) the DOS date and
-    time. A malformed field is logged and skipped.
+    time. A malformed field is logged and skipped. In a CLBX zip they come from
+    the member's record in the CLBX metadata instead (see _clbx_member_times).
     """
 
     # How many members' unreadable time fields are logged one by one.
@@ -1317,6 +1456,12 @@ class FileSeekerZip(FileSeekerBase):
         self.copied = {}
         self.file_infos = {}
         self._init_dest_guard(self.data_folder)
+        self._clbx = clbx_metadata_members(self.zip_file)
+        self._clbx_records = None
+        self._clbx_missing_logged = False
+        if self._clbx:
+            logfunc(f'INFO: CLBX zip: file times are read from {", ".join(sorted(self._clbx.values()))}, '
+                    f'not from the zip extra fields.')
         self._search_names, self._chosen, self._other_versions = self._index_member_names()
         self._time_problems = 0
 
@@ -1350,7 +1495,8 @@ class FileSeekerZip(FileSeekerBase):
             repeated += 1
             if len({(info.CRC, info.file_size) for _, info in entries}) == 1:
                 continue
-            times = self._recorded_mtimes([info for _, info in entries])
+            times = self._recorded_mtimes([info for _, info in entries],
+                                          ('ntfs', 'dos') if self._clbx else ('ntfs', 'unix', 'dos'))
             # Latest recorded time wins; on a tie the earlier entry does.
             pick = max(((stamp, -i), i) for i, stamp in enumerate(times))[1]
             chosen[name] = entries[pick][1]
@@ -1371,12 +1517,15 @@ class FileSeekerZip(FileSeekerBase):
         return list(by_name), chosen, other_versions
 
     @staticmethod
-    def _recorded_mtimes(infos):
+    def _recorded_mtimes(infos, clocks):
         """Modification times recorded for entries of one name, on one clock.
 
-        Uses the NTFS times (0x000a) when every entry carries them, else the
-        extended timestamp (0x5455), else the DOS date and time, so entries are
-        only ever compared on the same clock.
+        Uses the first of clocks that every entry carries: the NTFS times
+        (0x000a), the extended timestamp (0x5455) or the DOS date and time, so
+        entries are only ever compared on the same clock. A CLBX zip leaves out
+        the extended timestamp, which does not hold its modification time, and
+        its metadata has one record per path, so it cannot order entries of one
+        name either.
         """
         def fields(info):
             found = {}
@@ -1394,13 +1543,18 @@ class FileSeekerZip(FileSeekerBase):
             found['dos'] = info.date_time
             return found
         recorded = [fields(info) for info in infos]
-        for clock in ('ntfs', 'unix', 'dos'):
+        for clock in clocks:
             if all(clock in r for r in recorded):
                 return [r[clock] for r in recorded]
         return [r['dos'] for r in recorded]
 
     def _member_times(self, member, info):
-        """zip_member_times for one member, logging any field it could not read."""
+        """zip_member_times for one member, logging any field it could not read.
+
+        A CLBX member's times come from _clbx_member_times instead.
+        """
+        if self._clbx:
+            return self._clbx_member_times(member, info)
         created, modified, staged, problems = zip_member_times(info)
         if problems:
             self._time_problems += 1
@@ -1410,6 +1564,49 @@ class FileSeekerZip(FileSeekerBase):
             if self._time_problems == self._TIME_PROBLEMS_LOGGED:
                 logfunc('INFO: further members with time fields that could not be read '
                         'are not logged one by one.')
+        return created, modified, staged
+
+    def _clbx_times(self):
+        """The CLBX records by member name, read from the metadata on first use."""
+        if self._clbx_records is not None:
+            return self._clbx_records
+        self._clbx_records = {}
+        try:
+            import msgpack  # pylint: disable=import-outside-toplevel
+        except ImportError:
+            logfunc('INFO: CLBX zip: the msgpack package is not installed, so its metadata is not '
+                    'read. Members get no creation or modification time, and staged copies take '
+                    'the zip date and time read in this computer\'s time zone. '
+                    'Install msgpack (pip install -r requirements.txt) to read them.')
+            return self._clbx_records
+        for prefix, metadata_member in sorted(self._clbx.items()):
+            try:
+                read_clbx_metadata(self.zip_file, metadata_member, prefix, self._clbx_records, msgpack)
+            except (msgpack.UnpackException, ValueError, OSError, EOFError, KeyError) + _ZIP_MEMBER_ERRORS as ex:
+                logfunc(f'INFO: CLBX zip: {metadata_member} could not be read to the end ({ex}); '
+                        f'members it did not reach take the zip date and time.')
+        return self._clbx_records
+
+    def _clbx_member_times(self, member, info):
+        """(creation, modification, staged) for a CLBX member, from its metadata record.
+
+        creation is the record's btime and modification its mtime, as Unix seconds.
+        staged is that modification time when there is one. A member with no record,
+        or a record with no mtime, takes the zip date and time read in this
+        computer's zone for its staged copy, as the seeker did before it read extra
+        fields. The first member with no record is logged.
+        """
+        packed = self._clbx_times().get(info.filename)
+        created = modified = None
+        if packed is not None:
+            btime, mtime = _CLBX_PACKED_TIMES.unpack(packed)
+            created, modified = _clbx_seconds(btime), _clbx_seconds(mtime)
+        elif not self._clbx_missing_logged:
+            self._clbx_missing_logged = True
+            logfunc(f'INFO: CLBX zip: {member} has no record in the metadata; it and any other '
+                    f'member without one get no creation or modification time, and the zip date '
+                    f'and time read in this computer\'s time zone for the staged copy.')
+        staged = modified if modified else timex.mktime(info.date_time + (0, 0, -1))
         return created, modified, staged
 
     @staticmethod
