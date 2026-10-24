@@ -38,7 +38,9 @@ __artifacts_v2__ = {
                  "search rather than the largest alone. When only a file with the _partial suffix "
                  "is found under the names the message references, that file is attached and the "
                  "row says so. The row text calls it an incomplete download; what the suffix "
-                 "marks is not sourced here.",
+                 "marks is not sourced here. File, image and webpage IDs shorter than 12 bytes "
+                 "remain unknown; nonempty short IDs are logged with media type and byte length. "
+                 "Message text and independently decoded media metadata are retained.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
@@ -846,11 +848,14 @@ def telegramMessages(context):
 
         def __init__(self, dec):
             super().__init__(dec)
-            if hasattr(self, 'imageId_raw') and self.imageId_raw:
+            if self.imageId_raw and len(self.imageId_raw) >= 12:
                 bio = byteutil(io.BytesIO(self.imageId_raw))
                 self.imageId = (bio.read_int32(), bio.read_int64())
             else:
-                self.imageId = (None, None) # Default if raw bytes are missing
+                self.imageId = (None, None) # Default if raw bytes are missing or short
+                if self.imageId_raw:
+                    logfunc(f'TelegramMediaImage: short media ID '
+                            f'({len(self.imageId_raw)} bytes); using unknown ID')
 
         @property
         def mediaId(self):
@@ -918,11 +923,14 @@ def telegramMessages(context):
 
         def __init__(self, dec):
             super().__init__(dec)
-            if hasattr(self, 'fileId_raw') and self.fileId_raw:
+            if self.fileId_raw and len(self.fileId_raw) >= 12:
                 bio = byteutil(io.BytesIO(self.fileId_raw))
                 self.fileId = (bio.read_int32(), bio.read_int64())
             else:
                 self.fileId = (None, None)
+                if self.fileId_raw:
+                    logfunc(f'TelegramMediaFile: short media ID '
+                            f'({len(self.fileId_raw)} bytes); using unknown ID')
 
         @property
         def mediaId(self):
@@ -942,11 +950,14 @@ def telegramMessages(context):
 
         def __init__(self, dec):
             super().__init__(dec)
-            if hasattr(self, 'webpageId_raw') and self.webpageId_raw:
+            if self.webpageId_raw and len(self.webpageId_raw) >= 12:
                 bio = byteutil(io.BytesIO(self.webpageId_raw))
                 self.webpageId = (bio.read_int32(), bio.read_int64())
             else:
                 self.webpageId = (None, None)
+                if self.webpageId_raw:
+                    logfunc(f'TelegramMediaWebpage: short media ID '
+                            f'({len(self.webpageId_raw)} bytes); using unknown ID')
 
         @property
         def mediaId(self):
