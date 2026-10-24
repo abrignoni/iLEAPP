@@ -19,11 +19,20 @@ def blob(value):
     return struct.pack('<i', len(value)) + value
 
 
-def media_file(file_id):
-    """A TelegramMediaFile root object whose 'i' field holds file_id."""
-    fields = b'\x01i\x0a' + blob(file_id)
+def media_file_object(fields):
+    """A TelegramMediaFile root object holding the encoded fields."""
     return b'\x01_\x05' + struct.pack(
         '<i', mmh3.hash('TelegramMediaFile', seed=4157243346)) + blob(fields)
+
+
+def media_file(file_id):
+    """A TelegramMediaFile root object whose 'i' field holds file_id."""
+    return media_file_object(b'\x01i\x0a' + blob(file_id))
+
+
+def truncated_media_file():
+    """A TelegramMediaFile whose 'i' field ends inside its 4-byte length prefix."""
+    return media_file_object(b'\x01i\x0a' + b'\x01\x00')
 
 
 def message(text, embedded=(), referenced=()):
@@ -89,13 +98,14 @@ class TelegramMessageUnreadableMedia(unittest.TestCase):
         self.assertEqual(len(logs), 1)
         self.assertIn('referenced media ns=1, id=42 could not be read (ValueError', logs[0])
 
-    def test_short_embedded_id_keeps_the_message(self):
-        # A 1-byte ID raised struct.error while the message itself was decoded.
+    def test_truncated_embedded_media_keeps_the_message(self):
+        # A media entry that ends mid-field raised struct.error while the message
+        # itself was decoded.
         rows, logs = run(
             t6=[],
-            t7=[(1, message(b'with short ID', embedded=[media_file(b'\x01')])),
+            t7=[(1, message(b'with truncated media', embedded=[truncated_media_file()])),
                 (2, message(b'after it'))])
-        self.assertEqual([r[TEXT] for r in rows], ['with short ID', 'after it'])
+        self.assertEqual([r[TEXT] for r in rows], ['with truncated media', 'after it'])
         self.assertEqual(rows[0][ACTION_DATA], 'Embedded media could not be read')
         self.assertEqual(len(logs), 1)
         self.assertIn('embedded media entry 0', logs[0])
