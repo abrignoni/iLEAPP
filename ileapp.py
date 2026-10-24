@@ -259,8 +259,10 @@ def main():
     parser.add_argument('--hash', required=False, action='store_true',
                         help="Hash each staged file (SHA-256) after it is staged and before any "
                              "artifact opens it, and record the times its archive or image records "
-                             "for it (UTC; a zip member's DOS date and time is kept as text with no "
-                             "zone) and where they came from, into LAVA's _file_path_list and "
+                             "for it (UTC; a zip member's DOS date and time and a FAT or exFAT "
+                             "entry's times are kept as text with no zone, and exFAT's UTC offsets "
+                             "as stored, not applied) and where they came from, into LAVA's "
+                             "_file_path_list and "
                              "'_TSV Exports/_Staged files SHA-256.tsv'. A folder or single-file input "
                              "records no times. Off by default; links and folders are recorded by "
                              "kind without a digest.")

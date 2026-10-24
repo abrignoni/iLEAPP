@@ -105,8 +105,8 @@ import time as timex
 from fnmatch import _compile_pattern
 
 from scripts.ilapfuncs import logfunc, sanitize_file_path
-from scripts.search_files import (FileInfo, FileSeekerBase, TIME_SOURCE_FILE_SYSTEM, normcase,
-                                  staged_times)
+from scripts.search_files import (FileInfo, FileSeekerBase, TIME_SOURCE_EXFAT, TIME_SOURCE_FAT,
+                                  TIME_SOURCE_FILE_SYSTEM, normcase, staged_times)
 
 # qnxprobe reaches its acquisition reader with a bare ``import ewfprobe``,
 # falling back to a sys.path insert of its own directory when that fails.
@@ -1282,9 +1282,10 @@ def _reading_as_local_instant(reading):
     text and records no instant. The zip seeker gives a staged copy the mtime
     of the member's DOS stamp through time.mktime, which is the same reading
     read in the same local zone; this does the same for the staged copy's own
-    mtime, and nothing more. The FileInfo the run records keeps 0, so no report
-    field carries a zone the evidence never had. Returns 0 for an unset or
-    malformed reading.
+    mtime, and nothing more. The FileInfo the run records keeps 0, and the
+    staged-file record keeps the readings as text with no zone (volume_times),
+    so no report field carries a zone the evidence does not record, or one this
+    code has not applied. Returns 0 for an unset or malformed reading.
     """
     if not reading:
         return 0
@@ -1456,15 +1457,17 @@ class _Entry:
     marks the data of a logical evidence entry that is a folder as well, whose
     children are staged under the same path."""
 
-    __slots__ = ('walker', 'node', 'size', 'mtime', 'reading', 'folder')
+    __slots__ = ('walker', 'node', 'size', 'mtime', 'reading', 'folder', 'recorded')
 
-    def __init__(self, walker, node, size, mtime, reading='', folder=False):
+    def __init__(self, walker, node, size, mtime, reading='', folder=False, recorded=None):
         self.walker = walker
         self.node = node
         self.size = size
         self.mtime = mtime
         self.reading = reading
         self.folder = folder
+        # the times a FAT or exFAT directory entry records, as listdir_records() gives them
+        self.recorded = recorded
 
 
 class _LogicalReader:
@@ -1495,19 +1498,24 @@ class _LogicalReader:
                 times.get('modified', times.get('wr', 0)) or 0)
 
 
-def volume_times(walker, node, modified, accessed, created):
+def volume_times(walker, node, modified, accessed, created, recorded=None):
     """The StagedTimes of a file read from a volume: what its reader exposes.
 
     Every reader gives the modification time a listing needs (0 when the
     volume records an instant for none: FAT keeps a wall clock with no zone, and
-    exFAT a wall clock with a UTC offset beside it that the reader reports as stored
-    and does not apply; neither is recorded here). The NTFS, ReFS and F2FS readers
+    exFAT a wall clock with a UTC offset beside it). The NTFS, ReFS and F2FS readers
     also give the creation and access times (stamps), the L01 and AD1 reader the
     creation time (ewfprobe also reads their access time, which that reader does not
     pass on), and the Btrfs reader all four (times), the change time among them. No
-    other reader exposes an access, change or creation instant to this code (FAT and
-    exFAT list created and accessed readings as text, which are not taken), so those
+    other reader exposes an access, change or creation instant to this code, so those
     stay empty.
+
+    FAT12, FAT16 and FAT32 record a wall clock and no zone. exFAT records a wall clock
+    with a UTC offset beside it, which qnxprobe reports and does not apply (_exfat_offset
+    says why). Neither gives this code an instant, so their UTC times stay empty.
+    What their directory entry records instead, ``recorded`` (listdir_records(), or
+    an exFAT orphan entry's ``times``), is kept as text with no zone
+    (directory_entry_readings).
     """
     changed = 0
     times_of = getattr(walker, 'times', None)
@@ -1521,7 +1529,45 @@ def volume_times(walker, node, modified, accessed, created):
         except Exception:  # pylint: disable=broad-exception-caught
             accessed = changed = 0
     return staged_times(modified, accessed, changed, created,
-                        sources=TIME_SOURCE_FILE_SYSTEM)
+                        sources=TIME_SOURCE_FILE_SYSTEM,
+                        **directory_entry_readings(walker, recorded))
+
+
+# The three times a FAT or exFAT directory entry records, in the order the
+# staged-file record keeps them, and the key listdir_records() gives each under.
+_FAT_READINGS = (('modified', 'modified'), ('created', 'created'), ('accessed', 'accessed date'))
+_EXFAT_READINGS = (('modified', 'modified'), ('created', 'created'), ('accessed', 'accessed'))
+
+
+def directory_entry_readings(walker, recorded):
+    """The staged_times arguments for the times a FAT or exFAT directory entry
+    records: {} for any other reader, or when it records none.
+
+    ``recorded`` is the reader's own text, kept exactly: qnxprobe gives FAT's
+    modification time to 2 seconds, its creation time with the hundredths the
+    entry stores, and its access date with no time of day (_dos_stamp,
+    _dos_date), and exFAT's creation and modification times with their hundredths
+    and its access time to 2 seconds (_exfat_stamp). A stamp qnxprobe rejects as out
+    of range is empty. Nothing is padded, rounded or filled. exFAT also stores a UTC
+    offset beside each time; each one set is reported as ``<which time> <offset>``,
+    joined by '; ', and never applied. qnxprobe's
+    _exfat_offset says why: on the one exFAT volume it measured, the stored
+    reading was not the writing machine's local clock and the offset field was
+    the negation of its zone, so applying it would assert an instant the
+    evidence does not support.
+    """
+    if not recorded:
+        return {}
+    if isinstance(walker, qnxprobe.ExfatWalker):
+        source, keys = TIME_SOURCE_EXFAT, _EXFAT_READINGS
+    elif isinstance(walker, qnxprobe.Fat32Walker):  # FAT16 and FAT12 subclass it
+        source, keys = TIME_SOURCE_FAT, _FAT_READINGS
+    else:
+        return {}
+    readings = {f'{name}_no_zone': recorded.get(key) or None for name, key in keys}
+    offsets = '; '.join(f'{name} {recorded[name + " utc offset"]}' for name, _ in keys
+                        if recorded.get(name + ' utc offset'))
+    return dict(readings, utc_offsets=offsets or None, no_zone_source=source)
 
 
 class FileSeekerRaw(FileSeekerBase):
@@ -2156,7 +2202,8 @@ class FileSeekerRaw(FileSeekerBase):
                 elif hasattr(walker, 'listdir_records'):
                     # FAT and exFAT keep wall-clock readings rather than instants;
                     # the reader hands them back as text beside each entry.
-                    listing = [(name, child, (recorded or {}).get('modified', ''), None)
+                    listing = [(name, child, (recorded or {}).get('modified', ''), None,
+                                recorded)
                                for name, child, recorded in walker.listdir_records(node)]
                 else:
                     listing = [(name, child, '', None) for name, child in walker.listdir(node)]
@@ -2164,7 +2211,7 @@ class FileSeekerRaw(FileSeekerBase):
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logfunc(f'Could not list {path}/ in the image: {exc}')
                 continue
-            for child_name, child, reading, known in listing:
+            for child_name, child, reading, known, *recorded in listing:
                 try:
                     ent = known if known is not None else walker.entry(child)
                 except Exception as exc:  # pylint: disable=broad-exception-caught
@@ -2184,7 +2231,8 @@ class FileSeekerRaw(FileSeekerBase):
                                   f'{within}/{child_name}' if within else child_name))
                 elif (mode & 0o170000) == 0o100000:          # regular files only
                     self.name_list.append(member)
-                    self._entries[member] = _Entry(walker, child, size or 0, mtime or 0, reading)
+                    self._entries[member] = _Entry(walker, child, size or 0, mtime or 0, reading,
+                                                   recorded=recorded[0] if recorded else None)
                     files += 1
                 else:
                     continue
@@ -2414,6 +2462,9 @@ class FileSeekerRaw(FileSeekerBase):
             return None
 
         modified = entry.mtime or 0
+        # The staged copy's own mtime is unchanged: a FAT or exFAT reading is placed
+        # in this machine's zone for it, as before. The record below keeps the
+        # readings as text with no zone and its UTC times empty.
         stamp = modified or _reading_as_local_instant(entry.reading)
         if stamp:
             os.utime(dest_path, (stamp, stamp))
@@ -2431,7 +2482,8 @@ class FileSeekerRaw(FileSeekerBase):
         self.file_infos[dest_path] = FileInfo(
             self._member_source.get(member, member), created, modified,
             kind=self._kind_of(member),
-            times=volume_times(entry.walker, entry.node, modified, accessed, created))
+            times=volume_times(entry.walker, entry.node, modified, accessed, created,
+                               entry.recorded))
         return dest_path
 
     def _kind_of(self, member):
@@ -2513,8 +2565,12 @@ class FileSeekerRaw(FileSeekerBase):
                 os.utime(dest_path, (modified, modified))
             except (OSError, OverflowError, ValueError):
                 pass
-        self.file_infos[dest_path] = FileInfo(member, 0, modified, kind='deleted',
-                                              times=volume_times(None, None, modified, 0, 0))
+        # of the entries recover_deleted() yields, only an exFAT orphan entry carries
+        # the readings listdir_records() gives (times)
+        recorded = getattr(entry, 'times', None)
+        self.file_infos[dest_path] = FileInfo(
+            member, 0, modified, kind='deleted',
+            times=volume_times(walker if recorded else None, None, modified, 0, 0, recorded))
         return dest_path
 
     def _stage_free_space(self, member):

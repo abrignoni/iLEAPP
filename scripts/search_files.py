@@ -471,24 +471,30 @@ HASHED_KINDS = frozenset(('file', 'stream', 'directory index', 'deleted', 'free 
 
 # Where a staged file's times came from (StagedTimes.source). One fixed vocabulary,
 # the same in every LEAPP. A zip member whose times came from two of its fields names
-# both, in the order they were preferred, joined by '; '.
+# both, in the order they were preferred, joined by '; '. A FAT or exFAT directory
+# entry fills only the readings with no zone (StagedTimes.modified_no_zone and the two
+# beside it), never the UTC times.
 TIME_SOURCE_CLBX = 'CLBX metadata'
 TIME_SOURCE_FOUR_VALUE = 'four-value extended timestamp'
 TIME_SOURCE_EXTENDED = 'Info-ZIP extended timestamp'
 TIME_SOURCE_NTFS = 'NTFS extra field'
 TIME_SOURCE_TAR = 'tar header'
 TIME_SOURCE_FILE_SYSTEM = 'file system'
+TIME_SOURCE_FAT = 'FAT directory entry'
+TIME_SOURCE_EXFAT = 'exFAT directory entry'
 TIME_SOURCE_MANIFEST = 'iTunes Manifest.db'
 TIME_SOURCE_NONE = 'none'
 # In the order a source is named when a record has more than one: the zip seeker
 # prefers the NTFS field to the extended timestamp field.
 TIME_SOURCES = (TIME_SOURCE_NTFS, TIME_SOURCE_FOUR_VALUE, TIME_SOURCE_EXTENDED, TIME_SOURCE_CLBX,
-                TIME_SOURCE_TAR, TIME_SOURCE_FILE_SYSTEM, TIME_SOURCE_MANIFEST, TIME_SOURCE_NONE)
+                TIME_SOURCE_TAR, TIME_SOURCE_FILE_SYSTEM, TIME_SOURCE_FAT, TIME_SOURCE_EXFAT,
+                TIME_SOURCE_MANIFEST, TIME_SOURCE_NONE)
 
 
 class StagedTimes(collections.namedtuple(
-        'StagedTimes', 'modified accessed changed created source zip_time',
-        defaults=(None, None, None, None, TIME_SOURCE_NONE, None))):
+        'StagedTimes', 'modified accessed changed created source '
+                       'modified_no_zone created_no_zone accessed_no_zone utc_offsets',
+        defaults=(None, None, None, None, TIME_SOURCE_NONE, None, None, None, None))):
     """The times the evidence records for one staged file, as its seeker read them.
 
     modified, accessed, changed (status change) and created (birth) are Unix seconds,
@@ -501,11 +507,24 @@ class StagedTimes(collections.namedtuple(
     is not kept (an NTFS field holding one is skipped and logged; a CLBX or PAX value
     becomes None); within that range a far-future value is kept as stored. The
     four-byte extended timestamp value is read as unsigned. source names where they
-    came from (TIME_SOURCES), TIME_SOURCE_NONE when no time was read. zip_time is a zip
-    member's DOS date and time as text, YYYY-MM-DD HH:MM:SS, as zipfile decodes it from
-    the central directory: a wall clock with no zone (writers commonly store local
-    time), so it is never read as an instant. It is None for anything that is not a
-    zip member.
+    came from (TIME_SOURCES), TIME_SOURCE_NONE when no time was read.
+
+    modified_no_zone, created_no_zone and accessed_no_zone are wall-clock readings, as
+    text exactly as their reader gives them (a stamp whose fields are out of range comes
+    back empty), so none is ever read as an instant or filled into the UTC times. FAT
+    and a zip store no zone; exFAT stores a UTC offset beside each time, which
+    utc_offsets reports and nothing applies. A zip member's DOS date
+    and time fills modified_no_zone, YYYY-MM-DD HH:MM:SS, as zipfile decodes it from
+    the central directory (writers commonly store local time). A FAT12, FAT16 or FAT32
+    directory entry fills the readings it carries, up to three, as qnxprobe gives them:
+    the modification time to
+    2 seconds, the creation time with its hundredths when the entry stores them, and
+    the access date only (YYYY-MM-DD). An exFAT entry fills the readings it carries the
+    same way, with a time of day on the access time and hundredths on the other two
+    when the entry stores them.
+    utc_offsets is the UTC offsets an exFAT entry stores beside its times, as text
+    ("modified -05:00; created -05:00; accessed -05:00", an unset one left out):
+    reported, never applied. Each is None where nothing is recorded.
     """
     __slots__ = ()
 
@@ -514,12 +533,16 @@ NO_STAGED_TIMES = StagedTimes()
 
 
 def staged_times(modified=None, accessed=None, changed=None, created=None, sources=(),
-                 zip_time=None, zero_is_unset=True):
+                 modified_no_zone=None, created_no_zone=None, accessed_no_zone=None,
+                 utc_offsets=None, no_zone_source=None, zero_is_unset=True):
     """A StagedTimes, with each time stored as 0 read as none when zero_is_unset.
 
     sources is one source, or a source per time (modified, accessed, changed,
     created) for a record taken from more than one; only the sources of the times
     kept are named, in TIME_SOURCES order, so a record with no time is TIME_SOURCE_NONE.
+    The readings with no zone and the UTC offsets are kept as given, an empty one as
+    None; no_zone_source is named when any of them is kept (a zip's DOS date and time
+    passes none, as it always has).
     """
     times = [None if value is None or (zero_is_unset and value == 0) else value
              for value in (modified, accessed, changed, created)]
@@ -529,24 +552,32 @@ def staged_times(modified=None, accessed=None, changed=None, created=None, sourc
     for value, source in zip(times, sources or (None,) * 4):
         if value is not None and source and source not in named:
             named.append(source)
+    no_zone = [value or None for value in
+               (modified_no_zone, created_no_zone, accessed_no_zone, utc_offsets)]
+    if no_zone_source and any(no_zone) and no_zone_source not in named:
+        named.append(no_zone_source)
     named.sort(key=lambda source: TIME_SOURCES.index(source) if source in TIME_SOURCES
                else len(TIME_SOURCES))
-    return StagedTimes(*times, '; '.join(named) or TIME_SOURCE_NONE, zip_time)
+    return StagedTimes(*times, '; '.join(named) or TIME_SOURCE_NONE, *no_zone)
 
 
 # The staged-file record's time columns, in order: the _file_path_list column, its
 # SQLite type and the staged-files TSV header. The four times are Unix seconds, UTC
 # (REAL, NULL when not recorded), written to the TSV as ISO 8601 UTC text ending in Z
 # (or the number stored when datetime cannot hold it);
-# the source and the zip date and time are text. They are written only when staged
-# files are hashed (--hash): without it _file_path_list keeps its columns.
+# the source, the readings with no zone and the UTC offsets are text, written as
+# stored. They are written only when staged files are hashed (--hash): without it
+# _file_path_list keeps its columns.
 STAGED_TIME_COLUMNS = (
     ('modified_time', 'REAL', 'Modified'),
     ('accessed_time', 'REAL', 'Accessed'),
     ('changed_time', 'REAL', 'Changed'),
     ('created_time', 'REAL', 'Created'),
     ('time_source', 'TEXT', 'Time Source'),
-    ('zip_dos_time', 'TEXT', 'Zip Time (no zone, as stored)'),
+    ('modified_no_zone', 'TEXT', 'Modified (no zone, as stored)'),
+    ('created_no_zone', 'TEXT', 'Created (no zone, as stored)'),
+    ('accessed_no_zone', 'TEXT', 'Accessed (no zone, as stored)'),
+    ('utc_offsets_as_stored', 'TEXT', 'UTC offsets (as stored)'),
 )
 STAGED_TIME_SQL_COLUMNS = tuple((name, sql_type) for name, sql_type, _ in STAGED_TIME_COLUMNS)
 STAGED_FILES_TSV_HEADER = ('Path in evidence\tKind\tSHA-256\t'
@@ -559,7 +590,8 @@ def staged_time_values(file_info):
     times = getattr(file_info, 'times', None) or NO_STAGED_TIMES
     return dict(zip((name for name, *_ in STAGED_TIME_COLUMNS),
                     (times.modified, times.accessed, times.changed, times.created,
-                     times.source, times.zip_time)))
+                     times.source, times.modified_no_zone, times.created_no_zone,
+                     times.accessed_no_zone, times.utc_offsets)))
 
 
 def utc_text(seconds):
@@ -582,7 +614,8 @@ def staged_files_tsv_line(file_info, kind, digest):
     times = getattr(file_info, 'times', None) or NO_STAGED_TIMES
     cells = [file_info.source_path, kind, digest or '',
              utc_text(times.modified), utc_text(times.accessed), utc_text(times.changed),
-             utc_text(times.created), times.source, times.zip_time or '']
+             utc_text(times.created), times.source, times.modified_no_zone or '',
+             times.created_no_zone or '', times.accessed_no_zone or '', times.utc_offsets or '']
     return '\t'.join(cells) + '\n'
 
 
@@ -1522,13 +1555,13 @@ def zip_member_reading(info):
 
     Returns (creation, modification, staged, times, problems): the four values
     zip_member_times returns, and times, the StagedTimes of the same reading: the
-    four times, their sources and the DOS date and time as text. A member of a CLBX
+    four times, their sources and the DOS date and time as text (modified_no_zone). A member of a CLBX
     zip takes its times from the CLBX metadata instead (FileSeekerZip).
     """
     values, sources, problems = _zip_recorded_times(info)
     modified, created = values[0], values[3]
     staged = modified if modified else timex.mktime(info.date_time + (0, 0, -1))
-    times = staged_times(*values, sources=sources, zip_time=zip_dos_time_text(info))
+    times = staged_times(*values, sources=sources, modified_no_zone=zip_dos_time_text(info))
     return created, modified, staged, times, problems
 
 
@@ -1840,7 +1873,7 @@ class FileSeekerZip(FileSeekerBase):
         staged = modified if modified else timex.mktime(info.date_time + (0, 0, -1))
         # 0 is kept: the specification does not define it as no time
         times = staged_times(modified, accessed, changed, created, sources=TIME_SOURCE_CLBX,
-                             zip_time=zip_dos_time_text(info), zero_is_unset=False)
+                             modified_no_zone=zip_dos_time_text(info), zero_is_unset=False)
         return created, modified, staged, times
 
     @staticmethod

@@ -1,7 +1,7 @@
 # Raw image fixtures for the seeker tests
 
 Small filesystem images the raw image seeker (`scripts/raw_image.py`) is tested
-against, each with a list of the files it holds and their SHA-256, written by a
+against, most with a list of the files it holds and their SHA-256, written by a
 reader other than the one under test.
 
 | image | filesystem | files | hash list written by |
@@ -9,6 +9,8 @@ reader other than the one under test.
 | `ntfs-fixture.img.gz` | NTFS, 16 MiB, 475 files with fixups, attribute lists, LZNT1 compression and sparse runs | 475 | `sha256sum` over an `ntfs-3g` mount of the image on Linux, at build time (qnxprobe `tools/make_ntfs_fixture.sh`) |
 | `fat32-deleted.img.gz` | FAT32, 64 MiB, two live files (`a.bin`, `c.bin`) and deleted ones | 2 | `shasum -a 256` over the image mounted read-only by macOS's own FAT driver, 2026-09-12 |
 | `exfat-deleted.img.gz` | exFAT, 64 MiB, two live files and deleted ones | 2 | `shasum -a 256` over the image mounted read-only by macOS's own exFAT driver, 2026-09-12 |
+| `fat16-fixture.img.gz` | FAT16, 16 MiB, as macOS formats one: a long name, a file of several clusters, an empty file, a nested folder, a fragmented file | 8 | no hash list copied: the tests read directory-entry times, which `test_staged_fat_exfat_times.py` writes out |
+| `fat12-fixture.img.gz` | FAT12, 4 MiB, the same eight files as `fat16-fixture` | 8 | as for `fat16-fixture` |
 | `apfs-fixture.img.gz` | APFS, 32 MiB, a container holding one volume of 411 files, one of them decmpfs-compressed, and a symbolic link | 411 | `shasum -a 256` over the files as macOS's own APFS driver wrote them, and the build fails unless The Sleuth Kit's reading of the finished image agrees (qnxprobe `tools/make_apfs_fixture.sh`) |
 | `ntfs-streams.img.gz` | NTFS, 8 MiB, 28 alternate data streams, among them two `Zone.Identifier` streams and a `$J` whose front is a 1 MiB hole and whose run list continues in a second MFT record, beside a stream sized and never written, which is not listed | 28 streams | The Sleuth Kit's `icat` from each stream's first stored cluster, as counted by `istat`, at build time, and the build fails unless `ntfs-3g` reads back every stream as written (qnxprobe `tools/make_ntfs_streams_fixture.sh`) |
 | `lean-multi-ntfs-c9.ad1` | AD1 (logical evidence), 36 KB, two sources: an NTFS volume (`U:`) and a folder (`C:\AD1Lean\second`), with an alternate data stream and a file FTK Imager lists as deleted | 7 live files and 1 stream | FTK Imager 4.7.3.61's own listing of the image, `lean-multi-ntfs-c9.ad1.csv` (UTF-16, stored MD5 per file), written when it made the image |
@@ -31,6 +33,9 @@ and hint in them is a test value made for the fixture. The Windows-written NTFS 
 and its manifest are copies of the fixture in qnxprobe at `8d530e92f9d7cc3b9e744cde07ea3381b589fe1f`,
 built by its `tools/make_ntfs_windows_fixture.cmd`; the manifest's lines are
 tab-separated, after a few `#` lines naming the columns.
+The FAT16 and FAT12 images are copies of the fixtures in qnxprobe at
+`57124947f42c799a9174e1e5717e634a7acae99e`, each file the same git blob as there,
+built by its `tools/make_fat16_fixtures.sh`.
 
 The images are copies of the fixtures committed in
 [abrignoni/qnxprobe](https://github.com/abrignoni/qnxprobe) under `tests/fixtures/`,

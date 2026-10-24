@@ -3,7 +3,8 @@
 Beside the SHA-256 and the kind, a run with --hash records the modification, access,
 change and creation times the evidence container records for each staged file, in
 UTC, the source they came from (one fixed vocabulary), and for a zip member its DOS
-date and time as text. A time the container does not record is blank, never filled
+date and time as text with no zone (modified_no_zone). A time the container does not
+record is blank, never filled
 from another time or from the staged copy. Without --hash, _file_path_list keeps its
 columns and no staged-files TSV is written. The inputs are built here; every expected
 value is a literal or the value written into the input.
@@ -52,11 +53,16 @@ DOS = (2024, 1, 28, 11, 38, 48)
 DOS_TEXT = '2024-01-28 11:38:48'
 VOCABULARY = ('NTFS extra field', 'four-value extended timestamp',
               'Info-ZIP extended timestamp', 'CLBX metadata', 'tar header', 'file system',
-              'iTunes Manifest.db', 'none')
+              'FAT directory entry', 'exFAT directory entry', 'iTunes Manifest.db', 'none')
 PROFILE_SUFFIX = {'aleapp': 'alprofile', 'ileapp': 'ilprofile', 'rleapp': 'rlprofile',
                   'vleapp': 'vlprofile', 'dleapp': 'dlprofile'}
 TIME_COLUMNS = [('modified_time', 'REAL'), ('accessed_time', 'REAL'), ('changed_time', 'REAL'),
-                ('created_time', 'REAL'), ('time_source', 'TEXT'), ('zip_dos_time', 'TEXT')]
+                ('created_time', 'REAL'), ('time_source', 'TEXT'), ('modified_no_zone', 'TEXT'),
+                ('created_no_zone', 'TEXT'), ('accessed_no_zone', 'TEXT'),
+                ('utc_offsets_as_stored', 'TEXT')]
+TSV_TIME_HEADERS = ['Modified', 'Accessed', 'Changed', 'Created', 'Time Source',
+                    'Modified (no zone, as stored)', 'Created (no zone, as stored)',
+                    'Accessed (no zone, as stored)', 'UTC offsets (as stored)']
 
 
 def filetime(seconds):
@@ -162,7 +168,7 @@ class TimeSourceTests(StagedTimesTestCase):
                                 'ctime': CHANGED * NS, 'btime': int(CREATED * NS)})
         for got, want in zip(info.times[:4], (MODIFIED, ACCESSED, CHANGED, CREATED)):
             self.assertAlmostEqual(got, want, places=6)  # nanoseconds read as float seconds
-        self.assertEqual(info.times[4:], ('CLBX metadata', DOS_TEXT))
+        self.assertEqual(info.times[4:], ('CLBX metadata', DOS_TEXT, None, None, None))
 
     def tar_times(self, member, fmt=tarfile.USTAR_FORMAT):
         path = os.path.join(self.out(), 'in.tar')
@@ -180,7 +186,7 @@ class TimeSourceTests(StagedTimesTestCase):
         member.mtime = 1706400000
         info = self.tar_times(member)
         self.assertEqual(info.times[:5], (1706400000, None, None, None, 'tar header'))
-        self.assertIsNone(info.times.zip_time)
+        self.assertEqual(info.times[5:], (None, None, None, None))
 
     def test_tar_pax_access_and_change_times(self):
         member = tarfile.TarInfo('data/one.db')
@@ -289,10 +295,11 @@ class BlankNotGuessedTests(StagedTimesTestCase):
         self.assertEqual(values, {'modified_time': 1706400000, 'accessed_time': None,
                                   'changed_time': None, 'created_time': None,
                                   'time_source': 'Info-ZIP extended timestamp',
-                                  'zip_dos_time': DOS_TEXT})
+                                  'modified_no_zone': DOS_TEXT, 'created_no_zone': None,
+                                  'accessed_no_zone': None, 'utc_offsets_as_stored': None})
         cells = staged_files_tsv_line(info, 'file', None).rstrip('\n').split('\t')
         self.assertEqual(cells, ['Dump/data/one.db', 'file', '', '2024-01-28T00:00:00Z', '', '',
-                                 '', 'Info-ZIP extended timestamp', DOS_TEXT])
+                                 '', 'Info-ZIP extended timestamp', DOS_TEXT, '', '', ''])
 
     def test_a_far_future_time_is_kept_as_stored(self):
         far = 4290000000  # 2105-12-13, near the end of what the 4-byte field holds
@@ -323,10 +330,14 @@ class ZipTimeTextTests(StagedTimesTestCase):
             with self.subTest(text):
                 info = self.zip_times(ntfs_field(), date_time=date_time)
                 # beside the UTC times, never derived from them or they from it
-                self.assertEqual(info.times.zip_time, text)
+                self.assertEqual(info.times.modified_no_zone, text)
                 self.assertAlmostEqual(info.times.modified, MODIFIED, places=6)
+                # a zip member records no creation or access reading with no zone
+                self.assertEqual((info.times.created_no_zone, info.times.accessed_no_zone,
+                                  info.times.utc_offsets), (None, None, None))
+                self.assertEqual(info.times.source, 'NTFS extra field')
 
-    def test_the_zip_time_column_is_text(self):
+    def test_the_no_zone_columns_are_text(self):
         lavafuncs, db = self.lava_db()
         lavafuncs.lava_add_file_path_columns(search_files.STAGED_TIME_SQL_COLUMNS)
         columns = [(row[1], row[2]) for row in db.execute('PRAGMA table_info(_file_path_list)')]
@@ -411,13 +422,12 @@ class OptInTests(unittest.TestCase):
         self.assertEqual(columns[4:], TIME_COLUMNS)
         self.assertEqual([row[3:] for row in rows],
                          [('file', 1706400000.0, None, None, None, 'Info-ZIP extended timestamp',
-                           DOS_TEXT)])
+                           DOS_TEXT, None, None, None)])
         self.assertEqual(tsv.splitlines()[0].split('\t'),
-                         ['Path in evidence', 'Kind', 'SHA-256', 'Modified', 'Accessed', 'Changed',
-                          'Created', 'Time Source', 'Zip Time (no zone, as stored)'])
+                         ['Path in evidence', 'Kind', 'SHA-256'] + TSV_TIME_HEADERS)
         self.assertEqual(tsv.splitlines()[1].split('\t')[3:],
                          ['2024-01-28T00:00:00Z', '', '', '', 'Info-ZIP extended timestamp',
-                          DOS_TEXT])
+                          DOS_TEXT, '', '', ''])
 
 
 if __name__ == '__main__':
