@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "notes": "Reports FenceTimeStarted, ConsumptionPeriodBegin, "
                  "ReceivingLocationInformationTimeStopped, Authorization and LocationTimeStopped "
                  "from the "
-                 "com.apple.locationd.bundle-/System/Library/LocationBundles/Routine.bundle entry. "
+                 "com.apple.locationd.bundle-/System/Library/LocationBundles/Routine.bundle entry, "
+                 "or from the entry keyed p/System/Library/LocationBundles/Routine.bundle: that the "
+                 "tested iOS 18.1.1 and iOS 26.6.2 files use in its place (the older key was in "
+                 "neither file). The 0-row iOS 17.1 to 18.7 images listed below were run before the "
+                 "newer key form was read and were not rerun. "
                  "The four time keys are read as seconds since 2001 and shown in UTC; "
                  "Authorization is shown as stored. All five rows are written whenever the entry "
                  "exists, so a blank Value can mean the key was not present. No meaning is "
@@ -19,6 +23,8 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {
+            "local_ios18_1_1_i": "iOS 18.1.1 | 5 rows",
+            "local_ios26_6_2_h": "iOS 26.6.2 | 5 rows; ConsumptionPeriodBegin, Authorization and LocationTimeStopped blank",
             "ctf2020_ios12": "iOS 12.4 | 5 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
@@ -130,6 +136,12 @@ def _load_plist(context, filename):
     return None, ''
 
 
+# The Routine.bundle entry is keyed 'com.apple.locationd.bundle-<path>' in the older files and
+# 'p<path>:' in the iOS 18.1.1 and iOS 26.6.2 files checked.
+ROUTINE_KEYS = ('com.apple.locationd.bundle-/System/Library/LocationBundles/Routine.bundle',
+                'p/System/Library/LocationBundles/Routine.bundle:')
+
+
 def _cocoa_utc_str(value):
     """Convert a Cocoa (seconds-since-2001) timestamp to a UTC string; pass empties through."""
     if value in ('', None):
@@ -146,8 +158,7 @@ def locServicesConfigClients(context):
     if not plist:
         return data_headers, data_list, source_path
 
-    routine_key = 'com.apple.locationd.bundle-/System/Library/LocationBundles/Routine.bundle'
-    value = plist.get(routine_key)
+    value = next((plist[key] for key in ROUTINE_KEYS if isinstance(plist.get(key), dict)), None)
     if isinstance(value, dict):
         data_list.append((_cocoa_utc_str(value.get('FenceTimeStarted', '')), 'FenceTimeStarted'))
         data_list.append((_cocoa_utc_str(value.get('ConsumptionPeriodBegin', '')), 'ConsumptionPeriodBegin'))
