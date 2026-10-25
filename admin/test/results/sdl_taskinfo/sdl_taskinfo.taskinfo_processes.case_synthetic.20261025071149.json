@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "module_name": "sdl_taskinfo",
+    "artifact_name": "Sysdiagnose - Process Task Info",
+    "function_name": "taskinfo_processes",
+    "case_number": "case_synthetic",
+    "number_of_columns": 14,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 406,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\sdl_taskinfo\\testdata.sdl_taskinfo.taskinfo_processes.case_synthetic.zip",
+    "start_time": "2026-10-25T07:11:49.029682+00:00",
+    "end_time": "2026-10-25T07:11:49.243072+00:00",
+    "run_time_seconds": 0.001789093017578125,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T07:11:49.217162",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Process",
+    "PID",
+    "Executable UUID",
+    "Architecture",
+    "Platform",
+    "Run Time (s)",
+    "Physical Footprint",
+    "Lifetime Maximum Footprint",
+    "CPU Time (s)",
+    "Bytes Read",
+    "Bytes Written",
+    "RunningBoard Managed",
+    "PID Suspended",
+    "Source File"
+  ],
+  "data": [
+    [
+      "launchd",
+      1,
+      "0F9E1D07-7A1A-53BF-B2D0-E5D137CC35D4",
+      "arm64e",
+      "ios (2)",
+      42953,
+      "17.06 MiB",
+      "17.34 MiB",
+      107.024394,
+      "190.46 MiB",
+      "3.24 GiB",
+      "NO",
+      "NO",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\taskinfo.txt"
+    ],
+    [
+      "ExampleApp",
+      412,
+      "0B0F250F-1373-5D29-9723-D6012549C798",
+      "arm64",
+      "ios (2)",
+      90,
+      "120.00 MiB",
+      "200.50 MiB",
+      3.5,
+      "1.00 MiB",
+      "5.00 KiB",
+      "YES",
+      "YES",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\taskinfo.txt"
+    ],
+    [
+      "no_fields",
+      999,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\taskinfo.txt"
+    ]
+  ]
+}
