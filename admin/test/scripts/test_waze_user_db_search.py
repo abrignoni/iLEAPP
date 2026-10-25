@@ -9,7 +9,7 @@ from scripts.artifacts import waze
 def _context(result):
     calls = []
 
-    def search(pattern, return_on_first_hit=False):
+    def search(_pattern, return_on_first_hit=False):
         calls.append(return_on_first_hit)
         return result
     seeker = SimpleNamespace(search=search)
