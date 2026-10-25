@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "module_name": "locServicesconfig",
+    "artifact_name": "LSC - clients.plist",
+    "function_name": "locServicesConfigClients",
+    "case_number": "case_synthetic",
+    "number_of_columns": 2,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 147,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\locServicesconfig\\testdata.locServicesconfig.locServicesConfigClients.case_synthetic.zip",
+    "start_time": "2026-10-25T11:26:07.976002+00:00",
+    "end_time": "2026-10-25T11:26:08.203585+00:00",
+    "run_time_seconds": 0.0066890716552734375,
+    "last_commit": {
+      "hash": "69b88e17d78112b12fc38f8d073829adc8334a45",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T06:56:41-04:00",
+      "message": "Calendar Events, LSC clients.plist: record the real-image checks in the notes"
+    }
+  },
+  "headers": [
+    "Value",
+    "Key"
+  ],
+  "data": [
+    [
+      "2026-03-01 12:00:00",
+      "FenceTimeStarted"
+    ],
+    [
+      "",
+      "ConsumptionPeriodBegin"
+    ],
+    [
+      "2026-03-01 12:01:00",
+      "ReceivingLocationInformationTimeStopped"
+    ],
+    [
+      "",
+      "Authorization"
+    ],
+    [
+      "",
+      "LocationTimeStopped"
+    ]
+  ]
+}

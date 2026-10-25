@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "module_name": "calendarAll",
+    "artifact_name": "Calendar Birthdays",
+    "function_name": "calendarBirthdays",
+    "case_number": "case_synthetic",
+    "number_of_columns": 5,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 121,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\calendarAll\\testdata.calendarAll.calendarBirthdays.case_synthetic.zip",
+    "start_time": "2026-10-25T11:26:06.689043+00:00",
+    "end_time": "2026-10-25T11:26:06.899896+00:00",
+    "run_time_seconds": 0.002250194549560547,
+    "last_commit": {
+      "hash": "69b88e17d78112b12fc38f8d073829adc8334a45",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T06:56:41-04:00",
+      "message": "Calendar Events, LSC clients.plist: record the real-image checks in the notes"
+    }
+  },
+  "headers": [
+    "Start Date",
+    "Event Title",
+    "Calendar Name",
+    "Account Name",
+    "Source File"
+  ],
+  "data": [
+    [
+      "09 September 2032",
+      "Synthetic Person",
+      "Synthetic Calendar",
+      "Synthetic Account",
+      "private\\var\\mobile\\Library\\Calendar\\Calendar.sqlitedb"
+    ]
+  ]
+}

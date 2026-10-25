@@ -1,0 +1,52 @@
+{
+  "case_synthetic": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated Calendar.sqlitedb (iOS 26 layout, reduced to the columns the calendar artifacts read) built by admin/test/scripts/synthetic_schema_drift.py: three events, one of them with a creation_date SQLite renders as year 0000, and one birthday. Fixed sentences, example.invalid addresses and fixed dates; cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_schema_drift_ios26.zip",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-25T11:25:56.288265",
+      "last_commit": {
+        "hash": "69b88e17d78112b12fc38f8d073829adc8334a45",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-25T06:56:41-04:00",
+        "message": "Calendar Events, LSC clients.plist: record the real-image checks in the notes"
+      }
+    },
+    "artifacts": {
+      "calendarEvents": {
+        "search_patterns": [
+          "*/Calendar.sqlitedb*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "calendarBirthdays": {
+        "search_patterns": [
+          "*/Calendar.sqlitedb*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "calendarList": {
+        "search_patterns": [
+          "*/Calendar.sqlitedb*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.0"
+  }
+}

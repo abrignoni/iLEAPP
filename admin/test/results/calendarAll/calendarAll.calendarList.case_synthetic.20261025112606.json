@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "module_name": "calendarAll",
+    "artifact_name": "Calendar List",
+    "function_name": "calendarList",
+    "case_number": "case_synthetic",
+    "number_of_columns": 9,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 167,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\calendarAll\\testdata.calendarAll.calendarList.case_synthetic.zip",
+    "start_time": "2026-10-25T11:26:06.902320+00:00",
+    "end_time": "2026-10-25T11:26:07.116082+00:00",
+    "run_time_seconds": 0.002068042755126953,
+    "last_commit": {
+      "hash": "69b88e17d78112b12fc38f8d073829adc8334a45",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T06:56:41-04:00",
+      "message": "Calendar Events, LSC clients.plist: record the real-image checks in the notes"
+    }
+  },
+  "headers": [
+    "Calendar Name",
+    "Account Name",
+    "Account Email",
+    "Owner Name",
+    "Owner Email",
+    "Sharing Status",
+    "Sharing Participants",
+    "Notes",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Synthetic Calendar",
+      "Synthetic Account",
+      "owner@example.invalid",
+      "Synthetic Invitee",
+      "invitee@example.invalid",
+      "Not shared",
+      null,
+      null,
+      "private\\var\\mobile\\Library\\Calendar\\Calendar.sqlitedb"
+    ]
+  ]
+}
