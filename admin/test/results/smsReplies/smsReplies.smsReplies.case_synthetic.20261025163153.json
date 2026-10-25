@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "module_name": "smsReplies",
+    "artifact_name": "SMS & iMessage - Inline Replies",
+    "function_name": "smsReplies",
+    "case_number": "case_synthetic",
+    "number_of_columns": 17,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 340,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/smsReplies/testdata.smsReplies.smsReplies.case_synthetic.zip",
+    "start_time": "2026-10-25T16:31:53.052384+00:00",
+    "end_time": "2026-10-25T16:31:53.070876+00:00",
+    "run_time_seconds": 0.0008020401000976562,
+    "last_commit": {
+      "hash": "03c63559a39e8dbc0191a9e01594e139e9d4307d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T07:34:39-04:00",
+      "message": "Messages deep fields: document the empty and single-value columns seen on eight real databases"
+    }
+  },
+  "headers": [
+    "Reply Timestamp",
+    "Originator Timestamp",
+    "From Me",
+    "Sender",
+    "Chat Contact ID",
+    "Chat Name",
+    "Reply Text",
+    "Originator Text",
+    "Originator Sender",
+    "Originator Found",
+    "Originator Part (as stored)",
+    "Service",
+    "Destination Caller ID",
+    "Chat ID",
+    "Message Row ID",
+    "Message GUID",
+    "Originator GUID"
+  ],
+  "data": [
+    [
+      1772367100,
+      1772366400,
+      0,
+      "+15550100001",
+      "+15550100001",
+      "",
+      "Synthetic reply",
+      "Synthetic plain message one",
+      "+15550100001",
+      "Yes",
+      "0:0:27",
+      "iMessage",
+      "+15550100000",
+      1,
+      15,
+      "A193AC56-09DE-5508-BF29-5DD2712D6B0B",
+      "A619F8E5-B23F-5B18-9393-AC06ADEA0572"
+    ],
+    [
+      1772367110,
+      "",
+      1,
+      "",
+      "+15550100001",
+      "",
+      "Orphan reply",
+      "",
+      "",
+      "No",
+      "0:0:5",
+      "iMessage",
+      "+15550100000",
+      1,
+      16,
+      "75DDB5C9-6802-5076-A478-5D49319274A4",
+      "36E46D6E-0A04-5D38-89F4-4B9541B4D4F1"
+    ]
+  ]
+}

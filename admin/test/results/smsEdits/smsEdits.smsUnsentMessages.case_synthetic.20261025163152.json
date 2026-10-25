@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "module_name": "smsEdits",
+    "artifact_name": "SMS & iMessage - Unsent Message Parts",
+    "function_name": "smsUnsentMessages",
+    "case_number": "case_synthetic",
+    "number_of_columns": 16,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 207,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/smsEdits/testdata.smsEdits.smsUnsentMessages.case_synthetic.zip",
+    "start_time": "2026-10-25T16:31:52.889634+00:00",
+    "end_time": "2026-10-25T16:31:52.904408+00:00",
+    "run_time_seconds": 0.0008580684661865234,
+    "last_commit": {
+      "hash": "03c63559a39e8dbc0191a9e01594e139e9d4307d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T07:34:39-04:00",
+      "message": "Messages deep fields: document the empty and single-value columns seen on eight real databases"
+    }
+  },
+  "headers": [
+    "Unsent Timestamp",
+    "Message Timestamp",
+    "Retracted Timestamp",
+    "Unsent Part",
+    "Original Text Length",
+    "Remaining Text",
+    "Parts Remaining (as stored)",
+    "From Me",
+    "Sender",
+    "Chat Contact ID",
+    "Chat Name",
+    "Service",
+    "Destination Caller ID",
+    "Chat ID",
+    "Message Row ID",
+    "Message GUID"
+  ],
+  "data": [
+    [
+      1772366730,
+      1772366700,
+      "",
+      0,
+      18,
+      "",
+      0,
+      0,
+      "+15550100001",
+      "+15550100001",
+      "",
+      "iMessage",
+      "+15550100000",
+      1,
+      11,
+      "E966FFB6-DFB7-53C7-AE95-CB5CE28D9330"
+    ],
+    [
+      1772366815,
+      1772366800,
+      "",
+      1,
+      9,
+      "Kept",
+      1,
+      1,
+      "",
+      "+15550100001",
+      "",
+      "iMessage",
+      "+15550100000",
+      1,
+      12,
+      "AA8D88D0-518A-56CD-891B-2C8C0FB10A5B"
+    ]
+  ]
+}

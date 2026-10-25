@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "module_name": "smsRecentlyDeleted",
+    "artifact_name": "SMS & iMessage - Recently Deleted Message Parts",
+    "function_name": "smsRecentlyDeletedParts",
+    "case_number": "case_synthetic",
+    "number_of_columns": 16,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 268,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/smsRecentlyDeleted/testdata.smsRecentlyDeleted.smsRecentlyDeletedParts.case_synthetic.zip",
+    "start_time": "2026-10-25T16:31:53.235413+00:00",
+    "end_time": "2026-10-25T16:31:53.249836+00:00",
+    "run_time_seconds": 0.0005533695220947266,
+    "last_commit": {
+      "hash": "03c63559a39e8dbc0191a9e01594e139e9d4307d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T07:34:39-04:00",
+      "message": "Messages deep fields: document the empty and single-value columns seen on eight real databases"
+    }
+  },
+  "headers": [
+    "Deleted Timestamp",
+    "Message Timestamp",
+    "Part Index",
+    "Part Text",
+    "From Me",
+    "Sender",
+    "Chat Contact ID",
+    "Chat Name",
+    "Remaining Message Text",
+    "Still Linked to Chat",
+    "Sync State (as stored)",
+    "Service",
+    "Destination Caller ID",
+    "Chat ID",
+    "Message Row ID",
+    "Message GUID"
+  ],
+  "data": [
+    [
+      1772367305,
+      1772367210,
+      1,
+      "Synthetic deleted part",
+      0,
+      "+15550100001",
+      "+15550100001",
+      "",
+      "Remaining part",
+      "Yes",
+      1,
+      "iMessage",
+      "+15550100000",
+      1,
+      18,
+      "5AD90D07-7497-5F16-8CF2-974F41884CFC"
+    ],
+    [
+      1772367306,
+      1772367210,
+      2,
+      "",
+      0,
+      "+15550100001",
+      "+15550100001",
+      "",
+      "Remaining part",
+      "Yes",
+      1,
+      "iMessage",
+      "+15550100000",
+      1,
+      18,
+      "5AD90D07-7497-5F16-8CF2-974F41884CFC"
+    ]
+  ]
+}
