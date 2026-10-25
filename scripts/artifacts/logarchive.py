@@ -2222,16 +2222,16 @@ __artifacts_v2__ = {
                  "a NO row is not evidence that the feature was never on at another time. Other logged "
                  "mentions of lockdown mode (for example the callservicesd line 'lockdownModeEnabled:') "
                  "print <private> in place of the value and are not matched. The unrelated lockdownd "
-                 "service is not matched. Observed on one iOS 26.6.2 sysdiagnose log (8 matching "
-                 "lines, all isLockdownMode: NO) from a device that was not in Lockdown Mode as far as "
-                 "the log shows; no log from a device with the mode turned on was available, so "
-                 "the YES form of the line is unverified on real data. Trace ID held no value on any "
+                 "service is not matched. Observed on two sysdiagnose logs of different devices: iOS 26.6.2 (8 matching "
+                 "lines) and iOS 26.6 (2), all isLockdownMode: NO. No log from a device with the mode "
+                 "turned on was available, so the YES form of the line is unverified on real data. Trace ID held no value on any "
                  "row. Only the direct tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 8 rows",
+            "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 2 rows",
         },
     },
     "logarchive_passkey_store": {
@@ -2251,14 +2251,16 @@ __artifacts_v2__ = {
                  "when it loaded records; it is not a list of passkeys, names no site or account, and "
                  "can differ between loads. Loads are written when Safari or the Settings app "
                  "reads the saved accounts, so a day without a row says nothing about passkeys. "
-                 "Writing process varied (MobileSafari 12, webbookmarksd 12, Preferences 3 of 27 rows). "
-                 "Observed on one iOS 26.6.2 sysdiagnose log. Other iOS versions were not tested. "
+                 "Writing process varied (MobileSafari 12, webbookmarksd 12, Preferences 3 of 27 rows on the "
+                 "iOS 26.6.2 log; webbookmarksd 4 and AuthenticationServicesAgent 4 of 8 on the iOS 26.6 log). "
+                 "Observed on two sysdiagnose logs of different devices. Other iOS versions were not tested. "
                  "Trace ID held no value on any row. Only the direct tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "key",
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 27 rows",
+            "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 8 rows",
         },
     },
     "logarchive_shortcut_actions": {
@@ -2279,9 +2281,9 @@ __artifacts_v2__ = {
                  "wrote a telemetry signpost naming that action; what triggered the run (an automation, "
                  "a shortcut, an app or a widget), whether the action completed and what it did are "
                  "not in the line. The other signpost lines of the runner in the same category carry "
-                 "no actionID (54 of 60 in the tested log) and are not matched. Observed on one "
-                 "iOS 26.6.2 sysdiagnose log: 6 matching lines naming two actions, 5 for one and 1 "
-                 "for another. Shortcuts run in the foreground by the Shortcuts app were not "
+                 "no actionID (54 of 60 in the tested log) and are not matched. Observed on two "
+                 "sysdiagnose logs of different devices: iOS 26.6.2 had 6 matching lines naming two actions, 5 "
+                 "for one and 1 for another; iOS 26.6 had none. Shortcuts run in the foreground by the Shortcuts app were not "
                  "observed and are not covered. Other iOS versions were not tested. Trace ID held no "
                  "value on any row. Only the direct tracev3 import was tested.",
         "paths": None,
@@ -2289,6 +2291,7 @@ __artifacts_v2__ = {
         "artifact_icon": "bolt",
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 6 rows",
+            "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 0 rows",
         },
     },
     "logarchive_vpn_state": {
@@ -2309,7 +2312,8 @@ __artifacts_v2__ = {
                  "extension manager observed the change, not necessarily the one that started a "
                  "tunnel. Observed on one iOS 26.6.2 sysdiagnose log from a device with no VPN "
                  "configuration in its Network Extension store: 17 matching lines, all "
-                 "NEVPNConnectivityStateDisconnected. The Connected and Connecting forms were not "
+                 "NEVPNConnectivityStateDisconnected, and 17 on an iOS 26.6 log of a second device, "
+                 "also all Disconnected. The Connected and Connecting forms were not "
                  "observed, so what a connected tunnel logs is unverified on real data. Other iOS "
                  "versions were not tested. Trace ID held no value on any row. Only the direct "
                  "tracev3 import was tested.",
@@ -2318,6 +2322,7 @@ __artifacts_v2__ = {
         "artifact_icon": "shield-lock",
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 17 rows; all Disconnected",
+            "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 17 rows; all Disconnected",
         },
     },
 }
