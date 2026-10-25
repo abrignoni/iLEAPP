@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                  "Birthdays. Start Time and End Time are the stored values read as seconds since "
                  "2001 and shown as UTC. The Timezone column is blank when the store holds _float; "
                  "what _float means for the stored time was not established, so the UTC reading of "
-                 "those rows is not established. Invitees are the Participant rows with entity_type "
+                 "those rows is not established. A stored time that SQLite renders as year 0000 cannot be held as a Python date and is left blank; such a creation_date value was seen in one private iOS 26.3.1 sample, and before this was handled one such row made the whole artifact fail. Invitees are the Participant rows with entity_type "
                  "7. In the HTML report the stored participant status number is shown in square "
                  "brackets before each invitee; the LAVA and TSV outputs list the invitees without "
                  "it. Apple's public EKParticipantStatus enum lists the cases unknown, pending, "
@@ -114,6 +114,18 @@ from urllib.parse import unquote
 from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db,\
     convert_ts_human_to_utc, artifact_processor, get_birthdate
 from scripts.html_safe import esc
+
+
+def _utc_or_blank(text):
+    """A 'YYYY-MM-DD HH:MM:SS' string from SQLite as UTC; blank when it is not a date Python can hold.
+
+    SQLite renders a stored value of about -6.3e10 seconds (seen in creation_date on some items) as
+    year 0000, which datetime cannot represent, and one such row used to fail the whole artifact.
+    """
+    try:
+        return convert_ts_human_to_utc(text)
+    except (TypeError, ValueError):
+        return ''
 
 
 def get_sharees(cursor):
@@ -291,16 +303,16 @@ def calendarEvents(context):
 
                 invitees = get_invitees(cursor)
                 for row in all_rows:
-                    start_time = convert_ts_human_to_utc(row[1])
-                    end_time = convert_ts_human_to_utc(row[2])
+                    start_time = _utc_or_blank(row[1])
+                    end_time = _utc_or_blank(row[2])
 
                     if row[-2]:
-                        creation_time = convert_ts_human_to_utc(row[-2])
+                        creation_time = _utc_or_blank(row[-2])
                     else:
                         creation_time = ''
 
                     if row[-1]:
-                        modification_time = convert_ts_human_to_utc(row[-1])
+                        modification_time = _utc_or_blank(row[-1])
                     else:
                         modification_time = ''
                     

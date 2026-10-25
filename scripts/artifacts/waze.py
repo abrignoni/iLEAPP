@@ -379,6 +379,22 @@ F_ALL_DAY = 'all_day'
 F_IMAGE_URL = 'image_url'
 F_ORIGIN_PLACE = 'origin_place_id'
 
+def _search_user_db(context, app_identifier):
+    """Path of the Waze user.db, never of its -wal or -shm sidecar.
+
+    The pattern also matches the sidecars. Searching for every match stages the database
+    together with its -wal and -shm, so a reader sees the WAL; asking for the first hit
+    instead stages only whichever file the seeker meets first, which can be a sidecar, and
+    then the database itself is not on disk. The main file is returned, and nothing when
+    the extraction holds only the sidecars.
+    """
+    found = context.get_seeker().search(f"*/{app_identifier}/Documents/user.db*")
+    for path in found or []:
+        if str(path).endswith('user.db'):
+            return path
+    return None
+
+
 def get_device_file_path(file_path: str, context) -> str:
     """
     Converts a local report file path back to the original iOS device path.
@@ -1568,10 +1584,7 @@ def waze_search_history(context):
 
     # Retrieve the app bundle identifier and search for the user database
     app_identifier = get_app_id(WAZE_PREFERENCES_PLIST, context)
-    source_path = context.get_seeker().search(
-        f"*/{app_identifier}/Documents/user.db*",
-        return_on_first_hit=True
-    )
+    source_path = _search_user_db(context, app_identifier)
     if not source_path:
         return data_headers, data_list, source_path
 
@@ -1733,10 +1746,7 @@ def waze_recent_locations(context):
 
     # Retrieve the app bundle identifier and search for the user database
     app_identifier = get_app_id(WAZE_PREFERENCES_PLIST, context)
-    source_path = context.get_seeker().search(
-        f"*/{app_identifier}/Documents/user.db*",
-        return_on_first_hit=True
-    )
+    source_path = _search_user_db(context, app_identifier)
     if not source_path:
         return data_headers, data_list, source_path
 
@@ -2197,10 +2207,7 @@ def waze_favorite_locations(context):
 
     # Retrieve the app bundle identifier and search for the user database
     app_identifier = get_app_id(WAZE_PREFERENCES_PLIST, context)
-    source_path = context.get_seeker().search(
-        f"*/{app_identifier}/Documents/user.db*",
-        return_on_first_hit=True
-    )
+    source_path = _search_user_db(context, app_identifier)
 
     if source_path:
         _parse_favorite_user_db(source_path, context, data_list)
@@ -2245,10 +2252,7 @@ def waze_shared_locations(context):
 
     # Retrieve the app bundle identifier and search for the user database
     app_identifier = get_app_id(WAZE_PREFERENCES_PLIST, context)
-    source_path = context.get_seeker().search(
-        f"*/{app_identifier}/Documents/user.db*",
-        return_on_first_hit=True
-    )
+    source_path = _search_user_db(context, app_identifier)
     if not source_path:
         return data_headers, data_list, source_path
 
@@ -2402,10 +2406,7 @@ def waze_planned_events(context):
 
     # Retrieve the app bundle identifier and search for the user database
     app_identifier = get_app_id(WAZE_PREFERENCES_PLIST, context)
-    source_path = context.get_seeker().search(
-        f"*/{app_identifier}/Documents/user.db*",
-        return_on_first_hit=True
-    )
+    source_path = _search_user_db(context, app_identifier)
     if not source_path:
         return data_headers, (data_list, data_list_html), source_path
 
