@@ -32,6 +32,8 @@ __artifacts_v2__ = {
             "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 1 row",
             "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1 row",
             "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
+            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
         },
     },
     "screenTimeStoreOrgSettings": {
@@ -57,7 +59,10 @@ __artifacts_v2__ = {
                  "the passcode columns and Modification Date were NULL on all five, so Passcode "
                  "Stored reads No and Modification Date is empty in the data tested. Eye Relief Enabled "
                  "was empty on three of them, Share Web Usage and Managed on all five, and "
-                 "Communication Safety Receiving Restricted and Sending Restricted on one. How the "
+                 "Communication Safety Receiving Restricted and Sending Restricted on one. On two "
+                 "further stores (iOS 26.6 and 26.6.2, iPhones) Communication Safety Sending "
+                 "Restricted, Communication Safety Receiving Restricted and Eye Relief Enabled "
+                 "held no value in the single row. How the "
                  "columns read on a device with a Screen Time passcode or a child profile was "
                  "not tested against a real store.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
@@ -69,6 +74,8 @@ __artifacts_v2__ = {
             "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 1 row",
             "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1 row",
             "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
+            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
         },
     },
     "screenTimeStoreUsers": {
@@ -107,6 +114,8 @@ __artifacts_v2__ = {
             "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 1 row",
             "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1 row",
             "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
+            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
         },
     },
     "screenTimeStoreBlueprints": {
@@ -155,6 +164,8 @@ __artifacts_v2__ = {
             "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 2 rows",
             "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 2 rows",
             "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
+            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
         },
     },
     "screenTimeStoreInstalledApps": {
@@ -190,6 +201,8 @@ __artifacts_v2__ = {
             "ffs_26_2_1": "iOS 26.2.1 | iPhone | 0 rows",
             "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 0 rows",
             "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 0 rows",
+            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 0 rows",
         },
     },
     "screenTimeStoreUsage": {
@@ -226,6 +239,8 @@ __artifacts_v2__ = {
         "sample_data": {
             "ffs_26_2_1": "iOS 26.2.1 | iPhone | 0 rows (usage tables empty)",
             "ffs_26_5_2": "iOS 26.5.2 | iPhone | 0 rows (usage tables empty)",
+            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 0 rows",
         },
     },
     "screenTimeStoreChanges": {
@@ -269,6 +284,8 @@ __artifacts_v2__ = {
             "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 131 rows",
             "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
             "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 0 rows",
+            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 4 rows",
         },
     },
     "screenTimeStoreDeletedRows": {
@@ -302,7 +319,11 @@ __artifacts_v2__ = {
                  "all four value columns. Core Data can trim history, so absence of a delete "
                  "entry does not mean a row was never removed. Store, Bundle ID and Process were uniform "
                  "in the tested data: Local, com.apple.ScreenTimeAgent and ScreenTimeAgent on "
-                 "every delete row of each store.",
+                 "every delete row of each store. On the iOS 26.6.2 store the four delete rows came "
+                 "from one transaction and were deletes of Blueprint, BlueprintConfiguration, "
+                 "LocalOrganization and LocalOrganizationSettings entities, so Timestamp and "
+                 "Transaction Row held one value on all four rows and Value 3 had no value on any "
+                 "of them; the iOS 26.6 and 26.5.2 stores held no delete rows.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "trash",
@@ -311,6 +332,8 @@ __artifacts_v2__ = {
             "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 4151 rows",
             "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1733 rows",
             "ffs_26_5_2": "iOS 26.5.2 | iPhone | 0 rows",
+            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
+            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 4 rows",
         },
     },
 }
