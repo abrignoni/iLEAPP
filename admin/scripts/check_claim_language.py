@@ -149,6 +149,10 @@ CHECKED_FIELDS = {
 # granted for and never the next claim added to the same text.
 # needs a comment justifying it. See the module docstring before adding one.
 ALLOWLIST = {
+    # "always-allowed-apps" is a verbatim ZTYPE value stored in the Screen Time database, quoted
+    # so the examiner can match the sentence to the Blueprint Type column; it is not our claim.
+    ('screenTimeStore.py', 'screenTimeStoreBlueprints', 'notes', 'always'),
+
     # 'Is Viewed By User' is the column header of this artifact, named in the notes
     # so the reader can match the sentence to the column.
     ('snapchat.py', 'snapchatMessages', 'notes', 'viewed by user'),
