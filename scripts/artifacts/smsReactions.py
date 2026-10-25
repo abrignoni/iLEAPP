@@ -49,7 +49,8 @@ __artifacts_v2__ = {
                  "message or read the reaction. Not covered: reactions kept only in iCloud, and the "
                  "system-written text of the row. Observed on 9 databases from full-filesystem "
                  "extractions, iOS 18.1.1 and iOS 26.2.1 to 26.6.2; iOS 16 and 17 databases were not "
-                 "available, so those versions are unverified on real data.",
+                 "available, so those versions are unverified on real data."
+                 " On single images Chat Name was empty on every row (no named group chat) and Target Found held one value (Yes) on every row.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "mood-smile",

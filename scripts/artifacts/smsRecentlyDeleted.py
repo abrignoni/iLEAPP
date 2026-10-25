@@ -31,7 +31,8 @@ __artifacts_v2__ = {
                  "on real data. Deleted parts of a message that stays in a conversation are in 'SMS & "
                  "iMessage - Recently Deleted Message Parts'; the sync_deleted_* and "
                  "unsynced_removed_recoverable_messages tables hold only identifiers and are not "
-                 "reported.",
+                 "reported."
+                 " On single images Destination Caller ID and From Me held one value on every row, Sender and Chat Contact ID were identical on every row (one-to-one chats), Chat Name was empty on every row (no named group chat), Attachments was empty on every row (text only), and Sender was empty on every row (it is filled only for received messages).",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "trash",
@@ -70,7 +71,8 @@ __artifacts_v2__ = {
                  "time they carry. Rows were found on 2 of the 9 databases checked (iOS 26.3.1 and "
                  "26.5.2); the other seven held none, so this artifact has been exercised on two "
                  "devices, and iOS 16 and 17 are unverified on real data. A part removed from Recently "
-                 "Deleted leaves no row, so an empty result is not evidence that no part was deleted.",
+                 "Deleted leaves no row, so an empty result is not evidence that no part was deleted."
+                 " On a single image Sender was empty on every row (it is filled only for received messages).",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "trash",

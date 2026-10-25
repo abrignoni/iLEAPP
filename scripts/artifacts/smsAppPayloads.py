@@ -24,7 +24,8 @@ __artifacts_v2__ = {
                  "received is From Me, as stored. This artifact does not establish that the link was "
                  "opened. Observed on 9 databases from full-filesystem extractions (iOS 18.1.1 "
                  "and iOS 26.2.1 to 26.6.2): 5,413 link previews. Earlier "
-                 "versions were not available and are unverified on real data.",
+                 "versions were not available and are unverified on real data."
+                 " On single images Chat Name was empty on every row (no named group chat), Video was empty on every row, Placeholder (as stored) held one value (False) on every row, Destination Caller ID held one value on every row (one iMessage line), and Original URL and Message Text were identical on every row (the message body is the link).",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "link",
@@ -72,7 +73,8 @@ __artifacts_v2__ = {
                  "payload_data in the tested databases and are not reported. Service and Destination Caller ID are the message row's values as stored and are "
                  "uniform on a device that used one service and one line. Observed on 7 of 9 databases from full-filesystem extractions "
                  "(iOS 18.1.1 and iOS 26.2.1 to 26.6.2): 447 app messages. Earlier versions were not "
-                 "available and are unverified on real data.",
+                 "available and are unverified on real data."
+                 " On single images Chat Name was empty on every row (no named group chat), Image Title, Image Subtitle, Accessibility Label and Session Identifier were empty on every row, Layout Class, Payload Format, App Bundle and App Name held one value on every row, and From Me, Sender, Chat Contact ID, Chat ID and Message Text held one value on every row (a few messages from one correspondent, the text being the object replacement character), with Sender and Chat Contact ID identical.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "apps",

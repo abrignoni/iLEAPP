@@ -40,7 +40,8 @@ __artifacts_v2__ = {
                  "Messages removed from the list is not recoverable here. Not covered: edit history held "
                  "only in iCloud, edits made before iOS 16 (the feature did not exist), and the euh "
                  "(edited-unread handles) key, which is not decoded. iOS 16 and 17 databases were not "
-                 "available; those versions are unverified on real data.",
+                 "available; those versions are unverified on real data."
+                 " On single images Service and Destination Caller ID held one value on every row (one iMessage line), Chat Name was empty on every row (no named group chat was edited), From Me held one value on every row (only received messages were edited), Versions in Part and Edit Count held one value on every row (one edit per message), and Sender and Chat Contact ID were identical on every row (one-to-one chats only).",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "edit",
@@ -85,7 +86,8 @@ __artifacts_v2__ = {
                  "blank when the whole message was unsent. This artifact does not establish who unsent "
                  "the message or from which device. Service and Destination Caller ID are the message row's "
                  "values as stored and are uniform on a device that used one service and one line. iOS "
-                 "16 and 17 databases were not available; those versions are unverified on real data.",
+                 "16 and 17 databases were not available; those versions are unverified on real data."
+                 " On single images Parts Remaining (as stored) held one value (0) on every row, From Me held one value on every row, Sender was empty on every row (it is filled only for received messages), Chat Name was empty on every row (no named group chat), and Unsent Part and Parts Remaining (as stored) were identical on every row.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "message-off",

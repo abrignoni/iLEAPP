@@ -26,7 +26,8 @@ __artifacts_v2__ = {
                  "message before replying. Observed on 9 databases from full-filesystem extractions "
                  "(iOS 18.1.1 and iOS 26.2.1 to 26.6.2): 6,035 replies. The column exists from iOS 14; "
                  "databases from iOS 14 to 17 were not available, so those versions are unverified on "
-                 "real data.",
+                 "real data."
+                 " On single images Chat Name was empty on every row (no named group chat), Originator Found held one value (Yes) on every row, and Service and Destination Caller ID held one value on every row (one iMessage line).",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "corner-down-right",
