@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "module_name": "sdl_swcutil",
+    "artifact_name": "Sysdiagnose - Associated Domains (swcutil)",
+    "function_name": "swcutil_associated_domains",
+    "case_number": "case_synthetic",
+    "number_of_columns": 14,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 568,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\sdl_swcutil\\testdata.sdl_swcutil.swcutil_associated_domains.case_synthetic.zip",
+    "start_time": "2026-10-25T07:11:39.646879+00:00",
+    "end_time": "2026-10-25T07:11:39.855532+00:00",
+    "run_time_seconds": 0.007226705551147461,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T07:11:39.820446",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Service",
+    "App ID",
+    "App Version",
+    "Domain",
+    "User Approval",
+    "Site/Framework Approval",
+    "Flags",
+    "Last Checked",
+    "Next Check",
+    "Retries",
+    "Error",
+    "Pattern Entries",
+    "Variable Entries",
+    "Source File"
+  ],
+  "data": [
+    [
+      "applinks",
+      "ABCDE12345.com.example.shop",
+      "7.55",
+      "shop.example.com",
+      "unspecified",
+      "approved",
+      "",
+      1787868983,
+      1791134775,
+      "15",
+      "Error Domain=SWCErrorDomain Code=7 \"SWCERR00101 Bad HTTP Response: 404 Not Found\"",
+      2,
+      1,
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+    ],
+    [
+      "webcredentials",
+      "ABCDE12345.com.example.shop",
+      "7.55",
+      "*.example.com",
+      "unspecified",
+      "denied",
+      "systemApplication, alwaysEnabled",
+      1787868983,
+      1791134775,
+      "",
+      "",
+      0,
+      0,
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+    ],
+    [
+      "appclips",
+      "0000000000.com.example.clip",
+      "1.0",
+      "",
+      "unspecified",
+      "unspecified",
+      "readFromDisk",
+      "",
+      "",
+      "",
+      "",
+      0,
+      0,
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+    ]
+  ]
+}

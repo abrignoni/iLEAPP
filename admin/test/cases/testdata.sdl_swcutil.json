@@ -1,0 +1,44 @@
+{
+  "case_synthetic": {
+    "description": "SYNTHETIC fixture, not a real device. Fabricated sysdiagnose files (com.example.* identifiers, derived UUIDs, fixed dates) built by admin/test/scripts/synthetic_sysdiagnose_family2.py in the printed or property list layout of the tools, packed in a sysdiagnose-shaped archive and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-25T07:11:38.812106",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-25T07:11:38.452469",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "swcutil_associated_domains": {
+        "search_patterns": [
+          "*/swcutil_show.txt",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "swcutil_settings": {
+        "search_patterns": [
+          "*/swcutil_show.txt",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.6"
+  }
+}
