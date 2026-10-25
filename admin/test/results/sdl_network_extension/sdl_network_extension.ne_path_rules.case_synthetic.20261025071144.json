@@ -44,7 +44,7 @@
       "False",
       30,
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\Networking\\com.apple.networkextension.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/Networking/com.apple.networkextension.plist"
     ],
     [
       "com.example.cellularusage",
@@ -56,7 +56,7 @@
       "False",
       1,
       "com.example.special",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\Networking\\com.apple.networkextension.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/Networking/com.apple.networkextension.plist"
     ]
   ]
 }

@@ -44,7 +44,7 @@
       "",
       "True",
       31,
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\Networking\\com.apple.networkextension.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/Networking/com.apple.networkextension.plist"
     ],
     [
       "com.example.tunnel",
@@ -56,7 +56,7 @@
       "{\"VPN\": {\"Blob\": \"<3 bytes>\", \"ServerAddress\": \"vpn.example.com\", \"Type\": \"example\"}}",
       "False",
       0,
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\Networking\\com.apple.networkextension.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/Networking/com.apple.networkextension.plist"
     ]
   ]
 }

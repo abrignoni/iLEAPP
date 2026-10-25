@@ -40,7 +40,7 @@
       "34103",
       "34103",
       "10001",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "server_truth",
@@ -50,7 +50,7 @@
       "34103",
       "34103",
       "10001",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "client_truth",
@@ -60,7 +60,7 @@
       "34103",
       "34103",
       "10001",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "backup_detector",
@@ -70,7 +70,7 @@
       "",
       "34103",
       "10002|10003|1",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ]
   ]
 }

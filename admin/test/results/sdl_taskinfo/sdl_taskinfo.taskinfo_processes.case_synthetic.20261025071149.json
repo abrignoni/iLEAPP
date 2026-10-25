@@ -52,7 +52,7 @@
       "3.24 GiB",
       "NO",
       "NO",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\taskinfo.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/taskinfo.txt"
     ],
     [
       "ExampleApp",
@@ -68,7 +68,7 @@
       "5.00 KiB",
       "YES",
       "YES",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\taskinfo.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/taskinfo.txt"
     ],
     [
       "no_fields",
@@ -84,7 +84,7 @@
       "",
       "",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\taskinfo.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/taskinfo.txt"
     ]
   ]
 }

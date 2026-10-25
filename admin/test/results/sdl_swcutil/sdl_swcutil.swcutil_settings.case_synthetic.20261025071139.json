@@ -34,14 +34,14 @@
       "ABCDE12345.com.example.shop",
       "com.apple.LaunchServices.enabled",
       "1",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/swcutil_show.txt"
     ],
     [
       "applinks",
       "0000000000.com.example.other",
       "com.apple.LaunchServices.enabled",
       "0",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/swcutil_show.txt"
     ]
   ]
 }

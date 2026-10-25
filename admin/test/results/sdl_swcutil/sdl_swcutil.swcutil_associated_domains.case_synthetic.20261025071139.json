@@ -52,7 +52,7 @@
       "Error Domain=SWCErrorDomain Code=7 \"SWCERR00101 Bad HTTP Response: 404 Not Found\"",
       2,
       1,
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/swcutil_show.txt"
     ],
     [
       "webcredentials",
@@ -68,7 +68,7 @@
       "",
       0,
       0,
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/swcutil_show.txt"
     ],
     [
       "appclips",
@@ -84,7 +84,7 @@
       "",
       0,
       0,
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\swcutil_show.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/swcutil_show.txt"
     ]
   ]
 }

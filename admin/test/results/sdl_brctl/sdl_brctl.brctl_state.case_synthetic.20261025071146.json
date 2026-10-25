@@ -32,61 +32,61 @@
       "header",
       "dump taken at",
       "2026-03-02 09:00:00.000-0500 [account=1] [inCarry=No] [home=/private/var/mobile]",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "header",
       "database version",
       "34103",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "header",
       "database ID",
       "381D4FF2-F55B-5C6C-894C-A8EDBCE29C4D",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "header",
       "fsType",
       "FPFS",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "system",
       "network",
       "online",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "system",
       "disk",
       "healthy (APFS)",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "system",
       "device name",
       "E{13}e",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "scheduler",
       "items",
       "client:559 , server: 494",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "scheduler",
       "push environment",
       "production",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "scheduler",
       "sync status",
       "itemsNeedUpload|nonIdleItems",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ]
   ]
 }

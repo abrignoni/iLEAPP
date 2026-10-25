@@ -36,7 +36,7 @@
       "x",
       "set",
       "p",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCSettingsEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
     ],
     [
       1683356889,
@@ -44,7 +44,7 @@
       "0",
       "set",
       "com.example.listed",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCSettingsEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
     ],
     [
       1718398718,
@@ -52,7 +52,7 @@
       "restrictedBool > allowOther > ask",
       "set",
       "com.example.setup",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCSettingsEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
     ],
     [
       1725263068,
@@ -60,7 +60,7 @@
       "com.example.client > clientRestrictions > union > ids > values",
       "set",
       "com.example.migrator",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCSettingsEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
     ],
     [
       1755622438,
@@ -68,7 +68,7 @@
       "restrictedBool > allowOther > value",
       "set",
       "com.example.prefs",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCSettingsEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
     ],
     [
       1767323045,
@@ -76,7 +76,7 @@
       "restrictedBool > allowThing > preference",
       "set",
       "com.example.migrator",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCSettingsEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
     ],
     [
       1775614767,
@@ -84,7 +84,7 @@
       "restrictedBool > allowDictation > value",
       "remove",
       "com.example.springboard",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCSettingsEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
     ]
   ]
 }

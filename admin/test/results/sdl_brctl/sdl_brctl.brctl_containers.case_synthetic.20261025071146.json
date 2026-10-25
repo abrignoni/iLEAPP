@@ -48,7 +48,7 @@
       "full-sync|fetched-recents",
       "2026-09-17 11:52:13.478",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "iCloud.com.example.Chat",
@@ -62,7 +62,7 @@
       "fetched-recents",
       "2026-07-07 14:32:14.224",
       "2026-09-20 17:45:02",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "iCloud.com.example.Chap",
@@ -76,7 +76,7 @@
       "idle",
       "2026-07-08 10:00:00.000",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ],
     [
       "z{3}.u{1}.n{3}t",
@@ -90,7 +90,7 @@
       "idle",
       "2026-07-08 10:00:00.000",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
     ]
   ]
 }

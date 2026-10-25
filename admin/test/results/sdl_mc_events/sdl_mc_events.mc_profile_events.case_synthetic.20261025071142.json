@@ -34,14 +34,14 @@
       "com.example.profile-A",
       "install",
       "com.example.prefs",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCProfileEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCProfileEvents.plist"
     ],
     [
       1789920096,
       "com.example.profile-A",
       "remove",
       "com.example.dmd",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\MCState\\Shared\\MCProfileEvents.plist"
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCProfileEvents.plist"
     ]
   ]
 }
