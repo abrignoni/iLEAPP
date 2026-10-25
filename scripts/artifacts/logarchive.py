@@ -2203,6 +2203,136 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 | 6501 rows",
         },
     },
+    "logarchive_lockdown_mode": {
+        "name": "logarchive Lockdown Mode flag in Photos",
+        "description": "Unified log entries in the com.apple.photos.backend subsystem whose message prints an isLockdownMode value (seen so far in a Shared Albums check line); the value "
+                       "is reported as logged",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-25",
+        "last_update_date": "2026-10-25",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the com.apple.photos.backend subsystem whose message contains 'isLockdownMode:'. Each message read "
+                 "'Determining if Shared Albums enabled: Found <private> with: isEnabledForSharedStreams: "
+                 "<YES|NO> isProvisionedForDataclass: <YES|NO> isEDUMode: <YES|NO> isLockdownMode: "
+                 "<YES|NO>', in the PhotoSharing category. The value is the "
+                 "state the Photos code printed when it evaluated Shared Albums, so a row exists only "
+                 "when that check ran; a day without a row says nothing about Lockdown Mode, and "
+                 "a NO row is not evidence that the feature was never on at another time. Other logged mentions of lockdown mode are not matched. The callservicesd 'lockdownModeEnabled:' line prints <private> in place of the value; on an iOS 26.6 corpus log other processes printed the value in clear, in lines this artifact does not match. The unrelated lockdownd "
+                 "service is not matched. Observed on two sysdiagnose logs of different devices: iOS 26.6.2 (8 matching "
+                 "lines) and iOS 26.6 (2), all isLockdownMode: NO. No log from a device with the mode "
+                 "turned on was available, so the YES form of the line is unverified on real data. Trace ID is empty on every row; the direct tracev3 import does not emit it. A third log (a second iOS 26.6 sysdiagnose of the first iOS 26.6 device, taken a day earlier) held 1 line, also NO. "
+                 "On the iOS 26.6.2 log Subsystem, Category and Event Message each held one value on every row, the message being the same line each time. "
+                 "On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6) no imported line contained 'isLockdownMode:', so they report no rows. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "lock",
+        "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 0 rows",
+        },
+    },
+    "logarchive_passkey_store": {
+        "name": "logarchive Safari passkey record loads",
+        "description": "Unified log entries in which Safari's saved account store reports how many passkey "
+                       "keychain records it loaded, from the personal keychain or a keychain group",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-25",
+        "last_update_date": "2026-10-25",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the com.apple.mobilesafari subsystem whose message contains 'passkey keychain records from'. Every matched row so far was in the Keychain category. The messages read '-[WBSSavedAccountStore "
+                 "_fetchAndFilterPasskeysData]: Loaded <n> passkey keychain records from personal "
+                 "keychain', the same with '_block_invoke' and 'from group <uuid>', and the variant "
+                 "'recently deleted passkey keychain records'. The number is a count the store printed "
+                 "when it loaded records; it is not a list of passkeys, names no site or account, and "
+                 "can differ between loads. A row is written when a process loads the saved accounts, so a day without a row says nothing about passkeys. "
+                 "Writing process varied (MobileSafari 12, webbookmarksd 12, Preferences 3 of 27 rows on the "
+                 "iOS 26.6.2 log; webbookmarksd 4 and AuthenticationServicesAgent 4 of 8 on the iOS 26.6 log). "
+                 "Observed on two sysdiagnose logs of different devices. On five corpus sysdiagnoses the line was absent from the iOS 13.3.1, 14.3, 17.3 and 26.5.2 logs and present 4 times on the iOS 26.6 log. "
+                 "A second iOS 26.6 log of the first iOS 26.6 device held 4 lines. Subsystem, which the match fixes, and Category held one value on every row; and on that 4-line log Process Image Path and Process ID also held one value on every row. "
+                 "Trace ID is empty on every row; the direct tracev3 import does not emit it. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "key",
+        "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 4 rows",
+        },
+    },
+    "logarchive_shortcut_actions": {
+        "name": "logarchive background shortcut actions",
+        "description": "Unified log entries in the com.apple.shortcuts subsystem, RunningLifecycle category, whose telemetry line names an actionID; the rows matched so far were written by the background shortcut runner",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-25",
+        "last_update_date": "2026-10-25",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the com.apple.shortcuts subsystem, RunningLifecycle category, whose "
+                 "message contains 'actionID='. The messages are signpost lines written by "
+                 "BackgroundShortcutRunner and read 'Signpost ID: <id> - Signpost Name: <name> "
+                 "enableTelemetry=YES actionID=<identifier> (signpost.telemetry:string...)'. The "
+                 "identifier is a reverse-DNS-shaped string that, in the tested log, began with an "
+                 "app's bundle identifier followed by an intent name. The line says that the runner "
+                 "wrote a telemetry signpost naming that action; what triggered the run (an automation, "
+                 "a shortcut, an app or a widget), whether the action completed and what it did are "
+                 "not in the line. The other signpost lines of the runner in the same category carry "
+                 "no actionID (54 of 60 in the tested log) and are not matched. Observed on two "
+                 "sysdiagnose logs of different devices: iOS 26.6.2 had 6 matching lines naming two actions, 5 "
+                 "for one and 1 for another; iOS 26.6 had none. Shortcuts run in the foreground by the Shortcuts app were not observed; whether the Shortcuts app writes the same line is not established. On five corpus sysdiagnoses the iOS 26.5.2 log held 4 matching lines and the iOS 13.3.1, 14.3, 17.3 and 26.6 logs none; the actionID= lines of other subsystems in those logs are not matched. Trace ID is empty on every row; the direct tracev3 import does not emit it. On the iOS 26.6.2 log Subsystem, Category and Process Image Path each held one value on every row "
+                 "(the runner). Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "bolt",
+        "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 4 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 0 rows",
+        },
+    },
+    "logarchive_vpn_state": {
+        "name": "logarchive VPN connectivity state",
+        "description": "Unified log entries from the Network Extension framework that print the VPN "
+                       "connectivity state, as logged",
+        "author": "@danjethh, Claude",
+        "creation_date": "2026-10-25",
+        "last_update_date": "2026-10-25",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Matches entries in the com.apple.networkextension subsystem whose message contains "
+                 "'VPN connectivity state is now'. The messages read 'VPN connectivity state is now "
+                 "NEVPNConnectivityState<state>, visibility state is now <n>, does not use policy-based "
+                 "routing'. The state word is the NEVPNConnectivityState value as logged; the code that prints it was not traced. The line "
+                 "does not name a VPN configuration, provider or server, and the process that "
+                 "wrote it (Preferences or CommCenter in the tested log) is the one whose network "
+                 "extension manager observed the change, not necessarily the one that started a "
+                 "tunnel. Observed on one iOS 26.6.2 sysdiagnose log from a device with no VPN "
+                 "configuration in its Network Extension store: 17 matching lines, all "
+                 "NEVPNConnectivityStateDisconnected, and 17 on an iOS 26.6 log of a second device, "
+                 "also all Disconnected. A second iOS 26.6 log of that second device, taken a day "
+                 "earlier, held 55 lines: Disconnected 36, Connecting 9 and Disconnecting 10. On five corpus sysdiagnoses the iOS 26.5.2 log, from a device whose Network Extension store holds a VPN and an AppVPN configuration, held 723 matching lines (Connected 718, Disconnected 5), the iOS 26.6 log 41 (all Disconnected), and the iOS 13.3.1, 14.3 and 17.3 logs none. Subsystem held one value on every row, "
+                 "Category was empty on every row, and on the 17-line logs Event Message held one value "
+                 "on every row. Trace ID is empty on every row; the direct tracev3 import does not emit it. Only the direct "
+                 "tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "shield-lock",
+        "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 723 rows; Connected 718, Disconnected 5",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 41 rows; all Disconnected",
+        },
+    },
 }
 
 import json
@@ -2904,6 +3034,14 @@ def logarchive_artifacts(context):
         OR (subsystem LIKE 'com.apple.SplashBoard' AND event_message LIKE '%Snapshot data for%')
         -- logarchive_data_usage
         OR (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
+        -- logarchive_lockdown_mode
+        OR (subsystem LIKE 'com.apple.photos.backend' AND event_message LIKE '%isLockdownMode:%')
+        -- logarchive_passkey_store
+        OR (subsystem LIKE 'com.apple.mobilesafari' AND event_message LIKE '%passkey keychain records from%')
+        -- logarchive_shortcut_actions
+        OR (subsystem = 'com.apple.shortcuts' AND category = 'RunningLifecycle' AND event_message LIKE '%actionID=%')
+        -- logarchive_vpn_state
+        OR (subsystem = 'com.apple.networkextension' AND event_message LIKE '%VPN connectivity state is now%')
     )
     '''
 
@@ -4032,6 +4170,34 @@ def logarchive_app_snapshots(context):
 def logarchive_data_usage(context):
     return _artifacts_table_records(context, '''
         (category LIKE 'analytics' AND event_message LIKE '%Data Usage for%')
+    ''')
+
+
+@artifact_processor
+def logarchive_lockdown_mode(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE 'com.apple.photos.backend' AND event_message LIKE '%isLockdownMode:%')
+    ''')
+
+
+@artifact_processor
+def logarchive_passkey_store(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE 'com.apple.mobilesafari' AND event_message LIKE '%passkey keychain records from%')
+    ''')
+
+
+@artifact_processor
+def logarchive_shortcut_actions(context):
+    return _artifacts_table_records(context, '''
+        (subsystem = 'com.apple.shortcuts' AND category = 'RunningLifecycle' AND event_message LIKE '%actionID=%')
+    ''')
+
+
+@artifact_processor
+def logarchive_vpn_state(context):
+    return _artifacts_table_records(context, '''
+        (subsystem = 'com.apple.networkextension' AND event_message LIKE '%VPN connectivity state is now%')
     ''')
 
 
