@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "module_name": "sdl_brctl",
+    "artifact_name": "Sysdiagnose - iCloud Drive Version History (brctl)",
+    "function_name": "brctl_boot_history",
+    "case_number": "case_synthetic",
+    "number_of_columns": 8,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 510,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\sdl_brctl\\testdata.sdl_brctl.brctl_boot_history.case_synthetic.zip",
+    "start_time": "2026-10-25T07:11:46.742019+00:00",
+    "end_time": "2026-10-25T07:11:46.937346+00:00",
+    "run_time_seconds": 0.0011837482452392578,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T07:11:46.915554",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "List",
+    "Time (as printed)",
+    "OS Build",
+    "CloudDocs Version",
+    "Bird Schema",
+    "DB Schema",
+    "Device ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "server_truth",
+      "2026-08-13 08:18:38.000",
+      "23G71",
+      "4479.160.12",
+      "34103",
+      "34103",
+      "10001",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+    ],
+    [
+      "server_truth",
+      "2026-07-20 23:19:22.000",
+      "23F84",
+      "4479.122.1",
+      "34103",
+      "34103",
+      "10001",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+    ],
+    [
+      "client_truth",
+      "2026-08-13 08:18:39.000",
+      "23G71",
+      "4479.160.12",
+      "34103",
+      "34103",
+      "10001",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+    ],
+    [
+      "backup_detector",
+      "",
+      "23G71",
+      "4479.160.12",
+      "",
+      "34103",
+      "10002|10003|1",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\brctl\\brctl-dump.txt"
+    ]
+  ]
+}
