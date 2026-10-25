@@ -2225,13 +2225,16 @@ __artifacts_v2__ = {
                  "service is not matched. Observed on two sysdiagnose logs of different devices: iOS 26.6.2 (8 matching "
                  "lines) and iOS 26.6 (2), all isLockdownMode: NO. No log from a device with the mode "
                  "turned on was available, so the YES form of the line is unverified on real data. Trace ID held no value on any "
-                 "row. Only the direct tracev3 import was tested.",
+                 "row. A third log (a second iOS 26.6 sysdiagnose of the first iOS 26.6 device, taken a day earlier) held 1 line, also NO. "
+                 "On the iOS 26.6.2 log Subsystem, Category and Event Message each held one value on every row, the message being the same line each time. "
+                 "Only the direct tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 8 rows",
             "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 2 rows",
+            "local_ios26_6_sysdiag_b": "iOS 26.6 sysdiagnose | 1 row",
         },
     },
     "logarchive_passkey_store": {
@@ -2254,6 +2257,8 @@ __artifacts_v2__ = {
                  "Writing process varied (MobileSafari 12, webbookmarksd 12, Preferences 3 of 27 rows on the "
                  "iOS 26.6.2 log; webbookmarksd 4 and AuthenticationServicesAgent 4 of 8 on the iOS 26.6 log). "
                  "Observed on two sysdiagnose logs of different devices. Other iOS versions were not tested. "
+                 "A second iOS 26.6 log of the first iOS 26.6 device held 4 lines. Subsystem and Category held one value on every row, "
+                 "which the match fixes, and on that 4-line log Process Image Path and Process ID also held one value on every row. "
                  "Trace ID held no value on any row. Only the direct tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
@@ -2261,6 +2266,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 27 rows",
             "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 8 rows",
+            "local_ios26_6_sysdiag_b": "iOS 26.6 sysdiagnose | 4 rows",
         },
     },
     "logarchive_shortcut_actions": {
@@ -2285,13 +2291,15 @@ __artifacts_v2__ = {
                  "sysdiagnose logs of different devices: iOS 26.6.2 had 6 matching lines naming two actions, 5 "
                  "for one and 1 for another; iOS 26.6 had none. Shortcuts run in the foreground by the Shortcuts app were not "
                  "observed and are not covered. Other iOS versions were not tested. Trace ID held no "
-                 "value on any row. Only the direct tracev3 import was tested.",
+                 "value on any row. On the iOS 26.6.2 log Subsystem, Category and Process Image Path each held one value on every row "
+                 "(the runner). Only the direct tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "bolt",
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 6 rows",
             "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 0 rows",
+            "local_ios26_6_sysdiag_b": "iOS 26.6 sysdiagnose | 0 rows",
         },
     },
     "logarchive_vpn_state": {
@@ -2313,9 +2321,12 @@ __artifacts_v2__ = {
                  "tunnel. Observed on one iOS 26.6.2 sysdiagnose log from a device with no VPN "
                  "configuration in its Network Extension store: 17 matching lines, all "
                  "NEVPNConnectivityStateDisconnected, and 17 on an iOS 26.6 log of a second device, "
-                 "also all Disconnected. The Connected and Connecting forms were not "
-                 "observed, so what a connected tunnel logs is unverified on real data. Other iOS "
-                 "versions were not tested. Trace ID held no value on any row. Only the direct "
+                 "also all Disconnected. A second iOS 26.6 log of that second device, taken a day "
+                 "earlier, held 55 lines: Disconnected 36, Connecting 9 and Disconnecting 10. The "
+                 "Connected form was not observed, so what a connected tunnel logs is unverified on real "
+                 "data. Other iOS versions were not tested. Subsystem held one value on every row, "
+                 "Category was empty on every row, and on the 17-line logs Event Message held one value "
+                 "on every row. Trace ID held no value on any row. Only the direct "
                  "tracev3 import was tested.",
         "paths": None,
         "output_types": "standard",
@@ -2323,6 +2334,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "local_ios26_6_2_sysdiag": "iOS 26.6.2 sysdiagnose | 17 rows; all Disconnected",
             "local_ios26_6_sysdiag": "iOS 26.6 sysdiagnose | 17 rows; all Disconnected",
+            "local_ios26_6_sysdiag_b": "iOS 26.6 sysdiagnose | 55 rows; Disconnected 36, Connecting 9, Disconnecting 10",
         },
     },
 }
