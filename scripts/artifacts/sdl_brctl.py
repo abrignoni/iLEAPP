@@ -34,6 +34,7 @@ __artifacts_v2__ = {
             "needs-sync|blocked-app-uninstalled; 34 containers, all matched, on the iOS 26.6.2 device. Not reported: per-item upload "
             "and download queues, which the dump prints as 'not dumping' for every library in the tested "
             "files."
+            " Server State held one value on every row of the iOS 26.6.2 file (34 containers)."
         ),
         "paths": (
             '*/brctl-container-list.txt',
@@ -67,6 +68,7 @@ __artifacts_v2__ = {
             "device did not run it. The backup_detector entry has no time and a different field "
             "layout, so its Time is blank and the fields are as printed. Observed on three sysdiagnoses: on the iOS 26.6 device 10 entries in each of "
             "server_truth and client_truth spanning ten OS builds, and 5 entries on the iOS 26.6.2 device."
+            " CloudDocs Version and DB Schema held one value on every row of the iOS 26.6.2 file (5 entries)."
         ),
         "paths": (
             '*/brctl-dump.txt',

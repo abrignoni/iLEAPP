@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "notes": (
             "swcutil_show.txt is the printed output of the swcutil tool; its Storage line names an swc.db file under com.apple.SharedWebCredentials. One row per "
             "block of the DATABASE section, values as printed: Service (applinks, webcredentials, "
-            "appclips, activitycontinuation or authsrv), App ID (team identifier and bundle identifier), "
+            "appclips, activitycontinuation or authsrv; the iOS 26.6.2 file also has one classificationreport and one messagefilter entry), App ID (team identifier and bundle identifier), "
             "App Version, Domain, User Approval, Site/Framework Approval and Flags. Last Checked and Next "
             "Check are the printed UTC times and are blank when the block has none. Retries and Error "
             "are present on blocks where the download of the domain's association file failed; Error "

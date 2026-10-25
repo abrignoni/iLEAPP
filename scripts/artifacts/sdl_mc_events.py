@@ -54,6 +54,7 @@ __artifacts_v2__ = {
             "evidence that no profile was ever installed. Observed on three sysdiagnoses (two iOS 26.6 of one "
             "device with 2 entries; 10 entries on the iOS 26.6.2 device). Source File and Profile Identifier each separate the two tested files, which is a coincidence, "
             "since Source File is what separates the copies when more than one sysdiagnose is read. Earlier iOS versions were not checked."
+            " On the iOS 26.6.2 file Profile Identifier held one value on every row (one profile, 10 operations)."
         ),
         "paths": (
             '*/MCProfileEvents.plist',

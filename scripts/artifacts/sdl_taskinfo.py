@@ -22,7 +22,7 @@ __artifacts_v2__ = {
             "not an app bundle identifier or a display name. A process that was not running when the "
             "sysdiagnose was taken is not listed, so an app absent here may still be installed or have "
             "been used earlier; a listed process does not show that the user opened it. Observed on "
-            "three sysdiagnoses (two iOS 26.6 of one device: 413 and 463 process blocks; one iOS 26.6.2 sysdiagnose of another device: 557). Not reported: the per-thread "
+            "three sysdiagnoses (two iOS 26.6 of one device: 413 and 463 process blocks; one iOS 26.6.2 sysdiagnose of another device: 554). Not reported: the per-thread "
             "and per-QoS lines, the audit token and the coalition lines."
         ),
         "paths": (
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 413 rows",
             "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 463 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 557 rows",
+            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 554 rows",
         },
     },
 }
