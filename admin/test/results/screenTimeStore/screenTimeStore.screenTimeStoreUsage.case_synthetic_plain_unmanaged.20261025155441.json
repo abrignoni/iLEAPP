@@ -9,20 +9,24 @@
     "total_data_size_bytes": 0,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\screenTimeStore\\testdata.screenTimeStore.screenTimeStoreUsage.case_synthetic_plain_unmanaged.zip",
-    "start_time": "2026-10-25T05:59:33.418698+00:00",
-    "end_time": "2026-10-25T05:59:33.580315+00:00",
-    "run_time_seconds": 0.02513289451599121,
+    "input_zip_path": "admin/test/cases/data/screenTimeStore/testdata.screenTimeStore.screenTimeStoreUsage.case_synthetic_plain_unmanaged.zip",
+    "start_time": "2026-10-25T15:54:41.026617+00:00",
+    "end_time": "2026-10-25T15:54:41.047453+00:00",
+    "run_time_seconds": 0.0037021636962890625,
     "last_commit": {
-      "hash": "6f5c168c1cd4af659203e49e5c773e5792e9657a",
+      "hash": "319bfb4aa9379da802b3a6acff4ee2ff0e3b5fb1",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-10-25T01:58:21-04:00",
-      "message": "Add Screen Time store artifacts (remotemanagementd RMAdminStore databases)"
+      "date": "2026-10-25T05:29:05-04:00",
+      "message": "Screen Time store: add iOS 26.6 and 26.6.2 to sample_data, document the output-checker findings on them"
     }
   },
   "headers": [
     "Block Start",
+    "First Pickup",
+    "Longest Session Start",
+    "Longest Session End",
+    "Last Event",
     "Store",
     "Usage Row",
     "Block Row",
@@ -35,11 +39,7 @@
     "Pickups",
     "Notifications",
     "Usage Trusted",
-    "First Pickup",
     "Pickups Without App Usage",
-    "Longest Session Start",
-    "Longest Session End",
-    "Last Event",
     "Block Screen Time (seconds)"
   ],
   "data": []

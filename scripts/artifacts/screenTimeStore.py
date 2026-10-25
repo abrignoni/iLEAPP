@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "screenTimeStoreSettings": {
         "name": "Screen Time Store - Settings",
         "description": "The store-level Screen Time flags held in RMAdminStore-Local.sqlite and "
-                       "RMAdminStore-Cloud.sqlite (com.apple.remotemanagementd), as stored.",
+                       "RMAdminStore-Cloud.sqlite (com.apple.remotemanagementd), with 0 and 1 shown as No and Yes.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
@@ -14,26 +14,22 @@ __artifacts_v2__ = {
                  "setting is off. Row Version is the Core Data optimistic-locking counter (Z_OPT) of "
                  "the row. In the five tested full file systems (iOS 26.2.1 to 26.5.2, iPhones) the "
                  "table held one row in the local store and none in the cloud store; Screen Time "
-                 "Enabled was Yes on two and No on three, and Cloud Sync Enabled and Family Setup "
-                 "Complete were No on all five, so those two columns are uniform in the data "
-                 "tested. The flags do not record when a setting changed (see Screen Time Store - "
+                 "Enabled was Yes on two and No on three, and Cloud Sync Enabled and Family Setup Complete were No on all five. On the corpus Cloud Sync Enabled was Yes on 10 of 22 stores and Family Setup Complete was blank on 16 (the column is absent on older stores), so neither column is uniform. The flags do not record when a setting changed (see Screen Time Store - "
                  "Change History) and are a different table from the per-device flags in Screen "
                  "Time Store - Users and Devices. The tables the store also holds for downtime "
                  "schedules, usage limits and app exceptions (ZDOWNTIME, ZDAILYSCHEDULE, "
                  "ZBLUEPRINTSCHEDULE, ZBLUEPRINTUSAGELIMIT, ZAPPEXCEPTION) were empty in every tested "
-                 "store and are not read. No store with a managed child profile in force was "
-                 "available.",
+                 "store and are not read. No store with a managed child profile in force was available to the contributor. One corpus Organization Settings row holds Managed Yes; what that row describes is not established. On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 1 row",
-            "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
-            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 1 row",
+            "hickman_ios14": "iOS 14.3 | iPhone | 1 row",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 1 row",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 1 row",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 1 row",
         },
     },
     "screenTimeStoreOrgSettings": {
@@ -49,33 +45,27 @@ __artifacts_v2__ = {
                  "flag columns are shown as No and Yes; a NULL is left blank, which says the store "
                  "holds no value, not that the setting is off. Communication Policy, Communication "
                  "While Limited Policy and Contact Management State are shown as stored, because no "
-                 "source that defines their values was found. App And Website Activity is the first "
-                 "non-NULL of the two ZISAPPANDWEBSITEACTIVITYENABLED columns the table carries. "
+                 "source that defines their values was found. App And Website Activity is the first non-NULL of the two ZISAPPANDWEBSITEACTIVITYENABLED columns, where the table carries them; older stores have neither and the column is blank. "
                  "Passcode Stored says whether any of the three passcode columns holds a value; the "
                  "value itself is deliberately never read into the report. Modification Date is a "
-                 "Core Data date. In the five tested stores (iOS 26.2.1 to 26.5.2, iPhones) the "
-                 "table held one row in the local store; All Limits Enabled was Yes on all five, "
+                 "Core Data date. In the five tested stores (iOS 26.2.1 to 26.5.2, iPhones) the table held one row in the local store (corpus stores hold one, two or eight rows); All Limits Enabled was Yes on all five, "
                  "the three integer columns and Needs To Set Passcode were 0 on all five, and "
-                 "the passcode columns and Modification Date were NULL on all five, so Passcode "
-                 "Stored reads No and Modification Date is empty in the data tested. Eye Relief Enabled "
-                 "was empty on three of them, Share Web Usage and Managed on all five, and "
+                 "the passcode columns and Modification Date were NULL on all five, so Passcode Stored reads No and Modification Date is empty there. On the corpus Modification Date is filled on three stores and one store holds a passcode value, so Passcode Stored reads Yes there. Eye Relief Enabled "
+                 "was empty on three of them, Share Web Usage and Managed on all five (on the corpus Managed holds No on 12 rows and Yes on one), and "
                  "Communication Safety Receiving Restricted and Sending Restricted on one. On two "
                  "further stores (iOS 26.6 and 26.6.2, iPhones) Communication Safety Sending "
                  "Restricted, Communication Safety Receiving Restricted and Eye Relief Enabled "
-                 "held no value in the single row. How the "
-                 "columns read on a device with a Screen Time passcode or a child profile was "
-                 "not tested against a real store.",
+                 "held no value in the single row. How the columns read on a device with a Screen Time passcode or a child profile was not tested by the contributor; one corpus row holds a passcode value and one holds Managed Yes, and neither device's configuration is known. On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 1 row",
-            "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
-            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 2 rows",
+            "hickman_ios14": "iOS 14.3 | iPhone | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 1 row",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 1 row",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 1 row",
         },
     },
     "screenTimeStoreUsers": {
@@ -96,26 +86,24 @@ __artifacts_v2__ = {
                  "blank where the store holds no value. Screen Time Enabled, Cloud Sync Enabled, "
                  "Management Enabled and Legacy Usage Disabled are the stored flags of the "
                  "user-device row; NULL is blank. In the five tested stores (iOS 26.2.1 to "
-                 "26.5.2, iPhones) each held one user-device row whose user and device joined; "
-                 "Apple Account was NULL on all five, DSID was present on all five (zero on one), "
+                 "26.5.2, iPhones) each held one user-device row whose user and device joined (corpus stores hold one to seven rows); "
+                 "Apple Account was NULL on all five (filled on three corpus stores), DSID was present on all five (zero on one), "
                  "Alt DSID, Given Name and Family Name were present on four, Family Organizer was "
-                 "Yes on one, Family Member Type was 'Unknown' and Platform was 2 "
-                 "on all five, Management Enabled was No on all five, and Last Passcode Use was "
+                 "Yes on one, Family Member Type was 'Unknown' and Platform was 2 on all five (the corpus also holds a second Family Member Type value and Platform values 1 and 4), Management Enabled was No on all five, and Last Passcode Use was "
                  "filled on one and Last Family Check-in on none, and Cloud Sync Enabled was empty "
                  "on one; the meaning of Platform "
                  "and of 'Unknown' was not established. The device blobs (ZDEVICEINFOPLIST, "
-                 "ZCAPABILITIESPLIST) were NULL on every tested store and are not read.",
+                 "ZCAPABILITIESPLIST) were NULL on every tested store and are not read. On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
         "sample_data": {
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 1 row",
-            "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
-            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 1 row",
+            "hickman_ios14": "iOS 14.3 | iPhone | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 1 row",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 7 rows",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 1 row",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 1 row",
         },
     },
     "screenTimeStoreBlueprints": {
@@ -145,27 +133,23 @@ __artifacts_v2__ = {
                  "Tombstoned was No and Limit Enabled was Yes on every tested row of the "
                  "store with four rows, and Expires and Minimum Installation Date were empty on "
                  "every tested row. In the five tested "
-                 "stores (iOS 26.2.1 to 26.5.2, iPhones) every store held an always-allowed-apps "
-                 "blueprint (Enabled Yes) with a com.apple.configuration.policy.application "
-                 "declaration; a restrictions blueprint was present on three (Enabled Yes on one, "
+                 "stores (iOS 26.2.1 to 26.5.2, iPhones) every one of the five held an always-allowed-apps blueprint (Enabled Yes) with a com.apple.configuration.policy.application declaration (on the corpus 14 of 22 images hold one such blueprint and 8 hold none); a restrictions blueprint was present on three (Enabled Yes on one, "
                  "No on two, and with no configuration on the one where it was Yes), a "
                  "managed-user blueprint on one (Enabled No), and the other declaration types "
                  "seen were com.apple.configuration.application.store, "
                  "com.apple.configuration.system.icloud, "
                  "com.apple.configuration.system.dateandtime and "
-                 "com.apple.configuration.policy.icloud.account, each on one store. Created was "
-                 "NULL on every tested blueprint and Modified was filled on all.",
+                 "com.apple.configuration.policy.icloud.account, each on one store. Created was NULL on every tested blueprint and Modified was filled on all five; on the corpus Modified is blank on 8 of 14 rows because older stores lack the column. On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "clipboard-list",
         "sample_data": {
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 4 rows",
-            "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 1 row",
-            "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 2 rows",
-            "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 2 rows",
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
-            "ffs_26_6": "iOS 26.6 | iPhone | 1 row",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 1 row",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 0 rows",
+            "hickman_ios14": "iOS 14.3 | iPhone | 1 row",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 1 row",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 1 row",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 0 rows",
         },
     },
     "screenTimeStoreInstalledApps": {
@@ -181,28 +165,24 @@ __artifacts_v2__ = {
                  "are the stored values; Installed Locally and Distributor Is Third Party are "
                  "stored flags; Adam ID, Version Identifier and Beta Version Identifier are shown "
                  "as stored (zero where the store holds zero). In the tested stores (iOS 26.2.1 to "
-                 "26.5.2, iPhones) two held rows, 336 and 21, Display Name was NULL on every one "
-                 "of those rows so the bundle identifier is the only name, Installed Locally was "
-                 "Yes on every row, and Distributor ID was filled on 72 of the 336 and on 1 of the "
-                 "21. Store was Local, Distributor Is Third Party was No and Beta Version Identifier was "
-                 "0 on every tested row, so those columns are uniform in the data tested. "
+                 "26.5.2, iPhones) two held rows, 336 and 21, Display Name was NULL on every one of those rows (on the corpus it is filled on 465 of 1,831 rows across four stores), Installed Locally was Yes on every row (No on 747 of 1,831 corpus rows), and Distributor ID was filled on 72 of the 336 and on 1 of the "
+                 "21. Store was Local, Distributor Is Third Party was No and Beta Version Identifier was 0 on every tested row; on the corpus both columns are blank where older stores lack them, and no Yes or non-zero value was seen. "
                  "The table is a list that Screen Time keeps. It is not a record of when an "
                  "app was installed or removed, and an app missing from it is not shown to be "
                  "absent from the device; the other three tested stores held no rows, which is a "
                  "store state and not a statement about the apps on the phone. For rows the store "
                  "has since deleted see Screen Time Store - Deleted Rows. The icon blobs are not "
-                 "read.",
+                 "read. On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "apps",
         "sample_data": {
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 336 rows",
-            "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 21 rows",
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 0 rows",
-            "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 0 rows",
-            "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 0 rows",
-            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 95 rows",
+            "hickman_ios14": "iOS 14.3 | iPhone | 156 rows",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 53 rows",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 442 rows",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 0 rows",
         },
     },
     "screenTimeStoreUsage": {
@@ -214,16 +194,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "Screen Time",
-        "notes": "UNVERIFIED ON REAL DATA (evidence tier 3: written from the table schema and run only "
-                 "against a synthetic store). The usage tables (ZUSAGE, ZUSAGEBLOCK, ZUSAGECATEGORY, "
+        "notes": "Evidence tier: row counts data-proven on the corpus (see the last sentence); the reading of each column rests on the table schema. The usage tables (ZUSAGE, ZUSAGEBLOCK, ZUSAGECATEGORY, "
                  "ZUSAGETIMEDITEM, ZUSAGECOUNTEDITEM) exist in every tested store and their "
                  "columns were read from those schemas, but all five tested full file systems "
-                 "(iOS 26.2.1 to 26.5.2, iPhones) held zero rows in all five tables, in the local "
-                 "and the cloud store. The persistent-history tables of three of them record the "
+                 "(iOS 26.2.1 to 26.5.2, iPhones) held zero rows in all five tables, in the local and the cloud store; on the corpus the tables held rows on 15 of 22 images (iOS 12.4 to 17.6.1); the seven with none were one iOS 17.1.1 image and the six iOS 18 and 26 images. The persistent-history tables of three of them record the "
                  "creation and later deletion of usage rows (see Screen Time Store - Change "
-                 "History), so rows may be written and removed again; whether usage for the device "
-                 "itself, or for a child profile in a Family Sharing group, is ever left in these "
-                 "tables was not shown. A row is one tally of one usage block: Kind says whether "
+                 "History), so rows may be written and removed again; The corpus shows rows left in these tables on 15 of 22 images; whether they are the device's own usage or a family member's is not established here, because the ZUSAGE user and device are not joined. A row is one tally of one usage block: Kind says whether "
                  "it comes from a category row (seconds per category), a timed item (seconds per "
                  "bundle identifier or web domain; its Category is the category row it points at, and "
                  "that row's block is the block shown) or a counted item (pickups and notifications "
@@ -232,15 +208,17 @@ __artifacts_v2__ = {
                  "ZDURATIONINMINUTES. Usage Trusted is the stored ZUSAGETRUSTED flag. Pickups "
                  "Without App Usage is the block's ZNUMBEROFPICKUPSWITHOUTAPPLICATIONUSAGE. Usage "
                  "Row is the key of the block's parent ZUSAGE row, whose user and device are not "
-                 "joined here. The meaning of the category identifiers is not defined.",
+                 "joined here. The meaning of the category identifiers is not defined. On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "chart-bar",
         "sample_data": {
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 0 rows (usage tables empty)",
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 0 rows (usage tables empty)",
-            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 753 rows",
+            "hickman_ios14": "iOS 14.3 | iPhone | 1,993 rows",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 354 rows",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 746 rows",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 0 rows",
         },
     },
     "screenTimeStoreChanges": {
@@ -269,23 +247,21 @@ __artifacts_v2__ = {
                  "across them. The bundle IDs seen were com.apple.ScreenTimeAgent, "
                  "com.apple.Preferences and com.apple.ScreenTimeWidgetApplication.ScreenTimeWidgetExtension, "
                  "and the context names STPersistLocalAppsOperation and cleanOrphanedDatabaseEntities. "
-                 "Store was Local on every tested row, which is uniform because the cloud stores held no "
-                 "history. A row says that the named process saved a change to the store, not what the "
+                 "Store was Local on every row of the five tested stores, whose cloud stores held no history; on the corpus 14 of 22 cloud stores hold history (354 transactions), so Store is not uniform. A row says that the named process saved a change to the store, not what the "
                  "user did. On the three larger stores most deletes were of usage entities "
                  "(UsageTimedItem, UsageCategory, UsageBlock, UsageCountedItem) and their inserts "
                  "were of the same entities, which fits the empty usage tables; the counts are of "
-                 "rows, and the content of a deleted usage row is not kept.",
+                 "rows, and the content of a deleted usage row is not kept. On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "history",
         "sample_data": {
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 322 rows",
-            "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 375 rows",
-            "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 131 rows",
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 1 row",
-            "ffs_26_3_1_b": "iOS 26.3.1 | iPhone | 0 rows",
-            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 4 rows",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 1,193 rows",
+            "hickman_ios14": "iOS 14.3 | iPhone | 979 rows",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 153 rows",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 7,208 rows",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 1 row",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 5 rows",
         },
     },
     "screenTimeStoreDeletedRows": {
@@ -306,34 +282,30 @@ __artifacts_v2__ = {
                  "attribute each position holds is set by the store's data model, which is not "
                  "read here, so the positions are not named. In the tested stores (iOS 26.2.1 to "
                  "26.5.2, iPhones) the InstalledApp deletes held a bundle identifier in Value 1 on "
-                 "every row: 158 deletes (90 distinct bundle identifiers) on two stores and 20 (17 "
-                 "distinct) on one. The installed-apps list was empty on the two stores with 158 "
+                 "every row: 158 deletes (90 distinct bundle identifiers) on two stores and 20 (17 distinct) on one. On the corpus that holds from iOS 14.3 on; on the iOS 12.4 and 13.3.1 stores Value 1 is a binary value shown as hexadecimal and Value 2 is text. The installed-apps list was empty on the two stores with 158 "
                  "deletes, so it does not show those apps, and a bundle identifier is repeated "
                  "across deletes, so one identifier can appear on several rows. Value 4 "
-                 "of those rows began 'app:<bundle identifier>-uds:' followed by an account "
-                 "number and a device identifier; Blueprint deletes held a 'bp:<identifier>' "
+                 "of those rows began 'app:<bundle identifier>-uds:' followed by two further identifiers whose meaning is not established (on the iOS 12.4 and 13.3.1 corpus stores Value 4 is empty); Blueprint deletes held a 'bp:<identifier>' "
                  "string in Value 2. A delete entry shows that the history recorded the row's "
                  "removal; it does not say why the row was removed, and it is not evidence that "
                  "the app was uninstalled or that its entry was not recreated later. Usage entity "
                  "deletes (the large majority of rows) kept no values, so they are blank in "
                  "all four value columns. Core Data can trim history, so absence of a delete "
-                 "entry does not mean a row was never removed. Store, Bundle ID and Process were uniform "
-                 "in the tested data: Local, com.apple.ScreenTimeAgent and ScreenTimeAgent on "
-                 "every delete row of each store. On the iOS 26.6.2 store the four delete rows came "
+                 "entry does not mean a row was never removed. In the five tested stores Store, Bundle ID and Process held one value each on every delete row: Local, com.apple.ScreenTimeAgent and ScreenTimeAgent. On the corpus seven cloud stores also hold delete rows (1,390, of other entities, shown as stored), so Store is not uniform. On the iOS 26.6.2 store the four delete rows came "
                  "from one transaction and were deletes of Blueprint, BlueprintConfiguration, "
                  "LocalOrganization and LocalOrganizationSettings entities, so Timestamp and "
                  "Transaction Row held one value on all four rows and Value 3 had no value on any "
-                 "of them; the iOS 26.6 and 26.5.2 stores held no delete rows.",
+                 "of them; the contributor's iOS 26.6 and 26.5.2 stores held no delete rows (the corpus iOS 26.5.2 image holds one). On 22 corpus iOS extractions (iOS 12.4 to 26.5.2) the LAVA row count equalled an independent SQL count of the same rows in the Local and Cloud stores, taken on copies read with their -wal files where present; sample_data lists six of them.",
         "paths": ('*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "trash",
         "sample_data": {
-            "ffs_26_2_1": "iOS 26.2.1 | iPhone | 4135 rows",
-            "ffs_26_3_1_a": "iOS 26.3.1 | iPhone | 4151 rows",
-            "ffs_26_3_1_c": "iOS 26.3.1 | iPhone | 1733 rows",
-            "ffs_26_5_2": "iOS 26.5.2 | iPhone | 0 rows",
-            "ffs_26_6": "iOS 26.6 | iPhone | 0 rows",
-            "ffs_26_6_2": "iOS 26.6.2 | iPhone | 4 rows",
+            "ctf2020_ios12": "iOS 12.4 | iPhone | 4,658 rows",
+            "hickman_ios14": "iOS 14.3 | iPhone | 7,292 rows",
+            "jess_ios15": "iOS 15.0.2 | iPhone | 245 rows",
+            "felix_ios17": "iOS 17.6.1 | iPhone | 98,412 rows",
+            "dexter_ios18": "iOS 18.3.2 | iPhone | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | iPhone | 1 row",
         },
     },
 }
@@ -365,6 +337,14 @@ def _stores(context):
 
 def _source(stores):
     return '\n'.join(path for _, path in stores)
+
+
+def _time_first(headers, rows):
+    """(headers, rows) with the datetime columns moved to the front, in their own order, so the
+    event time leads and the other times follow it."""
+    order = ([i for i, h in enumerate(headers) if isinstance(h, tuple) and h[1] == 'datetime']
+             + [i for i, h in enumerate(headers) if not (isinstance(h, tuple) and h[1] == 'datetime')])
+    return tuple(headers[i] for i in order), [tuple(row[i] for i in order) for row in rows]
 
 
 def _flag(value):
@@ -417,7 +397,7 @@ def screenTimeStoreSettings(context):
                 SELECT Z_PK, Z_OPT, ZSCREENTIMEENABLED, ZCLOUDSYNCENABLED, ZFAMILYSETUPCOMPLETE
                 FROM ZSCREENTIMESETTINGS ORDER BY Z_PK'''):
             data_list.append((label, row[0], row[1], _flag(row[2]), _flag(row[3]), _flag(row[4])))
-    return data_headers, data_list, _source(stores)
+    return _time_first(data_headers, data_list) + (_source(stores),)
 
 
 @artifact_processor
@@ -451,7 +431,7 @@ def screenTimeStoreOrgSettings(context):
                               _flag(row[7]), _flag(row[8]), _flag(row[9]), _flag(row[10]), _flag(row[11]),
                               _flag(row[12]), _flag(activity), _flag(row[13]), _flag(row[14]),
                               _flag(1 if row[17] or row[18] or row[19] else 0)))
-    return data_headers, data_list, _source(stores)
+    return _time_first(data_headers, data_list) + (_source(stores),)
 
 
 @artifact_processor
@@ -522,7 +502,7 @@ def screenTimeStoreBlueprints(context):
                 label, row[0], row[1], row[2], _flag(row[3]), _flag(row[4]), _flag(row[5]),
                 _date(row[6]), _date(row[7]), _date(row[8]), _date(row[9]),
                 row[10] or '', row[11] or '', *_decode_declaration(row[12])))
-    return data_headers, data_list, _source(stores)
+    return _time_first(data_headers, data_list) + (_source(stores),)
 
 
 @artifact_processor
@@ -541,7 +521,7 @@ def screenTimeStoreInstalledApps(context):
                 FROM ZINSTALLEDAPP ORDER BY ZBUNDLEIDENTIFIER, Z_PK'''):
             data_list.append((label, row[0], row[1], row[2], _flag(row[3]), row[4], _flag(row[5]),
                               row[6], row[7], row[8], row[9]))
-    return data_headers, data_list, _source(stores)
+    return _time_first(data_headers, data_list) + (_source(stores),)
 
 
 _USAGE_BASE = '''
@@ -587,7 +567,7 @@ def screenTimeStoreUsage(context):
                     row[12] or '', row[13], row[14], row[15], _flag(row[16]), _date(row[4]), row[5],
                     _date(row[6]), _date(row[7]), _date(row[8]), row[9]))
     data_list.sort(key=lambda item: (str(item[0]), item[1], item[2] or 0, item[3] or 0))
-    return data_headers, data_list, _source(stores)
+    return _time_first(data_headers, data_list) + (_source(stores),)
 
 
 def _history(path):
@@ -632,7 +612,7 @@ def screenTimeStoreChanges(context):
             data_list.append((
                 _date(row[1]), label, row[0], row[2] or '', row[3] or '', row[4] or '', row[5] or '',
                 tally[0], tally[1], tally[2], ', '.join(sorted(touched.get(row[0], ())))))
-    return data_headers, data_list, _source(stores)
+    return _time_first(data_headers, data_list) + (_source(stores),)
 
 
 @artifact_processor
@@ -660,4 +640,4 @@ def screenTimeStoreDeletedRows(context):
                 _date(row[8]), label, row[1], row[0], row[9] or '', row[10] or '',
                 entities.get(row[2], f'entity {row[2]}'), row[3],
                 _stored(row[4]), _stored(row[5]), _stored(row[6]), _stored(row[7])))
-    return data_headers, data_list, _source(stores)
+    return _time_first(data_headers, data_list) + (_source(stores),)
