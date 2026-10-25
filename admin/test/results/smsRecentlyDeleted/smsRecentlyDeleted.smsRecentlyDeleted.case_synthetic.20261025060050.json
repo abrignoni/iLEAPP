@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "module_name": "smsRecentlyDeleted",
+    "artifact_name": "SMS & iMessage - Recently Deleted Messages",
+    "function_name": "smsRecentlyDeleted",
+    "case_number": "case_synthetic",
+    "number_of_columns": 15,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 120,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\smsRecentlyDeleted\\testdata.smsRecentlyDeleted.smsRecentlyDeleted.case_synthetic.zip",
+    "start_time": "2026-10-25T06:00:50.954896+00:00",
+    "end_time": "2026-10-25T06:00:51.163342+00:00",
+    "run_time_seconds": 0.002744913101196289,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T06:00:51.133017",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Deleted Timestamp",
+    "Message Timestamp",
+    "From Me",
+    "Sender",
+    "Chat Contact ID",
+    "Chat Name",
+    "Text",
+    "Attachments",
+    "Still Linked to Chat",
+    "Sync State (as stored)",
+    "Service",
+    "Destination Caller ID",
+    "Chat ID",
+    "Message Row ID",
+    "Message GUID"
+  ],
+  "data": [
+    [
+      1772367300,
+      1772367200,
+      1,
+      "",
+      "+15550100001",
+      "",
+      "Synthetic deleted message",
+      "",
+      "No",
+      1,
+      "iMessage",
+      "+15550100000",
+      1,
+      17,
+      "BE2B7FFF-E3CD-5999-9435-F426DB29FDE4"
+    ]
+  ]
+}
