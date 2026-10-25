@@ -9,32 +9,28 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": (
-            "The brctl tool prints the iCloud Drive (CloudDocs, bird) containers of the signed-in account. "
-            "One row per line of brctl-container-list.txt: Container ID, Localized Name, Documents "
+            "The brctl tool prints the iCloud Drive (CloudDocs, bird) containers registered on the device. "
+            "One row per container line (the lines starting with id:) of brctl-container-list.txt: Container ID, Localized Name, Documents "
             "(path) and Scope (the text in square brackets, for example Private: inInitialState) and "
             "Clients (bundle identifiers), all as printed. The library lines of brctl-dump.txt "
             "('- <identifier[length]> foreground|background {client:... server:... last-sync:... "
-            "appuninstalled:...}') print each container identifier shortened, with runs of characters "
-            "replaced by {n}. A dump line is matched to a container when the shortened identifier, "
+            "appuninstalled:...}') print the container identifier; on the iOS 26 files it is shortened, with runs of characters replaced by {n}, and on the iOS 13, 14 and 17 corpus files it is printed in full, and the appuninstalled field is absent on iOS 13 and 14. A dump line is matched to a container when the shortened identifier, "
             "read as a pattern, fits exactly one listed container identifier and "
             "that identifier fits no other dump line; otherwise Dump Match says No (no fit) or Ambiguous (more than one). Client State and Server "
             "State are the words printed after client: and server:, Last Sync is the printed time after "
             "last-sync: and App Uninstalled is the printed time after appuninstalled: (blank when the "
-            "dump prints (null)). The times are printed without a zone in the dump; the dump header "
-            "gives the time it was taken with an offset (dump taken at ... -0400 in the tested files) "
-            "and the zone of the library times is not stated, so they are shown as printed. A client "
-            "state of blocked-app-uninstalled and an App Uninstalled time are what the dump prints for "
-            "a library whose app is no longer installed; what sets the time is not established. "
-            "Dump Match was Yes on every row of the tested files. Dump "
+            "dump prints (null)). The times are printed without a zone in the dump; the dump header gives the time it was taken, with an offset on iOS 17 and later and without one on the iOS 13 and 14 corpus files, and the zone of the library times is not stated, so they are shown as printed. A client "
+            "state of blocked-app-uninstalled and an App Uninstalled time are printed together; the words are the tool's and what sets them is not established. "
+            "Dump Match was Yes on every row of the three contributor files; the iOS 17.3 corpus file has one library line with no container, shown as Dump only. Dump "
             "lines without a matching container are listed with the shortened identifier in Container "
-            "ID. A container listed here is registered for the account; it does not show that the app "
+            "ID. A container listed here is registered on the device; it does not show that the app "
             "stored files. Observed on three sysdiagnoses (two iOS 26.6 of one device, one iOS 26.6.2 of another): "
             "71 containers and 71 dump library lines on the iOS 26.6 device, each container matching "
             "exactly one library line, with 27 of them in client state blocked-app-uninstalled and 1 more "
             "needs-sync|blocked-app-uninstalled; 34 containers, all matched, on the iOS 26.6.2 device. Not reported: per-item upload "
             "and download queues, which the dump prints as 'not dumping' for every library in the tested "
             "files."
-            " Server State held one value on every row of the iOS 26.6.2 file (34 containers)."
+            " Server State held one value on every row of the iOS 26.6.2 file (34 containers). On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/brctl-container-list.txt',
@@ -44,9 +40,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "cloud",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 71 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 71 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 34 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 23 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 30 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 44 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 67 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 32 rows",
         },
     },
     "brctl_boot_history": {
@@ -60,7 +58,7 @@ __artifacts_v2__ = {
         "category": "Sysdiagnose",
         "notes": (
             "The dump prints a boot_history block with the lists server_truth, client_truth and "
-            "backup_detector. One row per printed entry: List, Time, OS Build, CloudDocs Version, Bird "
+            "backup_detector. One row per printed entry: Time, List, OS Build, CloudDocs Version, Bird "
             "Schema, DB Schema and Device ID, all as printed. Time is printed without a zone and is "
             "shown as printed. Read plainly, each list gives the OS build the CloudDocs daemon recorded "
             "at that time, so a change of OS Build between entries marks an update seen by that daemon; "
@@ -68,7 +66,7 @@ __artifacts_v2__ = {
             "device did not run it. The backup_detector entry has no time and a different field "
             "layout, so its Time is blank and the fields are as printed. Observed on three sysdiagnoses: on the iOS 26.6 device 10 entries in each of "
             "server_truth and client_truth spanning ten OS builds, and 5 entries on the iOS 26.6.2 device."
-            " CloudDocs Version and DB Schema held one value on every row of the iOS 26.6.2 file (5 entries)."
+            " CloudDocs Version and DB Schema held one value on every row of the iOS 26.6.2 file (5 entries). On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/brctl-dump.txt',
@@ -77,9 +75,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "history",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 21 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 21 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 5 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 3 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 5 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 5 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 21 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 13 rows",
         },
     },
     "brctl_state": {
@@ -94,12 +94,12 @@ __artifacts_v2__ = {
             "One row per printed key and value in the header block (dump time, database version, "
             "database ID, file system type), the system block (network, disk, power, optimize storage, "
             "device name, cellular) and the scheduler block (item counts, push environment, quota, "
-            "sync status and the other lines), values as printed. The push token line is not reported. "
+            "sync status and the other lines), values as printed, where printed; older files lack some of these lines. The push token line is not reported. "
             "Device name is printed shortened by the tool (runs of characters replaced by {n}) and is "
             "shown as printed. The state is that of the moment the dump was taken, shown under "
             "'dump taken at'. Lines the tool prints in other blocks (per-library state) are in "
             "'Sysdiagnose - iCloud Drive Containers (brctl)'. Observed on three sysdiagnoses (two iOS 26.6 of "
-            "one device, one iOS 26.6.2 of another)."
+            "one device, one iOS 26.6.2 of another). On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/brctl-dump.txt',
@@ -108,9 +108,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "cloud-computing",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 21 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 21 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 21 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 15 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 15 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 19 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 21 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 21 rows",
         },
     },
 }
@@ -129,7 +131,9 @@ _CONTAINER = re.compile(
     r"^\s*id:(\S+) localizedName:'(.*?)' documents:'(.*?)' \[(.*?)\] clients:\s*(.*)$")
 _LIBRARY = re.compile(r'^- <(\S+?)\[(\d+)\] (\S+) \{(.*)\}>$')
 _HISTORY = re.compile(
-    r'^\s+\[(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d(?:\.\d+)?)\] OS:(\S+) CloudDocs:(\S+) BirdSchema:(\S+) '
+    # iOS 17 and later print 'YYYY-MM-DD HH:MM:SS.fff'; the iOS 13 and 14 corpus dumps print 'M/DD/YY, H:MM:SS AM'.
+    r'^\s+\[(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d(?:\.\d+)?|\d{1,2}/\d{1,2}/\d{2}, \d{1,2}:\d\d:\d\d [AaPp][Mm])\] '
+    r'OS:(\S+) CloudDocs:(\S+) BirdSchema:(\S+) '
     r'DBSchema:(\S+)(?: DeviceID:(\S+))?')
 _BACKUP = re.compile(r'^\s+\[([^\]]+)\] OS:(\S+) CloudDocs:(\S+) DBSchema:(\S+)')
 _KEYVALUE = re.compile(r'^\s+\+ ([A-Za-z][A-Za-z0-9 \-]*?):\s+(.*?)\s*$')
@@ -245,7 +249,7 @@ def brctl_containers(context):
 
 @artifact_processor
 def brctl_boot_history(context):
-    data_headers = ('List', 'Time (as printed)', 'OS Build', 'CloudDocs Version', 'Bird Schema',
+    data_headers = ('Time (as printed)', 'List', 'OS Build', 'CloudDocs Version', 'Bird Schema',
                     'DB Schema', 'Device ID', 'Source File')
     data_list = []
     sources = []
@@ -267,11 +271,11 @@ def brctl_boot_history(context):
             match = _HISTORY.match(line)
             if match and section:
                 time, build, cloud, bird, schema, device = match.groups()
-                data_list.append((section, time, build, cloud, bird, schema, device or '', rel))
+                data_list.append((time, section, build, cloud, bird, schema, device or '', rel))
                 continue
             backup = _BACKUP.match(line) if section == 'backup_detector' else None
             if backup:
-                data_list.append((section, '', backup.group(2), backup.group(3), '', backup.group(4),
+                data_list.append(('', section, backup.group(2), backup.group(3), '', backup.group(4),
                                   backup.group(1), rel))
     return data_headers, data_list, '\n'.join(sources)
 

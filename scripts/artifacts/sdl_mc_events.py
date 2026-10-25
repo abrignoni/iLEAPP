@@ -9,8 +9,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": (
-            "MCSettingsEvents.plist is a copy of a file of the configuration profile service "
-            "(systemgroup.com.apple.configurationprofiles/Library/ConfigurationProfiles). Its top-level "
+            "MCSettingsEvents.plist sits under logs/MCState/Shared in the sysdiagnose; the sysdiagnose does not record where on the device it was copied from. Its top-level "
             "keys in the tested files are EffectiveSettings, Restrictions, SystemClientRestrictions, "
             "SystemProfileRestrictions and SystemSettings. One row per dictionary in the file that holds "
             "an event, a process and a timestamp. Section is the top-level key and Path is the chain of "
@@ -20,10 +19,9 @@ __artifacts_v2__ = {
             "does not say what the process did beyond the event word, and a remove event is the record "
             "of a value being removed, not of the setting having been used. Each field holds "
             "one event, so the file shows one event per setting field and is not a sequence of "
-            "changes; 431 rows shared 23 distinct timestamps in the tested file, because several settings "
-            "carry the same time where one process wrote them together. Settings with no "
+            "changes; 431 rows shared 23 distinct timestamps in the tested file, several settings carry the same time. Settings with no "
             "event are not listed, and a setting missing here is not evidence that it never changed. "
-            "Observed on three sysdiagnoses: two iOS 26.6 (23G71) of one device and one iOS 26.6.2 (23G90) of another device. Earlier iOS versions were not checked."
+            "Observed on three sysdiagnoses: two iOS 26.6 (23G71) of one device and one iOS 26.6.2 (23G90) of another device. On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/MCSettingsEvents.plist',
@@ -32,9 +30,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "settings",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 431 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 431 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 376 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 271 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 313 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 586 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 378 rows",
         },
     },
     "mc_profile_events": {
@@ -52,9 +52,8 @@ __artifacts_v2__ = {
             "taken as UTC. The operation words are shown as stored and are not interpreted. The list "
             "can be short or empty on a device with few profile operations, and an empty result is not "
             "evidence that no profile was ever installed. Observed on three sysdiagnoses (two iOS 26.6 of one "
-            "device with 2 entries; 10 entries on the iOS 26.6.2 device). Source File and Profile Identifier each separate the two tested files, which is a coincidence, "
-            "since Source File is what separates the copies when more than one sysdiagnose is read. Earlier iOS versions were not checked."
-            " On the iOS 26.6.2 file Profile Identifier held one value on every row (one profile, 10 operations)."
+            "device with 2 entries; 10 entries on the iOS 26.6.2 device)."
+            " On the iOS 26.6.2 file Profile Identifier held one value on every row (one profile, 10 operations). On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data. MCProfileEvents.plist is present only in the iOS 26.5.2 one, with an empty ProfileEvents list."
         ),
         "paths": (
             '*/MCProfileEvents.plist',
@@ -63,9 +62,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "certificate",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 2 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 2 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 10 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 0 rows",
         },
     },
 }

@@ -164,6 +164,30 @@ class FolderTest(unittest.TestCase):
                          ('YES', 'YES', 'arm64'))
         self.assertEqual((empty['Run Time (s)'], empty['Executable UUID']), ('', ''))
 
+    def test_brctl_history_older_time_form(self):
+        # the iOS 13 and 14 dumps print a 12-hour M/DD/YY time and no DeviceID
+        older = Path(self.tmp.name) / 'older_brctl' / 'brctl-dump.txt'
+        older.parent.mkdir()
+        older.write_text('boot_history (version 1.0 a)\n---\nserver_truth\n'
+                         '  [2/19/21, 4:10:01 PM] OS:18C66 CloudDocs:100 BirdSchema:20000 DBSchema:20000\n'
+                         'client_truth\n'
+                         '  [2/18/21, 9:00:00 AM] OS:18B92 CloudDocs:100 BirdSchema:20000 DBSchema:20000\n'
+                         'server_state\n', encoding='utf-8')
+        rows, _ = _run(sdl_brctl.brctl_boot_history, [str(older)])
+        self.assertEqual([(r['List'], r['Time (as printed)'], r['OS Build']) for r in rows],
+                         [('server_truth', '2/19/21, 4:10:01 PM', '18C66'),
+                          ('client_truth', '2/18/21, 9:00:00 AM', '18B92')])
+
+    def test_taskinfo_older_process_line(self):
+        # iOS 14 and 17 print '[unique ID: N]' after the PID
+        older = Path(self.tmp.name) / 'older' / 'taskinfo.txt'
+        older.parent.mkdir()
+        older.write_text('num tasks: 1\n\nprocess: "launchd" [1] [unique ID: 1]\n'
+                         'architecture: arm64e\nrun time: 42 s\npid suspended: NO\n',
+                         encoding='utf-8')
+        rows, _ = _run(sdl_taskinfo.taskinfo_processes, [str(older)])
+        self.assertEqual([(r['Process'], r['PID'], r['Run Time (s)']) for r in rows], [('launchd', 1, 42)])
+
 
 class ArchiveTest(unittest.TestCase):
     def test_files_read_from_a_sysdiagnose_archive(self):

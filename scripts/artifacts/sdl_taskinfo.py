@@ -12,18 +12,15 @@ __artifacts_v2__ = {
             "taskinfo.txt is the output of the taskinfo tool run when the sysdiagnose was taken, so it "
             "describes the processes that existed at that moment and no others; its first line gives "
             "the number of tasks. One row per block that starts with process: \"<name>\" [<pid>]. "
-            "Executable UUID, Architecture and Platform are as printed. Run Time (s) is the printed "
-            "run time in seconds, which is the time the process had existed when the tool ran; the "
-            "tool's own clock is not in the file, so a start time is not computed here. Physical "
+            "Executable UUID, Architecture and Platform are as printed. Run Time (s) is the number printed on the run time line; what it measures is not stated in the file, and the tool's own clock is not in the file, so no start time is computed. Physical "
             "Footprint and Lifetime Maximum Footprint are the phys_footprint values as printed "
             "(with their units). CPU Time (s) is the first number of the CPU time line. Bytes Read and "
             "Bytes Written are as printed with their units. RunningBoard Managed and PID Suspended are "
-            "the printed YES/NO values. The process name is the executable name printed by the tool, "
-            "not an app bundle identifier or a display name. A process that was not running when the "
+            "the printed YES/NO values. Process is the name printed by the tool; it is not shown to be a bundle identifier or a display name. A process that was not running when the "
             "sysdiagnose was taken is not listed, so an app absent here may still be installed or have "
             "been used earlier; a listed process does not show that the user opened it. Observed on "
             "three sysdiagnoses (two iOS 26.6 of one device: 413 and 463 process blocks; one iOS 26.6.2 sysdiagnose of another device: 554). Not reported: the per-thread "
-            "and per-QoS lines, the audit token and the coalition lines."
+            "and per-QoS lines, the audit token and the coalition lines. On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data. On the iOS 14.3 and 17.3 corpus sysdiagnoses each process line carries a second bracket, [unique ID: N], after the PID, and the blocks hold no executable uuid, platform, CPU time, bytes read, or runningboard managed line, so those columns are empty there; the rows equalled the file's process lines (247 and 405). The iOS 13.3.1 file holds no process block."
         ),
         "paths": (
             '*/taskinfo.txt',
@@ -32,9 +29,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "cpu",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 413 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 463 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 554 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 247 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 405 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 380 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 544 rows",
         },
     },
 }
@@ -47,7 +46,8 @@ from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files, logfunc
 
 _READ_ERRORS = (OSError, EOFError, tarfile.TarError, zlib.error)
 
-_PROCESS = re.compile(r'^process: "(.*)" \[(\d+)\]$')
+# Older files (iOS 14 and 17 seen) print a second bracket after the PID: [unique ID: N].
+_PROCESS = re.compile(r'^process: "(.*)" \[(\d+)\](?: \[unique ID: \d+\])?$')
 
 
 def _first(pattern, text, group=1):

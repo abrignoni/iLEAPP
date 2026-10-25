@@ -20,16 +20,13 @@ __artifacts_v2__ = {
             "long. Path Rules Enabled and Path Rule Count come from the PathController entry. Observed on "
             "three sysdiagnoses (two iOS 26.6 of one device, one iOS 26.6.2 of another): two configurations on each device, com.apple.commcenter.ne."
             "cellularusage and com.apple.preferences.networkprivacy, both with an empty Service Types. "
-            "Unverified on real data: the content of a VPN, content filter, DNS proxy or per-app VPN "
-            "configuration, because no tested device had one installed, so the Service Settings keys "
-            "of those types are shown as stored and have not been checked against a configured device. "
-            "Application, Application Name, Service Types and Service Settings were empty on both tested "
-            "configurations; Grade (2) and Path Rules Enabled (True) were uniform across every tested configuration. "
+            "The three contributor sysdiagnoses held none of these. The iOS 26.5.2 corpus sysdiagnose holds one VPN and one AppVPN configuration and the iOS 26.6 (23G71) one holds one VPN configuration; their Service Settings were produced as stored and were not checked against the device's own configuration screen. Content filter and DNS proxy configurations remain unexercised. "
+            "On the three contributor sysdiagnoses Application, Application Name, Service Types and Service Settings were empty on both configurations and Grade (2) and Path Rules Enabled (True) were uniform; the corpus VPN and AppVPN configurations carry Grade 1, a blank Path Rules Enabled and a non-empty Application. "
             "The names of the two configurations above are shown as stored and what each controls is "
             "not established by the file. Also in the file and not reported: the index mapping user "
             "identifiers to configurations and the signature entry. The companion file "
-            "com.apple.networkextension.uuidcache.plist (identifier to UUID mappings) is not reported. An "
-            "empty result is not evidence that no VPN or filter was configured."
+            "com.apple.networkextension.uuidcache.plist is not reported. An "
+            "empty result is not evidence that no VPN or filter was configured. On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/com.apple.networkextension.plist',
@@ -38,9 +35,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield-lock",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 2 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 2 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 2 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 1 row",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 2 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 2 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 4 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 3 rows",
         },
     },
     "ne_path_rules": {
@@ -59,11 +58,11 @@ __artifacts_v2__ = {
             "number of rules in the group. The behavior values are integers shown as stored; their "
             "meaning is not established by the file. Signing Identifiers lists the identifiers of a "
             "group of 25 rules or fewer, and is blank for a larger group, whose members are in the "
-            "source file. Deny All, Deny Cellular Fallback and No Divert DNS were false in every rule of the tested file, so they were uniform there. Cellular Behavior and WiFi Behavior held identical values in every group of the tested files. In the tested file the 163 rules of one configuration had one combination of "
+            "source file. Deny All, Deny Cellular Fallback and No Divert DNS were false in every rule of the iOS 26.6.2 file. On the iOS 13.3.1 and 14.3 corpus files the Deny All key is absent and the column is blank. Cellular Behavior and WiFi Behavior held identical values in every group of the tested files. In the tested file the 163 rules of one configuration had one combination of "
             "values, and the 84 rules of the other had two combinations (80 and 4 rules), so a group "
             "is the unit that stands out and a list of every rule would repeat the same values. A rule "
             "list is not evidence of which apps are installed or have used the network: rule lists can "
-            "include identifiers the system ships. Observed on three sysdiagnoses: two iOS 26.6 (23G71) of one device and one iOS 26.6.2 (23G90) of another device."
+            "include identifiers the system ships. Observed on three sysdiagnoses: two iOS 26.6 (23G71) of one device and one iOS 26.6.2 (23G90) of another device. On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/com.apple.networkextension.plist',
@@ -72,9 +71,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "network",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 3 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 3 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 2 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 1 row",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 3 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 3 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 3 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 2 rows",
         },
     },
 }

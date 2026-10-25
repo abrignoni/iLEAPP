@@ -2,31 +2,28 @@ __artifacts_v2__ = {
     "swcutil_associated_domains": {
         "name": "Sysdiagnose - Associated Domains (swcutil)",
         "description": "Entries of the DATABASE section of swcutil_show.txt in a sysdiagnose: the service, app "
-                       "identifier, domain, approval states and check times of each app and domain pairing, as stored",
+                       "identifier, domain, approval states and check times of each app and domain pairing, as printed; a (null) domain is shown blank and the check times are parsed to UTC",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": (
-            "swcutil_show.txt is the printed output of the swcutil tool; its Storage line names an swc.db file under com.apple.SharedWebCredentials. One row per "
+            "swcutil_show.txt holds the output of the swcutil tool as a sysdiagnose captures it; its Storage line names the swc.db file the tool read (under com.apple.SharedWebCredentials on iOS 14 and later, under Library/Caches on iOS 13). One row per "
             "block of the DATABASE section, values as printed: Service (applinks, webcredentials, "
             "appclips, activitycontinuation or authsrv; the iOS 26.6.2 file also has one classificationreport and one messagefilter entry), App ID (team identifier and bundle identifier), "
             "App Version, Domain, User Approval, Site/Framework Approval and Flags. Last Checked and Next "
-            "Check are the printed UTC times and are blank when the block has none. Retries and Error "
-            "are present on blocks where the download of the domain's association file failed; Error "
+            "Check are the printed UTC times and are blank when the block has none. Retries and Error are present on blocks where the tool printed an error for the domain; Error "
             "keeps the first line as printed. Pattern Entries and Variable Entries count the entries "
             "of the printed Patterns and Variables lines (the patterns themselves are not copied). "
             "The header lines (PID, Storage, Generation counters, Enterprise SHA, Developer Mode) are not "
-            "reported; Developer Mode read no and Enterprise SHA read (null) in every tested file. User "
-            "Approval read unspecified on every one of the 1,942 tested entries, so it was constant "
-            "there; it is kept because it is the field a user choice would change. A row records that the service holds a pairing of an app identifier with a "
+            "reported; Enterprise SHA read (null) in every tested file, and Developer Mode read no where printed (the line is absent on iOS 13.3.1). User "
+            "Approval read unspecified on every one of the 1,942 tested entries, so it was constant there; on the iOS 14.3 and 17.3 corpus files one block each holds a different value, and it is kept because a user choice could change it. A row records that the service holds a pairing of an app identifier with a "
             "domain; it does not by itself establish that the app is installed now or that anything was "
-            "opened from the domain, because system apps, App Clips and apps that were removed can be listed. "
+            "opened from the domain, because system apps and App Clips are listed, and whether an entry outlives an uninstall is not established. "
             "Apple documents associated domains as the mechanism by which an app and a website declare "
             "each other (Apple Developer, 'Supporting associated domains'). Observed on three sysdiagnoses (1,942 entries in the iOS 26.6 files: 1,363 applinks, 383 appclips, 154 "
-            "webcredentials, 39 activitycontinuation, 3 authsrv; 1,690 entries in the iOS 26.6.2 file). iOS 17 and iOS 18 sysdiagnoses "
-            "available to the author were partial and the format on those versions was not checked in full."
+            "webcredentials, 39 activitycontinuation, 3 authsrv; 1,690 entries in the iOS 26.6.2 file). The corpus sysdiagnoses below add iOS 13.3.1, 14.3 and 17.3. On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/swcutil_show.txt',
@@ -35,9 +32,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "world-www",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 1,942 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 1,942 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 1,690 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 161 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 211 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 1,217 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 1,799 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 1,178 rows",
         },
     },
     "swcutil_settings": {
@@ -55,7 +54,7 @@ __artifacts_v2__ = {
             "What the value controls is not established by the file; the key name points to Launch "
             "Services. A missing entry is not evidence of a default or of a user choice. Service and Setting were uniform on the tested files: "
             "applinks and com.apple.LaunchServices.enabled on every row. The "
-            "domain part of the heading printed (null) in every tested entry and is not reported. Observed on three sysdiagnoses: two iOS 26.6 (23G71) of one device and one iOS 26.6.2 (23G90) of another device."
+            "domain part of the heading printed (null) in every tested entry and is not reported. Observed on three sysdiagnoses: two iOS 26.6 (23G71) of one device and one iOS 26.6.2 (23G90) of another device. On five corpus sysdiagnoses (iOS 13.3.1, 14.3, 17.3, 26.5.2 and 26.6 build 23G71) the artifact ran without error and reported the rows listed in sample_data."
         ),
         "paths": (
             '*/swcutil_show.txt',
@@ -64,9 +63,11 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
-            "local_sysdiag_ios26_6_a1": "iOS 26.6 sysdiagnose | 35 rows",
-            "local_sysdiag_ios26_6_a2": "iOS 26.6 sysdiagnose | 35 rows",
-            "local_sysdiag_ios26_6_2_b": "iOS 26.6.2 sysdiagnose | 11 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 sysdiagnose | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 sysdiagnose | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 1 row",
+            "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 0 rows",
         },
     },
 }
