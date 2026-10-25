@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "module_name": "sdl_mc_events",
+    "artifact_name": "Sysdiagnose - Managed Configuration Settings Events",
+    "function_name": "mc_settings_events",
+    "case_number": "case_synthetic",
+    "number_of_columns": 6,
+    "number_of_rows": 7,
+    "total_data_size_bytes": 1125,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\sdl_mc_events\\testdata.sdl_mc_events.mc_settings_events.case_synthetic.zip",
+    "start_time": "2026-10-25T07:11:41.960293+00:00",
+    "end_time": "2026-10-25T07:11:42.179300+00:00",
+    "run_time_seconds": 0.0016837120056152344,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T07:11:42.150603",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Section",
+    "Path",
+    "Event",
+    "Process",
+    "Source File"
+  ],
+  "data": [
+    [
+      "",
+      "BadTimestamp",
+      "x",
+      "set",
+      "p",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
+    ],
+    [
+      1683356889,
+      "NoiseList",
+      "0",
+      "set",
+      "com.example.listed",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
+    ],
+    [
+      1718398718,
+      "Restrictions",
+      "restrictedBool > allowOther > ask",
+      "set",
+      "com.example.setup",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
+    ],
+    [
+      1725263068,
+      "SystemClientRestrictions",
+      "com.example.client > clientRestrictions > union > ids > values",
+      "set",
+      "com.example.migrator",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
+    ],
+    [
+      1755622438,
+      "Restrictions",
+      "restrictedBool > allowOther > value",
+      "set",
+      "com.example.prefs",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
+    ],
+    [
+      1767323045,
+      "EffectiveSettings",
+      "restrictedBool > allowThing > preference",
+      "set",
+      "com.example.migrator",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
+    ],
+    [
+      1775614767,
+      "Restrictions",
+      "restrictedBool > allowDictation > value",
+      "remove",
+      "com.example.springboard",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/MCState/Shared/MCSettingsEvents.plist"
+    ]
+  ]
+}

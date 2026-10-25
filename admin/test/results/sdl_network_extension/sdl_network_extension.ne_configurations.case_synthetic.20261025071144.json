@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "sdl_network_extension",
+    "artifact_name": "Sysdiagnose - Network Extension Configurations",
+    "function_name": "ne_configurations",
+    "case_number": "case_synthetic",
+    "number_of_columns": 10,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 434,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\sdl_network_extension\\testdata.sdl_network_extension.ne_configurations.case_synthetic.zip",
+    "start_time": "2026-10-25T07:11:44.218943+00:00",
+    "end_time": "2026-10-25T07:11:44.437898+00:00",
+    "run_time_seconds": 0.006986856460571289,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T07:11:44.401842",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Name",
+    "Identifier",
+    "Grade",
+    "Application",
+    "Application Name",
+    "Service Types",
+    "Service Settings",
+    "Path Rules Enabled",
+    "Path Rule Count",
+    "Source File"
+  ],
+  "data": [
+    [
+      "com.example.cellularusage",
+      "38A165F1-37BA-5CF9-AC74-1EACA25AC06C",
+      "2",
+      "",
+      "",
+      "",
+      "",
+      "True",
+      31,
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/Networking/com.apple.networkextension.plist"
+    ],
+    [
+      "com.example.tunnel",
+      "3FFB0DFE-A346-573E-83B0-762F8339B17E",
+      "1",
+      "com.example.vpnapp",
+      "Example VPN",
+      "VPN",
+      "{\"VPN\": {\"Blob\": \"<3 bytes>\", \"ServerAddress\": \"vpn.example.com\", \"Type\": \"example\"}}",
+      "False",
+      0,
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/logs/Networking/com.apple.networkextension.plist"
+    ]
+  ]
+}

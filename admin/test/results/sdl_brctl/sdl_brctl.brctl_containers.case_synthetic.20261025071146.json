@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "module_name": "sdl_brctl",
+    "artifact_name": "Sysdiagnose - iCloud Drive Containers (brctl)",
+    "function_name": "brctl_containers",
+    "case_number": "case_synthetic",
+    "number_of_columns": 12,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 1266,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\sdl_brctl\\testdata.sdl_brctl.brctl_containers.case_synthetic.zip",
+    "start_time": "2026-10-25T07:11:46.527775+00:00",
+    "end_time": "2026-10-25T07:11:46.739768+00:00",
+    "run_time_seconds": 0.003454446792602539,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T07:11:46.708506",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Container ID",
+    "Localized Name",
+    "Documents",
+    "Scope",
+    "Clients",
+    "Dump Match",
+    "Library Mode",
+    "Client State",
+    "Server State",
+    "Last Sync",
+    "App Uninstalled",
+    "Source File"
+  ],
+  "data": [
+    [
+      "com.example.Notes",
+      "Example Notes",
+      "/private/var/mobile/Library/Mobile Documents/com~example~Notes/Documents",
+      "Private: inInitialState",
+      "com.example.Notes",
+      "Yes",
+      "foreground",
+      "idle",
+      "full-sync|fetched-recents",
+      "2026-09-17 11:52:13.478",
+      "",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
+    ],
+    [
+      "iCloud.com.example.Chat",
+      "Example Chat",
+      "/private/var/mobile/Library/Mobile Documents/iCloud~com~example~Chat/Documents",
+      "Public:",
+      "com.example.Chat, com.example.ChatWidget",
+      "Yes",
+      "background",
+      "blocked-app-uninstalled",
+      "fetched-recents",
+      "2026-07-07 14:32:14.224",
+      "2026-09-20 17:45:02",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
+    ],
+    [
+      "iCloud.com.example.Chap",
+      "Example Chap",
+      "/private/var/mobile/Library/Mobile Documents/iCloud~com~example~Chap/Documents",
+      "Private:",
+      "",
+      "Yes",
+      "background",
+      "idle",
+      "idle",
+      "2026-07-08 10:00:00.000",
+      "",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
+    ],
+    [
+      "z{3}.u{1}.n{3}t",
+      "",
+      "",
+      "",
+      "",
+      "Dump only",
+      "background",
+      "idle",
+      "idle",
+      "2026-07-08 10:00:00.000",
+      "",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-container-list.txt, sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000/brctl/brctl-dump.txt"
+    ]
+  ]
+}
