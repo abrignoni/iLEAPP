@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "module_name": "screenTimeStore",
+    "artifact_name": "Screen Time Store - Installed Apps",
+    "function_name": "screenTimeStoreInstalledApps",
+    "case_number": "case_synthetic_plain_unmanaged",
+    "number_of_columns": 11,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\screenTimeStore\\testdata.screenTimeStore.screenTimeStoreInstalledApps.case_synthetic_plain_unmanaged.zip",
+    "start_time": "2026-10-25T05:59:33.232198+00:00",
+    "end_time": "2026-10-25T05:59:33.415695+00:00",
+    "run_time_seconds": 0.012386560440063477,
+    "last_commit": {
+      "hash": "6f5c168c1cd4af659203e49e5c773e5792e9657a",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T01:58:21-04:00",
+      "message": "Add Screen Time store artifacts (remotemanagementd RMAdminStore databases)"
+    }
+  },
+  "headers": [
+    "Store",
+    "Row ID",
+    "Bundle Identifier",
+    "Display Name",
+    "Installed Locally",
+    "Distributor ID",
+    "Distributor Is Third Party",
+    "Adam ID",
+    "Version Identifier",
+    "Beta Version Identifier",
+    "Unique Identifier"
+  ],
+  "data": []
+}
