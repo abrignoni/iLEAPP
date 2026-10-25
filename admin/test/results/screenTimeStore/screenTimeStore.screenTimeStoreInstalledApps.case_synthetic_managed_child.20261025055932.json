@@ -1,0 +1,78 @@
+{
+  "metadata": {
+    "module_name": "screenTimeStore",
+    "artifact_name": "Screen Time Store - Installed Apps",
+    "function_name": "screenTimeStoreInstalledApps",
+    "case_number": "case_synthetic_managed_child",
+    "number_of_columns": 11,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 217,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\screenTimeStore\\testdata.screenTimeStore.screenTimeStoreInstalledApps.case_synthetic_managed_child.zip",
+    "start_time": "2026-10-25T05:59:32.065439+00:00",
+    "end_time": "2026-10-25T05:59:32.197575+00:00",
+    "run_time_seconds": 0.0084228515625,
+    "last_commit": {
+      "hash": "6f5c168c1cd4af659203e49e5c773e5792e9657a",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T01:58:21-04:00",
+      "message": "Add Screen Time store artifacts (remotemanagementd RMAdminStore databases)"
+    }
+  },
+  "headers": [
+    "Store",
+    "Row ID",
+    "Bundle Identifier",
+    "Display Name",
+    "Installed Locally",
+    "Distributor ID",
+    "Distributor Is Third Party",
+    "Adam ID",
+    "Version Identifier",
+    "Beta Version Identifier",
+    "Unique Identifier"
+  ],
+  "data": [
+    [
+      "Local",
+      1,
+      "com.example.chat",
+      "Example Chat",
+      "Yes",
+      "com.apple.AppStore",
+      "No",
+      1000,
+      5000,
+      0,
+      "synth-app-0"
+    ],
+    [
+      "Local",
+      2,
+      "com.example.game",
+      null,
+      "Yes",
+      "com.apple.AppStore",
+      "No",
+      1001,
+      5001,
+      0,
+      "synth-app-1"
+    ],
+    [
+      "Local",
+      3,
+      "com.example.notes",
+      "Notes",
+      "Yes",
+      "com.apple.AppStore",
+      "No",
+      1002,
+      5002,
+      0,
+      "synth-app-2"
+    ]
+  ]
+}

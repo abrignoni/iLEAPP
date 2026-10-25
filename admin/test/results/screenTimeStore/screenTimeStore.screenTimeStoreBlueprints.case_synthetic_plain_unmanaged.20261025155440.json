@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "screenTimeStore",
+    "artifact_name": "Screen Time Store - Blueprints and Configurations",
+    "function_name": "screenTimeStoreBlueprints",
+    "case_number": "case_synthetic_plain_unmanaged",
+    "number_of_columns": 16,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 313,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/screenTimeStore/testdata.screenTimeStore.screenTimeStoreBlueprints.case_synthetic_plain_unmanaged.zip",
+    "start_time": "2026-10-25T15:54:40.991182+00:00",
+    "end_time": "2026-10-25T15:54:41.008050+00:00",
+    "run_time_seconds": 0.0016732215881347656,
+    "last_commit": {
+      "hash": "319bfb4aa9379da802b3a6acff4ee2ff0e3b5fb1",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T05:29:05-04:00",
+      "message": "Screen Time store: add iOS 26.6 and 26.6.2 to sample_data, document the output-checker findings on them"
+    }
+  },
+  "headers": [
+    "Created",
+    "Modified",
+    "Expires",
+    "Minimum Installation Date",
+    "Store",
+    "Blueprint Row",
+    "Blueprint Identifier",
+    "Blueprint Type",
+    "Enabled",
+    "Tombstoned",
+    "Limit Enabled",
+    "Configuration Identifier",
+    "Configuration Type",
+    "Declaration Type",
+    "Server Hash",
+    "Payload"
+  ],
+  "data": [
+    [
+      "",
+      1778393600,
+      "",
+      "",
+      "Local",
+      1,
+      "always_allow_activation_personal",
+      "always-allowed-apps",
+      "Yes",
+      "No",
+      "Yes",
+      "always_allow_app_configuration_personal",
+      "com.apple.configuration.policy.application",
+      "com.apple.configuration.policy.application",
+      "0123456789abcdef0123456789abcdef01234567",
+      "{\"Apps\": [\"com.example.phone\", \"com.example.messages\"], \"Mode\": \"Override\"}"
+    ]
+  ]
+}

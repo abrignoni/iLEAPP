@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "module_name": "screenTimeStore",
+    "artifact_name": "Screen Time Store - Organization Settings",
+    "function_name": "screenTimeStoreOrgSettings",
+    "case_number": "case_synthetic_plain_unmanaged",
+    "number_of_columns": 18,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 19,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/screenTimeStore/testdata.screenTimeStore.screenTimeStoreOrgSettings.case_synthetic_plain_unmanaged.zip",
+    "start_time": "2026-10-25T15:54:40.957275+00:00",
+    "end_time": "2026-10-25T15:54:40.973696+00:00",
+    "run_time_seconds": 0.0015377998352050781,
+    "last_commit": {
+      "hash": "319bfb4aa9379da802b3a6acff4ee2ff0e3b5fb1",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T05:29:05-04:00",
+      "message": "Screen Time store: add iOS 26.6 and 26.6.2 to sample_data, document the output-checker findings on them"
+    }
+  },
+  "headers": [
+    "Modification Date",
+    "Store",
+    "Row ID",
+    "Row Version",
+    "All Limits Enabled",
+    "Communication Policy",
+    "Communication While Limited Policy",
+    "Contact Management State",
+    "Communication Safety Analytics",
+    "Communication Safety Notification",
+    "Communication Safety Receiving Restricted",
+    "Communication Safety Sending Restricted",
+    "Eye Relief Enabled",
+    "Needs To Set Passcode",
+    "App And Website Activity",
+    "Managed",
+    "Share Web Usage",
+    "Passcode Stored"
+  ],
+  "data": [
+    [
+      "",
+      "Local",
+      1,
+      7,
+      "No",
+      0,
+      0,
+      null,
+      "No",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "No"
+    ]
+  ]
+}

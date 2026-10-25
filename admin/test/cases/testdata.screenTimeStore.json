@@ -1,0 +1,202 @@
+{
+  "case_synthetic_managed_child": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated RMAdminStore-Local.sqlite and RMAdminStore-Cloud.sqlite pair (com.example.* identifiers, an example.invalid account, SYNTH-CAT-* categories) for a managed child profile: populated usage blocks, a bundle-less and an undecodable declaration payload, deleted-row tombstones, a state row with no user or device, built by admin/test/scripts/synthetic_screen_time_store.py with the table and column names of the iOS 26 stores, packed in a full-file-system-shaped archive with a decoy store in another folder, and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_screen_time_child.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-25T01:58:35.510969",
+      "last_commit": {
+        "hash": "5897b28d319c63e854ae900595148ba32a901876",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-25T01:58:21-04:00",
+        "message": "Add Screen Time store artifacts (remotemanagementd RMAdminStore databases)"
+      }
+    },
+    "artifacts": {
+      "screenTimeStoreSettings": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreOrgSettings": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreUsers": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreBlueprints": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreInstalledApps": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreUsage": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreChanges": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreDeletedRows": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.2"
+  },
+  "case_synthetic_plain_unmanaged": {
+    "description": "SYNTHETIC fixture, not a real device. The same generator with the unmanaged shape seen on real iOS 26 stores: one user with no account, Screen Time off, no usage rows, no installed-app list and an empty cloud store. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_screen_time_plain.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-10-25T01:58:36.540272",
+      "last_commit": {
+        "hash": "5897b28d319c63e854ae900595148ba32a901876",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-10-25T01:58:21-04:00",
+        "message": "Add Screen Time store artifacts (remotemanagementd RMAdminStore databases)"
+      }
+    },
+    "artifacts": {
+      "screenTimeStoreSettings": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreOrgSettings": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreUsers": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreBlueprints": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreInstalledApps": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreUsage": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreChanges": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "screenTimeStoreDeletedRows": {
+        "search_patterns": [
+          "*/mobile/Library/Application Support/com.apple.remotemanagementd/RMAdminStore-*.sqlite*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.2"
+  }
+}
