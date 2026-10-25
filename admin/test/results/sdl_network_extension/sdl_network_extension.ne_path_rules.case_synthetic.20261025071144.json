@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "sdl_network_extension",
+    "artifact_name": "Sysdiagnose - Network Extension Path Rule Groups",
+    "function_name": "ne_path_rules",
+    "case_number": "case_synthetic",
+    "number_of_columns": 10,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 304,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\sdl_network_extension\\testdata.sdl_network_extension.ne_path_rules.case_synthetic.zip",
+    "start_time": "2026-10-25T07:11:44.440221+00:00",
+    "end_time": "2026-10-25T07:11:44.637014+00:00",
+    "run_time_seconds": 0.008549690246582031,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T07:11:44.612557",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Configuration",
+    "Cellular Behavior (as stored)",
+    "WiFi Behavior (as stored)",
+    "Deny All",
+    "Deny Cellular Fallback",
+    "Deny Multicast",
+    "No Divert DNS",
+    "Rule Count",
+    "Signing Identifiers",
+    "Source File"
+  ],
+  "data": [
+    [
+      "com.example.cellularusage",
+      "2",
+      "2",
+      "False",
+      "False",
+      "False",
+      "False",
+      30,
+      "",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\Networking\\com.apple.networkextension.plist"
+    ],
+    [
+      "com.example.cellularusage",
+      "0",
+      "2",
+      "False",
+      "False",
+      "False",
+      "False",
+      1,
+      "com.example.special",
+      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_00A000\\logs\\Networking\\com.apple.networkextension.plist"
+    ]
+  ]
+}
