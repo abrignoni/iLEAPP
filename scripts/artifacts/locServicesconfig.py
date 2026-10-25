@@ -4,18 +4,14 @@ __artifacts_v2__ = {
         "description": "Five keys of the Routine.bundle entry in locationd's clients.plist",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "Location",
         "notes": "Reports FenceTimeStarted, ConsumptionPeriodBegin, "
                  "ReceivingLocationInformationTimeStopped, Authorization and LocationTimeStopped "
                  "from the "
                  "com.apple.locationd.bundle-/System/Library/LocationBundles/Routine.bundle entry, "
-                 "or from the entry keyed p/System/Library/LocationBundles/Routine.bundle: that the "
-                 "tested iOS 18.1.1 and iOS 26.6.2 files use in its place (the older key was in "
-                 "neither file). The 0-row iOS 17.1 to 18.7 images listed below were run before the "
-                 "newer key form was read and were not rerun. The newer key was also the only one present, with 5 rows, "
-                 "in each of eight further full-filesystem images (iOS 26.2.1, 26.3.1 three times, 26.5.2, 26.6, 26.6.1 and 26.6.2). "
+                 "or from the entry keyed p/System/Library/LocationBundles/Routine.bundle: that newer files use in its place; in two private samples (iOS 18.1.1 and iOS 26.6.2) only the newer key was present. On the 23 corpus files the older key was the only form on iOS 12.4 to 16.5.1 and the newer key on iOS 17.1 to 26.5.2; the newer files also hold two further entries whose key is the newer key followed by a second bundle path, which are not reported; the iOS 17 and 18 images listed gave no rows before the newer form was read and give 5 now. Private samples on iOS 26.3.1, 26.6, 26.6.1 and 26.6.2 also held only the newer key. "
                  "The four time keys are read as seconds since 2001 and shown in UTC; "
                  "Authorization is shown as stored. All five rows are written whenever the entry "
                  "exists, so a blank Value can mean the key was not present. No meaning is "
@@ -24,17 +20,16 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {
-            "local_ios18_1_1_i": "iOS 18.1.1 | 5 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 5 rows; ConsumptionPeriodBegin, Authorization and LocationTimeStopped blank",
             "ctf2020_ios12": "iOS 12.4 | 5 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
-            "felix_ios17": "iOS 17.6.1 | 0 rows",
-            "fsfull002_ios17": "iOS 17.1 | 0 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 5 rows",
+            "felix_ios17": "iOS 17.6.1 | 5 rows",
+            "fsfull002_ios17": "iOS 17.1 | 5 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+            "iphone12_ios18": "iOS 18.7 | 5 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 5 rows",
+            "hc_ios26": "iOS 26.5.2 | 5 rows",
             "abe_ios16": "iOS 16.5 | 5 rows",
             "felix23_ios16": "iOS 16.5 | 5 rows",
             "hickman_ios13": "iOS 13.3.1 | 5 rows",
@@ -138,7 +133,7 @@ def _load_plist(context, filename):
 
 
 # The Routine.bundle entry is keyed 'com.apple.locationd.bundle-<path>' in the older files and
-# 'p<path>:' in the iOS 18.1.1 and iOS 26.6.2 files checked.
+# 'p<path>:' in the iOS 17.1 and later files checked (corpus and private samples).
 ROUTINE_KEYS = ('com.apple.locationd.bundle-/System/Library/LocationBundles/Routine.bundle',
                 'p/System/Library/LocationBundles/Routine.bundle:')
 

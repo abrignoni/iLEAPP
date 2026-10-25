@@ -11,11 +11,7 @@ __artifacts_v2__ = {
                  "Birthdays. Start Time and End Time are the stored values read as seconds since "
                  "2001 and shown as UTC. The Timezone column is blank when the store holds _float; "
                  "what _float means for the stored time was not established, so the UTC reading of "
-                 "those rows is not established. A time that SQLite renders as year 0000 (a stored "
-                 "creation_date of -63114076800 seconds on 5 of 868 items in one iOS 26.3.1 database) "
-                 "cannot be held as a date and is left blank; before this was handled one such row made "
-                 "the whole artifact fail with 'year 0 is out of range'. Attachments was empty on all 866 rows of that "
-                 "database. Invitees are the Participant rows with entity_type "
+                 "those rows is not established. A stored time that SQLite renders as year 0000 cannot be held as a Python date and is left blank; such a creation_date value was seen in one private iOS 26.3.1 sample, and before this was handled one such row made the whole artifact fail. Invitees are the Participant rows with entity_type "
                  "7. In the HTML report the stored participant status number is shown in square "
                  "brackets before each invitee; the LAVA and TSV outputs list the invitees without "
                  "it. Apple's public EKParticipantStatus enum lists the cases unknown, pending, "
@@ -110,7 +106,6 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 14 rows",
             "jess_ios15": "iOS 15.0.2 | 10 rows",
             "magnet_ios16": "iOS 16.1.1 | 10 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 866 rows; 5 items carry a creation_date SQLite renders as year 0000",
         }
     }
 }

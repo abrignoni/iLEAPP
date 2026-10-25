@@ -231,7 +231,6 @@ __artifacts_v2__ = {
     }
 }
 
-import os
 import re
 import html
 import sqlite3
@@ -383,20 +382,17 @@ F_ORIGIN_PLACE = 'origin_place_id'
 def _search_user_db(context, app_identifier):
     """Path of the Waze user.db, never of its -wal or -shm sidecar.
 
-    The search pattern also matches the sidecars and returns whichever file the seeker meets
-    first. A sidecar opened as a database reports 'file is not a database' and hides the
-    artifact's rows, so the sidecar's main file is used when it is present and nothing is
-    returned when it is not (an extraction can hold the sidecars alone).
+    The pattern also matches the sidecars. Searching for every match stages the database
+    together with its -wal and -shm, so a reader sees the WAL; asking for the first hit
+    instead stages only whichever file the seeker meets first, which can be a sidecar, and
+    then the database itself is not on disk. The main file is returned, and nothing when
+    the extraction holds only the sidecars.
     """
-    found = context.get_seeker().search(
-        f"*/{app_identifier}/Documents/user.db*",
-        return_on_first_hit=True
-    )
-    path = str(found) if found else ''
-    if path.endswith(('-wal', '-shm')):
-        main = path.rsplit('-', 1)[0]
-        return main if os.path.isfile(main) else None
-    return found
+    found = context.get_seeker().search(f"*/{app_identifier}/Documents/user.db*")
+    for path in found or []:
+        if str(path).endswith('user.db'):
+            return path
+    return None
 
 
 def get_device_file_path(file_path: str, context) -> str:
