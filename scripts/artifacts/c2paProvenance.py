@@ -5,17 +5,31 @@ __artifacts_v2__ = {
                        "paths: (1) C2PA / Content Credentials manifests and (2) IPTC/XMP "
                        "DigitalSourceType tags. Reports the claim generator, edit actions, digital "
                        "source type, author/creator, credit/copyright, ingredients (prior assets), "
-                       "the stated signer certificate and signing time, and an AI-generated "
-                       "indicator derived by this module from the declared digital source type "
-                       "(Yes, Possible, No or Unknown; No and Unknown describe the declaration, not "
-                       "the content). Can indicate, per the embedded provenance claims, whether an "
-                       "image declares AI generation or editing and by what tool.",
+                       "the stated signer certificate and signing time, and an AI "
+                       "Generated? column derived by this parser from the IPTC DigitalSourceType "
+                       "code the file states (Yes, No or Unknown under the parser's own mapping; "
+                       "Yes only for the three codes the IPTC vocabulary defines as generative AI; "
+                       "the Digital Source Type column shows the parser's label for the stated code, or the raw "
+                       "code when the parser has no label for it). Values are read from the file and are not "
+                       "cryptographically verified; the parser relabels digital source type codes and "
+                       "reformats certificate names, claim generator strings and times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-12",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "AI Provenance",
-        "notes": "SIGNATURE CAVEAT: the signer, issuer, algorithm, and signing time are read "
+        "notes": "AI Generated? is Yes for trainedAlgorithmicMedia, "
+                 "compositeWithTrainedAlgorithmicMedia and compositeSynthetic, whose definitions in "
+                 "the IPTC Digital Source Type vocabulary (cv.iptc.org/newscodes/digitalsourcetype, "
+                 "release dated 2024-10-23) name generative AI or a trained AI model. It is Unknown "
+                 "for algorithmicMedia, algorithmicallyEnhanced, digitalArt and dataDrivenMedia, "
+                 "whose definitions there do not, for virtualRecording, whose definition allows "
+                 "generative AI or captured elements, for any code the parser "
+                 "does not map, and when a manifest states no code at all. No is the parser's own reading of the capture, scan, human edit, "
+                 "screen capture and software image codes in its table; originalPhotograph is in that table "
+                 "but not in the cited IPTC release. When one manifest states several codes, "
+                 "any Yes makes the row Yes and Unknown codes leave the others' result unchanged. "
+                 "SIGNATURE CAVEAT: the signer, issuer, algorithm, and signing time are read "
                  "from the C2PA manifest AS STATED. This artifact does NOT cryptographically "
                  "verify the signature, validate the certificate chain, or check revocation, so "
                  "'Signed By' is a lead to corroborate, not proof of origin. Implementation is "
@@ -23,25 +37,20 @@ __artifacts_v2__ = {
                  "reader for the IPTC/XMP DigitalSourceType (which a file can carry with no C2PA "
                  "manifest), and a COSE_Sign1 + X.509 + RFC 3161 reader for the signature. The "
                  "'Metadata Source' column distinguishes C2PA from XMP/IPTC findings. A file is "
-                 "examined only when its first 512 KB contain a C2PA or DigitalSourceType marker, "
-                 "and gets a row only when a manifest is parsed or an XMP digital source type is "
-                 "found. A media file with no row here is therefore not shown to carry no "
+                 "parsed only when the text c2pa, jumb or DigitalSourceType occurs in its first "
+                 "512 KiB, and gets a row only when a manifest is parsed or an XMP digital source "
+                 "type is found. A media file with no row here is therefore not shown to carry no "
                  "provenance data. The artifact produced rows on the registered images listed in "
-                 "sample_data; which containers and which metadata path those rows exercised is not "
-                 "recorded here. The PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) extractors are written "
-                 "from the C2PA specification, and no tested file is recorded as exercising them; "
-                 "treat them as unexercised. AI Generated? is this module's reading of the declared "
-                 "digital source type: Yes for trainedAlgorithmicMedia, "
-                 "compositeWithTrainedAlgorithmicMedia, compositeSynthetic and algorithmicMedia, "
-                 "Possible for virtualRecording, No for the other listed codes, and Unknown when no "
-                 "type is declared or the code is not in the module's table. IPTC defines "
-                 "algorithmicMedia as media made by an algorithm not based on sampled training "
-                 "data, so a Yes on that code is not a declaration of generative AI. On "
-                 "dexter_ios18, felix_ios17, hc_ios18_7, hc_ios26, iphone12_ios18 and "
-                 "iphone14plus_ios18 all 89 reported rows declared trainedAlgorithmicMedia (72) or "
-                 "compositeWithTrainedAlgorithmicMedia (17); no row declared algorithmicMedia or an "
-                 "unlisted code. Reference: IPTC NewsCodes Digital Source Type controlled "
-                 "vocabulary, https://cv.iptc.org/newscodes/digitalsourcetype (read 2026-10-03)",
+                 "sample_data. "
+                 "On these keys the C2PA rows all came from JPEG files and the XMP/IPTC "
+                 "rows from JPEG, HEIC and PNG files. The PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) "
+                 "extractors are written from the C2PA specification. No iLEAPP test file produced a "
+                 "C2PA row from a PNG or ISOBMFF container; the same PNG code produced manifest rows "
+                 "on the ALEAPP keys anne_a15 and kevin_pocox7_a15. Treat the ISOBMFF extractor as "
+                 "unexercised. On dexter_ios18, felix_ios17, hc_ios18_7, hc_ios26, "
+                 "iphone12_ios18 and iphone14plus_ios18 all 89 reported rows declared "
+                 "trainedAlgorithmicMedia (72) or compositeWithTrainedAlgorithmicMedia (17); no row "
+                 "declared another code.",
         "paths": (  # case-insensitive extensions; fnmatch '*' already spans '/', so these
                     # match media at ANY depth. Uppercase forms catch iOS defaults (.HEIC/.JPG/.MOV).
             '*.[jJ][pP][gG]', '*.[jJ][pP][eE][gG]', '*.[jJ][pP][eE]',
@@ -425,21 +434,19 @@ def _cheap_has_provenance(path):
 
 # ===========================================================================
 # Normalization: flatten manifests into forensic row fields.
-# IPTC DigitalSourceType codes -> (human label, is_ai_generated), per the IPTC
-# NewsCodes Digital Source Type controlled vocabulary definitions:
-# digitalArt, algorithmicallyEnhanced and dataDrivenMedia denote human-driven
-# creation or non-generative processing (not AI); virtualRecording MAY involve
-# Generative AI, so it is flagged 'possible'.
+# IPTC DigitalSourceType codes -> (human label, is_ai_generated)
+# True only where the IPTC definition names generative AI or a trained AI model
+# (cv.iptc.org/newscodes/digitalsourcetype, release dated 2024-10-23); None where it does not.
 # ===========================================================================
 _DIGITAL_SOURCE_TYPES = {
     'trainedAlgorithmicMedia': ('AI-generated (trained algorithmic media)', True),
     'compositeWithTrainedAlgorithmicMedia': ('AI composite (with trained algorithmic media)', True),
-    'algorithmicMedia': ('Algorithmically generated', True),
-    'algorithmicallyEnhanced': ('Algorithmically enhanced', False),
+    'algorithmicMedia': ('Algorithmically generated', None),
+    'algorithmicallyEnhanced': ('Algorithmically enhanced', None),
     'compositeSynthetic': ('Composite synthetic', True),
-    'digitalArt': ('Digital art', False),
-    'virtualRecording': ('Virtual recording', 'possible'),
-    'dataDrivenMedia': ('Data-driven media', False),
+    'digitalArt': ('Digital art', None),
+    'virtualRecording': ('Virtual recording', None),
+    'dataDrivenMedia': ('Data-driven media', None),
     'digitalCapture': ('Digital capture (camera)', False),
     'originalPhotograph': ('Original photograph', False),
     'minorHumanEdits': ('Minor human edits', False),
@@ -468,12 +475,6 @@ def _source_type_label(uri):
         return None, None
     code = uri.rstrip('/').rsplit('/', 1)[-1]
     return _DIGITAL_SOURCE_TYPES.get(code, (code, None))
-
-
-def _merge_ai(prev, new):
-    """Combine AI flags across assertions: True > 'possible' > False > None."""
-    _rank = {True: 3, 'possible': 2, False: 1, None: 0}
-    return prev if _rank.get(prev, 0) >= _rank.get(new, 0) else new
 
 
 def _content_value(node, prefer=('cbor', 'json')):
@@ -693,7 +694,7 @@ def _normalize(tree):
                             if lbl:
                                 row['digital_source'].add(lbl)
                                 if ai is not None:
-                                    row['ai'] = _merge_ai(row['ai'], ai)
+                                    row['ai'] = ai if row['ai'] is None else (row['ai'] or ai)
                             if act.get('when'):
                                 row['when'].add(str(act['when']))
                     elif abase.startswith('stds.schema-org.CreativeWork') and isinstance(val, dict):
@@ -739,8 +740,6 @@ def c2paProvenance(context):
     _media_ext = ('.jpg', '.jpeg', '.jpe', '.png')  # thumbnailable by the report
 
     def _ai_str(val):
-        if val == 'possible':
-            return 'Possible'
         return 'Yes' if val is True else 'No' if val is False else 'Unknown'
 
     for file_found in context.get_files_found():
