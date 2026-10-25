@@ -58,7 +58,7 @@
       "Notes one",
       1772366400,
       1772366460,
-      "private\\var\\mobile\\Library\\Calendar\\Calendar.sqlitedb"
+      "private/var/mobile/Library/Calendar/Calendar.sqlitedb"
     ],
     [
       1772452800,
@@ -77,7 +77,7 @@
       "Notes two",
       "",
       1772366520,
-      "private\\var\\mobile\\Library\\Calendar\\Calendar.sqlitedb"
+      "private/var/mobile/Library/Calendar/Calendar.sqlitedb"
     ],
     [
       1772539200,
@@ -96,7 +96,7 @@
       null,
       1772366405,
       "",
-      "private\\var\\mobile\\Library\\Calendar\\Calendar.sqlitedb"
+      "private/var/mobile/Library/Calendar/Calendar.sqlitedb"
     ]
   ]
 }
