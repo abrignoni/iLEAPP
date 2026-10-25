@@ -137,3 +137,11 @@ def table_exists(db, name):
                           (name,)).fetchone() is not None
     except Exception:  # pylint: disable=broad-exception-caught
         return False
+
+
+def time_first(headers, rows):
+    """(headers, rows) with the datetime columns moved to the front, in their own order, so the
+    event time leads and the other times follow it."""
+    order = ([i for i, h in enumerate(headers) if isinstance(h, tuple) and h[1] == 'datetime']
+             + [i for i, h in enumerate(headers) if not (isinstance(h, tuple) and h[1] == 'datetime')])
+    return tuple(headers[i] for i in order), [tuple(row[i] for i in order) for row in rows]

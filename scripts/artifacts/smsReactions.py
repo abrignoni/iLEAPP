@@ -13,8 +13,7 @@ __artifacts_v2__ = {
                  "2000 to 3007. The SMS artifact lists the same rows as ordinary messages whose text is "
                  "the system-written phrase; this artifact reads them as reactions and resolves the "
                  "target. Reaction is the name for the stored type: 2000 Loved, 2001 Liked, 2002 "
-                 "Disliked, 2003 Laughed at, 2004 Emphasized, 2005 Questioned, 2006 Emoji (the emoji is "
-                 "in associated_message_emoji, iOS 17 and later), 1000 Sticker (the row has a sticker "
+                 "Disliked, 2003 Laughed at, 2004 Emphasized, 2005 Questioned, 2006 Emoji (the emoji is in associated_message_emoji; in the corpus that column is present from iOS 18.0 and absent on every iOS 17 database), 1000 Sticker (the row has a sticker "
                  "attachment). The names were checked against the system-written text of the same rows: "
                  "in 9 databases, 28,076 of the 29,574 rows of type 2000 to 2005 start with the verb that "
                  "matches the type (Loved, Liked, Disliked, Laughed at, Emphasized, Questioned), none "
@@ -35,10 +34,9 @@ __artifacts_v2__ = {
                  "https://github.com/ReagentX/imessage-exporter/blob/"
                  "4d90fc8d20a745c0a8acc1e01c0631c4bab89cb4/imessage-database/src/message_types/"
                  "variants.rs#L18-L28). Stored types 2 and 3 "
-                 "appear on rows that carry a balloon bundle identifier and are app message updates, "
-                 "not reactions, so they are not reported; other values between 2008 and 2999 are "
+                 "appear on rows that carry a balloon bundle identifier and are not reported here; what they mean is not established; other values between 2008 and 2999 are "
                  "reported as 'Other (as stored)' with the number. Target is found through the message "
-                 "guid the row points to (associated_message_guid, 'p:<part>/<guid>' or 'bp:<guid>'). "
+                 "guid the row points to (associated_message_guid, 'p:<part>/<guid>' or 'bp:<guid>', or a bare guid). "
                  "Target Part is the part index in that value; Target Range is "
                  "associated_message_range_location and length as stored. Target Message Text is "
                  "message.text or the text decoded from attributedBody and is blank when the target row "
@@ -48,28 +46,24 @@ __artifacts_v2__ = {
                  "stores about each reaction; it does not establish that the person saw the target "
                  "message or read the reaction. Not covered: reactions kept only in iCloud, and the "
                  "system-written text of the row. Observed on 9 databases from full-filesystem "
-                 "extractions, iOS 18.1.1 and iOS 26.2.1 to 26.6.2; iOS 16 and 17 databases were not "
-                 "available, so those versions are unverified on real data."
-                 " On single images Chat Name was empty on every row (no named group chat) and Target Found held one value (Yes) on every row.",
+                 "extractions, iOS 18.1.1 and iOS 26.2.1 to 26.6.2."
+                 " On single databases of the nine Chat Name was empty on every row (no named group chat) and Target Found held one value (Yes) on every row. The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "mood-smile",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 4,174 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 79 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 23,375 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 37 rows",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 89 rows",
-            "local_ios26_6_f": "iOS 26.6 | 148 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 1,301 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 1,251 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 362 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 25 rows",
+            "hc_ios26": "iOS 26.5.2 | 3 rows",
         },
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, null_absent_columns
-from scripts.sms_deep import (cocoa_to_utc, message_columns, messages_by_guid,
+from scripts.sms_deep import (time_first, cocoa_to_utc, message_columns, messages_by_guid,
                               split_associated_guid, table_exists)
 
 REACTIONS = {
@@ -160,4 +154,4 @@ def smsReactions(context):
             sticker_file or '', stored_type, service or '', caller_id or '', chat_id, rowid, guid,
             target_guid))
 
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)

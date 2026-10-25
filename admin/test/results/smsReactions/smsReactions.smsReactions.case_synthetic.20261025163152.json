@@ -9,20 +9,21 @@
     "total_data_size_bytes": 954,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\smsReactions\\testdata.smsReactions.smsReactions.case_synthetic.zip",
-    "start_time": "2026-10-25T06:00:47.023019+00:00",
-    "end_time": "2026-10-25T06:00:47.368814+00:00",
-    "run_time_seconds": 0.0048828125,
+    "input_zip_path": "admin/test/cases/data/smsReactions/testdata.smsReactions.smsReactions.case_synthetic.zip",
+    "start_time": "2026-10-25T16:31:52.678418+00:00",
+    "end_time": "2026-10-25T16:31:52.703829+00:00",
+    "run_time_seconds": 0.001361846923828125,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-25T06:00:47.270032",
-      "message": "File not yet committed to git"
+      "hash": "03c63559a39e8dbc0191a9e01594e139e9d4307d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-10-25T07:34:39-04:00",
+      "message": "Messages deep fields: document the empty and single-value columns seen on eight real databases"
     }
   },
   "headers": [
     "Reaction Timestamp",
+    "Target Timestamp",
     "Action",
     "Reaction",
     "Emoji",
@@ -34,7 +35,6 @@
     "Target Sender",
     "Target Part",
     "Target Range (Location, Length)",
-    "Target Timestamp",
     "Target Found",
     "Sticker File",
     "Stored Type",
@@ -48,6 +48,7 @@
   "data": [
     [
       1772366530,
+      1772366400,
       "Added",
       "Loved",
       "",
@@ -59,7 +60,6 @@
       "+15550100001",
       0,
       "0, 27",
-      1772366400,
       "Yes",
       "",
       2000,
@@ -72,6 +72,7 @@
     ],
     [
       1772366540,
+      1772366460,
       "Removed",
       "Liked",
       "",
@@ -83,7 +84,6 @@
       "Me",
       0,
       "0, 0",
-      1772366460,
       "Yes",
       "",
       3001,
@@ -96,6 +96,7 @@
     ],
     [
       1772366550,
+      1772366520,
       "Added",
       "Emoji",
       "\ud83d\udc4d",
@@ -107,7 +108,6 @@
       "+15550100002",
       0,
       "0, 0",
-      1772366520,
       "Yes",
       "",
       2006,
@@ -120,6 +120,7 @@
     ],
     [
       1772366560,
+      1772366400,
       "Placed",
       "Sticker",
       "",
@@ -131,7 +132,6 @@
       "+15550100001",
       0,
       "2, 5",
-      1772366400,
       "Yes",
       "sticker.png",
       1000,
@@ -144,6 +144,7 @@
     ],
     [
       1772366570,
+      "",
       "Added",
       "Laughed at",
       "",
@@ -155,7 +156,6 @@
       "",
       "",
       "0, 0",
-      "",
       "No",
       "",
       2003,

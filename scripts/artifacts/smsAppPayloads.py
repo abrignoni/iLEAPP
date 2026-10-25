@@ -16,29 +16,24 @@ __artifacts_v2__ = {
                  "linked page and were stored by Messages, they are not text typed by a person. "
                  "Original URL is the address before any redirect the page followed, as stored. "
                  "Image and Video say whether the metadata holds an image or video entry; the files "
-                 "themselves are not reported here (preview images are held in the message's "
-                 "attachments). Placeholder is richLinkIsPlaceholder as stored. Message Text is "
+                 "themselves are not reported here (the message's attachments may hold the preview image; this artifact does not match them). Placeholder is richLinkIsPlaceholder as stored. Message Text is "
                  "message.text, or the text decoded from attributedBody where text is empty. A "
                  "preview exists only when Messages built one, so a link sent without a preview "
                  "has no row here but appears in the SMS artifact. Whether the message was sent or "
                  "received is From Me, as stored. This artifact does not establish that the link was "
                  "opened. Observed on 9 databases from full-filesystem extractions (iOS 18.1.1 "
-                 "and iOS 26.2.1 to 26.6.2): 5,413 link previews. Earlier "
-                 "versions were not available and are unverified on real data."
-                 " On single images Chat Name was empty on every row (no named group chat), Video was empty on every row, Placeholder (as stored) held one value (False) on every row, Destination Caller ID held one value on every row (one iMessage line), and Original URL and Message Text were identical on every row (the message body is the link).",
+                 "and iOS 26.2.1 to 26.6.2): 5,413 link previews."
+                 " On single databases of the nine Chat Name was empty on every row (no named group chat), Video was empty on every row, Placeholder (as stored) held one value (False) on every row, Destination Caller ID held one value on every row (one iMessage line), and Original URL and Message Text were identical on every row (the message body is the link). The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "link",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 2,275 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 144 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 2,186 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 417 rows",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 158 rows",
-            "local_ios26_6_f": "iOS 26.6 | 14 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 81 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 83 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 55 rows",
+            "hickman_ios14": "iOS 14.3 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | 3 rows",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 9 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "hc_ios26": "iOS 26.5.2 | 8 rows",
         },
     },
     "smsAppMessages": {
@@ -65,29 +60,25 @@ __artifacts_v2__ = {
                  "it is reported in full. Payload Format says Keyed archive when the payload decoded "
                  "and Not decoded otherwise (for example the Handwriting payload is not a property "
                  "list archive, and Digital Touch and similar payloads are not decoded here). "
-                 "Binary values (ai, liveLayoutInfo, data) are not reported. The payloads of Apple "
+                 "Other keys (for example ai, liveLayoutInfo, data, requiredCapabilities, appid) are not reported. The payloads of Apple "
                  "Cash, Photos, Find My, Business Chat and third-party apps share this layout in the "
                  "tested databases; the artifact does not interpret a payment, photo or location. A "
                  "message with a rich-link payload is in 'SMS & iMessage - Link Previews'. Messages "
                  "from RCS chatbots (balloon_bundle_id com.apple.messages.chatbot) carry no "
                  "payload_data in the tested databases and are not reported. Service and Destination Caller ID are the message row's values as stored and are "
                  "uniform on a device that used one service and one line. Observed on 7 of 9 databases from full-filesystem extractions "
-                 "(iOS 18.1.1 and iOS 26.2.1 to 26.6.2): 447 app messages. Earlier versions were not "
-                 "available and are unverified on real data."
-                 " On single images Chat Name was empty on every row (no named group chat), Image Title, Image Subtitle, Accessibility Label and Session Identifier were empty on every row, Layout Class, Payload Format, App Bundle and App Name held one value on every row, and From Me, Sender, Chat Contact ID, Chat ID and Message Text held one value on every row (a few messages from one correspondent, the text being the object replacement character), with Sender and Chat Contact ID identical.",
+                 "(iOS 18.1.1 and iOS 26.2.1 to 26.6.2): 447 app messages."
+                 " On single databases of the nine Chat Name was empty on every row (no named group chat), Image Title, Image Subtitle, Accessibility Label and Session Identifier were empty on every row, Layout Class, Payload Format, App Bundle and App Name held one value on every row, and From Me, Sender, Chat Contact ID, Chat ID and Message Text held one value on every row (a few messages from one correspondent, the text being the object replacement character), with Sender and Chat Contact ID identical. The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "apps",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 31 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 4 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 313 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 4 rows",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 7 rows",
-            "local_ios26_6_f": "iOS 26.6 | 0 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 0 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 27 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 61 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
 }
@@ -95,7 +86,7 @@ __artifacts_v2__ = {
 from urllib.parse import urljoin
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly
-from scripts.sms_deep import cocoa_to_utc, keyed_archive, message_columns, message_text
+from scripts.sms_deep import time_first, cocoa_to_utc, keyed_archive, message_columns, message_text
 
 LINK_BALLOON = 'com.apple.messages.URLBalloonProvider'
 
@@ -179,7 +170,7 @@ def smsLinkPreviews(context):
             'Yes' if has_image else '', 'Yes' if has_video else '',
             '' if placeholder is None else str(placeholder), message_text(text, body) or '',
             service or '', caller_id or '', chat_id, rowid, guid))
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)
 
 
 @artifact_processor
@@ -215,4 +206,4 @@ def smsAppMessages(context):
             cocoa_to_utc(date), from_me, sender or '', chat_identifier or '', chat_name or '',
             balloon) + values + (message_text(text, body) or '', service or '', caller_id or '',
                                  chat_id, rowid, guid))
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)

@@ -24,29 +24,24 @@ __artifacts_v2__ = {
                  "marker on that version. Replies keep their own sender, time and chat as stored. This is "
                  "what the database stores; it does not establish that the sender read the originator "
                  "message before replying. Observed on 9 databases from full-filesystem extractions "
-                 "(iOS 18.1.1 and iOS 26.2.1 to 26.6.2): 6,035 replies. The column exists from iOS 14; "
-                 "databases from iOS 14 to 17 were not available, so those versions are unverified on "
-                 "real data."
-                 " On single images Chat Name was empty on every row (no named group chat), Originator Found held one value (Yes) on every row, and Service and Destination Caller ID held one value on every row (one iMessage line).",
+                 "(iOS 18.1.1 and iOS 26.2.1 to 26.6.2): 6,035 replies. The column exists from iOS 14."
+                 " On single databases of the nine Chat Name was empty on every row (no named group chat), Originator Found held one value (Yes) on every row, and Service and Destination Caller ID held one value on every row (one iMessage line). The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "corner-down-right",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 1,360 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 86 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 2,852 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 48 rows",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 107 rows",
-            "local_ios26_6_f": "iOS 26.6 | 59 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 745 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 605 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 173 rows",
+            "hickman_ios14": "iOS 14.3 | 6 rows",
+            "hickman_ios15": "iOS 15.3.1 | 2 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
         },
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, null_absent_columns
-from scripts.sms_deep import cocoa_to_utc, message_columns, message_text, messages_by_guid
+from scripts.sms_deep import time_first, cocoa_to_utc, message_columns, message_text, messages_by_guid
 
 
 @artifact_processor
@@ -97,4 +92,4 @@ def smsReplies(context):
             message_text(text, body) or '', found[1], found[2], found[3], found[0],
             originator_part or '', service or '', caller_id or '', chat_id, rowid, guid,
             originator_guid))
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)

@@ -30,31 +30,25 @@ __artifacts_v2__ = {
                  "edited.rs#L81-L96) and match the data counted here. Current Version marks the last "
                  "stored version. Edit Count is Versions in Part minus 1 and assumes the list holds the "
                  "original and every later version; the project documents the list that way, but the "
-                 "database itself does not state it. Original Text Length is "
-                 "the le value of the otr (original text range) entry for the part, as stored. A "
+                 "database itself does not state it. Original Text Length is the le value of the otr entry for the part, as stored; the source does not define le, and it equalled the length of the first stored version's text on 21 of 22 corpus parts. A "
                  "message with several parts keeps the part number as the dictionary key, shown in Part; "
                  "Part was 0 on 463 of the 466 messages, so the column is constant on most databases and "
                  "is kept for the other cases. The ep (edited parts) list is not reported because it "
                  "repeated Part on every row. This is what the database stores for each "
                  "version; it does not establish who edited or from which device, and a version that "
                  "Messages removed from the list is not recoverable here. Not covered: edit history held "
-                 "only in iCloud, edits made before iOS 16 (the feature did not exist), and the euh "
-                 "(edited-unread handles) key, which is not decoded. iOS 16 and 17 databases were not "
-                 "available; those versions are unverified on real data."
-                 " On single images Service and Destination Caller ID held one value on every row (one iMessage line), Chat Name was empty on every row (no named group chat was edited), From Me held one value on every row (only received messages were edited), Versions in Part and Edit Count held one value on every row (one edit per message), and Sender and Chat Contact ID were identical on every row (one-to-one chats only).",
+                 "only in iCloud, edits made before iOS 16 (the feature did not exist), and the euh key, which is not decoded."
+                 " On single databases of the nine Service and Destination Caller ID held one value on every row (one iMessage line), Chat Name was empty on every row (no named group chat was edited), From Me held one value on every row (only received messages were edited), Versions in Part and Edit Count held one value on every row (one edit per message), and Sender and Chat Contact ID were identical on every row (one-to-one chats only). The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "edit",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 441 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 48 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 20 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 10 rows",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 53 rows",
-            "local_ios26_6_f": "iOS 26.6 | 30 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 117 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 66 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 161 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "hc_ios26": "iOS 26.5.2 | 2 rows",
         },
     },
     "smsUnsentMessages": {
@@ -85,28 +79,24 @@ __artifacts_v2__ = {
                  "not evidence that nothing was unsent. Remaining Text is the text of the kept parts, "
                  "blank when the whole message was unsent. This artifact does not establish who unsent "
                  "the message or from which device. Service and Destination Caller ID are the message row's "
-                 "values as stored and are uniform on a device that used one service and one line. iOS "
-                 "16 and 17 databases were not available; those versions are unverified on real data."
-                 " On single images Parts Remaining (as stored) held one value (0) on every row, From Me held one value on every row, Sender was empty on every row (it is filled only for received messages), Chat Name was empty on every row (no named group chat), and Unsent Part and Parts Remaining (as stored) were identical on every row.",
+                 "values as stored and are uniform on a device that used one service and one line."
+                 " On single databases of the nine Parts Remaining (as stored) held one value (0) on every row, From Me held one value on every row, Sender was empty on every row (it is filled only for received messages), Chat Name was empty on every row (no named group chat), and Unsent Part and Parts Remaining (as stored) were identical on every row. The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "message-off",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 31 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 59 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 0 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 1 row",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 61 rows",
-            "local_ios26_6_f": "iOS 26.6 | 0 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 4 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 6 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 30 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | 1 row",
         },
     },
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, null_absent_columns
-from scripts.sms_deep import (cocoa_to_utc, message_columns, message_text, summary_info,
+from scripts.sms_deep import (time_first, cocoa_to_utc, message_columns, message_text, summary_info,
                               typedstream_text)
 
 MESSAGE_CONTEXT = '''
@@ -182,7 +172,7 @@ def smsEditHistory(context):
                     span.get('le', ''), from_me, sender or '',
                     chat_identifier or '', chat_name or '', service or '', caller_id or '',
                     chat_id, rowid, guid))
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)
 
 
 @artifact_processor
@@ -216,4 +206,4 @@ def smsUnsentMessages(context):
                 '' if part_count is None else part_count, cocoa_to_utc(date),
                 cocoa_to_utc(retracted), from_me, sender or '', chat_identifier or '',
                 chat_name or '', service or '', caller_id or '', chat_id, rowid, guid))
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)

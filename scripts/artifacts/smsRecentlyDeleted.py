@@ -10,15 +10,13 @@ __artifacts_v2__ = {
         "category": "SMS & iMessage",
         "notes": "One row per row of chat_recoverable_message_join (chat_id, message_id, delete_date, "
                  "ck_sync_state), joined to the message row with that ROWID. Deleted Timestamp is "
-                 "delete_date, nanoseconds since 2001-01-01 converted to UTC. The message row stays in "
-                 "the message table with its text in attributedBody, and in the 204 rows found none of "
+                 "delete_date, nanoseconds since 2001-01-01 converted to UTC. The message row stays in the message table with its text in message.text or attributedBody, and in the 204 rows found none of "
                  "these message rows had a chat_message_join row (Still Linked to Chat is No), which is "
                  "how they differ from messages shown in a conversation. Text is message.text, or the "
                  "text decoded from attributedBody where text is empty. Chat Contact ID and Chat Name "
                  "come from the chat the join row names. Attachments is the transfer name of each "
                  "attachment joined to the message. Sync State is ck_sync_state as stored; its values "
-                 "are not interpreted. Sync State was constant within each database (0 in one, 1 in the "
-                 "others). Still Linked to Chat was No on every row, so it is a constant column kept as the check "
+                 "are not interpreted. Sync State was constant within each database (0 or 1). Still Linked to Chat was No on every row, so it is a constant column kept as the check "
                  "that separates these rows from messages in a conversation. Deleted Timestamp is not limited to a fixed window in the data: "
                  "in one iOS 26.5.2 database the earliest and latest Deleted Timestamp are 60 days "
                  "apart, so the rows cannot be assumed to be from the last 30 days. A message removed "
@@ -26,26 +24,21 @@ __artifacts_v2__ = {
                  "was deleted. This is the state of the database when it was copied; it does not show "
                  "who deleted a message or from which device. Observed on 5 of 9 databases from "
                  "full-filesystem extractions (iOS 26.3.1 to 26.6.2: 204 rows); the other four (iOS "
-                 "18.1.1, 26.2.1 and two iOS 26.3.1) held none. The tables are not present before iOS "
-                 "16 and iOS 16 and 17 databases were not available, so those versions are unverified "
-                 "on real data. Deleted parts of a message that stays in a conversation are in 'SMS & "
+                 "18.1.1, 26.2.1 and two iOS 26.3.1) held none. The tables are not present before iOS 16. Deleted parts of a message that stays in a conversation are in 'SMS & "
                  "iMessage - Recently Deleted Message Parts'; the sync_deleted_* and "
                  "unsynced_removed_recoverable_messages tables hold only identifiers and are not "
                  "reported."
-                 " On single images Destination Caller ID and From Me held one value on every row, Sender and Chat Contact ID were identical on every row (one-to-one chats), Chat Name was empty on every row (no named group chat), Attachments was empty on every row (text only), and Sender was empty on every row (it is filled only for received messages).",
+                 " On single databases of the nine Destination Caller ID and From Me held one value on every row, Sender and Chat Contact ID were identical on every row (one-to-one chats), Chat Name was empty on every row (no named group chat), Attachments was empty on every row (text only), and Sender was empty on every row (it is filled only for received messages). The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "trash",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 86 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 0 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 0 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 1 row",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 0 rows",
-            "local_ios26_6_f": "iOS 26.6 | 102 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 2 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 13 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 25 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
     "smsRecentlyDeletedParts": {
@@ -69,29 +62,25 @@ __artifacts_v2__ = {
                  "they come from the same joins as the other artifact. In the iOS 26.5.2 database the Deleted Timestamps of these rows are from one "
                  "to three years before the extraction, so the rows are kept long after the deletion "
                  "time they carry. Rows were found on 2 of the 9 databases checked (iOS 26.3.1 and "
-                 "26.5.2); the other seven held none, so this artifact has been exercised on two "
-                 "devices, and iOS 16 and 17 are unverified on real data. A part removed from Recently "
+                 "26.5.2); the other seven held none, and no corpus image held a row, so this artifact has been exercised on two devices. A part removed from Recently "
                  "Deleted leaves no row, so an empty result is not evidence that no part was deleted."
-                 " On a single image Sender was empty on every row (it is filled only for received messages).",
+                 " On a single image Sender was empty on every row (it is filled only for received messages). The artifact ran without error on the 22 of 32 corpus iOS images that hold an sms.db (iOS 12.4 to 26.5.2); the other 10 had no sms.db. sample_data lists six of the 22, iOS 14.3 to 26.5.2.",
         "paths": ('*/Library/SMS/sms.db*',),
         "output_types": "standard",
         "artifact_icon": "trash",
         "sample_data": {
-            "local_ios26_5_2_a": "iOS 26.5.2 | 10 rows",
-            "local_ios26_2_1_b": "iOS 26.2.1 | 0 rows",
-            "local_ios26_3_1_c": "iOS 26.3.1 | 0 rows",
-            "local_ios26_3_1_d": "iOS 26.3.1 | 1 row",
-            "local_ios26_3_1_e": "iOS 26.3.1 | 0 rows",
-            "local_ios26_6_f": "iOS 26.6 | 0 rows",
-            "local_ios26_6_1_g": "iOS 26.6.1 | 0 rows",
-            "local_ios26_6_2_h": "iOS 26.6.2 | 0 rows",
-            "local_ios18_1_1_i": "iOS 18.1.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly
-from scripts.sms_deep import cocoa_to_utc, message_text, table_exists, typedstream_text
+from scripts.sms_deep import time_first, cocoa_to_utc, message_text, table_exists, typedstream_text
 
 ATTACHMENTS = ("(SELECT group_concat(a.transfer_name, ', ') FROM message_attachment_join j "
                "JOIN attachment a ON a.ROWID = j.attachment_id WHERE j.message_id = m.ROWID)")
@@ -137,7 +126,7 @@ def smsRecentlyDeleted(context):
             chat_identifier or '', chat_name or '', message_text(text, body) or '',
             attachments or '', 'Yes' if linked else 'No', sync_state, service or '',
             caller_id or '', chat_id, rowid, guid))
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)
 
 
 @artifact_processor
@@ -177,4 +166,4 @@ def smsRecentlyDeletedParts(context):
             cocoa_to_utc(date), from_me, sender or '', chat_identifier or '', chat_name or '',
             message_text(text, body) or '', 'Yes' if linked else 'No', sync_state,
             service or '', caller_id or '', chat_id, rowid, guid))
-    return data_headers, data_list, source_path
+    return time_first(data_headers, data_list) + (source_path,)
