@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "module_name": "smsReplies",
+    "artifact_name": "SMS & iMessage - Inline Replies",
+    "function_name": "smsReplies",
+    "case_number": "case_synthetic",
+    "number_of_columns": 17,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 340,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\smsReplies\\testdata.smsReplies.smsReplies.case_synthetic.zip",
+    "start_time": "2026-10-25T06:00:49.833809+00:00",
+    "end_time": "2026-10-25T06:00:50.044797+00:00",
+    "run_time_seconds": 0.003589153289794922,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-25T06:00:50.012109",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Reply Timestamp",
+    "From Me",
+    "Sender",
+    "Chat Contact ID",
+    "Chat Name",
+    "Reply Text",
+    "Originator Text",
+    "Originator Sender",
+    "Originator Timestamp",
+    "Originator Found",
+    "Originator Part (as stored)",
+    "Service",
+    "Destination Caller ID",
+    "Chat ID",
+    "Message Row ID",
+    "Message GUID",
+    "Originator GUID"
+  ],
+  "data": [
+    [
+      1772367100,
+      0,
+      "+15550100001",
+      "+15550100001",
+      "",
+      "Synthetic reply",
+      "Synthetic plain message one",
+      "+15550100001",
+      1772366400,
+      "Yes",
+      "0:0:27",
+      "iMessage",
+      "+15550100000",
+      1,
+      15,
+      "A193AC56-09DE-5508-BF29-5DD2712D6B0B",
+      "A619F8E5-B23F-5B18-9393-AC06ADEA0572"
+    ],
+    [
+      1772367110,
+      1,
+      "",
+      "+15550100001",
+      "",
+      "Orphan reply",
+      "",
+      "",
+      "",
+      "No",
+      "0:0:5",
+      "iMessage",
+      "+15550100000",
+      1,
+      16,
+      "75DDB5C9-6802-5076-A478-5D49319274A4",
+      "36E46D6E-0A04-5D38-89F4-4B9541B4D4F1"
+    ]
+  ]
+}
