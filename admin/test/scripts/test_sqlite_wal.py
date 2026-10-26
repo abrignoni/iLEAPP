@@ -10,6 +10,7 @@ import os
 import shutil
 import sqlite3
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -22,8 +23,9 @@ ROOT_DIR = os.path.dirname(
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from scripts.sqlite_wal import (EARLIER_VERSION, NOT_IN_CURRENT, WalLog, WalStates,
-                                rows_not_in_current)
+from scripts.sqlite_wal import (EARLIER_VERSION, KIND_COMMITTED, KIND_EARLIER,
+                                KIND_UNCOMMITTED, NOT_IN_CURRENT, UNCOMMITTED_CHANGE, WalLog,
+                                WalStates, _wal_checksum, rows_not_in_current)
 
 QUERY = 'SELECT id, txt FROM t'
 
@@ -176,7 +178,6 @@ class SqliteWalTest(unittest.TestCase):
         last = 32 + (log.total_frames - 1) * frame_size
         data[last + 4:last + 8] = b'\x00\x00\x00\x00'
         big_endian = struct.unpack('>I', data[:4])[0] & 1
-        from scripts.sqlite_wal import _wal_checksum  # pylint: disable=import-outside-toplevel
         state = _wal_checksum(bytes(data[:24]), big_endian)
         for index in range(log.total_frames):
             offset = 32 + index * frame_size
@@ -264,6 +265,206 @@ class SqliteWalTest(unittest.TestCase):
         with WalStates(db_path) as wal:
             for state in wal.states():
                 yield {row[0] for row in state.connection.execute('SELECT id FROM t')}
+
+
+ALL_KINDS = (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED)
+
+# Run in a child process so it can stop without committing: the open transaction's
+# spilled pages stay in the log as frames after the last commit.
+UNCOMMITTED_WRITER = """
+import os, sqlite3, sys
+c = sqlite3.connect(sys.argv[1], isolation_level=None)
+c.execute('PRAGMA journal_mode=WAL')
+c.execute('PRAGMA wal_autocheckpoint=0')
+c.execute('CREATE TABLE t (id INTEGER PRIMARY KEY, txt TEXT)')
+c.execute('BEGIN')
+for i in range(1, 301):
+    c.execute('INSERT INTO t VALUES (?, ?)', (i, 'committed %d ' % i + 'y' * 200))
+c.execute('COMMIT')
+c.execute('PRAGMA cache_size=5')
+c.execute('BEGIN')
+if sys.argv[2] == 'update':
+    c.execute("UPDATE t SET txt = 'pending ' || id || ' ' || substr(txt, 20)")
+else:
+    for i in range(1000, 1300):
+        c.execute('INSERT INTO t VALUES (?, ?)', (i, 'pending %d ' % i + 'x' * 500))
+os._exit(0)
+"""
+
+
+class EarlierGenerationTest(unittest.TestCase):
+    """The previous log generation's left-over frames, read as earlier states."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.fixture = WalFixture(self.tmp)
+        self.fixture.execute('CREATE TABLE t (id INTEGER PRIMARY KEY, txt TEXT)')
+        self.fixture.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+
+    def tearDown(self):
+        try:
+            self.fixture.connection.close()
+        except sqlite3.Error:
+            pass
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _generation_a(self):
+        for i in range(1, 41):
+            self.fixture.execute('INSERT INTO t VALUES (?, ?)', (i, 'gen A row %d' % i))
+        for i in range(5, 18):
+            self.fixture.execute('DELETE FROM t WHERE id = ?', (i,))
+        self.fixture.execute('PRAGMA wal_checkpoint(FULL)')
+
+    def _short_generation(self, first, count):
+        # A write after a full checkpoint resets the log to frame 1 with salt-1 + 1.
+        for i in range(first, first + count):
+            self.fixture.execute('INSERT INTO t VALUES (?, ?)', (i, 'later row %d' % i))
+
+    def test_rows_deleted_in_the_previous_generation(self):
+        self._generation_a()
+        self._short_generation(200, 3)
+        db_path = self.fixture.capture()
+        before = _hashes(self.fixture.evidence)
+        header = struct.unpack('>8I', Path(db_path + '-wal').read_bytes()[:32])
+        log = WalLog(db_path + '-wal')
+        self.assertEqual(log.earlier.salts[0], (header[4] - 1) & 0xFFFFFFFF)
+        self.assertEqual(log.older_frames, 0)
+        _columns, rows, wal = rows_not_in_current(db_path, QUERY, key_columns=[0],
+                                                  include=ALL_KINDS)
+        self.assertEqual(sorted(row.values[0] for row in rows), list(range(5, 18)))
+        self.assertTrue(all(row.first_state is None and row.earlier_generation
+                            and row.status == NOT_IN_CURRENT for row in rows))
+        self.assertIn('frames left by the previous generation', wal.summary())
+        self.assertEqual(_hashes(self.fixture.evidence), before)
+
+    def test_default_include_does_not_read_the_previous_generation(self):
+        self._generation_a()
+        self._short_generation(200, 3)
+        db_path = self.fixture.capture()
+        _columns, rows, wal = rows_not_in_current(db_path, QUERY)
+        self.assertEqual(rows, [])
+        self.assertEqual(wal.earlier_readable, [])
+
+    def test_only_the_previous_generation_is_read_after_two_resets(self):
+        self._generation_a()
+        self._short_generation(100, 20)
+        self.fixture.execute('DELETE FROM t WHERE id = 105')
+        self.fixture.execute('PRAGMA wal_checkpoint(FULL)')
+        self._short_generation(200, 3)
+        db_path = self.fixture.capture()
+        _columns, rows, wal = rows_not_in_current(db_path, QUERY, include=ALL_KINDS)
+        self.assertEqual([row.values[0] for row in rows], [105])
+        self.assertGreater(wal.log.older_frames, 0)
+        self.assertIn('from older generations', wal.summary())
+
+    def test_checkpointed_current_generation_blocks_the_previous_one(self):
+        self._generation_a()
+        self._short_generation(200, 3)
+        self.fixture.execute('PRAGMA wal_checkpoint(PASSIVE)')
+        db_path = self.fixture.capture()
+        _columns, rows, wal = rows_not_in_current(db_path, QUERY, include=ALL_KINDS)
+        self.assertEqual(rows, [])
+        self.assertEqual(wal.earlier_readable, [])
+        self.assertIn('already holds', wal.summary())
+
+    def test_zeroed_header_reads_the_generation_from_frame_one(self):
+        self._generation_a()
+        db_path = self.fixture.capture()
+        with open(db_path + '-wal', 'r+b') as handle:
+            handle.write(b'\x00' * 32)
+        self.assertEqual(_current_state(db_path), None)
+        _columns, rows, wal = rows_not_in_current(db_path, QUERY, include=ALL_KINDS)
+        self.assertEqual(sorted(row.values[0] for row in rows), list(range(5, 18)))
+        self.assertIn('unusable header', wal.summary())
+        with WalStates(db_path, include=ALL_KINDS) as states:
+            newest = next(states.states())
+            rows_now = set(newest.connection.execute(QUERY).fetchall())
+        self.assertEqual(rows_now, _sqlite_reading(db_path))
+
+    def test_pages_allocated_later_do_not_block_earlier_states(self):
+        # 60 large rows grow the file after the first commits. Pages past an earlier
+        # state's size were not part of it, so they must not stop it being read; when
+        # they did, only 3 of these states were readable.
+        for i in range(1, 30):
+            self.fixture.execute('INSERT INTO t VALUES (?, ?)', (i, 'early %d' % i))
+        for i in range(3, 9):
+            self.fixture.execute('DELETE FROM t WHERE id = ?', (i,))
+        for i in range(100, 160):
+            self.fixture.execute('INSERT INTO t VALUES (?, ?)', (i, 'late %d ' % i + 'z' * 900))
+        self.fixture.execute('PRAGMA wal_checkpoint(FULL)')
+        self._short_generation(500, 3)
+        db_path = self.fixture.capture()
+        _columns, rows, wal = rows_not_in_current(db_path, QUERY, include=ALL_KINDS)
+        self.assertGreater(len(wal.earlier_readable), 40)
+        self.assertEqual(wal.earlier_failed_check, 0)
+        known = {(i, 'early %d' % i) for i in range(1, 30)}
+        known |= {(i, 'late %d ' % i + 'z' * 900) for i in range(100, 160)}
+        self.assertTrue({row.values for row in rows} <= known)
+
+    def test_a_rebuilt_state_failing_quick_check_is_skipped(self):
+        self._generation_a()
+        self._short_generation(200, 3)
+        db_path = self.fixture.capture()
+        log = WalLog(db_path + '-wal')
+        frame_size = 24 + log.page_size
+        data = bytearray(Path(db_path + '-wal').read_bytes())
+        # Damage the cell pointer area of one early left-over frame, then re-seal the
+        # checksum chain from it so only the content is wrong.
+        target = log.earlier.frames[5][0] - 1
+        image = 32 + target * frame_size + 24
+        data[image + 8:image + 24] = b'\xff' * 16
+        state = struct.unpack('>2I', data[32 + (target - 1) * frame_size + 16:
+                                          32 + (target - 1) * frame_size + 24])
+        for index in range(target, log.total_frames):
+            offset = 32 + index * frame_size
+            state = _wal_checksum(bytes(data[offset:offset + 8] +
+                                        data[offset + 24:offset + frame_size]),
+                                  log.big_endian, state)
+            data[offset + 16:offset + 24] = struct.pack('>2I', *state)
+        Path(db_path + '-wal').write_bytes(bytes(data))
+        _columns, rows, wal = rows_not_in_current(db_path, QUERY, include=ALL_KINDS)
+        self.assertGreater(wal.earlier_failed_check, 0)
+        self.assertIn('failed quick_check', wal.summary())
+        self.assertTrue({row.values[0] for row in rows} <= set(range(5, 18)))
+
+
+class UncommittedTest(unittest.TestCase):
+    """Frames after the last commit, from a writer stopped mid-transaction."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _stopped_writer(self, mode):
+        db_path = os.path.join(self.tmp, 't.db')
+        subprocess.run([sys.executable, '-c', UNCOMMITTED_WRITER, db_path, mode],
+                       check=True, stdin=subprocess.DEVNULL)
+        return db_path
+
+    def test_uncommitted_updates_to_existing_pages(self):
+        db_path = self._stopped_writer('update')
+        query = 'SELECT id, substr(txt, 1, 8) FROM t'
+        self.assertGreater(WalLog(db_path + '-wal').uncommitted_frames, 0)
+        _columns, rows, wal = rows_not_in_current(db_path, query, key_columns=[0],
+                                                  include=ALL_KINDS)
+        self.assertTrue(rows)
+        self.assertTrue(all(row.status == UNCOMMITTED_CHANGE and row.uncommitted
+                            and row.values[1] == 'pending ' for row in rows))
+        self.assertIn('read as an uncommitted state', wal.summary())
+        _columns, rows, _wal = rows_not_in_current(db_path, query, key_columns=[0])
+        self.assertEqual(rows, [])
+
+    def test_uncommitted_inserts_the_tree_does_not_reach(self):
+        # Most new rows sit on pages no spilled interior page points to yet, so SQLite
+        # cannot reach them; only the few on a reachable page come back.
+        db_path = self._stopped_writer('insert')
+        self.assertGreater(WalLog(db_path + '-wal').uncommitted_frames, 0)
+        _columns, rows, _wal = rows_not_in_current(db_path, QUERY, include=ALL_KINDS)
+        self.assertLess(len(rows), 300)
+        self.assertTrue(all(row.status == UNCOMMITTED_CHANGE and row.values[0] >= 1000
+                            for row in rows))
 
 
 if __name__ == '__main__':
