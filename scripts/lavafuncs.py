@@ -98,17 +98,20 @@ def quote_sql_name(name):
 
 def get_sql_type(python_type):
     """
-    Convert Python type names to SQL type names for database schema creation.
+    Convert a header type name to the SQL column type used when creating the table.
     Args:
-        python_type (str): The name of the Python type as a string (e.g., 'datetime', 'date', 'str').
+        python_type (str): The header type as a string (e.g., 'datetime', 'date', 'number').
     Returns:
-        str: The corresponding SQL type name. Returns 'INTEGER' for datetime and date types,
-             and 'TEXT' as the default for all other types.
+        str: 'INTEGER' for datetime, 'NUMERIC' for number, and 'TEXT' for date and every
+             other type. A NUMERIC column stores values that read as numbers as INTEGER or
+             REAL, so LAVA sorts them as numbers, and keeps anything else as text. It also
+             rewrites the written form of what it converts ('007' is stored as 7).
     """
 
     type_map = {
         'datetime': 'INTEGER',
         'date': 'TEXT',
+        'number': 'NUMERIC',
     }
     return type_map.get(python_type, 'TEXT')
 
