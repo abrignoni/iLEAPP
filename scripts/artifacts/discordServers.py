@@ -47,10 +47,13 @@ __artifacts_v2__ = {
 
 import json
 import re
+import sqlite3
 from datetime import datetime
 from os.path import basename
 
 from scripts.ilapfuncs import artifact_processor, does_table_exist_in_db, get_sqlite_db_records, logfunc
+from scripts.sqlite_wal import (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED,
+                                rows_not_in_current)
 
 _ACCOUNT_ID_RE = re.compile(r'[/\\]@account\.(\d+)[/\\]')
 
@@ -90,6 +93,78 @@ def discord_kv_lookup(db_files):
             target = guilds if kind == 'guilds' else channels
             target.setdefault(str(record['id']), record)
     return guilds, channels
+
+
+# messages0 declares no primary key; the unique index messages0_by_key on (a, b, c, d, e, f)
+# is what makes a row one message, so that is the key compared across states.
+_MESSAGE_KEY_SQL = 'SELECT a, b, c, d, e, f, data FROM messages0'
+_MESSAGE_KEY = (0, 1, 2, 3, 4, 5)
+_WAL_KINDS = (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED)
+ORIGIN_LIVE = 'Live'
+ORIGIN_RECOVERED = 'Recovered'
+_METHOD_WAL_STATES = 'WAL committed states'
+_METHOD_WAL_UNCOMMITTED = 'WAL uncommitted frames'
+
+
+def _recovery_location(name, spans):
+    """(method, location) for a key read in the states spans names."""
+    parts = []
+    committed, earlier = spans['committed'], spans['earlier']
+    if committed:
+        first, last = committed
+        if last == 0:
+            parts.append(f'{name} without its log, state 0')
+        elif first == 0:
+            parts.append(f'{name} and {name}-wal, committed states 0 to {last}')
+        else:
+            states = f'state {first}' if first == last else f'states {first} to {last}'
+            parts.append(f'{name}-wal, committed {states}')
+    if earlier:
+        first, last = earlier
+        commits = f'commit {first}' if first == last else f'commits {first} to {last}'
+        parts.append(f'{name}-wal, previous log generation, left-over {commits}')
+    if not parts:
+        return _METHOD_WAL_UNCOMMITTED, f'{name}-wal, frames after the last commit'
+    return _METHOD_WAL_STATES, '; '.join(parts)
+
+
+def discord_removed_messages(db_file):
+    """messages0 rows whose key another state in the write-ahead log holds and the
+    current state does not, read through scripts/sqlite_wal.py.
+
+    Returns [(data, method, location)], one per key: data as the newest state holding the
+    key stored it (a committed state before the previous log generation before the frames
+    after the last commit).
+    """
+    db_file = str(db_file)
+    live = {tuple(row[i] for i in _MESSAGE_KEY)
+            for row in get_sqlite_db_records(db_file, _MESSAGE_KEY_SQL)}
+    try:
+        _columns, found, wal = rows_not_in_current(db_file, _MESSAGE_KEY_SQL,
+                                                   key_columns=_MESSAGE_KEY, include=_WAL_KINDS)
+    except (sqlite3.Error, OSError) as ex:
+        logfunc(f'Discord write-ahead log not read for {basename(db_file)}: {ex}')
+        return []
+    logfunc(f'Discord {wal.summary()}')
+    by_key = {}
+    for item in found:
+        key = tuple(item.values[i] for i in _MESSAGE_KEY)
+        if key in live:
+            continue
+        rank = ((2, item.last_state) if item.first_state is not None else
+                (1, item.earlier_generation[1]) if item.earlier_generation else (0, 0))
+        entry = by_key.setdefault(key, {'data': item.values[6], 'rank': rank, 'committed': None,
+                                        'earlier': None})
+        if rank > entry['rank']:
+            entry['data'], entry['rank'] = item.values[6], rank
+        for slot, span in (('committed', (item.first_state, item.last_state)
+                            if item.first_state is not None else None),
+                           ('earlier', item.earlier_generation)):
+            if span:
+                old = entry[slot]
+                entry[slot] = span if old is None else (min(old[0], span[0]), max(old[1], span[1]))
+    name = basename(db_file)
+    return [(entry['data'], *_recovery_location(name, entry)) for entry in by_key.values()]
 
 
 def _recipients(channel):
