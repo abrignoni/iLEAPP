@@ -39,13 +39,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/*/Web Data*', '*/Chromium/*/Web Data*', '*/Edge/*/Web Data*',
                   '*/Library/Application Support/Web Data*'),
         "output_types": ['html', 'tsv', 'lava'],

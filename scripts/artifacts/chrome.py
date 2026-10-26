@@ -19,13 +19,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -63,13 +66,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -103,13 +109,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -152,13 +161,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -191,13 +203,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -230,13 +245,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -284,13 +302,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -319,13 +340,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
                   '*/Chromium/Default/Bookmarks*'),
         "output_types": "standard",
@@ -357,13 +381,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
         "artifact_icon": "cookie",
@@ -393,13 +420,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
@@ -426,13 +456,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
         "artifact_icon": "star",
@@ -466,13 +499,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
@@ -499,13 +535,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -531,13 +570,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -563,13 +605,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -596,13 +641,16 @@ __artifacts_v2__ = {
                  "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
-                 " backup it is the container folder name, which follows the seeker's backup layout; no "
-                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
-                 "path inside the container, or inside the extraction when it is in no container, by the "
-                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
-                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
-                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
-                 "on the tested images, which earlier releases reported as Chromium.",
+                 " backup it is the container folder name, which follows the seeker's backup layout. No "
+                 "iTunes backup in the corpus was run for this case; it is covered by a unit test only "
+                 "(admin/test/scripts/test_chrome_browser_name.py). Any other file is named from its path "
+                 "inside the container, or inside the extraction when it is in no container, which is "
+                 "tested for app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome, "
+                 "in that order; the first test that matches names the browser, and it is Unknown when "
+                 "none matches. Folders above the extraction, such as the case folder, are never read. "
+                 "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
+                 "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
+                 " Chromium.",
         "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],
