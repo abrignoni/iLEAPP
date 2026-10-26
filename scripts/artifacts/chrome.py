@@ -421,6 +421,7 @@ __artifacts_v2__ = {
 }
 
 import os
+import plistlib
 import urllib.parse
 import json
 import datetime
@@ -435,9 +436,70 @@ from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_read
 from scripts.context import Context
 
 
-def get_browser_name(file_name):
+# Bundle identifiers recorded for Chromium browsers by the container manager
+# (MCMMetadataIdentifier) on the iOS corpus images, and the name each is reported as.
+_BROWSER_IDENTIFIERS = {
+    'com.google.chrome.ios': 'Chrome',
+    'com.brave.ios.browser': 'Brave',
+    'com.microsoft.msedge': 'Edge',
+}
+_CONTAINER = re.compile(r'(?:^|/)Containers/Data/Application/([^/]+)(?=/)')
+_UUID = re.compile(r'^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$')
+_METADATA_NAME = '.com.apple.mobile_container_manager.metadata.plist'
+_container_identifiers = {}
 
-    name = file_name.lower()
+
+def _container_identifier(relative, container):
+    """Return the MCMMetadataIdentifier of the container holding a file, or ''.
+
+    In an iTunes backup the seeker names the container folder by bundle identifier
+    (search_files.get_root_path_from_domain), so the folder name is the identifier.
+    In a full file system it is a UUID and the identifier is read from the container's
+    metadata plist, found through the seeker once per container.
+    """
+    if not _UUID.match(container):
+        return container
+    root = relative[:relative.index(container) + len(container)]
+    key = (Context.get_data_folder(), root)
+    if key not in _container_identifiers:
+        identifier = ''
+        try:
+            found = Context.get_seeker().search(
+                f'*/Containers/Data/Application/{container}/{_METADATA_NAME}')
+        except ValueError:  # no seeker outside a run
+            found = []
+        for path in found:
+            if Context.get_relative_path(str(path)).replace('\\', '/') != f'{root}/{_METADATA_NAME}':
+                continue
+            try:
+                with open(path, 'rb') as handle:
+                    value = plistlib.load(handle)
+            except (OSError, plistlib.InvalidFileException, ValueError):
+                continue
+            if isinstance(value, dict) and isinstance(value.get('MCMMetadataIdentifier'), str):
+                identifier = value['MCMMetadataIdentifier']
+        _container_identifiers[key] = identifier
+    return _container_identifiers[key]
+
+
+def get_browser_name(file_name):
+    """Name the browser that wrote a file from evidence inside the extraction only.
+
+    The app container's bundle identifier decides when it is a known browser. Otherwise
+    the folder names inside the container (or inside the extraction, for a file outside
+    any container) are tested, never the examiner's own folders above the data folder.
+    """
+    relative = Context.get_relative_path(str(file_name)).replace('\\', '/')
+    container = _CONTAINER.search(relative)
+    if container:
+        identifier = _container_identifier(relative, container.group(1))
+        if identifier in _BROWSER_IDENTIFIERS:
+            return _BROWSER_IDENTIFIERS[identifier]
+        relative = relative[container.end():]
+
+    name = relative.lower()
+    if 'app_sbrowser' in name:
+        return 'Browser'
     if 'brave' in name:
         return 'Brave'
     elif 'microsoft' in name:
@@ -534,8 +596,6 @@ def chromeWebHistory(context):
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
             
         # Web History
         all_rows = _read_rows(file_found, browser_name, 'Web History', '''
@@ -613,8 +673,6 @@ def chromeWebVisits(context):
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         #Web Visits
         all_rows = _read_rows(file_found, browser_name, 'Web Visits', '''
@@ -719,8 +777,6 @@ def chromeWebSearch(context):
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         #Web Search
         all_rows = _read_rows(file_found, browser_name, 'Web Search', '''
@@ -802,8 +858,6 @@ def chromeDownloads(context):
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         #Downloads
         # check for last_access_time column, an older version of chrome db (32) does not have it
@@ -956,8 +1010,6 @@ def chromeKeywordSearchTerms(context):
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         #Search Terms
         all_rows = _read_rows(file_found, browser_name, 'Keyword Search Terms', '''
@@ -1036,8 +1088,6 @@ def chromeAutofillEntries(context):
         if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         db = open_sqlite_db_readonly(file_found)
         if db is None:
@@ -1218,8 +1268,6 @@ def chromeAutofillProfiles(context):
         if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         db = open_sqlite_db_readonly(file_found)
         if db is None:
@@ -1337,8 +1385,6 @@ def chromeBookmarks(context):
         report_files.append(file_found)
 
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         with open(file_found, "r", encoding="utf-8") as f:
             dataa = json.load(f)
@@ -1421,8 +1467,6 @@ def chromeCookies(context):
         if not os.path.basename(file_found) == 'Cookies':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         all_rows = _read_rows(file_found, browser_name, 'Cookies', '''
         SELECT
@@ -1524,8 +1568,6 @@ def chromeLoginData(context):
         if not os.path.basename(file_found) == 'Login Data':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         all_rows = _read_rows(file_found, browser_name, 'Login Data', '''
         SELECT
@@ -1607,8 +1649,6 @@ def chromeTopSites(context):
         if not os.path.basename(file_found) == 'Top Sites':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         report_files.append(file_found)
 
@@ -1698,8 +1738,6 @@ def chromeOfflinePages(context):
         if not os.path.basename(file_found) == 'OfflinePages.db':  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         all_rows = _read_rows(file_found, browser_name, 'Offline Pages', '''
         SELECT
@@ -1777,8 +1815,6 @@ def chromeMediaHistorySessions(context):
             continue  # Skip all other files
 
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         all_rows = _read_rows(file_found, browser_name, 'Media History - Sessions', '''
         select
@@ -1856,8 +1892,6 @@ def chromeMediaHistoryPlaybacks(context):
             continue  # Skip all other files
 
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         all_rows = _read_rows(file_found, browser_name, 'Media History - Playbacks', '''
         select
@@ -1939,8 +1973,6 @@ def chromeMediaHistoryOrigins(context):
             continue  # Skip all other files
 
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         all_rows = _read_rows(file_found, browser_name, 'Media History - Origins', '''
         select
@@ -2014,8 +2046,6 @@ def chromeNetworkActionPredictor(context):
             continue  # Skip all other files
 
         browser_name = get_browser_name(file_found)
-        if file_found.find('app_sbrowser') >= 0:
-            browser_name = 'Browser'
 
         all_rows = _read_rows(file_found, browser_name, 'Network Action Predictor', '''
         select
