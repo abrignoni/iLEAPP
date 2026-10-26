@@ -21,7 +21,8 @@ __artifacts_v2__ = {
                  "ones relied on are paraphrased where they are used.\n"
                  "Record Origin. Live rows come back from a normal read. Recovered rows do not: their "
                  "(client_conversation_id, client_message_id) key is held by an earlier committed state "
-                 "that the write-ahead log still carries, and is absent once the whole log is applied. "
+                 "that the write-ahead log still carries, and is absent from the current state, the "
+                 "log applied through its last committed transaction. "
                  "Recovery Method and Recovery Location are filled in only on Recovered "
                  "rows. The two sets cannot overlap. Why a Recovered row is absent is not established "
                  "here: removal by the app, a server re-sync, and deletion all produce the same result.\n"
@@ -30,17 +31,19 @@ __artifacts_v2__ = {
                  "states are compared with the current one on the (client_conversation_id, "
                  "client_message_id) key rather than row count. A Recovered row is reported once, as "
                  "the newest state holding its key stored it. Recovery Location names the log and the "
-                 "oldest and newest committed states the key was read in; state n is the database "
+                 "oldest and newest committed states the key was read in, or the database file "
+                 "alone when the key was read only in state 0; state n is the database "
                  "after the first n committed transactions in the log, and state 0 the database file "
                  "without its log. Conversation Participants on a Recovered row come from the newest "
-                 "state holding that conversation. A state whose schema lacks a selected column adds "
-                 "no rows. On the tested images this returned 21, 8, 10, 3, 7 and 1 Recovered rows on "
+                 "state holding that conversation. A state whose schema lacks the table or a selected "
+                 "column adds no rows; on 5 tested images state 0 had no conversation_message table. "
+                 "On the tested images this returned 21, 8, 10, 3, 7 and 1 Recovered rows on "
                  "otto_ios17, dexter_ios18, hc_ios18_7, hickman_ios15, iphone12_ios18 and "
                  "felix23_ios16, where comparing the database file without its log against the file "
                  "with it applied returned 12, 2, 0, 0, 7 and 0 and every key it returned is among "
                  "them. Because the newest version is reported, a value set in a later state can "
-                 "differ from that file-only reading: Read Timestamp and Is Viewed By User on 4 "
-                 "iphone12_ios18 rows, and Conversation Participants on 4 otto_ios17 rows. The one "
+                 "differ from that file-only reading: Read Timestamp on 4 iphone12_ios18 rows and Is "
+                 "Viewed By User on 3 of them, and Conversation Participants on 4 otto_ios17 rows. The one "
                  "Recovered row on felix23_ios16 has no value in Read Timestamp, Sender Username, "
                  "Sender Display Name, Media, Created On Device, Quoted Server Message ID, Server "
                  "Message ID or Local Media ID. The glob keeps the -wal and -shm sidecars: on "
@@ -89,8 +92,10 @@ __artifacts_v2__ = {
                  "stored non-zero value, NO for a stored 0 and blank for a NULL or an absent column.\n"
                  "Limits. Frames left by an earlier log generation, frames after the last commit, "
                  "freelist pages and free space in the database file are not read, so a message absent "
-                 "here is not evidence it did not exist; the run log gives the log's frame and commit "
-                 "counts and names any frames skipped. Reactions and message_state history are not "
+                 "here is not evidence it did not exist. States that a partial checkpoint has made "
+                 "unreadable, and states beyond the 2,000 newest, are skipped; neither case arose on "
+                 "the tested images. The run log gives the log's frame and commit counts and counts "
+                 "any frames and states skipped. Reactions and message_state history are not "
                  "parsed.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/arroyo/arroyo.db*',
                   '*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/DocObjects/primary.docobjects*',
@@ -143,8 +148,8 @@ __artifacts_v2__ = {
                        "only before the write-ahead log is applied, distinguished by the Record "
                        "Origin column. Participant UUIDs are decoded from the "
                        "conversation_metadata protobuf and resolved against the snapchatter "
-                       "store in primary.docobjects. WAL frames are not parsed, so absence of a "
-                       "conversation here is not evidence it did not exist.",
+                       "store in primary.docobjects. Only the log as SQLite applies it is read, so "
+                       "absence of a conversation here is not evidence it did not exist.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-10-26",
         "requirements": "blackboxprotobuf", "category": "Snapchat",
@@ -1179,6 +1184,8 @@ _METHOD_WAL_STATES = 'WAL committed states'
 def _state_location(source_path, first, last):
     '''Recovery Location for a row read from committed states first..last of the log.'''
     name = os.path.basename(source_path) if source_path else 'database'
+    if last == 0:
+        return f'{name} without its log, state 0'
     states = f'state {first}' if first == last else f'states {first} to {last}'
     return f'{name}-wal, committed {states}'
 
