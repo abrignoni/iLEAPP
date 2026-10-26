@@ -19,7 +19,7 @@ ROOT_DIR = os.path.dirname(
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from scripts.artifacts import life360, snapchat  # pylint: disable=wrong-import-position
+from scripts.artifacts import discordServers, life360, snapchat  # pylint: disable=wrong-import-position
 from scripts.artifacts import googlePhotos  # pylint: disable=wrong-import-position
 
 
@@ -87,6 +87,18 @@ class WalRecoveryPathTest(unittest.TestCase):
         self.assertEqual([(table, row) for table, _c, _i, _d, row, _s, _cur in found],
                          [('t', (2, b'gone'))])
 
+    def test_discord_messages_found_beside_a_path_with_a_space(self):
+        # messages0 has no primary key, only a unique index on a..f. A row rewritten in
+        # place is the same message and must not come back; a removed key must.
+        path = _capture(self.tmp, 'a', [
+            'CREATE TABLE messages0 (a, b, c, d, e, f, data, generation)',
+            'CREATE UNIQUE INDEX messages0_by_key on messages0 (a, b, c, d, e, f)',
+            "INSERT INTO messages0 VALUES ('m', 'g', 'c', '1', '', '', 'one', 1)",
+            "INSERT INTO messages0 VALUES ('m', 'g', 'c', '2', '', '', 'two', 1)",
+            "INSERT OR REPLACE INTO messages0 VALUES ('m', 'g', 'c', '1', '', '', 'one again', 2)",
+            "DELETE FROM messages0 WHERE d = '2'"])
+        removed = discordServers.discord_removed_messages(path)
+        self.assertEqual([data for data, _method, _location in removed], ['two'])
     def test_life360_chat_messages_found_beside_a_path_with_a_space(self):
         # A message is its ZCHATMESSAGE Z_PK: a row whose message is still current is not
         # reported again, a removed message is, with its sender joined from its own state.
