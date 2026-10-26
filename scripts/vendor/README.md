@@ -28,6 +28,17 @@ seekable image. qnxprobe reaches it by name, and `scripts/raw_image.py` imports
 this copy first so that the name resolves to it in a frozen build as well as from
 source. Standard library only, so this adds no dependency either.
 
+## c2paprobe.py
+
+| | |
+| --- | --- |
+| upstream | https://github.com/abrignoni/c2paprobe |
+| licence | MIT, kept beside it as LICENSE-c2paprobe |
+
+Reads the Content Credentials (C2PA) manifest store and the XMP a picture or video
+holds, walking its container from the bytes. `scripts/artifacts/c2paProvenance.py`
+imports it. ALEAPP vendors the same file. Standard library only.
+
 The vendored version, upstream commit and sha256 of each file are recorded in
 `vendored.json` in this directory, which `admin/scripts/check_vendored.py`
 enforces in CI: it checks the hashes and fetches each upstream file at its
@@ -41,6 +52,7 @@ re-vendor, or the next sync silently reverts the change.
 
     cp ../qnxprobe/qnxprobe.py scripts/vendor/qnxprobe.py
     cp ../qnxprobe/ewfprobe.py scripts/vendor/ewfprobe.py
+    cp ../c2paprobe/c2paprobe/__init__.py scripts/vendor/c2paprobe.py
     python3 admin/scripts/check_vendored.py --update
 
 `--update` rewrites the hashes only. The upstream commit and date in
