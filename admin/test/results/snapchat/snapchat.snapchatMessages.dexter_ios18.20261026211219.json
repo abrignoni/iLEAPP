@@ -6,19 +6,19 @@
     "case_number": "dexter_ios18",
     "number_of_columns": 23,
     "number_of_rows": 39,
-    "total_data_size_bytes": 8916,
+    "total_data_size_bytes": 8944,
     "media_checkins": 9,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/snapchat/testdata.snapchat.snapchatMessages.dexter_ios18.zip",
-    "start_time": "2026-10-26T17:48:40.107090+00:00",
-    "end_time": "2026-10-26T17:48:40.291659+00:00",
-    "run_time_seconds": 0.13548016548156738,
+    "start_time": "2026-10-26T21:12:19.335157+00:00",
+    "end_time": "2026-10-26T21:12:19.529422+00:00",
+    "run_time_seconds": 0.14260101318359375,
     "last_commit": {
-      "hash": "189ac27f6912cec6427b0ee25d1a31c42d5d05cf",
+      "hash": "fbe00c6801d53c3edf8f505184bdab2e9779fd1d",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-10-14T13:44:31-04:00",
-      "message": "Snapchat messages: add the two Hickman images to the field counts"
+      "date": "2026-10-26T14:28:09-04:00",
+      "message": "Snapchat conversations: tighten notes after audit"
     }
   },
   "headers": [
@@ -809,7 +809,7 @@
       1,
       "",
       "WAL committed states",
-      "arroyo.db-wal, committed states 0 to 3"
+      "arroyo.db and arroyo.db-wal, committed states 0 to 3"
     ],
     [
       1758725529,
@@ -834,7 +834,7 @@
       2,
       "",
       "WAL committed states",
-      "arroyo.db-wal, committed states 0 to 3"
+      "arroyo.db and arroyo.db-wal, committed states 0 to 3"
     ],
     [
       1758827915,
