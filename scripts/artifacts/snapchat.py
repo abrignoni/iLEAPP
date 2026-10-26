@@ -144,23 +144,27 @@ __artifacts_v2__ = {
     "snapchatConversations": {
         "name": "Snapchat - Conversations (arroyo.db)",
         "description": "Conversation records from the conversation and feed_entry tables in "
-                       "arroyo.db, both the rows a normal read returns and rows that are present "
-                       "only before the write-ahead log is applied, distinguished by the Record "
-                       "Origin column. Participant UUIDs are decoded from the "
-                       "conversation_metadata protobuf and resolved against the snapchatter "
-                       "store in primary.docobjects. Only the log as SQLite applies it is read, so "
-                       "absence of a conversation here is not evidence it did not exist.",
+                       "arroyo.db, both the rows a normal read returns and conversations that an "
+                       "earlier committed state in the write-ahead log holds and the current state "
+                       "does not, distinguished by the Record Origin column. Participant UUIDs are "
+                       "decoded from the conversation_metadata protobuf and resolved against the "
+                       "snapchatter store in primary.docobjects. Only the log's current generation "
+                       "is read, so absence of a conversation here is not evidence it did not exist.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-10-26",
         "requirements": "blackboxprotobuf", "category": "Snapchat",
         "notes": "Record Origin. Live rows come back from a normal read. Recovered rows are "
-                 "conversations whose client_conversation_id is present in conversation or "
-                 "feed_entry as of the last checkpoint and in neither once the write-ahead log "
-                 "is applied. The file is read twice through SQLite, immutable=1 to ignore the log "
-                 "and mode=ro to apply it, so the log's intermediate committed states are not "
-                 "compared, unlike Snapchat - Messages (arroyo.db). Why a Recovered row is absent is "
-                 "not established: removal by the app, a server re-sync and deletion all produce the "
-                 "same result.\n"
+                 "conversations whose client_conversation_id an earlier committed state of the "
+                 "write-ahead log holds in conversation or feed_entry, and the current state holds "
+                 "in neither. States are read as in Snapchat - Messages (arroyo.db), and Recovery "
+                 "Location is written the same way; see its notes for what is not read. A Recovered "
+                 "row's values, participants and Message Count come from the newest state holding "
+                 "each of them for that conversation. On the tested images this returned 4 Recovered "
+                 "rows on dexter_ios18 and 2 on otto_ios17, where comparing the database file "
+                 "without its log against the file with it applied returned 1 and 2; every id it "
+                 "returned is among them, with the same values. Why a Recovered row is absent is "
+                 "not established: removal by the app, a server re-sync and deletion all produce "
+                 "the same result.\n"
                  "Rows are the union of client_conversation_id across conversation and "
                  "feed_entry, so a conversation in only one of them is still reported. "
                  "Participant IDs come from the conversation_metadata protobuf at repeated "
@@ -173,15 +177,15 @@ __artifacts_v2__ = {
                  "verified. Tombstoned reads YES for a stored non-zero value and NO for a stored 0, "
                  "and is blank when the conversation has no feed_entry row or the tombstoned "
                  "value is NULL. Message Count counts conversation_message rows in "
-                 "the matching "
-                 "view, not messages exchanged.",
+                 "the normal read for a Live row and in the newest state holding that "
+                 "conversation's messages for a Recovered row, not messages exchanged.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/arroyo/arroyo.db*',
                   '*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/DocObjects/primary.docobjects*'),
         "output_types": "standard", "artifact_icon": "messages",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 21 rows (all Live)",
             "otto_ios17": "iOS 17.5.1 | 140 rows (138 Live, 2 Recovered)",
-            "dexter_ios18": "iOS 18.3.2 | 77 rows (76 Live, 1 Recovered)",
+            "dexter_ios18": "iOS 18.3.2 | 80 rows (76 Live, 4 Recovered)",
             "iphone12_ios18": "iOS 18.7 | 104 rows (all Live)",
             "hc_ios18_7": "iOS 18.7.8 | 14 rows (all Live)",
             "iphone14plus_ios18_mvs2025": "iOS 18.0 | 18 rows (all Live)",
@@ -760,22 +764,6 @@ def _tolerant_select(source_path, table, columns, tail=''):
     return f'SELECT {select_list} FROM {table} {tail}'
 
 
-def _superseded(source_path, sql, key_indexes):
-    '''Rows present at the last checkpoint and absent once the write-ahead log is applied.
-
-    Both sides are consistent SQLite views of the same file, one ignoring the WAL and one
-    applying it, compared on the columns at key_indexes rather than on row counts, since a
-    table can hold the same number of rows in both views with different rows in it.
-    Empty when the file has no WAL alongside it. Why a row did not survive into the
-    committed state is not established here.
-    '''
-    def key(row):
-        return tuple(row[index] for index in key_indexes)
-
-    committed = {key(row) for row in _rows(source_path, sql)}
-    return [row for row in _rows_pre_wal(source_path, sql) if key(row) not in committed]
-
-
 def _removed_in_log(source_path, sql, key_indexes):
     '''Rows whose key an earlier committed state in the write-ahead log holds and the
     current state does not, read through scripts/sqlite_wal.py.
@@ -1234,7 +1222,7 @@ def _message_rows(rows, friends, participants, local_user_id, provenance, media)
     return data_list
 
 
-def _conversation_rows(source_path, friends, reader, provenance, only_ids=None):
+def _conversation_rows(source_path, friends, reader, provenance, only_ids=None, locations=None):
     participants = _participants(source_path, friends, reader)
     conversations = {row[0]: row[1:] for row in reader(source_path, '''
         SELECT client_conversation_id, creation_timestamp, tombstoned_at_timestamp,
@@ -1269,18 +1257,36 @@ def _conversation_rows(source_path, friends, reader, provenance, only_ids=None):
             counts.get(conversation_id, 0), streak, conversation_type, send_state,
             _friend_name(friends, creator), creator,
             _friend_name(friends, last_sender), last_sender,
-            _yes_no_blank(tombstoned), conversation_id, method, location))
+            _yes_no_blank(tombstoned), conversation_id, method,
+            (locations or {}).get(conversation_id, location)))
     return data_list
 
 
-def _superseded_conversation_ids(source_path):
-    '''client_conversation_id values that the WAL removes from conversation or feed_entry.'''
-    pre, committed = set(), set()
-    for sql in ('SELECT client_conversation_id FROM conversation',
-                'SELECT client_conversation_id FROM feed_entry'):
-        pre |= {row[0] for row in _rows_pre_wal(source_path, sql)}
-        committed |= {row[0] for row in _rows(source_path, sql)}
-    return pre - committed
+def _removed_conversation_ids(source_path):
+    '''{client_conversation_id: (first state, last state)} for ids an earlier committed state
+    of the write-ahead log holds in conversation or feed_entry and the current state holds in
+    neither, read through scripts/sqlite_wal.py.'''
+    current = None
+    found = {}
+    with WalStates(get_sqlite_db_path(source_path)) as wal:
+        logfunc(f'Snapchat {wal.summary()}')
+        for state in wal.states():
+            ids = set()
+            for sql in ('SELECT client_conversation_id FROM conversation',
+                        'SELECT client_conversation_id FROM feed_entry'):
+                try:
+                    ids |= {row[0] for row in state.connection.execute(sql)}
+                except sqlite3.Error:
+                    continue
+            if current is None:
+                current = ids
+                continue
+            for conversation_id in ids - current:
+                if conversation_id in found:
+                    found[conversation_id][0] = state.number
+                else:
+                    found[conversation_id] = [state.number, state.number]
+    return {conversation_id: tuple(span) for conversation_id, span in found.items()}
 
 
 @artifact_processor
@@ -1329,7 +1335,7 @@ def snapchatMessages(context):
 
 @artifact_processor
 def snapchatConversations(context):
-    '''Live conversation and feed_entry rows, plus rows the write-ahead log removes.'''
+    '''Live conversation and feed_entry rows, plus ids an earlier committed state of the log holds.'''
     files_found = context.get_files_found()
     data_list = []
     source_path = ''
@@ -1339,9 +1345,13 @@ def snapchatConversations(context):
         friends = _friend_records(doc_store)
         data_list += _conversation_rows(arroyo_path, friends, _rows,
                                         _provenance(arroyo_path, _ORIGIN_LIVE))
-        data_list += _conversation_rows(arroyo_path, friends, _rows_pre_wal,
-                                        _provenance(arroyo_path, _ORIGIN_RECOVERED),
-                                        _superseded_conversation_ids(arroyo_path))
+        removed = _removed_conversation_ids(arroyo_path)
+        if removed:
+            data_list += _conversation_rows(
+                arroyo_path, friends, _rows_all_states,
+                (_ORIGIN_RECOVERED, _METHOD_WAL_STATES, ''), removed,
+                {conversation_id: _state_location(arroyo_path, *span)
+                 for conversation_id, span in removed.items()})
     data_list.sort(key=_by_creation)
     return _CONVERSATION_HEADERS, data_list, source_path
 
