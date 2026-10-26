@@ -205,8 +205,8 @@ __artifacts_v2__ = {
     },
     "googlePhotosPreCheckpointRows": {
         "name": "Google Photos - Rows in Earlier WAL States",
-        "description": "Rows that another state held in the write-ahead logs of the app's stores "
-                       "has and the current state of those stores no longer returns, or returns "
+        "description": "Rows that another state in the write-ahead logs of the app's stores "
+                       "holds and the current state of those stores no longer returns, or returns "
                        "with different content.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
@@ -224,8 +224,9 @@ __artifacts_v2__ = {
                  "only in frames after the last commit is reported as only in uncommitted frames. "
                  "Each distinct stored version of a row is one row, so a row changed several times "
                  "appears once per version, and two versions that differ only inside a blob read "
-                 "alike once blobs are summarised. Recovery Location names the states a version "
-                 "was read in, with first and last numbers. On abe_ios16 and magnet_ios16 this "
+                 "alike once blobs are summarised. Recovery Location names the committed states, "
+                 "and any previous-generation commits, a version was read in, with first and last "
+                 "numbers; a version read only in frames after the last commit is located there. On abe_ios16 and magnet_ios16 this "
                  "returned 222 and 43 rows across 8 and 5 tables, where comparing each store "
                  "without its log against the store with it applied returned 64 and 0, all among "
                  "them; no tested store's log had left-over frames from a previous generation or "
