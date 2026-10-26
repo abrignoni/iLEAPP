@@ -50,7 +50,7 @@ import struct
 import xml.etree.ElementTree as ET
 import zlib
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 __all__ = ['probe', 'probe_bytes', 'parse_store', 'parse_xmp', 'source_type',
            'IPTC_TERMS', 'MAX_STORE', '__version__']
@@ -1001,6 +1001,25 @@ def _gif_skip_sub_blocks(fh):
         fh.seek(here + b[0])
 
 
+# What follows a GIF's XMP packet (XMP Part 3): 01, then FF down to 00. Read as
+# sub-blocks from anywhere in the packet, it lands on the terminator after it.
+_GIF_XMP_TRAILER = bytes([1]) + bytes(range(255, -1, -1))
+
+
+def _gif_xmp(raw):
+    """The XMP packet of a GIF's XMP application extension, from its data as it lies
+    (length bytes kept, terminator included). The XMP specification writes the packet
+    raw, then the magic trailer. c2pa-rs 0.91 writes packet and trailer as data
+    sub-blocks, a length byte every 255 bytes, so those are taken out."""
+    if raw.endswith(_GIF_XMP_TRAILER + b'\x00'):
+        return raw[:-len(_GIF_XMP_TRAILER) - 1]
+    parts, i = [], 0
+    while i < len(raw) and raw[i]:
+        parts.append(raw[i + 1:i + 1 + raw[i]])
+        i += 1 + raw[i]
+    return b''.join(parts).removesuffix(_GIF_XMP_TRAILER)
+
+
 def _gif(fh, size, out):
     fh.seek(10)
     flags = fh.read(1)[0]
@@ -1035,7 +1054,7 @@ def _gif(fh, size, out):
                                        _gif_sub_blocks(fh)))
                 elif ident == b'XMP DataXMP':
                     raw = _gif_sub_blocks(fh, raw=True)
-                    out.xmp.append(('GIF XMP application extension', raw))
+                    out.xmp.append(('GIF XMP application extension', _gif_xmp(raw)))
                 else:
                     _gif_skip_sub_blocks(fh)
             else:
