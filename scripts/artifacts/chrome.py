@@ -28,17 +28,25 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/History*', '*/Edge/*/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "history",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 5 rows",
-            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 9 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119, Microsoft Edge 120.2210.126 | 14 rows",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 5 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 45 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 21 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 160 rows",
+            "hickman_ios15": "iOS 15.3.1 | Brave 1.50, Google Chrome 113.5672.69, Microsoft Edge 112.1722.64 | 16 rows",
         },
     },
     "chromeWebVisits": {
@@ -75,17 +83,25 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/History*', '*/Edge/*/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "world",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 17 rows",
-            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 16 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119, Microsoft Edge 120.2210.126 | 21 rows",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 6 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 200 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 52 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 470 rows",
+            "hickman_ios15": "iOS 15.3.1 | Brave 1.50, Google Chrome 113.5672.69, Microsoft Edge 112.1722.64 | 30 rows",
         },
     },
     "chromeWebSearch": {
@@ -118,17 +134,25 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/History*', '*/Edge/*/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "search",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119, Microsoft Edge 120.2210.126 | 3 rows",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 1 row",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 6 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 7 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 57 rows",
+            "hickman_ios15": "iOS 15.3.1 | Brave 1.50, Google Chrome 113.5672.69, Microsoft Edge 112.1722.64 | 3 rows",
         },
     },
     "chromeDownloads": {
@@ -170,8 +194,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/History*', '*/Edge/*/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "download",
@@ -212,17 +242,25 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/History*', '*/Edge/*/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "search",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Google Chrome 120.6099.119, Microsoft Edge 120.2210.126 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 1 row",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 6 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 7 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 75 rows",
+            "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69, Microsoft Edge 112.1722.64 | 2 rows",
         },
     },
     "chromeAutofillEntries": {
@@ -254,8 +292,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Web Data*', '*/Edge/*/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
         "artifact_icon": "forms",
@@ -265,6 +309,8 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 9 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 21 rows",
+            "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69 | 4 rows",
         },
     },
     "chromeAutofillProfiles": {
@@ -311,8 +357,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Web Data*', '*/Edge/*/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -324,6 +376,8 @@ __artifacts_v2__ = {
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | Google Chrome (com.google.chrome.ios) | 0 rows",
             "hc_ios26": "iOS 26.5.2 | Brave (com.brave.ios.browser) | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 1 row",
+            "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69 | 2 rows",
         },
     },
     "chromeBookmarks": {
@@ -349,16 +403,23 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Bookmarks*', '*/Edge/*/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
                   '*/Chromium/Default/Bookmarks*'),
         "output_types": "standard",
         "artifact_icon": "bookmark",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 1 row",
-            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Microsoft Edge 120.2210.126 | 2 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69, Microsoft Edge 112.1722.64 | 3 rows",
         },
     },
     "chromeCookies": {
@@ -390,8 +451,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Cookies*', '*/Edge/*/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
         "artifact_icon": "cookie",
     },
@@ -429,8 +496,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Login Data*', '*/Edge/*/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
         "sample_data": {
@@ -439,6 +512,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69 | 12 rows",
         },
     },
     "chromeTopSites": {
@@ -465,8 +539,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Top Sites*', '*/Edge/*/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
         "artifact_icon": "star",
         "sample_data": {
@@ -477,6 +557,7 @@ __artifacts_v2__ = {
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | Google Chrome (com.google.chrome.ios) | 0 rows",
             "hc_ios26": "iOS 26.5.2 | Brave (com.brave.ios.browser) | 7 rows",
+            "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69, Microsoft Edge 112.1722.64 | 2 rows",
         },
     },
     "chromeOfflinePages": {
@@ -508,8 +589,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Offline Pages/metadata/OfflinePages.db*', '*/Edge/*/Offline Pages/metadata/OfflinePages.db*',
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
         "output_types": "standard",
@@ -544,8 +631,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Media History*', '*/Edge/*/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
         "artifact_icon": "movie",
@@ -579,8 +672,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Media History*', '*/Edge/*/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
         "artifact_icon": "player-play",
@@ -614,8 +713,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Media History*', '*/Edge/*/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
         "artifact_icon": "world",
@@ -650,8 +755,14 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
-        "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
+                 " Chromium."
+                 " "
+                 "The paths read every profile folder under Chrome and under Edge, not only Default. On "
+                 "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
+                 "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
+                 "History, Web Data and Login Data on both; each was read and gave no rows. These "
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+        "paths": ('*/Chrome/*/Network Action Predictor*', '*/Edge/*/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],
         "artifact_icon": "trending-up",
