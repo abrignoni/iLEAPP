@@ -19,7 +19,7 @@ ROOT_DIR = os.path.dirname(
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from scripts.artifacts import snapchat  # pylint: disable=wrong-import-position
+from scripts.artifacts import life360, snapchat  # pylint: disable=wrong-import-position
 from scripts.artifacts import googlePhotos  # pylint: disable=wrong-import-position
 
 
@@ -86,6 +86,22 @@ class WalRecoveryPathTest(unittest.TestCase):
         found = googlePhotos._rows_in_log(path)  # pylint: disable=protected-access
         self.assertEqual([(table, row) for table, _c, _i, _d, row, _s, _cur in found],
                          [('t', (2, b'gone'))])
+
+    def test_life360_chat_messages_found_beside_a_path_with_a_space(self):
+        # A message is its ZCHATMESSAGE Z_PK: a row whose message is still current is not
+        # reported again, a removed message is, with its sender joined from its own state.
+        path = _capture(self.tmp, 'Messaging.sqlite', [
+            'CREATE TABLE ZCHATMEMBER (Z_PK INTEGER PRIMARY KEY, ZFIRSTNAME TEXT)',
+            'CREATE TABLE ZCHATMESSAGE (Z_PK INTEGER PRIMARY KEY, ZSENDER INTEGER, ZTEXT TEXT)',
+            "INSERT INTO ZCHATMEMBER VALUES (1, 'a')",
+            "INSERT INTO ZCHATMESSAGE VALUES (1, 1, 'kept')",
+            "INSERT INTO ZCHATMESSAGE VALUES (2, 1, 'removed')",
+            "UPDATE ZCHATMESSAGE SET ZTEXT = 'kept, edited' WHERE Z_PK = 1",
+            'DELETE FROM ZCHATMESSAGE WHERE Z_PK = 2'])
+        query = ('SELECT ZTEXT, ZFIRSTNAME, ZCHATMESSAGE.Z_PK, NULL FROM ZCHATMESSAGE '
+                 'LEFT JOIN ZCHATMEMBER ON ZCHATMEMBER.Z_PK = ZSENDER')
+        removed = life360._removed_messages(path, query, {1})  # pylint: disable=protected-access
+        self.assertEqual([row for row, _method, _location in removed], [('removed', 'a', 2, None)])
 
 if __name__ == '__main__':
     unittest.main()
