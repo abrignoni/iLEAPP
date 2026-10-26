@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses web history from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -13,7 +13,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -31,7 +43,7 @@ __artifacts_v2__ = {
         "description": "Parses web visits from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "Transition Type and Qualifier(s) are decoded from visits.transition with the names in "
@@ -45,7 +57,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -64,7 +88,7 @@ __artifacts_v2__ = {
                        "search term. Search URLs of any other shape are not reported.",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -73,7 +97,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -91,7 +127,7 @@ __artifacts_v2__ = {
         "description": "Parses downloads from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "State, Danger Type and Interrupt Reason are labels this module assigns to the stored "
@@ -110,7 +146,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -128,7 +176,7 @@ __artifacts_v2__ = {
         "description": "Parses keyword search terms from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -137,7 +185,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -155,7 +215,7 @@ __artifacts_v2__ = {
         "description": "Parses autofill entries from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -164,7 +224,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -182,7 +254,7 @@ __artifacts_v2__ = {
         "description": "Parses Autofill Profiles from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-08-14",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "Chromium stores address profiles in several layouts and all observed ones are read. "
@@ -206,7 +278,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -228,10 +312,20 @@ __artifacts_v2__ = {
                        "are not.",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
                   '*/Chromium/Default/Bookmarks*'),
         "output_types": "standard",
@@ -248,7 +342,7 @@ __artifacts_v2__ = {
         "description": "Parses Cookies from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -257,7 +351,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus carries such a file, so that path was exercised against a "
                  "constructed composite and not against a tested image. No sample_data is recorded for this "
-                 "artifact, so nothing here shows the Cookies read returning rows on an iOS image.",
+                 "artifact, so nothing here shows the Cookies read returning rows on an iOS image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
         "artifact_icon": "cookie",
@@ -272,7 +378,7 @@ __artifacts_v2__ = {
                        "whichever gives the year closer to the year the tool is run.",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -281,7 +387,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus "
                  "carries such a file, so that path was exercised against a constructed composite and not "
-                 "against a tested image.",
+                 "against a tested image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
@@ -298,11 +416,23 @@ __artifacts_v2__ = {
         "description": "Parses Top Sites from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-08-14",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "The redirects column is absent from the version-5 Top Sites schema observed "
-                 "on every corpus store checked (iOS 16.1.1-26.5.2); it is reported blank there.",
+                 "on every corpus store checked (iOS 16.1.1-26.5.2); it is reported blank there."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
         "artifact_icon": "star",
@@ -321,7 +451,7 @@ __artifacts_v2__ = {
         "description": "Parses Offline Pages from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -330,7 +460,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus carries such a file, so that path was exercised against a "
                  "constructed composite and not against a tested image. No sample_data is recorded for this "
-                 "artifact, so nothing here shows the Offline Pages read returning rows on an iOS image.",
+                 "artifact, so nothing here shows the Offline Pages read returning rows on an iOS image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
@@ -342,7 +484,7 @@ __artifacts_v2__ = {
         "description": "Parses Media History Sessions from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -351,7 +493,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus carries such a file, so that path was exercised against a "
                  "constructed composite and not against a tested image. No sample_data is recorded for this "
-                 "artifact, so nothing here shows the Media History read returning rows on an iOS image.",
+                 "artifact, so nothing here shows the Media History read returning rows on an iOS image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -362,7 +516,7 @@ __artifacts_v2__ = {
         "description": "Parses Media History Playbacks from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -371,7 +525,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus carries such a file, so that path was exercised against a "
                  "constructed composite and not against a tested image. No sample_data is recorded for this "
-                 "artifact, so nothing here shows the Media History read returning rows on an iOS image.",
+                 "artifact, so nothing here shows the Media History read returning rows on an iOS image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -382,7 +548,7 @@ __artifacts_v2__ = {
         "description": "Parses Media History Origins from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -391,7 +557,19 @@ __artifacts_v2__ = {
                  "Codes', SQLITE_READONLY_ROLLBACK, https://www.sqlite.org/rescode.html#readonly_rollback). "
                  "No registered iOS corpus carries such a file, so that path was exercised against a "
                  "constructed composite and not against a tested image. No sample_data is recorded for this "
-                 "artifact, so nothing here shows the Media History read returning rows on an iOS image.",
+                 "artifact, so nothing here shows the Media History read returning rows on an iOS image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -402,7 +580,7 @@ __artifacts_v2__ = {
         "description": "Parses Network Action Predictor records from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -412,7 +590,19 @@ __artifacts_v2__ = {
                  "No registered iOS corpus carries such a file, so that path was exercised against a "
                  "constructed composite and not against a tested image. No sample_data is recorded for this "
                  "artifact, so nothing here shows the Network Action Predictor read returning rows on an "
-                 "iOS image.",
+                 "iOS image."
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],

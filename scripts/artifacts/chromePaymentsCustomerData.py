@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses the payments customer data record from Chromium based browsers",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium",
         "notes": "Reads the payments_customer_data table in Web Data. The table is created with a "
@@ -33,7 +33,19 @@ __artifacts_v2__ = {
                  "'payments_autofill_table.cc', "
                  "https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/autofill/core/browser/webdata/payments/payments_autofill_table.cc"
                  " and 'payments_customer_data.h', "
-                 "https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/autofill/core/browser/payments/payments_customer_data.h",
+                 "https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/autofill/core/browser/payments/payments_customer_data.h"
+                 " "
+                 "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
+                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "a full file system the identifier is read from the container's "
+                 ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
+                 " backup it is the container folder name, which follows the seeker's backup layout; no "
+                 "unencrypted backup in the corpus exercises that case. Any other file is named from its "
+                 "path inside the container, or inside the extraction when it is in no container, by the "
+                 "first of app_sbrowser (Browser), brave, microsoft (Edge), opera, chromium and chrome "
+                 "that appears, and is Unknown when none does. Folders above the extraction, such as the "
+                 "case folder, are never read. Brave keeps its profile under Application Support/Chromium "
+                 "on the tested images, which earlier releases reported as Chromium.",
         "paths": ('*/Chrome/*/Web Data*', '*/Chromium/*/Web Data*', '*/Edge/*/Web Data*',
                   '*/Library/Application Support/Web Data*'),
         "output_types": ['html', 'tsv', 'lava'],
