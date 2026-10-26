@@ -471,7 +471,7 @@ class WalStates:
         elif log.other_frames:
             parts.append(f'{log.other_frames} frames from an earlier log generation or '
                          f'failing their checksum not read')
-        if earlier and log.older_frames:
+        if earlier and run and log.older_frames:
             parts.append(f'{log.older_frames} frames from older generations or failing their '
                          f'checksum not read')
         if log.trailing_bytes:

@@ -401,6 +401,17 @@ class EarlierGenerationTest(unittest.TestCase):
         known |= {(i, 'late %d ' % i + 'z' * 900) for i in range(100, 160)}
         self.assertTrue({row.values for row in rows} <= known)
 
+    def test_unread_frames_are_counted_once_without_a_previous_generation(self):
+        # Frames after a checksum break with no previous-generation run behind them were
+        # reported twice when the earlier generation was asked for.
+        for i in range(1, 6):
+            self.fixture.execute('INSERT INTO t VALUES (?, ?)', (i, 'row %d' % i))
+        db_path = self.fixture.capture()
+        with open(db_path + '-wal', 'ab') as handle:
+            handle.write(b'\x00' * (24 + WalLog(db_path + '-wal').page_size))
+        summary = WalStates(db_path, include=ALL_KINDS).summary()
+        self.assertEqual(summary.count('not read'), 1, summary)
+
     def test_a_rebuilt_state_failing_quick_check_is_skipped(self):
         self._generation_a()
         self._short_generation(200, 3)
