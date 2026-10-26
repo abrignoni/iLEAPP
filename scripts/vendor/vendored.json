@@ -43,12 +43,12 @@
     {
       "path": "scripts/vendor/c2paprobe.py",
       "name": "c2paprobe",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "upstream": "https://github.com/abrignoni/c2paprobe",
       "upstream_file": "c2paprobe/__init__.py",
-      "commit": "c51e60159b7655d194b63478e32e9ae76a8c0955",
-      "commit_date": "2026-10-25T19:57:10-04:00",
-      "sha256": "1c89c715d83ec735c6c69852aab3af53adbc1eb3c8df1bf17ade4cc8919da8f2",
+      "commit": "dc796a0f4d6ccfa55c89e26a20fae889c82d5ff4",
+      "commit_date": "2026-10-25T22:48:56-04:00",
+      "sha256": "093d7ba1403b0c86d4f59ddf06e67e8fe9ca45166ef9a1a3dff490a58c7491bf",
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-c2paprobe",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
