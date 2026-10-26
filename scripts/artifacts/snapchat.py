@@ -3,12 +3,12 @@ __artifacts_v2__ = {
     "snapchatMessages": {
         "name": "Snapchat - Messages (arroyo.db)",
         "description": "Chat message records from the conversation_message table in arroyo.db, both the rows a "
-                       "normal read returns and rows that an earlier committed state in the write-ahead log "
-                       "holds and the current state does not, distinguished by the Record Origin column. "
+                       "normal read returns and rows that another state in the write-ahead log holds and "
+                       "the current state does not, distinguished by the Record Origin column. "
                        "Sender UUIDs are resolved against the snapchatter store in primary.docobjects, and "
                        "message text is decoded from the message_content protobuf on rows where content_type "
-                       "is 1. Only the log's current generation is read, so absence of a message here is not "
-                       "evidence it did not exist. Cached media that "
+                       "is 1. Generations of the log older than the previous one are not read, so absence "
+                       "of a message here is not evidence it did not exist. Cached media that "
                        "cache_controller.db links to a message is shown in the Media column when its format is "
                        "recognised. Local Media ID is decoded from the message's local_message_references "
                        "archive when the MEDIA_ID value is present, and Created On Device reports the app's "
@@ -20,22 +20,37 @@ __artifacts_v2__ = {
                  "hash>/arroyo/arroyo.db; the schema ships the developers' own column comments, and the "
                  "ones relied on are paraphrased where they are used.\n"
                  "Record Origin. Live rows come back from a normal read. Recovered rows do not: their "
-                 "(client_conversation_id, client_message_id) key is held by an earlier committed state "
-                 "that the write-ahead log still carries, and is absent from the current state, the "
-                 "log applied through its last committed transaction. "
+                 "(client_conversation_id, client_message_id) key is held by another state the "
+                 "write-ahead log still carries (an earlier committed state, the previous "
+                 "generation's left-over frames or frames after the last commit), and is absent "
+                 "from the current state, the log applied through its last committed transaction. "
                  "Recovery Method and Recovery Location are filled in only on Recovered "
                  "rows. The two sets cannot overlap. Why a Recovered row is absent is not established "
                  "here: removal by the app, a server re-sync, and deletion all produce the same result.\n"
-                 "Method. Each committed state is read by SQLite from a scratch copy of arroyo.db whose "
-                 "log copy is cut at the end of a committed transaction (scripts/sqlite_wal.py), and "
-                 "states are compared with the current one on the (client_conversation_id, "
-                 "client_message_id) key rather than row count. A Recovered row is reported once, as "
-                 "the newest state holding its key stored it. Recovery Location names the log and the "
-                 "oldest and newest committed states the key was read in, or the database file "
-                 "alone when the key was read only in state 0; state n is the database "
-                 "after the first n committed transactions in the log, and state 0 the database file "
-                 "without its log. Conversation Participants on a Recovered row come from the newest "
-                 "state holding that conversation. A state whose schema lacks the table or a selected "
+                 "Method. scripts/sqlite_wal.py reads three kinds of state besides the current one. "
+                 "Each earlier committed state of the log's current generation is read by SQLite "
+                 "from a scratch copy of arroyo.db whose log copy is cut at the end of a committed "
+                 "transaction; state n is the database after the first n committed transactions in "
+                 "the log, and state 0 the database file without its log. The previous "
+                 "generation's left-over frames, which a reset of the log leaves behind, are written "
+                 "by page number onto a copy of the database file and read by SQLite, only where the "
+                 "current generation has not reached the database file, the file matches that "
+                 "generation's last commit, every page the state needs has an image at or before "
+                 "it, and SQLite's quick_check passes. Frames after the last commit are read the "
+                 "same way as an uncommitted state. States are compared with the current one on the "
+                 "(client_conversation_id, client_message_id) key rather than row count, and a "
+                 "Recovered row is reported once, as the newest committed state holding its key "
+                 "stored it, else the previous generation's newest left-over commit, else the "
+                 "frames after the last commit. Recovery Location names the committed states the "
+                 "key was read in, with their first and last numbers (naming the database file as "
+                 "well when the first is state 0, or alone when the key was read only in state 0), "
+                 "and the previous log generation with the first and last numbers of its left-over "
+                 "commits. A key read only in frames after the last commit is located there and "
+                 "carries Recovery Method WAL uncommitted frames; uncommitted frames are not named "
+                 "on a key also read in a committed state. A pending change to a message that is still current is not "
+                 "reported. No tested arroyo.db log had left-over frames from a previous "
+                 "generation or frames after its last commit. Conversation Participants on a "
+                 "Recovered row come from the newest committed state holding that conversation. A state whose schema lacks the table or a selected "
                  "column adds no rows; on 5 tested images state 0 had no conversation_message table. "
                  "On the tested images this returned 21, 8, 10, 3, 7 and 1 Recovered rows on "
                  "otto_ios17, dexter_ios18, hc_ios18_7, hickman_ios15, iphone12_ios18 and "
@@ -90,11 +105,12 @@ __artifacts_v2__ = {
                  "substituted with NULL under the same name so the remaining columns still report. The "
                  "affected fields are blank on those rows. Is Saved and Is Viewed By User read YES for a "
                  "stored non-zero value, NO for a stored 0 and blank for a NULL or an absent column.\n"
-                 "Limits. Frames left by an earlier log generation, frames after the last commit, "
-                 "freelist pages and free space in the database file are not read, so a message absent "
-                 "here is not evidence it did not exist. States that a partial checkpoint has made "
-                 "unreadable, and states beyond the 2,000 newest, are skipped; neither case arose on "
-                 "the tested images. The run log gives the log's frame and commit counts and counts "
+                 "Limits. Frames of log generations older than the previous one, frames after a "
+                 "checksum break, freelist pages and free space in the database file are not read, "
+                 "and states that fail a gate are skipped, so a message absent here is not evidence "
+                 "it did not exist. States that a partial checkpoint has made unreadable, and "
+                 "states beyond the 2,000 newest, are skipped; neither case arose on the tested "
+                 "images. The run log gives the log's frame and commit counts and counts "
                  "any frames and states skipped. Reactions and message_state history are not "
                  "parsed.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/arroyo/arroyo.db*',
@@ -144,21 +160,24 @@ __artifacts_v2__ = {
     "snapchatConversations": {
         "name": "Snapchat - Conversations (arroyo.db)",
         "description": "Conversation records from the conversation and feed_entry tables in "
-                       "arroyo.db, both the rows a normal read returns and conversations that an "
-                       "earlier committed state in the write-ahead log holds and the current state "
-                       "does not, distinguished by the Record Origin column. Participant UUIDs are "
-                       "decoded from the conversation_metadata protobuf and resolved against the "
-                       "snapchatter store in primary.docobjects. Only the log's current generation "
-                       "is read, so absence of a conversation here is not evidence it did not exist.",
+                       "arroyo.db, both the rows a normal read returns and conversations that "
+                       "another state in the write-ahead log holds and the current state does not, "
+                       "distinguished by the Record Origin column. Participant UUIDs are decoded "
+                       "from the conversation_metadata protobuf and resolved against the "
+                       "snapchatter store in primary.docobjects. Generations of the log older than "
+                       "the previous one are not read, so absence of a conversation here is not "
+                       "evidence it did not exist.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-10-26",
         "requirements": "blackboxprotobuf", "category": "Snapchat",
         "notes": "Record Origin. Live rows come back from a normal read. Recovered rows are "
-                 "conversations whose client_conversation_id an earlier committed state (the "
-                 "database file without its log, or the log through an earlier commit) holds in "
-                 "conversation or feed_entry, and the current state holds in neither. States are read as in Snapchat - Messages (arroyo.db), and Recovery "
-                 "Location is written the same way; see its notes for what is not read. A Recovered "
-                 "row's values, participants and Message Count come from the newest state holding "
+                 "conversations whose client_conversation_id another state in the write-ahead log (the "
+                 "database file without its log, the log through an earlier commit, the previous "
+                 "generation's left-over frames or frames after the last commit) holds in "
+                 "conversation or feed_entry, and the current state holds in neither. States are "
+                 "read as in Snapchat - Messages (arroyo.db), and Recovery Method and Recovery "
+                 "Location are written the same way; see its notes for what is not read. A Recovered "
+                 "row's values, participants and Message Count come from the newest committed state holding "
                  "each of them for that conversation. On the tested images this returned 4 Recovered "
                  "rows on dexter_ios18 and 2 on otto_ios17, where comparing the database file "
                  "without its log against the file with it applied returned 1 and 2; every id it "
@@ -457,7 +476,7 @@ __artifacts_v2__ = {
                        "Memory row, with location from gallery.encrypteddb and media decrypted from the app's "
                        "caches and stored thumbnails when the keys are available.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-09-19", "last_update_date": "2026-10-09",
+        "creation_date": "2026-09-19", "last_update_date": "2026-10-26",
         "requirements": "nska_deserialize, pycryptodome", "category": "Snapchat",
         "notes": "Sources. Documents/gallery_data_object/<n>/<profile>/scdb-27.sqlite3 is a Core Data "
                  "store with one ZGALLERYSNAP row per Memory. The profile folder name equalled the "
@@ -500,24 +519,28 @@ __artifacts_v2__ = {
                  "linked by the key that opens them; and from ZGALLERYSNAPMINITHUMBNAIL, a small "
                  "thumbnail per snap kept in scdb-27.sqlite3 and encrypted with the snap's key. All "
                  "three decrypt with AES-256-CBC using the snap's key and IV. Every stored thumbnail "
-                 "whose Memory had a usable key decrypted (51 on 3 images); the table was empty on the 2 "
+                 "whose Memory had a usable key decrypted (60 on 3 images); the table was empty on the 2 "
                  "images whose keys are in ZENCRYPTION.\n"
                  "Location. Latitude and Longitude come from snap_location_table and need the keychain; "
                  "KML is written for located rows. Address Title comes from snap_address_title; when the "
                  "Memory's own snap id has none, a title stored for a snap id sharing the Memory's key "
-                 "is used. On the tested images the 52 snap ids sharing a Memory's key all carried that "
+                 "is used. On the tested images the 43 snap ids sharing a Memory's key all carried that "
                  "Memory's coordinates, and they are not reported as rows of their own.\n"
                  "Record Origin. Live rows come from a normal read of scdb-27.sqlite3. Recovered rows "
-                 "are ZGALLERYSNAP rows present only before the write-ahead log is applied (Recovery "
-                 "Method WAL diff, 4 rows on 2 images), or snap ids with a key row in "
-                 "gallery.encrypteddb that have no Memory row in either read and share no key with one "
+                 "are ZGALLERYSNAP rows that another state of the write-ahead log holds and the "
+                 "current state does not, read as in Snapchat - Messages (arroyo.db) (Recovery "
+                 "Method WAL committed states, 13 rows on 3 images, where comparing the database "
+                 "file without its log against the file with it applied returned 4 rows on 2 "
+                 "images, all among them); each such row's entry, caption and thumbnail come from "
+                 "the same state as its ZGALLERYSNAP row. Or they are snap ids with a key row in "
+                 "gallery.encrypteddb that have no Memory row in any state read and share no key with one "
                  "(Recovery Method Key row with no Memory row, 5 rows on 2 images), whose times and "
                  "metadata are blank. Why a Memory row is absent is not established here.\n"
                  "As stored: Media Format (ZSERVLETMEDIAFORMAT), Width, Height, Duration (ZDURATION), "
                  "Front Camera (ZCAMERAFRONTFACING) and Camera Roll ID (ZCAMERAROLLID). Caption is the "
                  "text of each caption in the ZGALLERYSNAPDETAIL.ZOVERLAY archive, joined with ' | '. "
                  "Entry Title is ZGALLERYENTRY.ZTITLE. Duplicated From Snap ID is ZDUPLICATEDFROMSNAPID "
-                 "(7 rows). Media ID equalled Entry ID on 18 of the 94 rows with a Media ID; both are "
+                 "(16 rows). Media ID equalled Entry ID on 18 of the 103 rows with a Media ID; both are "
                  "reported as stored. Recovery Method and Recovery Location are filled only on Recovered "
                  "rows.\n"
                  "Limits. Without the keychain, location, address titles and the media of Memories whose "
@@ -542,8 +565,8 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Documents/user.plist'),
         "output_types": "all", "artifact_icon": "photo",
         "sample_data": {
-                           "iphone11_ios17": "iOS 17.3 | 28 rows (25 Live, 3 Recovered; 28 with media, 27 located)",
-                           "hickman_ios15": "iOS 15.3.1 | 28 rows (all Live; 21 with media, 27 located; 7 keys stay wrapped)",
+                           "iphone11_ios17": "iOS 17.3 | 36 rows (25 Live, 11 Recovered; 36 with media, 35 located)",
+                           "hickman_ios15": "iOS 15.3.1 | 29 rows (28 Live, 1 Recovered; 22 with media, 28 located; 7 keys stay wrapped)",
                            "hickman_ios14": "iOS 14.3 | 14 rows (all Live; no keychain, no media or location)",
                            "hickman_ios13": "iOS 13.3.1 | 11 rows (all Live; no keychain, no media or location)",
                            "dexter_ios18": "iOS 18.3.2 | 8 rows (4 Live, 4 Recovered; 7 with media, 4 located)",
@@ -660,7 +683,8 @@ from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, chec
                                get_sqlite_db_path, logfunc)
 from scripts.ios_keychain import active_keychain_path, find_keychain_secrets
 from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
-from scripts.sqlite_wal import NOT_IN_CURRENT, WalStates, rows_not_in_current
+from scripts.sqlite_wal import (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED, WalStates,
+                                rows_not_in_current)
 
 # blackboxprotobuf raises these when a blob does not decode as protobuf.
 _PB_ERRORS = (ValueError, TypeError, IndexError, KeyError, AttributeError)
@@ -728,28 +752,6 @@ def _rows(source_path, sql, params=()):
     return rows
 
 
-def _rows_pre_wal(source_path, sql):
-    '''Run sql against the database file as of its last checkpoint, ignoring the WAL.
-
-    immutable=1 is strictly read-only. Unlike mode=ro it does not even create a -shm
-    sidecar, so no evidence file is altered.
-    '''
-    if not source_path:
-        return []
-    try:
-        db = sqlite3.connect(f'file:{get_sqlite_db_path(source_path)}?immutable=1', uri=True)
-    except sqlite3.Error:
-        return []
-    cursor = db.cursor()
-    try:
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-    except sqlite3.Error:
-        rows = []
-    db.close()
-    return rows
-
-
 def _table_columns(source_path, table):
     return {row[1] for row in _rows(source_path, f'PRAGMA table_info({table})')}
 
@@ -766,38 +768,51 @@ def _tolerant_select(source_path, table, columns, tail=''):
     return f'SELECT {select_list} FROM {table} {tail}'
 
 
-def _removed_in_log(source_path, sql, key_indexes):
-    '''Rows whose key an earlier committed state in the write-ahead log holds and the
-    current state does not, read through scripts/sqlite_wal.py.
+_WAL_KINDS = (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED)
 
-    Returns [(row, first state, last state)], one per key: the row as the newest state
-    holding that key stored it, and the oldest and newest states the key was read in. A
-    state in which sql fails (an older schema without a selected column) adds nothing.
+
+def _removed_in_log(source_path, sql, key_indexes, live_keys):
+    '''Rows whose key another state in the write-ahead log holds and the current state does
+    not, read through scripts/sqlite_wal.py: earlier committed states, the previous log
+    generation's left-over frames, and frames after the last commit.
+
+    Returns [(row, spans)], one per key: the row as the newest state holding that key stored
+    it (a committed state before the previous generation before uncommitted frames), and
+    spans = {'committed': (first, last) or None, 'earlier': (first, last) or None,
+    'uncommitted': bool} across every version of the key.
     '''
-    _columns, earlier, wal = rows_not_in_current(get_sqlite_db_path(source_path), sql,
-                                                 key_columns=key_indexes)
+    _columns, found, wal = rows_not_in_current(str(source_path), sql,
+                                               key_columns=key_indexes, include=_WAL_KINDS)
     logfunc(f'Snapchat {wal.summary()}')
-    found = {}
-    for item in earlier:
-        if item.status != NOT_IN_CURRENT:
-            continue
+    by_key = {}
+    for item in found:
         key = tuple(item.values[index] for index in key_indexes)
-        seen = found.get(key)
-        if seen is None:
-            found[key] = [item.values, item.first_state, item.last_state]
+        if key in live_keys:
             continue
-        if item.last_state > seen[2]:
-            seen[0], seen[2] = item.values, item.last_state
-        seen[1] = min(seen[1], item.first_state)
-    return [tuple(entry) for entry in found.values()]
+        rank = ((2, item.last_state) if item.first_state is not None else
+                (1, item.earlier_generation[1]) if item.earlier_generation else (0, 0))
+        entry = by_key.setdefault(key, {'row': item.values, 'rank': rank, 'committed': None,
+                                        'earlier': None, 'uncommitted': False})
+        if rank > entry['rank']:
+            entry['row'], entry['rank'] = item.values, rank
+        for slot, span in (('committed', (item.first_state, item.last_state)
+                            if item.first_state is not None else None),
+                           ('earlier', item.earlier_generation)):
+            if span:
+                old = entry[slot]
+                entry[slot] = span if old is None else (min(old[0], span[0]), max(old[1], span[1]))
+        entry['uncommitted'] = entry['uncommitted'] or item.uncommitted
+    return [(entry['row'], entry) for entry in by_key.values()]
 
 
 def _rows_all_states(source_path, sql):
-    '''sql's rows across every committed state the write-ahead log holds, one per value of
-    the first column, taken from the newest state that has it.'''
+    '''sql's rows across every state the write-ahead log holds, one per value of the first
+    column, taken from the newest committed state that has it.'''
     rows = {}
-    with WalStates(get_sqlite_db_path(source_path)) as wal:
+    with WalStates(str(source_path), include=_WAL_KINDS) as wal:
         for state in wal.states():
+            if state.kind == KIND_UNCOMMITTED:
+                continue
             try:
                 found = state.connection.execute(sql).fetchall()
             except sqlite3.Error:
@@ -1167,25 +1182,38 @@ _CONVERSATION_HEADERS = (('Creation Timestamp', 'datetime'), ('Last Updated Time
 # people and may be read by LAVA.
 _ORIGIN_LIVE = 'Live'
 _ORIGIN_RECOVERED = 'Recovered'
-_METHOD_WAL_DIFF = 'WAL diff'
 _METHOD_WAL_STATES = 'WAL committed states'
-
-
-def _state_location(source_path, first, last):
-    '''Recovery Location for a row read from committed states first..last of the log.'''
-    name = os.path.basename(source_path) if source_path else 'database'
-    if last == 0:
-        return f'{name} without its log, state 0'
-    states = f'state {first}' if first == last else f'states {first} to {last}'
-    return f'{name}-wal, committed {states}'
+_METHOD_WAL_UNCOMMITTED = 'WAL uncommitted frames'
 
 
 def _provenance(source_path, origin):
-    '''The three provenance values for a row, as (origin, method, location).'''
-    if origin == _ORIGIN_LIVE:
-        return (_ORIGIN_LIVE, '', '')
+    '''The three provenance values for a live row, as (origin, method, location).'''
+    del source_path
+    return (origin, '', '')
+
+
+def _recovered_provenance(source_path, spans):
+    '''(origin, method, location) for a row read from the states spans names.'''
     name = os.path.basename(source_path) if source_path else 'database'
-    return (_ORIGIN_RECOVERED, _METHOD_WAL_DIFF, f'{name} (pre-checkpoint)')
+    parts = []
+    committed, earlier = spans.get('committed'), spans.get('earlier')
+    if committed:
+        first, last = committed
+        if last == 0:
+            parts.append(f'{name} without its log, state 0')
+        elif first == 0:
+            parts.append(f'{name} and {name}-wal, committed states 0 to {last}')
+        else:
+            states = f'state {first}' if first == last else f'states {first} to {last}'
+            parts.append(f'{name}-wal, committed {states}')
+    if earlier:
+        first, last = earlier
+        commits = f'commit {first}' if first == last else f'commits {first} to {last}'
+        parts.append(f'{name}-wal, previous log generation, left-over {commits}')
+    if not parts:
+        return (_ORIGIN_RECOVERED, _METHOD_WAL_UNCOMMITTED,
+                f'{name}-wal, frames after the last commit')
+    return (_ORIGIN_RECOVERED, _METHOD_WAL_STATES, '; '.join(parts))
 
 
 def _by_creation(row):
@@ -1241,13 +1269,13 @@ def _conversation_rows(source_path, friends, reader, provenance, only_ids=None, 
         GROUP BY client_conversation_id
     '''))
 
-    origin, method, location = provenance
     wanted = set(conversations) | set(feeds)
     if only_ids is not None:
         wanted &= set(only_ids)
 
     data_list = []
     for conversation_id in sorted(wanted):
+        origin, method, location = (locations or {}).get(conversation_id, provenance)
         created, tombstoned_at, send_state = conversations.get(conversation_id, (None, None, ''))
         (updated, displayed, streak_expiry, title, conversation_type, streak, creator,
          last_sender, tombstoned) = feeds.get(conversation_id, (None,) * 9)
@@ -1259,18 +1287,17 @@ def _conversation_rows(source_path, friends, reader, provenance, only_ids=None, 
             counts.get(conversation_id, 0), streak, conversation_type, send_state,
             _friend_name(friends, creator), creator,
             _friend_name(friends, last_sender), last_sender,
-            _yes_no_blank(tombstoned), conversation_id, method,
-            (locations or {}).get(conversation_id, location)))
+            _yes_no_blank(tombstoned), conversation_id, method, location))
     return data_list
 
 
 def _removed_conversation_ids(source_path):
-    '''{client_conversation_id: (first state, last state)} for ids an earlier committed state
-    of the write-ahead log holds in conversation or feed_entry and the current state holds in
-    neither, read through scripts/sqlite_wal.py.'''
+    '''{client_conversation_id: spans} for ids another state of the write-ahead log holds in
+    conversation or feed_entry and the current state holds in neither; spans as in
+    _removed_in_log.'''
     current = None
     found = {}
-    with WalStates(get_sqlite_db_path(source_path)) as wal:
+    with WalStates(str(source_path), include=_WAL_KINDS) as wal:
         logfunc(f'Snapchat {wal.summary()}')
         for state in wal.states():
             ids = set()
@@ -1284,11 +1311,16 @@ def _removed_conversation_ids(source_path):
                 current = ids
                 continue
             for conversation_id in ids - current:
-                if conversation_id in found:
-                    found[conversation_id][0] = state.number
-                else:
-                    found[conversation_id] = [state.number, state.number]
-    return {conversation_id: tuple(span) for conversation_id, span in found.items()}
+                spans = found.setdefault(conversation_id, {'committed': None, 'earlier': None,
+                                                           'uncommitted': False})
+                if state.kind == KIND_UNCOMMITTED:
+                    spans['uncommitted'] = True
+                    continue
+                slot = 'committed' if state.kind == KIND_COMMITTED else 'earlier'
+                old = spans[slot]
+                spans[slot] = ((state.number, state.number) if old is None else
+                               (min(old[0], state.number), max(old[1], state.number)))
+    return found
 
 
 @artifact_processor
@@ -1321,16 +1353,16 @@ def snapchatMessages(context):
                     references.append(reference)
             return references
 
+        live = _rows(arroyo_path, message_sql)
         data_list += _message_rows(
-            _rows(arroyo_path, message_sql), friends, _participants(arroyo_path, friends),
+            live, friends, _participants(arroyo_path, friends),
             local_user_id, _provenance(arroyo_path, _ORIGIN_LIVE), media)
-        removed = _removed_in_log(arroyo_path, message_sql, _MESSAGE_KEY)
+        removed = _removed_in_log(arroyo_path, message_sql, _MESSAGE_KEY,
+                                  {tuple(row[i] for i in _MESSAGE_KEY) for row in live})
         participants = _participants(arroyo_path, friends, _rows_all_states) if removed else {}
-        for row, first, last in removed:
-            data_list += _message_rows(
-                [row], friends, participants, local_user_id,
-                (_ORIGIN_RECOVERED, _METHOD_WAL_STATES,
-                 _state_location(arroyo_path, first, last)), media)
+        for row, spans in removed:
+            data_list += _message_rows([row], friends, participants, local_user_id,
+                                       _recovered_provenance(arroyo_path, spans), media)
     data_list.sort(key=_by_creation)
     return _MESSAGE_HEADERS, data_list, source_path
 
@@ -1351,9 +1383,9 @@ def snapchatConversations(context):
         if removed:
             data_list += _conversation_rows(
                 arroyo_path, friends, _rows_all_states,
-                (_ORIGIN_RECOVERED, _METHOD_WAL_STATES, ''), removed,
-                {conversation_id: _state_location(arroyo_path, *span)
-                 for conversation_id, span in removed.items()})
+                (_ORIGIN_RECOVERED, '', ''), removed,
+                {conversation_id: _recovered_provenance(arroyo_path, spans)
+                 for conversation_id, spans in removed.items()})
     data_list.sort(key=_by_creation)
     return _CONVERSATION_HEADERS, data_list, source_path
 
@@ -1872,6 +1904,53 @@ def _memory_records(scdb_path, reader):
     return records
 
 
+def _memory_records_in_log(scdb_path, live_ids):
+    '''{snap id: fields} for Memories another state of scdb-27.sqlite3's write-ahead log
+    holds and the current state does not, read through scripts/sqlite_wal.py.
+
+    Each state's records are built from that state alone, so a Memory's entry, caption and
+    thumbnail come from the same state as its ZGALLERYSNAP row: the newest committed state
+    holding it, else the previous generation's newest, else the uncommitted frames.
+    fields['provenance'] is the (origin, method, location) for the row.
+    '''
+    found = {}
+    with WalStates(str(scdb_path), include=_WAL_KINDS) as wal:
+        logfunc(f'Snapchat Memories: {wal.summary()}')
+        current = True
+        for state in wal.states():
+            if current:
+                current = False
+                continue
+
+            def reader(_path, sql, connection=state.connection):
+                try:
+                    return connection.execute(sql).fetchall()
+                except sqlite3.Error:
+                    return []
+            rank = {KIND_COMMITTED: 2, KIND_EARLIER: 1}.get(state.kind, 0)
+            for snap_id, fields in _memory_records(scdb_path, reader).items():
+                if snap_id in live_ids:
+                    continue
+                entry = found.setdefault(snap_id, {'fields': fields, 'rank': rank,
+                                                   'committed': None, 'earlier': None,
+                                                   'uncommitted': False})
+                if rank > entry['rank']:
+                    entry['fields'], entry['rank'] = fields, rank
+                if state.kind == KIND_UNCOMMITTED:
+                    entry['uncommitted'] = True
+                    continue
+                slot = 'committed' if state.kind == KIND_COMMITTED else 'earlier'
+                old = entry[slot]
+                entry[slot] = ((state.number, state.number) if old is None else
+                               (min(old[0], state.number), max(old[1], state.number)))
+    records = {}
+    for snap_id, entry in found.items():
+        fields = dict(entry['fields'])
+        fields['provenance'] = _recovered_provenance(scdb_path, entry)
+        records[snap_id] = fields
+    return records
+
+
 def _snapchat_containers(files_found):
     '''{container: store paths} for app containers holding Snapchat's Memories store.'''
     containers = {}
@@ -2004,9 +2083,7 @@ def _memories_data(files_found):
             if paths.get('scdb'):
                 source_paths.add(paths['scdb'])
                 live = _memory_records(paths['scdb'], _rows)
-                recovered = {snap_id: fields for snap_id, fields
-                             in _memory_records(paths['scdb'], _rows_pre_wal).items()
-                             if snap_id not in live}
+                recovered = _memory_records_in_log(paths['scdb'], set(live))
             account = user_id if user_id and hashlib.sha256(
                 user_id.encode('utf-8')).hexdigest() == profile else ''
             base = {'account': account, 'profile': profile, 'scdb': paths.get('scdb', ''),
@@ -2024,9 +2101,9 @@ def _memories_data(files_found):
                     snaps[snap_key] = dict(
                         base, snap_id=snap_id, origin=origin, fields=fields, key_state=state,
                         location=locations.get(snap_id, (None, None)),
-                        method='' if origin == _ORIGIN_LIVE else _METHOD_WAL_DIFF,
+                        method='' if origin == _ORIGIN_LIVE else fields['provenance'][1],
                         recovery_location='' if origin == _ORIGIN_LIVE else
-                        'scdb-27.sqlite3 (pre-checkpoint)')
+                        fields['provenance'][2])
             for snap_id, gallery_key in gallery_keys.items():
                 snap_key = (profile, snap_id)
                 if snap_key in snaps:

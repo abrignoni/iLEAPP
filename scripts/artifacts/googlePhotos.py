@@ -204,26 +204,37 @@ __artifacts_v2__ = {
         "artifact_icon": "video",
     },
     "googlePhotosPreCheckpointRows": {
-        "name": "Google Photos - Pre-Checkpoint Rows",
-        "description": "Rows held in the committed part of the app's stores that the current "
-                       "state of those stores no longer returns.",
+        "name": "Google Photos - Rows in Earlier WAL States",
+        "description": "Rows that another state in the write-ahead logs of the app's stores "
+                       "holds and the current state of those stores no longer returns, or returns "
+                       "with different content.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Google Photos",
-        "notes": "Each store is read twice, once normally so the write-ahead log is applied and "
-                 "once with the log ignored, and the two are compared row by row on the "
-                 "primary key, or on the whole row where the table declares none. A row the "
-                 "second read holds and the first does not is reported as absent from the "
-                 "current read; a row both hold with differing content is reported as a prior "
-                 "version, and the values shown are the committed ones. Comparing counts alone "
-                 "would have missed most of these: in the tested samples counts flagged 2 "
-                 "tables while the key comparison found rows in 8. This recovers only rows that "
-                 "reached the main database file at a checkpoint and is not a substitute for "
-                 "log frame parsing or freespace carving. Why a row is no longer returned is "
-                 "not recorded: it may have been removed by the app, replaced by a later sync, "
-                 "or rewritten, and this artifact reports the observation rather than a cause. "
+        "notes": "Each store's states are read through scripts/sqlite_wal.py, as described for "
+                 "Snapchat - Messages (arroyo.db): every earlier committed state of the log's "
+                 "current generation, the previous generation's left-over frames where every "
+                 "gate passes, and frames after the last commit. Each state is compared with the "
+                 "current one row by row on the primary key, or on the whole row where the table "
+                 "declares none. A row another state holds and the current state does not is "
+                 "reported as absent from the current read; a row both hold with differing content "
+                 "is reported as a prior version, with the values that state stored; a row read "
+                 "only in frames after the last commit is reported as only in uncommitted frames. "
+                 "Each distinct stored version of a row is one row, so a row changed several times "
+                 "appears once per version, and two versions that differ only inside a blob read "
+                 "alike once blobs are summarised. Recovery Location names the committed states, "
+                 "and any previous-generation commits, a version was read in, with first and last "
+                 "numbers; a version read only in frames after the last commit is located there. On abe_ios16 and magnet_ios16 this "
+                 "returned 222 and 43 rows across 8 and 5 tables, where comparing each store "
+                 "without its log against the store with it applied returned 64 and 0, all among "
+                 "them; no tested store's log had left-over frames from a previous generation or "
+                 "frames after its last commit. This is not carving: freelist pages and free space "
+                 "in the stores are not read, and generations of a log older than the previous one "
+                 "are not read. Why a row is no longer returned is not recorded: it may have been "
+                 "removed by the app, replaced by a later sync, or rewritten, and this artifact "
+                 "reports the observation rather than a cause. "
                  "Full text index tables are skipped because they hold index structures rather "
                  "than records, and the external content index tables are skipped because they "
                  "duplicate the tables they index. Blob values are summarised by byte length "
@@ -234,6 +245,10 @@ __artifacts_v2__ = {
                   '*/Library/Application Support/store/transaction-shared.db*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "rotate-ccw",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 222 rows (103 absent from current read, 119 prior versions)",
+            "magnet_ios16": "iOS 16.1.1 | 43 rows (9 absent from current read, 34 prior versions)",
+        },
     },
     "googlePhotosAppState": {
         "name": "Google Photos - Application State",
@@ -264,11 +279,10 @@ from scripts.ilapfuncs import (
     artifact_processor,
     check_in_media,
     get_plist_file_content,
-    get_sqlite_db_path,
     get_sqlite_db_records,
     logfunc,
-    open_sqlite_db_readonly,
 )
+from scripts.sqlite_wal import KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED, WalStates
 
 _UNIX_EPOCH_UTC = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
@@ -978,21 +992,6 @@ def _render_value(table, column, value):
     return f'{column}={value}'
 
 
-def _open_committed(path):
-    """The store as committed to its main file, with any write-ahead log ignored.
-
-    sqlite3.connect is lazy, so the query is what raises when the file cannot be read that
-    way and the guard has to wrap it rather than the open.
-    """
-    try:
-        db = sqlite3.connect(f'file:{get_sqlite_db_path(path)}?immutable=1', uri=True)
-        db.execute('SELECT count(*) FROM sqlite_master')
-        return db
-    except sqlite3.Error as error:
-        logfunc(f'Could not read the committed state of {os.path.basename(path)}: {error}')
-        return None
-
-
 def _comparable_tables(db):
     """The tables worth comparing, excluding index structures and external content indexes."""
     names = []
@@ -1038,6 +1037,78 @@ def _table_rows(db, table, columns, primary_key):
     return rows
 
 
+_WAL_KINDS = (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED)
+
+
+def _wal_location(store, spans):
+    """Where in the store's write-ahead log a row was read, from its spans per kind."""
+    name = os.path.basename(store)
+    parts = []
+    if spans['committed']:
+        first, last = spans['committed']
+        if last == 0:
+            parts.append(f'{name} without its log, state 0')
+        else:
+            states = f'state {first}' if first == last else f'states {first} to {last}'
+            parts.append(f'{name}-wal, committed {states}')
+    if spans['earlier']:
+        first, last = spans['earlier']
+        commits = f'commit {first}' if first == last else f'commits {first} to {last}'
+        parts.append(f'{name}-wal, previous log generation, left-over {commits}')
+    if spans['uncommitted'] and not parts:
+        parts.append(f'{name}-wal, frames after the last commit')
+    return '; '.join(parts)
+
+
+def _rows_in_log(store):
+    """[(table, columns, identity, digest, row, spans, in current)] for every row another
+    state of the store's write-ahead log holds that the current state does not hold with
+    the same content, read through scripts/sqlite_wal.py."""
+    found = {}
+    shapes, current = {}, {}
+    with WalStates(str(store), include=_WAL_KINDS) as wal:
+        for state in wal.states():
+            connection = state.connection
+            connection.text_factory = bytes
+            if not shapes and not current:
+                for table in _comparable_tables(connection):
+                    columns, primary_key = _table_shape(connection, table)
+                    if not columns:
+                        continue
+                    try:
+                        current[table] = _table_rows(connection, table, columns, primary_key)
+                    except sqlite3.Error:
+                        continue
+                    shapes[table] = (columns, primary_key)
+                if not shapes:
+                    break
+                continue
+            for table, (columns, primary_key) in shapes.items():
+                try:
+                    # The table can be newer than this state, which then does not carry it.
+                    held = _table_rows(connection, table, columns, primary_key)
+                except sqlite3.Error:
+                    continue
+                live = current[table]
+                for identity, (digest, row) in held.items():
+                    if identity in live and live[identity][0] == digest:
+                        continue
+                    spans = found.setdefault((table, identity, digest), {
+                        'row': row, 'committed': None, 'earlier': None, 'uncommitted': False})
+                    if state.kind == KIND_UNCOMMITTED:
+                        spans['uncommitted'] = True
+                        continue
+                    slot = 'committed' if state.kind == KIND_COMMITTED else 'earlier'
+                    old = spans[slot]
+                    spans[slot] = ((state.number, state.number) if old is None else
+                                   (min(old[0], state.number), max(old[1], state.number)))
+        if wal.log is not None:
+            logfunc(f'Google Photos {wal.summary()}')
+    return [(table, shapes[table][0], identity, digest, spans['row'], spans,
+             identity in current[table])
+            for (table, identity, digest), spans in found.items()]
+
+
 @artifact_processor
 def googlePhotosPreCheckpointRows(context):
     data_headers = (
@@ -1046,6 +1117,7 @@ def googlePhotosPreCheckpointRows(context):
         'State',
         'Row Identity',
         'Values',
+        'Recovery Location',
         'Source File',
     )
     data_list = []
@@ -1057,54 +1129,36 @@ def googlePhotosPreCheckpointRows(context):
     })
 
     for store in stores:
-        committed = _open_committed(store)
-        if committed is None:
-            continue
-        current = open_sqlite_db_readonly(store)
-        if current is None:
-            committed.close()
-            continue
-        current.text_factory = bytes
-        committed.text_factory = bytes
-        recovered = 0
         try:
-            for table in _comparable_tables(current):
-                columns, primary_key = _table_shape(current, table)
-                if not columns:
-                    continue
-                try:
-                    live = _table_rows(current, table, columns, primary_key)
-                    # The table can be newer than the last checkpoint, in which case the
-                    # committed file does not carry it at all.
-                    held = _table_rows(committed, table, columns, primary_key)
-                except sqlite3.Error:
-                    continue
-                for identity, (digest, row) in held.items():
-                    if identity in live and live[identity][0] == digest:
-                        continue
-                    state = ('Prior version of a current row' if identity in live
-                             else 'Absent from current read')
-                    values = ', '.join(
-                        _render_value(table, column, row[index])
-                        for index, column in enumerate(columns))
-                    timestamp = ''
-                    time_column = _TABLE_TIMESTAMP_MS.get(table)
-                    if time_column in columns:
-                        timestamp = _ms_to_utc(row[columns.index(time_column)])
-                    label = '|'.join(str(part) for part in identity if part) or digest[:16]
-                    data_list.append((
-                        timestamp,
-                        table,
-                        state,
-                        label,
-                        values,
-                        context.get_relative_path(store),
-                    ))
-                    recovered += 1
-        finally:
-            committed.close()
-            current.close()
-        if recovered:
+            found = _rows_in_log(store)
+        except (OSError, sqlite3.Error) as error:
+            logfunc(f'Could not read the states of {os.path.basename(store)}: {error}')
+            continue
+        for table, columns, identity, digest, row, spans, in_current in found:
+            if not spans['committed'] and not spans['earlier']:
+                state = 'Only in uncommitted frames'
+            elif in_current:
+                state = 'Prior version of a current row'
+            else:
+                state = 'Absent from current read'
+            values = ', '.join(
+                _render_value(table, column, row[index])
+                for index, column in enumerate(columns))
+            timestamp = ''
+            time_column = _TABLE_TIMESTAMP_MS.get(table)
+            if time_column in columns:
+                timestamp = _ms_to_utc(row[columns.index(time_column)])
+            label = '|'.join(str(part) for part in identity if part) or digest[:16]
+            data_list.append((
+                timestamp,
+                table,
+                state,
+                label,
+                values,
+                _wal_location(store, spans),
+                context.get_relative_path(store),
+            ))
+        if found:
             source_files.append(store)
 
     return data_headers, data_list, '\n'.join(source_files)
