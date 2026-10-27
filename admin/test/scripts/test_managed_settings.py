@@ -279,6 +279,19 @@ class ManagedSettingsTest(unittest.TestCase):
             self.assertEqual(row[headers.index('Store Active')], '')
             self.assertIn('not listed in the SettingRecords.plist', row[headers.index('Notes')])
 
+    def test_live_store_not_listed_for_its_record_keeps_the_client(self):
+        files = self._live()
+        record = next(n for n in files if n.endswith('/clientEffectiveSettings.plist')
+                      and SYNTH.uid('orphan-record') not in n).rsplit('/', 1)[0]
+        files[f"{record}/{SYNTH.uid('unlisted-store')}/detokenized.plist"] = files[f"{record}/clientEffectiveSettings.plist"]
+        (headers, rows, _), _ = self._live_run(files)
+        unlisted = [r for r in rows if 'not listed for its record' in r[headers.index('Notes')]]
+        self.assertTrue(unlisted)
+        for row in unlisted:
+            self.assertNotEqual(row[headers.index('Client')], record.rsplit('/', 1)[-1])
+            self.assertEqual(row[headers.index('Store Name')], '')
+            self.assertEqual(row[headers.index('Store Active')], '')
+
     def test_live_tokenized_copies_and_near_miss_names_are_not_read(self):
         (_, rows, source), (_, s_rows, s_source) = self._live_run(self._live('ios27'))
         text = repr(rows) + repr(s_rows)
