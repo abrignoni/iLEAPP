@@ -592,7 +592,8 @@ def _removed_messages(db_file, query, live_messages):
     except (sqlite3.Error, OSError) as ex:
         logfunc(f'Life360 - Chat Messages: write-ahead log not read: {ex}')
         return []
-    logfunc(f'Life360 - Chat Messages: {wal.summary()}')
+    if wal.log:
+        logfunc(f'Life360 - Chat Messages: {wal.summary()}')
     width = len(columns)
     by_key = {}
     for item in found:
