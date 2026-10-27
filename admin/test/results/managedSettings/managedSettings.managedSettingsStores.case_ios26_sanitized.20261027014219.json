@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/managedSettings/testdata.managedSettings.managedSettingsStores.case_ios26_sanitized.zip",
-    "start_time": "2026-10-20T14:36:40.325609+00:00",
-    "end_time": "2026-10-20T14:36:40.459136+00:00",
-    "run_time_seconds": 0.015492916107177734,
+    "start_time": "2026-10-27T01:42:19.516825+00:00",
+    "end_time": "2026-10-27T01:42:19.593168+00:00",
+    "run_time_seconds": 0.0025510787963867188,
     "last_commit": {
-      "hash": "59818bf7c4ab3481ce43bc91a87ac9ab9e248312",
-      "author_name": "danjethh",
-      "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T01:59:01-04:00",
-      "message": "ManagedSettings: notes name the Items column"
+      "hash": "b1ecfaa1d163d95d682d265581e9b4c4330af121",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-20T15:09:20-04:00",
+      "message": "ManagedSettings: corpus sample_data, notes checked on six images"
     }
   },
   "headers": [
@@ -30,7 +30,7 @@
     "Store Entry Version",
     "Store Active",
     "Sync To Watch",
-    "Store File In Archive",
+    "Store File Found",
     "Team Identifier",
     "Internal Client",
     "Record Identifier",

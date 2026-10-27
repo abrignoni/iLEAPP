@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/managedSettings/testdata.managedSettings.managedSettingsStores.case_synthetic_ios26.zip",
-    "start_time": "2026-10-20T14:59:44.525353+00:00",
-    "end_time": "2026-10-20T14:59:44.728723+00:00",
-    "run_time_seconds": 0.024024486541748047,
+    "start_time": "2026-10-27T01:42:19.034294+00:00",
+    "end_time": "2026-10-27T01:42:19.168914+00:00",
+    "run_time_seconds": 0.005031108856201172,
     "last_commit": {
-      "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
-      "author_name": "danjethh",
-      "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T10:52:06-04:00",
-      "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
+      "hash": "b1ecfaa1d163d95d682d265581e9b4c4330af121",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-20T15:09:20-04:00",
+      "message": "ManagedSettings: corpus sample_data, notes checked on six images"
     }
   },
   "headers": [
@@ -30,7 +30,7 @@
     "Store Entry Version",
     "Store Active",
     "Sync To Watch",
-    "Store File In Archive",
+    "Store File Found",
     "Team Identifier",
     "Internal Client",
     "Record Identifier",

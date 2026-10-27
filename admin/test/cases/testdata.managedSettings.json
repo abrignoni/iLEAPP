@@ -166,5 +166,67 @@
     },
     "os_name": "iOS",
     "os_version": "26.6"
+  },
+  "case_synthetic_ios26_ffs": {
+    "description": "SYNTHETIC fixture, not a real device. The case_synthetic_ios26 stores (com.example.* identifiers, generated UUIDs) laid out as the live stores of a full file system extraction: /private/var/mobile/Library/com.apple.ManagedSettings with Records/<record identifier>/<store identifier>/detokenized.plist and tokenized.plist, and a com.apple.ManagedSettings.system folder in a shared system group container, plus a record folder SettingRecords.plist does not list and two near-miss files whose names contain ManagedSettings. Built by admin/test/scripts/synthetic_managed_settings.py (build_live_files), zipped and cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@AlexisBrignoni, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_iPhone_23G71_ffs.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-26T21:43:30.980496",
+      "last_commit": {
+        "hash": "b1ecfaa1d163d95d682d265581e9b4c4330af121",
+        "author_name": "Brigs",
+        "author_email": "abrignoni@gmail.com",
+        "date": "2026-10-20T15:09:20-04:00",
+        "message": "ManagedSettings: corpus sample_data, notes checked on six images"
+      }
+    },
+    "artifacts": {
+      "managedSettings": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz",
+          "*/com.apple.ManagedSettings/DataVersion.plist",
+          "*/com.apple.ManagedSettings/EffectiveSettings.plist",
+          "*/com.apple.ManagedSettings/Records/SettingRecords.plist",
+          "*/com.apple.ManagedSettings/Records/*/clientEffectiveSettings.plist",
+          "*/com.apple.ManagedSettings/Records/*/*/detokenized.plist",
+          "*/com.apple.ManagedSettings.system/DataVersion.plist",
+          "*/com.apple.ManagedSettings.system/EffectiveSettings.plist",
+          "*/com.apple.ManagedSettings.system/Records/SettingRecords.plist",
+          "*/com.apple.ManagedSettings.system/Records/*/clientEffectiveSettings.plist",
+          "*/com.apple.ManagedSettings.system/Records/*/*/detokenized.plist"
+        ],
+        "file_count": 19,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "managedSettingsStores": {
+        "search_patterns": [
+          "*/logs/ManagedSettings/*.plist",
+          "*/sysdiagnose_*.tar.gz",
+          "*/com.apple.ManagedSettings/DataVersion.plist",
+          "*/com.apple.ManagedSettings/EffectiveSettings.plist",
+          "*/com.apple.ManagedSettings/Records/SettingRecords.plist",
+          "*/com.apple.ManagedSettings/Records/*/clientEffectiveSettings.plist",
+          "*/com.apple.ManagedSettings/Records/*/*/detokenized.plist",
+          "*/com.apple.ManagedSettings.system/DataVersion.plist",
+          "*/com.apple.ManagedSettings.system/EffectiveSettings.plist",
+          "*/com.apple.ManagedSettings.system/Records/SettingRecords.plist",
+          "*/com.apple.ManagedSettings.system/Records/*/clientEffectiveSettings.plist",
+          "*/com.apple.ManagedSettings.system/Records/*/*/detokenized.plist"
+        ],
+        "file_count": 19,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.6"
   }
 }

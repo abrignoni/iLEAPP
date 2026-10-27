@@ -3,27 +3,27 @@
     "module_name": "managedSettings",
     "artifact_name": "ManagedSettings - Settings",
     "function_name": "managedSettings",
-    "case_number": "case_synthetic_ios26",
+    "case_number": "case_synthetic_ios26_ffs",
     "number_of_columns": 15,
-    "number_of_rows": 25,
-    "total_data_size_bytes": 7291,
+    "number_of_rows": 24,
+    "total_data_size_bytes": 8265,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin/test/cases/data/managedSettings/testdata.managedSettings.managedSettings.case_synthetic_ios26.zip",
-    "start_time": "2026-10-20T14:59:44.261198+00:00",
-    "end_time": "2026-10-20T14:59:44.522503+00:00",
-    "run_time_seconds": 0.08763432502746582,
+    "input_zip_path": "admin/test/cases/data/managedSettings/testdata.managedSettings.managedSettings.case_synthetic_ios26_ffs.zip",
+    "start_time": "2026-10-27T01:44:21.997287+00:00",
+    "end_time": "2026-10-27T01:44:22.200477+00:00",
+    "run_time_seconds": 0.004521846771240234,
     "last_commit": {
-      "hash": "2263cd02d95bcc322e69dbea63a26bc7540245ff",
-      "author_name": "danjethh",
-      "author_email": "danjethh@gmail.com",
-      "date": "2026-10-20T10:52:06-04:00",
-      "message": "ManagedSettings: real-structure test fixtures with identifiers replaced"
+      "hash": "b1ecfaa1d163d95d682d265581e9b4c4330af121",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-20T15:09:20-04:00",
+      "message": "ManagedSettings: corpus sample_data, notes checked on six images"
     }
   },
   "headers": [
     "Scope",
-    "Client Folder",
+    "Client",
     "File Kind",
     "File Name",
     "Store Name",
@@ -54,7 +54,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
+      "private/var/mobile/Library/com.apple.ManagedSettings/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -71,7 +71,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
+      "private/var/mobile/Library/com.apple.ManagedSettings/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -88,7 +88,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
+      "private/var/mobile/Library/com.apple.ManagedSettings/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -105,7 +105,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
+      "private/var/mobile/Library/com.apple.ManagedSettings/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -122,7 +122,7 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
+      "private/var/mobile/Library/com.apple.ManagedSettings/EffectiveSettings.plist"
     ],
     [
       "User",
@@ -139,7 +139,41 @@
       "",
       "3",
       "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/EffectiveSettings.plist"
+      "private/var/mobile/Library/com.apple.ManagedSettings/EffectiveSettings.plist"
+    ],
+    [
+      "User",
+      "59A42A76-ACA7-50E5-800A-C92DBAADD624",
+      "Client effective settings",
+      "clientEffectiveSettings",
+      "",
+      "Siri and intelligence",
+      "Deny Siri",
+      "siri.denySiri",
+      "true",
+      null,
+      "",
+      "",
+      "3",
+      "The record identifier of this folder is not listed in the SettingRecords.plist beside it; Client is the folder name.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/59A42A76-ACA7-50E5-800A-C92DBAADD624/clientEffectiveSettings.plist"
+    ],
+    [
+      "User",
+      "59A42A76-ACA7-50E5-800A-C92DBAADD624",
+      "Store file",
+      "detokenized",
+      "",
+      "Siri and intelligence",
+      "Deny Siri",
+      "siri.denySiri",
+      "true",
+      null,
+      "",
+      "",
+      "3",
+      "The record identifier of this folder is not listed in the SettingRecords.plist beside it; Client is the folder name.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/59A42A76-ACA7-50E5-800A-C92DBAADD624/996352C3-C38B-59C5-BCD1-33C9CFFCEE93/detokenized.plist"
     ],
     [
       "User",
@@ -155,14 +189,14 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/FamilyControlsAgent/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/6593FF35-843B-56CA-A7BB-9FF03BE59FF5/clientEffectiveSettings.plist"
     ],
     [
       "User",
       "FamilyControlsAgent",
       "Store file",
-      "71FB4024-7E5F-52B5-8311-2D6A5AB548DD",
+      "detokenized",
       "Default",
       "Device activity",
       "Device activity allowed clients",
@@ -172,8 +206,8 @@
       "true",
       "false",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/FamilyControlsAgent/71FB4024-7E5F-52B5-8311-2D6A5AB548DD.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/6593FF35-843B-56CA-A7BB-9FF03BE59FF5/71FB4024-7E5F-52B5-8311-2D6A5AB548DD/detokenized.plist"
     ],
     [
       "User",
@@ -189,14 +223,14 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.Preferences/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/B1C115A2-21A8-5292-8052-A1E75BF637D3/clientEffectiveSettings.plist"
     ],
     [
       "User",
       "com.apple.Preferences",
       "Store file",
-      "B640FAF5-F86D-5C80-90A8-1130AB1EA15E",
+      "detokenized",
       "UserSafety",
       "User safety",
       "User safety scanning policy",
@@ -206,8 +240,8 @@
       "false",
       "true",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.Preferences/B640FAF5-F86D-5C80-90A8-1130AB1EA15E.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/B1C115A2-21A8-5292-8052-A1E75BF637D3/B640FAF5-F86D-5C80-90A8-1130AB1EA15E/detokenized.plist"
     ],
     [
       "User",
@@ -223,8 +257,8 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -240,8 +274,8 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -257,8 +291,8 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/clientEffectiveSettings.plist"
     ],
     [
       "User",
@@ -274,14 +308,14 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/clientEffectiveSettings.plist"
     ],
     [
       "User",
       "com.apple.ScreenTime",
       "Store file",
-      "0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68",
+      "detokenized",
       "SafariStore",
       "Safari",
       "Deny Safari history clearing",
@@ -291,14 +325,14 @@
       "true",
       "false",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68/detokenized.plist"
     ],
     [
       "User",
       "com.apple.ScreenTime",
       "Store file",
-      "0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68",
+      "detokenized",
       "SafariStore",
       "Safari",
       "Deny Safari private browsing",
@@ -308,14 +342,14 @@
       "true",
       "false",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/0631742E-AC9F-5A7F-B6EF-8E1CAFBB9C68/detokenized.plist"
     ],
     [
       "User",
       "com.apple.ScreenTime",
       "Store file",
-      "7169CE91-706E-5A7F-8E77-23D2F9DBE110",
+      "detokenized",
       "Default",
       "Device activity",
       "Share device activity across devices",
@@ -325,14 +359,14 @@
       "true",
       "false",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/7169CE91-706E-5A7F-8E77-23D2F9DBE110.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/7169CE91-706E-5A7F-8E77-23D2F9DBE110/detokenized.plist"
     ],
     [
       "User",
       "com.apple.ScreenTime",
       "Store file",
-      "7A6A68B0-0A1E-595A-8910-9BB92D0A0C9E",
+      "detokenized",
       "UserSafetyStore",
       "User safety",
       "User safety scanning policy",
@@ -342,8 +376,8 @@
       "true",
       "false",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.ScreenTime/7A6A68B0-0A1E-595A-8910-9BB92D0A0C9E.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/A60FAF05-5702-5D39-A7BD-D031D298024E/7A6A68B0-0A1E-595A-8910-9BB92D0A0C9E/detokenized.plist"
     ],
     [
       "User",
@@ -359,14 +393,14 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.UserSafety/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/F86F515B-AC19-58C2-9E6A-A619B9A4B383/clientEffectiveSettings.plist"
     ],
     [
       "User",
       "com.apple.UserSafety",
       "Store file",
-      "6ECE4623-AA5D-5F91-8053-4FEF812A3F26",
+      "detokenized",
       "UserSafety",
       "User safety",
       "User safety allowed clients",
@@ -376,8 +410,8 @@
       "true",
       "false",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.UserSafety/6ECE4623-AA5D-5F91-8053-4FEF812A3F26.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/F86F515B-AC19-58C2-9E6A-A619B9A4B383/6ECE4623-AA5D-5F91-8053-4FEF812A3F26/detokenized.plist"
     ],
     [
       "User",
@@ -393,14 +427,14 @@
       "",
       "",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.momentsd/clientEffectiveSettings.plist"
+      "Client is from the SettingRecords.plist entry for this record.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/AD761C2F-D3AF-5E7D-8D34-D6E82AC35427/clientEffectiveSettings.plist"
     ],
     [
       "User",
       "com.apple.momentsd",
       "Store file",
-      "2533BA14-7F92-5197-8808-C6B22D6B01FE",
+      "detokenized",
       "DeviceActivityStore",
       "Device activity",
       "Device activity allowed clients",
@@ -410,59 +444,8 @@
       "true",
       "false",
       "3",
-      "",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.apple.momentsd/2533BA14-7F92-5197-8808-C6B22D6B01FE.plist"
-    ],
-    [
-      "User",
-      "com.example.broken",
-      "Store file",
-      "5C407678-B225-5FF6-BB21-E3B4F9CC361A",
-      "",
-      "",
-      "(file could not be read as a property list)",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "The file could not be read.",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.example.broken/5C407678-B225-5FF6-BB21-E3B4F9CC361A.plist"
-    ],
-    [
-      "User",
-      "com.example.future",
-      "Store file",
-      "2F867811-656B-5ABA-B988-39A32ADF0429",
-      "FutureStore",
-      "Other",
-      "Setting not described by this parser",
-      "example.futureKey",
-      "a: x; b: [1, 2]",
-      2,
-      "true",
-      "false",
-      "9",
-      "Other Properties keys as stored: extra",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.example.future/2F867811-656B-5ABA-B988-39A32ADF0429.plist"
-    ],
-    [
-      "User",
-      "com.example.future",
-      "Store file",
-      "2F867811-656B-5ABA-B988-39A32ADF0429",
-      "FutureStore",
-      "Other",
-      "Setting not described by this parser",
-      "example.when",
-      "5",
-      null,
-      "true",
-      "false",
-      "9",
-      "Other Properties keys as stored: extra",
-      "sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_23G71/logs/ManagedSettings/User/com.example.future/2F867811-656B-5ABA-B988-39A32ADF0429.plist"
+      "Client, Store Name, Store Active and Sync To Watch are from the SettingRecords.plist entry for this record and store.",
+      "private/var/mobile/Library/com.apple.ManagedSettings/Records/AD761C2F-D3AF-5E7D-8D34-D6E82AC35427/2533BA14-7F92-5197-8808-C6B22D6B01FE/detokenized.plist"
     ]
   ]
 }
