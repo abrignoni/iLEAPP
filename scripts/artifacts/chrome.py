@@ -16,7 +16,8 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -71,7 +72,8 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -122,7 +124,8 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -182,7 +185,8 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -230,7 +234,8 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -280,7 +285,8 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -345,7 +351,8 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -391,7 +398,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Chromium",
         "notes": "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -439,7 +447,8 @@ __artifacts_v2__ = {
                  "artifact, so nothing here shows the Cookies read returning rows on an iOS image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -465,7 +474,7 @@ __artifacts_v2__ = {
     "chromeLoginData": {
         "name": "Login Data",
         "description": "Parses the logins table of Login Data and of Login Data For Account from "
-                       "Chromium based browsers. Each browser and file name pair is reported as its "
+                       "Chromium based browsers and from the Google app. Each browser and file name pair is reported as its "
                        "own table, so two profile folders of one browser that share a file name share "
                        "a table. In the combined table the Source column names the file a row came "
                        "from. The "
@@ -488,7 +497,9 @@ __artifacts_v2__ = {
                  "against a tested image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile as Google, the CFBundleDisplayName of the Google app's Info.plist "
+                 "on abe_ios16, dexter_ios18, hc_ios17_2, hc_ios26, hexordia_ios1651 and iphone12_ios18. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -520,26 +531,45 @@ __artifacts_v2__ = {
                  "both. Among the registered iOS corpus images, Login Data For Account is present in a "
                  "browser profile folder the paths read on otto_ios17, dexter_ios18, iphone11_ios17 and "
                  "cookbook_ios1751 (Chrome) and on hc_ios18_7, iphone11_ios17 and hc_ios26 (Brave's "
-                 "Chromium/Default). The Google app (com.google.GoogleMobile) keeps a Login Data and a "
-                 "Login Data For Account directly under its Application Support on abe_ios16, "
-                 "dexter_ios18, hc_ios17_2, hc_ios26, hexordia_ios1651 and iphone12_ios18; the paths do "
-                 "not read those. Of the files the paths read, only dexter_ios18 (4 rows) and iphone11_ios17 (12 rows) "
-                 "have rows in it, all from Chrome, and on both images Login Data has none. On dexter_ios18 "
+                 "Chromium/Default). Of those browser profile files, only dexter_ios18 (4 rows) and "
+                 "iphone11_ios17 (12 rows) have rows in it, all from Chrome, and on both images Login Data "
+                 "has none. On dexter_ios18 "
                  "every password_value starts with v10 and the decrypt in this module gives an empty "
                  "Password. On iphone11_ios17 every row has Blacklisted by User set to 1 and an empty "
-                 "Username and password_value. Releases through v2026.4.5 skipped Login Data For Account.",
-        "paths": ('*/Chrome/*/Login Data*', '*/Edge/*/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
+                 "Username and password_value. Releases through v2026.4.5 skipped Login Data For Account."
+                 " "
+                 "The last path reads the Login Data and Login Data For Account the Google app "
+                 "(com.google.GoogleMobile) keeps directly under its Library/Application Support. Among the "
+                 "registered iOS corpus images that path matches files only in the Google app's container, "
+                 "on abe_ios16, dexter_ios18, hc_ios17_2, hc_ios26, hexordia_ios1651 and iphone12_ios18. "
+                 "Only dexter_ios18 has rows there: 4 in Login Data For Account, whose origin_url, "
+                 "username_value, signon_realm and date_created are the same as those of the 4 rows in "
+                 "Chrome's Login Data For Account on that image, while password_value differs. The same "
+                 "folder holds a Web Data, which chromeCreditCards and chromePaymentsCustomerData read and "
+                 "the autofill artifacts here do not: of its autofill, autofill_profiles, contact_info, "
+                 "local_addresses and addresses tables, each one present has no rows on any of those "
+                 "images. It also holds "
+                 "an Account Web Data, which no artifact reads; on dexter_ios18 its masked_credit_cards and "
+                 "payments_customer_data tables have one row each. On four of "
+                 "the images it holds an Affiliation Database, which no artifact reads. Releases through "
+                 "v2026.4.5 did not read the Google app's Login Data files.",
+        "paths": ('*/Chrome/*/Login Data*', '*/Edge/*/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*',
+                  '*/Containers/Data/Application/*/Library/Application Support/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119, Microsoft Edge 120.2210.126 | 12 rows",
-            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 4 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122, Google 388.0 | 8 rows",
             "cookbook_ios1751": "iOS 17.5.1 | Google Chrome 128.6613.92 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
-            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112, Google 269.0 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 2 rows",
             "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69 | 12 rows",
+            "hc_ios26": "iOS 26.5.2 | Brave Browser & Search Engine 1.91.1, Google 430.3 | 1 row",
+            "hc_ios17_2": "iOS 17.2.1 | Google 285.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Google 295.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Google 399.2 | 0 rows",
         },
     },
     "chromeTopSites": {
@@ -554,7 +584,8 @@ __artifacts_v2__ = {
                  "on every corpus store checked (iOS 16.1.1-26.5.2); it is reported blank there."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -604,7 +635,8 @@ __artifacts_v2__ = {
                  "artifact, so nothing here shows the Offline Pages read returning rows on an iOS image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -646,7 +678,8 @@ __artifacts_v2__ = {
                  "artifact, so nothing here shows the Media History read returning rows on an iOS image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -687,7 +720,8 @@ __artifacts_v2__ = {
                  "artifact, so nothing here shows the Media History read returning rows on an iOS image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -728,7 +762,8 @@ __artifacts_v2__ = {
                  "artifact, so nothing here shows the Media History read returning rows on an iOS image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -770,7 +805,8 @@ __artifacts_v2__ = {
                  "iOS image."
                  " "
                  "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
-                 "reported as Chrome, com.brave.ios.browser as Brave and com.microsoft.msedge as Edge. In "
+                 "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
+                 "com.google.GoogleMobile (the Google app) as Google. In "
                  "a full file system the identifier is read from the container's "
                  ".com.apple.mobile_container_manager.metadata.plist (MCMMetadataIdentifier). In an iTunes"
                  " backup it is the container folder name, which follows the seeker's backup layout. No "
@@ -812,12 +848,14 @@ from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_read
 from scripts.context import Context
 
 
-# Bundle identifiers recorded for Chromium browsers by the container manager
-# (MCMMetadataIdentifier) on the iOS corpus images, and the name each is reported as.
+# Bundle identifiers recorded by the container manager (MCMMetadataIdentifier) on the iOS
+# corpus images for apps whose Chromium stores these artifacts read, and the name each is
+# reported as.
 _BROWSER_IDENTIFIERS = {
     'com.google.chrome.ios': 'Chrome',
     'com.brave.ios.browser': 'Brave',
     'com.microsoft.msedge': 'Edge',
+    'com.google.GoogleMobile': 'Google',
 }
 _CONTAINER = re.compile(r'(?:^|/)Containers/Data/Application/([^/]+)(?=/)')
 _UUID = re.compile(r'^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$')

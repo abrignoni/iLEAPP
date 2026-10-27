@@ -2,6 +2,7 @@
 
 The paths named only Chrome/Default, so Chrome's other profiles, kept in a folder named by
 a UUID, and every Edge profile (Microsoft/Edge/Default and Default-AAD) were never parsed.
+Login Data also reads the Google app's stores, kept directly under Application Support.
 Each store must be matched by exactly one pattern of an artifact, because the matches of
 every pattern are added to the files found without removing repeats.
 """
@@ -55,6 +56,15 @@ class TestChromeProfilePaths(unittest.TestCase):
                     with self.subTest(artifact=artifact, profile=profile, store=store):
                         matches = [p for p in patterns if fnmatch.fnmatchcase(path, p)]
                         self.assertEqual(len(matches), 1, matches)
+
+    def test_google_app_login_stores_are_matched_once(self):
+        # The Google app keeps its Chromium stores directly under Application Support.
+        patterns = chrome_paths()['chromeLoginData']
+        for store in STORES['chromeLoginData']:
+            path = f'{SUPPORT}/{store}'
+            with self.subTest(store=store):
+                matches = [p for p in patterns if fnmatch.fnmatchcase(path, p)]
+                self.assertEqual(len(matches), 1, matches)
 
 
 if __name__ == '__main__':
