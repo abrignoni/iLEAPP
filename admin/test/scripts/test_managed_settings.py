@@ -295,6 +295,17 @@ class ManagedSettingsTest(unittest.TestCase):
                     if r[headers.index('Row Kind')] == 'Data version'}
         self.assertEqual(versions, {('User', 7), ('System', 7)})
 
+    def test_live_setting_records_at_the_top_of_the_folder_resolve_the_same(self):
+        files = self._live()
+        files = {name.replace('com.apple.ManagedSettings/Records/SettingRecords.plist',
+                              'com.apple.ManagedSettings/SettingRecords.plist'): data for name, data in files.items()}
+        (headers, rows, _), (s_headers, s_rows, s_source) = self._live_run(files)
+        (_, base_rows, _), (_, base_s_rows, _) = self._live_run(self._live())
+        self.assertEqual(sorted(repr(r[:-1]) for r in rows), sorted(repr(r[:-1]) for r in base_rows))
+        self.assertEqual(sorted(repr(r[:-1]) for r in s_rows), sorted(repr(r[:-1]) for r in base_s_rows))
+        self.assertIn('com.apple.ManagedSettings/SettingRecords.plist', s_source)
+        self.assertTrue(rows and s_headers and headers)
+
     def test_live_tree_beside_a_sysdiagnose_adds_both_and_resolves_within_each(self):
         missing = lambda name: name.endswith(f"/{SYNTH.uid('ios26/com.apple.momentsd/DeviceActivityStore')}/detokenized.plist")
         live = self._live(drop=missing)
