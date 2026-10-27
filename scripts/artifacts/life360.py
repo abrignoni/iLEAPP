@@ -227,16 +227,18 @@ __artifacts_v2__ = {
     },
     "life360ChatMessages": {
         "name": "Life360 - Chat Messages",
-        "description": "Parses Life360 chat messages",
+        "description": "Parses Life360 chat messages, including messages another state in the "
+                       "database's write-ahead log holds and the current state does not",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Life360",
         "notes": "Direction is derived: Outgoing when the sender's member row has ZISLOGGEDINUSER "
                  "set to 1 and Incoming when it is set to 0. Direction is blank when ZSENDER "
                  "matches no ZCHATMEMBER row or that row holds neither value, so a blank does not "
-                 "say who sent the message. All 13 messages on felix_ios17 and otto_ios17 matched a "
+                 "say who sent the message. All 13 Live messages on felix_ios17 and otto_ios17 and all "
+                 "46 Recovered messages on felix_ios17, iphone11_ios17 and otto_ios17 matched a "
                  "member row holding 1 or 0; the blank case was exercised only with a constructed "
                  "database. Timestamp reads ZDATE as seconds since 2001 in UTC. Message "
                  "Seen, Message Deleted (Locally) and Message Liked show Yes for a stored 1 in "
@@ -244,15 +246,48 @@ __artifacts_v2__ = {
                  "established. Sent Status maps ZSENTSTATUSASINTEGER 2 to Sent and 3 to Failed; "
                  "the mapping "
                  "is not sourced from Life360 and was assigned from tested data with no count "
-                 "recorded here. Unrecognized values are reported as stored.",
+                 "recorded here. Unrecognized values are reported as stored. "
+                 "Record Origin. Live rows come from a normal read of the query. Recovered rows do "
+                 "not: their message, the ZCHATMESSAGE primary key Z_PK, is held by another state in "
+                 "the database's write-ahead log and absent from the current one. A row whose message "
+                 "the current state still holds is not reported, whatever its older versions held. "
+                 "The whole query is run in each state, so a Recovered row's sender and location "
+                 "come from the same state as its message. Recovery Method and Recovery Location are "
+                 "filled in only on Recovered rows. Why a Recovered row is absent is not established "
+                 "here. Message Deleted (Locally) on a Recovered row shows the flag held by the state "
+                 "the row was read from, mapped the same way as on Live rows. States are read by "
+                 "scripts/sqlite_wal.py: each readable earlier committed state of the log's current "
+                 "generation (state n is the database after the first n committed transactions, and "
+                 "state 0 the database file without its log; a state a partial checkpoint has made "
+                 "unreadable is skipped and counted in the run log), the previous generation's "
+                 "left-over frames where its checks pass, and frames after the last commit where "
+                 "SQLite's quick_check passes. A Recovered row is reported once per message and location row, as the "
+                 "newest committed state holding it stored it, else the previous generation's newest "
+                 "left-over commit, else the frames after the last commit. Recovery Location names "
+                 "the committed states the message was read in, with their first and last numbers, "
+                 "and the previous log generation with the first and last numbers of its left-over "
+                 "commits; for a message read only after the last commit it names the log's frames "
+                 "after the last commit. Recovery Method is WAL committed states, or WAL uncommitted "
+                 "frames for a message read only after the last commit. The previous-generation and "
+                 "uncommitted-frame paths were not exercised on these images or by the unit test. "
+                 "Recovered rows were returned on felix_ios17 (3), iphone11_ios17 (32, where the "
+                 "current state holds no message) and otto_ios17 (11), every one from committed "
+                 "states of the current generation and with Message text; 7 on otto_ios17 were "
+                 "read in the database file and the first two committed states. Message Deleted "
+                 "(Locally) was Yes on 2 of the 32 on iphone11_ios17. abe_ios16 and fsfull002_ios17 "
+                 "returned no rows; fsfull002_ios17 has no log beside the database. On "
+                 "felix_ios17, iphone11_ios17 and otto_ios17 Message Liked was empty on every row; "
+                 "Sent Status held Sent on every row on felix_ios17 and iphone11_ios17, and Message "
+                 "Seen held Yes on every row on felix_ios17. On iphone11_ios17 Record Origin held "
+                 "Recovered and Recovery Method held WAL committed states on every row.",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
         "output_types": "all",
         "artifact_icon": "message-circle",
         "sample_data": {
-            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 11 rows (3 Recovered)",
             "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.43.1 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 32 rows (32 Recovered)",
+            "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 16 rows (11 Recovered)",
             "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 0 rows",
         },
         "data_views": {
@@ -295,6 +330,8 @@ import sqlite3
 from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import artifact_processor, convert_ts_human_to_utc, get_sqlite_db_records, logfunc
+from scripts.sqlite_wal import (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED,
+                                rows_not_in_current)
 
 _LINE = re.compile(r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}\.\d{3})([+-])(\d{2})(\d{2}) ')
 # 'Life360[pid:tid] I | NGL | ', 'Life360[pid:tid] I LOCATION | ', 'Sidecar-LPSE[pid:tid] I Sidecar-LPSE | '
@@ -510,12 +547,82 @@ def life360MotionActivity(context):
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in sources)
 
 
+# A chat message is one ZCHATMESSAGE row (Z_PK); the query's last two columns are that key and
+# the joined ZCHATMESSAGELOCATION Z_PK, so a message with several location rows keeps each.
+_MESSAGE_PK = -2
+_WAL_KINDS = (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED)
+_ORIGIN_LIVE = 'Live'
+_ORIGIN_RECOVERED = 'Recovered'
+_METHOD_WAL_STATES = 'WAL committed states'
+_METHOD_WAL_UNCOMMITTED = 'WAL uncommitted frames'
+
+
+def _recovery_location(name, spans):
+    """(method, location) for a key read in the states spans names."""
+    parts = []
+    committed, earlier = spans['committed'], spans['earlier']
+    if committed:
+        first, last = committed
+        if last == 0:
+            parts.append(f'{name} without its log, state 0')
+        elif first == 0:
+            parts.append(f'{name} and {name}-wal, committed states 0 to {last}')
+        else:
+            states = f'state {first}' if first == last else f'states {first} to {last}'
+            parts.append(f'{name}-wal, committed {states}')
+    if earlier:
+        first, last = earlier
+        commits = f'commit {first}' if first == last else f'commits {first} to {last}'
+        parts.append(f'{name}-wal, previous log generation, left-over {commits}')
+    if not parts:
+        return _METHOD_WAL_UNCOMMITTED, f'{name}-wal, frames after the last commit'
+    return _METHOD_WAL_STATES, '; '.join(parts)
+
+
+def _removed_messages(db_file, query, live_messages):
+    """Rows of query whose message key another state in the write-ahead log holds and the
+    current state does not, read through scripts/sqlite_wal.py, with each state's own joins.
+
+    Returns [(row, method, location)], one per (message, location row): the row as the newest
+    state holding it stored it (a committed state before the previous log generation before
+    the frames after the last commit).
+    """
+    try:
+        columns, found, wal = rows_not_in_current(str(db_file), query, include=_WAL_KINDS)
+    except (sqlite3.Error, OSError) as ex:
+        logfunc(f'Life360 - Chat Messages: write-ahead log not read: {ex}')
+        return []
+    if wal.log:
+        logfunc(f'Life360 - Chat Messages: {wal.summary()}')
+    width = len(columns)
+    by_key = {}
+    for item in found:
+        if item.values[width + _MESSAGE_PK] in live_messages:
+            continue
+        key = item.values[width + _MESSAGE_PK:]
+        rank = ((2, item.last_state) if item.first_state is not None else
+                (1, item.earlier_generation[1]) if item.earlier_generation else (0, 0))
+        entry = by_key.setdefault(key, {'row': item.values, 'rank': rank, 'committed': None,
+                                        'earlier': None})
+        if rank > entry['rank']:
+            entry['row'], entry['rank'] = item.values, rank
+        for slot, span in (('committed', (item.first_state, item.last_state)
+                            if item.first_state is not None else None),
+                           ('earlier', item.earlier_generation)):
+            if span:
+                old = entry[slot]
+                entry[slot] = span if old is None else (min(old[0], span[0]), max(old[1], span[1]))
+    name = os.path.basename(str(db_file))
+    return [(entry['row'], *_recovery_location(name, entry)) for entry in by_key.values()]
+
+
 @artifact_processor
 def life360ChatMessages(context):
     data_headers = (('Timestamp', 'datetime'), 'Direction', 'Sender First Name', 'Message',
                     'Message ID', 'Sender Last Name', 'Sent Status', 'Message Seen',
                     'Message Deleted (Locally)', 'Message Liked', 'Action', 'Location Name',
-                    'Latitude', 'Longitude', 'Thread ID')
+                    'Latitude', 'Longitude', 'Thread ID', 'Record Origin', 'Recovery Method',
+                    'Recovery Location')
     data_list = []
     source_path = _find_db(context)
     if not source_path:
@@ -539,19 +646,25 @@ def life360ChatMessages(context):
         ZCHATMESSAGELOCATION.ZNAME,
         ZCHATMESSAGELOCATION.ZLATITUDE,
         ZCHATMESSAGELOCATION.ZLONGITUDE,
-        ZCHATMESSAGE.ZTHREAD
+        ZCHATMESSAGE.ZTHREAD,
+        ZCHATMESSAGE.Z_PK,
+        ZCHATMESSAGELOCATION.Z_PK
     FROM ZCHATMESSAGE
     LEFT JOIN ZCHATMEMBER ON ZCHATMEMBER.Z_PK = ZCHATMESSAGE.ZSENDER
     LEFT JOIN ZCHATMESSAGELOCATION ON ZCHATMESSAGELOCATION.ZMESSAGE = ZCHATMESSAGE.Z_PK
     '''
     try:
-        rows = get_sqlite_db_records(source_path, query)
+        rows = [tuple(row) for row in get_sqlite_db_records(source_path, query)]
     except sqlite3.Error as ex:
         logfunc(f'Error reading Life360 chat messages: {ex}')
         return data_headers, data_list, context.get_relative_path(source_path)
 
-    for row in rows:
-        data_list.append((convert_ts_human_to_utc(row[0]),) + tuple(row[1:]))
+    records = [(row, _ORIGIN_LIVE, '', '') for row in rows]
+    records.extend((row, _ORIGIN_RECOVERED, method, location) for row, method, location
+                   in _removed_messages(source_path, query, {row[_MESSAGE_PK] for row in rows}))
+    for row, origin, method, location in records:
+        data_list.append((convert_ts_human_to_utc(row[0]),) + tuple(row[1:_MESSAGE_PK])
+                         + (origin, method, location))
 
     return data_headers, data_list, context.get_relative_path(source_path)
 
