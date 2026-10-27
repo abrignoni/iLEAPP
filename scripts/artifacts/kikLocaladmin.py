@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "the local account holder.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Kik",
         "notes": "Reference: K. Ovens & G. Morison, 'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, 2016), https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf "
@@ -18,7 +18,8 @@ __artifacts_v2__ = {
                  "research identifies the account-holder row via ZKIKUSER.ZFLAGS = 258, but this "
                  "artifact does not establish that identity. Historical testing on iphone11_ios17, "
                  "hickman_ios13 and hickman_ios14 found no first-name-only user and returned one "
-                 "row on each, whose ZFLAGS was 258. Only the first matching kik.sqlite main file "
+                 "row on each, whose ZFLAGS was 258. On hc_ios18_7 the one row returned is a user "
+                 "record with a text first name and a last name stored as empty text. Only the first matching kik.sqlite main file "
                  "is read. The existing LEFT JOINs preserve each member, administrator and extra-record "
                  "combination, including repeated links; a row here is not a distinct-account count.",
         "paths": ('*/kik.sqlite*',),
@@ -27,7 +28,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "felix_ios17": "iOS 17.6.1 | Kik Messaging & Chat App 17.0.0 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 1 row",
             "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 1 row",
             "felix23_ios16": "iOS 16.5 | Kik Messaging & Chat App 16.9.5 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | Kik 15.21.2 | 1 row",
