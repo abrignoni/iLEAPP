@@ -20,12 +20,12 @@ PROFILES = (
     'Microsoft/Edge/Default-AAD',
     'Chromium/Default',
 )
-# The file each artifact reads, as its basename test in chrome.py requires.
+# The files each artifact reads, as its basename test in chrome.py requires.
 STORES = {
     'chromeWebHistory': 'History', 'chromeWebVisits': 'History', 'chromeWebSearch': 'History',
     'chromeDownloads': 'History', 'chromeKeywordSearchTerms': 'History',
     'chromeAutofillEntries': 'Web Data', 'chromeAutofillProfiles': 'Web Data',
-    'chromeBookmarks': 'Bookmarks', 'chromeCookies': 'Cookies', 'chromeLoginData': 'Login Data',
+    'chromeBookmarks': 'Bookmarks', 'chromeCookies': 'Cookies', 'chromeLoginData': ('Login Data', 'Login Data For Account'),
     'chromeTopSites': 'Top Sites', 'chromeOfflinePages': 'Offline Pages/metadata/OfflinePages.db',
     'chromeMediaHistorySessions': 'Media History', 'chromeMediaHistoryPlaybacks': 'Media History',
     'chromeMediaHistoryOrigins': 'Media History',
@@ -48,11 +48,13 @@ class TestChromeProfilePaths(unittest.TestCase):
 
     def test_each_profile_store_is_matched_once(self):
         for artifact, patterns in chrome_paths().items():
-            for profile in PROFILES:
-                path = f'{SUPPORT}/{profile}/{STORES[artifact]}'
-                with self.subTest(artifact=artifact, profile=profile):
-                    matches = [p for p in patterns if fnmatch.fnmatchcase(path, p)]
-                    self.assertEqual(len(matches), 1, matches)
+            stores = STORES[artifact]
+            for store in (stores,) if isinstance(stores, str) else stores:
+                for profile in PROFILES:
+                    path = f'{SUPPORT}/{profile}/{store}'
+                    with self.subTest(artifact=artifact, profile=profile, store=store):
+                        matches = [p for p in patterns if fnmatch.fnmatchcase(path, p)]
+                        self.assertEqual(len(matches), 1, matches)
 
 
 if __name__ == '__main__':

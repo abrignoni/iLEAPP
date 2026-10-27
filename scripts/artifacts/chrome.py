@@ -464,7 +464,11 @@ __artifacts_v2__ = {
     },
     "chromeLoginData": {
         "name": "Login Data",
-        "description": "Parses the logins table of Login Data from Chromium based browsers. The "
+        "description": "Parses the logins table of Login Data and of Login Data For Account from "
+                       "Chromium based browsers. Each browser and file name pair is reported as its "
+                       "own table, so two profile folders of one browser that share a file name share "
+                       "a table. In the combined table the Source column names the file a row came "
+                       "from. The "
                        "Password column is the stored password_value after an AES-CBC decrypt with "
                        "a fixed key built into this module; whether iOS stores use that scheme is "
                        "not established here, so the column may not hold the password. Created "
@@ -502,13 +506,36 @@ __artifacts_v2__ = {
                  "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
                  "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
                  "History, Web Data and Login Data on both; each was read and gave no rows. These "
-                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder."
+                 " "
+                 "Chromium names the file of its account store Login Data For Account and the file of its "
+                 "profile store Login Data, and describes the account store as \"Gaia-account-scoped "
+                 "storage\" and the profile store as \"profile (i.e. local) storage\" (Reference: Chromium "
+                 "140.0.7339.122, components/password_manager/core/browser/: password_manager_constants.cc "
+                 "lines 9-12 for the file names, password_store_factory_util.cc lines 47 and 56 for which "
+                 "store uses which, and password_form.h lines 466-469 for the store descriptions, "
+                 "https://chromium.googlesource.com/chromium/src/+/refs/tags/140.0.7339.122/components/"
+                 "password_manager/core/browser/password_form.h). Both "
+                 "files have the same logins columns on dexter_ios18 and iphone11_ios17, so one query reads "
+                 "both. Among the registered iOS corpus images, Login Data For Account is present in a "
+                 "browser profile folder the paths read on otto_ios17, dexter_ios18, iphone11_ios17 and "
+                 "cookbook_ios1751 (Chrome) and on hc_ios18_7, iphone11_ios17 and hc_ios26 (Brave's "
+                 "Chromium/Default). The Google app (com.google.GoogleMobile) keeps a Login Data and a "
+                 "Login Data For Account directly under its Application Support on abe_ios16, "
+                 "dexter_ios18, hc_ios17_2, hc_ios26, hexordia_ios1651 and iphone12_ios18; the paths do "
+                 "not read those. Of the files the paths read, only dexter_ios18 (4 rows) and iphone11_ios17 (12 rows) "
+                 "have rows in it, all from Chrome, and on both images Login Data has none. On dexter_ios18 "
+                 "every password_value starts with v10 and the decrypt in this module gives an empty "
+                 "Password. On iphone11_ios17 every row has Blacklisted by User set to 1 and an empty "
+                 "Username and password_value. Releases through v2026.4.5 skipped Login Data For Account.",
         "paths": ('*/Chrome/*/Login Data*', '*/Edge/*/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119, Microsoft Edge 120.2210.126 | 12 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 4 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | Google Chrome 128.6613.92 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 2 rows",
@@ -1914,11 +1941,12 @@ def chromeLoginData(context):
     report_files = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        if not os.path.basename(file_found) == 'Login Data':  # skip -journal and other files
+        store_name = os.path.basename(file_found)
+        if store_name not in ('Login Data', 'Login Data For Account'):  # skip -journal and other files
             continue
         browser_name = get_browser_name(file_found)
 
-        all_rows = _read_rows(file_found, browser_name, 'Login Data', '''
+        all_rows = _read_rows(file_found, browser_name, store_name, '''
         SELECT
         username_value,
         password_value,
@@ -1939,7 +1967,7 @@ def chromeLoginData(context):
         report_files.append(file_found)
 
         if len(all_rows) > 0:
-            report_name = f'{browser_name} - Login Data'
+            report_name = f'{browser_name} - {store_name}'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
             report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
@@ -1975,7 +2003,7 @@ def chromeLoginData(context):
             # Add current list to the combined list
             all_data.extend(data_list)
         else:
-            logfunc(f'No {browser_name} - Login Data available')
+            logfunc(f'No {browser_name} - {store_name} available')
 
     return all_data_headers, all_data, '\n'.join(report_files)
 
