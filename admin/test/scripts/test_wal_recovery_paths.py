@@ -19,7 +19,7 @@ ROOT_DIR = os.path.dirname(
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from scripts.artifacts import discordServers, life360, snapchat  # pylint: disable=wrong-import-position
+from scripts.artifacts import discordServers, googleChat, life360, snapchat  # pylint: disable=wrong-import-position
 from scripts.artifacts import googlePhotos  # pylint: disable=wrong-import-position
 
 
@@ -114,6 +114,34 @@ class WalRecoveryPathTest(unittest.TestCase):
                  'LEFT JOIN ZCHATMEMBER ON ZCHATMEMBER.Z_PK = ZSENDER')
         removed = life360._removed_messages(path, query, {1})  # pylint: disable=protected-access
         self.assertEqual([row for row, _method, _location in removed], [('removed', 'a', 2, None)])
+
+    def test_google_chat_messages_found_beside_a_path_with_a_space(self):
+        # A message is (group_id, topic_id, id). A removed message comes back as Recovered, the
+        # text a message held before its current row emptied it as an Earlier version, even when
+        # the emptied row no longer joins to users, and a rewrite under a new row_id with the
+        # same text not at all.
+        path = _capture(self.tmp, 'dynamite.db', [
+            'CREATE TABLE users (user_id TEXT)',
+            "INSERT INTO users VALUES ('u')",
+            'CREATE TABLE topic_messages (row_id INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT, '
+            'group_id TEXT, topic_id TEXT, creator_id TEXT, text_body TEXT)',
+            'CREATE UNIQUE INDEX u ON topic_messages (group_id, topic_id, id)',
+            "INSERT INTO topic_messages (id, group_id, topic_id, creator_id, text_body) "
+            "VALUES ('1', 'g', 't', 'u', 'a')",
+            "INSERT INTO topic_messages (id, group_id, topic_id, creator_id, text_body) "
+            "VALUES ('2', 'g', 't', 'u', 'b')",
+            "INSERT INTO topic_messages (id, group_id, topic_id, creator_id, text_body) "
+            "VALUES ('3', 'g', 't', 'u', 'c')",
+            "UPDATE topic_messages SET text_body = '', creator_id = 'gone' WHERE id = '1'",
+            "DELETE FROM topic_messages WHERE id = '2'",
+            "INSERT OR REPLACE INTO topic_messages (id, group_id, topic_id, creator_id, text_body) "
+            "VALUES ('3', 'g', 't', 'u', 'c')"])
+        query = ('SELECT text_body, group_id, topic_id, id FROM topic_messages '
+                 'JOIN users ON users.user_id = topic_messages.creator_id')
+        live = googleChat._current_texts(path)  # pylint: disable=protected-access
+        rows = googleChat._rows_in_log(path, query, 0, live)  # pylint: disable=protected-access
+        self.assertEqual(sorted((row[0], origin) for row, origin, _method, _location in rows),
+                         [('a', 'Earlier version'), ('b', 'Recovered')])
 
 if __name__ == '__main__':
     unittest.main()
