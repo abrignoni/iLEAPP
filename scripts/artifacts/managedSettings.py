@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-20",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Sysdiagnose",
+        "category": "Screen Time",
         "notes": "A sysdiagnose holds the ManagedSettings stores under logs/ManagedSettings/User and "
                  "logs/ManagedSettings/System, in a layout of its own. A full file system extraction holds the live stores"
                  " in a different layout, under /private/var/mobile/Library/com.apple.ManagedSettings and in a "
@@ -126,7 +126,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-20",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Sysdiagnose",
+        "category": "Screen Time",
         "notes": "A row is one store entry of one client record in a SettingRecords.plist (User or System scope), or one "
                  "DataVersion.plist. A sysdiagnose holds them under logs/ManagedSettings/User and "
                  "logs/ManagedSettings/System; a full file system extraction holds the live ones as "
