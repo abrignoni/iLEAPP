@@ -27,7 +27,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | 700 rows",
             "felix_ios17": "iOS 17.6.1 | 697 rows",
             "fsfull002_ios17": "iOS 17.1 | 714 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 408 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 412 rows",
             "iphone11_ios17": "iOS 17.3 | 416 rows",
             "iphone12_ios18": "iOS 18.7 | 681 rows",
             "iphone14plus_ios18": "iOS 18.0 | 960 rows",
