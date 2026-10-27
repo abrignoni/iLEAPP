@@ -2,8 +2,6 @@
 # App: 5.6.7
 
 __artifacts_v2__ = {
-
-    
     "zangi_messages": {
         "name": "Zangi Messenger - Messages",
         "description": "Messages from the Zangi Messenger database, joined to its conversation, "
@@ -15,10 +13,9 @@ __artifacts_v2__ = {
                        "note and image rows fill Attachment File, other types fill Attachment "
                        "Link. Reads two database layouts: the older ZZANGIMESSAGE table and the "
                        "newer ZZMESSAGE family, whichever a database carries.",
-        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex",
-        "creatin_date": "2026-03-03",
+        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex, Julien Nguyen", 
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-10-14",
         "requirements": "pathlib",
         "category": "Chats",
         "notes": "Message type labels are a reading of rows from app version 5.6.7 and are not "
@@ -77,7 +74,6 @@ __artifacts_v2__ = {
                        "has been checked on data here, because the one image recorded in "
                        "sample_data returned no contact rows.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
         "last_update_date": "2026-10-04",
         "requirements": "",
@@ -109,7 +105,6 @@ __artifacts_v2__ = {
                        "stored, and ZSTATUSLASTSYNCTIME read as Unix time (shown as Last Sync "
                        "Timestamp).",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
         "last_update_date": "2026-09-22",
         "requirements": "",
@@ -123,15 +118,108 @@ __artifacts_v2__ = {
         "sample_data": {
             "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 1 row",
         }
+    },
+    "zangi_calls": {
+        "name": "Zangi Messenger - Call History",
+        "description": "Call history from the ZRECENT table of the Zangi Messenger database, "
+                       "joined to its contact number and contact profile tables, with call "
+                       "direction, status, whether the call connected, duration, start and "
+                       "end timestamps, the other party's number and name, and the call ID.",
+        "author": "Julien Nguyen {j.nguyendupre@gmail.com}",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-10-14",
+        "requirements": "",
+        "category": "Call History",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
+        "output_types": "standard",
+        "artifact_icon": "phone-call"
     }
+
 }
 
+import os
+import shutil
+import tempfile
 from pathlib import Path
 
 from scripts.ilapfuncs import artifact_processor, \
     convert_unix_ts_to_utc, get_sqlite_db_records, \
     convert_cocoa_core_data_ts_to_utc, check_in_media, \
-    does_table_exist_in_db
+    does_table_exist_in_db, does_column_exist_in_db, logfunc
+
+
+def _stage_db_plain(db_path):
+    """Copy only the main DB file to a temp dir. No sidecars.
+    Returns (staged_path, temp_dir) or (None, None). Caller owns temp_dir."""
+    try:
+        tmp_dir = tempfile.mkdtemp(prefix='zangi_stable_')
+        staged = os.path.join(tmp_dir, os.path.basename(db_path))
+        shutil.copy2(db_path, staged)
+        return staged, tmp_dir
+    except OSError as ex:
+        logfunc(f"[zangi] stable staging failed for {db_path}: {ex}")
+        return None, None
+
+
+def _stage_db_with_sidecars(db_path):
+    """Copy DB and its -wal / -shm / -journal sidecars to a temp directory.
+
+    SQLite recovers and checkpoints the copy when read normally, leaving the
+    original evidence untouched. Returns (staged_main_path, temp_dir) or
+    (None, None) on failure. The caller owns temp_dir.
+    """
+    try:
+        tmp_dir = tempfile.mkdtemp(prefix='zangi_stage_')
+        staged = os.path.join(tmp_dir, os.path.basename(db_path))
+        shutil.copy2(db_path, staged)
+        for suffix in ('-wal', '-shm', '-journal'):
+            src = db_path + suffix
+            if os.path.exists(src):
+                shutil.copy2(src, staged + suffix)
+        return staged, tmp_dir
+    except OSError as ex:
+        logfunc(f"[zangi_calls] staging failed for {db_path}: {ex}")
+        return None, None
+
+
+def _read_db_both_views(db_path, query):
+    """
+    Read a DB twice: once stable (no WAL), once with the WAL applied and return
+    every distinct row from either view.
+
+    Dedup is by full row tuple, so no artifact-specific key is needed.
+    A record identical in both views is returned once. A record whose
+    values differ between the views is returned once per distinct state.
+    Records present in only one view are returned as-is.
+
+    Both views are read from staged copies in a temp dir; the original
+    evidence file is never modified. Both temp dirs are removed on exit.
+    """
+    staged_a = tmp_dir_a = staged_b = tmp_dir_b = None
+    try:
+        staged_a, tmp_dir_a = _stage_db_plain(db_path)
+        if os.path.exists(db_path + '-wal'):
+            staged_b, tmp_dir_b = _stage_db_with_sidecars(db_path)
+
+        seen = set()
+        merged = []
+        for staged_path in (staged_a, staged_b):
+            if staged_path is None:
+                continue
+            for row in get_sqlite_db_records(staged_path, query) or []:
+                t = tuple(row)
+                if t in seen:
+                    continue
+                seen.add(t)
+                merged.append(t)
+        return merged
+    finally:
+        if tmp_dir_a:
+            shutil.rmtree(tmp_dir_a, ignore_errors=True)
+        if tmp_dir_b:
+            shutil.rmtree(tmp_dir_b, ignore_errors=True)
+
 
 @artifact_processor
 def zangi_messages(context):
@@ -180,6 +268,7 @@ def zangi_messages(context):
             COALESCE(
                 NULLIF(TRIM(snd_ct.ZDISPLAYNAME), ''),
                 NULLIF(TRIM(COALESCE(snd_ct.ZFIRSTNAME, '') || ' ' || COALESCE(snd_ct.ZLASTNAME, '')), ''),
+                NULLIF(TRIM(COALESCE(snd_pr.ZNAME, '') || ' ' || COALESCE(snd_pr.ZLASTNAME, '')), ''),
                 snd_cn.ZFULLNUMBER,
                 CAST(zm.ZFROM AS TEXT)
             ) [Sender Name],
@@ -198,15 +287,16 @@ def zangi_messages(context):
             zm.ZMESSAGEINFO [Message Info],
             zm.ZTYPE [ZTYPE (as stored)]
         FROM ZZANGIMESSAGE zm
-        LEFT JOIN ZCONVERSATION cnv         ON cnv.Z_PK = zm.ZCONVERSATION
-        LEFT JOIN ZGROUP grp                ON grp.ZCONVERSATION = cnv.Z_PK
-        LEFT JOIN ZGROUPPROFILE gpf         ON gpf.ZGROUP = grp.Z_PK
-        LEFT JOIN ZCONTACTNUMBER snd_cn     ON snd_cn.Z_PK = zm.ZFROM
-        LEFT JOIN Z_4CONTACTNUMBER snd_lnk  ON snd_lnk.Z_5CONTACTNUMBER = snd_cn.Z_PK
-        LEFT JOIN ZCONTACT snd_ct           ON snd_ct.Z_PK = snd_lnk.Z_4CONTACT
-        LEFT JOIN ZCONTACTNUMBER chat_cn    ON chat_cn.Z_PK = cnv.ZMEMBER
-        LEFT JOIN Z_4CONTACTNUMBER chat_lnk ON chat_lnk.Z_5CONTACTNUMBER = chat_cn.Z_PK
-        LEFT JOIN ZCONTACT chat_ct          ON chat_ct.Z_PK = chat_lnk.Z_4CONTACT;
+        LEFT JOIN ZCONVERSATION cnv             ON cnv.Z_PK = zm.ZCONVERSATION
+        LEFT JOIN ZGROUP grp                    ON grp.ZCONVERSATION = cnv.Z_PK
+        LEFT JOIN ZGROUPPROFILE gpf             ON gpf.ZGROUP = grp.Z_PK
+        LEFT JOIN ZCONTACTNUMBER snd_cn         ON snd_cn.Z_PK = zm.ZFROM
+        LEFT JOIN ZCONTACTNUMBERPROFILE snd_pr  ON snd_pr.Z_PK = snd_cn.ZPROFILE
+        LEFT JOIN Z_4CONTACTNUMBER snd_lnk      ON snd_lnk.Z_5CONTACTNUMBER = snd_cn.Z_PK
+        LEFT JOIN ZCONTACT snd_ct               ON snd_ct.Z_PK = snd_lnk.Z_4CONTACT
+        LEFT JOIN ZCONTACTNUMBER chat_cn        ON chat_cn.Z_PK = cnv.ZMEMBER
+        LEFT JOIN Z_4CONTACTNUMBER chat_lnk     ON chat_lnk.Z_5CONTACTNUMBER = chat_cn.Z_PK
+        LEFT JOIN ZCONTACT chat_ct              ON chat_ct.Z_PK = chat_lnk.Z_4CONTACT;
     '''
 
     # Newer layout: message data moved to ZZMESSAGE, with the sender in a per-message
@@ -252,6 +342,7 @@ def zangi_messages(context):
             COALESCE(
                 NULLIF(TRIM(snd_ct.ZDISPLAYNAME), ''),
                 NULLIF(TRIM(COALESCE(snd_ct.ZFIRSTNAME, '') || ' ' || COALESCE(snd_ct.ZLASTNAME, '')), ''),
+                NULLIF(TRIM(COALESCE(snd_pr.ZNAME, '') || ' ' || COALESCE(snd_pr.ZLASTNAME, '')), ''),
                 snd_cn.ZFULLNUMBER,
                 mu.ZFULLNUMBER
             ) [Sender Name],
@@ -269,17 +360,18 @@ def zangi_messages(context):
             zm.ZMESSAGEINFO [Message Info],
             zm.ZTYPE [ZTYPE (as stored)]
         FROM ZZMESSAGE zm
-        LEFT JOIN ZCONVERSATION cnv         ON cnv.Z_PK = zm.ZCONVERSATION
-        LEFT JOIN ZGROUP grp                ON grp.ZCONVERSATION = cnv.Z_PK
-        LEFT JOIN ZGROUPPROFILE gpf         ON gpf.ZGROUP = grp.Z_PK
-        LEFT JOIN ZZMESSAGEUSER mu          ON mu.ZMESSAGE = zm.Z_PK
-        LEFT JOIN ZCONTACTNUMBER snd_cn     ON snd_cn.Z_PK = mu.ZCONTACTNUMBER
-        LEFT JOIN Z_4CONTACTNUMBER snd_lnk  ON snd_lnk.Z_5CONTACTNUMBER = snd_cn.Z_PK
-        LEFT JOIN ZCONTACT snd_ct           ON snd_ct.Z_PK = snd_lnk.Z_4CONTACT
-        LEFT JOIN ZZMESSAGEMEDIA mm         ON mm.ZMESSAGE = zm.Z_PK
-        LEFT JOIN ZCONTACTNUMBER chat_cn    ON chat_cn.Z_PK = cnv.ZMEMBER
-        LEFT JOIN Z_4CONTACTNUMBER chat_lnk ON chat_lnk.Z_5CONTACTNUMBER = chat_cn.Z_PK
-        LEFT JOIN ZCONTACT chat_ct          ON chat_ct.Z_PK = chat_lnk.Z_4CONTACT;
+        LEFT JOIN ZCONVERSATION cnv             ON cnv.Z_PK = zm.ZCONVERSATION
+        LEFT JOIN ZGROUP grp                    ON grp.ZCONVERSATION = cnv.Z_PK
+        LEFT JOIN ZGROUPPROFILE gpf             ON gpf.ZGROUP = grp.Z_PK
+        LEFT JOIN ZZMESSAGEUSER mu              ON mu.ZMESSAGE = zm.Z_PK
+        LEFT JOIN ZCONTACTNUMBER snd_cn         ON snd_cn.Z_PK = mu.ZCONTACTNUMBER
+        LEFT JOIN ZCONTACTNUMBERPROFILE snd_pr  ON snd_pr.Z_PK = snd_cn.ZPROFILE
+        LEFT JOIN Z_4CONTACTNUMBER snd_lnk      ON snd_lnk.Z_5CONTACTNUMBER = snd_cn.Z_PK
+        LEFT JOIN ZCONTACT snd_ct               ON snd_ct.Z_PK = snd_lnk.Z_4CONTACT
+        LEFT JOIN ZZMESSAGEMEDIA mm             ON mm.ZMESSAGE = zm.Z_PK
+        LEFT JOIN ZCONTACTNUMBER chat_cn        ON chat_cn.Z_PK = cnv.ZMEMBER
+        LEFT JOIN Z_4CONTACTNUMBER chat_lnk     ON chat_lnk.Z_5CONTACTNUMBER = chat_cn.Z_PK
+        LEFT JOIN ZCONTACT chat_ct              ON chat_ct.Z_PK = chat_lnk.Z_4CONTACT;
     '''
 
     db_files = []
@@ -354,12 +446,12 @@ def zangi_messages(context):
             query = query_legacy
         else:
             continue
-        db_records = get_sqlite_db_records(main_db, query)
+        
         # Attachments are looked up only under the app group folder that holds
         # this database, so one group's file is not shown on another's message.
         media_index = _index_media(str(Path(main_db).parent))
 
-        for row in db_records:
+        for row in _read_db_both_views(main_db, query):
             message_type = row[3]
             message_id = row[4]
             message_text = row[1]
@@ -484,9 +576,7 @@ def zangi_contacts(context):
         else:
             db_query = query.format(number_type='NULL', type_join='')
 
-        db_records = get_sqlite_db_records(main_db, db_query)
-
-        for row in db_records:
+        for row in _read_db_both_views(main_db, db_query):
             mod_timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
             last_act_timestmap = convert_unix_ts_to_utc(row[1])
             last_name = row[2]
@@ -577,9 +667,7 @@ def zangi_accounts(context):
             col if col in present_columns else 'NULL' for col in account_columns)
         query = f'SELECT {select_columns} FROM ZUSER'
 
-        db_records = get_sqlite_db_records(main_db, query)
-
-        for row in db_records:
+        for row in _read_db_both_views(main_db, query):
             timestamp = convert_unix_ts_to_utc(row[0])
             account_id = row[1]
             nickname = row[2]
@@ -610,3 +698,84 @@ def zangi_accounts(context):
                                 source_db))
 
     return data_headers, data_list, '\n'.join(sorted(source_files))
+
+
+@artifact_processor
+def zangi_calls(context):
+
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal')
+                   and not x.endswith('shm')]
+    
+    main_db = ''
+    data_list = []
+    source_files = set()
+
+    data_headers = (
+        ('Starting Timestamp', 'datetime'),
+        ('Ending Timestamp', 'datetime'),
+        'Call Status',
+        'Call Did Connect',
+        'Call Duration',
+        'Caller Number',
+        'Caller First Name',
+        'Caller Last Name',
+        'Call ID',
+        'Source Database',
+    )
+    
+    for file_found in files_found:
+        main_db = str(file_found)
+        source_db = context.get_relative_path(main_db)
+        source_files.add(source_db)
+
+        # Check for column Z_21RECENT or Z_20RECENT
+        if does_column_exist_in_db(main_db, 'Z_5RECENT','Z_21RECENT'):
+            recent = 'Z_21RECENT'
+        elif does_column_exist_in_db(main_db, 'Z_5RECENT', 'Z_20RECENT'):
+            recent = 'Z_20RECENT'
+        else:
+            logfunc(f"[zangi_calls] no Z_2xRECENT column in {source_db}")
+            continue
+        
+        query = f'''
+            SELECT
+                zr.ZSTART,
+                zr.ZDURATION,
+                time(zr.ZDURATION - zr.ZSTART, 'unixepoch'),
+                CASE zr.ZSTATUS
+                    WHEN 1 THEN 'Outgoing'
+                    WHEN 2 THEN 'Incoming'
+                    WHEN 4 THEN 'Missed'
+                    ELSE zr.ZSTATUS
+                END,
+                CASE zr.ZDIDCONNECT
+                    WHEN 0 THEN 'No'
+                    WHEN 1 THEN 'Yes'
+                    ELSE zr.ZDIDCONNECT
+                END,
+                zcn.ZFULLNUMBER,
+                zcnp.ZNAME,
+                zcnp.ZLASTNAME,
+                zr.ZCALLID
+            FROM ZRECENT zr
+            LEFT JOIN Z_5RECENT z_5r                 ON z_5r.{recent} = zr.Z_PK
+            LEFT JOIN ZCONTACTNUMBER zcn            ON zcn.Z_PK = z_5r.Z_5CONTACTNUMBERS
+            LEFT JOIN ZCONTACTNUMBERPROFILE zcnp    ON zcnp.ZCONTACTNUMBER = zcn.Z_PK
+        '''
+                        
+        for row in _read_db_both_views(main_db, query):
+            data_list.append((
+                convert_unix_ts_to_utc(row[0]),
+                convert_unix_ts_to_utc(row[1]),
+                row[3],   # Call Status
+                row[4],   # Call Did Connect
+                row[2],   # Call Duration
+                row[5],   # Caller Number
+                row[6],   # Caller First Name
+                row[7],   # Caller Last Name
+                row[8],   # Call ID
+                source_db,
+            ))
+ 
+    return data_headers, data_list, '\n'.join(sorted(source_files))
+
