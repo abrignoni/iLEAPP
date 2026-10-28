@@ -41,16 +41,16 @@
       "note": "Copied verbatim below its banner. Fix upstream and re-vendor; edits here are reverted by the next sync."
     },
     {
-      "path": "scripts/vendor/c2paprobe.py",
-      "name": "c2paprobe",
-      "version": "0.1.1",
-      "upstream": "https://github.com/abrignoni/c2paprobe",
-      "upstream_file": "c2paprobe/__init__.py",
-      "commit": "dc796a0f4d6ccfa55c89e26a20fae889c82d5ff4",
-      "commit_date": "2026-10-25T22:48:56-04:00",
-      "sha256": "093d7ba1403b0c86d4f59ddf06e67e8fe9ca45166ef9a1a3dff490a58c7491bf",
+      "path": "scripts/vendor/c2pareader.py",
+      "name": "c2pareader",
+      "version": "0.2.0",
+      "upstream": "https://github.com/abrignoni/c2pareader",
+      "upstream_file": "c2pareader/__init__.py",
+      "commit": "3d8a8250590e11343171fec23b0bf540b056cb89",
+      "commit_date": "2026-10-27T21:39:52-04:00",
+      "sha256": "304f953cea40bc154f7526496b7b371d49dffe3b5f8e187dd9ac4ab4ab188832",
       "licence": "MIT",
-      "licence_file": "scripts/vendor/LICENSE-c2paprobe",
+      "licence_file": "scripts/vendor/LICENSE-c2pareader",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
     },
     {
