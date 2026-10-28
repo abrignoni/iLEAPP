@@ -66,6 +66,20 @@
       "licence_file": "",
       "banner": true,
       "note": "Copied verbatim below its banner. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/sqlite_wal.py",
+      "name": "sqlite-wal",
+      "version": "0.1.0",
+      "upstream": "https://github.com/abrignoni/sqlite-wal",
+      "upstream_file": "sqlite_wal/__init__.py",
+      "commit": "8f9a00db3ee31c51d9197dfbb4f92a2f97d4f7f3",
+      "commit_date": "2026-10-27T22:48:32-04:00",
+      "sha256": "d0c66f54bf6dc7a1b40643051bde05b21c0a9b0648aefc95e058dd53aabbce69",
+      "licence": "MIT",
+      "licence_file": "",
+      "banner": true,
+      "note": "Copied verbatim below its banner. Fix upstream and re-vendor; edits here are reverted by the next sync."
     }
   ]
 }
