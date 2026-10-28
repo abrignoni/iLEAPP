@@ -1,6 +1,6 @@
 """Read the Content Credentials (C2PA) and IPTC digital source type a media file declares.
 
-c2paprobe is a read-only, standard-library-only reader for forensic work. It
+c2pareader is a read-only, standard-library-only reader for forensic work. It
 walks a file's container from its own bytes, finds the C2PA manifest store and
 the XMP packets the container holds, and decodes what they state: the manifests
 (claim generator, title, format, actions, software agents, digital source types,
@@ -50,7 +50,7 @@ import struct
 import xml.etree.ElementTree as ET
 import zlib
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 __all__ = ['probe', 'probe_bytes', 'parse_store', 'parse_xmp', 'source_type',
            'IPTC_TERMS', 'MAX_STORE', '__version__']
