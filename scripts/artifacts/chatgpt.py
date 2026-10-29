@@ -1,20 +1,47 @@
 __artifacts_v2__ = {
     "chatgptConversationsMetadata": {
         "name": "ChatGPT - Conversations Metadata",
-        "description": "Metadata from ChatGPT conversations. Returned rows on ChatGPT "
-                       "1.2024.219 and 1.2024.233 on the tested images; other versions "
-                       "were not tested.",
+        "description": "Metadata from ChatGPT conversation files. Returned rows on ChatGPT "
+                       "1.2023.159, 1.2023.347, 1.2024.219, 1.2024.233 and 1.2026.013 on the "
+                       "tested images. 1.2025.261 (dexter_ios18) was run and held no "
+                       "conversation files; other versions were not tested.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-29",
         "requirements": "none",
         "category": "ChatGPT",
-        "notes": "",
-        "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',),
+        "notes": "Conversation files are read from three folders under Library/Application "
+                 "Support in the app container: conversations-<id> (ChatGPT 1.2023.347 to "
+                 "1.2024.233 on the tested images), conversations-v3-<id> (1.2026.013) and "
+                 "conversations (1.2023.159). Any app could use a folder named conversations, so "
+                 "that folder is read only from a container that also holds "
+                 "Library/Preferences/com.openai.chat.plist or com.openai.chat.StatsigService.plist. "
+                 "Model, Default Model and Last Model are the configuration keys model, "
+                 "default_model and last_model as stored. Which of them a file carries varied by "
+                 "app version and between files of one image, each is blank where the file does "
+                 "not store it, and what "
+                 "distinguishes them is not documented here. Custom Instructions (Model) and "
+                 "Custom Instructions (User) are blank on every row of every tested image: the "
+                 "file stores an empty string on 12 files (adams_iphone12mini 10, "
+                 "hexordia_ios1651 1, otto_ios17 1) and does not carry the key on the other 44. "
+                 "Custom Instructions (Enabled) and Is Temporary are blank where the file "
+                 "does not store the key, and Is Temporary held False on every row that stored it. "
+                 "Other configuration keys, such as gizmo_id and customizations on 1.2024.219, "
+                 "are not reported. dexter_ios18 and falken_ios26 hold the ChatGPT app container "
+                 "but no conversation files.",
+        "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
+                  '**/Containers/Data/Application/*/Library/Application Support/conversations/*.json',
+                  '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist',
+                  '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
         "output_types": "standard",
         "artifact_icon": "message",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | ChatGPT 1.2023.159 | 5 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | ChatGPT 1.2026.013 | 10 rows",
+            "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | ChatGPT 1.2026.013 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 16 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | ChatGPT 1.2023.347 | 3 rows",
             "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 22 rows",
         }
     },
@@ -23,19 +50,46 @@ __artifacts_v2__ = {
         "description": "Messages stored in ChatGPT conversation files, one row per "
                        "entry of the file's message tree, with the author role as "
                        "stored. Returned rows on ChatGPT "
-                       "1.2024.219 and 1.2024.233 on the tested images; other versions "
-                       "were not tested.",
+                       "1.2023.159, 1.2023.347, 1.2024.219, 1.2024.233 and 1.2026.013 on the "
+                       "tested images. 1.2025.261 (dexter_ios18) was run and held no "
+                       "conversation files; other versions were not tested.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-29",
         "requirements": "none",
         "category": "ChatGPT",
-        "notes": "",
-        "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',),
+        "notes": "One row per node of the conversation's message tree, read from the same "
+                 "folders and with the same container check as ChatGPT - Conversations Metadata. "
+                 "Older files store the tree as a dictionary and Message ID is the dictionary key. "
+                 "On felix_ios17 (9 of 150 rows) and otto_ios17 (27 of 172) that key differs from "
+                 "the node's own id field, which is not reported. conversations-v3 files store a "
+                 "list alternating the message id and its node; both layouts are read. Creation "
+                 "Time is the node's create_time, read as Unix seconds and shown to the whole "
+                 "second; the stored fraction is dropped. Rows with no create_time are kept with a "
+                 "blank time: 46 of 179 on adams_iphone12mini (25 tool, 19 system, 2 assistant), "
+                 "20 of 172 on otto_ios17, 8 of 150 on felix_ios17 and 2 of 17 on "
+                 "hexordia_ios1651, those three all system entries. Content Type is the message "
+                 "content's content_type, and held text on all 21 rows of abe_ios16. Voice Mode "
+                 "Message is the metadata key voice_mode_message as stored. It was stored only on "
+                 "otto_ios17, True on 12 of 172 rows, and is blank where the key is absent. Media: "
+                 "rows whose Content Type is multimodal_text (30 on adams_iphone12mini, 7 on "
+                 "felix_ios17) carry an asset pointer, reported in Parts as the text form of the "
+                 "stored part. No file in the ChatGPT app container on either image is named by "
+                 "those asset ids, and no other recorded link from a part to a local file was "
+                 "found, so no image is shown.",
+        "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
+                  '**/Containers/Data/Application/*/Library/Application Support/conversations/*.json',
+                  '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist',
+                  '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | ChatGPT 1.2023.159 | 21 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | ChatGPT 1.2026.013 | 179 rows",
+            "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | ChatGPT 1.2026.013 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 150 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | ChatGPT 1.2023.347 | 17 rows",
             "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 172 rows",
         }
     },
@@ -160,6 +214,11 @@ _CONTAINER = re.compile(r'(?:^|[\\/])Containers[\\/]Data[\\/]Application[\\/]([^
 # Preference files named for ChatGPT's bundle id. Only its own container holds them.
 _MARKERS = ('Library/Preferences/com.openai.chat.plist',
             'Library/Preferences/com.openai.chat.StatsigService.plist')
+# conversations-<id>/ and conversations-v3-<id>/ name the folder after ChatGPT's own ids. The
+# 2023 app kept a plain conversations/ folder, a name any app could use, so that one is read
+# only from a container a marker identifies.
+_CONVERSATION_FILE = re.compile(r'^Library/Application Support/conversations-[^/]+/[^/]+\.json$')
+_LEGACY_CONVERSATION_FILE = re.compile(r'^Library/Application Support/conversations/[^/]+\.json$')
 
 
 def _webkit(value):
@@ -202,19 +261,47 @@ def _chatgpt_containers(context):
     return containers
 
 
+def _conversation_files(context):
+    """Return the conversation JSON files, each once, the legacy folder only from ChatGPT's container."""
+    containers = None
+    files = []
+    for file_found in dict.fromkeys(str(found) for found in context.get_files_found()):
+        container, inner = _container_path(context, file_found)
+        if _CONVERSATION_FILE.match(inner):
+            files.append(file_found)
+        elif _LEGACY_CONVERSATION_FILE.match(inner):
+            if containers is None:
+                containers = _chatgpt_containers(context)
+            if container in containers:
+                files.append(file_found)
+    return files
+
+
+def _tree_nodes(storage):
+    """Yield (message id, node) from a conversation tree.
+
+    Older files keep the nodes in a dict keyed by message id. conversations-v3 files keep a
+    list alternating the message id and its node.
+    """
+    if isinstance(storage, dict):
+        yield from storage.items()
+    elif isinstance(storage, list):
+        for index, node in enumerate(storage):
+            if isinstance(node, dict):
+                previous = storage[index - 1] if index else None
+                yield (previous if isinstance(previous, str) else node.get('id', '')), node
+
+
 @artifact_processor
 def chatgptConversationsMetadata(context):
     data_headers = (
         ('Creation Time', 'datetime'), ('Modification Date', 'datetime'), 'Title', 'Conversation ID',
-        'Model', 'Custom Instructions (Model)', 'Custom Instructions (User)',
-        'Custom Instructions (Enabled)', 'Is Temporary', 'File Path')
+        'Model', 'Default Model', 'Last Model', 'Custom Instructions (Model)',
+        'Custom Instructions (User)', 'Custom Instructions (Enabled)', 'Is Temporary', 'File Path')
     data_list = []
     sources = []
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if not (file_found.endswith('.json') and 'conversations-' in file_found):
-            continue
+    for file_found in _conversation_files(context):
         try:
             with open(file_found, 'r', encoding='utf-8') as fh:
                 data = json.load(fh)
@@ -223,8 +310,9 @@ def chatgptConversationsMetadata(context):
             data_list.append((
                 _webkit(data.get('creation_date', 0)), _webkit(data.get('modification_date', 0)),
                 data.get('title', ''), data.get('id', ''), config.get('model', ''),
+                config.get('default_model', ''), config.get('last_model', ''),
                 ci.get('about_model_message', ''), ci.get('about_user_message', ''),
-                ci.get('active', False), config.get('is_temporary_chat', False),
+                ci.get('active', ''), config.get('is_temporary_chat', ''),
                 context.get_relative_path(file_found)))
             sources.append(context.get_relative_path(file_found))
         except _JSON_ERRORS:
@@ -242,10 +330,7 @@ def chatgptConversations(context):
     data_list = []
     sources = []
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if not (file_found.endswith('.json') and 'conversations-' in file_found):
-            continue
+    for file_found in _conversation_files(context):
         try:
             with open(file_found, 'r', encoding='utf-8') as fh:
                 data = json.load(fh)
@@ -257,19 +342,21 @@ def chatgptConversations(context):
         conv_id = data.get('id', '')
         tree = data.get('tree', {})
         storage = tree.get('storage', {}) if isinstance(tree, dict) else {}
-        if not isinstance(storage, dict):
+        if not isinstance(storage, (dict, list)):
+            logfunc(f'ChatGPT conversation tree not read, unrecognised layout -> {file_found}')
             continue
         rel = context.get_relative_path(file_found)
-        for message_id, message_details in storage.items():
+        for message_id, message_details in _tree_nodes(storage):
             content = message_details.get('content', {})
             author = content.get('author', {}).get('role', '')
-            parts = content.get('content', {}).get('parts', [''])
+            body = content.get('content', {})
+            parts = body.get('parts', [''])
             parts = '\n'.join(str(p) for p in parts) if isinstance(parts, list) else str(parts)
             metadata = content.get('metadata', {})
             data_list.append((
                 _unix(content.get('create_time')), message_id, title, conv_id, author, parts,
-                content.get('content_type', ''), metadata.get('finish_details', {}).get('type', ''),
-                metadata.get('voice_mode_message', False), str(metadata), rel))
+                body.get('content_type', ''), metadata.get('finish_details', {}).get('type', ''),
+                metadata.get('voice_mode_message', ''), str(metadata), rel))
         sources.append(rel)
 
     return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
