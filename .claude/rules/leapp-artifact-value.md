@@ -64,6 +64,28 @@ A cache of 800 files belonging to 70 titles is 70 rows with a file count, not 80
 When you summarise rather than enumerate, say so in the notes and name the path, so the next
 examiner who needs the detail knows where it is.
 
+## A column fixed by a key belongs to the key, not to every row
+
+Before adding a column to a per-event table (calls, messages, visits), ask whether it is a
+property of the event or of something the event points at: an account, a SIM, a device, a
+store. A column fully determined by such a key repeats the same few values down thousands
+of rows. Count distinct values against the row count on a real run to tell.
+
+Keep on the event row the one value an examiner reads or filters by. Put the rest, including
+any columns that explain how that value was derived, in a per-key artifact with the first
+and last event time and a count. That table often answers the real question better: when
+the SIM changed is a timeline of accounts, not something to find by scrolling the call log.
+
+`check_artifact_output.py` does not catch this. It flags a column that is constant across
+every row, and a key-bound column stops being constant as soon as the key takes two values,
+which is where the repetition is worst. ALEAPP's call log (abrignoni/ALEAPP#1836) added four
+SIM columns to every call row; #1837 kept the ICCID on the row and moved the rest to a Call
+Log Phone Accounts artifact.
+
+Say in the notes what starts a new key row, and do not claim more than that. In the same
+call log, two account rows resolved to one SIM on two images, because the stored id format
+changed or another component wrote the rows.
+
 ## Nothing in CI checks this
 
 `check_claim_language.py` gates the claims rule. There is no equivalent here, because value
