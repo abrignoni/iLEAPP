@@ -56,9 +56,11 @@ class BluetoothRawLastSeenTest(unittest.TestCase):
                 raw = connection.execute(SQL).fetchall()
                 connection.close()
                 files.append(path)
-                expected.extend((row[2], row[0], row[1], row[3], str(path.relative_to(root))) for row in raw)
+                expected.extend((row[2], row[0], row[1], row[3], 'Current', '', str(path.relative_to(root)))
+                                for row in raw)
             headers, rows, source = module.get_bluetoothOtherLE.__wrapped__(Context(root, files))
-            self.assertEqual(headers, ('LastSeenTime (As Stored)', 'Name', 'Address', 'UUID', 'Source File'))
+            self.assertEqual(headers, ('LastSeenTime (As Stored)', 'Name', 'Address', 'UUID', 'Record State',
+                                       'Read From', 'Source File'))
             self.assertEqual(rows, expected)
             self.assertEqual([[type(value) for value in row] for row in rows],
                              [[type(value) for value in row] for row in expected])
