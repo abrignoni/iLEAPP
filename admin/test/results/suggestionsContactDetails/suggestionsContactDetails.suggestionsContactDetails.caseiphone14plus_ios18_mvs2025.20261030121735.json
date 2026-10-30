@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "module_name": "suggestionsContactDetails",
+    "artifact_name": "Suggestions Store - Contact Details",
+    "function_name": "suggestionsContactDetails",
+    "case_number": "caseiphone14plus_ios18_mvs2025",
+    "number_of_columns": 11,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 766,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/suggestionsContactDetails/testdata.suggestionsContactDetails.suggestionsContactDetails.caseiphone14plus_ios18_mvs2025.zip",
+    "start_time": "2026-10-30T12:17:35.164435+00:00",
+    "end_time": "2026-10-30T12:17:35.231385+00:00",
+    "run_time_seconds": 0.005182981491088867,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T08:17:35.222132",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Entity Created",
+    "Entity Updated",
+    "Entity Last Seen",
+    "Detail Type",
+    "Value",
+    "Label",
+    "Entity Title",
+    "Entity Type",
+    "Referenced Apps (bundle ID)",
+    "Source Key (as stored)",
+    "Extraction Type (as stored)"
+  ],
+  "data": [
+    [
+      1727541712,
+      1727541712,
+      1727541723,
+      "Email Address (2)",
+      "appleid@id.apple.com",
+      "",
+      "Apple",
+      "Pseudo Contact (4)",
+      "com.apple.mobilemail",
+      "2918FE51-DE40-4049-BDD9-6818049CBF5A",
+      0
+    ],
+    [
+      1731426975,
+      1731426975,
+      1731520094,
+      "Email Address (2)",
+      "chickadeemary2000@gmail.com",
+      "",
+      "Mary Jones",
+      "Pseudo Contact (4)",
+      "",
+      "2918FE51-DE40-4049-BDD9-6818049CBF5A",
+      0
+    ],
+    [
+      1731432884,
+      1731432884,
+      1731460508,
+      "Email Address (2)",
+      "fieldsgregory191@gmail.com",
+      "",
+      "Gregory Fields",
+      "Pseudo Contact (4)",
+      "com.apple.mobilemail",
+      "2918FE51-DE40-4049-BDD9-6818049CBF5A",
+      0
+    ],
+    [
+      1731432884,
+      1731432884,
+      1731460508,
+      "Email Address (2)",
+      "fieldsgregory191@gmail.com",
+      "",
+      "Gregory Fields",
+      "Pseudo Contact (4)",
+      "com.apple.mobilemail",
+      "2918FE51-DE40-4049-BDD9-6818049CBF5A",
+      0
+    ],
+    [
+      1731441425,
+      1731441425,
+      1731460397,
+      "Email Address (2)",
+      "hackergotyou@proton.me",
+      "",
+      "hackergotyou",
+      "Pseudo Contact (4)",
+      "com.apple.mobilemail",
+      "2918FE51-DE40-4049-BDD9-6818049CBF5A",
+      0
+    ]
+  ]
+}
