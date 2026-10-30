@@ -1,0 +1,42 @@
+{
+    "casejess_ios15": {
+        "description": "Jess CTF iPhone 8 image (corpus key jess_ios15), iOS 15.0.2: the Quick Look thumbnail cache folder (cloudthumbnails.db, index.sqlite, their sidecars and thumbnails.data)",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "fb028ddefa8af7df5b12d3e729f075d150637a31_files_full.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T06:26:13.917504",
+            "last_commit": {
+                "hash": "1bd4d2549709b40daf3e86bca6f2f3cbf32aa73e",
+                "author_name": "Brigs",
+                "author_email": "4n6@abrignoni.com",
+                "date": "2026-10-23T15:25:36-04:00",
+                "message": "Join artifact source paths with newlines (#2548)"
+            }
+        },
+        "artifacts": {
+            "quickLook": {
+                "search_patterns": [
+                    "*/Quick Look/cloudthumbnails.db*",
+                    "*/Library/Caches/com.apple.QuickLook.thumbnailcache/cloudthumbnails.db*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "quickLookThumbnails": {
+                "search_patterns": [
+                    "*/Library/Caches/com.apple.QuickLook.thumbnailcache/index.sqlite*",
+                    "*/Library/Caches/com.apple.QuickLook.thumbnailcache/thumbnails.data"
+                ],
+                "file_count": 4,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}
