@@ -4,21 +4,21 @@
     "artifact_name": "HomeKit Homes",
     "function_name": "homeKitHomes",
     "case_number": "casehickman_ios14",
-    "number_of_columns": 12,
+    "number_of_columns": 13,
     "number_of_rows": 1,
-    "total_data_size_bytes": 87,
+    "total_data_size_bytes": 103,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitHomes.casehickman_ios14.zip",
-    "start_time": "2026-10-30T15:12:44.011379+00:00",
-    "end_time": "2026-10-30T15:12:44.146745+00:00",
-    "run_time_seconds": 0.07335901260375977,
+    "start_time": "2026-10-30T17:13:59.821453+00:00",
+    "end_time": "2026-10-30T17:13:59.913134+00:00",
+    "run_time_seconds": 0.07073211669921875,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-30T15:12:44.065420",
-      "message": "File not yet committed to git"
+      "hash": "dd1bddb256c1f84e89d957b908fd12a76db07d87",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-30T11:15:02-04:00",
+      "message": "Add HomeKit Homes, Users and Accessories (homed/datastore.sqlite)"
     }
   },
   "headers": [
@@ -33,7 +33,8 @@
     "Horizontal Accuracy (m)",
     "Multi-User Enabled",
     "Location Services Enabled",
-    "Home UUID"
+    "Home UUID",
+    "Store"
   ],
   "data": [
     [
@@ -48,7 +49,8 @@
       "",
       "True",
       "",
-      "A7FA5B35-F540-4226-AA03-0126B5B928EF"
+      "A7FA5B35-F540-4226-AA03-0126B5B928EF",
+      "datastore.sqlite"
     ]
   ]
 }

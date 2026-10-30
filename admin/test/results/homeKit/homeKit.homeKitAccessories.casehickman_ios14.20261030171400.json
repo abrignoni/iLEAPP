@@ -4,21 +4,21 @@
     "artifact_name": "HomeKit Accessories and Devices",
     "function_name": "homeKitAccessories",
     "case_number": "casehickman_ios14",
-    "number_of_columns": 13,
+    "number_of_columns": 14,
     "number_of_rows": 3,
-    "total_data_size_bytes": 342,
+    "total_data_size_bytes": 390,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitAccessories.casehickman_ios14.zip",
-    "start_time": "2026-10-30T14:59:57.042173+00:00",
-    "end_time": "2026-10-30T14:59:57.174959+00:00",
-    "run_time_seconds": 0.07307815551757812,
+    "start_time": "2026-10-30T17:14:00.004674+00:00",
+    "end_time": "2026-10-30T17:14:00.094661+00:00",
+    "run_time_seconds": 0.07000994682312012,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-30T14:59:57.096243",
-      "message": "File not yet committed to git"
+      "hash": "dd1bddb256c1f84e89d957b908fd12a76db07d87",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-30T11:15:02-04:00",
+      "message": "Add HomeKit Homes, Users and Accessories (homed/datastore.sqlite)"
     }
   },
   "headers": [
@@ -34,7 +34,8 @@
     "Firmware Version",
     "Wi-Fi SSID",
     "Wi-Fi MAC Address",
-    "UUID"
+    "UUID",
+    "Store"
   ],
   "data": [
     [
@@ -50,7 +51,8 @@
       "13.4 (17L256)",
       "CcookiesDcastleR5 Guest",
       "d4:a3:3d:64:e4:9a",
-      "8EB90DD5-0F47-5027-BA90-5274B123D579"
+      "8EB90DD5-0F47-5027-BA90-5274B123D579",
+      "datastore.sqlite"
     ],
     [
       1613405879,
@@ -65,7 +67,8 @@
       "",
       "",
       "",
-      "D8881975-4DDC-568B-94D5-3746BC9ADB1F"
+      "D8881975-4DDC-568B-94D5-3746BC9ADB1F",
+      "datastore.sqlite"
     ],
     [
       1613598134,
@@ -80,7 +83,8 @@
       "",
       "",
       "",
-      "1E7E78DA-0242-5FFD-AAC6-CE35A9BCB995"
+      "1E7E78DA-0242-5FFD-AAC6-CE35A9BCB995",
+      "datastore.sqlite"
     ]
   ]
 }
