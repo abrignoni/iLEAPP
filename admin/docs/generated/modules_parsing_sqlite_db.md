@@ -288,5 +288,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | uberPlaces |
 | waze |
 | webkitResourceLoadStatistics |
+| widgetEngagements |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->
