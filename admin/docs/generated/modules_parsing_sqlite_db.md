@@ -133,6 +133,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | mediaLibrary |
 | mega |
 | megaCloud |
+| metaTimeInApp |
 | myq |
 | nest |
 | netflix |
@@ -183,11 +184,14 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | storeSystem |
 | storeUser |
 | subscriberInfo |
+| suggestionsContactDetails |
+| suggestionsUrls |
 | swissmeteo |
 | tcc |
 | teleguard |
 | telekomMail |
 | textNow |
+| textReplacements |
 | threeBars |
 | tikTok |
 | tikTokReplied |
@@ -285,5 +289,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | uberPlaces |
 | waze |
 | webkitResourceLoadStatistics |
+| widgetEngagements |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->
