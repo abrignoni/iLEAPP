@@ -1,25 +1,29 @@
 __artifacts_v2__ = {
     "mapsSync": {
         "name": "Maps Sync",
-        "description": 'Apple Maps MapsSync history rows with the stored Z_ENT value when available. Fixed-ID Type '
-                       "Interpretation retains the parser's existing mapping and does not resolve each store's "
-                       'Core Data entity names.',
+        "description": "Apple Maps MapsSync history rows, with each row's entity named from the store's own "
+                       "Z_PRIMARYKEY table and the stored Z_ENT value.",
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-23",
-        "last_update_date": '2026-10-07',
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Location",
-        "notes": 'Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of '
-                 'CheekyForensicsMonkey '
-                 '(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). '
-                 'Whether an entry was created on this device or synced from another device on the same '
-                 'account is not established here, and an entry is not evidence that travel took place. '
-                 'Original parser attribution: @abrignoni. Fixed-ID Type Interpretation preserves the '
-                 'existing 14/16/12 labels in the modern query and the literal Unknown in the two fallback '
-                 'queries. These are parser interpretations, not verified per-store entity or event '
-                 'meanings. Z_ENT (As Stored) is the direct SQLite value when the selected schema exposes '
-                 'the column; fallback schemas without the column report SQL NULL. That output does not '
-                 'distinguish an absent column from a stored NULL. No Z_PRIMARYKEY resolution is performed.',
+        "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
+                 "CheekyForensicsMonkey "
+                 "(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). "
+                 "Whether an entry was created on this device or synced from another device on the same "
+                 "account is not established here, and an entry is not evidence that travel took place. "
+                 "Original parser attribution: @abrignoni. Entity (Z_PRIMARYKEY Name) is the Z_NAME that "
+                 "the same store's Z_PRIMARYKEY table gives for the row's Z_ENT, as stored; what each "
+                 "entity records is not interpreted here. Entity numbers differ between stores: across "
+                 "the 22 tested stores the Z_PRIMARYKEY table gives Z_ENT 16 five different names, the "
+                 "numbers in the fixed list used before this change (12, 14 and 16) each name several "
+                 "different entities, and 201 of the 248 tested rows carry a Z_ENT value outside that "
+                 "list. Z_ENT (As Stored) is the direct SQLite value when the selected schema exposes the "
+                 "column; fallback schemas without the column report SQL NULL, and their rows have a "
+                 "blank Entity. A blank Entity also results when the store has no Z_PRIMARYKEY table or "
+                 "that table has no row for the stored Z_ENT. That output does not distinguish an absent "
+                 "column from a stored NULL.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -37,6 +41,15 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | com.apple.Maps | 15 rows",
             "jess_ios15": "iOS 15.0.2 | com.apple.Maps | 5 rows",
             "magnet_ios16": "iOS 16.1.1 | com.apple.Maps | 2 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | com.apple.Maps | 2 rows",
+            "belkactf6_tar": "iOS 16.3 | com.apple.Maps | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | com.apple.Maps | 2 rows",
+            "falken_ios26": "iOS 26.2.1 | com.apple.Maps | 3 rows",
+            "hc_ios17_2": "iOS 17.2.1 | com.apple.Maps | 4 rows",
+            "hc_ios26": "iOS 26.5.2 | com.apple.Maps | 2 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | com.apple.Maps | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | com.apple.Maps | 27 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | com.apple.Maps | 5 rows",
         }
     }
 }
@@ -144,11 +157,7 @@ def _build_query(file_found):
         datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH'),
         datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH'),
         ZHISTORYITEM.z_pk,
-        CASE
-        when ZHISTORYITEM.z_ent = 14 then 'coordinates of search'
-        when ZHISTORYITEM.z_ent = 16 then 'location search'
-        when ZHISTORYITEM.z_ent = 12 then 'navigation journey'
-        end,
+        NULL,
         ZHISTORYITEM.ZQUERY,
         ZHISTORYITEM.ZLOCATIONDISPLAY,
         ZHISTORYITEM.ZLATITUDE,
@@ -170,7 +179,7 @@ def _build_query(file_found):
         datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
         datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
         ZHISTORYITEM.Z_PK,
-        'Unknown',
+        NULL,
         ZHISTORYITEM.ZQUERY,
         ZMIXINMAPITEM.ZNAME,
         ZHISTORYITEM.ZLATITUDE,
@@ -186,7 +195,7 @@ def _build_query(file_found):
     datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
     datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
     ZHISTORYITEM.Z_PK,
-    'Unknown',
+    NULL,
     ZHISTORYITEM.ZQUERY,
     '',
     ZHISTORYITEM.ZLATITUDE,
@@ -197,10 +206,21 @@ def _build_query(file_found):
     '''
 
 
+def _entity_names(cursor):
+    """{Z_ENT: Z_NAME} from this store's own Z_PRIMARYKEY table; {} when it has none.
+
+    Entity numbers differ between builds of the store, so they are never mapped by a fixed list."""
+    try:
+        cursor.execute('SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY')
+        return dict(cursor.fetchall())
+    except sqlite3.Error:
+        return {}
+
+
 @artifact_processor
 def mapsSync(context):
     data_headers = (
-        ('Timestamp', 'datetime'), ('Modified Time', 'datetime'), 'Item Number', 'Fixed-ID Type Interpretation',
+        ('Timestamp', 'datetime'), ('Modified Time', 'datetime'), 'Item Number', 'Entity (Z_PRIMARYKEY Name)',
         'Z_ENT (As Stored)',
         'Location Search', 'Location Display', 'Latitude', 'Longitude', 'Latitude1', 'Longitude1',
         'Journey Destination Address', 'Map Item Storage BLOB Address')
@@ -218,6 +238,7 @@ def mapsSync(context):
         try:
             cursor.execute(query)
             all_rows = cursor.fetchall()
+            entities = _entity_names(cursor)
         except sqlite3.Error as ex:
             logfunc(f'Error processing MapsSync data: {ex}')
             db.close()
@@ -225,7 +246,7 @@ def mapsSync(context):
         db.close()
 
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[12], row[4], row[5], row[6], row[7],
+            data_list.append((row[0], row[1], row[2], entities.get(row[12], ''), row[12], row[4], row[5], row[6], row[7],
                               row[8], row[9], _parse_journey_blob(row[10]), _parse_mapitem_blob(row[11])))
 
         if all_rows:
