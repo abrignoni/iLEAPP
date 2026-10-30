@@ -184,6 +184,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | storeSystem |
 | storeUser |
 | subscriberInfo |
+| suggestionsUrls |
 | swissmeteo |
 | tcc |
 | teleguard |
