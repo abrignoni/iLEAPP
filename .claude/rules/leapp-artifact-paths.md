@@ -28,7 +28,7 @@ When a path differs only by case, use one bracket class, not two patterns:
 
 ```python
 "paths": ('*/[Bb]iome/*/StreamName/local/*',)     # correct
-"paths": ('*/Biome/...', '*/biome/...')           # WRONG - double-counts on Windows
+"paths": ('*/Biome/...', '*/biome/...')           # WRONG - two patterns for one path
 ```
 
 On Windows `normcase` folds both patterns to the same string. The entry point hands a file
