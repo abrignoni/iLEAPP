@@ -13,28 +13,32 @@ __artifacts_v2__ = {
             "does not establish which process or user caused an event. Interpret flags as file-"
             "system notifications and correlate them with other evidence. Covers the data "
             "volume stream at /private/var/.fseventsd, the stream at "
-            "/private/var/mobile/.fseventsd, and a root volume stream at /.fseventsd where the "
-            "extraction holds one, as on the ctf2020_ios12 image (iOS 12.4), whose root volume "
-            "stream carries package-manager paths. Extractions "
-            "whose folders start at the data volume, such as filesystem2/, are matched too. "
-            "In the images checked, paths in the root volume stream start below / and paths in "
-            "the data volume stream start below /private/var; a few root volume rows (67 of "
-            "222195 on ctf2020_ios12) begin with a slash. The Source File column names the log "
-            "file a row came from. "
+            "/private/var/mobile/.fseventsd, and the system volume stream at /.fseventsd, an "
+            "iOS location listed in Nicole Ibrahim's SANS DFIR Summit 2017 FSEvents slides and "
+            "read by mac_apt's iOS plugin. Any other folder named .fseventsd, such as the "
+            "/DeveloperPatch/.fseventsd those slides also list, is matched as well but has not "
+            "been seen in a test image. Extractions whose folders start at the data volume, "
+            "such as filesystem2/, are matched too. The slides describe each record's path as "
+            "relative; in the images checked, system volume paths start below / and data "
+            "volume paths below /private/var, and a few system volume rows (67 of 222195 on "
+            "ctf2020_ios12) begin with a slash. The Source File column names the log file a "
+            "row came from. "
             "Supports gzip-wrapped "
             "1SLD, 2SLD, and 3SLD streams. Format and flag research: Joachim Metz/libyal and "
             "Yogesh Khatri/mac_apt. References: https://github.com/libyal/dtformats/blob/"
             "4917c9bffc631503c9dbe77dddf14023a572bcef/"
             "documentation/MacOS%20File%20System%20Events%20Disk%20Log%20Stream%20format."
             "asciidoc and https://github.com/ydkhatri/mac_apt/blob/"
-            "6b1cd4e9301aab0da922d0a6b3f6900e945b7acb/plugins/fsevents.py"
+            "6b1cd4e9301aab0da922d0a6b3f6900e945b7acb/plugins/fsevents.py and "
+            "https://papers.put.as/papers/macosx/2017/summit_archive_1498158287.pdf (slides 7 "
+            "and 10)"
         ),
         "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "file-search",
         "sample_data": {
             "abe_ios16": "1319709 rows (data volume)",
-            "ctf2020_ios12": "3202200 rows (2980005 data volume, 222195 root volume)",
+            "ctf2020_ios12": "3202200 rows (2980005 data volume, 222195 system volume)",
             "hc_ios18_7": "iOS 18.7.8 | 26957 rows (11939 data volume, 15018 user space)",
         },
     },
@@ -272,9 +276,9 @@ __artifacts_v2__ = {
         "notes": (
             "These paths can support investigation of nonstandard package-management activity. "
             "They are not labeled as proof of jailbreak status and should be correlated with "
-            "other device evidence. On a root volume stream most rows can be the temporary "
+            "other device evidence. On a system volume stream most rows can be the temporary "
             "*.dpkg-new names dpkg writes while unpacking a package (113335 of the 117767 "
-            "root volume rows on ctf2020_ios12 end in .dpkg-new, and a further 1502 end in "
+            "system volume rows on ctf2020_ios12 end in .dpkg-new, and a further 1502 end in "
             ".dpkg-tmp). Rows can overlap other Items of Interest reports."
         ),
         "paths": ("*/.fseventsd/*",),
