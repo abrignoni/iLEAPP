@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Apple Maps search history entries and timestamps from GeoHistory.mapsdata.",
         "author": "@any333",
         "creation_date": "2021-01-29",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Locations",
         "notes": "GeoHistory.mapsdata is present only on the iOS 12.4 and 13.3.1 test images; it "
@@ -24,8 +24,8 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "search",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | com.apple.Maps | 28 rows",
-            "hickman_ios13": "iOS 13.3.1 | com.apple.Maps | 14 rows",
+            "ctf2020_ios12": "iOS 12.4 | com.apple.Maps | 14 rows",
+            "hickman_ios13": "iOS 13.3.1 | com.apple.Maps | 7 rows",
         },
     }
 }
