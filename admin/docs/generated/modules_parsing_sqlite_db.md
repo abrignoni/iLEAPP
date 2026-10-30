@@ -112,6 +112,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | groupMe |
 | health |
 | hikvision |
+| homeKit |
 | iOSCacheLocations |
 | iOSclaude |
 | imoHD_Chat |
