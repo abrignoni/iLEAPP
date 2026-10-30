@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "module_name": "metaTimeInApp",
+    "artifact_name": "Meta Apps - Time In App",
+    "function_name": "metaTimeInApp",
+    "case_number": "caseiphone14plus_ios18_mvs2025",
+    "number_of_columns": 8,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 218,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/metaTimeInApp/testdata.metaTimeInApp.metaTimeInApp.caseiphone14plus_ios18_mvs2025.zip",
+    "start_time": "2026-10-30T11:23:52.007507+00:00",
+    "end_time": "2026-10-30T11:23:52.109148+00:00",
+    "run_time_seconds": 0.01046299934387207,
+    "last_commit": {
+      "hash": "77b65684debe3050735e6ec5beec1058480c3f9a",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-30T07:14:11-04:00",
+      "message": "Add Meta Apps - Time In App (time_in_app_<id>.db)"
+    }
+  },
+  "headers": [
+    "Start Time",
+    "End Time",
+    "Duration (seconds)",
+    "App (bundle ID)",
+    "Account ID (from file name)",
+    "Start Event (as stored)",
+    "End Event (as stored)",
+    "Sequence Number"
+  ],
+  "data": [
+    [
+      1728589695,
+      1728589695,
+      0,
+      "com.burbn.instagram",
+      "70100507201",
+      7,
+      2,
+      1
+    ],
+    [
+      1728589697,
+      1728589703,
+      6,
+      "com.burbn.instagram",
+      "70100507201",
+      1,
+      2,
+      2
+    ],
+    [
+      1728589704,
+      1728589755,
+      51,
+      "com.burbn.instagram",
+      "70100507201",
+      1,
+      2,
+      3
+    ],
+    [
+      1728589843,
+      1728589871,
+      28,
+      "com.burbn.instagram",
+      "70100507201",
+      1,
+      2,
+      4
+    ]
+  ]
+}
