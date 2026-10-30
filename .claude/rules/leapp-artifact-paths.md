@@ -15,7 +15,10 @@ short version, because it is the single most common source of silently-wrong art
 - Matching is Python **`fnmatch`**, not `glob` and not `pathlib`. `*` and `**` are
   interchangeable and **both span `/`**. A single `*` can cross several directory levels.
 - Case sensitivity follows `os.path.normcase`: **case-sensitive on macOS and Linux**,
-  case-insensitive on Windows.
+  case-insensitive on Windows. One exception: in a raw disk image, a member of an NTFS,
+  ReFS, exFAT or FAT volume matches whatever its case on every platform
+  (`scripts/raw_image.py`). APFS, HFS+, ext4 and the other volumes, and every zip, tar and
+  folder input, still match exactly off Windows.
 - The directory, zip and tar seekers prepend a synthetic `root/` before matching, which is
   why leading `*/` and `**/` patterns work.
 
@@ -28,9 +31,11 @@ When a path differs only by case, use one bracket class, not two patterns:
 "paths": ('*/Biome/...', '*/biome/...')           # WRONG - double-counts on Windows
 ```
 
-On Windows `normcase` folds both patterns to the same string, and the entry point extends
-`files_found` once per pattern with no dedup, so every row appears twice. Off Windows the
-capital-only pattern silently misses the lowercase directory entirely.
+On Windows `normcase` folds both patterns to the same string. The entry point hands a file
+that two of an artifact's patterns match to the artifact once (abrignoni/DLEAPP#743 and its
+ports to the other four), so this no longer doubles rows, but a module that calls the seeker
+itself per pattern still can. Off Windows the capital-only pattern silently misses the
+lowercase directory entirely.
 
 ## Validate a pattern before committing it
 
