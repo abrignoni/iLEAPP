@@ -69,7 +69,11 @@ The decorator reads the artifact block whose key matches the function name, sets
 `No data found for <artifact name>` and writes no table.
 
 Column types go in the header as a tuple: `('Sent', 'datetime')`, `('Day', 'date')`,
-`('Number', 'phonenumber')` and `('Photo', 'media')`. Plain strings are text columns.
+`('Number', 'phonenumber')`, `('Photo', 'media')` and `('Count', 'number')`. Plain strings
+are text columns. A `number` column is stored as NUMERIC so LAVA sorts it as numbers; it
+also rewrites what it converts (`007` becomes 7, `1.0` becomes 1), so use it only for
+values that are numbers by nature, such as counts, sizes and process ids, never for
+identifiers or codes.
 
 ## What `context` gives you
 
