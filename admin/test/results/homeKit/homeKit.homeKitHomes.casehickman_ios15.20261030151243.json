@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "module_name": "homeKit",
+    "artifact_name": "HomeKit Homes",
+    "function_name": "homeKitHomes",
+    "case_number": "casehickman_ios15",
+    "number_of_columns": 12,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 154,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitHomes.casehickman_ios15.zip",
+    "start_time": "2026-10-30T15:12:43.638725+00:00",
+    "end_time": "2026-10-30T15:12:43.841522+00:00",
+    "run_time_seconds": 0.11178183555603027,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T15:12:43.721726",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Record Modified",
+    "Record Created",
+    "Creation Date",
+    "First Accessory Added",
+    "Home Name",
+    "Owner User ID",
+    "Latitude",
+    "Longitude",
+    "Horizontal Accuracy (m)",
+    "Multi-User Enabled",
+    "Location Services Enabled",
+    "Home UUID"
+  ],
+  "data": [
+    [
+      1684341140,
+      1585056143,
+      "",
+      1675322090,
+      "My Home",
+      "thisisdfir@gmail.com",
+      35.659639252543016,
+      -78.8728794912572,
+      10.646991918557834,
+      "True",
+      "True",
+      "A7FA5B35-F540-4226-AA03-0126B5B928EF"
+    ]
+  ]
+}

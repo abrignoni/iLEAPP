@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "module_name": "homeKit",
+    "artifact_name": "HomeKit Accessories and Devices",
+    "function_name": "homeKitAccessories",
+    "case_number": "casehickman_ios14",
+    "number_of_columns": 13,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 342,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitAccessories.casehickman_ios14.zip",
+    "start_time": "2026-10-30T14:59:57.042173+00:00",
+    "end_time": "2026-10-30T14:59:57.174959+00:00",
+    "run_time_seconds": 0.07307815551757812,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T14:59:57.096243",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Record Modified",
+    "Record Created",
+    "Type",
+    "Name",
+    "Home Name",
+    "Room",
+    "Manufacturer",
+    "Model",
+    "Serial Number",
+    "Firmware Version",
+    "Wi-Fi SSID",
+    "Wi-Fi MAC Address",
+    "UUID"
+  ],
+  "data": [
+    [
+      1586481136,
+      1585162251,
+      "HMDAppleMediaAccessoryModel",
+      "HomePod",
+      "My Home",
+      "Office",
+      "Apple Inc.",
+      "NQHW2LL/A",
+      "DLXW2G7KHQK8",
+      "13.4 (17L256)",
+      "CcookiesDcastleR5 Guest",
+      "d4:a3:3d:64:e4:9a",
+      "8EB90DD5-0F47-5027-BA90-5274B123D579"
+    ],
+    [
+      1613405879,
+      1606921826,
+      "HMDDeviceModel",
+      "Thiss-Mac",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "D8881975-4DDC-568B-94D5-3746BC9ADB1F"
+    ],
+    [
+      1613598134,
+      1610912164,
+      "HMDDeviceModel",
+      "iPhone",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "1E7E78DA-0242-5FFD-AAC6-CE35A9BCB995"
+    ]
+  ]
+}

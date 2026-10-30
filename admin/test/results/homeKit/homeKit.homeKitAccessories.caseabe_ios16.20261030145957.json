@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "homeKit",
+    "artifact_name": "HomeKit Accessories and Devices",
+    "function_name": "homeKitAccessories",
+    "case_number": "caseabe_ios16",
+    "number_of_columns": 13,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 84,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitAccessories.caseabe_ios16.zip",
+    "start_time": "2026-10-30T14:59:57.342172+00:00",
+    "end_time": "2026-10-30T14:59:57.411318+00:00",
+    "run_time_seconds": 0.008635759353637695,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T14:59:57.396410",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Record Modified",
+    "Record Created",
+    "Type",
+    "Name",
+    "Home Name",
+    "Room",
+    "Manufacturer",
+    "Model",
+    "Serial Number",
+    "Firmware Version",
+    "Wi-Fi SSID",
+    "Wi-Fi MAC Address",
+    "UUID"
+  ],
+  "data": [
+    [
+      1676857533,
+      1675387709,
+      "HMDDeviceModel",
+      "Abe\u2019s iPhone",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "7BC151AE-67A4-5417-883C-73A532CF3384"
+    ]
+  ]
+}

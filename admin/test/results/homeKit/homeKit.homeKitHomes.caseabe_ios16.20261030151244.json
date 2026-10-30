@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "module_name": "homeKit",
+    "artifact_name": "HomeKit Homes",
+    "function_name": "homeKitHomes",
+    "case_number": "caseabe_ios16",
+    "number_of_columns": 12,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 97,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitHomes.caseabe_ios16.zip",
+    "start_time": "2026-10-30T15:12:44.314818+00:00",
+    "end_time": "2026-10-30T15:12:44.386724+00:00",
+    "run_time_seconds": 0.008983135223388672,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T15:12:44.368953",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Record Modified",
+    "Record Created",
+    "Creation Date",
+    "First Accessory Added",
+    "Home Name",
+    "Owner User ID",
+    "Latitude",
+    "Longitude",
+    "Horizontal Accuracy (m)",
+    "Multi-User Enabled",
+    "Location Services Enabled",
+    "Home UUID"
+  ],
+  "data": [
+    [
+      1675448134,
+      1650738198,
+      1650738196,
+      "",
+      "My Home",
+      "aberudder@icloud.com",
+      "",
+      "",
+      "",
+      "True",
+      "",
+      "F62F307B-ACA8-49D5-991F-A16E465127B4"
+    ]
+  ]
+}
