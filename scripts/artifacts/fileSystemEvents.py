@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Path-level file-system event records from the fseventsd disk log stream",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -12,8 +12,16 @@ __artifacts_v2__ = {
             "not time. Notifications can be coalesced, paths can be truncated, and a record "
             "does not establish which process or user caused an event. Interpret flags as file-"
             "system notifications and correlate them with other evidence. Covers the data "
-            "volume stream at /private/var/.fseventsd and the stream at "
-            "/private/var/mobile/.fseventsd. Supports gzip-wrapped "
+            "volume stream at /private/var/.fseventsd, the stream at "
+            "/private/var/mobile/.fseventsd, and a root volume stream at /.fseventsd where the "
+            "extraction holds one, as on the ctf2020_ios12 image (iOS 12.4), whose root volume "
+            "stream carries package-manager paths. Extractions "
+            "whose folders start at the data volume, such as filesystem2/, are matched too. "
+            "In the images checked, paths in the root volume stream start below / and paths in "
+            "the data volume stream start below /private/var; a few root volume rows (67 of "
+            "222195 on ctf2020_ios12) begin with a slash. The Source File column names the log "
+            "file a row came from. "
+            "Supports gzip-wrapped "
             "1SLD, 2SLD, and 3SLD streams. Format and flag research: Joachim Metz/libyal and "
             "Yogesh Khatri/mac_apt. References: https://github.com/libyal/dtformats/blob/"
             "4917c9bffc631503c9dbe77dddf14023a572bcef/"
@@ -21,13 +29,12 @@ __artifacts_v2__ = {
             "asciidoc and https://github.com/ydkhatri/mac_apt/blob/"
             "6b1cd4e9301aab0da922d0a6b3f6900e945b7acb/plugins/fsevents.py"
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "file-search",
         "sample_data": {
+            "abe_ios16": "1319709 rows (data volume)",
+            "ctf2020_ios12": "3202200 rows (2980005 data volume, 222195 root volume)",
             "hc_ios18_7": "iOS 18.7.8 | 26957 rows (11939 data volume, 15018 user space)",
         },
     },
@@ -39,7 +46,7 @@ __artifacts_v2__ = {
                        "path from any app that contains one of the fragments is included.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -47,14 +54,12 @@ __artifacts_v2__ = {
             "file-system notification, not message content or proof of a user communication. "
             "Rows can overlap other Items of Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "messages",
         "sample_data": {
-            "ctf2020_ios12": "4904 rows",
+            "abe_ios16": "2562 rows",
+            "ctf2020_ios12": "4945 rows",
             "dexter_ios18": "2343 rows",
             "felix_ios17": "8278 rows",
             "fsfull002_ios17": "4629 rows",
@@ -75,7 +80,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -84,13 +89,11 @@ __artifacts_v2__ = {
             "do not, alone, prove completion or identify an actor. Rows can overlap other Items of "
             "Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "device-mobile-up",
         "sample_data": {
+            "abe_ios16": "37305 rows",
             "ctf2020_ios12": "383208 rows",
             "dexter_ios18": "94733 rows",
             "felix_ios17": "521136 rows",
@@ -108,7 +111,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths within application and shared application containers",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -116,13 +119,11 @@ __artifacts_v2__ = {
             "A container-path notification does not establish application execution or user "
             "interaction. Rows can overlap other Items of Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "apps",
         "sample_data": {
+            "abe_ios16": "202699 rows",
             "ctf2020_ios12": "342796 rows",
             "dexter_ios18": "140534 rows",
             "felix_ios17": "287959 rows",
@@ -140,7 +141,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with location and routing services",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -148,14 +149,12 @@ __artifacts_v2__ = {
             "does not establish the device's location. Rows can overlap other Items of Interest "
             "reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "map-pin",
         "sample_data": {
-            "ctf2020_ios12": "132959 rows",
+            "abe_ios16": "377991 rows",
+            "ctf2020_ios12": "132981 rows",
             "dexter_ios18": "38563 rows",
             "felix_ios17": "1871087 rows",
             "fsfull002_ios17": "309793 rows",
@@ -172,7 +171,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with keychains, keybags, trust, and access control",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -180,14 +179,12 @@ __artifacts_v2__ = {
             "an actor. Interpret notifications with the underlying artifacts and system logs. "
             "Rows can overlap other Items of Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield-lock",
         "sample_data": {
-            "ctf2020_ios12": "3337 rows",
+            "abe_ios16": "4238 rows",
+            "ctf2020_ios12": "3374 rows",
             "dexter_ios18": "2121 rows",
             "felix_ios17": "14756 rows",
             "fsfull002_ios17": "7971 rows",
@@ -207,7 +204,7 @@ __artifacts_v2__ = {
                        "included.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -215,14 +212,12 @@ __artifacts_v2__ = {
             "A matching notification is not, by itself, proof that a restore, erase, or backup "
             "completed. Rows can overlap other Items of Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "restore",
         "sample_data": {
-            "ctf2020_ios12": "13361 rows",
+            "abe_ios16": "8041 rows",
+            "ctf2020_ios12": "13379 rows",
             "dexter_ios18": "1582 rows",
             "felix_ios17": "12817 rows",
             "fsfull002_ios17": "5679 rows",
@@ -239,21 +234,19 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with Safari, WebKit, and browser storage",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
             "This is a path-based subset and does not contain browsing content or prove a website "
             "visit. Rows can overlap other Items of Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "world",
         "sample_data": {
-            "ctf2020_ios12": "29161 rows",
+            "abe_ios16": "2939 rows",
+            "ctf2020_ios12": "29194 rows",
             "dexter_ios18": "6715 rows",
             "felix_ios17": "15038 rows",
             "fsfull002_ios17": "1591 rows",
@@ -273,22 +266,22 @@ __artifacts_v2__ = {
                        "read each path before relating a row to a package manager.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
             "These paths can support investigation of nonstandard package-management activity. "
             "They are not labeled as proof of jailbreak status and should be correlated with "
-            "other device evidence. Rows can overlap other Items of Interest reports."
+            "other device evidence. On a root volume stream most rows can be the temporary "
+            "*.dpkg-new names dpkg writes while unpacking a package (113335 of the 117767 "
+            "root volume rows on ctf2020_ios12 end in .dpkg-new, and a further 1502 end in "
+            ".dpkg-tmp). Rows can overlap other Items of Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package",
         "sample_data": {
-            "ctf2020_ios12": "1852 rows",
+            "ctf2020_ios12": "119619 rows",
             "fsfull002_ios17": "1 row",
             "iphone11_ios17": "5 rows",
             "iphone12_ios18": "5 rows",
@@ -300,7 +293,7 @@ __artifacts_v2__ = {
         "description": "FSEvents records carrying the Removed event flag",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -308,14 +301,12 @@ __artifacts_v2__ = {
             "deletion. Events can be coalesced and can carry Created and Removed together. "
             "Rows can overlap other Items of Interest reports."
         ),
-        "paths": (
-            "*/private/var/.fseventsd/*",
-            "*/private/var/mobile/.fseventsd/*",
-        ),
+        "paths": ("*/.fseventsd/*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "trash",
         "sample_data": {
-            "ctf2020_ios12": "846744 rows",
+            "abe_ios16": "375431 rows",
+            "ctf2020_ios12": "849929 rows",
             "dexter_ios18": "395550 rows",
             "felix_ios17": "1351247 rows",
             "fsfull002_ios17": "590924 rows",
