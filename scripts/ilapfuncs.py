@@ -1409,7 +1409,7 @@ def tsv(report_folder, data_headers, data_list, tsvname, source_file=None):  # p
     else:
         os.makedirs(tsv_report_folder)
     
-    with open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', encoding='utf-8-sig') as tsvfile:
+    with open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', encoding='utf-8-sig', newline='') as tsvfile:
         tsv_writer = csv.writer(tsvfile, delimiter='\t')
         tsv_writer.writerow(data_headers)
         
