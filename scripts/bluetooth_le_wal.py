@@ -18,12 +18,12 @@ STATE_NOT_IN_CURRENT = 'Not in current state'
 
 
 def _read_from(name, item):
-    """Where in the write-ahead log a row was read, in words."""
+    """Where a row was read, in words: the database file without its log, or states of the write-ahead log."""
     parts = []
     if item.first_state is not None:
         first, last = item.first_state, item.last_state
         if first == 0:
-            # State 0 is the database file before any log frame (sqlite_wal.WalStates.states).
+            # State 0 is the database file read without its log (sqlite_wal.WalStates.states).
             text = f'{name} without its -wal'
             parts.append(text if last == 0 else f'{text}, through {name}-wal committed state {last}')
         else:
