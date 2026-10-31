@@ -23,7 +23,7 @@ __artifacts_v2__ = {
             "with no SIGTERM line after them are retained with no Timestamp value. This does not "
             "establish a reboot or a complete log. The log is read from every file the "
             "paths match: the live shutdown.log and "
-            "the copy a packed sysdiagnose (sysdiagnose_*.tar.gz) holds under "
+            "the copy a packed sysdiagnose (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz) holds under "
             "system_logs.logarchive/Extra. The packed copies on the test images are named "
             "shutdown.log; the two iOS 26 sysdiagnose images hold the file in that folder as "
             "shutdown.0.log. A row identical to one already reported from another copy is reported once, from the copy "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/shutdown*.log',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": "standard",
         "artifact_icon": "power",
@@ -85,7 +85,7 @@ __artifacts_v2__ = {
             "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/"
             "). A high count is a lead to review, not a finding. The log is read from every file the "
             "paths match: the live shutdown.log and the copy a packed sysdiagnose "
-            "(sysdiagnose_*.tar.gz) holds under system_logs.logarchive/Extra. The packed copies on "
+            "(sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz) holds under system_logs.logarchive/Extra. The packed copies on "
             "the test images are named shutdown.log; the two iOS 26 sysdiagnose images hold the "
             "file in that folder as shutdown.0.log. A row identical to one already reported from another "
             "copy is reported once, from the copy read first; reboot numbers restart per file. On "
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/shutdown*.log',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": "standard",
         "artifact_icon": "refresh",

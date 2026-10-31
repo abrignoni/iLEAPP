@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/Networking/preferences.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/Networking/preferences.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",

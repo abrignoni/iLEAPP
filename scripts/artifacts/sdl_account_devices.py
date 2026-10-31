@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/otctl_status.txt',
-            '*/sysdiagnose_*.tar.gz'),
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
         "sample_data": {

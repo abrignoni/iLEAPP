@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/WiFi/wifi_status.txt',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "wifi",

@@ -70,7 +70,7 @@ __artifacts_v2__ = {
                  "case_ios27_sanitized) and a generated synthetic copy of each shape.",
         "paths": (
             '*/logs/BatteryUIPlist/BatteryUI*.plist',
-            '*/sysdiagnose_*.tar.gz'),
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
         "sample_data": {
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
                  "weeks before the sysdiagnose.",
         "paths": (
             '*/logs/BatteryUIPlist/BatteryUI*.plist',
-            '*/sysdiagnose_*.tar.gz'),
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "chart-bar",
         "sample_data": {
@@ -165,7 +165,7 @@ __artifacts_v2__ = {
                  "weeks before the sysdiagnose.",
         "paths": (
             '*/logs/BatteryUIPlist/BatteryUI*.plist',
-            '*/sysdiagnose_*.tar.gz'),
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
         "sample_data": {
