@@ -8,9 +8,9 @@ __artifacts_v2__ = {
                        "item was shared.",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Cloudkit",
+        "category": "CloudKit",
         "notes": "A row is created for each ZICCLOUDSYNCINGOBJECT record whose ZSERVERRECORDDATA "
                  "holds a RecordID item, whether or not the record has share data. Root Record ID, "
                  "Container Identifier, Displayed Hostname, Public Permission, Participant "
@@ -46,9 +46,9 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit participant data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Cloudkit",
+        "category": "CloudKit",
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
