@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'router',
         'sample_data': {
-            'magnet_ios16': 'iOS 16.1.1 | table absent on this schema',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows (table absent on this schema)',
             'iphone11_ios17': 'iOS 17.3 | 0 rows; case data not committed, see the case note',
             'hc_ios18_7': '122 rows',
             'hc_ios26': '148 rows; schema unchanged',
