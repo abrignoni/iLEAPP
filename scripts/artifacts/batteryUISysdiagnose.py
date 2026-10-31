@@ -1,13 +1,14 @@
 __artifacts_v2__ = {
     "batteryUISysdiagnoseApps": {
         "name": "Battery UI - Per-App Runtime",
-        "description": "Per-app foreground and background runtime and energy values by time bucket, from the BatteryUI property lists of a sysdiagnose (logs/BatteryUIPlist)",
+        "description": "Per-app foreground and background runtime and energy values by time bucket, from the BatteryUI property lists of a sysdiagnose (logs/BatteryUIPlist) or of the device folder in a full file system extraction (BatteryLife/Debug)",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-20",
-        "last_update_date": "2026-10-20",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Sysdiagnose",
-        "notes": "A sysdiagnose carries logs/BatteryUIPlist/BatteryUISysdiagnose.plist and can carry one or more "
+        "category": "Battery",
+        "notes": "A sysdiagnose can carry logs/BatteryUIPlist/BatteryUISysdiagnose.plist (on iOS 13.3.1, "
+                 "hickman_ios13_sysdiag, the folder held only BatteryUI.plist) and one or more "
                  "BatteryUIUpgrade_<old build>_<new build>.plist files, named for two builds. Both hold a "
                  "Breakdown section with four range entries: PLBatteryUIQueryRangeDayKey and "
                  "PLBatteryUIQueryRangeWeekKey (one bucket each) and PLBatteryUIQueryRangeDayTapKey and "
@@ -31,14 +32,18 @@ __artifacts_v2__ = {
                  "ten DayTapKey values equal exactly 3,600.0, one hour in seconds, and so do 13 DayTapKey values "
                  "in the upgrade files on ai16_ios26_sysdiag; one-hour DayTapKey buckets hold values far above "
                  "the 60 an hour could hold in minutes; and on the corpus images every bucket with app entries "
-                 "(159 of 159) has foreground and background time equal to the sum of its app values. One value "
+                 "(236 of 236 bucket rows across the eleven keys in sample_data, 202 distinct buckets once the files"
+                 " shared between an extraction and its sysdiagnose are counted once) has foreground and background "
+                 "time equal to the sum of its app values. One value "
                  "exceeded its stored bucket width: 3,608.6 in a 3,600-second DayTapKey bucket of an upgrade file "
                  "on ai16_ios26_sysdiag. Plugged-in runtimes and the call off-screen time are given as stored, "
                  "with no unit; in the files read a plugged-in runtime can be larger than the runtime value of "
                  "the same app, so it is not part of it. Energy Used, Energy Value and the Energy Components are "
                  "the stored numbers with no unit: the unit and what the Energy Value (a whole number, stored as "
-                 "an integer in most entries) expresses are not established. Energy Components lists the other "
-                 "numeric keys of the app entry (for example CPU, DRAM, Foreground, Autolock) as stored; App Type "
+                 "an integer in most entries) expresses are not established. Energy Components lists every other key"
+                 " of the app entry as stored, numbers as key=value and any other value as JSON text (for example "
+                 "CPU, DRAM, Foreground, Autolock; on iOS 17 to 26 one dictionary-valued key, "
+                 "WidgetUpdateTypeToCount, appears in a few rows); App Type "
                  "and Zero-Percent-Drain Flag are stored integers and Qualifiers is a stored list of integers; "
                  "their meaning is not established. App Identifier is the PLBatteryUIAppBundleIDKey value, which "
                  "in the files read is a reverse-DNS bundle identifier for most entries and a short name without "
@@ -53,48 +58,73 @@ __artifacts_v2__ = {
                  "row does not show that the app was opened by a person, and an app with no row had no entry in "
                  "the file, which is not evidence that it did not run. The buckets cover a limited window; the "
                  "file states a Data Duration without a unit (see Snapshots), and an empty result is not evidence "
-                 "of no activity. On the five sysdiagnoses in sample_data, read through this artifact: "
-                 "hickman_ios14_sysdiag (iOS 14.3), rodeo_ios17_sysdiag (iOS 17.3), ai16_ios26_sysdiag (iOS "
-                 "26.5.2, main file and three upgrade files) and hc_ios26_sysdiag (iOS 26.6, main file and two "
-                 "upgrade files) gave rows; hickman_ios13_sysdiag (iOS 13.3.1) holds only BatteryUI.plist and "
-                 "gives none. BatteryUI.plist, which can sit in the same folder, is not read. On hc_ios26_sysdiag "
-                 "it has a different layout (daily breakdowns, a Drain section, a usage summary and battery and "
-                 "screen graphs) and was an older copy whose query time matched the 23F77 to 23F84 upgrade file, "
-                 "with empty app lists, zero foreground and background time and zero daily screen-on totals. On "
-                 "hickman_ios13_sysdiag it has the same four range entries as the main file, held a few app "
-                 "entries and hourly screen-on values, and stores no bucket times, and its query time was three "
-                 "weeks before the sysdiagnose. The Graph, endOfDay and endOfHour sections of the files that are "
-                 "read are not reported either. The iOS 26.6 (23G71, a different device from hc_ios26_sysdiag) "
+                 "of no activity. The files are read from logs/BatteryUIPlist inside a sysdiagnose and from "
+                 "private/var/containers/Shared/SystemGroup/<UUID>/Library/BatteryLife/Debug in a full file system "
+                 "extraction, the container whose .com.apple.mobile_container_manager.metadata.plist names "
+                 "systemgroup.com.apple.powerlog on the full file system images read. "
+                 "Byte-identical copies sat in both places on hickman_ios13 (BatteryUI.plist) and hickman_ios14 "
+                 "(BatteryUISysdiagnose.plist), in the device folder and in the sysdiagnose held in the same "
+                 "extraction, and the hc_ios26 device folder held byte-identical copies of the BatteryUI.plist and "
+                 "the 23F77 to 23F84 upgrade file of hc_ios26_sysdiag. A file byte-identical to another in the same "
+                 "extraction is read once, and its Source File is the first of the paths in sort order. "
+                 "BatteryUI.plist is read too, with File Kind BatteryUI.plist. Its Query Time (see Snapshots) dates "
+                 "it: on the five full file system images holding one, the Query Time was within a day of the file's"
+                 " modification time in the extraction, so its rows show the state at that query, not at extraction."
+                 " It held all four range entries on iphone12_ios18 (iOS 18.7) and on hickman_ios13 and "
+                 "hickman_ios13_sysdiag (iOS 13.3.1, where it stores no bucket times, so Bucket Start, Bucket End "
+                 "and Bucket Seconds are blank on those rows), only PLBatteryUIQueryRangeDayKey on felix_ios17 (iOS "
+                 "17.6.1) and otto_ios17 (iOS 17.5.1), and on hc_ios26 and hc_ios26_sysdiag (iOS 26) a different "
+                 "layout (daily breakdowns, a Drain section, a usage summary and battery and screen graphs) with no "
+                 "range entries, which gives a Snapshots row and no bucket or app rows. File Kind held one value on "
+                 "the keys with a single file read (hickman_ios13, hickman_ios13_sysdiag, hickman_ios14, "
+                 "hickman_ios14_sysdiag, iphone12_ios18, otto_ios17, rodeo_ios17_sysdiag). Read through this "
+                 "artifact: the sysdiagnoses hickman_ios13_sysdiag (iOS 13.3.1, BatteryUI.plist only), "
+                 "hickman_ios14_sysdiag (iOS 14.3), rodeo_ios17_sysdiag (iOS 17.3), ai16_ios26_sysdiag (iOS 26.5.2, "
+                 "main file and three upgrade files) and hc_ios26_sysdiag (iOS 26.6, main file, two upgrade files "
+                 "and BatteryUI.plist), and the full file system images felix_ios17 (BatteryUI.plist and one upgrade"
+                 " file), hc_ios26 (BatteryUI.plist and one upgrade file whose app lists are empty), hickman_ios13 "
+                 "and iphone12_ios18 (BatteryUI.plist), hickman_ios14 (the main file) and otto_ios17 "
+                 "(BatteryUI.plist). "
+                 "The Graph, endOfDay and endOfHour sections of the files that are "
+                 "read are not reported. The iOS 26.6 (23G71, a different device from hc_ios26_sysdiag) "
                  "and iOS 27.0 (24A437) files the artifact was built from are not shareable as they are; the test "
                  "cases hold a copy of each with the identifying values replaced (case_ios26_sanitized, "
                  "case_ios27_sanitized) and a generated synthetic copy of each shape.",
         "paths": (
-            '*/logs/BatteryUIPlist/BatteryUI*.plist',
+            '*/logs/BatteryUIPlist/BatteryUI*.plist', '*/BatteryLife/Debug/BatteryUI*.plist',
             '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
         "sample_data": {
-            "hickman_ios13_sysdiag": "iOS 13.3.1 | 0 rows; only BatteryUI.plist, which is not read",
-            "hickman_ios14_sysdiag": "iOS 14.3 | 443 rows",
-            "rodeo_ios17_sysdiag": "iOS 17.3 | 173 rows",
             "ai16_ios26_sysdiag": "iOS 26.5.2 | 1473 rows",
+            "felix_ios17": "iOS 17.6.1 | 62 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows; the upgrade file's app lists are empty",
             "hc_ios26_sysdiag": "iOS 26.6 | 156 rows",
+            "hickman_ios13": "iOS 13.3.1 | 18 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 18 rows",
+            "hickman_ios14": "iOS 14.3 | 443 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 443 rows",
+            "iphone12_ios18": "iOS 18.7 | 58 rows",
+            "otto_ios17": "iOS 17.5.1 | 24 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 173 rows",
         }
     },
     "batteryUISysdiagnoseBuckets": {
         "name": "Battery UI - Time Buckets",
-        "description": "Bucket totals from the BatteryUI property lists of a sysdiagnose (logs/BatteryUIPlist): foreground and background time, energy totals, error code and the number of app entries",
+        "description": "Bucket totals from the BatteryUI property lists of a sysdiagnose (logs/BatteryUIPlist) or of the device folder in a full file system extraction (BatteryLife/Debug): foreground and background time, energy totals, error code and the number of app entries",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-20",
-        "last_update_date": "2026-10-20",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Sysdiagnose",
+        "category": "Battery",
         "notes": "A row is one bucket of one range entry (see 'Battery UI - Per-App Runtime' for the range "
                  "entries and for how Bucket Start, Bucket End and Bucket Seconds are read; they are blank on iOS "
                  "14.3). Foreground Time and Background Time are the PLBatteryUIForegroundTimeKey and "
                  "PLBatteryUIBackgroundTimeKey values; on the corpus images they equal the sums of the per-app "
                  "Foreground Runtime and Background Runtime values of the same bucket in every bucket with app "
-                 "entries (159 of 159), so they are in seconds like those. Total Energy and Total Accounted "
+                 "entries (236 of 236 bucket rows across the eleven keys in sample_data, 202 distinct buckets once "
+                 "the files shared between an extraction and its sysdiagnose are counted once), so they are in "
+                 "seconds like those. Total Energy and Total Accounted "
                  "Energy, External Drain Ratio and Has Upgrade are stored numbers with no unit; what they express "
                  "is not established. Error Code is the stored PLBatteryUIErrorCodeKey integer: it was 0 on every "
                  "bucket with app entries and 1 on most buckets without, but 0 on 5 buckets without entries on "
@@ -102,39 +132,45 @@ __artifacts_v2__ = {
                  "with no app entries is listed so that a gap is visible; a gap is not evidence that the device "
                  "was unused, because the file does not say whether data was recorded for it. App Entries is the "
                  "number of app entries in the bucket. The buckets of the different range entries overlap and "
-                 "must not be added together. On the five sysdiagnoses in sample_data, read through this "
-                 "artifact: hickman_ios14_sysdiag (iOS 14.3), rodeo_ios17_sysdiag (iOS 17.3), ai16_ios26_sysdiag "
-                 "(iOS 26.5.2, main file and three upgrade files) and hc_ios26_sysdiag (iOS 26.6, main file and "
-                 "two upgrade files) gave rows; hickman_ios13_sysdiag (iOS 13.3.1) holds only BatteryUI.plist and "
-                 "gives none. BatteryUI.plist, which can sit in the same folder, is not read. On hc_ios26_sysdiag "
-                 "it has a different layout (daily breakdowns, a Drain section, a usage summary and battery and "
-                 "screen graphs) and was an older copy whose query time matched the 23F77 to 23F84 upgrade file, "
-                 "with empty app lists, zero foreground and background time and zero daily screen-on totals. On "
-                 "hickman_ios13_sysdiag it has the same four range entries as the main file, held a few app "
-                 "entries and hourly screen-on values, and stores no bucket times, and its query time was three "
-                 "weeks before the sysdiagnose.",
+                 "must not be added together. For the folders read, the copies read once and BatteryUI.plist, see "
+                 "'Battery UI - Per-App Runtime'; BatteryUI.plist on hc_ios26 and hc_ios26_sysdiag gives no buckets,"
+                 " and on hickman_ios13 its buckets store no times. File Kind held one value on the keys with a "
+                 "single file read (hickman_ios13, hickman_ios13_sysdiag, hickman_ios14, hickman_ios14_sysdiag, "
+                 "iphone12_ios18, otto_ios17, rodeo_ios17_sysdiag). Read through this artifact: the "
+                 "sysdiagnoses hickman_ios13_sysdiag (iOS 13.3.1, BatteryUI.plist only), hickman_ios14_sysdiag (iOS "
+                 "14.3), rodeo_ios17_sysdiag (iOS 17.3), ai16_ios26_sysdiag (iOS 26.5.2, main file and three upgrade"
+                 " files) and hc_ios26_sysdiag (iOS 26.6, main file, two upgrade files and BatteryUI.plist), and the"
+                 " full file system images felix_ios17 (BatteryUI.plist and one upgrade file), hc_ios26 "
+                 "(BatteryUI.plist and one upgrade file whose app lists are empty), hickman_ios13 and iphone12_ios18"
+                 " (BatteryUI.plist), hickman_ios14 (the main file) and otto_ios17 (BatteryUI.plist).",
         "paths": (
-            '*/logs/BatteryUIPlist/BatteryUI*.plist',
+            '*/logs/BatteryUIPlist/BatteryUI*.plist', '*/BatteryLife/Debug/BatteryUI*.plist',
             '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "chart-bar",
         "sample_data": {
-            "hickman_ios13_sysdiag": "iOS 13.3.1 | 0 rows; only BatteryUI.plist, which is not read",
-            "hickman_ios14_sysdiag": "iOS 14.3 | 36 rows",
-            "rodeo_ios17_sysdiag": "iOS 17.3 | 36 rows",
             "ai16_ios26_sysdiag": "iOS 26.5.2 | 144 rows",
+            "felix_ios17": "iOS 17.6.1 | 37 rows",
+            "hc_ios26": "iOS 26.5.2 | 36 rows",
             "hc_ios26_sysdiag": "iOS 26.6 | 108 rows",
+            "hickman_ios13": "iOS 13.3.1 | 36 rows",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 36 rows",
+            "hickman_ios14": "iOS 14.3 | 36 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 36 rows",
+            "iphone12_ios18": "iOS 18.7 | 36 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 36 rows",
         }
     },
     "batteryUISysdiagnoseSnapshots": {
         "name": "Battery UI - Snapshots and Upgrade Marker",
-        "description": "One row per BatteryUI property list of a sysdiagnose (logs/BatteryUIPlist): query time, last charge entry and, for a BatteryUIUpgrade file, the old and new build named by the file",
+        "description": "One row per BatteryUI property list of a sysdiagnose (logs/BatteryUIPlist) or of the device folder in a full file system extraction (BatteryLife/Debug): query time, last charge entry and, for a BatteryUIUpgrade file, the old and new build named by the file",
         "author": "@danjethh, Claude",
         "creation_date": "2026-10-20",
-        "last_update_date": "2026-10-20",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Sysdiagnose",
-        "notes": "A row is one property list: BatteryUISysdiagnose.plist, or a "
+        "category": "Battery",
+        "notes": "A row is one property list: BatteryUISysdiagnose.plist, BatteryUI.plist or a "
                  "BatteryUIUpgrade_<old>_<new>.plist. Old Build and New Build are the two build names in the file "
                  "name of an upgrade file; the file name is the only place they were found in the files read, and "
                  "the values inside the file do not repeat them. An upgrade file is a separate copy of the same "
@@ -142,42 +178,48 @@ __artifacts_v2__ = {
                  "not state when the update was done. Query Time is the stored PLBatteryUIQueryTime read as Unix "
                  "epoch seconds in UTC. It equalled the end of the last bucket in every file on both iOS 26 "
                  "images, but on iOS 17.3 it was hours before that end and on iOS 14.3, whose buckets store no "
-                 "times, it was within a minute of the time in the sysdiagnose folder name; it is not the time "
-                 "the file was written. Last Charge Time and Last Charge Level are the stored "
+                 "times, it was within a minute of the time in the sysdiagnose folder name. It is the query the file"
+                 " records, not a write time: the iOS 26 files were last modified 3 to 16 hours after their Query "
+                 "Time. Last Charge Time and Last Charge Level are the stored "
                  "PLBatteryUILastChargeKey timestamp (Unix epoch seconds, shown in UTC) and level; the unit of "
                  "the level is not stated by the file. Paused Charging State and Paused Charging Percentage are "
                  "the stored PLBatteryUIPausedChargingKey values with no further meaning claimed. Data Duration "
                  "is the stored PLBatteryUIDataDurationKey; its unit is not stated by the file. It read 864,000 "
                  "on iOS 14.3, 950,400 on iOS 17.3, 1,036,800 in the iOS 27.0 file read, in all four files on "
-                 "ai16_ios26_sysdiag and in two of the three on hc_ios26_sysdiag, and 86,400 in the 23F77 to "
-                 "23F84 upgrade file there. Range Entries lists the range entries found. Has Upgrade values are "
+                 "ai16_ios26_sysdiag and in the main file and the 23F84 to 23G71 upgrade file on hc_ios26_sysdiag, "
+                 "and 86,400 in the 23F77 to 23F84 upgrade file and the BatteryUI.plist there. Range Entries lists "
+                 "the range entries found. Has Upgrade values are "
                  "given in 'Battery UI - Time Buckets'. The absence of an upgrade file is not evidence that no "
-                 "update happened. On the five sysdiagnoses in sample_data, read through this artifact: "
-                 "hickman_ios14_sysdiag (iOS 14.3), rodeo_ios17_sysdiag (iOS 17.3), ai16_ios26_sysdiag (iOS "
-                 "26.5.2, main file and three upgrade files) and hc_ios26_sysdiag (iOS 26.6, main file and two "
-                 "upgrade files) gave rows; hickman_ios13_sysdiag (iOS 13.3.1) holds only BatteryUI.plist and "
-                 "gives none. BatteryUI.plist, which can sit in the same folder, is not read. On hc_ios26_sysdiag "
-                 "it has a different layout (daily breakdowns, a Drain section, a usage summary and battery and "
-                 "screen graphs) and was an older copy whose query time matched the 23F77 to 23F84 upgrade file, "
-                 "with empty app lists, zero foreground and background time and zero daily screen-on totals. On "
-                 "hickman_ios13_sysdiag it has the same four range entries as the main file, held a few app "
-                 "entries and hourly screen-on values, and stores no bucket times, and its query time was three "
-                 "weeks before the sysdiagnose.",
+                 "update happened. For the folders read, the copies read once and BatteryUI.plist, see 'Battery UI -"
+                 " Per-App Runtime'. A BatteryUI.plist row has no old or new build. Read through this artifact: the "
+                 "sysdiagnoses hickman_ios13_sysdiag (iOS 13.3.1, BatteryUI.plist only), hickman_ios14_sysdiag (iOS "
+                 "14.3), rodeo_ios17_sysdiag (iOS 17.3), ai16_ios26_sysdiag (iOS 26.5.2, main file and three upgrade"
+                 " files) and hc_ios26_sysdiag (iOS 26.6, main file, two upgrade files and BatteryUI.plist), and the"
+                 " full file system images felix_ios17 (BatteryUI.plist and one upgrade file), hc_ios26 "
+                 "(BatteryUI.plist and one upgrade file whose app lists are empty), hickman_ios13 and iphone12_ios18"
+                 " (BatteryUI.plist), hickman_ios14 (the main file) and otto_ios17 (BatteryUI.plist).",
         "paths": (
-            '*/logs/BatteryUIPlist/BatteryUI*.plist',
+            '*/logs/BatteryUIPlist/BatteryUI*.plist', '*/BatteryLife/Debug/BatteryUI*.plist',
             '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
         "sample_data": {
-            "hickman_ios13_sysdiag": "iOS 13.3.1 | 0 rows; only BatteryUI.plist, which is not read",
-            "hickman_ios14_sysdiag": "iOS 14.3 | 1 row",
-            "rodeo_ios17_sysdiag": "iOS 17.3 | 1 row",
             "ai16_ios26_sysdiag": "iOS 26.5.2 | 4 rows",
-            "hc_ios26_sysdiag": "iOS 26.6 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "hc_ios26": "iOS 26.5.2 | 2 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 1 row",
         }
     }
 }
 
+import hashlib
 import json
 import plistlib
 import re
@@ -186,14 +228,17 @@ from xml.parsers.expat import ExpatError
 
 from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files, logfunc
 
-_PLIST_NAME = re.compile(r'BatteryUI(?:Sysdiagnose|Upgrade_[^/\\]+)\.plist$')
+_PLIST_NAME = re.compile(r'BatteryUI(?:Sysdiagnose|Upgrade_[^/\\]+)?\.plist$')
+# logs/BatteryUIPlist inside a sysdiagnose, or Library/BatteryLife/Debug in the Shared/SystemGroup container
+# of a full file system extraction (the container named systemgroup.com.apple.powerlog by its metadata plist).
 _PLIST_PATH = re.compile(
-    r'(?:^|[/\\])logs[/\\]BatteryUIPlist[/\\]'
-    r'(?:(BatteryUISysdiagnose)|BatteryUIUpgrade_([A-Za-z0-9]+)_([A-Za-z0-9]+))\.plist$')
+    r'(?:^|[/\\])(?:logs[/\\]BatteryUIPlist|BatteryLife[/\\]Debug)[/\\]'
+    r'(?:(BatteryUISysdiagnose)|(BatteryUI)|BatteryUIUpgrade_([A-Za-z0-9]+)_([A-Za-z0-9]+))\.plist$')
 _PLIST_ERRORS = (plistlib.InvalidFileException, ExpatError, ValueError, OverflowError, TypeError)
 
 KIND_MAIN = 'Main file'
 KIND_UPGRADE = 'Upgrade file'
+KIND_BATTERYUI = 'BatteryUI.plist'
 
 # Range entries of the Breakdown dictionary, with the stored key as shown in the Range column.
 RANGE_PREFIX = 'PLBatteryUIQueryRange'
@@ -244,14 +289,32 @@ def load_plist(data):
 
 
 def read_files(context):
-    '''Yield dicts for every BatteryUI plist: kind, old/new build, source and the parsed object.'''
+    '''Yield dicts for every BatteryUI plist: kind, old/new build, source, the sources of byte-identical
+    copies and the parsed object. A full file system extraction can hold the device folder copy and the
+    same file inside a sysdiagnose; identical bytes are read once.'''
+    seen = {}
     for stream, source in get_sysdiagnose_files(context.get_files_found(), _PLIST_NAME, text_mode=False):
         match = _PLIST_PATH.search(source.split(' >> ')[-1])
         if not match:
             continue
-        upgrade = match.group(1) is None
-        yield {'kind': KIND_UPGRADE if upgrade else KIND_MAIN, 'old': match.group(2) or '',
-               'new': match.group(3) or '', 'source': source, 'obj': load_plist(stream.read())}
+        data = stream.read()
+        digest = hashlib.sha256(data).hexdigest()
+        kind = KIND_MAIN if match.group(1) else KIND_BATTERYUI if match.group(2) else KIND_UPGRADE
+        info = {'kind': kind, 'old': match.group(3) or '', 'new': match.group(4) or '', 'source': source,
+                'copies': []}
+        kept = seen.get(digest)
+        if kept is None:
+            info['obj'] = load_plist(data)
+            seen[digest] = info
+            continue
+        # keep the first path in sort order, whatever order the files were found in
+        if source < kept['source']:
+            info['obj'], info['copies'] = kept['obj'], kept['copies'] + [kept['source']]
+            seen[digest], kept = info, info
+        else:
+            kept['copies'].append(source)
+        logfunc(f'Battery UI: {len(kept["copies"]) + 1} byte-identical copies of {kept["source"]}, read once')
+    yield from seen.values()
 
 
 def iter_buckets(obj):
@@ -356,6 +419,7 @@ def _collect(context, build):
     data_list, sources = [], []
     for info in sorted(read_files(context), key=lambda item: item['source']):
         sources.append(info['source'])
+        sources.extend(info['copies'])
         relative = context.get_relative_path(info['source'])
         for row in build(info):
             data_list.append(row + (relative,))
