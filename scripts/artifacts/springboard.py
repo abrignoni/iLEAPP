@@ -123,15 +123,20 @@ __artifacts_v2__ = {
     }
 }
 
+import hashlib
 import io
 import os
 import plistlib
+import shutil
 import struct
+import tempfile
 from pathlib import Path
 
 from packaging import version
 from PIL import Image, ImageDraw, ImageFont
 from pillow_heif import register_heif_opener
+
+from scripts.context import Context
 
 from scripts.ilapfuncs import (
     artifact_processor,
@@ -331,6 +336,26 @@ def _convert_heic_to_png(heic_path, png_path):
         image.convert('RGBA').save(png_path, 'PNG')
 
 
+def _conversion_dir():
+    """A scratch folder for images converted to PNG, removed when the artifact finishes.
+
+    The converted file used to be written beside the staged evidence, inside the report's
+    data folder, which holds the copy of the extraction the report presents as the source.
+    That added a file to it for every image converted. The folder is made in the report's
+    output folder, so check_in_media can still hard link from it on the same volume.
+    """
+    output_params = Context.get_output_params()
+    base = getattr(output_params, 'output_folder_base', None)
+    return tempfile.mkdtemp(prefix='_converting_', dir=base if base and os.path.isdir(base) else None)
+
+
+def _converted_png_path(work_dir, file_found):
+    """Where to write the PNG of one source file. The name is unique per source path:
+    check_in_media may hard link to it, so a later file must never be saved over it."""
+    digest = hashlib.sha1(str(file_found).encode('utf-8', 'surrogatepass')).hexdigest()
+    return Path(work_dir) / f'{digest}.png'
+
+
 @artifact_processor
 def icons_screen(context):
     """ See artifact description """
@@ -411,52 +436,56 @@ def springboard_wallpaper(context):
     source_dirs = set()
     ios_version = context.get_installed_os_version()
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        source_dirs.add(os.path.dirname(file_found))
-        source_path = context.get_relative_path(file_found)
-        filename = _path_name(file_found)
-        suffix = Path(filename).suffix.lower()
-        variant = _springboard_variant(filename)
-        created_at, modified_at = _file_timestamps(context, file_found)
-        media_ref = None
+    work_dir = _conversion_dir()
+    try:
+        for file_found in context.get_files_found():
+            file_found = str(file_found)
+            source_dirs.add(os.path.dirname(file_found))
+            source_path = context.get_relative_path(file_found)
+            filename = _path_name(file_found)
+            suffix = Path(filename).suffix.lower()
+            variant = _springboard_variant(filename)
+            created_at, modified_at = _file_timestamps(context, file_found)
+            media_ref = None
 
-        if suffix == _CPBITMAP_EXT:
-            png_path = Path(file_found).with_suffix('.png')
-            try:
-                alignment = _convert_cpbitmap_to_png(file_found, png_path, ios_version)
-                media_ref = check_in_media(file_found, filename, png_path,
-                                           force_type='image/png', force_extension='png')
-                status = f'Converted cpbitmap to PNG (alignment {alignment})'
-            except (OSError, ValueError) as ex:
-                logfunc(f'Failed to convert cpbitmap wallpaper {file_found}: {ex}')
-                status = 'Found, but cpbitmap conversion failed'
-        elif suffix in _HEIC_EXTS:
-            png_path = Path(file_found).with_suffix('.png')
-            try:
-                _convert_heic_to_png(file_found, png_path)
-                media_ref = check_in_media(file_found, filename, png_path,
-                                           force_type='image/png', force_extension='png')
-                status = 'Converted HEIC to PNG'
-            except (OSError, ValueError) as ex:
-                logfunc(f'Failed to convert HEIC wallpaper {file_found}: {ex}')
-                status = 'Found, but HEIC conversion failed'
-        else:
-            try:
-                media_ref = check_in_media(file_found, filename)
-            except OSError as ex:
-                logfunc(f'Failed to check in SpringBoard wallpaper media {file_found}: {ex}')
-            status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
+            if suffix == _CPBITMAP_EXT:
+                png_path = _converted_png_path(work_dir, file_found)
+                try:
+                    alignment = _convert_cpbitmap_to_png(file_found, png_path, ios_version)
+                    media_ref = check_in_media(file_found, filename, png_path,
+                                               force_type='image/png', force_extension='png')
+                    status = f'Converted cpbitmap to PNG (alignment {alignment})'
+                except (OSError, ValueError) as ex:
+                    logfunc(f'Failed to convert cpbitmap wallpaper {file_found}: {ex}')
+                    status = 'Found, but cpbitmap conversion failed'
+            elif suffix in _HEIC_EXTS:
+                png_path = _converted_png_path(work_dir, file_found)
+                try:
+                    _convert_heic_to_png(file_found, png_path)
+                    media_ref = check_in_media(file_found, filename, png_path,
+                                               force_type='image/png', force_extension='png')
+                    status = 'Converted HEIC to PNG'
+                except (OSError, ValueError) as ex:
+                    logfunc(f'Failed to convert HEIC wallpaper {file_found}: {ex}')
+                    status = 'Found, but HEIC conversion failed'
+            else:
+                try:
+                    media_ref = check_in_media(file_found, filename)
+                except OSError as ex:
+                    logfunc(f'Failed to check in SpringBoard wallpaper media {file_found}: {ex}')
+                status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
 
-        data_list.append((
-            created_at,
-            modified_at,
-            media_ref,
-            variant,
-            filename,
-            status,
-            source_path,
-        ))
+            data_list.append((
+                created_at,
+                modified_at,
+                media_ref,
+                variant,
+                filename,
+                status,
+                source_path,
+            ))
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
@@ -476,41 +505,45 @@ def posterboard_wallpaper(context):
     data_list = []
     source_dirs = set()
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        source_dirs.add(os.path.dirname(file_found))
-        source_path = context.get_relative_path(file_found)
-        filename = _path_name(file_found)
-        suffix = Path(filename).suffix.lower()
-        layer_name = _posterboard_layer_name(filename)
-        created_at, modified_at = _file_timestamps(context, file_found)
-        media_ref = None
+    work_dir = _conversion_dir()
+    try:
+        for file_found in context.get_files_found():
+            file_found = str(file_found)
+            source_dirs.add(os.path.dirname(file_found))
+            source_path = context.get_relative_path(file_found)
+            filename = _path_name(file_found)
+            suffix = Path(filename).suffix.lower()
+            layer_name = _posterboard_layer_name(filename)
+            created_at, modified_at = _file_timestamps(context, file_found)
+            media_ref = None
 
-        if suffix in _HEIC_EXTS:
-            png_path = Path(file_found).with_suffix('.png')
-            try:
-                _convert_heic_to_png(file_found, png_path)
-                media_ref = check_in_media(file_found, filename, png_path,
-                                           force_type='image/png', force_extension='png')
-                status = 'Converted HEIC to PNG'
-            except (OSError, ValueError) as ex:
-                logfunc(f'Failed to convert HEIC wallpaper {file_found}: {ex}')
-                status = 'Found, but HEIC conversion failed'
-        else:
-            try:
-                media_ref = check_in_media(file_found, filename)
-            except OSError as ex:
-                logfunc(f'Failed to check in PosterBoard wallpaper media {file_found}: {ex}')
-            status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
+            if suffix in _HEIC_EXTS:
+                png_path = _converted_png_path(work_dir, file_found)
+                try:
+                    _convert_heic_to_png(file_found, png_path)
+                    media_ref = check_in_media(file_found, filename, png_path,
+                                               force_type='image/png', force_extension='png')
+                    status = 'Converted HEIC to PNG'
+                except (OSError, ValueError) as ex:
+                    logfunc(f'Failed to convert HEIC wallpaper {file_found}: {ex}')
+                    status = 'Found, but HEIC conversion failed'
+            else:
+                try:
+                    media_ref = check_in_media(file_found, filename)
+                except OSError as ex:
+                    logfunc(f'Failed to check in PosterBoard wallpaper media {file_found}: {ex}')
+                status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
 
-        data_list.append((
-            created_at,
-            modified_at,    
-            media_ref,
-            layer_name,
-            filename,
-            status,
-            source_path,
-        ))
+            data_list.append((
+                created_at,
+                modified_at,
+                media_ref,
+                layer_name,
+                filename,
+                status,
+                source_path,
+            ))
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
