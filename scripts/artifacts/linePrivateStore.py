@@ -126,8 +126,8 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "globe",
         "sample_data": {
-                           "hickman_ios13": "iOS 13.3.1 | Line | store not present",
-                           "hickman_ios14": "iOS 14.3 | Line | store not present",
+                           "hickman_ios13": "iOS 13.3.1 | Line | 0 rows (store not present)",
+                           "hickman_ios14": "iOS 14.3 | Line | 0 rows (store not present)",
                            "hickman_ios15": "iOS 15.3.1 | Line | 0 rows",
                            "iphone11_ios17": "iOS 17.3 | Line | 0 rows",
                        },
