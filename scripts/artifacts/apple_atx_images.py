@@ -1,9 +1,13 @@
 """Apple ATX image textures."""
 
+import hashlib
 import os
+import shutil
+import tempfile
 from pathlib import Path
 
 from leapp_functions.parsers.apple_atx import decode_atx_file
+from scripts.context import Context
 from scripts.ilapfuncs import (
     artifact_processor,
     check_in_media,
@@ -66,6 +70,26 @@ def _file_timestamps(context, file_found):
     )
 
 
+def _conversion_dir():
+    """A scratch folder for images converted to PNG, removed when the artifact finishes.
+
+    The converted file used to be written beside the staged evidence, inside the report's
+    data folder, which holds the copy of the extraction the report presents as the source.
+    That added a file to it for every image converted. The folder is made in the report's
+    output folder, so check_in_media can still hard link from it on the same volume.
+    """
+    output_params = Context.get_output_params()
+    base = getattr(output_params, 'output_folder_base', None)
+    return tempfile.mkdtemp(prefix='_converting_', dir=base if base and os.path.isdir(base) else None)
+
+
+def _converted_png_path(work_dir, file_found):
+    """Where to write the PNG of one source file. The name is unique per source path:
+    check_in_media may hard link to it, so a later file must never be saved over it."""
+    digest = hashlib.sha1(str(file_found).encode('utf-8', 'surrogatepass')).hexdigest()
+    return Path(work_dir) / f'{digest}.png'
+
+
 @artifact_processor
 def apple_atx_images(context):
     """ See artifact description """
@@ -91,62 +115,66 @@ def apple_atx_images(context):
     data_list = []
     source_dirs = set()
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        source_dirs.add(os.path.dirname(file_found))
-        source_path = context.get_relative_path(file_found)
-        filename = _path_name(file_found)
-        created_at, modified_at = _file_timestamps(context, file_found)
-        media_ref = None
+    work_dir = _conversion_dir()
+    try:
+        for file_found in context.get_files_found():
+            file_found = str(file_found)
+            source_dirs.add(os.path.dirname(file_found))
+            source_path = context.get_relative_path(file_found)
+            filename = _path_name(file_found)
+            created_at, modified_at = _file_timestamps(context, file_found)
+            media_ref = None
 
-        try:
-            result = decode_atx_file(file_found)
-        except OSError as ex:
-            logfunc(f'Failed to read ATX image {file_found}: {ex}')
-            data_list.append((created_at, modified_at, 
-                None, filename, '', '', '', '', '', '', '', '', '', '',
-                '', f'Failed to read ATX file: {ex}', source_path
-            ))
-            continue
-
-        header = result.header
-        payload = result.payload
-        chunks = ', '.join(chunk.tag for chunk in result.chunks)
-        warnings = '; '.join(result.warnings)
-        status = 'Parsed ATX metadata'
-
-        if result.image:
-            png_path = Path(file_found).with_suffix('.png')
             try:
-                result.image.to_pil().save(png_path, 'PNG')
-                media_ref = check_in_media(file_found, filename, png_path,
-                                           force_type='image/png', force_extension='png')
-                status = 'Decoded ATX to PNG'
-            except (OSError, ValueError) as ex:
-                logfunc(f'Failed to save decoded ATX image {file_found}: {ex}')
-                status = 'Parsed ATX metadata, but PNG save failed'
-                warnings = f'{warnings}; {ex}' if warnings else str(ex)
-        elif warnings:
-            status = 'Parsed ATX metadata with warnings'
+                result = decode_atx_file(file_found)
+            except OSError as ex:
+                logfunc(f'Failed to read ATX image {file_found}: {ex}')
+                data_list.append((created_at, modified_at,
+                    None, filename, '', '', '', '', '', '', '', '', '', '',
+                    '', f'Failed to read ATX file: {ex}', source_path
+                ))
+                continue
 
-        data_list.append((
-            created_at,
-            modified_at,
-            media_ref,
-            filename,
-            header.width if header else '',
-            header.height if header else '',
-            header.depth if header else '',
-            header.array_layers if header else '',
-            header.mipmap_count if header else '',
-            header.pixel_format if header else '',
-            header.texture_uuid if header else '',
-            payload.kind if payload else '',
-            len(payload.data) if payload else '',
-            payload.declared_size if payload else '',
-            chunks,
-            f'{status}: {warnings}' if warnings else status,
-            source_path,
-        ))
+            header = result.header
+            payload = result.payload
+            chunks = ', '.join(chunk.tag for chunk in result.chunks)
+            warnings = '; '.join(result.warnings)
+            status = 'Parsed ATX metadata'
+
+            if result.image:
+                png_path = _converted_png_path(work_dir, file_found)
+                try:
+                    result.image.to_pil().save(png_path, 'PNG')
+                    media_ref = check_in_media(file_found, filename, png_path,
+                                               force_type='image/png', force_extension='png')
+                    status = 'Decoded ATX to PNG'
+                except (OSError, ValueError) as ex:
+                    logfunc(f'Failed to save decoded ATX image {file_found}: {ex}')
+                    status = 'Parsed ATX metadata, but PNG save failed'
+                    warnings = f'{warnings}; {ex}' if warnings else str(ex)
+            elif warnings:
+                status = 'Parsed ATX metadata with warnings'
+
+            data_list.append((
+                created_at,
+                modified_at,
+                media_ref,
+                filename,
+                header.width if header else '',
+                header.height if header else '',
+                header.depth if header else '',
+                header.array_layers if header else '',
+                header.mipmap_count if header else '',
+                header.pixel_format if header else '',
+                header.texture_uuid if header else '',
+                payload.kind if payload else '',
+                len(payload.data) if payload else '',
+                payload.declared_size if payload else '',
+                chunks,
+                f'{status}: {warnings}' if warnings else status,
+                source_path,
+            ))
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
