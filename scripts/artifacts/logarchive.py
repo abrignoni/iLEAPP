@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "an embedded sysdiagnose tarball",
         "author": "@AlexisBrignoni, @stark4n6",
         "creation_date": "2025-05-06",
-        "last_update_date": "2026-10-05",
+        "last_update_date": "2026-10-31",
         "requirements": "Reading tracev3 data natively requires the unifiedlog_iterator "
                         "binary; see scripts/unifiedlogs.py",
         "category": "Unified Logs",
@@ -2369,21 +2369,49 @@ def convert_to_utc(timestamp):
     return datetime.fromisoformat(normalized).astimezone(timezone.utc)
 
 
-def truncate_after_last_bracket(file_path):
-    with open(file_path, 'rb+') as f:
-        # Start from the end of the file and scan backwards
-        f.seek(0, 2)  # Move to end of file
-        file_size = f.tell()
+def _json_end_offset(f, file_size):
+    """Offset just past the last ']' in the open file, read without writing to it.
 
-        for i in range(file_size - 1, -1, -1):
-            f.seek(i)
-            char = f.read(1)
-            if char == b']':
-                # Truncate the file just after this bracket
-                f.truncate(i + 1)
-                logfunc(f"Truncated file after position {i+1}")
-                return
-        print("No closing bracket `]` found.")
+    A 'log show' export can carry text after the closing bracket of its array, which the
+    json reader then refuses. This used to be cut off by truncating the file in place,
+    which rewrote the staged evidence copy the report presents as the source. The file is
+    now read only up to this offset instead, and keeps its bytes. With no ']' the whole
+    file is read, as before.
+    """
+    position = file_size
+    chunk_size = 65536
+    while position > 0:
+        start = max(0, position - chunk_size)
+        f.seek(start)
+        chunk = f.read(position - start)
+        index = chunk.rfind(b']')
+        if index != -1:
+            return start + index + 1
+        position = start
+    logfunc("No closing bracket ']' found; reading the whole json file.")
+    return file_size
+
+
+class _BoundedReader:
+    """Read-only view of the first `limit` bytes of an open binary file."""
+
+    def __init__(self, f, limit):
+        self._f = f
+        self._remaining = limit
+        f.seek(0)
+
+    def read(self, size=-1):
+        if self._remaining <= 0:
+            return b''
+        if size is None or size < 0 or size > self._remaining:
+            size = self._remaining
+        data = self._f.read(size)
+        self._remaining -= len(data)
+        return data
+
+    def tell(self):
+        return self._f.tell()
+
 
 def parse_iterator_timestamp(timestamp):
     """Parse the RFC 3339 timestamp unifiedlog_iterator emits, e.g. 2026-07-29T14:11:07.452774400Z.
@@ -2406,13 +2434,14 @@ def parse_iterator_timestamp(timestamp):
 
 def rows_from_json(source_path):
     """Yield rows from a 'log show --style json' export."""
-    truncate_after_last_bracket(source_path)
     # Progress by file position: a log show export runs to tens of gigabytes and gave
     # no output at all while ijson chewed through it. f.tell() moves in reader buffer
     # strides, which is plenty accurate against a multi-gigabyte total.
-    progress = unifiedlogs.ImportProgress(os.path.getsize(source_path))
+    file_size = os.path.getsize(source_path)
+    progress = unifiedlogs.ImportProgress(file_size)
     incval = 0
-    with open(source_path, 'rb') as f:
+    with open(source_path, 'rb') as raw:
+        f = _BoundedReader(raw, _json_end_offset(raw, file_size))
         for record in ijson.items(f, 'item', multiple_values=True):  # if the json is a list
             if isinstance(record, dict):
                 incval = incval + 1
