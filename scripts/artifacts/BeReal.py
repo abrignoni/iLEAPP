@@ -22,14 +22,14 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Contacts",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*'),
         "output_types": [ "lava", "html", "tsv" ],
-        "html_columns": [ "Profile picture"],
+        "html_columns": [ "Profile picture", "Phone numbers" ],
         "artifact_icon": "users",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 5 rows",

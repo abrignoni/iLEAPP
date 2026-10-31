@@ -774,7 +774,15 @@ def artifact_processor(func):
                 if media_header_info and needs_text_or_html_data:
                     html_columns.extend([data_headers[idx][0] for idx in media_header_info])
                     if not is_artifact_result:
-                        html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
+                        if html_data_list is data_list:
+                            html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
+                        else:
+                            # The module returned its own HTML rows (#1202). Build the HTML
+                            # output from those, so its formatting survives, and the text
+                            # outputs from the plain rows. Media cells resolve the same way
+                            # in both; a value that is not a reference leaves the cell empty.
+                            html_data_list, _ = get_data_list_with_media(media_header_info, html_data_list)
+                            _, txt_data_list = get_data_list_with_media(media_header_info, data_list)
 
                 table_name = None
                 object_columns = None
