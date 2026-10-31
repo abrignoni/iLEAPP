@@ -7,14 +7,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "WiFi Connections",
-        "notes": "Parses multiple plist files with varying structures. Some fields may be blank. Sysdiagnose support is added.",
+        "notes": "Parses multiple plist files with varying structures. Some fields may be blank. "
+                 "Security Type is the SupportedSecurityTypes value of a com.apple.wifi.known-networks.plist entry, written as text; on every tested image the stored value is a string. "
+                 "Also reads these plists inside a sysdiagnose archive (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz), matched by file name anywhere in the archive; Source File then names the archive and the member. BSSID is shown with every octet as two hexadecimal digits (an octet can be stored without its leading zero), in the case stored.",
         "paths": ('*/com.apple.wifi.plist', 
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist',
-                  '*/sysdiagnose_*.tar.gz'),
+                  '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "wifi",
         "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 1 row",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 1 row",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 8 rows",
             "dexter_ios18": "iOS 18.3.2 | 8 rows",
             "felix_ios17": "iOS 17.6.1 | 11 rows",
@@ -42,13 +48,19 @@ __artifacts_v2__ = {
         "category": "WiFi Connections",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank. "
                  "System Joined and User Joined are the stored JoinedBySystemAt and JoinedByUserAt "
+                 "values; what sets each is not established here. "
+                 "Also reads these plists inside a sysdiagnose archive (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz), matched by file name anywhere in the archive; Source File then names the archive and the member. BSSID is shown with every octet as two hexadecimal digits (an octet can be stored without its leading zero), in the case stored.",
         "paths": ('*/com.apple.wifi.plist', 
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist',
-                  '*/sysdiagnose_*.tar.gz'),
+                  '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "clock",
         "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 1 row",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 1 row",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 8 rows",
             "dexter_ios18": "iOS 18.3.2 | 8 rows",
             "felix_ios17": "iOS 17.6.1 | 11 rows",
@@ -79,12 +91,17 @@ __artifacts_v2__ = {
         "notes": "The MAC Used For Network column holds the PRIVATE_MAC_ADDRESS_IN_USE value and "
                  "the Private MAC Computed For Network column holds the PRIVATE_MAC_ADDRESS_VALUE "
                  "value, both stored under PRIVATE_MAC_ADDRESS. The two header names are this "
-                 "module's and are not sourced here. Sysdiagnose support is added.",
+                 "module's and are not sourced here. "
+                 "Also reads these plists inside a sysdiagnose archive (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz), matched by file name anywhere in the archive; Source File then names the archive and the member. BSSID is shown with every octet as two hexadecimal digits (an octet can be stored without its leading zero), in the case stored.",
         "paths": ('*/com.apple.wifi-private-mac-networks.plist',
-                  '*/sysdiagnose_*.tar.gz'),
+                  '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "eye-off",
         "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 1 row",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 13 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 2 rows",
             "dexter_ios18": "iOS 18.3.2 | 9 rows",
             "felix_ios17": "iOS 17.6.1 | 11 rows",
             "fsfull002_ios17": "iOS 17.1 | 2 rows",
@@ -102,21 +119,26 @@ __artifacts_v2__ = {
     "appleWifiBSSList": {
         "name": "WiFi BSS List",
         "description": "Parses BSS (Basic Service Set) information for known WiFi networks",
-        "author": "@JamesHabben, , @Hexordia",
+        "author": "@JamesHabben, @Hexordia",
         "creation_date": "2023-05-25",
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "WiFi Connections",
-        "notes": "Extracts BSS entries from the com.apple.wifi.known-networks.plist file. "
+        "notes": "Extracts BSS entries from the com.apple.wifi.known-networks.plist file, and from the 'List of known networks' entries of a com.apple.wifi.plist read inside a sysdiagnose archive. "
                  "Latitude, Longitude, Location Accuracy and Location Timestamp are the "
                  "LocationLatitude, LocationLongitude, LocationAccuracy and LocationTimestamp "
                  "values stored in each BSS entry; what they locate and how they were obtained is "
-                 "not established here. Sysdiagnose support is added.",
+                 "not established here. "
+                 "Also reads these plists inside a sysdiagnose archive (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz), matched by file name anywhere in the archive; Source File then names the archive and the member. BSSID is shown with every octet as two hexadecimal digits (an octet can be stored without its leading zero), in the case stored.",
         "paths": ('*/com.apple.wifi.known-networks.plist',
-                  '*/sysdiagnose_*.tar.gz'),
+                  '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "all",
         "artifact_icon": "wifi",
         "sample_data": {
+            "hickman_ios13_sysdiag": "iOS 13.3.1 | 7 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 43 rows",
             "felix_ios17": "iOS 17.6.1 | 34 rows",
             "fsfull002_ios17": "iOS 17.1 | 3 rows",
@@ -159,12 +181,10 @@ def _decode_ssid(ssid_bytes):
     return str(ssid_bytes)
 
 def _format_bssid(bssid_str):
+    """Each octet as two hexadecimal digits (a plist can store one without its leading zero), case unchanged."""
     if not bssid_str or not isinstance(bssid_str, str):
         return bssid_str
-    try:
-        return ':'.join([octet.zfill(2) for octet in bssid_str.split(':')]).upper()
-    except Exception:
-        return bssid_str
+    return ':'.join(octet.zfill(2) for octet in bssid_str.split(':'))
 
 def _get_wifi_plists(context, target_regex_pattern):
     """Yield (plist_dict, relative_path, source_path) for WiFi plists, including embedded sysdiagnose archives."""

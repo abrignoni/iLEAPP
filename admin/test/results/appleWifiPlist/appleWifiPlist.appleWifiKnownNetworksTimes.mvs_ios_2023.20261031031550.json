@@ -6,19 +6,19 @@
     "case_number": "mvs_ios_2023",
     "number_of_columns": 14,
     "number_of_rows": 5,
-    "total_data_size_bytes": 768,
+    "total_data_size_bytes": 770,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiKnownNetworksTimes.mvs_ios_2023.zip",
-    "start_time": "2026-08-25T15:39:10.939407+00:00",
-    "end_time": "2026-08-25T15:39:10.962397+00:00",
-    "run_time_seconds": 0.0005681514739990234,
+    "start_time": "2026-10-31T03:15:50.480819+00:00",
+    "end_time": "2026-10-31T03:15:50.501569+00:00",
+    "run_time_seconds": 0.0006539821624755859,
     "last_commit": {
-      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
-      "author_name": "Brigs",
-      "author_email": "abrignoni@gmail.com",
-      "date": "2026-08-20T23:00:52-05:00",
-      "message": "Report real source paths across 83 more modules"
+      "hash": "3b8bc0f177385c7b3da2f41f6508fce0630d543d",
+      "author_name": "Kevin - Stark 4N6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2026-10-30T11:33:21-04:00",
+      "message": "Update appleWifiPlist.py"
     }
   },
   "headers": [
@@ -89,7 +89,7 @@
     [
       1673199602,
       "Spinner Place",
-      "44:1e:98:43:cd:c",
+      "44:1e:98:43:cd:0c",
       "",
       "",
       1673041027,
@@ -105,7 +105,7 @@
     [
       1672921289,
       "Airport-Frankfurt",
-      "0:e1:6d:b3:8f:7c",
+      "00:e1:6d:b3:8f:7c",
       "",
       "",
       1672921289,
