@@ -389,12 +389,12 @@ __artifacts_v2__ = {
     },
     "chromeBookmarks": {
         "name": "Bookmarks",
-        "description": "Parses the Bookmarks file of Chromium based browsers. Only entries "
+        "description": "Parses the Bookmarks, Bookmarks.bak and AccountBookmarks files of Chromium based browsers. Only entries "
                        "directly under each root folder are reported; entries inside sub-folders "
                        "are not.",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-10-26",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Chromium",
         "notes": "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
@@ -417,14 +417,29 @@ __artifacts_v2__ = {
                  "dexter_ios18 Chrome's only profile is in a folder named by a UUID, and on hickman_ios15 "
                  "and iphone11_ios17 Edge keeps Microsoft/Edge/Default and Default-AAD. Default-AAD holds "
                  "History, Web Data and Login Data on both; each was read and gave no rows. These "
-                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder.",
+                 "artifacts in releases through v2026.4.5 read only Chrome/Default and no Edge folder."
+                 " "
+                 "Bookmarks and AccountBookmarks are the unencrypted bookmark file names in Chromium's "
+                 "bookmark_constants.cc (kLocalOrSyncableBookmarksFileName and kAccountBookmarksFileName, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/bookmarks/common/bookmark_constants.cc#L13-L16). "
+                 "The same file names encrypted bookmark files (lines 17 to 26), which this artifact does "
+                 "not read. Each AccountBookmarks file that holds entries gets its own report, named "
+                 "<Browser> - Account Bookmarks, and the Source "
+                 "column of the combined report names the file of every row. Chrome iOS AccountBookmarks "
+                 "files were read on iphone11_ios17, dexter_ios18 and otto_ios17. No Edge or Chromium "
+                 "AccountBookmarks file matched on the images run (iphone11_ios17, dexter_ios18, "
+                 "otto_ios17, hickman_ios15, hc_ios18_7), so those two paths are unexercised. Releases "
+                 "through v2026.4.5 did not read AccountBookmarks.",
         "paths": ('*/Chrome/*/Bookmarks*', '*/Edge/*/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
-                  '*/Chromium/Default/Bookmarks*'),
+                  '*/Chromium/Default/Bookmarks*', '*/Chrome/*/AccountBookmarks*', '*/Edge/*/AccountBookmarks*',
+                  '*/Chromium/Default/AccountBookmarks*'),
         "output_types": "standard",
         "artifact_icon": "bookmark",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 1 row",
-            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Microsoft Edge 120.2210.126 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119, Microsoft Edge 120.2210.126 | 4 rows",
+            "dexter_ios18": "iOS 18.3.2 | Google Chrome 140.7339.122 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 114.5735.124 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
             "hickman_ios15": "iOS 15.3.1 | Google Chrome 113.5672.69, Microsoft Edge 112.1722.64 | 3 rows",
@@ -1796,12 +1811,13 @@ def chromeBookmarks(context):
         file_found = str(file_found)
         file_path = os.path.basename(file_found)
 
-        if not (file_path == 'Bookmarks' or file_path == 'Bookmarks.bak'):  # skip -journal and other files
+        if file_path not in ('Bookmarks', 'Bookmarks.bak', 'AccountBookmarks'):  # skip -journal and other files
             continue
 
         report_files.append(file_found)
 
         browser_name = get_browser_name(file_found)
+        report_label = f'{browser_name} - Account Bookmarks' if file_path == 'AccountBookmarks' else f'{browser_name} - Bookmarks'
 
         with open(file_found, "r", encoding="utf-8") as f:
             dataa = json.load(f)
@@ -1829,7 +1845,7 @@ def chromeBookmarks(context):
                                     data_list.append((added_dt, url, name, parent, typed))
                                 children_items = list()
         if len(data_list) > 0:
-            report_name = f'{browser_name} - Bookmarks'
+            report_name = report_label
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
             report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
@@ -1857,7 +1873,7 @@ def chromeBookmarks(context):
             # Add current list to the combined list
             all_data.extend(data_list)
         else:
-            logfunc(f'No {browser_name} - Bookmarks data available')
+            logfunc(f'No {report_label} data available')
 
     return all_data_headers, all_data, '\n'.join(report_files)
 
