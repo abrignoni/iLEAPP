@@ -43,7 +43,7 @@ __artifacts_v2__ = {
                        "each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
-        "last_update_date": "2026-08-31",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "myQ",
         "notes": "Read from the cached devices.myq-cloud.com Devices response, which returns both door "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Caches/com.myliftmaster.myq/Cache.db*',
                   '*/Library/Caches/com.myliftmaster.myq/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "garage",
+        "artifact_icon": "car-garage",
         "sample_data": {
             "falken_ios26": "iOS 26.2.1 | 2 rows",
         },
