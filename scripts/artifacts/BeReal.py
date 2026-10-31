@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-pinnedMemories-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
-        "html_columns": [ "Primary URL", "Secondary URL", "Thumbnail URL", "Source file name", "Location" ],
+        "html_columns": [ "Primary URL", "Secondary URL", "Source file name", "Location" ],
         "artifact_icon": "bookmark",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 0 rows",
@@ -192,7 +192,6 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*',
                   '*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
-        "html_columns": [ "RealMojis" ],
         "chatParams": {
             "timeColumn": "Created",
             "threadDiscriminatorColumn": "BeReal ID",
