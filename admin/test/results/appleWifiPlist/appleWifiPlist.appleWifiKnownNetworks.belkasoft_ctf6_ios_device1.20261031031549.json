@@ -4,21 +4,21 @@
     "artifact_name": "WiFi Known Networks Info",
     "function_name": "appleWifiKnownNetworks",
     "case_number": "belkasoft_ctf6_ios_device1",
-    "number_of_columns": 16,
+    "number_of_columns": 17,
     "number_of_rows": 2,
-    "total_data_size_bytes": 224,
+    "total_data_size_bytes": 241,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiKnownNetworks.belkasoft_ctf6_ios_device1.zip",
-    "start_time": "2026-08-25T15:39:09.845222+00:00",
-    "end_time": "2026-08-25T15:39:09.869526+00:00",
-    "run_time_seconds": 0.00031113624572753906,
+    "start_time": "2026-10-31T03:15:49.963578+00:00",
+    "end_time": "2026-10-31T03:15:49.984701+00:00",
+    "run_time_seconds": 0.00042128562927246094,
     "last_commit": {
-      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
-      "author_name": "Brigs",
-      "author_email": "abrignoni@gmail.com",
-      "date": "2026-08-20T23:00:52-05:00",
-      "message": "Report real source paths across 83 more modules"
+      "hash": "3b8bc0f177385c7b3da2f41f6508fce0630d543d",
+      "author_name": "Kevin - Stark 4N6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2026-10-30T11:33:21-04:00",
+      "message": "Update appleWifiPlist.py"
     }
   },
   "headers": [
@@ -37,6 +37,7 @@
     "User Portal URL",
     "Add Reason",
     "Bundle ID",
+    "Security Type",
     "Source File"
   ],
   "data": [
@@ -56,6 +57,7 @@
       "",
       "",
       "",
+      "WPA2 Personal",
       "private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
@@ -74,6 +76,7 @@
       "",
       "",
       "",
+      "Open",
       "private/var/preferences/com.apple.wifi.known-networks.plist"
     ]
   ]

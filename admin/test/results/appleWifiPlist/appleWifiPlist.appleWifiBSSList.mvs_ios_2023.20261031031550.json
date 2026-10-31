@@ -6,19 +6,19 @@
     "case_number": "mvs_ios_2023",
     "number_of_columns": 10,
     "number_of_rows": 37,
-    "total_data_size_bytes": 5284,
+    "total_data_size_bytes": 5295,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiBSSList.mvs_ios_2023.zip",
-    "start_time": "2026-08-25T15:39:11.180522+00:00",
-    "end_time": "2026-08-25T15:39:11.205103+00:00",
-    "run_time_seconds": 0.0006499290466308594,
+    "start_time": "2026-10-31T03:15:50.827399+00:00",
+    "end_time": "2026-10-31T03:15:50.848294+00:00",
+    "run_time_seconds": 0.0006818771362304688,
     "last_commit": {
-      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
-      "author_name": "Brigs",
-      "author_email": "abrignoni@gmail.com",
-      "date": "2026-08-20T23:00:52-05:00",
-      "message": "Report real source paths across 83 more modules"
+      "hash": "3b8bc0f177385c7b3da2f41f6508fce0630d543d",
+      "author_name": "Kevin - Stark 4N6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2026-10-30T11:33:21-04:00",
+      "message": "Update appleWifiPlist.py"
     }
   },
   "headers": [
@@ -84,7 +84,7 @@
     ],
     [
       "NETGEAR-345",
-      "2:1b:5f:aa:bf:8f",
+      "02:1b:5f:aa:bf:8f",
       10,
       11,
       1671423048,
@@ -96,7 +96,7 @@
     ],
     [
       "NETGEAR-345",
-      "66:b8:fe:68:9d:9",
+      "66:b8:fe:68:9d:09",
       10,
       6,
       1672671795,
@@ -120,7 +120,7 @@
     ],
     [
       "NETGEAR-345",
-      "c6:a:a0:1e:47:d8",
+      "c6:0a:a0:1e:47:d8",
       10,
       8,
       1672343527,
@@ -252,7 +252,7 @@
     ],
     [
       "ChamplainPSK",
-      "0:24:6c:29:ae:5c",
+      "00:24:6c:29:ae:5c",
       532,
       44,
       1669673174,
@@ -300,7 +300,7 @@
     ],
     [
       "ChamplainPSK",
-      "0:24:6c:10:32:ab",
+      "00:24:6c:10:32:ab",
       532,
       157,
       1669749447,
@@ -336,7 +336,7 @@
     ],
     [
       "ChamplainPSK",
-      "94:b4:f:2c:f1:52",
+      "94:b4:0f:2c:f1:52",
       18,
       153,
       1669672786,
@@ -396,7 +396,7 @@
     ],
     [
       "ChamplainPSK",
-      "24:de:c6:28:8:23",
+      "24:de:c6:28:08:23",
       10,
       11,
       1669660631,
@@ -444,7 +444,7 @@
     ],
     [
       "Spinner Place",
-      "44:1e:98:43:cd:c",
+      "44:1e:98:43:cd:0c",
       20,
       161,
       1673041027,
@@ -456,7 +456,7 @@
     ],
     [
       "Airport-Frankfurt",
-      "0:e1:6d:b3:8f:7c",
+      "00:e1:6d:b3:8f:7c",
       532,
       132,
       1672921289,
@@ -468,7 +468,7 @@
     ],
     [
       "Airport-Frankfurt",
-      "4c:e1:75:b:f:6c",
+      "4c:e1:75:0b:0f:6c",
       1040,
       56,
       1672921241,

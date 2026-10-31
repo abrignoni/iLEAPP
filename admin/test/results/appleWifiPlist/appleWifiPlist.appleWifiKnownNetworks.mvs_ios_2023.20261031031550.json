@@ -4,21 +4,21 @@
     "artifact_name": "WiFi Known Networks Info",
     "function_name": "appleWifiKnownNetworks",
     "case_number": "mvs_ios_2023",
-    "number_of_columns": 16,
+    "number_of_columns": 17,
     "number_of_rows": 5,
-    "total_data_size_bytes": 647,
+    "total_data_size_bytes": 717,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiKnownNetworks.mvs_ios_2023.zip",
-    "start_time": "2026-08-25T15:39:10.816317+00:00",
-    "end_time": "2026-08-25T15:39:10.840811+00:00",
-    "run_time_seconds": 0.000560760498046875,
+    "start_time": "2026-10-31T03:15:50.304979+00:00",
+    "end_time": "2026-10-31T03:15:50.324524+00:00",
+    "run_time_seconds": 0.0006432533264160156,
     "last_commit": {
-      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
-      "author_name": "Brigs",
-      "author_email": "abrignoni@gmail.com",
-      "date": "2026-08-20T23:00:52-05:00",
-      "message": "Report real source paths across 83 more modules"
+      "hash": "3b8bc0f177385c7b3da2f41f6508fce0630d543d",
+      "author_name": "Kevin - Stark 4N6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2026-10-30T11:33:21-04:00",
+      "message": "Update appleWifiPlist.py"
     }
   },
   "headers": [
@@ -37,6 +37,7 @@
     "User Portal URL",
     "Add Reason",
     "Bundle ID",
+    "Security Type",
     "Source File"
   ],
   "data": [
@@ -56,6 +57,7 @@
       "",
       "",
       "",
+      "OWE Transition",
       "private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
@@ -74,6 +76,7 @@
       "",
       "Cloud Sync",
       "",
+      "WPA2 Personal",
       "private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
@@ -92,11 +95,12 @@
       "",
       "Cloud Sync",
       "",
+      "WPA2 Personal",
       "private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Spinner Place",
-      "44:1e:98:43:cd:c",
+      "44:1e:98:43:cd:0c",
       670162.147879839,
       "",
       "",
@@ -110,11 +114,12 @@
       "",
       "",
       "",
+      "OWE Transition",
       "private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Airport-Frankfurt",
-      "0:e1:6d:b3:8f:7c",
+      "00:e1:6d:b3:8f:7c",
       3570.5158836841583,
       "",
       "",
@@ -128,6 +133,7 @@
       "https://hotspot.t-mobile.net/wlan/redirect.do",
       "",
       "",
+      "OWE Transition",
       "private/var/preferences/com.apple.wifi.known-networks.plist"
     ]
   ]
