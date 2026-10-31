@@ -104,19 +104,21 @@ __artifacts_v2__ = {
         "description": "Image files in folders named output.layerStack",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Image files in folders named output.layerStack are reported. The paths match "
                  "any folder of that name and do not check that it sits in a PosterBoard "
                  "container. HEIC/HEIF image layers "
-                 "are converted to PNG for reporting. No run against a registered image is "
-                 "recorded for this artifact.",
+                 "are converted to PNG for reporting. Extensions are matched in either case: "
+                 "on the josh-hickman-ios17 path listing all 250 image layers in such folders "
+                 "end in .HEIC, which lowercase patterns did not match off Windows. No run "
+                 "against a registered image is recorded for this artifact.",
         "paths": (
-            '**/output.layerStack/*.heic',
-            '**/output.layerStack/*.jpg',
-            '**/output.layerStack/*.jpeg',
-            '**/output.layerStack/*.png',
+            '**/output.layerStack/*.[hH][eE][iI][cC]',
+            '**/output.layerStack/*.[jJ][pP][gG]',
+            '**/output.layerStack/*.[jJ][pP][eE][gG]',
+            '**/output.layerStack/*.[pP][nN][gG]',
         ),
         "output_types": "standard",
         "artifact_icon": "photo"
