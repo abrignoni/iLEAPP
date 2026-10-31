@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "requirements": "Acquisition that contains SystemVersion.plist",
         "category": "IOS Build",
         "notes": "Reads System/Library/CoreServices/SystemVersion.plist from the extraction and, inside "
-                 "each sysdiagnose_*.tar.gz archive, logs/SystemVersion/SystemVersion.plist; other "
+                 "each sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz archive, logs/SystemVersion/SystemVersion.plist; other "
                  "SystemVersion.plist members of an archive, such as logs/Splat/OS/SystemVersion.plist, "
                  "are not read. A copy whose ProductVersion is empty is not reported, and a file matched "
                  "more than once is read once. When the extraction holds several copies, only those "
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
                  "sysdiagnose archive by C_Peter",
         "paths": (
             "*/System/Library/CoreServices/SystemVersion.plist",
-            "*/sysdiagnose_*.tar.gz"),
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz"),
         "output_types": ["standard", "tsv", "none"],
         "artifact_icon": "git-commit",
         "sample_data": {

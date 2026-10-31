@@ -28,7 +28,7 @@ __artifacts_v2__ = {
                  "for a rendered image of the process hierarchy.",
         "paths": (
             '*/ps.txt',
-            '*/sysdiagnose_*.tar.gz'),
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list-tree",
         "sample_data": {
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
                  "commands or source paths; header and blank lines remain silent.",
         "paths": (
             '*/ps.txt',
-            '*/sysdiagnose_*.tar.gz'),
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "lava", "tsv"],
         "artifact_icon": "list-tree",
         "sample_data": {

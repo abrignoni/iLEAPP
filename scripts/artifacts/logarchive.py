@@ -28,7 +28,7 @@ __artifacts_v2__ = {
                   '*/db/diagnostics/*',
                   '*/db/uuidtext/*',
                   '*.logarchive/*',
-                  '*/sysdiagnose_*.tar.gz'),
+                  '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "lava_only",
         "artifact_icon": "database",
         "sample_data": {
@@ -2345,7 +2345,7 @@ from datetime import datetime, timedelta, timezone
 from contextlib import closing
 from scripts import unifiedlogs
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
-    get_sqlite_db_records, logfunc, get_sysdiagnose_files
+    get_sqlite_db_records, logfunc, get_sysdiagnose_files, is_sysdiagnose_archive
 
 DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
                 'Subsystem', 'Category', 'Event Message', 'Trace ID')
@@ -2456,8 +2456,7 @@ def rows_from_tracev3(binary, archive_dir):
 
 def _is_sysdiagnose_tarball(path):
     """True for a finished sysdiagnose tar.gz (an IN_PROGRESS_ one is not)."""
-    name = os.path.basename(str(path))
-    return name.startswith('sysdiagnose_') and name.endswith('.tar.gz') and 'IN_PROGRESS_' not in name
+    return is_sysdiagnose_archive(path) and str(path).endswith('.tar.gz')
 
 
 @artifact_processor

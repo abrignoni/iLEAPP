@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'paths': (
             '*/mobile/Library/TCC/TCC.db*',
             '*/logs/Accessibility/TCC.db*',
-            '*/sysdiagnose_*.tar.gz'
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'
         ),
         'output_types': 'standard',
         'artifact_icon': 'key',

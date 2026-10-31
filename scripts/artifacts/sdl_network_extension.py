@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/com.apple.networkextension.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield-lock",
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/com.apple.networkextension.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "network",

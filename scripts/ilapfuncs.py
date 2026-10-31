@@ -1102,6 +1102,23 @@ def _is_appledouble(path):
     return os.path.basename(path).startswith('._')
 
 
+_SAVED_SYSDIAGNOSE = re.compile(r'_sysdiagnose\.tar(\.gz)?$')
+
+
+def is_sysdiagnose_archive(path):
+    """True for the name of a finished sysdiagnose tar archive.
+
+    Two names are read: one holding sysdiagnose_ (sysdiagnose_<date>_<platform>_<model>_<build>.tar.gz)
+    and one ending in _sysdiagnose.tar.gz (<prefix>_sysdiagnose.tar.gz; on the one corpus archive named so,
+    the prefix is the device identifier). _sysdiagnose.tar, uncompressed, is accepted too, though no
+    artifact glob declares it. An IN_PROGRESS_ archive is not finished and is not read.
+    """
+    name = os.path.basename(str(path))
+    if 'IN_PROGRESS_' in name or '.tar' not in name:
+        return False
+    return 'sysdiagnose_' in name or bool(_SAVED_SYSDIAGNOSE.search(name))
+
+
 def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8'):
     """
     Yields (file_object, source_path) for target (string or compiled regex)
@@ -1123,7 +1140,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
         match_standalone = target.search(filename) if is_regex else (target == filename)
 
         # Ensure it's not a tar file being falsely processed as standalone
-        if match_standalone and not ("sysdiagnose_" in filename and ".tar" in filename):
+        if match_standalone and not is_sysdiagnose_archive(filename):
             try:
                 mode = 'r' if text_mode else 'rb'
                 kwargs = {'encoding': encoding, 'errors': 'replace'} if text_mode else {}
@@ -1133,7 +1150,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
                 print(f"Error reading standalone file {file_path}: {e}")
 
         # 2. Sysdiagnose archive match
-        elif "sysdiagnose_" in filename and "IN_PROGRESS_" not in filename and (".tar" in filename):
+        elif is_sysdiagnose_archive(filename):
             try:
                 with tarfile.open(file_path, 'r:*') as tar:
                     for member in tar.getmembers():
