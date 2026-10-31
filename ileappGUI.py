@@ -231,8 +231,12 @@ def load_profile():
             tk_msgbox.showerror(title='Error', message=profile_load_error, parent=main_window)
         else:
             profile_filename = destination_path
-            tk_msgbox.showinfo(
-                title='Profile loaded', message=f'Loaded profile: {destination_path}', parent=main_window)
+            message = f'Loaded profile: {destination_path}'
+            unknown = sorted(name for name in profile.get('plugins', []) if name not in mlist)
+            if unknown:
+                message += (f'\n\nThe profile names {len(unknown)} artifact(s) this version does '
+                            f'not have, which will not run:\n' + '\n'.join(unknown))
+            tk_msgbox.showinfo(title='Profile loaded', message=message, parent=main_window)
 
 
 def save_profile():
