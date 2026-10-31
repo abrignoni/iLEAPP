@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         "description": "Extracts command history from an ash shell history file (.ash_history)",
         "author": "James Habben",
         "creation_date": "2023-05-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Linux",
         "notes": "",
         "paths": ('*/.ash_history',),
-        "output_types": "all",
+        "output_types": "standard",
         "artifact_icon": "terminal"
     }
 }

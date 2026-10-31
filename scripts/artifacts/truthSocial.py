@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct messages and chat events from the Truth Social application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-31',
         'requirements': 'none',
         'category': 'Truth Social',
         'notes': 'Message bodies are stored as HTML fragments; the text is extracted alongside '
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                  'not established. Unread, Hidden and Failed To Send are blank for both 0 and '
                  'NULL.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/chat/v1/*/ChatModel.sqlite*',),
-        'output_types': 'all',
+        'output_types': 'standard',
         'artifact_icon': 'message',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 13 message rows, 5 chat events',

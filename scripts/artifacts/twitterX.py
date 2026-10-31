@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct message conversations cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-31',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it '
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                  'in the archive\'s inbox context, and 0 in every other case, including an entry '
                  'with no sender id.',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.atebits.tweetie.direct-message.cache/*',),
-        'output_types': 'all',
+        'output_types': 'standard',
         'artifact_icon': 'message',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 72 rows across 4 conversations',
