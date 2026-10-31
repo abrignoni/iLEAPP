@@ -593,7 +593,7 @@ __artifacts_v2__ = {
                        "decrypted with its snap's key where one is available, with the file it came from and "
                        "how it was linked, plus cache files no available key opened.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-09-19", "last_update_date": "2026-09-19",
+        "creation_date": "2026-09-19", "last_update_date": "2026-10-31",
         "requirements": "nska_deserialize, pycryptodome", "category": "Snapchat",
         "notes": "One row per file. SCContent files are located through their cache_controller.db entry "
                  "(snap-media-, snap-overlay- or snap-rendered-lowres-, or g-media- as the reference "
@@ -614,7 +614,7 @@ __artifacts_v2__ = {
                  "in Snapchat - Memories describes numbered files as pieces of one item to be joined; "
                  "that did not hold on the tested images.\n"
                  "File says whether the file is on disk and whether it opened. Not on disk rows are "
-                 "entries whose file is absent; all 26 on the tested images carried a time in Cache "
+                 "entries whose file is absent; all 27 on the tested images carried a time in Cache "
                  "Entry Deleted. Encrypted rows with no usable key belong to Memories whose key could "
                  "not be read. Rows saying no available key opened the files summarise, per folder, "
                  ".pack files that no available key opens; Linked By, Snap IDs and Memory Created are "
@@ -641,8 +641,8 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Documents/user.plist'),
         "output_types": "standard", "artifact_icon": "photo-search",
         "sample_data": {
-                           "iphone11_ios17": "iOS 17.3 | 98 rows (69 recovered, 26 not on disk)",
-                           "hickman_ios15": "iOS 15.3.1 | 31 rows (31 recovered)",
+                           "iphone11_ios17": "iOS 17.3 | 106 rows (77 on disk, 26 not on disk, 3 no-key summaries)",
+                           "hickman_ios15": "iOS 15.3.1 | 33 rows (32 on disk, 1 not on disk)",
                            "hickman_ios14": "iOS 14.3 | 27 rows (encrypted, no keychain)",
                            "dexter_ios18": "iOS 18.3.2 | 25 rows (23 recovered)",
                            "abe_ios16": "iOS 16.5 | 13 rows (13 recovered)",

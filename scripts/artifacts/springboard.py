@@ -111,9 +111,8 @@ __artifacts_v2__ = {
                  "any folder of that name and do not check that it sits in a PosterBoard "
                  "container. HEIC/HEIF image layers "
                  "are converted to PNG for reporting. Extensions are matched in either case: "
-                 "on the josh-hickman-ios17 path listing all 250 image layers in such folders "
-                 "end in .HEIC, which lowercase patterns did not match off Windows. No run "
-                 "against a registered image is recorded for this artifact.",
+                 "on iphone11_ios17 all 250 image layers in such folders end in .HEIC, which "
+                 "lowercase-only patterns did not match off Windows.",
         "paths": (
             '**/output.layerStack/*.[hH][eE][iI][cC]',
             '**/output.layerStack/*.[jJ][pP][gG]',
@@ -121,7 +120,10 @@ __artifacts_v2__ = {
             '**/output.layerStack/*.[pP][nN][gG]',
         ),
         "output_types": "standard",
-        "artifact_icon": "photo"
+        "artifact_icon": "photo",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | 250 rows",
+        },
     }
 }
 
