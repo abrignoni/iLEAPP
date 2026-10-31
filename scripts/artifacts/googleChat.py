@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "current state does not",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
-        "last_update_date": "2026-10-26",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Google Chats",
         "notes": "Only the first dynamite.db matched is read, so a second account's database is "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
                  "Recovered and Earlier version row.",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',
                   '*/Documents/user_accounts/*/tmp/*'),
-        "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]
+        "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "data_views": {
             "conversation": {
                 "directionSentValue": 1,

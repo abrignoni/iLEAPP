@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-01",
         "version": "1.0",
         "date": "2026-03-31",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Find My",
         "notes": "Located in the NotBackedUp preferences area. The device list is stored under "
@@ -19,7 +19,7 @@ __artifacts_v2__ = {
                  "rows on the six tested iOS 17 and iOS 18 images; whether the plist or the key is absent "
                  "there was not recorded. Original parser contribution: @ghmihkel.",
         "paths": ('*/Library/Preferences/com.apple.icloud.fmfd.notbackedup.plist',),
-        "output_types": "all",
+        "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 1 row",

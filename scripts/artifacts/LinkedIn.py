@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "description": "LinkedIn Conversations",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "LinkedIn",
         "notes": "Messages with their conversation record where one exists. Sent is 1 when the "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
                  "the column is blank when none is. No registered corpus holds this database; the "
                  "query was run on a constructed database only.",
         "paths": ('*/Documents/msg_database.sqlite*'),
-        "output_types": "all", 
+        "output_types": "standard",
         "data_views": {
             "conversation": {
                 "directionSentValue": 1,
