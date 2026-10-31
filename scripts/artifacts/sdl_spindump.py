@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/spindump-nosymbols.txt',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/spindump-nosymbols.txt',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "activity",

@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "homeKit",
+    "artifact_name": "HomeKit Homes",
+    "function_name": "homeKitHomes",
+    "case_number": "caseabe_ios16",
+    "number_of_columns": 13,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 113,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitHomes.caseabe_ios16.zip",
+    "start_time": "2026-10-30T17:14:00.095132+00:00",
+    "end_time": "2026-10-30T17:14:00.122418+00:00",
+    "run_time_seconds": 0.007745027542114258,
+    "last_commit": {
+      "hash": "dd1bddb256c1f84e89d957b908fd12a76db07d87",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-30T11:15:02-04:00",
+      "message": "Add HomeKit Homes, Users and Accessories (homed/datastore.sqlite)"
+    }
+  },
+  "headers": [
+    "Record Modified",
+    "Record Created",
+    "Creation Date",
+    "First Accessory Added",
+    "Home Name",
+    "Owner User ID",
+    "Latitude",
+    "Longitude",
+    "Horizontal Accuracy (m)",
+    "Multi-User Enabled",
+    "Location Services Enabled",
+    "Home UUID",
+    "Store"
+  ],
+  "data": [
+    [
+      1675448134,
+      1650738198,
+      1650738196,
+      "",
+      "My Home",
+      "aberudder@icloud.com",
+      "",
+      "",
+      "",
+      "True",
+      "",
+      "F62F307B-ACA8-49D5-991F-A16E465127B4",
+      "datastore.sqlite"
+    ]
+  ]
+}

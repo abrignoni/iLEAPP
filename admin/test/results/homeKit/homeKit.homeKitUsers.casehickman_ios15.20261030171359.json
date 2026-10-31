@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "module_name": "homeKit",
+    "artifact_name": "HomeKit Users",
+    "function_name": "homeKitUsers",
+    "case_number": "casehickman_ios15",
+    "number_of_columns": 9,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 131,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitUsers.casehickman_ios15.zip",
+    "start_time": "2026-10-30T17:13:59.561163+00:00",
+    "end_time": "2026-10-30T17:13:59.690606+00:00",
+    "run_time_seconds": 0.10787796974182129,
+    "last_commit": {
+      "hash": "dd1bddb256c1f84e89d957b908fd12a76db07d87",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-30T11:15:02-04:00",
+      "message": "Add HomeKit Homes, Users and Accessories (homed/datastore.sqlite)"
+    }
+  },
+  "headers": [
+    "Record Modified",
+    "Record Created",
+    "Home Name",
+    "User ID",
+    "Account Handle",
+    "Privilege (as stored)",
+    "Remote Access Allowed",
+    "User UUID",
+    "Store"
+  ],
+  "data": [
+    [
+      1614792369,
+      1585056143,
+      "My Home",
+      "thisisdfir@gmail.com",
+      "mailto:thisisdfir@gmail.com",
+      "3",
+      "True",
+      "FDFDF0DB-58DD-45FA-BF21-F84CF640A05A",
+      "datastore.sqlite"
+    ]
+  ]
+}

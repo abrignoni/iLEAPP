@@ -20,7 +20,7 @@ __artifacts_v2__ = {
             "ScreenOnTime/BackgroundTime values are reported as stored without a unit assertion. Gzipped rotated "
             "logs (*.PLSQL.gz) are decompressed to a temporary location and parsed; the "
             "Source File column carries the archive path. The databases under "
-            "logs/powerlogs in a packed sysdiagnose (sysdiagnose_*.tar.gz, such as those "
+            "logs/powerlogs in a packed sysdiagnose (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz, such as those "
             "under DiagnosticLogs/sysdiagnose in a full file system extraction) are copied "
             "out to a temporary location and parsed; the Source File column carries the "
             "archive path and the database's path inside it, joined by ' >> '. Rows are "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery-charging",
@@ -130,7 +130,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "power",
@@ -176,7 +176,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "activity",
@@ -222,7 +222,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "lock",
@@ -268,7 +268,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "clock",
@@ -314,7 +314,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "zap",
@@ -361,7 +361,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "sun",
@@ -411,7 +411,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "headphones",
@@ -461,7 +461,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "plug-connected",
@@ -509,7 +509,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "camera",
@@ -558,7 +558,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -605,7 +605,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -655,7 +655,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -707,7 +707,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -761,7 +761,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -813,7 +813,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -865,7 +865,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -913,7 +913,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
@@ -963,7 +963,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery-charging",
@@ -1013,7 +1013,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "settings",
@@ -1067,7 +1067,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "clock",
@@ -1117,7 +1117,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.BGSQL*",
             "*/powerlogs/*.BGSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "activity",
@@ -1165,7 +1165,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.BGSQL*",
             "*/powerlogs/*.BGSQL*",
-            "*/sysdiagnose_*.tar.gz",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "package",
@@ -1362,7 +1362,7 @@ def _powerlog_sources(context, extension=".PLSQL"):
 
     Plain database files are used in place; .PLSQL.gz rotated archives are
     decompressed to a temp dir but keep their original path for reporting.
-    The telemetry dbs under logs/powerlogs/ in a packed sysdiagnose_*.tar.gz
+    The telemetry dbs under logs/powerlogs/ in a packed sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz
     are copied out to the same temp dir and reported as 'archive >> member'.
     -wal/-shm sidecars ride along on disk for SQLite and are not listed.
     A file matched by more than one glob is returned once.

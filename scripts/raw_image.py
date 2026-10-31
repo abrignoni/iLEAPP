@@ -47,6 +47,18 @@ and a label rides along as a suffix. Artifact patterns begin with ``*`` and
 ``*`` crosses ``/`` in fnmatch, so the prefix costs them nothing, and it is what
 the report's source path shows for each file.
 
+A pattern matches a member of an NTFS, ReFS, exFAT or FAT volume read from a disk
+image whatever the case of its letters, because those filesystems look names up that
+way by default. An NTFS directory marked case sensitive can hold two names that differ
+only in case, and a pattern then matches both. The Windows XP image in the corpus
+(cfreds_hacking_case_winxp) stores ``WINDOWS/system32`` where the artifact patterns
+say ``Windows/System32``; on Windows, where ``os.path.normcase`` lowers both sides,
+it already matched. Logical evidence (AD1, L01) is matched exactly. Every other
+volume, APFS, HFS+, ext4, XFS, Btrfs, F2FS, QNX and the rest, is matched exactly as
+before, so a pattern must match a name there in its stored case. An APFS or HFS+
+volume can be case insensitive too (qnxprobe reports it); the seeker does not fold
+those.
+
 An NTFS alternate data stream is a member too, named ``<file>:<stream>`` as
 Windows names it (``.../Downloads/setup.exe:Zone.Identifier``,
 ``.../$Extend/$UsnJrnl:$J``), and ``:<stream>`` on the root directory. A stream
@@ -1365,6 +1377,10 @@ def _spanned_groups(raid, image_name):
     return out
 
 
+# The filesystems that look a name up whatever the case of its letters by default, by qnxprobe's kind.
+_CASE_FOLDING_KINDS = frozenset({'ntfs', 'refs', 'exfat', 'fat12', 'fat16', 'fat32'})
+
+
 def _as_read_here(vol, prefix, covers, spans, groups=None):
     """A copy of ``vol`` named with ``prefix``. One that an array read here covers keeps
     its line in the log and loses its walker and free space, with a note saying where
@@ -1691,6 +1707,8 @@ class FileSeekerRaw(FileSeekerBase):
         # a member staged under another name than its path in the evidence: an
         # earlier entry of logical evidence that shares its path with a later one
         self._member_source = {}
+        # the "<volume>/" prefixes of the volumes whose names are matched whatever their case
+        self._folding_prefixes = ()
         self._too_deep = 0
         self._renamed = 0
         # staged path: zero bytes read in place of acquisition data that ran out
@@ -1984,6 +2002,8 @@ class FileSeekerRaw(FileSeekerBase):
                 logfunc(f'    and {streams:,} alternate data streams, matched only by a '
                         f'pattern that names one')
             self._walker_names[id(walker)] = vol['name']
+            if vol.get('kind') in _CASE_FOLDING_KINDS:
+                self._folding_prefixes += (vol['name'] + '/',)
             for line in self._new_damage(walker):
                 logfunc(f'    {line}')
         for vol in volumes:
@@ -2361,6 +2381,7 @@ class FileSeekerRaw(FileSeekerBase):
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
         pathlist = []
         pat = _compile_pattern(normcase(filepattern))
+        folded = _compile_pattern(normcase(filepattern).lower())
         root = normcase("root/")
         members = self.name_list
         if self.stream_list and names_a_stream(filepattern):
@@ -2375,7 +2396,11 @@ class FileSeekerRaw(FileSeekerBase):
             members = members + self.deleted_list
         for member in members:
             # matched by its path in the evidence, which a renamed member keeps
-            if pat(root + normcase(self._member_source.get(member, member))) is None:
+            target = root + normcase(self._member_source.get(member, member))
+            if self._folding_prefixes and member.startswith(self._folding_prefixes):
+                if folded(target.lower()) is None:
+                    continue
+            elif pat(target) is None:
                 continue
             if member not in self.copied or force:
                 zeros_before = self._zeros_read()

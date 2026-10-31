@@ -92,7 +92,7 @@ __artifacts_v2__ = {
                  " live layout of the same stores.",
         "paths": (
             '*/logs/ManagedSettings/*.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
             '*/com.apple.ManagedSettings/DataVersion.plist',
             '*/com.apple.ManagedSettings/EffectiveSettings.plist',
             '*/com.apple.ManagedSettings/SettingRecords.plist',
@@ -165,7 +165,7 @@ __artifacts_v2__ = {
                  " which was empty on both iOS 26 sysdiagnoses in sample_data.",
         "paths": (
             '*/logs/ManagedSettings/*.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
             '*/com.apple.ManagedSettings/DataVersion.plist',
             '*/com.apple.ManagedSettings/EffectiveSettings.plist',
             '*/com.apple.ManagedSettings/SettingRecords.plist',
