@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'message',
         'sample_data': {
-            'iphone11_ios17': 'iOS 17.3 | 13 message rows, 5 chat events',
+            'iphone11_ios17': 'iOS 17.3 | 18 rows (13 messages, 5 chat events)',
         },
         'data_views': {
             'conversation': {
