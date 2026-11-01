@@ -236,7 +236,7 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 
-from scripts.ilapfuncs import (artifact_processor, check_in_media, does_table_exist_in_db,
+from scripts.ilapfuncs import (artifact_processor, is_sqlite_sidecar, check_in_media, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
 
 _CONTAINER = re.compile(r'(.*?/Containers/Data/Application/[0-9A-Fa-f-]{36})/', re.I)
@@ -294,7 +294,7 @@ def _stores(files_found):
     stores = []
     for found in files_found:
         path = str(found)
-        if os.path.isdir(path) or path.endswith(('-wal', '-shm', '-journal')):
+        if os.path.isdir(path) or is_sqlite_sidecar(path):
             continue
         try:
             with open(path, 'rb') as handle:

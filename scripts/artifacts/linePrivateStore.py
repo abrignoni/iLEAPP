@@ -186,7 +186,7 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 
-from scripts.ilapfuncs import (artifact_processor, check_in_media, does_table_exist_in_db,
+from scripts.ilapfuncs import (artifact_processor, is_sqlite_sidecar, check_in_media, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
 
 _UNIX_EPOCH_UTC = datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -204,7 +204,7 @@ def _stores(files_found, name):
     seen = []
     for found in files_found:
         path = str(found)
-        if os.path.isdir(path) or path.endswith(('-wal', '-shm')):
+        if os.path.isdir(path) or is_sqlite_sidecar(path):
             continue
         if os.path.basename(path) == name and path not in seen:
             seen.append(path)

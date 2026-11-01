@@ -1213,6 +1213,29 @@ def get_sqlite_db_uri_query(path):
         return 'mode=ro&immutable=1'
     return 'mode=ro'
 
+SQLITE_SIDECAR_SUFFIXES = ('-wal', '-shm', '-journal')
+
+
+def is_sqlite_sidecar(path):
+    """True for the -wal, -shm or -journal file SQLite keeps beside a database.
+
+    A path pattern such as '*/Foo.sqlite*' also matches these files. A sidecar is not a
+    database: queried on its own it raises sqlite3.DatabaseError ('file is not a database').
+    open_sqlite_db_readonly reads the -wal and -shm through the database itself, and
+    sqlite_wal.WalStates finds the log at <database>-wal on disk, so neither needs the sidecar
+    in the list an artifact loops over.
+
+    Use it where an artifact picks the files it will open. Leave the 'paths' patterns
+    alone: the seeker stages a sidecar only because the pattern matches it.
+    """
+    return str(path).lower().endswith(SQLITE_SIDECAR_SUFFIXES)
+
+
+def sqlite_databases(files_found):
+    """The found files that are not SQLite sidecars, as strings, in their original order."""
+    return [str(f) for f in files_found if not is_sqlite_sidecar(f)]
+
+
 def open_sqlite_db_readonly(path):
     '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
     try:

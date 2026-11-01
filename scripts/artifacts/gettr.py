@@ -178,10 +178,9 @@ __artifacts_v2__ = {
 import json
 import os
 
-from scripts.ilapfuncs import (artifact_processor, check_in_media, convert_unix_ts_to_utc,
+from scripts.ilapfuncs import (artifact_processor, is_sqlite_sidecar, check_in_media, convert_unix_ts_to_utc,
                                does_table_exist_in_db, get_sqlite_db_records, logfunc)
 
-_SIDECARS = ('-wal', '-shm', '-journal')
 _CONTAINER_MARK = '/Containers/Data/Application/'
 
 
@@ -204,7 +203,7 @@ def _stores(files_found, matches):
     found = []
     for file_found in files_found:
         path = str(file_found)
-        if os.path.isdir(path) or path.endswith(_SIDECARS):
+        if os.path.isdir(path) or is_sqlite_sidecar(path):
             continue
         if matches(os.path.basename(path)) and path not in found:
             found.append(path)
