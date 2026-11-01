@@ -86,10 +86,10 @@ __artifacts_v2__ = {
         'description': 'In-app notifications cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': '',
+        'notes': ('From Users holds the user IDs a notification names, as stored in its fromUsers list; usernames are not looked up. On the josh_ios17_ffs test case 116 of 119 notifications name one user and 3 name none.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'bell',
@@ -335,6 +335,23 @@ def _dm_user_updated(value):
     return ''
 
 
+def _notification_user(entry):
+    """The user a URTNotification fromUsers entry names, or ''.
+
+    The cached entries are shaped {'type': {'user': {'userID': <int>}}}. Reading username
+    or userID at the top level found nothing, so From Users was empty on every row; the
+    top-level keys are still tried first in case another app version stores them there.
+    """
+    if not isinstance(entry, dict):
+        return ''
+    found = entry.get('username') or entry.get('userID')
+    if not found:
+        kind = entry.get('type')
+        user = kind.get('user') if isinstance(kind, dict) else None
+        found = user.get('userID') if isinstance(user, dict) else None
+    return str(found) if found else ''
+
+
 def _iter_cached_models(source_path, model_type):
     """Yield (itemKey uid, decoded model dict) for one model type.
 
@@ -473,8 +490,7 @@ def twitterNotifications(context):
         from_users = model.get('fromUsers')
         if isinstance(from_users, list):
             from_users = ', '.join(
-                str(u.get('username') or u.get('userID') or '')
-                for u in from_users if isinstance(u, dict))
+                user for user in (_notification_user(u) for u in from_users) if user)
         else:
             from_users = ''
 
