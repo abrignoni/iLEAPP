@@ -46,7 +46,9 @@ def skg_archive(context):
         path = Path(file_found)
         grouped_files[path.parent].append(path.name)
 
-        sk_archive = nd.deserialize_plist(file_found)
+        # deserialize_plist(path) opens the file and never closes it.
+        with open(file_found, 'rb') as archive_file:
+            sk_archive = nd.deserialize_plist_from_string(archive_file.read())
         for item in sk_archive:
 
             d = mdplist.loads(item['attributes']['container'])

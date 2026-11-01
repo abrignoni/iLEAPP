@@ -149,7 +149,9 @@ def _dm_cache_paths(context):
 def _load_dm_cache(source_path):
     """Deserialize the direct message NSKeyedArchiver cache."""
     try:
-        return nd.deserialize_plist(source_path)
+        # deserialize_plist(path) opens the file and never closes it.
+        with open(source_path, 'rb') as cache_file:
+            return nd.deserialize_plist_from_string(cache_file.read())
     except (nd.DeserializeError, ValueError, TypeError, OSError) as ex:
         logfunc(f'Could not deserialize Twitter X direct message cache: {ex}')
         return None
