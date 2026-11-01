@@ -131,7 +131,7 @@ __artifacts_v2__ = {
                        "preferences plist, reported as key and value pairs.",
         "author": '@CyberMike81, Claude, OpenAI Codex',
         "creation_date": "2026-10-21",
-        "last_update_date": "2026-10-22",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Life360",
         "notes": 'Key and value pairs from com.life360.safetymap.plist: the CurrentUser object, '
@@ -143,7 +143,7 @@ __artifacts_v2__ = {
                  'copies differed by exactly 978,307,200 seconds, the gap between the epochs. The '
                  'L360LocationHealthStorage time is left as stored; its epoch is not established. Permission '
                  'keys are as stored, not findings about a feature. A missing key is not evidence of anything. '
-                 'Not parsed: location_state.data, region_state.data, nk_v4_failed_network_requests.data, '
+                 'location_state.data is read by the Location State Samples artifact. Not parsed: region_state.data, nk_v4_failed_network_requests.data, '
                  'Cache.db, UberIntegration.sqlite, GRPCModelStore.sqlite, Recommendations.sqlite, '
                  'FeatureSet.sqlite, ObservabilityEngineDataModel.sqlite, DEDataStore.sqlite, '
                  'ZoneCoreDataStore.sqlite, the modelstore and corelocation Realm files, the tmp/ProdLogs '
@@ -274,6 +274,51 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Life360 24.28.0 | 0 rows",
         },
     },
+    "life360LocationState": {
+        "name": "Life360 - Location State Samples",
+        "description": "The location samples Life360 kept in its location_state.data archive, with the "
+                       "coordinates, altitude, speed, course, accuracy and the Wi-Fi BSSID stored with each "
+                       "sample.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-01",
+        "last_update_date": "2026-11-01",
+        "requirements": "none",
+        "category": "Life360",
+        "notes": ('Read from location_state.data in Library/Application Support, an NSKeyedArchiver archive of an '
+                  'L360LocationPersistentState, decoded with nska_deserialize. One row per L360CLLocation in its '
+                  'location array (20 on each tested image) and one for unsentFilteredSample when it holds a sample '
+                  "(7 of 8 images); Store Key says which. Timestamp and Sample Timestamp are the sample's timestamp "
+                  'and sampleTimestamp, rendered in UTC; Sample Timestamp was later on all 167 tested samples, by '
+                  'up to about 240 seconds. On the 5 tested images whose logs carry sample lines (the Location '
+                  'Samples artifact), 103 of 105 archive samples matched a log sample at the same coordinates to 4 '
+                  "decimal places, and Timestamp was within 1 second of that log sample's time on 100 of the 103 "
+                  '(Sample Timestamp on 94). On the other 3 images (Life360 25.37.0, 26.22.0 and an iOS 26 image) '
+                  'the logs had no sample lines. Latitude, Longitude, Altitude, Speed, Course, Horizontal Accuracy '
+                  'and Vertical Accuracy are as stored, with no units established. Wi-Fi BSSID (as stored) is '
+                  'wifi_bssid: set on 46 of 167 samples on 6 images and empty on every sample on dexter_ios18 and '
+                  'otto_ios17. 37 of the 46 drop a leading zero in at least one octet, so compare BSSIDs by value, '
+                  'not as text. Location Mode (as stored) is locationmode, an integer whose names are not '
+                  'established. Not reported: wifi_enabled (true on all 167 samples), mutated_sample (false on all '
+                  "167) and json_violation_string (empty on all 167), and the archive's other keys (battery, smart "
+                  'real-time, drive sampling and location request values, and three location strings that were '
+                  'empty on all 8 images). A row records that the app kept a sample with those values; it does not '
+                  'say who carried the device. Reads only the main app container (container identifier '
+                  'com.life360.safetymap); iTunes backups are not read.'),
+        "paths": ('*/Library/Application Support/location_state.data',
+                  '*/.com.apple.mobile_container_manager.metadata.plist',),
+        "output_types": "all",
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | Life360 23.19.0 | 21 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360 24.34.0 | 21 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 21 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Life360 26.22.0 | 21 rows",
+            "hc_ios26": "iOS 26.5.2 | 21 rows",
+            "iphone11_ios17": "iOS 17.3 | Life360 24.28.0 | 21 rows",
+            "otto_ios17": "iOS 17.5.1 | Life360 24.31.0 | 21 rows",
+            "dexter_ios18": "iOS 18.3.2 | Life360 25.37.0 | 20 rows",
+        },
+    },
 }
 
 import base64
@@ -281,6 +326,8 @@ import json
 import plistlib
 from xml.parsers.expat import ExpatError
 from datetime import datetime, timezone
+
+import nska_deserialize as nd
 
 from scripts.ilapfuncs import (artifact_processor, device_info, does_column_exist_in_db,
                                get_plist_file_content, logfunc)
@@ -718,4 +765,43 @@ def life360PopDwells(context):
                               _as_stored(entry.get('recurrenceId')), rel))
     data_list.sort(key=lambda row: str(row[0]))
     data_headers, data_list = columns_first(data_headers, data_list, ('Date', 'Circle ID', 'Recurrence ID'))
+    return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
+
+
+def _state_time(value):
+    return value.replace(tzinfo=timezone.utc) if isinstance(value, datetime) else ''
+
+
+@artifact_processor
+def life360LocationState(context):
+    data_headers = (('Timestamp', 'datetime'), ('Sample Timestamp', 'datetime'), 'Latitude', 'Longitude',
+                    'Wi-Fi BSSID (as stored)', 'Altitude', 'Speed', 'Course', 'Horizontal Accuracy',
+                    'Vertical Accuracy', 'Location Mode (as stored)', 'Store Key', 'Source File')
+    data_list = []
+    paths = _find(context, 'location_state.data')
+    for path in paths:
+        rel = context.get_relative_path(path)
+        try:
+            state = nd.deserialize_plist(path)
+        except (nd.DeserializeError, plistlib.InvalidFileException, OSError, ValueError) as error:
+            logfunc(f'Life360 location_state.data in {rel!r} did not deserialize and was skipped: {error}')
+            continue
+        if not isinstance(state, dict):
+            logfunc('Life360 location_state.data root was not an object and was skipped')
+            continue
+        samples = [('location', s) for s in stored_list(state.get('location'), 'location_state location')]
+        if isinstance(state.get('unsentFilteredSample'), dict):
+            samples.append(('unsentFilteredSample', state['unsentFilteredSample']))
+        for key, sample in samples:
+            if not isinstance(sample, dict):
+                logfunc('Life360 location_state sample was not an object and was skipped')
+                continue
+            data_list.append((
+                _state_time(sample.get('timestamp')), _state_time(sample.get('sampleTimestamp')),
+                _as_stored(sample.get('latitude')), _as_stored(sample.get('longitude')),
+                _as_stored(sample.get('wifi_bssid')), _as_stored(sample.get('altitude')),
+                _as_stored(sample.get('speed')), _as_stored(sample.get('course')),
+                _as_stored(sample.get('horizontalaccuracy')), _as_stored(sample.get('verticalaccuracy')),
+                _as_stored(sample.get('locationmode')), key, rel))
+    data_list.sort(key=lambda row: (row[-1], str(row[0])))
     return data_headers, data_list, '\n'.join(context.get_relative_path(p) for p in paths)
