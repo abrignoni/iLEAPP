@@ -42,7 +42,10 @@ class ArtifactsCloseArchivesTest(unittest.TestCase):
             warnings.simplefilter('always', ResourceWarning)
             result = call()
             gc.collect()
-        return result, [w for w in caught if issubclass(w.category, ResourceWarning)]
+        # gc.collect() also reports files and databases other tests in a full discovery left
+        # open, so only the warnings about files in this test's own folder count.
+        return result, [str(w.message) for w in caught
+                        if issubclass(w.category, ResourceWarning) and self.tmpdir in str(w.message)]
 
     def test_the_twitterx_dm_cache_is_decoded_and_closed(self):
         path = self.write('TDfir-1', keyed_archive(
