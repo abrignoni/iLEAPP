@@ -66,12 +66,50 @@ __artifacts_v2__ = {
                 "mediaColumn": "Attachment"
             }
         },
+    },
+    "lineCalls": {
+        "name": "Line - Calls",
+        "description": "Line voice and video calls, from the call messages Line keeps in Line.sqlite, with "
+                       "duration, direction and the other party",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-31",
+        "last_update_date": "2026-10-31",
+        "requirements": "none",
+        "category": "Line",
+        "notes": ("One row per message of content type 6 (ZMESSAGE.ZCONTENTTYPE) in each Line.sqlite, the "
+                  "message Line writes for a call. Call Ended is that message's ZTIMESTAMP read as Unix "
+                  "milliseconds; Duration is DURATION from the keyed archive in ZCONTENTMETADATA, stored as "
+                  "milliseconds and shown in seconds; Call Started is Call Ended minus Duration. Type, Result "
+                  "and Cause are TYPE, RESULT and CAUSE from the same archive, as stored (A and V; NORMAL with "
+                  "16 and CANCELED with 77 seen). Direction follows the Line - Messages reading: a call message"
+                  " with no sender reference is Outgoing. Contact is the name of the user whose MID matches the"
+                  " chat's ZMID, and Contact MID is that ZMID. These readings were checked against a second "
+                  "record of the same calls, the u<MID>_CallHistory.db keyed archive Line keeps under "
+                  "Library/NCXVoIP in its app group: on the four tested images all 20 calls matched one call "
+                  "message, with the end time within 1 second, the duration within 2 seconds, the same "
+                  "direction, the call's video flag set exactly where TYPE is V, the start time equal to the "
+                  "derived Call Started and the call's peer equal to the chat's ZMID; the 2 CANCELED calls had "
+                  "0 duration in both records. The call history file itself is not read. A group chat call "
+                  "would show the group's ZMID with no Contact; none was seen. Account ID is the account the "
+                  "private store folder is named for, as in Line - Messages."),
+        "paths": ('**/Line.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.com.linecorp.line | 8 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.linecorp.line | 4 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.linecorp.line | 4 rows",
+            "hickman_ios15": "iOS 15.3.1 | group.com.linecorp.line | 4 rows",
+        }
     }
 }
 
 import os
 import re
 import sqlite3
+from datetime import datetime, timedelta, timezone
+
+import nska_deserialize as nd
 
 from scripts.ilapfuncs import (artifact_processor, check_in_media, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
@@ -195,4 +233,67 @@ def line(context):
 
     data_list.sort(key=lambda row: str(row[0]), reverse=True)
 
+    return data_headers, data_list, '\n'.join(read)
+
+
+# ZMESSAGE.ZCONTENTTYPE of the message Line writes for a call
+CALL_CONTENT_TYPE = 6
+
+
+def _call_metadata(blob):
+    """The keyed archive in a call message's ZCONTENTMETADATA, or {} when it does not decode."""
+    if not isinstance(blob, (bytes, bytearray)):
+        return {}
+    try:
+        metadata = nd.deserialize_plist_from_string(bytes(blob))
+    except (ValueError, TypeError, nd.DeserializeError) as ex:
+        logfunc(f'Line - Calls: call metadata not decoded: {ex}')
+        return {}
+    return metadata if isinstance(metadata, dict) else {}
+
+
+@artifact_processor
+def lineCalls(context):
+    data_headers = (('Call Started', 'datetime'), ('Call Ended', 'datetime'), 'Direction', 'Contact',
+                    'Contact MID', 'Type (as stored)', 'Duration (seconds)', 'Result (as stored)',
+                    'Cause (as stored)', 'Message ID', 'Account ID')
+    data_list = []
+    sources = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if os.path.isfile(file_found) and file_found.endswith('Line.sqlite') and file_found not in sources:
+            sources.append(file_found)
+
+    query = f'''
+    SELECT ZMESSAGE.ZTIMESTAMP, ZMESSAGE.ZSENDER IS NULL, ZUSER.ZNAME, ZCHAT.ZMID,
+           ZMESSAGE.ZCONTENTMETADATA, ZMESSAGE.ZID
+    FROM ZMESSAGE
+    LEFT JOIN ZCHAT ON ZMESSAGE.ZCHAT = ZCHAT.Z_PK
+    LEFT JOIN ZUSER ON ZUSER.ZMID = ZCHAT.ZMID
+    WHERE ZMESSAGE.ZCONTENTTYPE = {CALL_CONTENT_TYPE}
+    '''
+    read = []
+    for source_path in sources:
+        try:
+            rows = get_sqlite_db_records(source_path, query)
+        except sqlite3.Error as ex:
+            logfunc(f'Line - Calls: could not read {source_path}: {ex}')
+            continue
+        read.append(source_path)
+        account = _account_id(source_path)
+        for (timestamp, outgoing, name, mid, blob, message_id) in rows:
+            metadata = _call_metadata(blob)
+            ended = datetime.fromtimestamp(timestamp / 1000, timezone.utc) if timestamp else ''
+            duration = metadata.get('DURATION')
+            try:
+                seconds = int(duration) / 1000
+            except (TypeError, ValueError):
+                seconds = ''
+            started = ended - timedelta(seconds=seconds) if ended and seconds != '' else ''
+            data_list.append((started, ended, 'Outgoing' if outgoing else 'Incoming', name or '',
+                              mid or '', metadata.get('TYPE', ''), seconds,
+                              metadata.get('RESULT', ''), metadata.get('CAUSE', ''),
+                              '' if message_id is None else str(message_id), account))
+
+    data_list.sort(key=lambda row: str(row[1]), reverse=True)
     return data_headers, data_list, '\n'.join(read)
