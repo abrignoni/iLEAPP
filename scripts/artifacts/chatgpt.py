@@ -202,13 +202,15 @@ import json
 import os
 import re
 
-import biplist
+import plistlib
+from xml.parsers.expat import ExpatError
 
 from scripts.ilapfuncs import (artifact_processor, check_in_media, convert_ts_int_to_utc,
                                logfunc, webkit_timestampsconv)
 
 _JSON_ERRORS = (json.JSONDecodeError, KeyError, ValueError, TypeError, AttributeError, OSError)
-_PLIST_ERRORS = (biplist.InvalidPlistException, biplist.NotBinaryPlistException, OSError, ValueError)
+# plistlib.InvalidFileException is a ValueError; a malformed XML plist raises ExpatError.
+_PLIST_ERRORS = (plistlib.InvalidFileException, ExpatError, OSError, ValueError, OverflowError)
 
 _CONTAINER = re.compile(r'(?:^|[\\/])Containers[\\/]Data[\\/]Application[\\/]([^\\/]+)[\\/](.+)$')
 # Preference files named for ChatGPT's bundle id. Only its own container holds them.
@@ -399,7 +401,7 @@ def chatgptPreferences(context):
         if name.endswith('com.openai.chat.StatsigService.plist'):
             try:
                 with open(file_found, 'rb') as fh:
-                    plist_data = biplist.readPlist(fh)
+                    plist_data = plistlib.load(fh)
             except _PLIST_ERRORS as ex:
                 logfunc(f'Error parsing ChatGPT preferences from -> {file_found}: {ex}')
                 continue
@@ -411,7 +413,7 @@ def chatgptPreferences(context):
         elif name.endswith('com.segment.storage.oai.plist'):
             try:
                 with open(file_found, 'rb') as fh:
-                    plist_data = biplist.readPlist(fh)
+                    plist_data = plistlib.load(fh)
             except _PLIST_ERRORS as ex:
                 logfunc(f'Error parsing ChatGPT account from -> {file_found}: {ex}')
                 continue
@@ -419,8 +421,8 @@ def chatgptPreferences(context):
             traits_raw = plist_data.get('segment.traits')
             if traits_raw:
                 try:
-                    traits = biplist.readPlistFromString(traits_raw)
-                except biplist.InvalidPlistException as ex:
+                    traits = plistlib.loads(traits_raw)
+                except (*_PLIST_ERRORS, TypeError) as ex:
                     logfunc(f'Error parsing ChatGPT nested plist from {file_found}: {ex}')
             data_list.append(('', plist_data.get('segment.userId', ''), '',
                               traits.get('plan_type', ''), traits.get('has_paid_plan', ''),
