@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct and group messages, attachments and shared locations from GroupMe',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-10-19',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': 'Deletion Status Recorded, System Deleted and Deletion Actor (as stored) '
@@ -241,6 +241,49 @@ def _decode_deletion_status(blob):
     )
 
 
+def _coordinate_text(value):
+    """Python's own text for a stored coordinate, or '' when there is none.
+
+    Joining the values in SQL with GROUP_CONCAT made SQLite turn each float into text,
+    and that text depends on the SQLite library the run links: through 3.51 it keeps 15
+    significant digits (35.6612259448805), from 3.52 it keeps 17 (35.661225944880535).
+    Python prints the same float the same way on every platform.
+    """
+    if value is None:
+        return ''
+    return str(value)
+
+
+def _locations_by_message(path):
+    """Message row id mapped to its location attachments' latitudes, longitudes and venue
+    names, each joined with ', ' in attachment row order.
+
+    Only location attachments carry real coordinates; every other type stores 0.0/0.0,
+    which would litter the map output with null island. The three columns are built from
+    one ordered read, so the nth latitude, longitude and venue belong to the same
+    attachment; GROUP_CONCAT gives no order, so three separate ones did not promise that.
+    """
+    query = """
+    SELECT a.ZMESSAGE AS messageRowId, a.ZLAT AS latitude, a.ZLNG AS longitude,
+           a.ZVENUENAME AS venueName
+    FROM ZGMATTACHMENT a
+    WHERE a.ZTYPE = 'location'
+    ORDER BY a.ZMESSAGE, a.Z_PK
+    """
+    grouped = {}
+    for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
+        grouped.setdefault(record['messageRowId'], []).append(record)
+    locations = {}
+    for message_row_id, attachments in grouped.items():
+        venues = [a['venueName'] for a in attachments if a['venueName'] is not None]
+        locations[message_row_id] = (
+            ', '.join(_coordinate_text(a['latitude']) for a in attachments),
+            ', '.join(_coordinate_text(a['longitude']) for a in attachments),
+            ', '.join(str(v) for v in venues) if venues else None,
+        )
+    return locations
+
+
 @artifact_processor
 def groupMeMessages(context):
     files_found = context.get_files_found()
@@ -273,16 +316,13 @@ def groupMeMessages(context):
           WHERE a.ZMESSAGE = m.Z_PK) AS attachmentType,
         (SELECT GROUP_CONCAT(COALESCE(a.ZURL, a.ZFILENAME), ', ') FROM ZGMATTACHMENT a
           WHERE a.ZMESSAGE = m.Z_PK AND COALESCE(a.ZURL, a.ZFILENAME) IS NOT NULL) AS attachmentUrl,
-        (SELECT GROUP_CONCAT(a.ZLAT, ', ') FROM ZGMATTACHMENT a
-          WHERE a.ZMESSAGE = m.Z_PK AND a.ZTYPE = 'location') AS latitude,
-        (SELECT GROUP_CONCAT(a.ZLNG, ', ') FROM ZGMATTACHMENT a
-          WHERE a.ZMESSAGE = m.Z_PK AND a.ZTYPE = 'location') AS longitude,
-        (SELECT GROUP_CONCAT(a.ZVENUENAME, ', ') FROM ZGMATTACHMENT a
-          WHERE a.ZMESSAGE = m.Z_PK AND a.ZTYPE = 'location') AS venueName
+        m.Z_PK AS messageRowId
     FROM ZGMMESSAGE m
     {CHAT_JOIN}
     ORDER BY m.ZCREATEDAT
     '''
+
+    locations_by_store = {path: _locations_by_message(path) for path in store_paths}
 
     for source_path, record in (
             (path, record) for path in store_paths
@@ -296,10 +336,8 @@ def groupMeMessages(context):
         chat_type = record['chatType']
         conversation = record['chatName'] or record['chatId'] or ''
 
-        # Only location attachments carry real coordinates; every other type
-        # stores 0.0/0.0, which would litter the map output with null island.
-        latitude = record['latitude'] if record['latitude'] is not None else ''
-        longitude = record['longitude'] if record['longitude'] is not None else ''
+        latitude, longitude, venue_name = locations_by_store[source_path].get(
+            record['messageRowId'], ('', '', None))
 
         deletion_recorded, system_deleted, deletion_actor = \
             _decode_deletion_status(record['deletionStatus'])
@@ -315,7 +353,7 @@ def groupMeMessages(context):
             sender_id,
             record['attachmentType'],
             record['attachmentUrl'],
-            record['venueName'],
+            venue_name,
             latitude,
             longitude,
             'Yes' if record['isSystem'] else '',
