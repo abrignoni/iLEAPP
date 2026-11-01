@@ -39,14 +39,17 @@ class PlistFileKeyedArchiveHandleTest(unittest.TestCase):
             warnings.simplefilter('always', ResourceWarning)
             content = get_plist_file_content(source)
             gc.collect()
-        leaks = [w for w in caught if issubclass(w.category, ResourceWarning)]
+        # gc.collect() also reports files and databases other tests in a full discovery left
+        # open, so only the warnings about a .plist file count.
+        leaks = [w for w in caught if issubclass(w.category, ResourceWarning)
+                 and '.plist' in str(w.message)]
         return content, leaks
 
     def test_a_path_is_decoded_and_closed(self):
         content, leaks = self.read(self.path)
 
         self.assertEqual(content, {'name': 'value'})
-        self.assertEqual(leaks, [])
+        self.assertEqual([str(w.message) for w in leaks], [])
 
     def test_a_stream_is_decoded_and_its_temporary_copy_removed(self):
         before = set(os.listdir(tempfile.gettempdir()))
@@ -54,7 +57,7 @@ class PlistFileKeyedArchiveHandleTest(unittest.TestCase):
             content, leaks = self.read(stream)
 
         self.assertEqual(content, {'name': 'value'})
-        self.assertEqual(leaks, [])
+        self.assertEqual([str(w.message) for w in leaks], [])
         added = {n for n in set(os.listdir(tempfile.gettempdir())) - before if n.endswith('.plist')}
         self.assertEqual(added, set())
 
