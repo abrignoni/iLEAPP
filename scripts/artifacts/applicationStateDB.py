@@ -145,11 +145,9 @@ __artifacts_v2__ = {
     }
 }
 
-import biplist
 import io
 import nska_deserialize as nd
 import plistlib
-import sys
 from collections import namedtuple as _nt
 
 from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, \
@@ -370,10 +368,7 @@ def _parse_blob(appid, key, blob):
 
     plist_file_object = io.BytesIO(blob)
     if blob.find(b'NSKeyedArchiver') == -1:
-        if sys.version_info >= (3, 9):
-            plist = plistlib.load(plist_file_object)
-        else:
-            plist = biplist.readPlist(plist_file_object)
+        plist = plistlib.load(plist_file_object)
     else:
         try:
             plist = nd.deserialize_plist(plist_file_object)
