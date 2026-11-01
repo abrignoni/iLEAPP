@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Messages from the Potato Chat tgdata.db messages table',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
-        'last_update_date': '2025-08-30',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': 'Timestamp is the date column read as Unix seconds in UTC. From Me is the stored '
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         'description': 'Messages from the Potato Chat channel_messages table, with group names from shareDialogList.db. Blob decoding is based on work by Forrest Cook, https://github.com/Whee30/AppParsers/blob/c4eebc373764eeedccc4d6a73bc9501fb20ed89e/Potato/decode_BLOB.py',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
-        'last_update_date': '2026-10-09',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': 'Each row is decoded from the data blob of one channel_messages row. Timestamp is '
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         'description': 'Extract known users from Potato Chat',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
-        'last_update_date': '2025-08-21',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': 'Rows are the users table of tgdata.db, as stored. Contact is yes when the same uid '
@@ -101,7 +101,7 @@ import json
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, \
-    check_in_media, get_plist_content
+    check_in_media, get_plist_content, logfunc
 
 def extract_attachment_message(media_blob):
     if media_blob is None:
@@ -141,19 +141,79 @@ def decode_varint(source_data, offset): # Taken from https://github.com/Whee30/A
             break
     return value, offset
 
+
+def _table_name(path, *patterns):
+    """The first table whose name matches one of the LIKE patterns, or None.
+
+    The table names carry a version suffix that changes between app versions, so they are
+    looked up. next() on an empty lookup raised StopIteration and stopped the artifact;
+    a missing table now yields None, which the artifacts log and report as no rows.
+    """
+    if not path:
+        return None
+    clause = ' OR '.join(f"name LIKE '{pattern}'" for pattern in patterns)
+    query = f"SELECT name FROM sqlite_master WHERE type='table' AND ({clause}) ORDER BY name"
+    record = next(iter(get_sqlite_db_records(path, query)), None)
+    return record['name'] if record else None
+
+
+def _missing_tables(path, **tables):
+    """Log each looked-up table that was not found; True when any was missing."""
+    missing = [label for label, name in tables.items() if name is None]
+    for label in missing:
+        logfunc(f'PotatoChat: no {label} table found in {path}; its rows cannot be read')
+    return bool(missing)
+
+
+_CHATS_HEADERS = (
+    ('Timestamp', 'datetime'),
+    'From Me',
+    'Sender Name',
+    'Chat',
+    'Message',
+    ('Attachment File', 'media'),
+    'Chat-ID',
+    'Message-ID',
+    'From ID',
+    'Receiver',
+    'To ID',
+    'Message Type',
+    'Reply (Message-ID)',
+    'Latitude',
+    'Longitude',
+)
+_USERS_HEADERS = (
+    'User-ID', 'First Name', 'Last Name', 'Access Hash', 'Username', ('Last Seen', 'datetime'), 'Contact')
+_GROUP_CHATS_HEADERS = (
+    ('Timestamp', 'datetime'),
+    'From Me',
+    'Sender Name',
+    'Group Name',
+    'Message',
+    ('Attachment File', 'media'),
+    'Group-ID',
+    'Message-ID',
+    'From ID',
+    'Message Type',
+    'Reply (Message-ID)',
+)
+
+
 @artifact_processor
 def potatochat_chats(context):
     source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     data_list = []
     #The table names aren't fix and change the trailing number from time to time
-    messages_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'messages_v__';"
-    messages_nr = next( get_sqlite_db_records(source_path, messages_query) )['name']
-    media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
-    media_cache_nr = next( get_sqlite_db_records(source_path, media_cache_query) )['name']
-    users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
-    conversations_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'convesations_v__' OR 'conversations_v__';"
-    conversations_nr = next( get_sqlite_db_records(source_path, conversations_query) )['name']
+    messages_nr = _table_name(source_path, 'messages_v__')
+    media_cache_nr = _table_name(source_path, 'media_cache_v__')
+    users_nr = _table_name(source_path, 'users_v__')
+    # Telegram's legacy schema spells it convesations_v29. The earlier lookup ended in
+    # "OR 'conversations_v__'", a bare string that SQLite reads as false, so the correct
+    # spelling never matched.
+    conversations_nr = _table_name(source_path, 'convesations_v__', 'conversations_v__')
+    if _missing_tables(source_path, messages=messages_nr, media_cache=media_cache_nr,
+                       users=users_nr, conversations=conversations_nr):
+        return _CHATS_HEADERS, data_list, source_path
 
     media_query = f'''
         SELECT
@@ -426,23 +486,7 @@ def potatochat_chats(context):
         
 
 
-    data_headers = (
-        ('Timestamp', 'datetime'),
-        'From Me',
-        'Sender Name',
-        'Chat',
-        'Message',
-        ('Attachment File', 'media'),
-        'Chat-ID',
-        'Message-ID',
-        'From ID',
-        'Receiver',
-        'To ID',
-        'Message Type',
-        'Reply (Message-ID)',
-        'Latitude',
-        'Longitude',
-    )
+    data_headers = _CHATS_HEADERS
 
     return data_headers, data_list, source_path
 
@@ -450,10 +494,10 @@ def potatochat_chats(context):
 def potatochat_users(context):
     source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     data_list = []
-    users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
-    contact_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'contacts_v__';"
-    contact_nr = next( get_sqlite_db_records(source_path, contact_query) )['name']
+    users_nr = _table_name(source_path, 'users_v__')
+    contact_nr = _table_name(source_path, 'contacts_v__')
+    if _missing_tables(source_path, users=users_nr, contacts=contact_nr):
+        return _USERS_HEADERS, data_list, source_path
     list_query = f'''
         SELECT
             u.uid,
@@ -485,8 +529,7 @@ def potatochat_users(context):
             last_seen = ''
         data_list.append((user_id, first_name, last_name, acc_hash, username, last_seen, contact))
     
-    data_headers = (
-        'User-ID', 'First Name', 'Last Name', 'Access Hash', 'Username', ('Last Seen', 'datetime'), 'Contact')
+    data_headers = _USERS_HEADERS
 
     return data_headers, data_list, source_path
 
@@ -495,19 +538,20 @@ def potatochat_group_chats(context):
     source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     share_dialog = get_file_path(context.get_files_found(), 'shareDialogList.db')
     data_list = []
-    media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
-    media_cache_nr = next( get_sqlite_db_records(source_path, media_cache_query) )['name']
-    users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
-    group_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'share_dialog_list_users_v__';"
-    group_nr = next( get_sqlite_db_records(share_dialog, group_query) )['name']
-    channels_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'channel_messages_v__';"
-    channels_nr = next( get_sqlite_db_records(source_path, channels_query) )['name']
+    media_cache_nr = _table_name(source_path, 'media_cache_v__')
+    users_nr = _table_name(source_path, 'users_v__')
+    group_nr = _table_name(share_dialog, 'share_dialog_list_users_v__')
+    channels_nr = _table_name(source_path, 'channel_messages_v__')
+    if _missing_tables(source_path, media_cache=media_cache_nr, users=users_nr,
+                       share_dialog_list_users=group_nr, channel_messages=channels_nr):
+        return _GROUP_CHATS_HEADERS, data_list, source_path
     group_query = f"SELECT userInfosJson FROM {group_nr} WHERE typeId=2"
     try:
-        group_json = next( get_sqlite_db_records(share_dialog, group_query) )['userInfosJson'] 
+        # next() with no default raised StopIteration, which this did not catch, when the
+        # store held no typeId 2 row.
+        group_json = next(iter(get_sqlite_db_records(share_dialog, group_query)), {})['userInfosJson']
         groups = json.loads(group_json)
-    except (IndexError, KeyError):
+    except (IndexError, KeyError, TypeError, ValueError):
         group_json = None
         groups = []
 
@@ -711,18 +755,6 @@ def potatochat_group_chats(context):
             m_type = "Reply"
         data_list.append((message_date, outgoing, user_name, group_name, message, attach_file, group_ID, message_id, user_ID, m_type, reply))
 
-    data_headers = (
-        ('Timestamp', 'datetime'),
-        'From Me',
-        'Sender Name',
-        'Group Name',
-        'Message',
-        ('Attachment File', 'media'),
-        'Group-ID',
-        'Message-ID',
-        'From ID',
-        'Message Type',
-        'Reply (Message-ID)',
-    )
+    data_headers = _GROUP_CHATS_HEADERS
 
     return data_headers, data_list, source_path
