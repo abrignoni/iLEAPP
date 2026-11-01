@@ -12,7 +12,7 @@ Total number of artifacts: 1384
 Number of v1 artifacts: 0  
 Number of v2 artifacts: 1384  
 Number of artifacts with 'lava output': 1376  
-Number of artifacts using 'artifact_icon': 1383  
+Number of artifacts using 'artifact_icon': 1384  
 Number of artifacts using 'last_update_date': 1384  
 Number of artifacts using context parameter: 1383  
 Number of artifacts with errors or no recognized artifacts: 0  
@@ -322,7 +322,7 @@ Number of artifacts using **deprecated** 'function' key: 6
 | [biomeLocationactivity.py](/scripts/artifacts/biomeLocationactivity.py) | get_biomeLocationactivity | Biome - Location Activity | Biome | standard | Yes | map-pin |  | 2026-08-20 | Parses location activity entries from biomes | `*/[Bb]iome/streams/restricted/_DKEvent.App.LocationActivity/local/*` |
 | [biomeNetworkingEdgeSelection.py](/scripts/artifacts/biomeNetworkingEdgeSelection.py) | get_biomeNetworkingEdgeSelection | Biome - Networking Edge Selection | Biome | standard | Yes | network |  | 2026-10-07 | Reports decoded Written records and structural Deleted records yielded by the Device.Networking.EdgeSelection SEGB reader. Deleted rows do not establi | `*/streams/*/Device.Networking.EdgeSelection/local/*` |
 | [biomeNotes.py](/scripts/artifacts/biomeNotes.py) | get_biomeNotes | Biome - Notes | Biome | standard | Yes | notes |  | 2026-08-21 | Parses notes entries from biomes | `*/Biome/streams/restricted/NotesContent/local/*` |
-| [biomeNotificationUsage.py](/scripts/artifacts/biomeNotificationUsage.py) | get_biomeNotificationUsage | Biome - Notification Usage | Biome | standard | Yes |  | 0.0.1 | 2026-07-22 | Parses the Notification Usage biome | `*/Biome/streams/restricted/Notification.Usage/*` |
+| [biomeNotificationUsage.py](/scripts/artifacts/biomeNotificationUsage.py) | get_biomeNotificationUsage | Biome - Notification Usage | Biome | standard | Yes | bell | 0.0.1 | 2026-11-01 | Parses the Notification Usage biome | `*/Biome/streams/restricted/Notification.Usage/*` |
 | [biomeNotificationsPub.py](/scripts/artifacts/biomeNotificationsPub.py) | get_biomeNotificationsPub | Biome - Notifications | Biome | standard | Yes | bell |  | 2026-08-20 | Parses notifications entries from biomes | `*/Biome/streams/public/Notification/local/*` |
 | [biomeNowplaying.py](/scripts/artifacts/biomeNowplaying.py) | get_biomeNowplaying | Biome - Now Playing | Biome | standard | Yes | music |  | 2026-09-03 | Parses Now Playing entries from biomes | `*/Biome/streams/public/NowPlaying/local/*`, `*/streams/*/Media.NowPlaying/local/*`, `*/streams/*/Media.NowPlaying/remote/*` |
 | [biomePhotosSearchInsights.py](/scripts/artifacts/biomePhotosSearchInsights.py) | get_biomePhotosSearchInsights | Biome - Photos Search Insights | Biome | standard | Yes | search |  | 2026-08-20 | Parses Photos search terms from the AeroML.Insights.PhotosSearchInsights biome stream, along with two strings read as a language and a region. The sea | `*/streams/*/AeroML.Insights.PhotosSearchInsights/local/*` |
