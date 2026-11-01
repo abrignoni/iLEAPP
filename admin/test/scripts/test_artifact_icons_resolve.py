@@ -44,8 +44,14 @@ def declared_icons():
             yield module, name, info['artifact_icon']
 
 
+# ilapfuncs.artifact_processor uses this list when a block sets no output_types.
+DEFAULT_OUTPUT_TYPES = ['html', 'tsv', 'timeline', 'lava', 'kml']
+
+
 def writes_html(output_types):
-    values = [output_types] if isinstance(output_types, str) else list(output_types or [])
+    if output_types is None:
+        output_types = DEFAULT_OUTPUT_TYPES
+    values = [output_types] if isinstance(output_types, str) else list(output_types)
     return any(v in ('html', 'standard', 'all') for v in values)
 
 
@@ -63,6 +69,12 @@ class ArtifactIconsResolveTest(unittest.TestCase):
                    if writes_html(info.get('output_types')) and not info.get('artifact_icon')]
 
         self.assertEqual(missing, [])
+
+    def test_a_block_without_output_types_counts_as_writing_html(self):
+        self.assertTrue(writes_html(None))
+        self.assertTrue(writes_html('standard'))
+        self.assertFalse(writes_html(['tsv', 'lava']))
+        self.assertFalse(writes_html('lava_only'))
 
 
 if __name__ == '__main__':
