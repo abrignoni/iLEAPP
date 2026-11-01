@@ -1047,7 +1047,14 @@ def get_plist_file_content(file_path):
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
             if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
-                return nska_deserialize.deserialize_plist(file_path)
+                # Decode the bytes from the handle already open. deserialize_plist(file_path)
+                # opened the file a second time and never closed it, which leaked a handle
+                # per keyed archive read (a ResourceWarning under -X dev) and, on Windows,
+                # held the temporary copy of a stream open while the finally below tried to
+                # delete it. _deserialize_nska is also what get_plist_content uses, so the
+                # dependency's console noise is dropped on this path too.
+                file.seek(0)
+                return _deserialize_nska(file.read())
             return plist_content
     except FileNotFoundError:
         logfunc(f"Error: Plist file not found at {file_path}")
