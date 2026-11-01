@@ -358,14 +358,6 @@ def _iter_cached_models(source_path, model_type):
                 f'not be decoded.')
 
 
-def _first_present(model, *keys):
-    """The value of the first of keys the model holds, or None."""
-    for key in keys:
-        if key in model:
-            return model[key]
-    return None
-
-
 def _projected(value):
     """Unwrap the {'projectedValue': x, 'defaultValue': y} shape used by users."""
     if isinstance(value, dict) and ('projectedValue' in value or 'defaultValue' in value):
@@ -436,10 +428,8 @@ def twitterCachedUsers(context):
             model.get('username'),
             uid,
             _projected(model.get('bio')),
-            # The cached model names these numberOfFollowers and numberOfFollowing;
-            # followersCount and followingCount are kept in case another version uses them.
-            _projected(_first_present(model, 'numberOfFollowers', 'followersCount')),
-            _projected(_first_present(model, 'numberOfFollowing', 'followingCount')),
+            _projected(model.get('numberOfFollowers')),
+            _projected(model.get('numberOfFollowing')),
             _projected(model.get('favoritesCount')),
             'Yes' if model.get('isBlueVerified') else '',
             'Yes' if model.get('protectedUser') else '',
