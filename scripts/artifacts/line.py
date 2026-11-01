@@ -77,21 +77,22 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Line",
         "notes": ("One row per message of content type 6 (ZMESSAGE.ZCONTENTTYPE) in each Line.sqlite, the "
-                  "message Line writes for a call. Call Ended is that message's ZTIMESTAMP read as Unix "
-                  "milliseconds; Duration is DURATION from the keyed archive in ZCONTENTMETADATA, stored as "
-                  "milliseconds and shown in seconds; Call Started is Call Ended minus Duration. Type, Result "
-                  "and Cause are TYPE, RESULT and CAUSE from the same archive, as stored (A and V; NORMAL with "
-                  "16 and CANCELED with 77 seen). Direction follows the Line - Messages reading: a call message"
-                  " with no sender reference is Outgoing. Contact is the name of the user whose MID matches the"
-                  " chat's ZMID, and Contact MID is that ZMID. These readings were checked against a second "
-                  "record of the same calls, the u<MID>_CallHistory.db keyed archive Line keeps under "
-                  "Library/NCXVoIP in its app group: on the four tested images all 20 calls matched one call "
-                  "message, with the end time within 1 second, the duration within 2 seconds, the same "
-                  "direction, the call's video flag set exactly where TYPE is V, the start time equal to the "
-                  "derived Call Started and the call's peer equal to the chat's ZMID; the 2 CANCELED calls had "
-                  "0 duration in both records. The call history file itself is not read. A group chat call "
-                  "would show the group's ZMID with no Contact; none was seen. Account ID is the account the "
-                  "private store folder is named for, as in Line - Messages."),
+                  "content type that carried every call record on the four tested images. Call Ended is that "
+                  "message's ZTIMESTAMP read as Unix milliseconds; Duration is DURATION from the keyed archive "
+                  "in ZCONTENTMETADATA, stored as milliseconds and shown in seconds; Call Started is Call Ended"
+                  " minus Duration. Type, Result and Cause are TYPE, RESULT and CAUSE from the same archive, as"
+                  " stored (A and V; NORMAL with 16 and CANCELED with 77 seen). Direction follows the Line - "
+                  "Messages reading: a call message with no sender reference is Outgoing. Contact is the name "
+                  "of the first user whose MID matches the chat's ZMID, and Contact MID is that ZMID. These "
+                  "readings were checked against a second record of the same calls, the u<MID>_CallHistory.db "
+                  "keyed archive Line keeps under Library/NCXVoIP in its app group: on the four tested images "
+                  "all 20 calls matched one call message, with the end time within 1 second, the same duration,"
+                  " the same direction, the call's video flag set exactly where TYPE is V, the start time equal"
+                  " to the derived Call Started and the call's peer equal to the chat's ZMID; the 2 CANCELED "
+                  "calls had 0 duration in both records. The call history file itself is not read. No call in a"
+                  " group chat was seen on the tested images, which hold no group chats. A chat whose ZMID has "
+                  "no user row leaves Contact blank. Account ID is the account the private store folder is "
+                  "named for, as in Line - Messages."),
         "paths": ('**/Line.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "phone-call",
@@ -265,11 +266,11 @@ def lineCalls(context):
             sources.append(file_found)
 
     query = f'''
-    SELECT ZMESSAGE.ZTIMESTAMP, ZMESSAGE.ZSENDER IS NULL, ZUSER.ZNAME, ZCHAT.ZMID,
-           ZMESSAGE.ZCONTENTMETADATA, ZMESSAGE.ZID
+    SELECT ZMESSAGE.ZTIMESTAMP, ZMESSAGE.ZSENDER IS NULL,
+           (SELECT ZUSER.ZNAME FROM ZUSER WHERE ZUSER.ZMID = ZCHAT.ZMID ORDER BY ZUSER.Z_PK LIMIT 1),
+           ZCHAT.ZMID, ZMESSAGE.ZCONTENTMETADATA, ZMESSAGE.ZID
     FROM ZMESSAGE
     LEFT JOIN ZCHAT ON ZMESSAGE.ZCHAT = ZCHAT.Z_PK
-    LEFT JOIN ZUSER ON ZUSER.ZMID = ZCHAT.ZMID
     WHERE ZMESSAGE.ZCONTENTTYPE = {CALL_CONTENT_TYPE}
     '''
     read = []
