@@ -107,7 +107,7 @@ __artifacts_v2__ = {
                        "sidecar-lpse logs.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
-        "last_update_date": "2026-09-05",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Life360",
         "notes": "Read from the lines of the logs matching com.life360.safetymap*.log that end in "
@@ -138,7 +138,8 @@ __artifacts_v2__ = {
                  "(25.37.0, 26.22.0 and an iOS 26 image), so their absence on a device says "
                  "nothing about its movements. A row records that the app logged a sample carrying "
                  "that time and those coordinates; it does not say who carried "
-                 "the device.",
+                 "the device. Twenty samples, with a Wi-Fi BSSID field, are also kept in "
+                 "location_state.data, read by the Location State Samples artifact.",
         "paths": ('*/com.life360.safetymap*.log',),
         "output_types": "all",
         "artifact_icon": "map",
