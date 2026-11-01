@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         'description': 'User profiles cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -358,6 +358,14 @@ def _iter_cached_models(source_path, model_type):
                 f'not be decoded.')
 
 
+def _first_present(model, *keys):
+    """The value of the first of keys the model holds, or None."""
+    for key in keys:
+        if key in model:
+            return model[key]
+    return None
+
+
 def _projected(value):
     """Unwrap the {'projectedValue': x, 'defaultValue': y} shape used by users."""
     if isinstance(value, dict) and ('projectedValue' in value or 'defaultValue' in value):
@@ -428,8 +436,10 @@ def twitterCachedUsers(context):
             model.get('username'),
             uid,
             _projected(model.get('bio')),
-            _projected(model.get('followersCount')),
-            _projected(model.get('followingCount')),
+            # The cached model names these numberOfFollowers and numberOfFollowing;
+            # followersCount and followingCount are kept in case another version uses them.
+            _projected(_first_present(model, 'numberOfFollowers', 'followersCount')),
+            _projected(_first_present(model, 'numberOfFollowing', 'followingCount')),
             _projected(model.get('favoritesCount')),
             'Yes' if model.get('isBlueVerified') else '',
             'Yes' if model.get('protectedUser') else '',
