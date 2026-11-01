@@ -89,6 +89,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | duckduckgo |
 | duetNotificationSuggestions |
 | easy4ip |
+| faceTimeMessages |
 | facebookMessenger |
 | filesApp |
 | firefoxIOS |
