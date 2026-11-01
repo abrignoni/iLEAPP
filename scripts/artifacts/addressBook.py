@@ -15,16 +15,16 @@ __artifacts_v2__ = {
                  "here. Me Card is Yes on the contact whose ABPerson ROWID equals "
                  "ABStore.MeIdentifier of the contact's own store, and blank on every other "
                  "contact; the column is left out when no contact matches. Source: the iOS 12.4 "
-                 "AddressBook framework (dyld shared cache in ctf2020_ios12) names MeIdentifier in "
-                 "the column list it builds ABStore from, and exports "
+                 "AddressBookLegacy framework (dyld shared cache in ctf2020_ios12) names "
+                 "MeIdentifier as an ABStore column in its ABStore migration SQL and in a "
+                 "column-name list, and the same cache carries the names "
                  "kABSourceMeIdentifierProperty, ABSourceGetMe and ABSourceSetMe; the code that "
                  "ties those functions to the column was not traced. ABStore declares "
                  "MeIdentifier INTEGER DEFAULT -1. In 13 tested images (iOS 12.4 to 26.5.2), 7 had "
                  "exactly one store with a positive MeIdentifier, each naming a contact in that "
                  "same store whose first and last name each equal a string value decoded from the "
-                 "same image's PersonalizationPortrait me_card.pb (written by PPMeCardCache). "
-                 "Every other store held -1, which matches no contact; no meaning is given to it "
-                 "here.",
+                 "same image's PersonalizationPortrait me_card.pb. Every other store held -1, "
+                 "which matches no contact; no meaning is given to it here.",
         'paths': ('*/mobile/Library/AddressBook/AddressBook*.sqlitedb*',),
         'output_types': 'standard',
         'artifact_icon': 'user',
