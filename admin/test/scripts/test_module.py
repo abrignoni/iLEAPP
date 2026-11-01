@@ -510,16 +510,27 @@ def select_artifact(artifact_names, test_cases):
 
 def convert_to_unix_time(value):
     """
-    Converts a datetime or date object to a Unix timestamp.
+    Converts a datetime to a Unix timestamp, and a date to its ISO text.
+
+    A naive datetime is read as UTC, as lavafuncs stores it. datetime.timestamp() reads a
+    naive value as the host's local time, so a module that returns naive UTC datetimes (a
+    decoded NSDate, for one) recorded a different snapshot on every host timezone, and
+    could only be excluded from the comparison. A date has no timestamp() at all; it is
+    stored as YYYY-MM-DD text, as lavafuncs stores it.
 
     Args:
         value: The object to convert.
 
     Returns:
-        int or object: Unix timestamp if input was datetime/date, otherwise original value.
+        int, str or object: Unix timestamp for a datetime, ISO text for a date, otherwise
+        the original value.
     """
-    if isinstance(value, (datetime, date)):
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
         return int(value.timestamp())
+    if isinstance(value, date):
+        return value.isoformat()
     return value
 
 

@@ -275,6 +275,39 @@ def build_container(root):
     os.makedirs(os.path.join(root, 'Library', 'Preferences'), exist_ok=True)
     with open(os.path.join(root, 'Library', 'Preferences', 'com.life360.safetymap.plist'), 'wb') as fh:
         plistlib.dump(prefs, fh, fmt=FMT_BINARY)
+    build_location_state(root)
+
+
+def build_location_state(root):
+    """An NSKeyedArchiver location_state.data: two samples in location and one unsentFilteredSample."""
+    objects = ['$null']
+
+    def add(obj):
+        objects.append(obj)
+        return plistlib.UID(len(objects) - 1)
+
+    date_class = add({'$classname': 'NSDate', '$classes': ['NSDate', 'NSObject']})
+    sample_class = add({'$classname': 'L360CLLocation', '$classes': ['L360CLLocation', 'NSObject']})
+    array_class = add({'$classname': 'NSMutableArray', '$classes': ['NSMutableArray', 'NSArray', 'NSObject']})
+    state_class = add({'$classname': 'L360LocationPersistentState', '$classes': ['L360LocationPersistentState',
+                                                                                 'NSObject']})
+
+    def sample(stamp, offset, bssid):
+        return add({'$class': sample_class, 'latitude': LAT + offset, 'longitude': LON, 'altitude': 3.0,
+                    'speed': 1.5, 'course': 90.0, 'horizontalaccuracy': 10.0, 'verticalaccuracy': 4.0,
+                    'locationmode': 2, 'wifi_enabled': True, 'mutated_sample': False,
+                    'json_violation_string': add(''), 'wifi_bssid': add(bssid),
+                    'timestamp': add({'$class': date_class, 'NS.time': float(stamp - COCOA)}),
+                    'sampleTimestamp': add({'$class': date_class, 'NS.time': float(stamp + 0.25 - COCOA)})})
+
+    samples = [sample(T0 + 500, 0.0, '2:0:5e:0:53:1'), sample(T0 + 560, 0.0005, '')]
+    unsent = sample(T0 + 620, 0.001, '')
+    array = add({'$class': array_class, 'NS.objects': samples})
+    root_uid = add({'$class': state_class, 'location': array, 'unsentFilteredSample': unsent})
+    archive = {'$version': 100000, '$archiver': 'NSKeyedArchiver', '$top': {'root': root_uid}, '$objects': objects}
+    os.makedirs(os.path.join(root, 'Library', 'Application Support'), exist_ok=True)
+    with open(os.path.join(root, 'Library', 'Application Support', 'location_state.data'), 'wb') as fh:
+        plistlib.dump(archive, fh, fmt=FMT_BINARY)
 
 
 def main():

@@ -8,18 +8,18 @@ __artifacts_v2__ = {
                        "item was shared.",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "CloudKit",
         "notes": "A row is created for each ZICCLOUDSYNCINGOBJECT record whose ZSERVERRECORDDATA "
                  "holds a RecordID item, whether or not the record has share data. Root Record ID, "
                  "Container Identifier, Displayed Hostname, Public Permission, Participant "
                  "Visibility, Allows Anonymous Access and Known To Server are filled only from "
-                 "ZSERVERSHAREDATA. On iphone11_ios17 (35 rows) and iphone12_ios18 (40 rows) Root "
-                 "Record ID and every other share column were empty on every row, on runs of 3 Oct "
-                 "2026. On iphone11_ios17 three of the objects store share data and the share "
-                 "columns were still empty for them, so an empty share column is not evidence that "
-                 "the item was not shared.",
+                 "ZSERVERSHAREDATA. Both values decode as a list of one-key dicts, one per field, which "
+                 "are merged into one record before the fields are read. Before that merge only "
+                 "Record ID was ever filled; on the josh_ios15_ffs test case the record fields are "
+                 "now filled on all 27 rows and the share columns on the 1 row whose object stores "
+                 "share data. A share column is empty when the object stores no share data.",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "share-2",
@@ -46,10 +46,12 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit participant data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "CloudKit",
-        "notes": "",
+        "notes": "Share Record ID and Root Record ID are read from the same ZSERVERSHAREDATA "
+                 "record as the participants; it decodes as a list of one-key dicts, which are "
+                 "merged before reading. Before that merge both were empty on every row.",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -105,6 +107,24 @@ def as_list(data):
     return []
 
 
+def merged_records(data):
+    """The records in a deserialized ZSERVERRECORDDATA or ZSERVERSHAREDATA value.
+
+    These archives decode as a list of one-key dicts, one per field of a single record
+    ([{'RecordID': ...}, {'RecordType': ...}, {'RecordCtime': ...}, ...]). Taking the dict
+    that holds RecordID and reading the other fields from it found none of them, so every
+    column but Record ID was empty. A list made only of one-key dicts is merged into one
+    record; any other shape is returned as its dicts, as before.
+    """
+    items = as_list(data)
+    if items and all(isinstance(x, dict) and len(x) == 1 for x in items):
+        merged = {}
+        for item in items:
+            merged.update(item)
+        return [merged]
+    return [x for x in items if isinstance(x, dict)]
+
+
 def has_cloudkit_table(file_found):
     """Report whether a NoteStore.sqlite carries the CloudKit schema.
 
@@ -157,7 +177,7 @@ def cloudkit_sharing(context):
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            record_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
+            record_items = [x for x in merged_records(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in record_items:
                 shares[z_pk] = {
@@ -188,7 +208,7 @@ def cloudkit_sharing(context):
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
+            share_items = [x for x in merged_records(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in share_items:
                 if z_pk not in shares:
@@ -258,7 +278,7 @@ def cloudkit_participants(context):
             z_pk, z_id, blob = row
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'Participants' in x]
+            share_items = [x for x in merged_records(deserialized) if isinstance(x, dict) and 'Participants' in x]
 
             for item in share_items:
                 share_record_id = deep_get(item, ['RecordID', 'RecordName'])
