@@ -6,19 +6,19 @@
     "case_number": "josh_ios17_ffs",
     "number_of_columns": 11,
     "number_of_rows": 5,
-    "total_data_size_bytes": 605,
+    "total_data_size_bytes": 655,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/twitterX/testdata.twitterX.twitterDMUsers.josh_ios17_ffs.zip",
-    "start_time": "2026-07-25T22:03:35.523177+00:00",
-    "end_time": "2026-07-25T22:03:35.639688+00:00",
-    "run_time_seconds": 0.03619813919067383,
+    "start_time": "2026-11-01T11:53:19.660914+00:00",
+    "end_time": "2026-11-01T11:53:19.752996+00:00",
+    "run_time_seconds": 0.04914498329162598,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-07-25T17:03:35.600137",
-      "message": "File not yet committed to git"
+      "hash": "484e9a8ce8e16e42727c7e8d248ef7b93a712c1b",
+      "author_name": "ayobamiseun",
+      "author_email": "adegokeayobamiseun@gmail.com",
+      "date": "2026-10-31T19:35:26+01:00",
+      "message": "Declare KML output only where an artifact has coordinate columns"
     }
   },
   "headers": [
@@ -36,7 +36,7 @@
   ],
   "data": [
     [
-      "",
+      1703786509,
       "ThisIs DFIRTwo",
       "dfirtwo",
       "1307420811221966848",
@@ -49,7 +49,7 @@
       "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"
     ],
     [
-      "",
+      1720364783,
       "ThisIsDFIRTwo",
       "DfirToo",
       "1451357781068587011",
@@ -62,7 +62,7 @@
       "https://pbs.twimg.com/profile_images/1594141032731607043/PlO73UEn_normal.jpg"
     ],
     [
-      "",
+      1720376542,
       "ldehner505",
       "ldehner505",
       "1809677946439000064",
@@ -75,7 +75,7 @@
       "https://pbs.twimg.com/profile_images/1809678410504949760/5BUHNDTf_normal.jpg"
     ],
     [
-      "",
+      1720376685,
       "ThisIsDFIR",
       "TDfir",
       "1068228364824178689",
@@ -88,7 +88,7 @@
       "https://pbs.twimg.com/profile_images/1307835241134989314/LFVuy2uF_normal.jpg"
     ],
     [
-      "",
+      1720364976,
       "Josh Hickman",
       "josh_hickman1",
       "2978888609",
