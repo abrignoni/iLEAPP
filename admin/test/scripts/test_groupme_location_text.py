@@ -33,6 +33,8 @@ class GroupMeLocationTextTest(unittest.TestCase):
             (11, 7, 'location', 35.661225944880535, -78.87916778107541, 'First'),
             (13, 7, 'image', 0.0, 0.0, None),
             (14, 8, 'location', 35.66298937679041, -78.88271144766435, None),
+            (16, 9, 'location', 1.5, 2.5, None),
+            (15, 9, 'location', 3.5, 4.5, 'Only second'),
         ])
         db.commit()
         db.close()
@@ -47,7 +49,8 @@ class GroupMeLocationTextTest(unittest.TestCase):
                                         '-78.87916778107541, -77.21797596106694',
                                         'First, Second'))
         self.assertEqual(locations[8], ('35.66298937679041', '-78.88271144766435', None))
-        self.assertEqual(set(locations), {7, 8})
+        self.assertEqual(locations[9], ('3.5, 1.5', '4.5, 2.5', 'Only second, '))
+        self.assertEqual(set(locations), {7, 8, 9})
 
 
 if __name__ == '__main__':

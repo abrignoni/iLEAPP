@@ -275,11 +275,12 @@ def _locations_by_message(path):
         grouped.setdefault(record['messageRowId'], []).append(record)
     locations = {}
     for message_row_id, attachments in grouped.items():
-        venues = [a['venueName'] for a in attachments if a['venueName'] is not None]
+        # A missing venue keeps its slot as '', so the nth venue is the nth attachment's.
+        venues = [_coordinate_text(a['venueName']) for a in attachments]
         locations[message_row_id] = (
             ', '.join(_coordinate_text(a['latitude']) for a in attachments),
             ', '.join(_coordinate_text(a['longitude']) for a in attachments),
-            ', '.join(str(v) for v in venues) if venues else None,
+            ', '.join(venues) if any(venues) else None,
         )
     return locations
 
