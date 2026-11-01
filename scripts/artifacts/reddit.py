@@ -387,7 +387,7 @@ import json
 from os.path import basename, dirname, isdir
 from re import search
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_media, get_plist_file_content, convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, does_table_exist_in_db, logfunc
+from scripts.ilapfuncs import artifact_processor, is_sqlite_sidecar, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_media, get_plist_file_content, convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, does_table_exist_in_db, logfunc
 
 
 def _reddit_owner_id(source_path):
@@ -665,7 +665,7 @@ def _chat_stores(files_found):
     seen = []
     for found in files_found:
         path = str(found)
-        if isdir(path) or path.endswith(('-wal', '-shm')):
+        if isdir(path) or is_sqlite_sidecar(path):
             continue
         if basename(path) == 'chat.sqlite' and path not in seen:
             seen.append(path)
