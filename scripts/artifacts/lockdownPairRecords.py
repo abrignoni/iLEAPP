@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "lockdownPairRecords": {
         "name": "Lockdown Pair Records",
         "description": "Hosts the device holds a lockdown pair record or escrow record for, with the host "
-                       "certificate's validity start and the record's creation time",
+                       "certificate's validity start and the record's WallTimeWhenCreated where it holds one",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
@@ -19,12 +19,13 @@ __artifacts_v2__ = {
                   "WallTimeWhenCreated read as Unix seconds: on the 13 tested records that hold it, it fell "
                   "within 4 seconds of the host certificate's notBefore, which is how the epoch was established"
                   " (no Apple source was found). Time When Created is TimeWhenCreated as stored, a 3 to 6 digit"
-                  " integer beside BootSessionWhenCreated on the tested records; it is not a calendar date by "
-                  "magnitude and its meaning is not established. Host Name, Marketing Name, Serial Number, Host"
-                  " ID and System BUID are as stored; Host Name was set on 12 of 36 tested rows. Not reported: "
-                  "the HostCertificate, DeviceCertificate and RootCertificate themselves and the escrow "
-                  "record's BagBag bytes. The device's own name in Lockdown/data_ark.plist is read by the "
-                  "Device Name artifact. Not tested on an iTunes backup."),
+                  " integer beside BootSessionWhenCreated on the 22 of 32 tested pair records that hold it; it "
+                  "is not a calendar date by magnitude and its meaning is not established. Host Name, Marketing"
+                  " Name, Serial Number, Host ID and System BUID are as stored; Host Name was set on 12 of 36 "
+                  "tested rows. Whose serial number and marketing name the SerialNumber and MarketingName keys "
+                  "describe is not established. Not reported: the HostCertificate, DeviceCertificate and "
+                  "RootCertificate themselves and the escrow record's BagBag bytes. The device's own name in "
+                  "Lockdown/data_ark.plist is read by the Device Name artifact. Not tested on an iTunes backup."),
         "paths": ('*/root/Library/Lockdown/pair_records/*.plist',
                   '*/root/Library/Lockdown/pair_records.movedaside/*.plist',
                   '*/root/Library/Lockdown/escrow_records/*.plist'),
