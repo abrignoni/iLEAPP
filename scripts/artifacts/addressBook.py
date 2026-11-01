@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extract information from the native contacts application',
         'author': '@AlexisBrignoni - @JohannPLW',
         'creation_date': '2020-04-30',
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-11-01",
         'requirements': 'none',
         'category': 'Contacts',
         'notes': "ABMultiValue property numeric IDs follow the observed AddressBook.sqlitedb "
@@ -12,6 +12,18 @@ __artifacts_v2__ = {
                  "found. This module reads property 3 as phone numbers, 4 as email addresses, 5 as "
                  "addresses, 13 as instant messages, 22 as URLs, 23 as related names and 46 as "
                  "profiles. The comparison those assignments were derived from is not recorded "
+                 "here. Me Card is Yes on the contact whose ABPerson ROWID equals "
+                 "ABStore.MeIdentifier of the contact's own store, and blank on every other "
+                 "contact; the column is left out when no contact matches. Source: the iOS 12.4 "
+                 "AddressBook framework (dyld shared cache in ctf2020_ios12) names MeIdentifier in "
+                 "the column list it builds ABStore from, and exports "
+                 "kABSourceMeIdentifierProperty, ABSourceGetMe and ABSourceSetMe; the code that "
+                 "ties those functions to the column was not traced. ABStore declares "
+                 "MeIdentifier INTEGER DEFAULT -1. In 13 tested images (iOS 12.4 to 26.5.2), 7 had "
+                 "exactly one store with a positive MeIdentifier, each naming a contact in that "
+                 "same store whose first and last name each equal a string value decoded from the "
+                 "same image's PersonalizationPortrait me_card.pb (written by PPMeCardCache). "
+                 "Every other store held -1, which matches no contact; no meaning is given to it "
                  "here.",
         'paths': ('*/mobile/Library/AddressBook/AddressBook*.sqlitedb*',),
         'output_types': 'standard',
@@ -32,6 +44,9 @@ __artifacts_v2__ = {
             'hickman_ios14': 'iOS 14.3 | 4 rows',
             'jess_ios15': 'iOS 15.0.2 | 0 rows',
             'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+            'belkactf6_tar': 'iOS 16.3 | 1 row',
+            'hc_ios26': 'iOS 26.5.2 | 2 rows',
+            'hickman_ios15': 'iOS 15.3.1 | 9 rows',
         }
     }
 }
@@ -162,7 +177,8 @@ def addressBook(context):
         WHERE ABGroupMembers.member_id = ABPerson.ROWID
         GROUP BY ABGroupMembers.member_id) AS 'Group',
         ABStore.Name,
-        ABPerson.ModificationDate
+        ABPerson.ModificationDate,
+        CASE WHEN ABPerson.ROWID = ABStore.MeIdentifier THEN 'Yes' ELSE '' END AS 'Me Card'
     FROM ABPerson
     LEFT JOIN ABStore ON ABPerson.StoreID = ABStore.ROWID
     '''
@@ -172,6 +188,7 @@ def addressBook(context):
         ('Modification Date', 'datetime'),
         ('Thumbnail', 'media', 'height: 80px; border-radius: 50%;'),
         ('Full Size Image', 'media', 'height: 80px;'),
+        'Me Card',
         'Prefix', 
         'First Name', 
         'Middle Name', 
@@ -241,14 +258,15 @@ def addressBook(context):
         if profile:
             profile = clean_label(profile)
 
-        birthday = record[-4]
+        birthday = record[25]
         birthday = get_birthdate(birthday) if birthday else ''
 
-        modified_date = convert_cocoa_core_data_ts_to_utc(record[-1])
+        modified_date = convert_cocoa_core_data_ts_to_utc(record[28])
 
         data_list.append(
-            [creation_date, modified_date, thumbnail, full_size_image, record[4], record[5], record[6],
-             record[7], record[8], record[9], record[10], record[11], record[12], record[13],
+            [creation_date, modified_date, thumbnail, full_size_image, record[29], record[4],
+             record[5], record[6], record[7], record[8], record[9], record[10], record[11],
+             record[12], record[13],
              record[14], record[15], phone_numbers, email_addresses, addresses, instant_message,
              url, related_name, profile, record[23], record[24], birthday, record[26],
              record[27]])
@@ -260,6 +278,10 @@ def addressBook(context):
         'Modif', 
         count(ABI.ABThumbnailImage.data), 
         count(ABI.ABFullSizeImage.data), 
+        count(CASE WHEN ABPerson.ROWID = (
+            SELECT ABStore.MeIdentifier
+            FROM ABStore
+            WHERE ABStore.ROWID = ABPerson.StoreID) THEN 1 END), 
         count(ABPerson.Prefix), 
         'First', 
         count(ABPerson.Middle), 

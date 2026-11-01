@@ -4,26 +4,27 @@
     "artifact_name": "Address Book",
     "function_name": "addressBook",
     "case_number": "belkasoft_ctf6_ios_device1",
-    "number_of_columns": 6,
+    "number_of_columns": 7,
     "number_of_rows": 1,
-    "total_data_size_bytes": 70,
+    "total_data_size_bytes": 73,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/addressBook/testdata.addressBook.addressBook.belkasoft_ctf6_ios_device1.zip",
-    "start_time": "2026-08-24T19:59:18.683879+00:00",
-    "end_time": "2026-08-24T19:59:18.750679+00:00",
-    "run_time_seconds": 0.0026509761810302734,
+    "start_time": "2026-11-01T17:56:18.080003+00:00",
+    "end_time": "2026-11-01T17:56:18.113053+00:00",
+    "run_time_seconds": 0.0038602352142333984,
     "last_commit": {
-      "hash": "a41db0bd024be3642b91116ceae52544b0a44f13",
+      "hash": "da155d0e0155a7321ae3e278bf6b0dea3e9c2bd4",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-07-31T23:25:48-04:00",
-      "message": "docs: hold all remaining iLEAPP artifact claims to the sourced-evidence standard"
+      "date": "2026-10-04T02:02:01-04:00",
+      "message": "Correct artifact descriptions and notes against the code and sources"
     }
   },
   "headers": [
     "Creation Date",
     "Modification Date",
+    "Me Card",
     "First Name",
     "Last Name",
     "Email addresses",
@@ -33,6 +34,7 @@
     [
       1712354864,
       1712354864,
+      "Yes",
       "William",
       "Phorger",
       "Home: billthemegakill@icloud.com",

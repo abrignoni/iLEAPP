@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/addressBook/testdata.addressBook.addressBook.mvs_ios_2023.zip",
-    "start_time": "2026-08-24T18:36:31.560023+00:00",
-    "end_time": "2026-08-24T18:36:31.626181+00:00",
-    "run_time_seconds": 0.0025479793548583984,
+    "start_time": "2026-11-01T17:56:18.049787+00:00",
+    "end_time": "2026-11-01T17:56:18.079538+00:00",
+    "run_time_seconds": 0.0034170150756835938,
     "last_commit": {
-      "hash": "a41db0bd024be3642b91116ceae52544b0a44f13",
+      "hash": "da155d0e0155a7321ae3e278bf6b0dea3e9c2bd4",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-07-31T23:25:48-04:00",
-      "message": "docs: hold all remaining iLEAPP artifact claims to the sourced-evidence standard"
+      "date": "2026-10-04T02:02:01-04:00",
+      "message": "Correct artifact descriptions and notes against the code and sources"
     }
   },
   "headers": [
