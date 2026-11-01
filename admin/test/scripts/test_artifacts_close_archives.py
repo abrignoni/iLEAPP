@@ -1,6 +1,7 @@
-"""twitterX and skg_archive read a keyed archive without leaving its file open.
+"""twitterX, skg_archive and life360LocationState read a keyed archive without leaving its file
+open.
 
-Both passed a file path to nska_deserialize.deserialize_plist, which opens the file and never
+All three passed a file path to nska_deserialize.deserialize_plist, which opens the file and never
 closes it: one leaked handle per archive, reported as a ResourceWarning under python -X dev,
 and on Windows a file that stays locked for the rest of the run. Each now reads the bytes in
 a with block and decodes them.
@@ -13,7 +14,7 @@ import tempfile
 import unittest
 import warnings
 
-from scripts.artifacts import skg_archive, twitterX
+from scripts.artifacts import life360Stores, skg_archive, twitterX
 from scripts.context import Context
 
 
@@ -66,6 +67,22 @@ class ArtifactsCloseArchivesTest(unittest.TestCase):
         Context.set_files_found([path])
 
         (_, rows, _), leaks = self.leaks(lambda: skg_archive.skg_archive.__wrapped__(Context))
+
+        self.assertEqual(rows, [])
+        self.assertEqual(leaks, [])
+
+    def test_a_life360_location_state_is_read_and_closed(self):
+        marker = os.path.join(self.tmpdir, '.com.apple.mobile_container_manager.metadata.plist')
+        with open(marker, 'wb') as f:
+            plistlib.dump({'MCMMetadataIdentifier': 'com.life360.safetymap'}, f)
+        path = self.write('location_state.data', keyed_archive(
+            {'NS.keys': [], 'NS.objects': [], '$class': plistlib.UID(2)},
+            {'$classname': 'NSDictionary', '$classes': ['NSDictionary', 'NSObject']}))
+        Context.clear()
+        Context.set_data_folder(self.tmpdir)
+        Context.set_files_found([marker, path])
+
+        (_, rows, _), leaks = self.leaks(lambda: life360Stores.life360LocationState.__wrapped__(Context))
 
         self.assertEqual(rows, [])
         self.assertEqual(leaks, [])

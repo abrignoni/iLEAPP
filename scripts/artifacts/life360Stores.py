@@ -782,7 +782,9 @@ def life360LocationState(context):
     for path in paths:
         rel = context.get_relative_path(path)
         try:
-            state = nd.deserialize_plist(path)
+            # deserialize_plist(path) opens the file and never closes it.
+            with open(path, 'rb') as state_file:
+                state = nd.deserialize_plist_from_string(state_file.read())
         except (nd.DeserializeError, plistlib.InvalidFileException, OSError, ValueError) as error:
             logfunc(f'Life360 location_state.data in {rel!r} did not deserialize and was skipped: {error}')
             continue
