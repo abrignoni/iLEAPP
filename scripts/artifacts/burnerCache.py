@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "Rows are read from server responses the app cached in Cache.db "
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "Rows are read from server responses the app cached in Cache.db "
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "Rows are read from server responses the app cached in Cache.db "
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "Rows are read from server responses the app cached in Cache.db "
@@ -174,30 +174,35 @@ BURNER_CACHE_DB_QUERY = '''
 
 
 def get_sqlite_db_records_regexpr(file_path, query, attach_query=None, regexpr=None):
+    """Rows of query against the store, with a REGEXP function when regexpr is set.
+
+    A store that does not open, or a query that fails, is logged and gives no rows. It used
+    to give None, which every caller iterates, so a Cache.db without the expected tables
+    stopped the artifact with a TypeError. The connection is closed once the rows are read.
+    """
     file_path = str(file_path)
     db = open_sqlite_db_readonly(file_path)
     if not bool(db):
-        return None
+        return []
 
     try:
         # regexp() user function
         if bool(regexpr):
             db.create_function('regexp', 2, lambda x, y: 1 if re.search(x,y) else 0)
-    
+
         cursor = db.cursor()
         if bool(attach_query):
             cursor.execute(attach_query)
         cursor.execute(query)
-        records = cursor.fetchall()
-        return records
+        return cursor.fetchall()
 
-    except sqlite3.OperationalError as e:
+    except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
         logfunc(f"Error with {file_path}:")
         logfunc(f" - {str(e)}")
+        return []
 
-    except sqlite3.ProgrammingError as e:
-        logfunc(f"Error with {file_path}:")
-        logfunc(f" - {str(e)}")
+    finally:
+        db.close()
 
 
 def get_json_file_content(file_path):
