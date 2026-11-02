@@ -3,7 +3,7 @@
 The table names carry a version suffix, so each artifact looked them up with next() on a
 sqlite_master query. A store without the table raised StopIteration and stopped the
 artifact. The conversations lookup also ended in "OR 'conversations_v__'", a bare string
-SQLite reads as false, so only the legacy spelling convesations_v__ could ever match.
+SQLite reads as false, so only the spelling convesations_v__ could ever match.
 """
 import os
 import shutil
@@ -46,6 +46,15 @@ class PotatoChatTableLookupTest(unittest.TestCase):
                          'conversations_v29')
         os.remove(self.path)
         self.store('convesations_v29')
+        self.assertEqual(potatoChat._table_name(self.path, 'convesations_v__', 'conversations_v__'),  # pylint: disable=protected-access
+                         'convesations_v29')
+
+    def test_the_lookup_keeps_the_earlier_pick_when_several_match(self):
+        # The first pattern wins, and within it the table listed first in sqlite_master,
+        # as the earlier next() on an unordered query did.
+        self.store('messages_v30', 'messages_v29', 'conversations_v29', 'convesations_v29')
+        self.assertEqual(potatoChat._table_name(self.path, 'messages_v__'),  # pylint: disable=protected-access
+                         'messages_v30')
         self.assertEqual(potatoChat._table_name(self.path, 'convesations_v__', 'conversations_v__'),  # pylint: disable=protected-access
                          'convesations_v29')
 

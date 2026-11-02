@@ -143,18 +143,21 @@ def decode_varint(source_data, offset): # Taken from https://github.com/Whee30/A
 
 
 def _table_name(path, *patterns):
-    """The first table whose name matches one of the LIKE patterns, or None.
+    """The first table matching the LIKE patterns, tried in the order given, or None.
 
     The table names carry a version suffix that changes between app versions, so they are
     looked up. next() on an empty lookup raised StopIteration and stopped the artifact;
     a missing table now yields None, which the artifacts log and report as no rows.
+    Within one pattern the table listed first in sqlite_master wins, as before.
     """
     if not path:
         return None
-    clause = ' OR '.join(f"name LIKE '{pattern}'" for pattern in patterns)
-    query = f"SELECT name FROM sqlite_master WHERE type='table' AND ({clause}) ORDER BY name"
-    record = next(iter(get_sqlite_db_records(path, query)), None)
-    return record['name'] if record else None
+    for pattern in patterns:
+        query = f"SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '{pattern}' ORDER BY rowid"
+        record = next(iter(get_sqlite_db_records(path, query)), None)
+        if record:
+            return record['name']
+    return None
 
 
 def _missing_tables(path, **tables):
@@ -207,9 +210,9 @@ def potatochat_chats(context):
     messages_nr = _table_name(source_path, 'messages_v__')
     media_cache_nr = _table_name(source_path, 'media_cache_v__')
     users_nr = _table_name(source_path, 'users_v__')
-    # Telegram's legacy schema spells it convesations_v29. The earlier lookup ended in
-    # "OR 'conversations_v__'", a bare string that SQLite reads as false, so the correct
-    # spelling never matched.
+    # Looked up under both spellings, convesations_v__ first as before. The earlier lookup
+    # ended in "OR 'conversations_v__'", a bare string that SQLite reads as false, so
+    # conversations_v__ never matched.
     conversations_nr = _table_name(source_path, 'convesations_v__', 'conversations_v__')
     if _missing_tables(source_path, messages=messages_nr, media_cache=media_cache_nr,
                        users=users_nr, conversations=conversations_nr):
