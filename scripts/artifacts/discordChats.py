@@ -91,11 +91,11 @@ __artifacts_v2__ = {
 import hashlib
 import json
 import math
+import plistlib
 import re
 from datetime import datetime
 from os.path import basename, dirname, isfile, normcase, normpath
 
-import biplist
 
 from scripts.artifacts.discordServers import (ORIGIN_LIVE, ORIGIN_RECOVERED, discord_channel_context,
                                               discord_kv_lookup, discord_removed_messages)
@@ -197,7 +197,8 @@ def _activation_resolution(files_found):
         if not str(file_found).endswith("activation_record.plist"):
             continue
 
-        plist = biplist.readPlist(str(file_found))
+        with open(str(file_found), 'rb') as activation_file:
+            plist = plistlib.load(activation_file)
         account_token = plist["AccountToken"].decode("utf-8")
         matches = re.findall(r'"(.*?)" = "(.*?)";', account_token, re.DOTALL)
         model_id = {key: value for key, value in matches}.get("ProductType")
