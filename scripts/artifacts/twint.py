@@ -15,8 +15,8 @@ __artifacts_v2__ = {
                  "attachment presence, transaction status, transaction type or transaction "
                  "direction. Every matched Twint.sqlite is read, and the report's located at "
                  "line lists each one read. "
-                 "A raw image of the Data volume alone has mobile/ at its root, with no var folder"
-                 " in the path, and the pattern without var/ is for that case; no tested extraction "
+                 "A raw image of the Data volume alone is expected to have mobile/ at its root, "
+                 "with no var folder in the path, and the pattern without var/ is for that case; no tested extraction "
                  "held Twint.sqlite, so neither pattern has been exercised on real data. "
                  "Original parser credit: @KefreR (Frank Ressat).",
         "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',

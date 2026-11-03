@@ -10,10 +10,11 @@ __artifacts_v2__ = {
         "notes": "The pattern without var/ finds the file where the extraction holds the Data "
                  "volume under a folder of its own: abe_ios16, felix23_ios16 and hickman_ios15 "
                  "store it as filesystem2/mobile/, and the var/ pattern matched nothing there. It "
-                 "is also the shape of a raw image of the Data volume alone, which was checked on "
-                 "extractions' path listings with private/var removed, not on a raw image. A field "
-                 "a record does not hold is left blank: neither record on hickman_ios15 held "
-                 "disconnectedCause.",
+                 "is also the shape a raw image of the Data volume alone is expected to have, since "
+                 "the reader names a volume by its LBA and not by its mount point; that was checked "
+                 "on extractions' path listings with private/var removed, not on a raw image. A "
+                 "field a record does not hold is left blank, as is a field it stores as an empty "
+                 "value: neither record on hickman_ios15 held disconnectedCause.",
         "paths": ('*/var/mobile/Library/CallHistoryTransactions/transactions.log*',
                   '*/mobile/Library/CallHistoryTransactions/transactions.log*'),
         "output_types": "standard",
@@ -32,7 +33,7 @@ __artifacts_v2__ = {
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 0 rows, transactions.log was empty",
             "felix23_ios16": "iOS 16.5 | 0 rows, transactions.log was empty",
-            "hickman_ios15": "iOS 15 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | 2 rows",
         }
     }
 }

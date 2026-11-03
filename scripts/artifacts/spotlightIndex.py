@@ -18,8 +18,8 @@ __artifacts_v2__ = {
                  "the file's mtime in the zip's metadata.msgpack, a UTC time, and from the entry's "
                  "date and time when the member has no record there, the record holds no "
                  "usable mtime, or the msgpack package is not installed. "
-                 "A raw image of the Data volume alone has mobile/ at its root, with no var folder"
-                 " in the path; the pattern without var/ finds the files there (checked on an "
+                 "A raw image of the Data volume alone is expected to have mobile/ at its root, "
+                 "with no var folder in the path; the pattern without var/ finds the files there (checked on an "
                  "extraction's path listing with private/var removed, not on a raw image).",
         "paths": ('*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt',
                   '*/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt'),

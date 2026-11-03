@@ -522,10 +522,12 @@ for it, so no report field carries a zone the evidence never had.
   `*/com.whatsapp/databases/...` matches on a bare `userdata` image and
   `*/data/rollback/...` does not; `*/var/mobile/...` does not match on a bare
   iOS Data volume, nor does `*/private/var/...`. An artifact that should read a
-  bare partition carries a second pattern without the mount folder
-  (`*/rollback/...`, `*/mobile/...`). On a Linux image of a separate `/home`
-  or `/var` partition, a pattern that spells `*/home/` or `*/var/` matches
-  nothing. Two measured consequences: on a bare Android `userdata`
+  bare partition needs a pattern that does not name the mount folder
+  (`*/rollback/...` rather than `*/data/rollback/...`, `*/mobile/...` rather
+  than `*/var/mobile/...`). On a Linux image of a separate `/home` or `/var`
+  partition, a pattern that spells `*/home/` or `*/var/` matches only where a
+  folder of that name sits below the volume root (this follows from the naming
+  and was not measured on an image). Two measured consequences: on a bare Android `userdata`
   image the storage-view dedupe recognises only the `data/data`, `data/user/N`
   and `data_mirror` spellings, so a partition read at its own root is not
   collapsed and per-app row counts multiply; on a bare iOS Data volume the
