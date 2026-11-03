@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "tool's staged copy of each file.",
         "author": '@snoop168, @AlexisBrignoni, Codex',
         "creation_date": "2025-10-09",
-        "last_update_date": '2026-10-23',
+        "last_update_date": '2026-11-03',
         "requirements": "none",
         "category": "Spotlight",
         "notes": "Staged Copy mtime is the numeric modification time of the copy the tool staged, "
@@ -17,8 +17,12 @@ __artifacts_v2__ = {
                  "the machine that ran the tool. For a Cellebrite CLBX zip it sets that time from "
                  "the file's mtime in the zip's metadata.msgpack, a UTC time, and from the entry's "
                  "date and time when the member has no record there, the record holds no "
-                 "usable mtime, or the msgpack package is not installed.",
-        "paths": ('*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt'),
+                 "usable mtime, or the msgpack package is not installed. "
+                 "A raw image of the Data volume alone has mobile/ at its root, with no var folder"
+                 " in the path; the pattern without var/ finds the files there (checked on an "
+                 "extraction's path listing with private/var removed, not on a raw image).",
+        "paths": ('*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt',
+                  '*/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt'),
         "output_types": "standard",
         "artifact_icon": "search",
         "sample_data": {

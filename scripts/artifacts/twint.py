@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "No registered corpus coverage is recorded for this artifact.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Finance",
         "notes": "The four As Stored columns use their SQLite column names and retain the "
@@ -15,8 +15,12 @@ __artifacts_v2__ = {
                  "attachment presence, transaction status, transaction type or transaction "
                  "direction. Every matched Twint.sqlite is read, and the report's located at "
                  "line lists each one read. "
+                 "A raw image of the Data volume alone has mobile/ at its root, with no var folder"
+                 " in the path, and the pattern without var/ is for that case; no tested extraction "
+                 "held Twint.sqlite, so neither pattern has been exercised on real data. "
                  "Original parser credit: @KefreR (Frank Ressat).",
-        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',),
+        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',
+                  '*/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "currency-dollar"
     }

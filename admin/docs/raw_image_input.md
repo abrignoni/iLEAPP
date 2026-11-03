@@ -516,9 +516,16 @@ for it, so no report field carries a zone the evidence never had.
 - It does not re-root a bare partition image. A raw image of an Android
   `userdata` partition has `data/`, `media/` and `system/` at its root rather
   than under `data/`, and an iOS Data volume has `mobile/` and `containers/`
-  rather than `private/var/`. Patterns that begin with `*/` match either way;
-  the few that spell out `private/var/` or `data/media/` do not match on a
-  bare partition image. Two measured consequences: on a bare Android `userdata`
+  rather than `private/var/`. The volume is named by its LBA, never by its
+  mount point, so a pattern that begins with `*/` matches either way only when
+  it does not spell out the folder the partition is mounted at:
+  `*/com.whatsapp/databases/...` matches on a bare `userdata` image and
+  `*/data/rollback/...` does not; `*/var/mobile/...` does not match on a bare
+  iOS Data volume, nor does `*/private/var/...`. An artifact that should read a
+  bare partition carries a second pattern without the mount folder
+  (`*/rollback/...`, `*/mobile/...`). On a Linux image of a separate `/home`
+  or `/var` partition, a pattern that spells `*/home/` or `*/var/` matches
+  nothing. Two measured consequences: on a bare Android `userdata`
   image the storage-view dedupe recognises only the `data/data`, `data/user/N`
   and `data_mirror` spellings, so a partition read at its own root is not
   collapsed and per-app row counts multiply; on a bare iOS Data volume the
