@@ -40,7 +40,7 @@ def keyed_archive(value):
 
     root = add(value)
     return plistlib.dumps({'$archiver': 'NSKeyedArchiver', '$version': 100000,
-                           '$top': {'root': root}, '$objects': objects}, fmt=plistlib.FMT_BINARY)
+                           '$top': {'root': root}, '$objects': objects}, fmt=plistlib.PlistFormat.FMT_BINARY)
 
 
 def transaction(record):
