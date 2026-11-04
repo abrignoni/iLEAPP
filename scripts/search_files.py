@@ -469,6 +469,20 @@ HASHED_KINDS = frozenset(('file', 'stream', 'directory index', 'deleted', 'free 
                           'decrypted file'))
 
 
+# What peek() reads of a file by default: enough for the header of most formats.
+PEEK_SIZE = 64 * 1024
+
+# One file peek() read without staging it: path is where it sits in the evidence (as
+# FileInfo.source_path), size its size there, info the FileInfo staging would record,
+# head its first bytes (None when they could not be read) and note why, or what the
+# read met, '' when nothing.
+PeekedFile = collections.namedtuple('PeekedFile', 'path size info head note')
+
+
+class PeekUnsupported(Exception):
+    """This kind of input gives no way to read a file's first bytes without staging it."""
+
+
 # Where a staged file's times came from (StagedTimes.source). One fixed vocabulary,
 # the same in every LEAPP. A zip member whose times came from two of its fields names
 # both, in the order they were preferred, joined by '; '. A FAT or exFAT directory
@@ -630,6 +644,12 @@ class FileSeekerBase:
         '''Returns a list of paths for files/folders that matched'''
         raise NotImplementedError
 
+    def peek(self, filepattern, size=PEEK_SIZE):
+        '''A PeekedFile for each file filepattern matches, holding its first size bytes,
+        read without staging anything. An artifact that only needs a file's header calls
+        this instead of searching, so a large file is not copied into the report.'''
+        raise PeekUnsupported(f'{type(self).__name__} does not read files without staging them')
+
     def __init__(self):
         # Refined by _init_dest_guard once the subclass knows its data folder;
         # the defaults leave the dest-guard a pass-through.
@@ -737,6 +757,29 @@ class FileSeekerDir(FileSeekerBase):
                     "outside the input folder. Its target was not staged.")
             self._links_outside[item] = data_path
         return self._links_outside[item]
+
+    def peek(self, filepattern, size=PEEK_SIZE):
+        """Each file filepattern matches, as search() matches it, read from the input
+        folder only as far as its first size bytes; nothing is copied."""
+        found = []
+        pat = _compile_pattern(normcase(filepattern))
+        root = normcase("root/")
+        for item in self._all_files:
+            if pat(root + normcase(item)) is None or self._leaves_input(item) or not os.path.isfile(item):
+                continue
+            source_path = os.path.relpath(item, self.directory).replace('\\', '/')
+            try:
+                details = Path(item).stat()
+                with open(item, 'rb') as handle:
+                    head, note = handle.read(size), ''
+            except OSError as ex:
+                details, head, note = None, None, f'not read: {ex.strerror or ex}'
+            info = FileInfo(source_path, details.st_ctime if details else 0, details.st_mtime if details else 0,
+                            kind='link' if os.path.islink(item) else 'file')
+            logfunc(f'Read the first {len(head or b""):,} bytes of {source_path} without staging it'
+                    + (f' ({note})' if note else ''))
+            found.append(PeekedFile(source_path, details.st_size if details else 0, info, head, note))
+        return found
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
@@ -1382,6 +1425,32 @@ class FileSeekerTar(FileSeekerBase):
                 digest.update(chunk)
         return (member.size, digest.hexdigest())
 
+    def peek(self, filepattern, size=PEEK_SIZE):
+        """Each file member filepattern matches, as search() matches it, read only as far
+        as its first size bytes; nothing is written. A compressed tar is read in member
+        order, so peek() reads forward through it as search() does."""
+        found = []
+        pat = _compile_pattern(normcase(filepattern))
+        root = normcase("root/")
+        for member in self._search_members:
+            if pat(root + normcase(member.name)) is None:
+                continue
+            try:
+                content = self._member_content(member)
+                if content is None or content is _NOT_IN_ARCHIVE:
+                    continue
+                with content:
+                    head, note = content.read(size), ''
+            except (OSError, tarfile.TarError) as ex:
+                head, note = None, f'not read: {ex}'
+            info = FileInfo(member.name, 0, member.mtime,
+                            kind='link' if member.issym() or member.islnk() else 'file',
+                            times=tar_member_times(member))
+            logfunc(f'Read the first {len(head or b""):,} bytes of {member.name} without staging it'
+                    + (f' ({note})' if note else ''))
+            found.append(PeekedFile(member.name, member.size, info, head, note))
+        return found
+
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
@@ -2004,6 +2073,30 @@ class FileSeekerZip(FileSeekerBase):
             logfunc(f'INFO: {path}: time {staged} could not be set ({ex}); '
                     f'the zip date and time is used.')
         os.utime(path, (dos, dos))
+
+    def peek(self, filepattern, size=PEEK_SIZE):
+        """Each file member filepattern matches, as search() matches it, read only as far
+        as its first size bytes; nothing is extracted."""
+        found = []
+        pat = _compile_pattern(normcase(filepattern))
+        root = normcase("root/")
+        for member in self._search_names:
+            if member.startswith("__MACOSX") or member.endswith('/') or pat(root + normcase(member)) is None:
+                continue
+            source = self._chosen.get(member, member)
+            entry = self.zip_file.getinfo(member) if source is member else source
+            try:
+                with self.zip_file.open(source) as fin:
+                    head, note = fin.read(size), ''
+            except (OSError, BadZipFile, RuntimeError, NotImplementedError) as ex:
+                head, note = None, f'not read: {ex}'
+            creation_date, modification_date, _staged, times = self._member_times(member, entry)
+            kind = 'link' if stat.S_ISLNK(entry.external_attr >> 16) else 'file'
+            info = FileInfo(member, creation_date, modification_date, kind, times=times)
+            logfunc(f'Read the first {len(head or b""):,} bytes of {member} without staging it'
+                    + (f' ({note})' if note else ''))
+            found.append(PeekedFile(member, entry.file_size, info, head, note))
+        return found
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
