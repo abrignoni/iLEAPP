@@ -2567,13 +2567,6 @@ class FileSeekerRaw(FileSeekerBase):
             times=volume_times(entry.walker, entry.node, modified, accessed, created,
                                entry.recorded))
 
-    # Volume readers whose read_file() returns the whole file in one piece whatever
-    # size it is asked for (qnxprobe's FAT12/16/32 and exFAT walkers read the cluster
-    # chain the directory entry's size covers). peek() reads a file on them only up
-    # to this size, so a large file is not read whole into memory to give its start.
-    _WHOLE_FILE_READERS = (qnxprobe.Fat32Walker, qnxprobe.ExfatWalker)
-    WHOLE_FILE_PEEK_LIMIT = 64 << 20
-
     def peek(self, filepattern, size=PEEK_SIZE):
         """Each file ``filepattern`` matches, with its first ``size`` bytes read from
         the image and nothing staged: no copy in the data folder, and the members
@@ -2584,9 +2577,8 @@ class FileSeekerRaw(FileSeekerBase):
         FileInfo staging would record for it (_evidence_info) and its first bytes.
         Folders, free space and deleted-file records a pattern can name are left
         out. ``head`` is None, with ``note`` saying why, when the reader refuses the
-        file, the image ends before the bytes asked for, or the file is on a volume
-        whose reader gives only whole files and is larger than
-        WHOLE_FILE_PEEK_LIMIT. Each file read is named in the run log."""
+        file or the image ends before the bytes asked for. Each file read is named
+        in the run log."""
         found = []
         for member in self._matching_members(filepattern):
             entry = self._entries.get(member)
@@ -2604,10 +2596,6 @@ class FileSeekerRaw(FileSeekerBase):
         """(the first ``want`` bytes of a file member, note), as _stage() reads it."""
         if want <= 0:
             return b'', ''
-        if isinstance(entry.walker, self._WHOLE_FILE_READERS) and \
-                entry.size > self.WHOLE_FILE_PEEK_LIMIT:
-            return None, (f'not read: the reader of its volume reads whole files, and it is '
-                          f'larger than {self.WHOLE_FILE_PEEK_LIMIT:,} bytes')
         shortfall_before = qnxprobe.EOF_SHORTFALL['bytes']
         zeros_before = self._zeros_read()
         buffer = bytearray()

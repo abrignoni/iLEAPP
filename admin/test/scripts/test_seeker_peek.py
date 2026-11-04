@@ -32,6 +32,20 @@ def _files_in(folder):
     return sorted(os.path.join(root, name) for root, _dirs, names in os.walk(folder) for name in names)
 
 
+def _counting_read_file(original, handed):
+    """A read_file() that passes ``original``'s chunks through and appends
+    (size asked for, bytes handed back) to ``handed`` when the caller is done."""
+    def counting(walker, node, size):
+        total = 0
+        try:
+            for chunk in original(walker, node, size):
+                total += len(chunk)
+                yield chunk
+        finally:
+            handed.append((size, total))
+    return counting
+
+
 class RawPeekTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -89,16 +103,28 @@ class RawPeekTest(unittest.TestCase):
                                       recorded.kind, recorded.times), path)
                 self.assertTrue(any(line.startswith('Read the first ') for line in self.lines))
 
-    def test_a_large_file_on_a_whole_file_reader_is_not_read(self):
-        data = self._seeker()
-        seeker = FileSeekerRaw(self.images['fat32-deleted'], data)
-        self.addCleanup(seeker.cleanup)
-        with mock.patch.object(FileSeekerRaw, 'WHOLE_FILE_PEEK_LIMIT', 0):
-            peeked = [item for item in seeker.peek('*') if item.size]
-        self.assertTrue(peeked)
-        for item in peeked:
-            self.assertIsNone(item.head)
-            self.assertIn('reads whole files', item.note)
+    def test_fat_and_exfat_read_only_the_bytes_asked_for(self):
+        # Since qnxprobe 1.77 the FAT and exFAT walkers stop at the size they are
+        # asked for. What each read_file() call hands back is counted at the walker:
+        # a reader that gave the whole file and a peek that cut it to length would
+        # still return the right head.
+        qnxprobe = raw_image.qnxprobe
+        for stem, walker_cls in (('fat32-deleted', qnxprobe.Fat32Walker),
+                                 ('exfat-deleted', qnxprobe.ExfatWalker)):
+            with self.subTest(image=stem):
+                handed = []
+                counting = _counting_read_file(walker_cls.read_file, handed)
+                data = self._seeker()
+                seeker = FileSeekerRaw(self.images[stem], data)
+                self.addCleanup(seeker.cleanup)
+                with mock.patch.object(walker_cls, 'read_file', counting):
+                    peeked = [item for item in seeker.peek('*', size=10) if item.size > 10]
+                self.assertTrue(peeked)
+                for item in peeked:
+                    self.assertEqual((len(item.head), item.note), (10, ''), item.path)
+                self.assertTrue(handed)
+                for size, total in handed:
+                    self.assertLessEqual(total, size)
 
     def test_an_empty_file_gives_empty_bytes(self):
         data = self._seeker()
