@@ -253,7 +253,7 @@ import plistlib
 import sqlite3
 from datetime import timezone
 
-from scripts.ccl_leveldb import LogFile
+from scripts.vendor.ccl.ccl_leveldb import LogFile
 from scripts.ilapfuncs import (
     artifact_processor, check_in_media, convert_unix_ts_to_utc, logfunc, open_sqlite_db_readonly,
 )

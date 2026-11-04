@@ -411,7 +411,7 @@ import plistlib
 import re
 from datetime import datetime, timedelta, timezone
 
-import scripts.ccl_leveldb
+import scripts.vendor.ccl.ccl_leveldb
 from scripts.ilapfuncs import artifact_processor, does_table_exist_in_db, get_sqlite_db_records, logfunc
 
 _CONTAINER = re.compile(r'(.*?/Containers/Data/Application/[0-9A-Fa-f-]{36})/', re.I)
@@ -540,7 +540,7 @@ def _leveldb_records(directory):
     '''The newest record for each key in a LevelDB, as {key: (state, value)}.'''
     latest = {}
     try:
-        database = scripts.ccl_leveldb.RawLevelDb(pathlib.Path(directory))
+        database = scripts.vendor.ccl.ccl_leveldb.RawLevelDb(pathlib.Path(directory))
     except (OSError, ValueError) as error:
         logfunc(f'Spotify: could not open the LevelDB at {directory}: {error}')
         return latest
@@ -568,7 +568,7 @@ def _leveldb_all(directory):
     '''
     out = []
     try:
-        database = scripts.ccl_leveldb.RawLevelDb(pathlib.Path(directory))
+        database = scripts.vendor.ccl.ccl_leveldb.RawLevelDb(pathlib.Path(directory))
     except (OSError, ValueError) as error:
         logfunc(f'Spotify: could not open the LevelDB at {directory}: {error}')
         return out

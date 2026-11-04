@@ -16,7 +16,7 @@ from unittest.mock import patch
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts import ccl_leveldb as leveldb  # pylint: disable=wrong-import-position
+from scripts.vendor.ccl import ccl_leveldb as leveldb  # pylint: disable=wrong-import-position
 from scripts import ilapfuncs  # pylint: disable=wrong-import-position
 
 
@@ -175,15 +175,15 @@ class LevelDbLifecycleTests(unittest.TestCase):
             else:
                 self.fail('invalid manifest accepted')
 
-    def test_iteration_error_releases_current_file(self):
+    def test_damaged_batch_is_reported_and_releases_current_file(self):
+        # ccl_chromium_reader a321210 and 6e5dbe5 skip a batch that cannot be read and
+        # record it as damage instead of raising.
         (self.root / '000001.log').write_bytes(log_block(b'short batch'))
         with self.track, leveldb.RawLevelDb(self.root) as db:
-            try:
-                list(db.iterate_records_raw())
-            except struct.error:
-                self.assert_closed()
-            else:
-                self.fail('invalid log accepted')
+            self.assertEqual(list(db.iterate_records_raw()), [])
+            damage = [item for reader in db._files for item in getattr(reader, 'damage', [])]  # pylint: disable=protected-access
+            self.assertEqual(len(damage), 1)
+            self.assert_closed()
 
 
 
