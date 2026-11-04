@@ -24,7 +24,9 @@ Alongside `_HTML/`, `_TSV Exports/`, `_Timeline/`, `data/` and `media/`:
 - **`_lava_artifacts.db`**: SQLite, one table per artifact, named from the sanitized
   artifact function name. Column names are sanitized snake_case of the headers, so
   `Kind (as stored)` becomes `kind_as_stored`. A header typed `('X', 'datetime')` becomes
-  an INTEGER epoch column; everything else is TEXT. The database also carries bookkeeping
+  an INTEGER epoch column and one typed `('X', 'number')` a NUMERIC column, which LAVA
+  sorts as numbers and shows with a popover of other forms (hexadecimal, binary, digit
+  grouping); everything else is TEXT. The database also carries bookkeeping
   tables recording which glob matched which file.
 
 Writing is done by `scripts/lavafuncs.py`, which is meant to stay identical across the five
