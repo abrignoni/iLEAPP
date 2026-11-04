@@ -26,7 +26,9 @@ Alongside `_HTML/`, `_TSV Exports/`, `_Timeline/`, `data/` and `media/`:
   `Kind (as stored)` becomes `kind_as_stored`. A header typed `('X', 'datetime')` becomes
   an INTEGER epoch column and one typed `('X', 'number')` a NUMERIC column, which LAVA
   sorts as numbers and shows with a popover of other forms (hexadecimal, binary, digit
-  grouping); everything else is TEXT. The database also carries bookkeeping
+  grouping). Headers typed `('X', 'latitude')` and `('X', 'longitude')` are NUMERIC too, and
+  LAVA shows them in degrees, minutes and seconds with the hemisphere; everything else is
+  TEXT. The database also carries bookkeeping
   tables recording which glob matched which file.
 
 Writing is done by `scripts/lavafuncs.py`, which is meant to stay identical across the five
