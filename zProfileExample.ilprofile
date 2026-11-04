@@ -1,1 +1,1 @@
-{"leapp": "ileapp", "format_version": 1, "plugins": ["calendar", "voicemail", "addressbook", "blockedContacts"]}
+{"leapp": "ileapp", "format_version": 1, "plugins": ["calendarEvents", "calendarList", "calendarBirthdays", "voicemail", "addressBook", "blockedContacts"]}

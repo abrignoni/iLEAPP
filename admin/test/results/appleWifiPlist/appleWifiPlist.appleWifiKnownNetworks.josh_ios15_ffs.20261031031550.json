@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "module_name": "appleWifiPlist",
+    "artifact_name": "WiFi Known Networks Info",
+    "function_name": "appleWifiKnownNetworks",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 17,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 127,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiKnownNetworks.josh_ios15_ffs.zip",
+    "start_time": "2026-10-31T03:15:50.135232+00:00",
+    "end_time": "2026-10-31T03:15:50.154840+00:00",
+    "run_time_seconds": 0.0003581047058105469,
+    "last_commit": {
+      "hash": "3b8bc0f177385c7b3da2f41f6508fce0630d543d",
+      "author_name": "Kevin - Stark 4N6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2026-10-30T11:33:21-04:00",
+      "message": "Update appleWifiPlist.py"
+    }
+  },
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Network Usage",
+    "Country Code",
+    "Device Name",
+    "Manufacturer",
+    "Serial Number",
+    "Model Name",
+    "Enabled",
+    "Carplay Network",
+    "Hidden",
+    "Captive Network",
+    "User Portal URL",
+    "Add Reason",
+    "Bundle ID",
+    "Security Type",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      2262707.5380142927,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      false,
+      false,
+      "",
+      "",
+      "",
+      "WPA2 Personal",
+      "filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

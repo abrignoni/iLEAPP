@@ -231,8 +231,12 @@ def load_profile():
             tk_msgbox.showerror(title='Error', message=profile_load_error, parent=main_window)
         else:
             profile_filename = destination_path
-            tk_msgbox.showinfo(
-                title='Profile loaded', message=f'Loaded profile: {destination_path}', parent=main_window)
+            message = f'Loaded profile: {destination_path}'
+            unknown = sorted(name for name in profile.get('plugins', []) if name not in mlist)
+            if unknown:
+                message += (f'\n\nThe profile names {len(unknown)} artifact(s) this version does '
+                            f'not have, which will not run:\n' + '\n'.join(unknown))
+            tk_msgbox.showinfo(title='Profile loaded', message=message, parent=main_window)
 
 
 def save_profile():
@@ -681,7 +685,7 @@ def run_crunch(message_queue, selected_modules, extracttype, input_path, out_par
         # object may only be used by the thread that created it, so a connection opened
         # on the main thread is unusable by the artifacts running on this one.
         initialize_lava(input_text(input_path, found_members), out_params.output_folder_base,
-                        extracttype, profile_filename)
+                        extracttype, profile_filename, case_info)
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
             loader, case_info, time_offset, profile_filename, None, decryption_keys,
@@ -945,7 +949,7 @@ def case_data():
                 agency_logo_mimetype = guess_mime(agency_logo_file)
                 if agency_logo_mimetype and 'image' in agency_logo_mimetype:
                     try:
-                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read())
+                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read()).decode("ascii")
                     except:
                         agency_logo_load_error = 'Unable to encode the selected file in base64.'
                 else:

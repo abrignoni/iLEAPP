@@ -1,0 +1,197 @@
+{
+    "casehickman_ios15": {
+        "description": "Josh Hickman iOS 15 public image (corpus key hickman_ios15), iOS 15.3.1: homed/datastore.sqlite and its sidecars; one home with a decoded location, one user, a HomePod, two sensors and two devices",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "iOS_15_Public_Image.tar.gz",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T10:54:57.708972",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T10:54:57.700803",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "homeKitHomes": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitUsers": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitAccessories": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    },
+    "casehickman_ios14": {
+        "description": "Josh Hickman iOS 14.3 public image (corpus key hickman_ios14): homed/datastore.sqlite and its sidecars; one home without a location, one user, one media accessory and two devices",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "iOS 14-3 - Apple iPhone SE.tar",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T10:59:11.091355",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T10:59:11.081049",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "homeKitHomes": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitUsers": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitAccessories": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    },
+    "caseabe_ios16": {
+        "description": "Cellebrite CTF 2023 Abe public image (corpus key abe_ios16), iOS 16.5: homed/datastore.sqlite and its sidecars; one home, one user, one device",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "EXTRACTION_FFS.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T10:59:28.591387",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T10:59:28.583436",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "homeKitHomes": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitUsers": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitAccessories": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    },
+    "casehickman_ios17_core": {
+        "description": "Josh Hickman iOS 17 public image (corpus key iphone11_ios17), iOS 17.3: only homed/core.sqlite and its sidecars, taken from that image's EXTRACTION_FFS.zip into hickman_ios17_core_only.zip without datastore.sqlite, so the Core Data path is read alone; one home, one user and four accessories",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "hickman_ios17_core_only.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T13:13:15.938354",
+            "last_commit": {
+                "hash": "dd1bddb256c1f84e89d957b908fd12a76db07d87",
+                "author_name": "Brigs",
+                "author_email": "abrignoni@gmail.com",
+                "date": "2026-10-30T11:15:02-04:00",
+                "message": "Add HomeKit Homes, Users and Accessories (homed/datastore.sqlite)"
+            }
+        },
+        "artifacts": {
+            "homeKitHomes": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*",
+                    "*/mobile/Library/homed/core.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitUsers": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*",
+                    "*/mobile/Library/homed/core.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "homeKitAccessories": {
+                "search_patterns": [
+                    "*/mobile/Library/homed/datastore.sqlite*",
+                    "*/mobile/Library/homed/core.sqlite*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}

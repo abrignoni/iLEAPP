@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.76"
+QNXPROBE_VERSION = "1.77"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -2835,8 +2835,16 @@ class Fat32Walker:
         return [(name, child) for name, child, _times in self.listdir_records(node)]
 
     def read_file(self, node, size):
+        """The first min(size, recorded size) bytes, read from as many clusters
+        of the chain as that takes and no more. An empty file, or a size of
+        zero, reads nothing: on FAT16 and FAT12 an empty file's cluster 0 is the
+        fixed root directory's, and _read_chain() would read that."""
         clus, sz, _ = node
-        yield self._read_chain(clus, sz)
+        want = sz if size is None else min(size, sz)
+        if want <= 0:
+            yield b""
+            return
+        yield self._read_chain(clus, want)
 
     def chain_shortfall(self, node):
         """(clusters in the chain, clusters the recorded size needs) for a file
@@ -3671,13 +3679,18 @@ class ExfatWalker:
 
     def read_file(self, node, size):
         clus, sz, _, contig = node
-        if not sz:
+        want = sz if size is None else min(size, sz)
+        if want <= 0:
             # _read() takes a size of zero to mean a directory, read to the end
             # of its allocation. An empty file has no first cluster, and read
             # that way it came back as one cluster of the volume's own bytes.
+            # A request for no bytes of a file that has some is the same: it
+            # must never reach _read() as zero.
             yield b""
             return
-        yield self._read(clus, sz, contig)
+        # _read() stops at want, so only the clusters that hold it are read,
+        # from a NoFatChain run and a FAT chain alike.
+        yield self._read(clus, want, contig)
 
     def chain_shortfall(self, node):
         """(clusters in the chain, clusters the recorded size needs) for a file
@@ -32018,6 +32031,127 @@ def _fat_listing_check(image_gz, wcls):
     return True, f"{len(files)} files, readings printed as stored"
 
 
+def _counting_image(data):
+    """An image in memory that totals the bytes read() hands back, in
+    ``read_bytes``, so a check can tell a reader that read only what it
+    returned from one that read the whole file and cut it to length. The two
+    return the same bytes."""
+    import io
+
+    class _CountingImage(io.BytesIO):
+        def __init__(self, raw):
+            super().__init__(raw)
+            self.read_bytes = 0
+
+        def read(self, n=-1):
+            got = super().read(n)
+            self.read_bytes += len(got)
+            return got
+
+    return _CountingImage(data)
+
+
+def _fat_chain_of(w, node):
+    """The clusters a FAT or exFAT file's data is in, in order, walked here
+    rather than by the reader under test."""
+    clus, sz = node[0], node[1]
+    if not sz:
+        return []
+    need = -(-sz // w.cluster_bytes)
+    if isinstance(w, ExfatWalker) and node[3]:
+        return list(range(clus, clus + need))
+    out, c = [], clus
+    end = 0xFFFFFFF7 if isinstance(w, ExfatWalker) else _FAT_ENTRY[w.FAT_BITS][3]
+    while 0x2 <= c < end and c not in out and len(out) < need:
+        out.append(c)
+        c = w._fat_next(c)
+    return out
+
+
+def _read_size_problems(w, node, want, label):
+    """What is wrong with read_file(node, size) on one file whose whole content
+    is ``want``: for no bytes, for short requests that end inside a cluster, on
+    a cluster's edge and just past the first cluster, for the recorded size,
+    and for a size several clusters past the end. ``w.fh`` must come from
+    _counting_image(). Every request has to return exactly the first
+    min(size, file size) bytes, and to read no more of the image than the
+    clusters holding them plus the table entries that lead there (eight bytes
+    a cluster is more than any FAT entry takes)."""
+    sz, cl = node[1], w.cluster_bytes
+    shorts = sorted({k for k in (1, cl - 1, cl, cl + 1, 2 * cl + 7, sz // 2, sz - 1)
+                     if 0 < k < sz})
+    problems = []
+    for k in [0] + shorts + [sz, sz + 3 * cl]:
+        w.fh.read_bytes = 0
+        got = b"".join(w.read_file(node, k))
+        spent = w.fh.read_bytes
+        if got != want[:k]:
+            problems.append(f"{label}: size {k} gave {len(got)} bytes, not the first "
+                            f"{len(want[:k])} of the file")
+        clusters = -(-min(k, sz) // cl)
+        if spent > clusters * (cl + 8):
+            problems.append(f"{label}: size {k} read {spent} bytes of the image for "
+                            f"{clusters} clusters")
+    return problems
+
+
+def _fat_read_size_check(image_gz, wcls, known=None, need_shapes=False):
+    """read_file() returns min(size, file size) bytes and reads only the
+    clusters that hold them, for every file on a FAT or exFAT fixture a driver
+    wrote. ``known`` is the fixture's sha256 list, held against each whole
+    read where it names the file. With ``need_shapes`` the fixture must hold a
+    fragmented and an empty file, so the check cannot pass on a volume that
+    has neither. Returns (ok, detail)."""
+    import gzip, hashlib
+    with gzip.open(image_gz, "rb") as gz:
+        w = wcls(_counting_image(gz.read()), 0)
+    listed = {}
+    if known and os.path.isfile(known):
+        with open(known, encoding="utf-8") as fh:
+            for line in fh:
+                digest, _sp, rel = line.rstrip("\n").partition("  ")
+                listed[rel] = digest
+    files = []
+
+    def walk(node, prefix, depth):
+        if depth > 16:
+            return
+        for name, child in w.listdir(node):
+            if name in (".", ".."):
+                continue
+            if child[2]:
+                walk(child, f"{prefix}{name}/", depth + 1)
+            else:
+                files.append((prefix + name, child))
+
+    walk(w.root, "", 0)
+    problems, fragmented, empty, matched = [], 0, 0, 0
+    for rel, node in files:
+        chain = _fat_chain_of(w, node)
+        if any(b != a + 1 for a, b in zip(chain, chain[1:])):
+            fragmented += 1
+        if not node[1]:
+            empty += 1
+        want = b"".join(read_at(w.fh, w._cluster_off(c), w.cluster_bytes)
+                        for c in chain)[:node[1]]
+        if rel in listed:
+            if hashlib.sha256(want).hexdigest() != listed[rel]:
+                problems.append(f"{rel}: the chain walked here does not hash to the "
+                                f"fixture's list")
+            matched += 1
+        problems += _read_size_problems(w, node, want, rel)
+    if not files:
+        problems.append("no files in the fixture")
+    if need_shapes and not (fragmented and empty):
+        problems.append(f"premise failed: {fragmented} fragmented and {empty} empty "
+                        f"files, so the check proves less than it says")
+    detail = (f"{len(files)} files, {fragmented} fragmented, {empty} empty"
+              + (f", {matched} held against the known list" if listed else ""))
+    if problems:
+        detail += "; " + "; ".join(problems[:4])
+    return not problems, detail
+
+
 def _ntfs_listing_check(image_gz):
     """The control: an NTFS listing, whose times are instants, still prints a
     date for a file. Returns (ok, detail)."""
@@ -35490,6 +35624,59 @@ def self_test():
                         and _fatcw.chain_shortfall(_fat_cut) == (1, 3)
                         and len(b"".join(_fatcw.read_file(_fat_cut, 3 * 512))) == 512)
 
+        # read_file(node, size) reads min(size, file size) bytes and only the
+        # clusters that hold them. Neither fixture a driver wrote has a
+        # fragmented FAT32 file or a FAT-chained exFAT one, so both are built
+        # here: HELLO.TXT becomes three clusters less ten bytes in the order
+        # 11, 30, 5, and the exFAT WHOLE file's chain becomes 12, 30, 9, 33.
+        # Each cluster holds its own number, and the bytes each file should
+        # read are written out below rather than walked, so a reader that
+        # followed the clusters in disk order would fail. CUT (a short chain),
+        # RUN (a NoFatChain run) and an empty file in each go through the
+        # same requests.
+        _fatfr = bytearray(_fatbuf)
+        struct.pack_into("<I", _fatfr, _de + 28, 3 * 512 - 10)
+        for _c, _next in ((11, 30), (30, 5), (5, 0x0FFFFFFF)):
+            struct.pack_into("<I", _fatfr, _fat_at + _c * 4, _next)
+            _at = _fat_data + (_c - 2) * FAT_BPS
+            _fatfr[_at:_at + FAT_BPS] = bytes([_c]) * FAT_BPS
+        _fatfr[_de + 64:_de + 75] = b"EMPTY   DAT"
+        _fatfr[_de + 75] = 0x20                     # cluster 0, size 0
+        _fatfrw = Fat32Walker(_counting_image(bytes(_fatfr)), 0)
+        _fatfrs = dict(_fatfrw.listdir(_fatfrw.root))
+        fat_size_problems = []
+        if not ({"HELLO.TXT", "EMPTY.DAT"} <= set(_fatfrs)):
+            fat_size_problems.append(f"premise failed: the root lists {sorted(_fatfrs)}")
+        else:
+            fat_size_problems += _read_size_problems(
+                _fatfrw, _fatfrs["HELLO.TXT"],
+                bytes([11]) * 512 + bytes([30]) * 512 + bytes([5]) * 502,
+                "fragmented FAT32 HELLO.TXT")
+            fat_size_problems += _read_size_problems(
+                _fatfrw, _fatfrs["EMPTY.DAT"], b"", "empty FAT32 EMPTY.DAT")
+        _exfr = bytearray(_exsf)
+        for _c, _next in ((12, 30), (30, 9), (9, 33), (33, 0xFFFFFFFF)):
+            struct.pack_into("<I", _exfr, _ex_fat + _c * 4, _next)
+            _at = _ex_heap + (_c - 2) * 512
+            _exfr[_at:_at + 512] = bytes([_c]) * 512
+        _exfrw = ExfatWalker(_counting_image(bytes(_exfr)), 0)
+        _exfrs = dict(_exfrw.listdir(_exfrw.root))
+        exfat_size_problems = []
+        for _name, _want in (
+                ("WHOLE", bytes([12]) * 512 + bytes([30]) * 512 + bytes([9]) * 512
+                 + bytes([33]) * 502),
+                ("CUT", bytes([5]) * 512 + bytes([6]) * 512),
+                ("RUN", (bytes([26]) * 512 + bytes([27]) * 512 + bytes([28]) * 512
+                         + bytes([29]) * 512)[:EX_FILE_BYTES]),
+                ("EMPTY", b"")):
+            if _name not in _exfrs:
+                exfat_size_problems.append(f"premise failed: no {_name} in the root")
+                continue
+            exfat_size_problems += _read_size_problems(
+                _exfrw, _exfrs[_name], _want, f"exFAT {_name}")
+        if _exfrw.chain_shortfall(_exfrs.get("WHOLE", (0, 0, False, True))) is not None:
+            exfat_size_problems.append("the fragmented WHOLE chain was called short")
+
         # A qnx6 volume's free space. 512-byte blocks, 4,997 of them, so the
         # bitmap is 625 bytes: two blocks, reached through one indirect block.
         # That indirect block is stored block 0, as it is on the Ford Sync G4
@@ -35714,6 +35901,18 @@ def self_test():
                  not exfat_orphan_problems),
                 ("a FAT32 file whose cluster chain ends before its recorded size "
                  "says so, and a whole chain does not", fat_chain_ok),
+                ("read_file(node, size) on a fragmented FAT32 file and an empty "
+                 "one returns min(size, file size) bytes in chain order and reads "
+                 "only the clusters that hold them, for no bytes, short, whole and "
+                 "past-the-end requests"
+                 + "".join(f"; {p}" for p in fat_size_problems[:4]),
+                 not fat_size_problems),
+                ("read_file(node, size) on a fragmented FAT-chained exFAT file, a "
+                 "short chain, a NoFatChain run and an empty file returns "
+                 "min(size, file size) bytes and reads only the clusters that "
+                 "hold them, and never takes a size of zero as read to the end"
+                 + "".join(f"; {p}" for p in exfat_size_problems[:4]),
+                 not exfat_size_problems),
                 ("a qnx6 volume reads its free blocks out of the bitmap tree, least "
                  "significant bit first, as offsets into the image", qnx6_free_ok),
                 ("a qnx6 free-space floor drops the short runs", qnx6_floor_ok),
@@ -36662,6 +36861,31 @@ def self_test():
                 ok = False
             print(f"  [{'PASS' if lok else 'FAIL'}] a {label} listing prints each file's "
                   f"modified reading as stored and never 1970-01-01 ({ldetail})")
+        # FAT16, TFAT16 and FAT12 each hold a fragmented file and an empty one,
+        # and their lists name every file, so those three must show both shapes.
+        # The FAT32 and exFAT fixtures hold neither, and the built volumes
+        # above cover those two.
+        for label, stem, wcls, shapes in (("FAT32", "fat32-deleted", Fat32Walker, False),
+                                          ("FAT16", "fat16-fixture", Fat16Walker, True),
+                                          ("TFAT16", "tfat16-fixture", Fat16Walker, True),
+                                          ("FAT12", "fat12-fixture", Fat12Walker, True),
+                                          ("exFAT", "exfat-deleted", ExfatWalker, False)):
+            fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "tests", "fixtures", stem + ".img.gz")
+            if not os.path.isfile(fix):
+                print(f"  [SKIP] the {label} fixture is not beside this script, so "
+                      "read_file sizes were not checked on it")
+                continue
+            try:
+                rok, rdetail = _fat_read_size_check(
+                    fix, wcls, fix[:-len(".img.gz")] + ".sha256", shapes)
+            except Exception as exc:                 # pylint: disable=broad-except
+                rok, rdetail = False, f"the check raised {type(exc).__name__}: {exc}"
+            if not rok:
+                ok = False
+            print(f"  [{'PASS' if rok else 'FAIL'}] read_file(node, size) on every {label} "
+                  f"fixture file returns min(size, file size) bytes and reads only the "
+                  f"clusters that hold them ({rdetail})")
         if os.path.isfile(ntfs_fix):
             try:
                 nok, ndetail = _ntfs_listing_check(ntfs_fix)

@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "description": "Extract channels from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        "DMSS app.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "Only DEVICES rows with a DDNSCONFIG row whose DEVICEID equals the device's IP "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
                        "DMSS app.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "alarmState, onLineState and fullDayAlarm values 0 and 1 are shown as off and on; "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
                        "DMSS app.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "Receive Share From and Send Share To are the ReceiveShare and SendShareStr "
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
                        "app, joined to the device each names.",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "Ten stored alarm type codes are shown as a sentence written for this report, not "
@@ -183,7 +183,8 @@ import sqlite3
 import base64
 import os
 from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, check_in_media, \
-    artifact_processor, get_plist_content
+    artifact_processor, get_plist_content, is_sqlite_sidecar, sqlite_databases
+
 
 @artifact_processor
 def get_dmss_pin(context):
@@ -214,10 +215,12 @@ def get_dmss_channels(context):
     data_headers = ('Device Name','Channel ID','Channel Name', 'Source file')
     data_list = []
     source_dirs = set()
-    for file_found in context.get_files_found():
+    for file_found in sqlite_databases(context.get_files_found()):
         file_found = str(file_found)
         source_dirs.add(os.path.dirname(file_found))
         db = open_sqlite_db_readonly(file_found)
+        if db is None:
+            continue
         cursor = db.cursor()
         
         cursor.execute('''
@@ -242,10 +245,12 @@ def get_dmss_info(context):
                     'DDNS Server Port', 'DDNS Username', 'DDNS Password (Enc.)', 'DDNS Type', 'DDNS Alias', 'Source File')
     data_list = []
     source_dirs = set()
-    for file_found in context.get_files_found():
+    for file_found in sqlite_databases(context.get_files_found()):
         file_found = str(file_found)
         source_dirs.add(os.path.dirname(file_found))
         db = open_sqlite_db_readonly(file_found)
+        if db is None:
+            continue
         cursor = db.cursor()
         
         cursor.execute('''
@@ -289,11 +294,13 @@ def get_dmss_registered_sensors(context):
                     'Associated Hub SN', 'Online State', 'Door State Sensor', 'Full Day Alarm', 'Tamper Status', 'Owner', 'Source File')
     data_list = []
     source_dirs = set()
-    for file_found in context.get_files_found():
+    for file_found in sqlite_databases(context.get_files_found()):
         file_found = str(file_found)
         source_dirs.add(os.path.dirname(file_found))
         try:
             db = open_sqlite_db_readonly(file_found)
+            if db is None:
+                continue
             cursor = db.cursor()
             
             cursor.execute('''
@@ -348,11 +355,13 @@ def get_dmss_registered_devices(context):
                     'RTSP Port', 'Hardware ID', 'Owner', 'Source File')
     data_list = []
     source_dirs = set()
-    for file_found in context.get_files_found():
+    for file_found in sqlite_databases(context.get_files_found()):
         file_found = str(file_found)
         source_dirs.add(os.path.dirname(file_found))
         try:
             db = open_sqlite_db_readonly(file_found)
+            if db is None:
+                continue
             cursor = db.cursor()
             
             cursor.execute('''
@@ -402,11 +411,13 @@ def get_dmss_notifications(context):
                     'Alarm Notification', 'Checked', 'Owner', 'Source File')
     data_list = []
     source_dirs = set()
-    for file_found in context.get_files_found():
+    for file_found in sqlite_databases(context.get_files_found()):
         file_found = str(file_found)
         source_dirs.add(os.path.dirname(file_found))
         try:
             db = open_sqlite_db_readonly(file_found)
+            if db is None:
+                continue
             cursor = db.cursor()
             
             cursor.execute('''
@@ -467,7 +478,7 @@ def get_dmss_created_media(context):
     data_headers = ('File Name', ('File Content', 'media'), 'Source File') 
     for file_found in files_found:
         file_found = str(file_found)
-        if file_found.endswith(('-wal', '-shm', '-journal')):
+        if is_sqlite_sidecar(file_found):
             continue
         file_name = os.path.basename(file_found)
         #Dahua CCTV - User Created Media: - Collecting Files

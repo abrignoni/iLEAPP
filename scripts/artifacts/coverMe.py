@@ -142,7 +142,7 @@ import os
 import re
 from datetime import datetime, timezone
 
-from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db,
+from scripts.ilapfuncs import (artifact_processor, is_sqlite_sidecar, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
 
 _CONTAINER = re.compile(r'(.*/Containers/Data/Application/[^/]+)/', re.I)
@@ -153,7 +153,7 @@ def _stores(files_found):
     seen = []
     for found in files_found:
         path = str(found)
-        if os.path.isdir(path) or path.endswith(('-wal', '-shm')):
+        if os.path.isdir(path) or is_sqlite_sidecar(path):
             continue
         if os.path.basename(path) == 'miliao.db' and path not in seen:
             seen.append(path)

@@ -1,5 +1,6 @@
 """managedSettings: sysdiagnose logs/ManagedSettings property lists, SYNTHETIC input only."""
 import importlib.util
+import os
 import plistlib
 import tempfile
 import unittest
@@ -16,13 +17,34 @@ SPEC.loader.exec_module(SYNTH)
 STORE_META = ('StoreName', 'Properties', 'version')
 
 
-def _context(files):
+def _relative(value, base):
+    outer = value.split(' >> ')[0]
+    return os.path.relpath(outer, base) if base else Path(outer).name
+
+
+def _context(files, base=None):
     return SimpleNamespace(get_files_found=lambda: [str(path) for path in files],
-                           get_relative_path=lambda value: Path(value.split(' >> ')[0]).name)
+                           get_relative_path=lambda value: _relative(value, base))
 
 
-def _run(function, files):
-    return function.__wrapped__(_context(files))
+def _run(function, files, base=None):
+    return function.__wrapped__(_context(files, base))
+
+
+def _shape(table, skip):
+    """Rows as sortable text, without the columns at the indexes in skip."""
+    return sorted(repr(tuple(v for i, v in enumerate(row) if i not in skip)) for row in table)
+
+
+def _write_live(folder, files):
+    """Write {path below the extraction root: bytes} under folder; return the paths."""
+    out = []
+    for name, data in files.items():
+        path = Path(folder) / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        out.append(path)
+    return out
 
 
 def _write_tree(folder, files):
@@ -131,14 +153,14 @@ class ManagedSettingsTest(unittest.TestCase):
     def test_unknown_key_unreadable_file_and_empty_store(self):
         with tempfile.TemporaryDirectory() as folder:
             headers, rows, _ = _run(module.managedSettings, _write_tree(folder, self._files('ios27')))
-        future = [r for r in rows if r[headers.index('Client Folder')] == 'com.example.future']
+        future = [r for r in rows if r[headers.index('Client')] == 'com.example.future']
         self.assertEqual({r[headers.index('Key (as stored)')] for r in future}, {'example.futureKey', 'example.when'})
         key_row = next(r for r in future if r[headers.index('Key (as stored)')] == 'example.futureKey')
         self.assertEqual(key_row[headers.index('Setting')], 'Setting not described by this parser')
         self.assertEqual(key_row[headers.index('Group')], 'Other')
         self.assertEqual(key_row[headers.index('Value (text)')], 'a: x; b: [1, 2]')
         self.assertIn('extra', key_row[headers.index('Notes')])
-        broken = [r for r in rows if r[headers.index('Client Folder')] == 'com.example.broken']
+        broken = [r for r in rows if r[headers.index('Client')] == 'com.example.broken']
         self.assertEqual(len(broken), 1)
         self.assertEqual(broken[0][headers.index('Setting')], '(file could not be read as a property list)')
         empty = [r for r in rows if r[headers.index('Store Name')] == 'bedtime']
@@ -171,10 +193,10 @@ class ManagedSettingsTest(unittest.TestCase):
         self.assertNotIn('tokenized', source)
         self.assertEqual(len(rows), independent_setting_count(self._files('ios27')))
 
-    def test_store_directory_says_whether_the_store_file_is_in_the_archive(self):
+    def test_store_directory_says_whether_the_store_file_was_found(self):
         with tempfile.TemporaryDirectory() as folder:
             headers, rows, _ = _run(module.managedSettingsStores, _write_tree(folder, self._files('ios27')))
-        found = headers.index('Store File In Archive')
+        found = headers.index('Store File Found')
         entries = [r for r in rows if r[headers.index('Row Kind')] == 'Store entry']
         missing = [r for r in entries if r[headers.index('Client')] == 'com.example.missing']
         self.assertEqual([r[found] for r in missing], ['no'])
@@ -201,6 +223,117 @@ class ManagedSettingsTest(unittest.TestCase):
         self.assertEqual(sorted(repr(r[:-1]) for r in stores_archive), sorted(repr(r[:-1]) for r in stores_folder))
         self.assertIn(' >> sysdiagnose_SYNTHETIC_iPhone-OS_iPhone_24A437/logs/ManagedSettings/User/', source)
         self.assertNotIn('decoy', repr(from_archive))
+
+    def _live(self, variant='ios26', drop=None):
+        files = SYNTH.build_live_files(variant)
+        for name in [n for n in files if drop and drop(n)]:
+            del files[name]
+        return files
+
+    def _live_run(self, files, extra=()):
+        with tempfile.TemporaryDirectory() as folder:
+            paths = _write_live(folder, files) + list(extra)
+            return (_run(module.managedSettings, paths, folder), _run(module.managedSettingsStores, paths, folder))
+
+    def test_live_layout_gives_the_rows_of_the_same_stores_in_a_sysdiagnose(self):
+        for variant in ('ios26', 'ios27'):
+            orphan = SYNTH.uid('orphan-record')
+            (headers, rows, source), (s_headers, s_rows, _) = self._live_run(self._live(variant, lambda n, o=orphan: o in n))
+            with tempfile.TemporaryDirectory() as folder:
+                d_headers, d_rows, _ = _run(module.managedSettings, _write_tree(folder, self._files(variant, edge=False)))
+                ds_headers, ds_rows, _ = _run(module.managedSettingsStores, _write_tree(folder + '/b', self._files(variant, edge=False)))
+            skip = {headers.index(name) for name in ('File Name', 'Notes', 'Source File')}
+            self.assertEqual(_shape(rows, skip), _shape(d_rows, skip), variant)
+            self.assertEqual(headers, d_headers)
+            entries = [r for r in s_rows if r[s_headers.index('Row Kind')] == 'Store entry']
+            d_entries = [r for r in ds_rows if r[ds_headers.index('Row Kind')] == 'Store entry']
+            self.assertEqual(sorted(repr(r[:-1]) for r in entries), sorted(repr(r[:-1]) for r in d_entries), variant)
+            self.assertNotIn('/tokenized.plist', source)
+            self.assertIn('private/var/mobile/Library/com.apple.ManagedSettings/Records/', source)
+            stores = [r for r in rows if r[headers.index('File Kind')] == 'Store file']
+            self.assertEqual({r[headers.index('File Name')] for r in stores}, {'detokenized'})
+            self.assertTrue(all('SettingRecords.plist entry' in r[headers.index('Notes')] for r in stores))
+
+    def test_live_row_counts_match_an_independent_count(self):
+        files = self._live()
+        (headers, rows, _), (s_headers, s_rows, _) = self._live_run(files)
+        expected = 0
+        for name, data in files.items():
+            leaf = name.rsplit('/', 1)[-1]
+            if 'com.apple.ManagedSettings/' not in name or leaf in ('tokenized.plist', 'DataVersion.plist',
+                                                                   'SettingRecords.plist'):
+                continue
+            expected += max(1, len([k for k in plistlib.loads(data) if k not in STORE_META]))
+        self.assertEqual(len(rows), expected)
+        stores = {k: v for k, v in files.items() if 'com.apple.ManagedSettings' in k and 'Library/Preferences' not in k}
+        self.assertEqual(len(s_rows), independent_store_count(stores))
+        self.assertTrue(all(len(row) == len(headers) for row in rows))
+        self.assertTrue(all(len(row) == len(s_headers) for row in s_rows))
+
+    def test_live_record_not_in_setting_records_keeps_its_identifier(self):
+        (headers, rows, _), _ = self._live_run(self._live())
+        orphan = [r for r in rows if r[headers.index('Client')] == SYNTH.uid('orphan-record')]
+        self.assertEqual(sorted(r[headers.index('File Kind')] for r in orphan), ['Client effective settings', 'Store file'])
+        for row in orphan:
+            self.assertEqual(row[headers.index('Store Name')], '')
+            self.assertEqual(row[headers.index('Store Active')], '')
+            self.assertIn('not listed in the SettingRecords.plist', row[headers.index('Notes')])
+
+    def test_live_store_not_listed_for_its_record_keeps_the_client(self):
+        files = self._live()
+        record = next(n for n in files if n.endswith('/clientEffectiveSettings.plist')
+                      and SYNTH.uid('orphan-record') not in n).rsplit('/', 1)[0]
+        files[f"{record}/{SYNTH.uid('unlisted-store')}/detokenized.plist"] = files[f"{record}/clientEffectiveSettings.plist"]
+        (headers, rows, _), _ = self._live_run(files)
+        unlisted = [r for r in rows if 'not listed for its record' in r[headers.index('Notes')]]
+        self.assertTrue(unlisted)
+        for row in unlisted:
+            self.assertNotEqual(row[headers.index('Client')], record.rsplit('/', 1)[-1])
+            self.assertEqual(row[headers.index('Store Name')], '')
+            self.assertEqual(row[headers.index('Store Active')], '')
+
+    def test_live_tokenized_copies_and_near_miss_names_are_not_read(self):
+        (_, rows, source), (_, s_rows, s_source) = self._live_run(self._live('ios27'))
+        text = repr(rows) + repr(s_rows)
+        self.assertNotIn('decoy', text)
+        self.assertNotIn(SYNTH.TOKEN_KEY.hex(), text.lower())
+        for value in (source, s_source):
+            self.assertNotIn('/tokenized.plist', value)
+            self.assertNotIn('ManagedSettingsExtension', value)
+            self.assertNotIn('ManagedSettingsSubscriber', value)
+
+    def test_live_scopes_follow_the_folder(self):
+        _, (headers, rows, _) = self._live_run(self._live())
+        versions = {(r[headers.index('Scope')], r[headers.index('Data Version')]) for r in rows
+                    if r[headers.index('Row Kind')] == 'Data version'}
+        self.assertEqual(versions, {('User', 7), ('System', 7)})
+
+    def test_live_setting_records_at_the_top_of_the_folder_resolve_the_same(self):
+        files = self._live()
+        files = {name.replace('com.apple.ManagedSettings/Records/SettingRecords.plist',
+                              'com.apple.ManagedSettings/SettingRecords.plist'): data for name, data in files.items()}
+        (headers, rows, _), (s_headers, s_rows, s_source) = self._live_run(files)
+        (_, base_rows, _), (_, base_s_rows, _) = self._live_run(self._live())
+        self.assertEqual(sorted(repr(r[:-1]) for r in rows), sorted(repr(r[:-1]) for r in base_rows))
+        self.assertEqual(sorted(repr(r[:-1]) for r in s_rows), sorted(repr(r[:-1]) for r in base_s_rows))
+        self.assertIn('com.apple.ManagedSettings/SettingRecords.plist', s_source)
+        self.assertTrue(rows and s_headers and headers)
+
+    def test_live_tree_beside_a_sysdiagnose_adds_both_and_resolves_within_each(self):
+        missing = lambda name: name.endswith(f"/{SYNTH.uid('ios26/com.apple.momentsd/DeviceActivityStore')}/detokenized.plist")
+        live = self._live(drop=missing)
+        (_, rows, _), (s_headers, s_rows, _) = self._live_run(live)
+        with tempfile.TemporaryDirectory() as folder:
+            archive = Path(folder) / 'sysdiagnose_2026.08.03_11-46-28-0400_iPhone-OS_iPhone_23G71.tar.gz'
+            SYNTH.write_archive(archive, 'ios26')
+            _, a_rows, _ = _run(module.managedSettings, [archive])
+            _, as_rows, _ = _run(module.managedSettingsStores, [archive])
+            (_, both, _), (_, s_both, _) = self._live_run(live, [archive])
+        self.assertEqual(len(both), len(rows) + len(a_rows))
+        self.assertEqual(len(s_both), len(s_rows) + len(as_rows))
+        found = s_headers.index('Store File Found')
+        moments = [r for r in s_both if r[s_headers.index('Client')] == 'com.apple.momentsd']
+        self.assertEqual(sorted(r[found] for r in moments), ['no', 'yes'])
 
     def test_empty_input_gives_no_rows(self):
         headers, rows, source = _run(module.managedSettings, [])

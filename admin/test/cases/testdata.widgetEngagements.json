@@ -1,0 +1,86 @@
+{
+    "casemagnet_ios16": {
+        "description": "Magnet Virtual Summit 2023 iOS image (corpus key magnet_ios16), iOS 16.1.1: _ATXInfoSuggestionStore.db and its sidecars, 17 Live and 20 Recovered rows",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "00008101-0010541A1130001E_files_full-001.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T08:36:11.501696",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T08:36:11.491036",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "widgetEngagements": {
+                "search_patterns": [
+                    "*/mobile/Library/DuetExpertCenter/_ATXInfoSuggestionStore.db*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    },
+    "casehickman_ios14": {
+        "description": "Josh Hickman iOS 14.3 public image (corpus key hickman_ios14): _ATXInfoSuggestionStore.db and its sidecars, older one-row-per-widget layout, 2 Live and 18 Recovered rows",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "iOS 14-3 - Apple iPhone SE.tar",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T08:36:17.036381",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T08:36:17.028256",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "widgetEngagements": {
+                "search_patterns": [
+                    "*/mobile/Library/DuetExpertCenter/_ATXInfoSuggestionStore.db*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    },
+    "casehickman_ios15": {
+        "description": "Josh Hickman iOS 15 public image (corpus key hickman_ios15), iOS 15.3.1: _ATXInfoSuggestionStore.db and its sidecars, 136 Live rows",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "iOS_15_Public_Image.tar.gz",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T08:36:32.997727",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T08:36:32.988126",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "widgetEngagements": {
+                "search_patterns": [
+                    "*/mobile/Library/DuetExpertCenter/_ATXInfoSuggestionStore.db*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}

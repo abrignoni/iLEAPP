@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "textReplacements",
+    "artifact_name": "Keyboard Text Replacements",
+    "function_name": "textReplacements",
+    "case_number": "casectf2020_ios12",
+    "number_of_columns": 8,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 225,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/textReplacements/testdata.textReplacements.textReplacements.casectf2020_ios12.zip",
+    "start_time": "2026-10-30T09:44:28.199538+00:00",
+    "end_time": "2026-10-30T09:44:28.258484+00:00",
+    "run_time_seconds": 0.001444101333618164,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T05:44:28.253457",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "CloudKit Record Created",
+    "CloudKit Record Modified",
+    "Shortcut",
+    "Phrase",
+    "Was Deleted (as stored)",
+    "Modified By Device (as stored)",
+    "Unique Name"
+  ],
+  "data": [
+    [
+      600644225,
+      1584984270,
+      1584984271,
+      "@@",
+      "abrunswick8675309@gmail.com",
+      "0",
+      "Alan's Fantastical iPhone",
+      "55A125A2-5670-4AA1-97AB-50DE3DA335CE"
+    ],
+    [
+      1583200774,
+      1583201057,
+      1583201057,
+      "omw",
+      "On my way!",
+      "0",
+      "Alan's Fantastical iPhone",
+      "0AFE434B-1CE2-4B7E-9638-472371B76867"
+    ]
+  ]
+}

@@ -24,8 +24,8 @@ __artifacts_v2__ = {
 }
 
 import os
+import plistlib
 
-import biplist
 
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media
 
@@ -44,7 +44,7 @@ def kikBplistmeta(context):
             continue
         try:
             with open(file_found, 'rb') as f:
-                plist = biplist.readPlist(f)
+                plist = plistlib.load(f)
         except Exception:  # pylint: disable=broad-exception-caught
             continue  # not a (readable) binary plist
         if not isinstance(plist, dict):

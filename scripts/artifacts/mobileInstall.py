@@ -23,7 +23,7 @@ __artifacts_v2__ = {
                  "that an app was never installed. The Source Event column names the line that "
                  "set the state. The install kind (Placeholder, Customer, System or Developer) "
                  "is reported as written; the meaning of those values is not sourced.",
-        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "download",
         "sample_data": {
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
                  "that an app was never installed. The Source Event column names the line that "
                  "set the state. The install kind (Placeholder, Customer, System or Developer) "
                  "is reported as written; the meaning of those values is not sourced.",
-        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "trash",
         "sample_data": {
@@ -100,8 +100,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz) are read as well, and they can hold copies of the same log lines. A line found in more than one log file is reported as many times as the one file holding it most often: a copy adds no row, and a line repeated within one file is reported each time. On tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5) rows would otherwise have been reported twice; the counts are not recorded here. Every log file read is listed as a source, whether or not it added a row.",
-        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz) are read as well, and they can hold copies of the same log lines. A line found in more than one log file is reported as many times as the one file holding it most often: a copy adds no row, and a line repeated within one file is reported each time. On tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5) rows would otherwise have been reported twice; the counts are not recorded here. Every log file read is listed as a source, whether or not it added a row.",
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list",
         "sample_data": {
@@ -131,8 +131,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz) are read as well. A line found in more than one log file is reported as many times as the one file holding it most often, so a copy adds no row; on the three tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5), 5, 4 and 4 reboots would otherwise have been reported twice.",
-        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz) are read as well. A line found in more than one log file is reported as many times as the one file holding it most often, so a copy adds no row; on the three tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5), 5, 4 and 4 reboots would otherwise have been reported twice.",
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh",
         "sample_data": {
@@ -178,7 +178,7 @@ __artifacts_v2__ = {
                  "the log records, and a prefix match does not establish that the two are an "
                  "extension and its host app. The Source Event column names the most recent line "
                  "that mentioned the bundle.",
-        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "box",
         "sample_data": {

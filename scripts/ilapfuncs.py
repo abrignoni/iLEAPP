@@ -774,7 +774,15 @@ def artifact_processor(func):
                 if media_header_info and needs_text_or_html_data:
                     html_columns.extend([data_headers[idx][0] for idx in media_header_info])
                     if not is_artifact_result:
-                        html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
+                        if html_data_list is data_list:
+                            html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
+                        else:
+                            # The module returned its own HTML rows (#1202). Build the HTML
+                            # output from those, so its formatting survives, and the text
+                            # outputs from the plain rows. Media cells resolve the same way
+                            # in both; a value that is not a reference leaves the cell empty.
+                            html_data_list, _ = get_data_list_with_media(media_header_info, html_data_list)
+                            _, txt_data_list = get_data_list_with_media(media_header_info, data_list)
 
                 table_name = None
                 object_columns = None
@@ -1039,7 +1047,14 @@ def get_plist_file_content(file_path):
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
             if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
-                return nska_deserialize.deserialize_plist(file_path)
+                # Decode the bytes from the handle already open. deserialize_plist(file_path)
+                # opened the file a second time and never closed it, which leaked a handle
+                # per keyed archive read (a ResourceWarning under -X dev) and, on Windows,
+                # held the temporary copy of a stream open while the finally below tried to
+                # delete it. _deserialize_nska is also what get_plist_content uses, so the
+                # dependency's console noise is dropped on this path too.
+                file.seek(0)
+                return _deserialize_nska(file.read())
             return plist_content
     except FileNotFoundError:
         logfunc(f"Error: Plist file not found at {file_path}")
@@ -1102,6 +1117,23 @@ def _is_appledouble(path):
     return os.path.basename(path).startswith('._')
 
 
+_SAVED_SYSDIAGNOSE = re.compile(r'_sysdiagnose\.tar(\.gz)?$')
+
+
+def is_sysdiagnose_archive(path):
+    """True for the name of a finished sysdiagnose tar archive.
+
+    Two names are read: one holding sysdiagnose_ (sysdiagnose_<date>_<platform>_<model>_<build>.tar.gz)
+    and one ending in _sysdiagnose.tar.gz (<prefix>_sysdiagnose.tar.gz; on the one corpus archive named so,
+    the prefix is the device identifier). _sysdiagnose.tar, uncompressed, is accepted too, though no
+    artifact glob declares it. An IN_PROGRESS_ archive is not finished and is not read.
+    """
+    name = os.path.basename(str(path))
+    if 'IN_PROGRESS_' in name or '.tar' not in name:
+        return False
+    return 'sysdiagnose_' in name or bool(_SAVED_SYSDIAGNOSE.search(name))
+
+
 def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8'):
     """
     Yields (file_object, source_path) for target (string or compiled regex)
@@ -1123,7 +1155,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
         match_standalone = target.search(filename) if is_regex else (target == filename)
 
         # Ensure it's not a tar file being falsely processed as standalone
-        if match_standalone and not ("sysdiagnose_" in filename and ".tar" in filename):
+        if match_standalone and not is_sysdiagnose_archive(filename):
             try:
                 mode = 'r' if text_mode else 'rb'
                 kwargs = {'encoding': encoding, 'errors': 'replace'} if text_mode else {}
@@ -1133,7 +1165,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
                 print(f"Error reading standalone file {file_path}: {e}")
 
         # 2. Sysdiagnose archive match
-        elif "sysdiagnose_" in filename and "IN_PROGRESS_" not in filename and (".tar" in filename):
+        elif is_sysdiagnose_archive(filename):
             try:
                 with tarfile.open(file_path, 'r:*') as tar:
                     for member in tar.getmembers():
@@ -1180,6 +1212,29 @@ def get_sqlite_db_uri_query(path):
                 'with immutable=1, which reads the database file alone.')
         return 'mode=ro&immutable=1'
     return 'mode=ro'
+
+SQLITE_SIDECAR_SUFFIXES = ('-wal', '-shm', '-journal')
+
+
+def is_sqlite_sidecar(path):
+    """True for the -wal, -shm or -journal file SQLite keeps beside a database.
+
+    A path pattern such as '*/Foo.sqlite*' also matches these files. A sidecar is not a
+    database: queried on its own it raises sqlite3.DatabaseError ('file is not a database').
+    open_sqlite_db_readonly reads the -wal and -shm through the database itself, and
+    sqlite_wal.WalStates finds the log at <database>-wal on disk, so neither needs the sidecar
+    in the list an artifact loops over.
+
+    Use it where an artifact picks the files it will open. Leave the 'paths' patterns
+    alone: the seeker stages a sidecar only because the pattern matches it.
+    """
+    return str(path).lower().endswith(SQLITE_SIDECAR_SUFFIXES)
+
+
+def sqlite_databases(files_found):
+    """The found files that are not SQLite sidecars, as strings, in their original order."""
+    return [str(f) for f in files_found if not is_sqlite_sidecar(f)]
+
 
 def open_sqlite_db_readonly(path):
     '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
@@ -1409,7 +1464,7 @@ def tsv(report_folder, data_headers, data_list, tsvname, source_file=None):  # p
     else:
         os.makedirs(tsv_report_folder)
     
-    with open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', encoding='utf-8-sig') as tsvfile:
+    with open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', encoding='utf-8-sig', newline='') as tsvfile:
         tsv_writer = csv.writer(tsvfile, delimiter='\t')
         tsv_writer.writerow(data_headers)
         

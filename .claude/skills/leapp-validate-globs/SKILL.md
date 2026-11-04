@@ -19,6 +19,8 @@ The matcher is Python `fnmatch`, so reproduce it exactly rather than approximati
 - `*` and `**` both span `/`. They are interchangeable.
 - Matching goes through `os.path.normcase`, so it is **case-sensitive on macOS and Linux**
   and case-insensitive on Windows. Test the case-sensitive behaviour; it is the stricter one.
+  The exception is a raw image's NTFS, ReFS, exFAT and FAT volumes, whose members match
+  whatever their case on every platform.
 - The directory, zip, tar and raw image seekers prepend a synthetic `root/`. iLEAPP's
   iOS-backup seeker does not.
 
@@ -46,9 +48,10 @@ To confirm the artifact then produces the rows you expect, call the artifact fun
 
 ## Patterns that need extra care
 
-**Case variants.** Use one bracket class, `*/[Bb]iome/*`, never a tuple of two patterns. A
-tuple double-counts on Windows, where `normcase` folds both to the same string and the
-entry point extends `files_found` once per pattern with no dedup.
+**Case variants.** Use one bracket class, `*/[Bb]iome/*`, never a tuple of two patterns. On
+Windows `normcase` folds both to the same string. The entry point now hands a file two
+patterns match to the artifact once, so the tuple no longer doubles rows there, but off
+Windows the capital-only pattern still misses the lowercase directory.
 
 **Vendor moves.** When a file changes location between OS versions, keep the old pattern
 alongside the new one. Examiners run these tools against extractions going back years.

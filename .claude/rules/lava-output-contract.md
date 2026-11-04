@@ -13,7 +13,14 @@ Alongside `_HTML/`, `_TSV Exports/`, `_Timeline/`, `data/` and `media/`:
 - **`_lava_data.lava`**: a JSON manifest. Top-level keys include `parser_info`,
   `lava_db_name`, `modules`, `artifacts` and `meta`. `artifacts` is keyed by category, and
   each entry carries `name`, `tablename`, `module`, `column_map`, `artifact_icon`,
-  `record_count`, `source_path` and `object_columns`.
+  `record_count`, `source_path` and `object_columns`. `case_data` holds the examiner's case
+  information as a flat object (`Case Number`, `Agency`, `Examiner`, and the logo as
+  `Agency Logo mimetype` plus `Agency Logo base64`). The LEAPP window and the CLI's case
+  data file writer produce string values, but `-d` copies a hand-editable `.lcasedata`
+  file's values unchanged, so a reader must not assume strings. It is empty when none
+  was given and absent from manifests written before it existed. The database carries
+  the same pairs in `_lava_case_data`, with every value passed through `str()`, but a
+  subset export keeps only the manifest copy, so LAVA reads the manifest.
 - **`_lava_artifacts.db`**: SQLite, one table per artifact, named from the sanitized
   artifact function name. Column names are sanitized snake_case of the headers, so
   `Kind (as stored)` becomes `kind_as_stored`. A header typed `('X', 'datetime')` becomes

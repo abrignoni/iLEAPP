@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Statuses with direct visibility cached by the Mastodon application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-10-09',
+        'last_update_date': '2026-10-31',
         'requirements': 'none',
         'category': 'Mastodon',
         'notes': "Rows are statuses whose stored ZVISIBILITYRAW value is \"direct\"."
@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                  "domain. A store holding more than one such id was not available for "
                  "testing.",
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
-        'output_types': 'all',
+        'output_types': 'standard',
         'artifact_icon': 'message',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 40 rows',

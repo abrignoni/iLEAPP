@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses the Notification Usage biome",
         "author": "Thijs van Meurs",
         "creation_date": "2026-07-01",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-11-01",
         "version": "0.0.1",
         "date": "2026-06-29",
         "requirements": "none",
@@ -12,6 +12,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/Notification.Usage/*'),
         "output_types": "standard",
+        "artifact_icon": "bell",
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | 3634 rows",
             "felix_ios17": "iOS 17.6.1 | 157 rows",

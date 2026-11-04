@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         ),
         "author": "@malwr4n6",
         "creation_date": "2026-07-19",
-        "last_update_date": "2026-08-10",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Apple Intelligence",
         "notes": (
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
             "the author's exported reports; no registered corpus image carries one."
         ),
         "paths": ('*/Apple_Intelligence_Report*.json',),
-        "output_types": "all",
+        "output_types": "standard",
         "artifact_icon": "cpu"
     }
 }

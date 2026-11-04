@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Messages from the ZMESSAGE table of ThreemaData.sqlite, with attachments where the store or its external data folder holds them. System messages are not reported. Sender Name and Receiver are derived from ZISOWN and the conversation',
         'author': '@C_Peter',
         'creation_date': '2026-01-03',
-        'last_update_date': '2022-01-03',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Threema',
         'notes': "The text 'local user' in Sender Name (ZISOWN 1) and in Receiver (ZISOWN 0) is a label "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         'description': 'Extract known users from Threema',
         'author': '@C_Peter',
         'creation_date': '2026-01-03',
-        'last_update_date': '2022-01-03',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Threema',
         'notes': '',

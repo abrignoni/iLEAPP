@@ -5,12 +5,13 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni - @stark4n6",
         "version": "0.3",
         "creation_date": "2023-10-03",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "Reading more than one matched plist and more than one PersonalWallet entry was not "
-                 "exercised on a tested image. A PersonalWallet entry with no CarrierEntitlements "
-                 "dictionary is logged and not reported.",
+        "notes": "Reading more than one PersonalWallet entry was exercised on magnet_ios16, whose "
+                 "plist holds two entries. Reading more than one matched plist was not exercised on "
+                 "a tested image. A PersonalWallet entry with no CarrierEntitlements dictionary is "
+                 "logged and not reported.",
         "paths": ('*/wireless/Library/Preferences/com.apple.commcenter.plist'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hash",
@@ -29,7 +30,7 @@ __artifacts_v2__ = {
             "hickman_ios13": "iOS 13.3.1 | 22 rows",
             "hickman_ios14": "iOS 14.3 | 23 rows",
             "jess_ios15": "iOS 15.0.2 | 22 rows",
-            "magnet_ios16": "iOS 16.1.1 | 21 rows",
+            "magnet_ios16": "iOS 16.1.1 | 24 rows",
         }
     },
     "imeiImsiPersonalWallet": {

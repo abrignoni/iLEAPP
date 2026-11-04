@@ -1,7 +1,8 @@
 # Vendored third-party readers
 
-Code copied in from another repository, unmodified, so the tool can read disk
-images and acquisitions without asking the examiner to install anything.
+Code copied in from another repository so the tool can read disk images and
+acquisitions without asking the examiner to install anything. Every file is
+unmodified except ccl/ccl_leveldb.py, whose section says what differs.
 
 ## qnxprobe.py
 
@@ -28,12 +29,12 @@ seekable image. qnxprobe reaches it by name, and `scripts/raw_image.py` imports
 this copy first so that the name resolves to it in a frozen build as well as from
 source. Standard library only, so this adds no dependency either.
 
-## c2paprobe.py
+## c2pareader.py
 
 | | |
 | --- | --- |
-| upstream | https://github.com/abrignoni/c2paprobe |
-| licence | MIT, kept beside it as LICENSE-c2paprobe |
+| upstream | https://github.com/abrignoni/c2pareader (called c2paprobe up to v0.1.1) |
+| licence | MIT, kept beside it as LICENSE-c2pareader |
 
 Reads the Content Credentials (C2PA) manifest store and the XMP a picture or video
 holds, walking its container from the bytes. `scripts/artifacts/c2paProvenance.py`
@@ -52,7 +53,7 @@ re-vendor, or the next sync silently reverts the change.
 
     cp ../qnxprobe/qnxprobe.py scripts/vendor/qnxprobe.py
     cp ../qnxprobe/ewfprobe.py scripts/vendor/ewfprobe.py
-    cp ../c2paprobe/c2paprobe/__init__.py scripts/vendor/c2paprobe.py
+    cp ../c2pareader/c2pareader/__init__.py scripts/vendor/c2pareader.py
     python3 admin/scripts/check_vendored.py --update
 
 `--update` rewrites the hashes only. The upstream commit and date in
@@ -70,3 +71,29 @@ fails when either differs. It runs in CI, so a local edit or a stale copy after 
 upstream release is caught rather than noticed later. Pass `--upstream <path>`
 (or `--upstream qnxprobe=<path>`) to compare against a checkout instead of
 fetching, and `--offline` to check the hashes alone.
+
+## ccl/ (CCL Forensics LevelDB reader)
+
+| | |
+| --- | --- |
+| upstream | https://github.com/cclgroupltd/ccl_chromium_reader and https://github.com/cclgroupltd/ccl_simplesnappy |
+| licence | MIT, kept beside them as LICENSE-ccl_chromium_reader and LICENSE-ccl_simplesnappy |
+
+Reads LevelDB stores. The KeepSafe, Spotify, Uber and Chromium sync data artifacts import it
+from `scripts.vendor.ccl`. Both files are the same as DLEAPP's and ALEAPP's `scripts/vendor/ccl`
+copies.
+
+- `ccl_simplesnappy.py`: ccl_simplesnappy 2161c40 (2024-07-29), verbatim, recorded in vendored.json.
+  That commit carried no LICENSE file; the MIT text kept here is the repository's later one, and
+  the file's own header holds the same licence.
+- `ccl_leveldb.py`: ccl_chromium_reader ad37443 (2026-10-28) with two changes, so it is not in
+  vendored.json. `import ccl_simplesnappy` is `from . import ccl_simplesnappy`, and the file
+  handle bounding from iLEAPP 41af38df is merged in: a reader closes each .log and .ldb file
+  after checking it and reopens it for each pass, and what a pass skips as damage is copied back
+  to the file's reader. That change is offered upstream as
+  https://github.com/cclgroupltd/ccl_chromium_reader/pull/56; once upstream has it, re-vendor
+  and record the file in vendored.json.
+
+Before 2026-11-03 iLEAPP kept an older copy of this reader (closest to upstream 210b5c6, 2021) in
+`scripts/`. The newer upstream code skips and reports a damaged or zero-filled .log block where
+the older one stopped reading (ccl_chromium_reader a321210 and 6e5dbe5).

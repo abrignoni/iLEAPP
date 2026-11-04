@@ -72,8 +72,8 @@ __artifacts_v2__ = {
             }
         },
         "sample_data": {
-            "hickman_ios15": "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, and TIMMessageNewPropertyORM present",
-            "iphone14plus_ios18": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "hickman_ios15": "32 rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, and TIMMessageNewPropertyORM present",
+            "iphone14plus_ios18": "0 rows (No TikTok AwemeIM.db or ChatFiles db.sqlite found)",
             "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 63 rows",
             "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 15 rows",
@@ -120,8 +120,8 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "users",
         "sample_data": {
-            "hickman_ios15": "4 contact rows from AwemeContactsV5",
-            "iphone14plus_ios18": "No TikTok AwemeIM.db found",
+            "hickman_ios15": "4 rows; contacts from AwemeContactsV5",
+            "iphone14plus_ios18": "0 rows (No TikTok AwemeIM.db found)",
             "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 1 row",
             "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 44 rows",
             "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 5 rows",
@@ -262,7 +262,7 @@ __artifacts_v2__ = {
             "iphone14plus_ios18_mvs2025": "iOS 18.0 | 6 rows",
             "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 0 rows (FE database lacks the session table)",
             "hickman_ios15": "iOS 15.3.1 | 0 rows (FE database lacks the session table)",
-            "hickman_ios13": "iOS 13.3.1 | no Pitaya feature_engineering.db found",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows (no Pitaya feature_engineering.db found)",
         },
     },
     "tiktok_watch_history": {
@@ -308,10 +308,10 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 1044 rows",
             "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 1562 rows",
             "hickman_ios15": "iOS 15.3.1 | 8 rows",
-            "dexter_ios18": "iOS 18.3.2 | no WatchHistory store found",
-            "iphone12_ios18": "iOS 18.7 | no WatchHistory store found",
-            "iphone14plus_ios18_mvs2025": "iOS 18.0 | no WatchHistory store found",
-            "hickman_ios13": "iOS 13.3.1 | no WatchHistory store found",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows (no WatchHistory store found)",
+            "iphone12_ios18": "iOS 18.7 | 0 rows (no WatchHistory store found)",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows (no WatchHistory store found)",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows (no WatchHistory store found)",
         },
     },
 }

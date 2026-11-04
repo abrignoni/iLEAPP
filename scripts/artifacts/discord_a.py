@@ -1,10 +1,11 @@
 __artifacts_v2__ = {
     "DiscordChatsA": {  # This should match the function name exactly
         "name": "Discord Chats (KV Storage)",
-        "description": "Parses Discord chats from \"a\" database",
+        "description": "Parses Discord chats from \"a\" database, including messages another state in its "
+                       "write-ahead log holds and the current state does not",
         "author": "@stark4n6",
         "creation_date": "2025-03-31",
-        "last_update_date": "2026-10-23",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Discord",
         "notes": "Direction reads Outgoing when the message sender id equals the "
@@ -26,12 +27,21 @@ __artifacts_v2__ = {
                  "resolved: 76 of 76 on dexter_ios18 in server channels, 25 of 50 on "
                  "iphone11_ios17 in a server channel and 25 in a channel with no guild_id, and "
                  "all 8 on hc_ios18_7 and all 4 on iphone12_ios18 in a channel with no guild_id. "
-                 "Channel Name was blank on every row in a channel with no guild_id.",
+                 "Channel Name was blank on every row in a channel with no guild_id. "
+                 "Record Origin. Live rows come from a normal read of messages0. Recovered rows do not: their key, columns a to f of messages0, is held by another state in the database's write-ahead log and absent from the current one. messages0 declares no primary key; the unique index messages0_by_key on a to f is what makes a row one message, so a row whose key the current state still holds is not reported, whatever its older versions held. Recovery Method and Recovery Location are filled in only on Recovered rows. Why a Recovered row is absent is not established here. States are read by scripts/sqlite_wal.py: each earlier committed state of the log's current generation (state n is the database after the first n committed transactions, and state 0 the database file without its log), the previous generation's left-over frames where its checks pass, and frames after the last commit. A Recovered row is reported once, as the newest committed state holding its key stored it, else the previous generation's newest left-over commit, else the frames after the last commit. Recovery Location names the committed states the key was read in, with their first and last numbers, and the previous log generation with the first and last numbers of its left-over commits; for a key read only after the last commit it names the log's frames after the last commit. Recovery Method is WAL committed states, or WAL uncommitted frames for a key read only after the last commit. The previous-generation and uncommitted-frame paths were not exercised on these images or by the unit test. "
+                 "On falken_ios26 one Recovered row was returned, read in committed states 0 to 3. "
+                 "On dexter_ios18, hc_ios18_7, hc_ios26 and iphone11_ios17 no Recovered row was "
+                 "returned, so Record Origin held Live on every row and Recovery Method and Recovery "
+                 "Location were empty on every row; on dexter_ios18 none of the previous "
+                 "generation's 15 commits could be read. iphone12_ios18 had an empty (0-byte) log "
+                 "beside the database, which the reader treats as no log.",
         "paths": ('*/Library/Caches/kv-storage/@account*/a*'),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "message-circle",
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | Discord - Talk, Play, Hang Out 298.0 | 76 rows",
+            "falken_ios26": "iOS 26.2.1 | 34 rows (1 Recovered)",
+            "hc_ios26": "iOS 26.5.2 | 8 rows",
             "hc_ios18_7": "iOS 18.7.8 | Discord - Talk, Play, Hang Out 324.0 | 8 rows",
             "iphone11_ios17": "iOS 17.3 | Discord - Talk, Play, Hang Out 238.0 | 50 rows",
             "iphone12_ios18": "iOS 18.7 | Discord - Talk, Play, Hang Out 306.1 | 4 rows",
@@ -54,7 +64,8 @@ import os
 import re
 import json
 
-from scripts.artifacts.discordServers import discord_channel_context, discord_kv_lookup
+from scripts.artifacts.discordServers import (ORIGIN_LIVE, ORIGIN_RECOVERED, discord_channel_context,
+                                              discord_kv_lookup, discord_removed_messages)
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
 _ACCOUNT_ID_RE = re.compile(r'@account\.(\d+)')
@@ -74,6 +85,7 @@ def DiscordChatsA(context):
         'Sender Username',
         'Conversation',
         'Message',
+        'Record Origin',
         'Sender Global Name',
         'Sender ID',
         'Attachment(s)',
@@ -86,6 +98,8 @@ def DiscordChatsA(context):
         'Channel Name',
         'DM Recipients',
         'Account ID',
+        'Recovery Method',
+        'Recovery Location',
     )
 
     for file_found in context.get_files_found():
@@ -99,13 +113,15 @@ def DiscordChatsA(context):
         account_id = account_match.group(1) if account_match else ''
         lookup = discord_kv_lookup([file_found])
 
-        db_records = get_sqlite_db_records(file_found, query)
+        db_records = [(record[0], ORIGIN_LIVE, '', '')
+                      for record in get_sqlite_db_records(file_found, query)]
+        db_records.extend((blob, ORIGIN_RECOVERED, method, location)
+                          for blob, method, location in discord_removed_messages(file_found))
 
-        for record in db_records:
+        for blob_data, origin, method, location in db_records:
             message_ts = edited_ts = auth_username = global_username = ''
             attach_name = message_type = call_end = sender_id = message = ''
             blob_id = channel_id = ''
-            blob_data = record[0]
             if len(blob_data) <= 1:
                 continue
             try:
@@ -163,6 +179,7 @@ def DiscordChatsA(context):
                 auth_username,
                 conversation,
                 message,
+                origin,
                 global_username,
                 sender_id,
                 attach_name,
@@ -175,6 +192,8 @@ def DiscordChatsA(context):
                 channel_name,
                 recipients,
                 account_id,
+                method,
+                location,
             ))
 
     return data_headers, data_list, '\n'.join(source_paths)

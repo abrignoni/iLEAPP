@@ -4,14 +4,16 @@ __artifacts_v2__ = {
         "description": "Parses Apple Maps search history entries and timestamps from GeoHistory.mapsdata.",
         "author": "@any333",
         "creation_date": "2021-01-29",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Locations",
-        "notes": "GeoHistory.mapsdata is present only on the iOS 12.4 and 13.3.1 test images; it "
-                 "was not found on the newer registered corpus images checked or in the 21 "
-                 "extractions in Mattia Epifani's 2026-08 comparison (iOS 16.1.1-26.5.2), so a "
-                 "no-file result on current extractions is expected (Maps history there is parsed "
-                 "by the Maps Sync artifact). Search terms have been documented in "
+        "notes": "GeoHistory.mapsdata was found on the iOS 12.4 and 13.3.1 test images and on none "
+                 "of the newer registered corpus images checked (abe_ios16, hickman_ios15, "
+                 "iphone11_ios17, hc_ios18_7), so a no-file result on current extractions is "
+                 "expected (Maps history there is parsed by the Maps Sync artifact). Timestamp is "
+                 "the record's modificationDate value. Short Address, Latitude, Longitude, Search "
+                 "Not in Protobuf and Current Location are empty on both test images. Search terms "
+                 "have been documented in "
                  "GeoHistory.mapsdata by published research; the specific protobuf field positions "
                  "used here are not vendor-documented and were derived from the tested images. "
                  "Reference: Heather Barnhart, 'How the Grinch stole Apple Maps artifacts... or "
@@ -24,8 +26,8 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "search",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | com.apple.Maps | 28 rows",
-            "hickman_ios13": "iOS 13.3.1 | com.apple.Maps | 14 rows",
+            "ctf2020_ios12": "iOS 12.4 | com.apple.Maps | 14 rows",
+            "hickman_ios13": "iOS 13.3.1 | com.apple.Maps | 7 rows",
         },
     }
 }

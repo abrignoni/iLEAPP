@@ -1,4 +1,4 @@
-"""MapsSync raw entities preserve SQLite values without changing fixed labels."""
+"""MapsSync raw entities preserve SQLite values, and Entity names come from the store's Z_PRIMARYKEY."""
 import inspect
 import sqlite3
 import tempfile
@@ -66,14 +66,13 @@ class TestMapsSyncRawEntities(unittest.TestCase):
                 self.assertEqual(len(rows), 14 if layout == 'basic' else 27)
                 self.assertEqual(source, main.name)
                 self.assertEqual(len(headers), 13)
-                if layout != 'modern':
-                    self.assertEqual({r[3] for r in rows}, {'Unknown'})
-                else:
-                    labels = connection.execute('SELECT h.Z_PK,CASE WHEN h.Z_ENT=14 THEN '
-                                                "'coordinates of search' WHEN h.Z_ENT=16 THEN "
-                                                "'location search' WHEN h.Z_ENT=12 THEN "
-                                                "'navigation journey' END FROM ZHISTORYITEM h" + join).fetchall()
-                    self.assertEqual([(r[2], r[3]) for r in rows], labels)
+                # Entity is the Z_PRIMARYKEY name SQLite's own comparison finds for the stored Z_ENT.
+                named = connection.execute('SELECT h.Z_PK, p.Z_NAME FROM ZHISTORYITEM h' + join +
+                                           ' LEFT JOIN Z_PRIMARYKEY p ON p.Z_ENT = ' + raw).fetchall()
+                self.assertEqual([r[3] for r in rows], [name or '' for _, name in named])
+                if with_entity and affinity != 'TEXT':
+                    self.assertIn('UnrelatedEntity', {r[3] for r in rows})
+                self.assertEqual(headers[3], 'Entity (Z_PRIMARYKEY Name)')
                 if wal:
                     self.assertGreater(Path(str(main) + '-wal').stat().st_size, 32)
             finally:

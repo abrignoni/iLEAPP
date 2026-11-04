@@ -31,6 +31,9 @@ def _uid(label):
     return str(uuid.uuid5(_NS, label)).upper()
 
 
+uid = _uid
+
+
 def _plist(obj):
     return plistlib.dumps(obj, fmt=plistlib.PlistFormat.FMT_BINARY)
 
@@ -167,6 +170,48 @@ def edge_files():
             {"StoreName": "FutureStore", "Properties": {"active": True, "syncToWatch": False, "extra": 1},
              "version": 9, "example.futureKey": {"b": [1, 2], "a": "x"}, "example.when": 5}),
     }
+
+
+LIVE_USER = "private/var/mobile/Library/com.apple.ManagedSettings"
+LIVE_SYSTEM = f"private/var/containers/Shared/SystemGroup/{_uid('system-group')}/Library/com.apple.ManagedSettings.system"
+
+
+def build_live_files(variant):
+    """The same stores in the layout of a full file system extraction: {path below the root: bytes}.
+
+    Store files are Records/<record identifier>/<store identifier>/detokenized.plist and hold the
+    setting keys and version without StoreName or Properties, beside a tokenized.plist twin that
+    carries the key material. Adds a record folder that SettingRecords.plist does not list, and two
+    near-miss files whose names contain ManagedSettings.
+    """
+    sysdiag = build_files(variant)
+    records = plistlib.loads(sysdiag["User/SettingRecords.plist"])
+    files = {f"{LIVE_USER}/DataVersion.plist": _plist({"version": 7}),
+             f"{LIVE_USER}/EffectiveSettings.plist": sysdiag["User/EffectiveSettings.plist"],
+             f"{LIVE_USER}/Records/SettingRecords.plist": sysdiag["User/SettingRecords.plist"],
+             f"{LIVE_SYSTEM}/DataVersion.plist": _plist({"version": 7}),
+             f"{LIVE_SYSTEM}/Records/SettingRecords.plist": _plist([])}
+    for record in records:
+        client = record["client"]["containerIdentifier"]
+        base = f"{LIVE_USER}/Records/{record['recordIdentifier']}"
+        if f"User/{client}/clientEffectiveSettings.plist" in sysdiag:
+            files[f"{base}/clientEffectiveSettings.plist"] = sysdiag[f"User/{client}/clientEffectiveSettings.plist"]
+        for entry in record["storeDirectory"].values():
+            stored = sysdiag.get(f"User/{client}/{entry['identifier']}.plist")
+            if stored is None:
+                continue
+            settings = {k: v for k, v in plistlib.loads(stored).items() if k not in ("StoreName", "Properties")}
+            files[f"{base}/{entry['identifier']}/detokenized.plist"] = _plist(settings)
+            files[f"{base}/{entry['identifier']}/tokenized.plist"] = _plist(
+                {"version": 3, "managedSettings.tokenEncodingKey": TOKEN_KEY, "decoy": True})
+    orphan = f"{LIVE_USER}/Records/{_uid('orphan-record')}"
+    files[f"{orphan}/clientEffectiveSettings.plist"] = _plist({"version": 3, "siri.denySiri": True})
+    files[f"{orphan}/{_uid('orphan-store')}/detokenized.plist"] = _plist({"version": 3, "siri.denySiri": True})
+    files["private/var/mobile/Library/com.apple.managedconfiguration.ManagedSettingsExtension/"
+          "PreviousSettings.plist"] = _plist({"version": 3, "decoy": True})
+    files["private/var/mobile/Library/Preferences/com.apple.remotemanagement.ManagedSettingsSubscriber.plist"] = \
+        _plist({"version": 3, "decoy": True})
+    return files
 
 
 def write_archive(path, variant, extra=None, with_noise=True):

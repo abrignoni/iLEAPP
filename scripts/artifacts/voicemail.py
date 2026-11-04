@@ -4,14 +4,21 @@ __artifacts_v2__ = {
         'description': 'Extract voicemail',
         'author': '@JohannPLW - @AlexisBrignoni, Codex',
         'creation_date': '2023-09-30',
-        'last_update_date': '2026-10-04',
+        'last_update_date': '2026-10-30',
         'requirements': "none",
         'category': 'Call History',
         'notes': "date and trashed_date are reported as raw text in separate columns because "
                  "their epochs are not sourced here. flags is reported as stored without a "
                  "derived Deleted label. A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' "
                  "(Syngress, 2011), lists 67 = old, 75 = deleted, 3 = recent; applicability to "
-                 "the tested iOS versions is not established. Without voicemail.db, audio files "
+                 "the tested iOS versions is not established. With voicemail.db, a row's Audio File "
+                 "and Transcript are the files named <ROWID>.amr and <ROWID>.transcript in the "
+                 "folder that holds that voicemail.db. Only Library/Voicemail/voicemail.db is read: "
+                 "the per-account folders Library/Voicemail/A-<UUID>/ hold their own voicemail.db "
+                 "and audio, whose file names matched that store's own ROWIDs on the tested images, "
+                 "and are not reported when voicemail.db is present; on the 7 tested images "
+                 "with voicemail rows, each of their 11 rows had a row in the top-level store with the "
+                 "same remote_uid, date and sender. Without voicemail.db, audio files "
                  "are matched to transcripts by stem and metadata comes from the seeker's "
                  "FileInfo rather than database timestamps. That path was previously exercised "
                  "on a constructed tree because no registered sample carried audio without the database.",
@@ -26,7 +33,9 @@ __artifacts_v2__ = {
             'dexter_ios18': 'iOS 18.3.2 | 1 row',
             'felix_ios17': 'iOS 17.6.1 | 5 rows',
             'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+            'hc_ios17_2': 'iOS 17.2.1 | 3 rows',
             'hc_ios18_7': 'iOS 18.7.8 | 1 row',
+            'hc_ios26': 'iOS 26.5.2 | 1 row',
             'iphone11_ios17': 'iOS 17.3 | 0 rows',
             'iphone12_ios18': 'iOS 18.7 | 0 rows',
             'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
@@ -45,6 +54,15 @@ from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, does_table_exist_in_db, get_sqlite_db_records, \
     get_plist_file_content, check_in_media, convert_unix_ts_to_utc
+
+
+def _file_beside(paths, db_file, name):
+    """The path named exactly `name` in the folder of `db_file`, or None.
+
+    A suffix test takes 12.amr for row 2, and the per-account A-<UUID> folders
+    number their own files."""
+    db_dir = Path(db_file).parent
+    return next((f for f in paths if Path(f).parent == db_dir and Path(f).name == name), None)
 
 
 @artifact_processor
@@ -114,12 +132,12 @@ def voicemail(context):
             transcript_name_target = f'{row_id}.transcript'
 
             media_item = ""
-            real_audio_path = next((f for f in extracted_audio_files if str(f).endswith(audio_name_target)), None)
+            real_audio_path = _file_beside(extracted_audio_files, db_file, audio_name_target)
 
             if real_audio_path:
                 media_item = check_in_media(real_audio_path, audio_name_target)
 
-            transcript_file_path = get_file_path(extracted_transcript_files, transcript_name_target)
+            transcript_file_path = _file_beside(extracted_transcript_files, db_file, transcript_name_target)
             transcript = {}
             if transcript_file_path:
                 try:

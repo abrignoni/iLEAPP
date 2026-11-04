@@ -270,6 +270,7 @@ from datetime import date, datetime, timezone
 from scripts.ilapfuncs import (
     artifact_processor,
     convert_cocoa_core_data_ts_to_utc,
+    is_sqlite_sidecar,
     get_plist_file_content,
     get_sqlite_db_path,
     logfunc,
@@ -280,7 +281,7 @@ def _is_core_data_db(path):
     name = os.path.basename(path).lower()
     if not name.startswith("unitediphonecoredata.sqlite"):
         return False
-    return not (name.endswith("-wal") or name.endswith("-shm") or name.endswith("-journal"))
+    return not is_sqlite_sidecar(name)
 
 
 def _prefer_app_group_dbs(files_found):

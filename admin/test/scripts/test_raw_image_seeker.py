@@ -486,6 +486,28 @@ class RawImageSeekerTest(unittest.TestCase):
             else:
                 self.assertTrue(os.path.isfile(path))
 
+    def test_a_pattern_matches_an_ntfs_fat_or_exfat_name_whatever_its_case(self):
+        """Those filesystems look names up whatever their case by default, so the pattern does too."""
+        for image, pattern, member in ((self.ntfs, '*/ADS.TXT', 'lba0/ads.txt'),
+                                       (self.fat32, '*/A.Bin', 'lba0/a.bin'),
+                                       (self.exfat, '*/c.BIN', 'lba0/c.bin')):
+            with self.subTest(image=os.path.basename(image)):
+                self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+                self.addCleanup(shutil.rmtree, self.data, True)
+                seeker = self._seeker(image)
+                found = seeker.search(pattern)
+                self.assertEqual([seeker.file_infos[p].source_path for p in found], [member])
+
+    @unittest.skipIf(os.path.normcase('A') == 'a', 'normcase folds every name on this platform')
+    def test_a_pattern_matches_an_apfs_name_only_in_its_own_case(self):
+        """The seeker matches an APFS name exactly whatever the volume's own rule, so a pattern in
+        another case finds nothing."""
+        seeker = self._seeker(self.apfs)
+        self.assertEqual(seeker.search('*/qnxprobe/small.txt'), [])
+        found = seeker.search('*/QNXPROBE/small.txt')
+        self.assertEqual([seeker.file_infos[p].source_path for p in found],
+                         ['lba0/QNXPROBE/small.txt'])
+
     def test_fat32_and_exfat_files_match_the_macos_driver(self):
         self._check_volume(self.fat32, self.fat32_hashes)
         self._check_volume(self.exfat, self.exfat_hashes)

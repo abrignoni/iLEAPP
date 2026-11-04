@@ -1,0 +1,30 @@
+{
+    "casectf2020_ios12": {
+        "description": "2020 CTF iOS image (corpus key ctf2020_ios12), iOS 12.4: TextReplacements.db and its sidecars, 2 entries",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "iOS_Filesystem-001.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T05:43:58.647987",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T05:43:58.641146",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "textReplacements": {
+                "search_patterns": [
+                    "*/mobile/Library/KeyboardServices/TextReplacements.db*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}

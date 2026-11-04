@@ -63,7 +63,7 @@ processing function's name, or the loader will not associate them.
 Get these right, because they are the ones most often wrong:
 
 - **`paths`** is `fnmatch`, not glob. `*` crosses `/`. Matching is case-sensitive off
-  Windows. See the `leapp-artifact-paths` rule and validate before committing.
+  Windows, except on the NTFS, ReFS, exFAT and FAT volumes of a raw image. See the `leapp-artifact-paths` rule and validate before committing.
 - **`author`** is unversioned: `@YourHandle`, or `@YourHandle, Claude` if an agent helped.
 - **`description` and `notes`** are examiner-facing and reach the report and the LAVA
   manifest. Say only what the data proves. See the `leapp-claims` rule.

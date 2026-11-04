@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "module_name": "homeKit",
+    "artifact_name": "HomeKit Users",
+    "function_name": "homeKitUsers",
+    "case_number": "caseabe_ios16",
+    "number_of_columns": 9,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 131,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/homeKit/testdata.homeKit.homeKitUsers.caseabe_ios16.zip",
+    "start_time": "2026-10-30T17:14:00.122806+00:00",
+    "end_time": "2026-10-30T17:14:00.148907+00:00",
+    "run_time_seconds": 0.008354902267456055,
+    "last_commit": {
+      "hash": "dd1bddb256c1f84e89d957b908fd12a76db07d87",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-30T11:15:02-04:00",
+      "message": "Add HomeKit Homes, Users and Accessories (homed/datastore.sqlite)"
+    }
+  },
+  "headers": [
+    "Record Modified",
+    "Record Created",
+    "Home Name",
+    "User ID",
+    "Account Handle",
+    "Privilege (as stored)",
+    "Remote Access Allowed",
+    "User UUID",
+    "Store"
+  ],
+  "data": [
+    [
+      1650738198,
+      1650738198,
+      "My Home",
+      "aberudder@icloud.com",
+      "mailto:aberudder@icloud.com",
+      "3",
+      "True",
+      "5DD6E8F3-6928-4564-93BD-F09C8BD8F31C",
+      "datastore.sqlite"
+    ]
+  ]
+}

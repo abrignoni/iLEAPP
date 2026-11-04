@@ -253,7 +253,7 @@ import plistlib
 import sqlite3
 from datetime import timezone
 
-from scripts.ccl_leveldb import LogFile
+from scripts.vendor.ccl.ccl_leveldb import LogFile
 from scripts.ilapfuncs import (
     artifact_processor, check_in_media, convert_unix_ts_to_utc, logfunc, open_sqlite_db_readonly,
 )
@@ -412,11 +412,17 @@ def _resolve_rdb_state(files_found):
         per_dir_records = []
         for log_name in log_names:
             log_path = pathlib.Path(store_dir) / log_name
+            log_file = None
             try:
-                for record in LogFile(log_path):
+                log_file = LogFile(log_path)
+                for record in log_file:
                     per_dir_records.append(record)
             except (OSError, ValueError, struct.error) as ex:
                 logfunc(f"KeepSafe: error reading {log_path}: {ex}")
+            finally:
+                # LogFile opens the log in its constructor and keeps it open until closed.
+                if log_file is not None:
+                    log_file.close()
 
         per_dir_records.sort(key=lambda rec: rec.seq)
         for record in per_dir_records:

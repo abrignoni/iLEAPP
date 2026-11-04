@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/MCSettingsEvents.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "settings",
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         ),
         "paths": (
             '*/MCProfileEvents.plist',
-            '*/sysdiagnose_*.tar.gz',
+            '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz',
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "certificate",

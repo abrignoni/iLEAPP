@@ -38,8 +38,8 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'shield-lock',
         'sample_data': {
-            'hc_ios18_7': 'iOS 18.7.8 | stream folders present, no records',
-            'hc_ios26': 'iOS 26 | stream folders present, no records',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows (stream folders present, no records)',
+            'hc_ios26': 'iOS 26 | 0 rows (stream folders present, no records)',
         },
     },
     'privacyAccountingTombstones': {
@@ -70,8 +70,8 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'trash',
         'sample_data': {
-            'hc_ios18_7': 'iOS 18.7.8 | no tombstone files',
-            'hc_ios26': 'iOS 26 | no tombstone files',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows (no tombstone files)',
+            'hc_ios26': 'iOS 26 | 0 rows (no tombstone files)',
         },
     },
 }

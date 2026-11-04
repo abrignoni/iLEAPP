@@ -1,0 +1,257 @@
+{
+  "metadata": {
+    "module_name": "widgetEngagements",
+    "artifact_name": "Widget Engagements",
+    "function_name": "widgetEngagements",
+    "case_number": "casehickman_ios14",
+    "number_of_columns": 9,
+    "number_of_rows": 20,
+    "total_data_size_bytes": 3252,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/widgetEngagements/testdata.widgetEngagements.widgetEngagements.casehickman_ios14.zip",
+    "start_time": "2026-10-30T12:48:33.173280+00:00",
+    "end_time": "2026-10-30T12:48:33.375505+00:00",
+    "run_time_seconds": 0.09807896614074707,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T12:48:33.269590",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Engagement",
+    "Engagement Type (as stored)",
+    "Widget Extension",
+    "Widget Kind",
+    "Container Bundle ID",
+    "Widget Unique ID",
+    "Record Origin",
+    "Recovery Location"
+  ],
+  "data": [
+    [
+      1613665307,
+      "Tap",
+      "1",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Live",
+      ""
+    ],
+    [
+      1613764458,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db and _ATXInfoSuggestionStore.db-wal, committed states 0 to 3"
+    ],
+    [
+      1613764981,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 4 to 5"
+    ],
+    [
+      1613765244,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 6 to 22"
+    ],
+    [
+      1613768016,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 23"
+    ],
+    [
+      1613768155,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 24"
+    ],
+    [
+      1613768319,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 25 to 27"
+    ],
+    [
+      1613768569,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 28"
+    ],
+    [
+      1613768600,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 29 to 34"
+    ],
+    [
+      1613768974,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 35"
+    ],
+    [
+      1613769169,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 36"
+    ],
+    [
+      1613769287,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 37 to 38"
+    ],
+    [
+      1613769578,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 39 to 47"
+    ],
+    [
+      1613771323,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 48"
+    ],
+    [
+      1613771363,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 49 to 67"
+    ],
+    [
+      1613781866,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 68"
+    ],
+    [
+      1613781984,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 69 to 70"
+    ],
+    [
+      1613782480,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed state 71"
+    ],
+    [
+      1613782489,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Recovered",
+      "_ATXInfoSuggestionStore.db-wal, committed states 72 to 81"
+    ],
+    [
+      1613782801,
+      "Significant dwell",
+      "2",
+      "com.apple.weather.widget",
+      "com.apple.weather",
+      "",
+      "4C825954-8CF8-494C-8EDF-A531DC631CC1",
+      "Live",
+      ""
+    ]
+  ]
+}

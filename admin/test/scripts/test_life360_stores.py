@@ -505,6 +505,15 @@ class Life360StoreTests(unittest.TestCase):
                     self.assertEqual(_run(module, name, tree), multiple)
                     self.assertEqual([call.args[0] for call in log.call_args_list], messages)
 
+    def test_location_state_reports_each_sample_with_its_bssid(self):
+        rows = _run(stores, 'life360LocationState', self.root)
+        self.assertEqual([row['Store Key'] for row in rows], ['location', 'location', 'unsentFilteredSample'])
+        self.assertEqual([row['Wi-Fi BSSID (as stored)'] for row in rows], ['2:0:5e:0:53:1', '', ''])
+        self.assertEqual(rows[0]['Timestamp'], datetime.fromtimestamp(fixture.T0 + 500, timezone.utc))
+        self.assertEqual(rows[0]['Sample Timestamp'], datetime.fromtimestamp(fixture.T0 + 500.25, timezone.utc))
+        self.assertEqual(rows[1]['Latitude'], fixture.LAT + 0.0005)
+        self.assertTrue(all(row['Source File'].endswith('location_state.data') for row in rows))
+
     def test_unrelated_markers_are_not_parsed(self):
         context = _Context(self.root, awareness.__artifacts_v2__['life360GeofenceBreaches']['paths'])
         unrelated = [self.root.parent / 'other-apps' / str(n) /

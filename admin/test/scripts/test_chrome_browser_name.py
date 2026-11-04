@@ -24,6 +24,7 @@ APP = 'private/var/mobile/Containers/Data/Application'
 CHROME = '550E4CE8-9B02-4908-A2E5-8CA81748F454'
 BRAVE = '1B5AD18E-8383-48CF-855B-AAF876A8718B'
 GOOGLE = 'BD043E32-DAF4-4BA1-B6B5-3B018CD36828'
+NOTES = '6C1E2A40-3B7D-4F59-9E0A-7D2F5B8C1A36'
 NO_PLIST = '82FD7DCE-31F2-4DB1-8D53-9E3BCD30897F'
 META = '.com.apple.mobile_container_manager.metadata.plist'
 
@@ -49,7 +50,8 @@ class TestGetBrowserName(unittest.TestCase):
         self.data = self.tmp / 'Microsoft Fraud brave opera chromium chrome app_sbrowser' / 'data'
         for container, identifier in ((CHROME, 'com.google.chrome.ios'),
                                       (BRAVE, 'com.brave.ios.browser'),
-                                      (GOOGLE, 'com.google.GoogleMobile')):
+                                      (GOOGLE, 'com.google.GoogleMobile'),
+                                      (NOTES, 'com.apple.mobilenotes')):
             folder = self.data / APP / container
             folder.mkdir(parents=True)
             (folder / META).write_bytes(plistlib.dumps({'MCMMetadataIdentifier': identifier}))
@@ -73,11 +75,13 @@ class TestGetBrowserName(unittest.TestCase):
             f'{APP}/{CHROME}/Library/Application Support/Google/Chrome/Default/History')), 'Chrome')
         self.assertEqual(chrome.get_browser_name(self.staged(
             f'{APP}/{BRAVE}/Library/Application Support/Chromium/Default/History')), 'Brave')
+        self.assertEqual(chrome.get_browser_name(self.staged(
+            f'{APP}/{GOOGLE}/Library/Application Support/Login Data For Account')), 'Google')
 
     def test_examiner_folders_never_name_the_browser(self):
-        # Google app Web Data: nothing inside the extraction names a browser.
+        # A container of an app that is not mapped: nothing inside the extraction names a browser.
         self.assertEqual(chrome.get_browser_name(self.staged(
-            f'{APP}/{GOOGLE}/Library/Application Support/Web Data')), 'Unknown')
+            f'{APP}/{NOTES}/Library/Application Support/Web Data')), 'Unknown')
         self.assertEqual(chrome.get_browser_name(self.staged('Some/Loose/History')), 'Unknown')
 
     def test_folders_inside_the_container_without_its_metadata(self):

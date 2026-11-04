@@ -14,7 +14,7 @@ __artifacts_v2__ = {
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "link",
 'sample_data': {
-'ctf2020_ios12': 'iOS 12.4 | not queried, the code returns before reading the database on versions below iOS 14',
+'ctf2020_ios12': 'iOS 12.4 | 0 rows (not queried, the code returns before reading the database on versions below iOS 14)',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
 'felix_ios17': 'iOS 17.6.1 | 0 rows',
 'fsfull002_ios17': 'iOS 17.1 | 0 rows',
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
 'otto_ios17': 'iOS 17.5.1 | 0 rows',
 'abe_ios16': 'iOS 16.5 | 0 rows',
 'felix23_ios16': 'iOS 16.5 | 0 rows',
-'hickman_ios13': 'iOS 13.3.1 | not queried, the code returns before reading the database on versions below iOS 14',
+'hickman_ios13': 'iOS 13.3.1 | 0 rows (not queried, the code returns before reading the database on versions below iOS 14)',
 'hickman_ios14': 'iOS 14.3 | 0 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',

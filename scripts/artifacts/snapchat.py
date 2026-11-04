@@ -135,11 +135,11 @@ __artifacts_v2__ = {
                            "hickman_ios14": "iOS 14.3 | 22 rows (all Live; schema lacks quoted_server_message_id; Local Media ID on 1; no created_on_device column; none with media, cache_controller.db has no conversation entries)",
                            "hickman_ios13": "iOS 13.3.1 | 0 rows (conversation_message table empty)",
                            "ctf2020_ios12": "iOS 12.4 | 0 rows (conversation_message table empty)",
-                           "iphone14plus_ios18": "iOS 18.0 | no Snapchat arroyo.db found",
-                           "felix_ios17": "iOS 17.6.1 | no Snapchat arroyo.db found",
-                           "fsfull002_ios17": "iOS 17.1 | no Snapchat arroyo.db found",
-                           "hc_ios26": "iOS 26.5.2 | no Snapchat arroyo.db found",
-                           "cookbook_ios1751": "iOS 17.5.1 | no Snapchat arroyo.db found",
+                           "iphone14plus_ios18": "iOS 18.0 | 0 rows (no Snapchat arroyo.db found)",
+                           "felix_ios17": "iOS 17.6.1 | 0 rows (no Snapchat arroyo.db found)",
+                           "fsfull002_ios17": "iOS 17.1 | 0 rows (no Snapchat arroyo.db found)",
+                           "hc_ios26": "iOS 26.5.2 | 0 rows (no Snapchat arroyo.db found)",
+                           "cookbook_ios1751": "iOS 17.5.1 | 0 rows (no Snapchat arroyo.db found)",
                            "belkactf6": "no Snapchat files found",
                        },
         "data_views": {
@@ -347,7 +347,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 0 rows (index tables empty)",
             "hexordia_ios1651": "iOS 16.5.1 | 0 rows (index tables empty)",
             "ctf2020_ios12": "iOS 12.4 | 0 rows (index tables empty)",
-            "iphone12_ios18": "iOS 18.7 | no gallery_search search.sqlite3 found",
+            "iphone12_ios18": "iOS 18.7 | 0 rows (no gallery_search search.sqlite3 found)",
         },
     },
     "snapchatAccount": {
@@ -593,7 +593,7 @@ __artifacts_v2__ = {
                        "decrypted with its snap's key where one is available, with the file it came from and "
                        "how it was linked, plus cache files no available key opened.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-09-19", "last_update_date": "2026-09-19",
+        "creation_date": "2026-09-19", "last_update_date": "2026-10-31",
         "requirements": "nska_deserialize, pycryptodome", "category": "Snapchat",
         "notes": "One row per file. SCContent files are located through their cache_controller.db entry "
                  "(snap-media-, snap-overlay- or snap-rendered-lowres-, or g-media- as the reference "
@@ -614,7 +614,7 @@ __artifacts_v2__ = {
                  "in Snapchat - Memories describes numbered files as pieces of one item to be joined; "
                  "that did not hold on the tested images.\n"
                  "File says whether the file is on disk and whether it opened. Not on disk rows are "
-                 "entries whose file is absent; all 26 on the tested images carried a time in Cache "
+                 "entries whose file is absent; all 27 on the tested images carried a time in Cache "
                  "Entry Deleted. Encrypted rows with no usable key belong to Memories whose key could "
                  "not be read. Rows saying no available key opened the files summarise, per folder, "
                  ".pack files that no available key opens; Linked By, Snap IDs and Memory Created are "
@@ -641,8 +641,8 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Documents/user.plist'),
         "output_types": "standard", "artifact_icon": "photo-search",
         "sample_data": {
-                           "iphone11_ios17": "iOS 17.3 | 98 rows (69 recovered, 26 not on disk)",
-                           "hickman_ios15": "iOS 15.3.1 | 31 rows (31 recovered)",
+                           "iphone11_ios17": "iOS 17.3 | 106 rows (77 on disk, 26 not on disk, 3 no-key summaries)",
+                           "hickman_ios15": "iOS 15.3.1 | 33 rows (32 on disk, 1 not on disk)",
                            "hickman_ios14": "iOS 14.3 | 27 rows (encrypted, no keychain)",
                            "dexter_ios18": "iOS 18.3.2 | 25 rows (23 recovered)",
                            "abe_ios16": "iOS 16.5 | 13 rows (13 recovered)",

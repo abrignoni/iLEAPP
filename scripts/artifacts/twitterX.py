@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct message conversations cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-31',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it '
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                  'in the archive\'s inbox context, and 0 in every other case, including an entry '
                  'with no sender id.',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.atebits.tweetie.direct-message.cache/*',),
-        'output_types': 'all',
+        'output_types': 'standard',
         'artifact_icon': 'message',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 72 rows across 4 conversations',
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         'description': 'Twitter X accounts cached alongside the direct message inbox',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         'description': 'User profiles cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -86,10 +86,10 @@ __artifacts_v2__ = {
         'description': 'In-app notifications cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-11-01',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': '',
+        'notes': ('From Users holds the user IDs a notification names, as stored in its fromUsers list; usernames are not looked up. On the josh_ios17_ffs test case 116 of 119 notifications name one user and 3 name none.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'bell',
@@ -102,6 +102,7 @@ __artifacts_v2__ = {
 import gzip
 import json
 import os
+from datetime import datetime, timezone
 
 import nska_deserialize as nd
 
@@ -148,7 +149,9 @@ def _dm_cache_paths(context):
 def _load_dm_cache(source_path):
     """Deserialize the direct message NSKeyedArchiver cache."""
     try:
-        return nd.deserialize_plist(source_path)
+        # deserialize_plist(path) opens the file and never closes it.
+        with open(source_path, 'rb') as cache_file:
+            return nd.deserialize_plist_from_string(cache_file.read())
     except (nd.DeserializeError, ValueError, TypeError, OSError) as ex:
         logfunc(f'Could not deserialize Twitter X direct message cache: {ex}')
         return None
@@ -302,7 +305,7 @@ def twitterDMUsers(context):
             updated = user.get('kUpdatedTimestampCodingKey')
             profile_image = user.get('profileImageMediaEntity')
             data_list.append((
-                convert_cocoa_core_data_ts_to_utc(updated) if isinstance(updated, (int, float)) else '',
+                _dm_user_updated(updated),
                 user.get('fullName'),
                 user.get('username'),
                 user_id,
@@ -316,6 +319,37 @@ def twitterDMUsers(context):
             ))
 
     return data_headers, data_list, '\n'.join(source_paths)
+
+
+def _dm_user_updated(value):
+    """kUpdatedTimestampCodingKey as a UTC datetime, or '' when absent.
+
+    nska_deserialize decodes this NSDate as a naive datetime holding UTC wall time, so it is
+    marked UTC. A number is still read as Cocoa seconds. Only the number was accepted
+    before, so every decoded value was dropped and Updated was empty on every row.
+    """
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return convert_cocoa_core_data_ts_to_utc(value)
+    return ''
+
+
+def _notification_user(entry):
+    """The user a URTNotification fromUsers entry names, or ''.
+
+    The cached entries are shaped {'type': {'user': {'userID': <int>}}}. Reading username
+    or userID at the top level found nothing, so From Users was empty on every row; the
+    top-level keys are still tried first in case another app version stores them there.
+    """
+    if not isinstance(entry, dict):
+        return ''
+    found = entry.get('username') or entry.get('userID')
+    if not found:
+        kind = entry.get('type')
+        user = kind.get('user') if isinstance(kind, dict) else None
+        found = user.get('userID') if isinstance(user, dict) else None
+    return str(found) if found else ''
 
 
 def _iter_cached_models(source_path, model_type):
@@ -428,8 +462,8 @@ def twitterCachedUsers(context):
             model.get('username'),
             uid,
             _projected(model.get('bio')),
-            _projected(model.get('followersCount')),
-            _projected(model.get('followingCount')),
+            _projected(model.get('numberOfFollowers')),
+            _projected(model.get('numberOfFollowing')),
             _projected(model.get('favoritesCount')),
             'Yes' if model.get('isBlueVerified') else '',
             'Yes' if model.get('protectedUser') else '',
@@ -456,8 +490,7 @@ def twitterNotifications(context):
         from_users = model.get('fromUsers')
         if isinstance(from_users, list):
             from_users = ', '.join(
-                str(u.get('username') or u.get('userID') or '')
-                for u in from_users if isinstance(u, dict))
+                user for user in (_notification_user(u) for u in from_users) if user)
         else:
             from_users = ''
 

@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "serial number, SSID and room recorded for each.",
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Product table of the app's Realm store using the vendored "
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
                  "extraction, adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "device-washing-machine",
+        "artifact_icon": "wash-machine",
         "sample_data": {
             "adams_iphone12mini": "iOS 17.1.1 | 3 rows",
         },

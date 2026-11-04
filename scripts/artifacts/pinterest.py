@@ -670,12 +670,17 @@ def _image_index(files_found, roots):
     return index
 
 
-def _pin_image(pin, index):
-    '''(media ref, URL, rendition) for the largest cached rendition of a pin.'''
+def _pin_image(pin, index, used=None):
+    '''(media ref, URL, rendition) for the largest cached rendition of a pin.
+
+    When used is given, the path of the cached file whose media is returned is
+    added to it.
+    '''
     images = pin.get('images') if isinstance(pin, dict) else None
     if not isinstance(images, dict):
         return None, '', ''
     best = (None, '', '')
+    best_path = None
     best_width = -1
     for rendition, details in images.items():
         url = details.get('url') if isinstance(details, dict) else None
@@ -688,7 +693,10 @@ def _pin_image(pin, index):
             extension = _image_type(path)[1]
             best = (check_in_media(path, os.path.basename(path),
                                    force_extension=extension or None), url, str(rendition))
+            best_path = path
             best_width = width
+    if best[0] is not None and used is not None:
+        used.add(best_path)
     if best[0] is None:
         # Nothing on disk: report the largest rendition the record names.
         for rendition, details in sorted(images.items()):
@@ -711,13 +719,14 @@ def pinterestMessages(context):
         'Deleted By (as stored)', 'Message ID', 'Conversation ID', 'Cached Request',
         'Source File')
     data_list = []
-    source_path = ''
+    source_paths = set()
 
     roots = _containers(files_found)
     index = _image_index(files_found, roots)
     # The signed in account decides direction, so it is read from the container the
     # cached response belongs to rather than from any container in the extraction.
     accounts_by_container = {}
+    account_sources_by_container = {}
 
     for path in _cache_files(files_found, MODEL_CACHE_DIR, roots):
         request = _decoded_name(path)
@@ -725,8 +734,10 @@ def pinterestMessages(context):
             continue
         container = _container_of(path, roots)
         if container not in accounts_by_container:
+            account_sources_by_container[container] = set()
             accounts_by_container[container] = set(
-                _account_records(files_found, roots, container))
+                _account_records(files_found, roots, container,
+                                 sources=account_sources_by_container[container]))
         account_ids = accounts_by_container[container]
         try:
             with open(path, 'rb') as handle:
@@ -736,7 +747,7 @@ def pinterestMessages(context):
         models = cached.get('models') if isinstance(cached, dict) else None
         if not isinstance(models, list):
             continue
-        source_path = source_path or path
+        rows_before = len(data_list)
 
         for message in models:
             if not isinstance(message, dict):
@@ -764,7 +775,7 @@ def pinterestMessages(context):
                     participants.append(_text(user.get('username') or user.get('id')))
 
             pin = message.get('pin') if isinstance(message.get('pin'), dict) else {}
-            media, image_url, rendition = _pin_image(pin, index) if pin else (None, '', '')
+            media, image_url, rendition = _pin_image(pin, index, source_paths) if pin else (None, '', '')
 
             data_list.append((
                 message.get('created_at') or '',
@@ -795,8 +806,12 @@ def pinterestMessages(context):
                 request,
                 _source_label(path, roots),
             ))
+        if len(data_list) > rows_before:
+            # The activeUser file of the same container supplies From Me and Read At.
+            source_paths.add(path)
+            source_paths.update(account_sources_by_container[container])
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -807,7 +822,7 @@ def pinterestCachedModelRequests(context):
         'Model Count', 'Model Class', 'Referenced Identifiers', 'File Size (bytes)',
         'Source File')
     data_list = []
-    source_path = ''
+    source_dirs = set()
 
     seeker = context.get_seeker()
     roots = _containers(files_found)
@@ -818,7 +833,6 @@ def pinterestCachedModelRequests(context):
                 cached = _unarchive(handle.read())
         except OSError:
             continue
-        source_path = source_path or os.path.dirname(path)
         models = cached.get('models') if isinstance(cached, dict) else None
         model_class = ''
         if isinstance(models, list) and models and isinstance(models[0], dict):
@@ -835,8 +849,10 @@ def pinterestCachedModelRequests(context):
             os.path.getsize(path),
             _source_label(path, roots),
         ))
+        # One row per file, named in Source File, so the cache folder is reported here.
+        source_dirs.add(os.path.dirname(path))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 @artifact_processor
@@ -846,13 +862,12 @@ def pinterestCachedImages(context):
         ('Created', 'datetime'), ('Modified', 'datetime'), ('Image', 'media'),
         'Cache File Name (decoded)', 'Host', 'Image Type', 'File Size (bytes)', 'Source File')
     data_list = []
-    source_path = ''
+    source_dirs = set()
 
     seeker = context.get_seeker()
     roots = _containers(files_found)
 
     for path in _cache_files(files_found, IMAGE_CACHE_DIR, roots):
-        source_path = source_path or os.path.dirname(path)
         url = _decoded_name(path)
         label, extension = _image_type(path)
         media = check_in_media(path, os.path.basename(path),
@@ -868,8 +883,10 @@ def pinterestCachedImages(context):
             os.path.getsize(path),
             _source_label(path, roots),
         ))
+        # One row per file, named in Source File, so the cache folder is reported here.
+        source_dirs.add(os.path.dirname(path))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 def _autocomplete_rows(path):
@@ -902,7 +919,7 @@ def pinterestSearchAutocompleteCache(context):
         'Docid Gaps', 'Local File Prefix', 'Partition URLs', 'Cache State (as stored)',
         'File Size (bytes)', 'Source File')
     data_list = []
-    source_path = ''
+    source_paths = set()
 
     roots = _containers(files_found)
     preferences_by_container = _preferences_by_container(files_found, roots)
@@ -940,7 +957,10 @@ def pinterestSearchAutocompleteCache(context):
         total, gaps, distinct = _autocomplete_rows(path)
         is_current = 'Yes' if prefix and prefix == metadata.get('prefix') else 'No'
         current = is_current == 'Yes'
-        source_path = source_path or path
+        source_paths.add(path)
+        if current:
+            # The preference file supplies the metadata columns of the current cache.
+            source_paths.add(metadata['path'])
         data_list.append((
             metadata.get('downloaded', '') if current else '',
             metadata.get('last_checked', '') if current else '',
@@ -962,7 +982,7 @@ def pinterestSearchAutocompleteCache(context):
         prefix = metadata['prefix']
         if not prefix or prefix in metadata['seen']:
             continue
-        source_path = source_path or metadata['path']
+        source_paths.add(metadata['path'])
         data_list.append((
             metadata['downloaded'], metadata['last_checked'], 'Yes',
             _text(metadata['version']), '', '', '', prefix, metadata['urls'],
@@ -970,7 +990,7 @@ def pinterestSearchAutocompleteCache(context):
             _source_label(metadata['path'], roots) + ' (database not in extraction)',
         ))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -978,12 +998,12 @@ def pinterestAppState(context):
     files_found = context.get_files_found()
     data_headers = (('Date Value', 'datetime'), 'Key', 'Value', 'Value Type', 'Source File')
     data_list = []
-    source_path = ''
+    source_paths = set()
 
     roots = _containers(files_found)
     for preferences_path, preferences in sorted(
             _preferences_by_container(files_found, roots).values()):
-        source_path = source_path or preferences_path
+        rows_before = len(data_list)
         label = _source_label(preferences_path, roots)
         for key in sorted(preferences):
             if not key.startswith(APP_STATE_PREFIXES):
@@ -997,5 +1017,7 @@ def pinterestAppState(context):
             else:
                 text = _text(value)
             data_list.append((date_value, key, text, type(value).__name__, label))
+        if len(data_list) > rows_before:
+            source_paths.add(preferences_path)
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "module_name": "quickLook",
+    "artifact_name": "iCloud Quick Look",
+    "function_name": "quickLook",
+    "case_number": "casejess_ios15",
+    "number_of_columns": 3,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/quickLook/testdata.quickLook.quickLook.casejess_ios15.zip",
+    "start_time": "2026-10-30T10:26:23.128121+00:00",
+    "end_time": "2026-10-30T10:26:23.152079+00:00",
+    "run_time_seconds": 0.0023288726806640625,
+    "last_commit": {
+      "hash": "1bd4d2549709b40daf3e86bca6f2f3cbf32aa73e",
+      "author_name": "Brigs",
+      "author_email": "4n6@abrignoni.com",
+      "date": "2026-10-23T15:25:36-04:00",
+      "message": "Join artifact source paths with newlines (#2548)"
+    }
+  },
+  "headers": [
+    "Last Hit Date",
+    "Last Seen Path",
+    "Size"
+  ],
+  "data": []
+}

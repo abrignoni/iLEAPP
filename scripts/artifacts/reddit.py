@@ -36,10 +36,10 @@ __artifacts_v2__ = {
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 4 rows (1 flagged as the current app user)",
             "otto_ios17": "iOS 17.5.1 | 0 rows (store present, no entries)",
-            "hickman_ios15": "iOS 15.3.1 | no RoomsUsersService.db found",
-            "hickman_ios14": "iOS 14.3 | no RoomsUsersService.db found",
-            "hickman_ios13": "iOS 13.3.1 | no RoomsUsersService.db found",
-            "ctf2020_ios12": "iOS 12.4 | no RoomsUsersService.db found",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows (no RoomsUsersService.db found)",
+            "hickman_ios14": "iOS 14.3 | 0 rows (no RoomsUsersService.db found)",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows (no RoomsUsersService.db found)",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows (no RoomsUsersService.db found)",
         },
     },
     "reddit_users": {
@@ -74,10 +74,10 @@ __artifacts_v2__ = {
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 4 rows",
             "otto_ios17": "iOS 17.5.1 | 1 row",
-            "hickman_ios15": "iOS 15.3.1 | no RedditUsersStore.db found",
-            "hickman_ios14": "iOS 14.3 | no RedditUsersStore.db found",
-            "hickman_ios13": "iOS 13.3.1 | no RedditUsersStore.db found",
-            "ctf2020_ios12": "iOS 12.4 | no RedditUsersStore.db found",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows (no RedditUsersStore.db found)",
+            "hickman_ios14": "iOS 14.3 | 0 rows (no RedditUsersStore.db found)",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows (no RedditUsersStore.db found)",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows (no RedditUsersStore.db found)",
         },
     },
     "reddit_subreddit_subscriptions": {
@@ -387,7 +387,7 @@ import json
 from os.path import basename, dirname, isdir
 from re import search
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_media, get_plist_file_content, convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, does_table_exist_in_db, logfunc
+from scripts.ilapfuncs import artifact_processor, is_sqlite_sidecar, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_media, get_plist_file_content, convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, does_table_exist_in_db, logfunc
 
 
 def _reddit_owner_id(source_path):
@@ -665,7 +665,7 @@ def _chat_stores(files_found):
     seen = []
     for found in files_found:
         path = str(found)
-        if isdir(path) or path.endswith(('-wal', '-shm')):
+        if isdir(path) or is_sqlite_sidecar(path):
             continue
         if basename(path) == 'chat.sqlite' and path not in seen:
             seen.append(path)

@@ -1,0 +1,30 @@
+{
+    "caseiphone14plus_ios18_mvs2025": {
+        "description": "Hexordia Magnet Virtual Summit CTF 2025 iPhone 14 Plus image (corpus key iphone14plus_ios18_mvs2025), iOS 18.0: Suggestions entities.db with its sidecars",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "00008110-0008196A2299401E_files_full-001.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T08:17:33.658309",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T08:17:33.650707",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "suggestionsContactDetails": {
+                "search_patterns": [
+                    "*/mobile/Library/Suggestions/entities.db*"
+                ],
+                "file_count": 3,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}

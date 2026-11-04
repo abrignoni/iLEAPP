@@ -12,11 +12,11 @@ __artifacts_v2__ = {
                        "the file and are not cryptographically verified.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-12",
-        "last_update_date": "2026-10-25",
+        "last_update_date": "2026-10-27",
         "requirements": "none",
         "category": "AI Provenance",
-        "notes": "Read by c2paprobe (github.com/abrignoni/c2paprobe), vendored as "
-                 "scripts/vendor/c2paprobe.py: standard library only, a JUMBF/CBOR reader for the "
+        "notes": "Read by c2pareader (github.com/abrignoni/c2pareader), vendored as "
+                 "scripts/vendor/c2pareader.py: standard library only, a JUMBF/CBOR reader for the "
                  "manifest store, an XML reader for XMP, and a COSE_Sign1, X.509 and RFC 3161 reader "
                  "for the signature. SIGNATURE CAVEAT: the signer, issuer, algorithm, validity and "
                  "signing time are read from the manifest AS STATED. Nothing is cryptographically "
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc
-from scripts.vendor import c2paprobe
+from scripts.vendor import c2pareader
 
 _THUMBNAIL_CONTAINERS = ('jpeg', 'png', 'gif')
 
@@ -130,7 +130,7 @@ def c2paProvenance(context):
         if not os.path.isfile(file_found):
             continue
         try:
-            result = c2paprobe.probe(file_found)
+            result = c2pareader.probe(file_found)
         except OSError as ex:
             logfunc(f'C2PA: could not read {os.path.basename(file_found)}: {ex.strerror or ex}')
             continue

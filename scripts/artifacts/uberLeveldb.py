@@ -19,7 +19,7 @@ __artifacts_v2__ = {
 
 import pathlib
 import json
-import scripts.ccl_leveldb
+import scripts.vendor.ccl.ccl_leveldb
 from scripts.ilapfuncs import (
     artifact_processor,
     convert_unix_ts_to_utc,
@@ -37,7 +37,7 @@ def uber_locations(context):
 
     for in_db_dir in in_dirs:
         try:
-            leveldb_records = scripts.ccl_leveldb.RawLevelDb(in_db_dir)
+            leveldb_records = scripts.vendor.ccl.ccl_leveldb.RawLevelDb(in_db_dir)
         except (OSError, ValueError) as ex:
             logfunc(f"Error opening LevelDB at {in_db_dir}: {ex}")
             continue

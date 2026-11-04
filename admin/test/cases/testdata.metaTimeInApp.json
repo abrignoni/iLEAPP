@@ -1,0 +1,31 @@
+{
+    "caseiphone14plus_ios18_mvs2025": {
+        "description": "Hexordia Magnet Virtual Summit CTF 2025 iPhone 14 Plus image (corpus key iphone14plus_ios18_mvs2025), iOS 18.0: one Instagram time_in_app store and the data containers' metadata plists",
+        "maker": "@AlexisBrignoni, Claude",
+        "make_data": {
+            "input_data_path": "00008110-0008196A2299401E_files_full-001.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T06:55:41.437611",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T06:55:41.422081",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "metaTimeInApp": {
+                "search_patterns": [
+                    "*/Containers/Data/Application/*/Documents/time_in_app_*.db*",
+                    "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+                ],
+                "file_count": 230,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}
