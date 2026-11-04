@@ -616,8 +616,8 @@ class TestColumnContract(unittest.TestCase):
     def test_headers_match_the_dependent_artifact_queries(self):
         self.assertEqual(
             logarchive.DATA_HEADERS,
-            (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
-             'Subsystem', 'Category', 'Event Message', 'Trace ID'))
+            (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path',
+             ('Process ID', 'number'), 'Subsystem', 'Category', 'Event Message', 'Trace ID'))
 
     def test_the_import_stays_lava_only(self):
         # Nothing replays a 31M row table for a second output. Declaring any other output

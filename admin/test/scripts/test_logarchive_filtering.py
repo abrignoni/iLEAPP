@@ -38,8 +38,9 @@ class FilteringTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.path = str(pathlib.Path(self.tmp.name) / '_lava_artifacts.db')
         self.db = sqlite3.connect(self.path)
-        self.db.execute('CREATE TABLE logarchive(timestamp INTEGER, row_number TEXT, '
-                        'process_image_path TEXT, process_id TEXT, subsystem TEXT, category TEXT, '
+        # The column types the producer declares: Row Number and Process ID are 'number' headers.
+        self.db.execute('CREATE TABLE logarchive(timestamp INTEGER, row_number NUMERIC, '
+                        'process_image_path TEXT, process_id NUMERIC, subsystem TEXT, category TEXT, '
                         'event_message TEXT, trace_id TEXT)')
         self.readers = []
         self.logs = []

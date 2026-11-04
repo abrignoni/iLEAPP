@@ -121,12 +121,12 @@ class ChainTest(unittest.TestCase):
         # Two services in one dump; the entry order is the order logged.
         first = by_row[_row_at(10.0, 'tcc')]
         self.assertEqual(first, [
-            (MAPS, '4101', 'kTCCServicePhotos', '0x7f0b00001000', '0x7f0b00002000', 'Allowed', 'Entitled', '2', '', '2'),
-            (MAPS, '4101', 'kTCCServiceMicrophone', '0x7f0b00001100', '0x7f0b00002100', 'Allowed', 'User Consent', '1',
+            (MAPS, 4101, 'kTCCServicePhotos', '0x7f0b00001000', '0x7f0b00002000', 'Allowed', 'Entitled', '2', '', '2'),
+            (MAPS, 4101, 'kTCCServiceMicrophone', '0x7f0b00001100', '0x7f0b00002100', 'Allowed', 'User Consent', '1',
              '', '2')])
         # Text after the version is kept, not interpreted.
         flagged = [row for row in by_row[_row_at(12.0, 'tcc')] if row[2] == 'kTCCServiceCamera']
-        self.assertEqual(flagged, [(MAPS, '4101', 'kTCCServiceCamera', '0x7f0b00001200', '0x7f0b00002200',
+        self.assertEqual(flagged, [(MAPS, 4101, 'kTCCServiceCamera', '0x7f0b00001200', '0x7f0b00002200',
                                     'Denied', 'User Consent', '1', 'Has Prompted For Allow', '3')])
         # The changed entry is listed as the dump held it.
         changed = [row for row in by_row[_row_at(13.0, 'tcc')] if row[2] == 'kTCCServiceMicrophone']
@@ -137,7 +137,7 @@ class ChainTest(unittest.TestCase):
                                  'kTCCServicePhotos': ('Limited', 'Service Policy', '2'),
                                  'kTCCServiceAddressBook': ('Unknown', 'None', '1')})
         # A restarted process is listed under its new PID.
-        self.assertEqual(by_row[_row_at(30.0, 'tcc')][0][:2], (MAPS, '4103'))
+        self.assertEqual(by_row[_row_at(30.0, 'tcc')][0][:2], (MAPS, 4103))
 
     def test_tcc_fallbacks_keep_the_text_and_leave_fields_blank(self):
         records = {int(row[0]): row[1:] for row in self.db.execute(
@@ -168,17 +168,17 @@ class ChainTest(unittest.TestCase):
             'version_as_logged, other_flags_as_logged, first_dump, last_dump, dumps, entries '
             'FROM logarchive_tcc_cache_summary')}
         self.assertEqual(len(rows), 12)
-        photos = rows[(MAPS, '4101', 'kTCCServicePhotos', 'Allowed', 'Entitled', '2')]
+        photos = rows[(MAPS, 4101, 'kTCCServicePhotos', 'Allowed', 'Entitled', '2')]
         self.assertEqual(photos, ('', BASE_EPOCH + 10, BASE_EPOCH + 13, '4', '4'))
-        microphone = rows[(MAPS, '4101', 'kTCCServiceMicrophone', 'Allowed', 'User Consent', '1')]
+        microphone = rows[(MAPS, 4101, 'kTCCServiceMicrophone', 'Allowed', 'User Consent', '1')]
         self.assertEqual(microphone[1:], (BASE_EPOCH + 10, BASE_EPOCH + 12, '3', '3'))
-        denied = rows[(MAPS, '4101', 'kTCCServiceMicrophone', 'Denied', 'System Set', '1')]
+        denied = rows[(MAPS, 4101, 'kTCCServiceMicrophone', 'Denied', 'System Set', '1')]
         self.assertEqual(denied[1:], (BASE_EPOCH + 13, BASE_EPOCH + 13, '1', '1'))
-        flagged = rows[(MAPS, '4101', 'kTCCServiceCamera', 'Denied', 'User Consent', '1')]
+        flagged = rows[(MAPS, 4101, 'kTCCServiceCamera', 'Denied', 'User Consent', '1')]
         self.assertEqual(flagged, ('Has Prompted For Allow', BASE_EPOCH + 12, BASE_EPOCH + 13, '2', '2'))
         # The restarted process is its own row; two unreadable dumps share one.
-        self.assertEqual(rows[(MAPS, '4103', 'kTCCServicePhotos', 'Allowed', 'Entitled', '2')][3:], ('1', '1'))
-        self.assertEqual(rows[(TCC_DAEMON, '90', '', '', '', '')][3:], ('2', '2'))
+        self.assertEqual(rows[(MAPS, 4103, 'kTCCServicePhotos', 'Allowed', 'Entitled', '2')][3:], ('1', '1'))
+        self.assertEqual(rows[(TCC_DAEMON, 90, '', '', '', '')][3:], ('2', '2'))
 
     def test_location_rows(self):
         self.assertEqual(self.numbers('logarchive_location_state'), synthetic.lines_of('location'))
@@ -194,7 +194,7 @@ class ChainTest(unittest.TestCase):
         by_row = {int(row[0]): row[1:] for row in self.db.execute(
             f'SELECT row_number, process_image_path, process_id, {columns} FROM logarchive_location_state')}
         idle = by_row[_row_at(100.0, 'location')]
-        self.assertEqual(idle[:2], (MAPS, '4101'))
+        self.assertEqual(idle[:2], (MAPS, 4101))
         self.assertEqual(idle[2:], (
             'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false',
             'true', '2', '-1', '-1', '0',
@@ -210,7 +210,7 @@ class ChainTest(unittest.TestCase):
         self.assertEqual((background[2], background[7], background[17]), ('true', 'true', '3'))
         system = by_row[_row_at(150.0, 'location')]
         self.assertEqual((system[1], system[3], system[12], system[13], system[15], system[16]),
-                         ('210', 'true', 'true', 'false', '2147483646', '500'))
+                         (210, 'true', 'true', 'false', '2147483646', '500'))
 
     def test_location_fallbacks(self):
         other = {int(row[0]): row[1] for row in self.db.execute(
@@ -241,9 +241,9 @@ class ChainTest(unittest.TestCase):
         self.assertEqual(len(rows), 9)
         by_key = {row[:4]: row[4:] for row in rows}
         # Three dumps (two with the same record time and different rows) with equal content.
-        self.assertEqual(by_key[(MAPS, '4101', 'true', 'false')], (BASE_EPOCH + 110, BASE_EPOCH + 120, '3'))
-        self.assertEqual(by_key[(MAPS, '4101', 'false', 'false')], (BASE_EPOCH + 100, BASE_EPOCH + 100, '1'))
-        self.assertEqual(by_key[(MAPS, '4101', 'false', 'true')], (BASE_EPOCH + 130, BASE_EPOCH + 130, '1'))
+        self.assertEqual(by_key[(MAPS, 4101, 'true', 'false')], (BASE_EPOCH + 110, BASE_EPOCH + 120, '3'))
+        self.assertEqual(by_key[(MAPS, 4101, 'false', 'false')], (BASE_EPOCH + 100, BASE_EPOCH + 100, '1'))
+        self.assertEqual(by_key[(MAPS, 4101, 'false', 'true')], (BASE_EPOCH + 130, BASE_EPOCH + 130, '1'))
 
     def test_timestamps_are_utc_epoch_seconds_of_the_record(self):
         first = self.db.execute('SELECT timestamp FROM logarchive_tcc_cache ORDER BY row_number LIMIT 1').fetchone()[0]
