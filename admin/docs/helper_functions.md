@@ -75,6 +75,13 @@ also rewrites what it converts (`007` becomes 7, `1.0` becomes 1), so use it onl
 values that are numbers by nature, such as counts, sizes and process ids, never for
 identifiers or codes.
 
+Coordinates in decimal degrees take `('Latitude', 'latitude')` and
+`('Longitude', 'longitude')`. Both are stored as NUMERIC too, so LAVA sorts them as numbers
+and shows them in degrees, minutes and seconds with the hemisphere. The same rewrite
+applies (`37.7700` is stored as 37.77, `0.0` as 0), and a value that is not a single number,
+such as `N/A` or a `lat,lon` pair, stays as written. KML output is unaffected: it reads the
+headers by name.
+
 ## What `context` gives you
 
 `context` is the `Context` class in `scripts/context.py`. The decorator fills it in for
