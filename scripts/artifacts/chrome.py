@@ -321,27 +321,13 @@ __artifacts_v2__ = {
     },
     "chromeAutofillProfiles": {
         "name": "Autofill Profiles",
-        "description": "Parses Autofill Profiles from Chromium Based Browsers",
-        "author": "@stark4n6",
+        "description": "Addresses Chrome and other Chromium-based browsers hold for autofill: name, company, street, city, state, zip code, country, email and phone, with the modified and last used times and the use count",
+        "author": "@stark4n6, @AlexisBrignoni, Claude",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-10-26",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "Chromium stores address profiles in several layouts and all observed ones are read. "
-                 "A store that has autofill_profiles is read from that table joined (LEFT) to "
-                 "autofill_profile_names, _emails and _phones. A store that has contact_info, "
-                 "local_addresses or addresses is read from those tables. The layout is chosen by which "
-                 "tables exist, not by the Web Data version. For those three tables the field values live in "
-                 "a companion *_type_tokens table keyed by "
-                 "Chromium's FieldType enum (3 NAME_FIRST, 4 NAME_MIDDLE, 5 NAME_LAST, "
-                 "9 EMAIL_ADDRESS, 14 PHONE_HOME_WHOLE_NUMBER, 33 ADDRESS_HOME_CITY, "
-                 "34 ADDRESS_HOME_STATE, 35 ADDRESS_HOME_ZIP, 60 COMPANY_NAME, "
-                 "77 ADDRESS_HOME_STREET_ADDRESS). Types outside that set are not reported rather "
-                 "than labelled. The ten type numbers match the pinned field_types.h. Every iOS test store "
-                 "is empty, so the token-table read has not returned a row on a tested iOS store. Reference: "
-                 "Chromium, "
-                 "'components/autofill/core/browser/field_types.h', "
-                 "https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h"
+        "notes": "Chromium has kept saved addresses in three table layouts, and every layout a database holds is read, one row per address. Up to schema version 112 an address is a row of autofill_profiles, with its names, emails and phones in autofill_profile_names, autofill_profile_emails and autofill_profile_phones under the same guid. Version 113 moved addresses saved on the device to local_addresses, and account addresses sat in contact_info from version 107; both keep their values in a type token table (local_addresses_type_tokens, contact_info_type_tokens) of field type and value (Reference: Chromium, 'address_autofill_table.cc', https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L975 and https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1009-L1050). Version 134 merged the two into addresses and address_type_tokens and added a record_type column (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1094-L1105). A layout is read when its tables exist, and a column an older schema lacks is read as empty. Date Modified and Date Last Used are date_modified and use_date, seconds since 1970-01-01 UTC: Chromium writes them with base::Time::ToTimeT (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L379-L396) and reads the autofill_profiles columns with FromTimeT (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L166-L181). A zero is shown blank. Use Count is use_count as stored. Field values are mapped by Chromium's FieldType numbers: First Name is NAME_FIRST (3), Middle Name NAME_MIDDLE (4), Last Name NAME_LAST (5), Email EMAIL_ADDRESS (9), Phone Number PHONE_HOME_WHOLE_NUMBER (14), Company Name COMPANY_NAME (60), Address ADDRESS_HOME_STREET_ADDRESS (77), City ADDRESS_HOME_CITY (33), State ADDRESS_HOME_STATE (34), Zip Code ADDRESS_HOME_ZIP (35), Full Name NAME_FULL (7) and Country ADDRESS_HOME_COUNTRY (36), which holds the stored country code (Reference: Chromium, 'field_types.h', https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L141-L231 and https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L171-L175). field_types.h says the list is kept in step with the Autofill server and lists retired numbers as deprecated (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L22-L26, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L159-L161), so the same map is used for every schema version. autofill_profiles keeps the same values in named columns, mapped to the field types Chromium reads them as (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L166-L181, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L190-L206, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L304-L307, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L321-L324); honorific_prefix and full_name_with_honorific_prefix are named NAME_HONORIFIC_PREFIX and NAME_FULL_WITH_HONORIFIC_PREFIX from their column names, the second shown as 'NAME_FULL_WITH_HONORIFIC_PREFIX (deprecated)', since the current source no longer reads them, and field_types.h marks 117 deprecated (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L327). Other Values lists every other non-empty stored field value with its field type name, or 'type <n>' for a number this artifact does not name, so each stored name, email, phone and address value is reported once. Where a table holds more than one value for a guid and field type, the values are joined with '; '; that case was exercised on a constructed database only. A value stored as a BLOB is reported by its length and not decoded; no tested value was a BLOB. Record Type is record_type of addresses, named from AutofillProfile::RecordType (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/data_model/addresses/autofill_profile.h#L57-L100); local_addresses rows are reported as kLocalOrSyncable (0) and contact_info rows as one of the account types, the tables Chromium keeps those record types in (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L340-L352). Record Type is blank for autofill_profiles rows, which have no record type. Table names the table each row came from. Measured 2026-11-04 on every 'Web Data' file in the 35 registered iOS corpora, 21 copies on 12 of them: autofill_profiles was present in 8 copies on 4 corpora at schema versions 104 to 113 and held rows on hickman_ios15; addresses was present in 6 copies on 4 corpora at versions 141 to 151 and held a row on dexter_ios18, whose Record Type is kAccount (1); local_addresses (8 copies on 5 corpora, versions 113 to 128) and contact_info (14 copies on 7 corpora, versions 107 to 128) held no rows on any, so neither branch is exercised on an iOS image. Three of those copies, on hc_ios17_2, hexordia_ios1651 and iphone12_ios18, are the Google app's (com.google.GoogleMobile) Library/Application Support/Web Data, which these paths do not match; none held an address row. The local_addresses branch was run on the desktop Web Data files of windows11_arm_chromium_autofill_known_20261103 (fictional addresses saved in Chromium 110, Chromium 120, Google Chrome 157 and Microsoft Edge 156 on Windows 11) staged under iOS app container paths: 7 rows, 2 from autofill_profiles, 2 from local_addresses and 3 from addresses, and all 18 columns this artifact shares with ALEAPP's Chrome Autofill - Profiles agreed with ALEAPP on the same files. The contact_info branch was exercised on a constructed database only. Other Values held NAME_LAST_SECOND on the dexter_ios18 and hickman_ios15 rows, and NAME_FULL_WITH_HONORIFIC_PREFIX on the hickman_ios15 rows. Middle Name held no value on dexter_ios18 and Company Name none on either image; Use Count held 1 and Date Modified equalled Date Last Used on all 7 known-data rows, where no address was filled into a form. Not read: server_addresses and server_address_metadata, which version 121 dropped (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1072-L1077); autofill_profile_addresses and autofill_profile_birthdates; the *_status columns of autofill_profile_names, which Chromium reads as a verification status (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L203), and the origin and disallow_settings_visible_updates columns of autofill_profiles; label, language_code and the verification_status and observations columns of the token tables; and the payment card, IBAN and bank account tables."
                  " A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -862,7 +848,7 @@ from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_ts_human_to_utc
+from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_readonly, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_ts_human_to_utc
 from scripts.context import Context
 
 
@@ -1634,49 +1620,196 @@ def chromeAutofillEntries(context):
     return all_data_headers, all_data, '\n'.join(report_files)
 
 
-# Chromium retired the autofill_profiles / autofill_profile_* join. Web Data v120-128
-# stores keep profiles in contact_info and local_addresses, v149+ in addresses; all
-# three use a companion *_type_tokens table (guid, type, value) keyed by Chromium's
-# FieldType enum. Type numbers are Chromium's own, checked against the pinned blob.
-# Reference: Chromium, 'components/autofill/core/browser/field_types.h',
-# https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h
+# Chromium has kept saved addresses in three layouts, and each one a database holds
+# is read: autofill_profiles with its autofill_profile_names, _emails and _phones side
+# tables up to schema version 112; local_addresses and contact_info, each with a type
+# token table, from 113 (contact_info from 107) to 133; and addresses with
+# address_type_tokens from 134, which merged the two and added record_type.
+# Reference: Chromium, 'address_autofill_table.cc',
+# https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc
+#
+# FieldType values as Chromium stores them in the type column of the token tables:
+# components/autofill/core/browser/field_types.h, same commit. Retired values are
+# marked deprecated there and not given to another field, so the same map is used for
+# every schema version; 117 is one, which older releases still wrote (line 327). Only
+# the values an address can hold are named; any other value is reported as "type <n>".
 CHROME_FIELD_TYPES = {
-    'first_name': 3,     # NAME_FIRST
-    'middle_name': 4,    # NAME_MIDDLE
-    'last_name': 5,      # NAME_LAST
-    'email': 9,          # EMAIL_ADDRESS
-    'phone': 14,         # PHONE_HOME_WHOLE_NUMBER
-    'city': 33,          # ADDRESS_HOME_CITY
-    'state': 34,         # ADDRESS_HOME_STATE
-    'zip': 35,           # ADDRESS_HOME_ZIP
-    'company': 60,       # COMPANY_NAME
-    'street': 77,        # ADDRESS_HOME_STREET_ADDRESS
+    3: 'NAME_FIRST', 4: 'NAME_MIDDLE', 5: 'NAME_LAST', 6: 'NAME_MIDDLE_INITIAL',
+    7: 'NAME_FULL', 8: 'NAME_SUFFIX', 9: 'EMAIL_ADDRESS', 10: 'PHONE_HOME_NUMBER',
+    11: 'PHONE_HOME_CITY_CODE', 12: 'PHONE_HOME_COUNTRY_CODE',
+    13: 'PHONE_HOME_CITY_AND_NUMBER', 14: 'PHONE_HOME_WHOLE_NUMBER',
+    30: 'ADDRESS_HOME_LINE1', 31: 'ADDRESS_HOME_LINE2', 32: 'ADDRESS_HOME_APT_NUM',
+    33: 'ADDRESS_HOME_CITY', 34: 'ADDRESS_HOME_STATE', 35: 'ADDRESS_HOME_ZIP',
+    36: 'ADDRESS_HOME_COUNTRY', 60: 'COMPANY_NAME', 77: 'ADDRESS_HOME_STREET_ADDRESS',
+    79: 'ADDRESS_HOME_SORTING_CODE', 81: 'ADDRESS_HOME_DEPENDENT_LOCALITY',
+    83: 'ADDRESS_HOME_LINE3', 103: 'ADDRESS_HOME_STREET_NAME',
+    104: 'ADDRESS_HOME_HOUSE_NUMBER', 105: 'ADDRESS_HOME_SUBPREMISE',
+    106: 'ADDRESS_HOME_OTHER_SUBUNIT', 107: 'NAME_LAST_FIRST', 108: 'NAME_LAST_CONJUNCTION',
+    109: 'NAME_LAST_SECOND', 110: 'NAME_HONORIFIC_PREFIX', 114: 'ADDRESS_HOME_ADDRESS',
+    115: 'ADDRESS_HOME_ADDRESS_WITH_NAME', 116: 'ADDRESS_HOME_FLOOR',
+    117: 'NAME_FULL_WITH_HONORIFIC_PREFIX (deprecated)',
+    121: 'PHONE_HOME_CITY_CODE_WITH_TRUNK_PREFIX',
+    122: 'PHONE_HOME_CITY_AND_NUMBER_WITHOUT_TRUNK_PREFIX', 123: 'PHONE_HOME_NUMBER_PREFIX',
+    124: 'PHONE_HOME_NUMBER_SUFFIX', 133: 'DELIVERY_INSTRUCTIONS', 135: 'ADDRESS_HOME_OVERFLOW',
+    136: 'ADDRESS_HOME_LANDMARK', 140: 'ADDRESS_HOME_OVERFLOW_AND_LANDMARK',
+    141: 'ADDRESS_HOME_ADMIN_LEVEL2', 142: 'ADDRESS_HOME_STREET_LOCATION',
+    143: 'ADDRESS_HOME_BETWEEN_STREETS', 144: 'ADDRESS_HOME_BETWEEN_STREETS_OR_LANDMARK',
+    145: 'ADDRESS_HOME_STREET_LOCATION_AND_LOCALITY',
+    146: 'ADDRESS_HOME_STREET_LOCATION_AND_LANDMARK',
+    150: 'ADDRESS_HOME_DEPENDENT_LOCALITY_AND_LANDMARK', 151: 'ADDRESS_HOME_BETWEEN_STREETS_1',
+    152: 'ADDRESS_HOME_BETWEEN_STREETS_2', 153: 'ADDRESS_HOME_HOUSE_NUMBER_AND_APT',
+    156: 'ADDRESS_HOME_APT', 157: 'ADDRESS_HOME_APT_TYPE', 163: 'ALTERNATIVE_FULL_NAME',
+    164: 'ALTERNATIVE_GIVEN_NAME', 165: 'ALTERNATIVE_FAMILY_NAME', 201: 'ADDRESS_HOME_ZIP_PREFIX',
+    202: 'ADDRESS_HOME_ZIP_SUFFIX', 207: 'ADDRESS_HOME_ZIP_AND_CITY',
 }
 
-# (profile table, its type-tokens table), in the order the layouts appeared
+# The field types given a column of their own, in the order the leading columns
+# (First Name to Zip Code) and then Full Name and Country take them.
+_CHROME_LEADING_TYPES = (3, 4, 5, 9, 14, 60, 77, 33, 34, 35)
+_CHROME_TRAILING_TYPES = (7, 36)
+_CHROME_SHOWN_TYPES = _CHROME_LEADING_TYPES + _CHROME_TRAILING_TYPES
+
+# AutofillProfile::RecordType, components/autofill/core/browser/data_model/addresses/
+# autofill_profile.h lines 57-100, same commit.
+_CHROME_RECORD_TYPES = {0: 'kLocalOrSyncable', 1: 'kAccount', 2: 'kAccountHome',
+                        3: 'kAccountWork', 4: 'kAccountNameEmail'}
+
+# Metadata table, type token table and the record type its rows have. local_addresses
+# holds kLocalOrSyncable profiles and contact_info the account ones
+# (GetLegacyProfileMetadataTable, address_autofill_table.cc lines 340-352); addresses
+# carries the record type in a column of its own.
 CHROME_TOKEN_LAYOUTS = (
-    ('contact_info', 'contact_info_type_tokens'),
-    ('local_addresses', 'local_addresses_type_tokens'),
-    ('addresses', 'address_type_tokens'),
+    ('addresses', 'address_type_tokens', None),
+    ('local_addresses', 'local_addresses_type_tokens', 'kLocalOrSyncable (0)'),
+    ('contact_info', 'contact_info_type_tokens', 'kAccount or kAccountHome or kAccountWork'),
+)
+
+# autofill_profiles columns and the field type Chromium reads each as
+# (AddLegacyAutofillProfileDetailsFromStatement, address_autofill_table.cc lines
+# 166-181), and the side tables read by guid with theirs (lines 190-206, 304-307,
+# 321-324). honorific_prefix and full_name_with_honorific_prefix are named from their
+# column names, since the current source no longer reads them.
+_CHROME_LEGACY_PROFILE_COLUMNS = (
+    ('company_name', 60), ('street_address', 77), ('dependent_locality', 81), ('city', 33),
+    ('state', 34), ('zipcode', 35), ('sorting_code', 79), ('country_code', 36),
+)
+_CHROME_LEGACY_SIDE_TABLES = (
+    ('autofill_profile_names', (('first_name', 3), ('middle_name', 4), ('last_name', 5),
+                                ('full_name', 7), ('honorific_prefix', 110),
+                                ('first_last_name', 107), ('conjunction_last_name', 108),
+                                ('second_last_name', 109),
+                                ('full_name_with_honorific_prefix', 117))),
+    ('autofill_profile_emails', (('email', 9),)),
+    ('autofill_profile_phones', (('number', 14),)),
 )
 
 
-def _chrome_token_profiles(cursor, table, tokens_table):
-    """Rows from one token-layout profile table, shaped like the legacy query output."""
-    tokens = {}
-    cursor.execute(f'SELECT guid, type, value FROM {tokens_table}')
-    for guid, field_type, value in cursor.fetchall():
-        tokens.setdefault(guid, {})[field_type] = value
+def _chrome_seconds_to_utc(value):
+    """Seconds since 1970-01-01 UTC as an aware datetime; a zero or empty value is blank."""
+    if value in (None, 0, ''):
+        return ''
+    return datetime.datetime.fromtimestamp(int(value), datetime.timezone.utc)
 
-    cursor.execute(f"""SELECT datetime(date_modified, 'unixepoch'), guid,
-                       datetime(use_date, 'unixepoch'), use_count FROM {table}""")
+
+def _chrome_table_columns(cursor, table):
+    return [row[1] for row in cursor.execute(f'PRAGMA table_info("{table}")')]
+
+
+def _chrome_value(value):
+    """A stored value as text. A BLOB is reported by its length, not decoded."""
+    if value is None:
+        return ''
+    if isinstance(value, bytes):
+        return f'[{len(value)} bytes, not decoded]' if value else ''
+    return str(value)
+
+
+def _chrome_select(present, wanted):
+    """A SELECT list naming each wanted column, NULL where the table lacks it."""
+    return ', '.join(f'"{column}"' if column in present else 'NULL' for column in wanted)
+
+
+def _chrome_address_row(date_modified, guid, use_date, use_count, fields, record_type, table):
+    """One report row from a profile's {field type: [values]}.
+
+    Values of a field type given no column of its own go to Other Values, so every
+    stored field value is reported somewhere and none twice.
+    """
+    def joined(field_type):
+        return '; '.join(fields.get(field_type, []))
+    other = '; '.join(f'{CHROME_FIELD_TYPES.get(field_type, f"type {field_type}")}: {value}'
+                      for field_type in sorted(fields) if field_type not in _CHROME_SHOWN_TYPES
+                      for value in fields[field_type])
+    return ((_chrome_seconds_to_utc(date_modified), guid)
+            + tuple(joined(field_type) for field_type in _CHROME_LEADING_TYPES)
+            + (_chrome_seconds_to_utc(use_date), use_count)
+            + tuple(joined(field_type) for field_type in _CHROME_TRAILING_TYPES)
+            + (other, record_type, table))
+
+
+def _chrome_token_profiles(cursor, meta_table, token_table, record_type):
+    """Read one metadata table and its type token table, one row per profile."""
+    present = _chrome_table_columns(cursor, meta_table)
+    if not present or not _chrome_table_columns(cursor, token_table):
+        return []
+    tokens = {}
+    cursor.execute(f'SELECT guid, type, value FROM "{token_table}" ORDER BY guid, type')
+    for guid, field_type, value in cursor.fetchall():
+        text = _chrome_value(value)
+        if text:
+            tokens.setdefault(guid, {}).setdefault(field_type, []).append(text)
+    columns = _chrome_select(present, ('guid', 'date_modified', 'use_date', 'use_count', 'record_type'))
+    cursor.execute(f'SELECT {columns} FROM "{meta_table}"')
     rows = []
-    for date_modified, guid, use_date, use_count in cursor.fetchall():
-        field = tokens.get(guid, {})
-        picked = [field.get(CHROME_FIELD_TYPES[name], '') for name in
-                  ('first_name', 'middle_name', 'last_name', 'email', 'phone',
-                   'company', 'street', 'city', 'state', 'zip')]
-        rows.append(tuple([date_modified, guid] + picked + [use_date, use_count]))
+    for guid, date_modified, use_date, use_count, stored_type in cursor.fetchall():
+        kind = record_type
+        if kind is None:
+            kind = '' if stored_type is None else \
+                f'{_CHROME_RECORD_TYPES.get(stored_type, "unknown")} ({stored_type})'
+        rows.append(_chrome_address_row(date_modified, guid, use_date, use_count,
+                                        tokens.get(guid, {}), kind, meta_table))
+    return rows
+
+
+def _chrome_legacy_profiles(cursor):
+    """Read the autofill_profiles layout, one row per profile.
+
+    Chromium reads a profile from autofill_profiles and then looks up its name,
+    email and phone by guid, so a profile with no row in one of those tables is
+    still a profile, and a second row for the same guid is not a second profile.
+    Every stored value is reported: more than one for a guid is joined with
+    '; ' in rowid order. Columns a schema version lacks are read as empty.
+    """
+    present = _chrome_table_columns(cursor, 'autofill_profiles')
+    if not present:
+        return []
+    side = {}
+    for table, columns in _CHROME_LEGACY_SIDE_TABLES:
+        side_present = _chrome_table_columns(cursor, table)
+        wanted = [(column, field_type) for column, field_type in columns if column in side_present]
+        if 'guid' not in side_present or not wanted:
+            continue
+        cursor.execute(f'SELECT guid, {", ".join(column for column, _ in wanted)} '
+                       f'FROM "{table}" ORDER BY rowid')
+        for record in cursor.fetchall():
+            fields = side.setdefault(record[0], {})
+            for (_column, field_type), value in zip(wanted, record[1:]):
+                text = _chrome_value(value)
+                if text:
+                    fields.setdefault(field_type, []).append(text)
+    profile_columns = [column for column, _ in _CHROME_LEGACY_PROFILE_COLUMNS]
+    columns = _chrome_select(present, ['guid', 'date_modified', 'use_date', 'use_count'] + profile_columns)
+    cursor.execute(f'SELECT {columns} FROM autofill_profiles')
+    rows = []
+    for record in cursor.fetchall():
+        guid, date_modified, use_date, use_count = record[:4]
+        fields = {field_type: list(values) for field_type, values in side.get(guid, {}).items()}
+        for (_column, field_type), value in zip(_CHROME_LEGACY_PROFILE_COLUMNS, record[4:]):
+            text = _chrome_value(value)
+            if text:
+                fields.setdefault(field_type, []).append(text)
+        rows.append(_chrome_address_row(date_modified, guid, use_date, use_count, fields, '',
+                                        'autofill_profiles'))
     return rows
 
 
@@ -1686,15 +1819,16 @@ def chromeAutofillProfiles(context):
     all_data = []
 
     data_headers = ['Date Modified', 'GUID', 'First Name', 'Middle Name', 'Last Name', 'Email', 'Phone Number',
-                    'Company Name', 'Address', 'City', 'State', 'Zip Code', 'Date Last Used', 'Use Count']
+                    'Company Name', 'Address', 'City', 'State', 'Zip Code', 'Date Last Used', 'Use Count',
+                    'Full Name', 'Country', 'Other Values', 'Record Type', 'Table']
 
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
-    
+
     report_files = []
-    
+
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
@@ -1705,42 +1839,13 @@ def chromeAutofillProfiles(context):
         if db is None:
             continue
 
-        all_rows = []
-
         # One unreadable database must not end the artifact. See _read_rows for
         # why the query, and not just the open, has to be guarded.
         try:
             cursor = db.cursor()
-
-            if does_table_exist_in_db(file_found, 'autofill_profiles'):
-                # Web Data v104-111 layout. LEFT JOINs: a profile without a stored email
-                # or phone row is still a profile and must not be dropped.
-                cursor.execute('''
-                select
-                    datetime(date_modified, 'unixepoch'),
-                    autofill_profiles.guid,
-                    autofill_profile_names.first_name,
-                    autofill_profile_names.middle_name,
-                    autofill_profile_names.last_name,
-                    autofill_profile_emails.email,
-                    autofill_profile_phones.number,
-                    autofill_profiles.company_name,
-                    autofill_profiles.street_address,
-                    autofill_profiles.city,
-                    autofill_profiles.state,
-                    autofill_profiles.zipcode,
-                    datetime(use_date, 'unixepoch'),
-                    autofill_profiles.use_count
-                from autofill_profiles
-                left join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
-                left join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
-                left join autofill_profile_names ON autofill_profiles.guid = autofill_profile_names.guid
-                ''')
-                all_rows.extend(cursor.fetchall())
-
-            for profile_table, tokens_table in CHROME_TOKEN_LAYOUTS:
-                if does_table_exist_in_db(file_found, profile_table):
-                    all_rows.extend(_chrome_token_profiles(cursor, profile_table, tokens_table))
+            data_list = _chrome_legacy_profiles(cursor)
+            for meta_table, token_table, record_type in CHROME_TOKEN_LAYOUTS:
+                data_list.extend(_chrome_token_profiles(cursor, meta_table, token_table, record_type))
         except sqlite3.Error as ex:
             logfunc(f'Unable to read {browser_name} - Autofill - Profiles in {file_found}: {ex}')
             continue
@@ -1749,7 +1854,7 @@ def chromeAutofillProfiles(context):
 
         report_files.append(file_found)
 
-        if len(all_rows) > 0:
+        if len(data_list) > 0:
             report_name = f'{browser_name} - Autofill - Profiles'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
@@ -1757,14 +1862,6 @@ def chromeAutofillProfiles(context):
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
             report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
-
-            data_list = []
-            for row in all_rows:
-                modified_dt = convert_ts_human_to_utc(row[0])
-                last_used_dt = convert_ts_human_to_utc(row[12])
-
-                data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], last_used_dt, row[13]))
 
             report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
