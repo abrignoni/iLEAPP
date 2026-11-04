@@ -32,6 +32,20 @@ def _files_in(folder):
     return sorted(os.path.join(root, name) for root, _dirs, names in os.walk(folder) for name in names)
 
 
+def _counting_read_file(original, handed):
+    """A read_file() that passes ``original``'s chunks through and appends
+    (size asked for, bytes handed back) to ``handed`` when the caller is done."""
+    def counting(walker, node, size):
+        total = 0
+        try:
+            for chunk in original(walker, node, size):
+                total += len(chunk)
+                yield chunk
+        finally:
+            handed.append((size, total))
+    return counting
+
+
 class RawPeekTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -99,17 +113,7 @@ class RawPeekTest(unittest.TestCase):
                                  ('exfat-deleted', qnxprobe.ExfatWalker)):
             with self.subTest(image=stem):
                 handed = []
-                original = walker_cls.read_file
-
-                def counting(walker, node, size, original=original, handed=handed):
-                    total = 0
-                    try:
-                        for chunk in original(walker, node, size):
-                            total += len(chunk)
-                            yield chunk
-                    finally:
-                        handed.append((size, total))
-
+                counting = _counting_read_file(walker_cls.read_file, handed)
                 data = self._seeker()
                 seeker = FileSeekerRaw(self.images[stem], data)
                 self.addCleanup(seeker.cleanup)
