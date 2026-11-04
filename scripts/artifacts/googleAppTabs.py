@@ -10,8 +10,9 @@ __artifacts_v2__ = {
         "category": "Google App",
         "notes": (
             'Reads GMO.SkylinerTabsPersistence/tabs.sqlite3 (table tabs) under Library/Application '
-            'Support/Google/Users/<folder>. On the tested images every match was in the '
-            'com.google.GoogleMobile app container; the path is not checked against the bundle identifier. '
+            'Support/Google/Users/<folder>. On the six tested images holding it, the metadata plist of the '
+            'matched app container named com.google.GoogleMobile; the path is not checked against the bundle '
+            'identifier. '
             'The Google app is closed source, so no column here is sourced from its code. One row per tab. '
             'Last Modified and Started are last_modified_date_time and start_date_time read as seconds since '
             "2001-01-01 UTC. That epoch is measured, not sourced: each tab's pane stacks carry an NSDate per "
@@ -21,25 +22,27 @@ __artifacts_v2__ = {
             'all 13. Title and URL are the title and url columns; on all 13 tabs the URL equalled the URL of '
             'the last pane in the backward stack. Backward Panes and Forward Panes count the panes in '
             'archived_backward_stack and archived_forward_stack, NSKeyedArchiver arrays of GMOPaneItem read '
-            "with the core's plist helper; each pane is a row of Google App - Tab Panes. Current Pane ID is "
+            "with the core's plist helper; each pane is a row of Google App - Tab Panes. Top Pane ID is "
             "top_pane_id, which equalled the last backward pane's ID on all 13 tabs. Ordered Index is "
             'reported as stored: it was -1 on 10 of 13 tabs, and what -1 means is not established. Is Deleted '
             'and Deleted Date Time are the is_deleted and deleted_date_time columns, present only in the '
             'hc_ios26 schema, whose tabs table was empty. They are code-present and unexercised, reported as '
             'stored (the epoch of Deleted Date Time is not established), and blank where the columns do not '
-            'exist, which is every tested row. User Folder is the Google/Users folder name; the same name '
-            "occurred on all six images holding the app's Users folder, so what it is derived from is not "
-            'established and it is not an account identifier. Not reported: snapshot_attributes, which held '
+            'exist, which is every tested row. User Folder is the Google/Users folder name. One folder name '
+            'occurred on all six images holding the folder; five of the six also hold a second name, and on '
+            'hexordia_ios1651 the only tab was in the second folder. What the name is derived from, and '
+            'whether it identifies an account, is not established. Not reported: snapshot_attributes, which held '
             "only the snapshot's layout rectangles and orientation (GMOPaneSnapshotAttributes) on every "
             'tested row. No -wal or -journal file was present on any tested image. Of the other GMO.* folders '
             'beside the tab store, none is read by this module: PageVisitData, '
-            'FrequentlyVisitedContainerStorage, SessionedRecentsPersistenceInfo and CredentialProvider '
-            '(credentials.sqlite3) were seen and are not covered here, nor are the other GMO.* folders '
+            'FrequentlyVisitedContainerStorage and SessionedRecentsPersistenceInfo were seen and are not '
+            'covered here, nor is CredentialProvider (credentials.sqlite3) in the app\'s shared group '
+            'container, nor are the other GMO.* folders '
             '(AccountConsentValue, PromoManager, Doodles, LabsAvailability, FeatureUsage, '
             'TranslateSearchboxLogging, BackgroundTask, NotificationSettingsSyncQueue, DeluxeChip, '
             'DomainsContactedSQLiteDatabase, SearchboxPrimitives), whose contents were not examined. '
-            "Of the 40 registered iOS images, 6 hold the app's Users folder; "
-            'abe_ios16 holds a GMO.SkylinerTabsPersistence folder with no tabs.sqlite3, and dexter_ios18 (two '
+            "Of the 35 registered iOS images, 6 hold the app's Users folder; "
+            'abe_ios16 holds two GMO.SkylinerTabsPersistence folders with no tabs.sqlite3, and dexter_ios18 (two '
             'folders) and hc_ios26 hold an empty tabs table. The two encrypted iTunes backups were not '
             'checked; their decrypted copies hold no tab store.'
         ),
@@ -59,8 +62,8 @@ __artifacts_v2__ = {
     },
     "google_app_tab_panes": {
         "name": "Google App - Tab Panes",
-        "description": "The panes (Google searches and web pages) archived in each Google app tab's backward and "
-                       "forward pane stacks, with the last visible time, title and URL stored for each pane.",
+        "description": "The panes archived in each Google app tab's backward and forward pane stacks, "
+                       "with the last visible time, title and URL stored for each pane.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
@@ -71,8 +74,8 @@ __artifacts_v2__ = {
             "archived_forward_stack (Forward), read with the core's plist helper from tabs.sqlite3. Position "
             "counts from 0 in stored order. That the stacks are the tab's navigation history is an "
             'observation from the data, not sourced: on the 13 tested tabs the last backward pane was the '
-            "tab's current pane (Current Pane Yes), the backward panes were in ascending Last Visible order, "
-            "and each of the 4 forward panes (iphone12_ios18) had a Last Visible before the current pane's, "
+            "tab's top_pane_id (Top Pane Yes), the backward panes were in ascending Last Visible order, "
+            "and each of the 4 forward panes (iphone12_ios18) had a Last Visible before the top pane's, "
             "which fits a pane the user went back from. Last Visible is the pane's _lastVisibleDate, an "
             'NSDate, shown in UTC. Pane Type is _navigationTarget as stored: search or web on iphone12_ios18. '
             'The hc_ios17_2 and hexordia_ios1651 panes have no _navigationTarget key (they carry '
@@ -83,8 +86,8 @@ __artifacts_v2__ = {
             'list was filled on 7 of 25 rows and the forward list on 1. Pane ID is _paneId and joins Google '
             'App - Pane Navigation Entries. Not read: _archivedController, which was empty on iphone12_ios18 '
             '(the controller is in pane_archives.sqlite3 there) and on hc_ios17_2 and hexordia_ios1651 held '
-            'an inline archive with a search query stack (GMOSearchQueryStack) or web view data in a format '
-            'not established; and _snapshotIdentifier, because no file in iphone12_ios18 is named by any '
+            'an inline archive holding a search query stack (GMOSearchQueryStack) on 4 panes and an older '
+            'Chromium session archive (CRWSessionStorage, CRWNavigationItemStorage) on the other 4; and _snapshotIdentifier, because no file in iphone12_ios18 is named by any '
             'UUID-form tab, pane or snapshot identifier of its tabs, so no snapshot image was found to show.'
         ),
         "paths": (
@@ -129,7 +132,7 @@ __artifacts_v2__ = {
             'As a check against a second record, on iphone12_ios18 each of the 19 entries whose pane is in a '
             "tab stack had a Navigation Time no more than 0.03 s after that pane's Last Visible in Google App "
             '- Tab Panes, and no entry was earlier than its Pane Created. One row per navigation entry, Index '
-            'from 0 in stored order. Current Entry is Yes at last_committed_item_index, which proto3 leaves '
+            'from 0 in stored order. Last Committed Entry is Yes at last_committed_item_index, which proto3 leaves '
             'unwritten when it is 0. Pane Created and Pane Last Active are the metadata creation_time and '
             "last_active_time; Pane Last Active was earlier than the pane's Last Visible on every joined row. "
             "URL, Title and Referrer URL are the entry's url, title and referrer url; the referrer was filled "
@@ -138,8 +141,10 @@ __artifacts_v2__ = {
             'is blank on 1 of 20 entries, a pane no tab references; whether such a pane belonged to a closed '
             'tab is not established. Of the 19 records on iphone12_ios18, 3 are search panes '
             '(GMOSearchPaneController), which archive no web view and give no rows (their query is in the URL '
-            'of Google App - Tab Panes), and 1 web pane stored no entry (its last committed index was -1). dexter_ios18 held two '
-            'pane_archives.sqlite3 files with no records; no other tested image held one. Not read: the user '
+            'of Google App - Tab Panes), and 1 web pane stored no entry (its last committed index was -1). Besides iphone12_ios18, only '
+            'dexter_ios18 held pane_archives.sqlite3 (two files, no records). On hc_ios17_2 and '
+            'hexordia_ios1651 the web pane state is inside tabs.sqlite3 instead and is not read here (see '
+            'Google App - Tab Panes). Not read: the user '
             'agent, request headers and certificates cache.'
         ),
         "paths": (
@@ -334,7 +339,7 @@ def _read_tabs(context):
 def google_app_tabs(context):
     data_headers = (
         ('Last Modified', 'datetime'), ('Started', 'datetime'), 'Title', 'URL', 'Backward Panes',
-        'Forward Panes', 'Current Pane ID', 'Ordered Index (as stored)', 'Is Deleted (as stored)',
+        'Forward Panes', 'Top Pane ID', 'Ordered Index (as stored)', 'Is Deleted (as stored)',
         'Deleted Date Time (as stored)', 'Tab ID', 'User Folder',
     )
     tabs, sources = _read_tabs(context)
@@ -349,7 +354,7 @@ def google_app_tabs(context):
 @artifact_processor
 def google_app_tab_panes(context):
     data_headers = (
-        ('Last Visible', 'datetime'), 'Tab ID', 'Stack', 'Position', 'Current Pane', 'Pane Type (as stored)',
+        ('Last Visible', 'datetime'), 'Tab ID', 'Stack', 'Position', 'Top Pane', 'Pane Type (as stored)',
         'Title', 'URL', 'In-Pane Back List', 'In-Pane Forward List', 'Pane ID', 'User Folder',
     )
     tabs, sources = _read_tabs(context)
@@ -408,7 +413,7 @@ def _web_state(blob, label):
 def google_app_pane_navigation(context):
     data_headers = (
         ('Navigation Time', 'datetime'), ('Pane Created', 'datetime'), ('Pane Last Active', 'datetime'),
-        'Tab ID', 'Index', 'Current Entry', 'URL', 'Title', 'Referrer URL', 'Pane ID',
+        'Tab ID', 'Index', 'Last Committed Entry', 'URL', 'Title', 'Referrer URL', 'Pane ID',
         'User Folder',
     )
     tabs, _ = _read_tabs(context)
