@@ -486,7 +486,7 @@ __artifacts_v2__ = {
                        "whichever gives the year closer to the year the tool is run.",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-10-26",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
@@ -553,8 +553,8 @@ __artifacts_v2__ = {
                  "the autofill artifacts here do not: of its autofill, autofill_profiles, contact_info, "
                  "local_addresses and addresses tables, each one present has no rows on any of those "
                  "images. It also holds "
-                 "an Account Web Data, which no artifact reads; on dexter_ios18 its masked_credit_cards and "
-                 "payments_customer_data tables have one row each. On four of "
+                 "an Account Web Data, which chromeCreditCards and chromePaymentsCustomerData read; on "
+                 "dexter_ios18 its masked_credit_cards and payments_customer_data tables have one row each. On four of "
                  "the images it holds an Affiliation Database, which no artifact reads. Releases through "
                  "v2026.4.5 did not read the Google app's Login Data files.",
         "paths": ('*/Chrome/*/Login Data*', '*/Edge/*/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*',

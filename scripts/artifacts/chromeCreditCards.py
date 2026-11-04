@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses saved payment card records from Chromium based browsers",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-10-26",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "Reads the masked_credit_cards table in Web Data, joined to server_card_metadata on "
+        "notes": "Reads the masked_credit_cards table in Web Data and in Account Web Data, joined to server_card_metadata on "
                  "id, mirroring the LEFT OUTER JOIN the browser itself uses, so a card with no "
                  "metadata row is still reported with an empty Date Last Used and Use Count. These "
                  "records hold the last four digits only; the tables carry no full card number and "
@@ -21,13 +21,20 @@ __artifacts_v2__ = {
                  "through Chromium's own enum definitions, which state that each of these enums must stay in "
                  "sync with the proto enum in autofill_specifics.proto; a value outside the defined set is "
                  "reported as the bare integer. "
-                 "Validation boundary: each of the 11 images in sample_data returned no rows, so no iOS "
-                 "image exercises this parse. The code path was "
+                 "Validation boundary: of the 11 images in sample_data only dexter_ios18 returns rows, 2, "
+                 "both from Account Web Data: Chrome's and the Google app's each hold one card, the "
+                 "same card id in both, so it is reported once per Browser Name. No iOS image holds "
+                 "a card in Web Data. That Web Data path was "
                  "exercised instead against a composite, an Android database carrying one card "
                  "placed at the iOS Chrome and Edge paths, which returned both rows with the "
-                 "columns aligned and the browser resolved from the path. The 1601 microsecond reading of "
+                 "columns aligned and the browser resolved from the path. On hickman_ios15, Chrome's "
+                 "Account Web Data holds one server_card_metadata row and no card, so nothing is "
+                 "reported from it. On both dexter_ios18 rows, Bank Name, Nickname, Product Description, "
+                 "Billing Address ID and Card Art URL held an empty string as stored, and Card "
+                 "Creation Source is empty because that store (schema version 141) has no "
+                 "card_creation_source column. The 1601 microsecond reading of "
                  "server_card_metadata.use_date follows the pinned payments_autofill_table.cc. An "
-                 "iOS image holding a saved payment card would close this gap. Rows are driven from "
+                 "iOS image holding a card in Web Data would close that gap. Rows are driven from "
                  "masked_credit_cards, so a metadata row whose card has been removed is not "
                  "reported. A Web Data file left with a hot rollback journal cannot be recovered "
                  "through a read-only handle; such a file is logged and skipped so it does not end "
@@ -51,9 +58,12 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
+                 " Chromium. "
+                 "Account Web Data is the second database Chromium keeps in the same profile folder as Web Data (kAccountWebDataFilename). At the pinned source it is created with only the sync metadata table and the payments table. The wallet data sync controller is given this store for transport-only mode and Web Data for full Sync mode, and the wallet metadata controller is given it only when a feature flag is on; sync_mode.h contrasts transport-only mode with full Sync (Sync-the-feature) and says only a subset of data types runs in it. That reading is verified against the pinned source, which is newer than every Account Web Data file measured (schema versions 104 to 151), and is not established for each of those versions. The file name at the end of Source File says which of the two stores a row came from. Reference: Chromium, 'webdata_constants.cc', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/webdata/common/webdata_constants.cc#L11-L12, 'web_data_service_wrapper.cc', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/webdata_services/web_data_service_wrapper.cc#L241-L261, 'common_controller_builder.cc', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/browser_sync/common_controller_builder.cc#L1324-L1356 and 'sync_mode.h', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/sync/base/sync_mode.h#L10-L14 . Measured 2026-11-04 by file name across every registered iOS full file system image and decrypted iTunes backup: 16 Account Web Data files on 12 images, and of their masked_credit_cards and server_card_metadata tables only the dexter_ios18 and hickman_ios15 rows described above hold data. Releases through v2026.4.6 did not read Account Web Data.",
         "paths": ('*/Chrome/*/Web Data*', '*/Chromium/*/Web Data*', '*/Edge/*/Web Data*',
-                  '*/Library/Application Support/Web Data*'),
+                  '*/Library/Application Support/Web Data*',
+                  '*/Chrome/*/Account Web Data*', '*/Chromium/*/Account Web Data*',
+                  '*/Edge/*/Account Web Data*', '*/Library/Application Support/Account Web Data*'),
         "output_types": "standard",
         "artifact_icon": "credit-card",
         "sample_data": {
@@ -64,7 +74,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
             "hc_ios26": "iOS 26.5.2 | 0 rows",
@@ -157,7 +167,7 @@ def get_chromeCreditCards(context):
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
+        if os.path.basename(file_found) not in ('Web Data', 'Account Web Data'):  # skip -journal and other files
             continue
 
         browser_name = get_browser_name(file_found)
