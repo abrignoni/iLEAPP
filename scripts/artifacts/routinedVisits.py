@@ -95,7 +95,7 @@ def _utc(cocoa):
 def routinedCacheVisits(context):
     data_headers = (('Entry DateTime', 'datetime'), ('Exit DateTime', 'datetime'),
                     ('Detection DateTime', 'datetime'), ('Location DateTime', 'datetime'),
-                    'Latitude', 'Longitude', 'Uncertainty (as stored)', 'Confidence (as stored)',
+                    ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Uncertainty (as stored)', 'Confidence (as stored)',
                     'Data Point Count', 'Type (as stored)', 'Source (as stored)')
     data_list = []
     sources = _sqlite_sources(context.get_files_found())
@@ -119,7 +119,7 @@ def routinedCacheVisits(context):
 def routinedCloudVisits(context):
     data_headers = (('Entry DateTime', 'datetime'), ('Exit DateTime', 'datetime'),
                     ('Created DateTime', 'datetime'), ('Expiration DateTime', 'datetime'),
-                    'Latitude', 'Longitude', 'Uncertainty (as stored)', 'Altitude (as stored)',
+                    ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Uncertainty (as stored)', 'Altitude (as stored)',
                     'Place Name', 'Place Category', 'Custom Label', 'Street', 'City', 'State',
                     'Postal Code', 'Country', 'Device Class (as stored)', 'Device Model (as stored)',
                     'Device Name',
