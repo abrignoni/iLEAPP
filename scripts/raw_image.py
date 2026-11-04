@@ -117,8 +117,8 @@ import time as timex
 from fnmatch import _compile_pattern
 
 from scripts.ilapfuncs import logfunc, sanitize_file_path
-from scripts.search_files import (FileInfo, FileSeekerBase, TIME_SOURCE_EXFAT, TIME_SOURCE_FAT,
-                                  TIME_SOURCE_FILE_SYSTEM, normcase, staged_times)
+from scripts.search_files import (FileInfo, FileSeekerBase, PEEK_SIZE, PeekedFile, TIME_SOURCE_EXFAT,
+                                  TIME_SOURCE_FAT, TIME_SOURCE_FILE_SYSTEM, normcase, staged_times)
 
 # qnxprobe reaches its acquisition reader with a bare ``import ewfprobe``,
 # falling back to a sys.path insert of its own directory when that fails.
@@ -2375,11 +2375,9 @@ class FileSeekerRaw(FileSeekerBase):
 
     # ---- searching and staging ----------------------------------------------
 
-    def search(self, filepattern, return_on_first_hit=False, force=False):
-        if filepattern in self.searched and not force:
-            pathlist = self.searched[filepattern]
-            return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
-        pathlist = []
+    def _matching_members(self, filepattern):
+        """The members ``filepattern`` matches, in listing order. search() and peek()
+        both match through here, so the two can never disagree on what a pattern names."""
         pat = _compile_pattern(normcase(filepattern))
         folded = _compile_pattern(normcase(filepattern).lower())
         root = normcase("root/")
@@ -2402,6 +2400,14 @@ class FileSeekerRaw(FileSeekerBase):
                     continue
             elif pat(target) is None:
                 continue
+            yield member
+
+    def search(self, filepattern, return_on_first_hit=False, force=False):
+        if filepattern in self.searched and not force:
+            pathlist = self.searched[filepattern]
+            return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
+        pathlist = []
+        for member in self._matching_members(filepattern):
             if member not in self.copied or force:
                 zeros_before = self._zeros_read()
                 try:
@@ -2536,6 +2542,14 @@ class FileSeekerRaw(FileSeekerBase):
         stamp = modified or _reading_as_local_instant(entry.reading)
         if stamp:
             os.utime(dest_path, (stamp, stamp))
+        self.file_infos[dest_path] = self._evidence_info(member, entry)
+        return dest_path
+
+    def _evidence_info(self, member, entry):
+        """The FileInfo the evidence gives a file member: its path in the evidence and
+        the times its volume (or logical evidence) records. _stage() and peek() both
+        build it here, so a file read by peek() carries the times staging records."""
+        modified = entry.mtime or 0
         created = accessed = 0
         stamps = getattr(entry.walker, 'stamps', None)
         if stamps is not None:
@@ -2547,12 +2561,80 @@ class FileSeekerRaw(FileSeekerBase):
                 accessed = (recorded[2] or 0) if len(recorded) > 2 else 0
             except Exception:  # pylint: disable=broad-exception-caught
                 created = accessed = 0
-        self.file_infos[dest_path] = FileInfo(
+        return FileInfo(
             self._member_source.get(member, member), created, modified,
             kind=self._kind_of(member),
             times=volume_times(entry.walker, entry.node, modified, accessed, created,
                                entry.recorded))
-        return dest_path
+
+    # Volume readers whose read_file() returns the whole file in one piece whatever
+    # size it is asked for (qnxprobe's FAT12/16/32 and exFAT walkers read the cluster
+    # chain the directory entry's size covers). peek() reads a file on them only up
+    # to this size, so a large file is not read whole into memory to give its start.
+    _WHOLE_FILE_READERS = (qnxprobe.Fat32Walker, qnxprobe.ExfatWalker)
+    WHOLE_FILE_PEEK_LIMIT = 64 << 20
+
+    def peek(self, filepattern, size=PEEK_SIZE):
+        """Each file ``filepattern`` matches, with its first ``size`` bytes read from
+        the image and nothing staged: no copy in the data folder, and the members
+        search() has staged or will stage are left as they are.
+
+        Matches as search() does (_matching_members), and returns a PeekedFile per
+        file member, in listing order: its path in the evidence, its size, the
+        FileInfo staging would record for it (_evidence_info) and its first bytes.
+        Folders, free space and deleted-file records a pattern can name are left
+        out. ``head`` is None, with ``note`` saying why, when the reader refuses the
+        file, the image ends before the bytes asked for, or the file is on a volume
+        whose reader gives only whole files and is larger than
+        WHOLE_FILE_PEEK_LIMIT. Each file read is named in the run log."""
+        found = []
+        for member in self._matching_members(filepattern):
+            entry = self._entries.get(member)
+            if entry is None or entry.folder or member.endswith('/'):
+                continue
+            info = self._evidence_info(member, entry)
+            head, note = self._peek_bytes(member, entry, min(size, entry.size))
+            read = len(head) if head is not None else 0
+            logfunc(f'Read the first {read:,} of {entry.size:,} bytes of {member} without '
+                    f'staging it' + (f' ({note})' if note else ''))
+            found.append(PeekedFile(info.source_path, entry.size, info, head, note))
+        return found
+
+    def _peek_bytes(self, member, entry, want):
+        """(the first ``want`` bytes of a file member, note), as _stage() reads it."""
+        if want <= 0:
+            return b'', ''
+        if isinstance(entry.walker, self._WHOLE_FILE_READERS) and \
+                entry.size > self.WHOLE_FILE_PEEK_LIMIT:
+            return None, (f'not read: the reader of its volume reads whole files, and it is '
+                          f'larger than {self.WHOLE_FILE_PEEK_LIMIT:,} bytes')
+        shortfall_before = qnxprobe.EOF_SHORTFALL['bytes']
+        zeros_before = self._zeros_read()
+        buffer = bytearray()
+        chunks = entry.walker.read_file(entry.node, want)
+        try:
+            for chunk in chunks:
+                buffer += chunk
+                if len(buffer) >= want:
+                    break
+        except _REFUSALS as exc:
+            return None, f'not read: {exc}'
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            # one file the reader cannot decode must not end the artifact's run
+            return None, f'not read: the reader raised {type(exc).__name__}: {exc}'
+        finally:
+            getattr(chunks, "close", lambda: None)()
+            self._say_met(member)
+        if qnxprobe.EOF_SHORTFALL['bytes'] - shortfall_before:
+            return None, 'not read: the image ends before the bytes asked for'
+        head = bytes(buffer[:want])
+        zeros = self._zeros_read() - zeros_before
+        if zeros:
+            return head, (f'read through acquisition data that ran out: {zeros:,} zero '
+                          f'bytes were read in its place')
+        if len(head) < want:
+            return head, f'the reader returned {len(head):,} of the {want:,} bytes asked for'
+        return head, ''
 
     def _kind_of(self, member):
         """What a listed member is: an alternate data stream, a directory's index
