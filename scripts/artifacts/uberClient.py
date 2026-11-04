@@ -163,7 +163,7 @@ __artifacts_v2__ = {
 
 import os
 import json
-import scripts.ccl_leveldb
+import scripts.vendor.ccl.ccl_leveldb
 from scripts.ilapfuncs import (
     logfunc,
     artifact_processor,
@@ -543,7 +543,7 @@ def uber_metadata_leveldb(context):
 
     for ldb_path in ldb_dirs:
         try:
-            leveldb_records = scripts.ccl_leveldb.RawLevelDb(ldb_path)
+            leveldb_records = scripts.vendor.ccl.ccl_leveldb.RawLevelDb(ldb_path)
             for record in leveldb_records.iterate_records_raw():
                 if record.user_key.decode() != 'UBLocationNode.__DEFAULT_INDEX':
                     continue

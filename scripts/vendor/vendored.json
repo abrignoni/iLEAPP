@@ -80,6 +80,19 @@
       "licence_file": "",
       "banner": true,
       "note": "Copied verbatim below its banner. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/ccl/ccl_simplesnappy.py",
+      "name": "ccl_simplesnappy",
+      "version": "0.4",
+      "upstream": "https://github.com/cclgroupltd/ccl_simplesnappy",
+      "upstream_file": "ccl_simplesnappy/ccl_simplesnappy.py",
+      "commit": "2161c402f009bae3659b05d4471ac6fc854303a7",
+      "commit_date": "2024-07-29T16:43:33+01:00",
+      "sha256": "74bbf5c1e8ebdaf09ad9bfd98a7a335d57dc4ac648cc9aede59932c40ddc4170",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-ccl_simplesnappy",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
     }
   ]
 }
