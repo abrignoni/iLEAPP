@@ -411,21 +411,21 @@ def main():
             if isinstance(profile, dict):
                 if profile.get("leapp") != "ileapp" or profile.get("format_version") != 1:
                     profile_load_error = "File was not a valid profile file: incorrect LEAPP or version"
-                    print(profile_load_error)
-                    return
-                else:
-                    profile_plugins = set(profile.get("plugins", []))
-                    selected_plugins = [selected_plugin for selected_plugin in available_plugins
-                                        if selected_plugin.name in profile_plugins]
-                    unknown = profile_plugins_not_found(profile_plugins, available_plugins)
-                    if unknown:
-                        print(f"Warning: the profile names {len(unknown)} artifact(s) this version "
-                              f"does not have, which will not run: {', '.join(unknown)}")
-            else:
-                profile_load_error = "File was not a valid profile file: invalid format"
-                print(profile_load_error)
-                return
+                    out_params = OutputParameters(output_path, custom_output_folder)
+                    Context.set_output_params(out_params)
 
+                    initialize_lava(input_text(input_path, found_members),
+                                    out_params.output_folder_base, extracttype, profile_filename, casedata)
+
+                    # Record history if enabled
+                    if isinstance(input_path, list):
+                        history.record_input_set(input_path, getattr(found_members, 'found', found_members))
+                    else:
+                        history.record_input_path(input_path)
+                    history.record_output_path(output_path)
+
+                    crunch_successful = crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
+                        profile_filename, itunes_backup_password, image_password=image_password, found_members=found_members, hash_files=args.hash)
     input_path = args.input_path
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
