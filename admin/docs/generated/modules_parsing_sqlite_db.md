@@ -99,6 +99,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodApplications |
 | geodPDPlaceCache |
 | gettr |
+| googleAppTabs |
 | googleCalendar |
 | googleDocs |
 | googleDrive |
@@ -258,6 +259,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | foursquareSwarm |
 | geodMapTiles |
 | gmail |
+| googleAppTabs |
 | googleChat |
 | googleHome |
 | intelligencePlatformBehaviors |
