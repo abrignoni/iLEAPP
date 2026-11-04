@@ -343,14 +343,6 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None, 
     _invalid_media_refs_logged.clear()
 
     cursor = lava_db.cursor()
-    cursor.execute('''CREATE TABLE _lava_case_data (
-                        key TEXT PRIMARY KEY,
-                        value TEXT)''')
-    if case_data:
-        cursor.executemany(
-            'INSERT INTO _lava_case_data ("key", "value") VALUES (?, ?)',
-            [(str(k), str(v) if v is not None else '') for k, v in case_data.items()]
-        )
     cursor.execute('''CREATE TABLE _artifact_search_patterns (
                         id INTEGER PRIMARY KEY,
                         module_name TEXT NOT NULL,

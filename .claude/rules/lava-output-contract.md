@@ -18,9 +18,10 @@ Alongside `_HTML/`, `_TSV Exports/`, `_Timeline/`, `data/` and `media/`:
   `Agency Logo mimetype` plus `Agency Logo base64`). The LEAPP window and the CLI's case
   data file writer produce string values, but `-d` copies a hand-editable `.lcasedata`
   file's values unchanged, so a reader must not assume strings. It is empty when none
-  was given and absent from manifests written before it existed. The database carries
-  the same pairs in `_lava_case_data`, with every value passed through `str()`, but a
-  subset export keeps only the manifest copy, so LAVA reads the manifest.
+  was given and absent from manifests written before it existed. The manifest is the
+  only copy: LAVA, its subsets and its reports read it from there. (Source runs of main
+  from 4 November 2026, before the table was removed, also wrote a `_lava_case_data`
+  table. No release carries it and nothing reads it.)
 - **`_lava_artifacts.db`**: SQLite, one table per artifact, named from the sanitized
   artifact function name. Column names are sanitized snake_case of the headers, so
   `Kind (as stored)` becomes `kind_as_stored`. A header typed `('X', 'datetime')` becomes
