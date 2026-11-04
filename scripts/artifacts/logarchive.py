@@ -2347,7 +2347,7 @@ from scripts import unifiedlogs
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
     get_sqlite_db_records, logfunc, get_sysdiagnose_files, is_sysdiagnose_archive
 
-DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+DATA_HEADERS = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'),
                 'Subsystem', 'Category', 'Event Message', 'Trace ID')
 
 
@@ -3093,7 +3093,7 @@ def logarchive_time_change(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3114,7 +3114,7 @@ def logarchive_flashlight(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3152,8 +3152,8 @@ def logarchive_executed_apps(context):
     
     for record in _report_rows(get_sqlite_db_records(source_path, query)):
         data_list.append((record[0],) + _launch_fields(record[6]) + tuple(record[1:]))
-    data_headers = (('Timestamp', 'datetime'), 'Application (as stored)', 'Icon Location (as stored)', 'Row Number',
-                    'Process Image Path', 'Process ID', 'Subsystem', 'Category', 'Event Message',
+    data_headers = (('Timestamp', 'datetime'), 'Application (as stored)', 'Icon Location (as stored)', ('Row Number', 'number'),
+                    'Process Image Path', ('Process ID', 'number'), 'Subsystem', 'Category', 'Event Message',
                     'Trace ID')
 
     return data_headers, data_list, source_path
@@ -3170,7 +3170,7 @@ def logarchive_motionstate(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3190,7 +3190,7 @@ def logarchive_tethering(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3222,7 +3222,7 @@ def logarchive_airplane_mode(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3247,7 +3247,7 @@ def logarchive_lock_status(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3298,7 +3298,7 @@ def logarchive_wifi_status(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3343,7 +3343,7 @@ def logarchive_bluetooth_status(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
@@ -3366,7 +3366,7 @@ def logarchive_audio_status(context):
     '''
     
     data_list = _report_rows(get_sqlite_db_records(source_path, query))
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+    data_headers = (('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     #Info: https://thesisfriday.com/index.php/2025/05/30/thesis-friday-8-aul-physical-buttons-volume/
@@ -3654,7 +3654,7 @@ def logarchive_charging_state(context):
                             record['row_number']))
     data_headers = (('Timestamp', 'datetime'), 'State', 'VBUS (as stored)', 'UISOC (as stored)',
                     'CHNC (as stored)', 'Type (as stored)', 'TLC (as stored)', 'Event Message',
-                    'Process Image Path', 'Process ID', 'Row Number')
+                    'Process Image Path', ('Process ID', 'number'), ('Row Number', 'number'))
     return data_headers, data_list, source_path
 
 
@@ -3676,14 +3676,14 @@ TCC_AUTH_RECORD = re.compile(
     r'(?P<rest>.*)>$', re.DOTALL)
 
 TCC_CACHE_HEADERS = (
-    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+    ('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'),
     'Service (as logged)', 'Credential Object Address', 'Authorization Object Address',
     'Auth Right (as logged)', 'Reason (as logged)', 'Version (as logged)',
     'Other Flags (as logged)', 'Entries In Dump', 'Authorization Record (as logged)')
 
 TCC_CACHE_SUMMARY_HEADERS = (
     ('First Dump', 'datetime'), ('Last Dump', 'datetime'), 'Dumps', 'Entries',
-    'Process Image Path', 'Process ID', 'Service (as logged)', 'Auth Right (as logged)',
+    'Process Image Path', ('Process ID', 'number'), 'Service (as logged)', 'Auth Right (as logged)',
     'Reason (as logged)', 'Version (as logged)', 'Other Flags (as logged)')
 
 # '"key": value' lines of a CLLocationManagerStateTracker dump. The body is not valid JSON (the last
@@ -3709,11 +3709,11 @@ LOCATION_COLUMNS = (
     ('activityType', 'Activity Type (as logged)'),
 )
 LOCATION_STATE_HEADERS = (
-    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+    ('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'),
     *(header for _key, header in LOCATION_COLUMNS), 'Other Fields (as logged)')
 LOCATION_STATE_SUMMARY_HEADERS = (
     ('First Dump', 'datetime'), ('Last Dump', 'datetime'), 'Dumps', 'Process Image Path',
-    'Process ID', *(header for _key, header in LOCATION_COLUMNS), 'Other Fields (as logged)')
+    ('Process ID', 'number'), *(header for _key, header in LOCATION_COLUMNS), 'Other Fields (as logged)')
 
 
 def _statedump_body(message):
@@ -3993,7 +3993,7 @@ def logarchive_battery_center_sources(context):
         subsystem = 'com.apple.BatteryCenter' AND event_message LIKE '%Found power source: {%'
     """, _bc_source_pairs, _BC_SOURCE_KEYS)
     data_headers = (('Timestamp', 'datetime'),) + _BC_SOURCE_KEYS + (
-        'Other Values', 'Process Image Path', 'Process ID', 'Row Number')
+        'Other Values', 'Process Image Path', ('Process ID', 'number'), ('Row Number', 'number'))
     return data_headers, data_list, source_path
 
 
@@ -4006,8 +4006,8 @@ def logarchive_battery_center_devices(context):
     data_headers = (('Timestamp', 'datetime'), 'Name', 'Group Name', 'Vendor', 'Model Number',
                     'Percent Charge', 'Charging', 'Connected', 'Internal', 'Power Source State',
                     'Transport Type', 'Accessory Identifier', 'Accessory Category', 'Identifier',
-                    'Product Identifier', 'Other Values', 'Process Image Path', 'Process ID',
-                    'Row Number')
+                    'Product Identifier', 'Other Values', 'Process Image Path', ('Process ID', 'number'),
+                    ('Row Number', 'number'))
     return data_headers, data_list, source_path
 
 @artifact_processor
@@ -4277,19 +4277,19 @@ CAPTURE_STREAMING = re.compile(
     r'deviceType: (\d+), streaming: (\d+), portType: (\w+)')
 
 CAPTURE_SESSION_HEADERS = (
-    ('Timestamp', 'datetime'), 'Row Number', 'Logged Function',
+    ('Timestamp', 'datetime'), ('Row Number', 'number'), 'Logged Function',
     'Client App ID (as logged)', 'Client PID (as logged)', 'Session Object (as logged)',
     'Client Started Session', 'Cam/Audio', 'Background', 'Mic Stolen', 'Camera Stolen',
     'Runtime Error', 'Interruption Error', 'Session Status', 'Status Transition',
-    'Process Image Path', 'Process ID', 'Event Message')
+    'Process Image Path', ('Process ID', 'number'), 'Event Message')
 
 RECORDING_INDICATOR_HEADERS = (
-    ('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 'Event Message')
+    ('Timestamp', 'datetime'), ('Row Number', 'number'), 'Process Image Path', ('Process ID', 'number'), 'Event Message')
 
 CAPTURE_STREAMING_HEADERS = (
-    ('Timestamp', 'datetime'), 'Row Number', 'Client PID (as logged)',
+    ('Timestamp', 'datetime'), ('Row Number', 'number'), 'Client PID (as logged)',
     'Application ID (as logged)', 'Device Type (as logged)', 'Streaming (as logged)',
-    'Port Type (as logged)', 'Process Image Path', 'Process ID', 'Event Message')
+    'Port Type (as logged)', 'Process Image Path', ('Process ID', 'number'), 'Event Message')
 
 
 def _capture_session_fields(message):
