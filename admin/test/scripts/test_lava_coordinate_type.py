@@ -1,6 +1,7 @@
 """The 'latitude' and 'longitude' header types: NUMERIC columns, so LAVA sorts coordinates as numbers.
 
-Untyped coordinates are TEXT, so -10.5 sorts before -2.25 and 100.1 before 37.2. A header
+Untyped coordinates are TEXT, so in SQLite's text order -10.5 sorts before -2.25 and 100.1
+before 37.2 (LAVA's UINT collation orders them differently, but not by value either). A header
 declared ('Latitude', 'latitude') or ('Longitude', 'longitude') gets NUMERIC affinity like a
 'number' header: values that read as numbers are stored as REAL or INTEGER, anything else stays
 as written text, and the written form of a converted value can change ('37.7700' is 37.77).
