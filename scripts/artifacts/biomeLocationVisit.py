@@ -157,7 +157,7 @@ def get_biomeLocationVisit(context):
     data_headers = (
         ('Arrival Timestamp', 'datetime'), ('Departure Timestamp', 'datetime'),
         ('Field 1 Timestamp', 'datetime'), ('SEGB Write Timestamp', 'datetime'),
-        'SEGB State', 'Latitude', 'Longitude', 'Horizontal Accuracy (m)', 'Altitude',
+        'SEGB State', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Horizontal Accuracy (m)', 'Altitude',
         'Vertical Accuracy', 'Confidence', 'Place Name', 'Place Address', 'Place Category',
         'Place ID', 'Visit ID', 'Filename', 'Offset')
 

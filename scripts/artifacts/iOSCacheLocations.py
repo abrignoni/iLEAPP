@@ -69,7 +69,7 @@ def CacheSQLite_Locations(context):
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'Cache.sqlite')
     data_headers = (
-        ('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Horizontal Accuracy (Meters)',
+        ('Timestamp', 'datetime'), ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Horizontal Accuracy (Meters)',
         'Speed (Meters/Sec)', 'Speed (Miles/Hour)', 'Course (Degrees)',
         'Course Accuracy (Degrees)', 'Altitude (Meters)', 'Vertical Accuracy (Meters)',
         'Speed Accuracy (Meters/Sec)')
