@@ -295,7 +295,11 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None, 
     # function that creates them, so the global statement is deliberate.
     global lava_data, lava_db, lava_db_path  # pylint: disable=global-statement
 
-    if not isinstance(case_data, dict):
+    # The logo's path on the examiner's machine is not case information, so it stays out
+    # of the LAVA output. The logo itself (mimetype and base64) is kept.
+    if isinstance(case_data, dict):
+        case_data = {key: value for key, value in case_data.items() if key != 'Agency Logo Path'}
+    else:
         case_data = {}
 
     lava_data = {

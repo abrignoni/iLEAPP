@@ -908,7 +908,8 @@ def case_data():
             case_data_load_error = None
             with open(destination_path, 'rt', encoding='utf-8') as case_data_in:
                 try:
-                except Exception:
+                    case_data = json.load(case_data_in)
+                except:
                     case_data_load_error = 'File was not a valid case data file: invalid format'
             if not case_data_load_error:
                 if isinstance(case_data, dict):
@@ -939,8 +940,8 @@ def case_data():
     def add_agency_logo():
         '''Import image file and covert it into base64'''
         logo_path = tk_filedialog.askopenfilename(parent=case_window,
-                                                  title='Add agency logo',
-                                                  filetypes=(('All supported files', '*.png *.jpg *.gif'), ))
+                                                         title='Add agency logo',
+                                                         filetypes=(('All supported files', '*.png *.jpg *.gif'), ))
 
         if logo_path and os.path.exists(logo_path):
             agency_logo_load_error = None
@@ -948,8 +949,8 @@ def case_data():
                 agency_logo_mimetype = guess_mime(agency_logo_file)
                 if agency_logo_mimetype and 'image' in agency_logo_mimetype:
                     try:
-                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read()).decode('utf-8')
-                    except Exception:
+                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read()).decode("ascii")
+                    except:
                         agency_logo_load_error = 'Unable to encode the selected file in base64.'
                 else:
                     agency_logo_load_error = 'Selected file is not a valid picture file.'
