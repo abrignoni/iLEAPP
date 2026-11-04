@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         "description": "Parses the payments customer data record from Chromium based browsers",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-10-26",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "Reads the payments_customer_data table in Web Data. The table is created with a "
+        "notes": "Reads the payments_customer_data table in Web Data and in Account Web Data. The table is created with a "
                  "single VARCHAR column, customer_id, and the browser writes it by deleting every "
-                 "row and then inserting at most one, so a profile stores at most one value here. "
+                 "row and then inserting at most one, so each file stores at most one value here. "
                  "Chromium describes the struct backing this table as the Google Payments customer "
                  "data and describes customer_id as the identifier by which a Google Payments "
                  "account is identified; what account that is, and whose it is, is not recorded in "
@@ -18,13 +18,15 @@ __artifacts_v2__ = {
                  "ClearAllServerData, so it is grouped with server data rather than with locally "
                  "entered payment details. An empty table is reported as no rows; that is not "
                  "evidence about whether an account exists, only that no record was stored in this "
-                 "file. Validation boundary: each of the 11 images in sample_data returned no rows, so no "
-                 "iOS image exercises this parse. The code path was exercised instead "
+                 "file. Validation boundary: of the 11 images in sample_data only dexter_ios18 returns rows, "
+                 "2, both from Account Web Data: Chrome's and the Google app's each hold one row, "
+                 "the same value in both, so it is reported once per Browser Name. None of the "
+                 "registered iOS images iLEAPP can read holds a row in Web Data. That Web Data path was exercised instead "
                  "against a composite, an Android database carrying one row placed at the iOS "
                  "Chrome and Edge paths, which returned both rows with the browser resolved from "
                  "the path. The parse is confirmed against real rows in the ALEAPP module of the "
                  "same name, where 3 of 17 images hold one. An iOS image holding a payments "
-                 "customer data record would close this gap. The table is checked for rather than "
+                 "customer data record in Web Data would close that gap. The table is checked for rather than "
                  "assumed, because the Android side shows Web Data files that do not carry it. A "
                  "Web Data file "
                  "left with a hot rollback journal cannot be recovered through a read-only handle; "
@@ -49,9 +51,12 @@ __artifacts_v2__ = {
                  "none matches. Folders above the extraction, such as the case folder, are never read. "
                  "Brave keeps its profile under Application Support/Chromium on hc_ios18_7, hc_ios26, "
                  "iphone11_ios17 and hickman_ios15, which releases v2026.1.0 through v2026.4.5 reported as"
-                 " Chromium.",
+                 " Chromium. "
+                 "Account Web Data is the second database Chromium keeps in the same profile folder as Web Data (kAccountWebDataFilename). At the pinned source it is created with only the sync metadata table and the payments table. The wallet data sync controller is given this store for transport-only mode and Web Data for full Sync mode, and the wallet metadata controller is given it only when one of two sign-in promo feature flags is on; sync_mode.h contrasts transport-only mode with full Sync (Sync-the-feature) and says only a subset of data types runs in it. That reading is verified against the pinned source, which is newer than every Account Web Data file measured (schema versions 104 to 151), and is not established for each of those versions. The file name at the end of Source File says which of the two stores a row came from. Reference: Chromium, 'webdata_constants.cc', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/webdata/common/webdata_constants.cc#L11-L12, 'web_data_service_wrapper.cc', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/webdata_services/web_data_service_wrapper.cc#L241-L261, 'common_controller_builder.cc', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/browser_sync/common_controller_builder.cc#L1324-L1356 and 'sync_mode.h', https://github.com/chromium/chromium/blob/8f4baaae073181e7e0fea1807f8db6ad720dbcb7/components/sync/base/sync_mode.h#L10-L14 . Measured 2026-11-04 by file name across every registered iOS full file system image and decrypted iTunes backup: 16 Account Web Data files on 12 images, and of their payments_customer_data tables only the dexter_ios18 rows described above hold data. Releases through v2026.4.6 did not read Account Web Data.",
         "paths": ('*/Chrome/*/Web Data*', '*/Chromium/*/Web Data*', '*/Edge/*/Web Data*',
-                  '*/Library/Application Support/Web Data*'),
+                  '*/Library/Application Support/Web Data*',
+                  '*/Chrome/*/Account Web Data*', '*/Chromium/*/Account Web Data*',
+                  '*/Edge/*/Account Web Data*', '*/Library/Application Support/Account Web Data*'),
         "output_types": ['html', 'tsv', 'lava'],
         "artifact_icon": "id",
         "sample_data": {
@@ -62,7 +67,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
             "hc_ios26": "iOS 26.5.2 | 0 rows",
@@ -90,7 +95,7 @@ def get_chromePaymentsCustomerData(context):
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
+        if os.path.basename(file_found) not in ('Web Data', 'Account Web Data'):  # skip -journal and other files
             continue
 
         browser_name = get_browser_name(file_found)
