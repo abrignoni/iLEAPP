@@ -102,16 +102,19 @@ def get_sql_type(python_type):
     Args:
         python_type (str): The header type as a string (e.g., 'datetime', 'date', 'number').
     Returns:
-        str: 'INTEGER' for datetime, 'NUMERIC' for number, and 'TEXT' for date and every
-             other type. A NUMERIC column stores values that read as numbers as INTEGER or
-             REAL, so LAVA sorts them as numbers, and keeps anything else as text. It also
-             rewrites the written form of what it converts ('007' is stored as 7).
+        str: 'INTEGER' for datetime, 'NUMERIC' for number, latitude and longitude, and
+             'TEXT' for date and every other type. A NUMERIC column stores values that read
+             as numbers as INTEGER or REAL, so LAVA sorts them as numbers, and keeps anything
+             else as text. It also rewrites the written form of what it converts ('007' is
+             stored as 7, '37.7700' as 37.77).
     """
 
     type_map = {
         'datetime': 'INTEGER',
         'date': 'TEXT',
         'number': 'NUMERIC',
+        'latitude': 'NUMERIC',
+        'longitude': 'NUMERIC',
     }
     return type_map.get(python_type, 'TEXT')
 
