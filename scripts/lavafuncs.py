@@ -32,7 +32,7 @@ import json
 import sqlite3
 import sys
 import os
-from platform import platform
+from platform import machine, platform
 from collections import OrderedDict
 import math
 import re
@@ -321,6 +321,10 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None, 
                            else "CLI"),
             "package": "Source code" if not getattr(sys, 'frozen', False) else "Binary",
             "OS": platform(),
+            # The machine the Python process reports. platform() leaves it out on
+            # Windows. Under emulation (Rosetta, x64 on Windows ARM64) it can be the
+            # emulated architecture, not the host's.
+            "architecture": machine(),
             "start_timestamp": int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         },
         "param_input": input_path,
