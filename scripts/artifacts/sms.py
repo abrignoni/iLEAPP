@@ -198,7 +198,7 @@ def sms(context):
         'Attachment Mimetype',
         'Attachment Size (Bytes)',
         'Message Row ID',
-        'Message GUID',
+        ('Message GUID', 'hash'),
         'Chat ID',
     )
 
