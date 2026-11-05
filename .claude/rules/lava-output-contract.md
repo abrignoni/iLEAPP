@@ -28,8 +28,10 @@ Alongside `_HTML/`, `_TSV Exports/`, `_Timeline/`, `data/` and `media/`:
   an INTEGER epoch column and one typed `('X', 'number')` a NUMERIC column, which LAVA
   sorts as numbers and shows with a popover of other forms (hexadecimal, binary, digit
   grouping). Headers typed `('X', 'latitude')` and `('X', 'longitude')` are NUMERIC too, and
-  LAVA shows them in degrees, minutes and seconds with the hemisphere; everything else is
-  TEXT. The database also carries bookkeeping
+  LAVA shows them in degrees, minutes and seconds with the hemisphere. A header typed
+  `('X', 'hash')` (hex digests and UUIDs) stays TEXT, and LAVA sorts it as text ignoring
+  case instead of with UINT, which would compare its digit runs as numbers; everything
+  else is TEXT. The database also carries bookkeeping
   tables recording which glob matched which file.
 
 Writing is done by `scripts/lavafuncs.py`, which is meant to stay identical across the five

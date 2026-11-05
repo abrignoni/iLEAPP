@@ -73,7 +73,9 @@ Column types go in the header as a tuple: `('Sent', 'datetime')`, `('Day', 'date
 are text columns. A `number` column is stored as NUMERIC so LAVA sorts it as numbers; it
 also rewrites what it converts (`007` becomes 7, `1.0` becomes 1), so use it only for
 values that are numbers by nature, such as counts, sizes and process ids, never for
-identifiers or codes.
+identifiers or codes. A `hash` column, for hex digests and UUIDs such as
+`('SHA-256', 'hash')`, is stored as TEXT exactly as written; LAVA sorts it as text ignoring
+case, so it reads in alphabetical order instead of the natural order untyped text gets.
 
 Coordinates in decimal degrees take `('Latitude', 'latitude')` and
 `('Longitude', 'longitude')`. Both are stored as NUMERIC too, so LAVA sorts them as numbers
