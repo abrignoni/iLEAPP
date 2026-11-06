@@ -28,8 +28,9 @@ FIXTURE = {
 LEGACY_FIXTURE = {'iOS': FIXTURE['iOS']}  # data file without an iPadOS group
 
 
-def lookup(build, family, data=FIXTURE):
-    with patch.dict(Context._metadata, {COLLECTION: data}):
+def lookup(build, family, data=None):
+    metadata = {COLLECTION: FIXTURE if data is None else data}
+    with patch.object(Context, '_metadata', metadata):
         return Context.get_apple_os_version(build, family)
 
 
