@@ -628,7 +628,7 @@ class Context:
         if 'iPhone' in device_family:
             group = 'iOS'
         elif 'iPad' in device_family:
-            group = 'iOS'
+            group = 'iPadOS'
         elif 'Mac' in device_family:
             group = 'macOS'
         elif 'RealityDevice' in device_family:
@@ -641,18 +641,18 @@ class Context:
         resolved = Context.lookup_metadata(
             'apple_build_id_to_os_version', build, group)
 
-        if not resolved:
-            return ''
-
-        if 'iPad' in device_family:
+        if not resolved and group == 'iPadOS':
+            resolved = Context.lookup_metadata(
+                'apple_build_id_to_os_version', build, 'iOS')
+            # Builds 17x and later found only in the iOS group are iPadOS 13+.
             try:
                 build_major = int(re.match(r'^(\d+)', build).group(1))
-                if build_major >= 17:
-                    resolved = resolved.replace('iOS', 'iPadOS', 1)
+                if build_major >= 17 and resolved.startswith('iOS '):
+                    resolved = 'iPadOS' + resolved[len('iOS'):]
             except (TypeError, ValueError, AttributeError):
                 pass
 
-        return resolved
+        return resolved or ''
 
     @staticmethod
     def get_installed_os_version():
