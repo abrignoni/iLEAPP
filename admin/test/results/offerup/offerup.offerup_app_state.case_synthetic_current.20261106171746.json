@@ -1,0 +1,218 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Account and App State",
+    "function_name": "offerup_app_state",
+    "case_number": "case_synthetic_current",
+    "number_of_columns": 4,
+    "number_of_rows": 31,
+    "total_data_size_bytes": 5343,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_app_state.case_synthetic_current.zip",
+    "start_time": "2026-11-06T17:17:46.236643+00:00",
+    "end_time": "2026-11-06T17:17:46.473771+00:00",
+    "run_time_seconds": 0.009701251983642578,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:17:46.405298",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Item",
+    "Value",
+    "Origin",
+    "Source File"
+  ],
+  "data": [
+    [
+      "App version (current)",
+      "2026.9.0",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "App version (previous)",
+      "2026.3.0",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Logged in at least once",
+      "Yes",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Onboarding step: searchLocation",
+      "Yes",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Onboarding step: notificationPermissions",
+      "Yes",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Onboarding step: buyerInterests",
+      "No",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Onboarding step: tappedOnSaveItem",
+      "Yes",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Do not sell my data",
+      "No",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Advertising ID",
+      "00000000-0000-4000-8000-000000000001",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Limit ad tracking",
+      "No",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Device ID (app instrumentation)",
+      "00000000-0000-4000-8000-000000000002",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Locale",
+      "en",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "App user agent",
+      "OfferUp/0.0 (SyntheticPhone; iOS 0.0)",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Premium user",
+      "No",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "First open after install",
+      "No",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "First open after update",
+      "Yes",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Push permission prompt shown (times)",
+      1,
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Theme follows system",
+      "Yes",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Service posting draft started",
+      "No",
+      "Redux store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "App version of last run",
+      "2026.9.0",
+      "Preferences",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Preferences\\com.offerup.iphone.consumer.plist"
+    ],
+    [
+      "AppsFlyer user ID",
+      "synthetic-appsflyer-id-0001",
+      "Preferences",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Preferences\\com.offerup.iphone.consumer.plist"
+    ],
+    [
+      "AppsFlyer launch counter",
+      42,
+      "Preferences",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Preferences\\com.offerup.iphone.consumer.plist"
+    ],
+    [
+      "AppsFlyer reinstall counter",
+      0,
+      "Preferences",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Preferences\\com.offerup.iphone.consumer.plist"
+    ],
+    [
+      "Account ID (from storage key name)",
+      "900000001",
+      "Async storage key",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ],
+    [
+      "Push registration key suffix (meaning not established)",
+      "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "Async storage key",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ],
+    [
+      "Push permission status",
+      "granted",
+      "Async storage",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ],
+    [
+      "Push permission setting: alert",
+      "Yes",
+      "Async storage",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ],
+    [
+      "Push permission setting: badge",
+      "Yes",
+      "Async storage",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ],
+    [
+      "Push permission setting: providesAppSettings",
+      "No",
+      "Async storage",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ],
+    [
+      "Push permission setting: sound",
+      "Yes",
+      "Async storage",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ],
+    [
+      "Statsig stable ID",
+      "synthetic-stable-id-0001",
+      "Statsig store",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\statsig"
+    ]
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Search and Posting Locations",
+    "function_name": "offerup_locations",
+    "case_number": "case_synthetic_current",
+    "number_of_columns": 9,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 555,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_locations.case_synthetic_current.zip",
+    "start_time": "2026-11-06T17:17:46.476595+00:00",
+    "end_time": "2026-11-06T17:17:46.690938+00:00",
+    "run_time_seconds": 0.005525827407836914,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:17:46.641706",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Kind",
+    "Place",
+    "City",
+    "State",
+    "Zip",
+    "Latitude",
+    "Longitude",
+    "Used GPS",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Search location",
+      "Exampleton, EX",
+      "Exampleton",
+      "Example County",
+      "00000",
+      12.3456,
+      -65.4321,
+      "",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Rentals search location",
+      "Rentville, EX",
+      "",
+      "",
+      "",
+      11.1111,
+      -22.2222,
+      "",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+    ],
+    [
+      "Posting location",
+      "Posttown, EX",
+      "",
+      "",
+      "",
+      33.3333,
+      -44.4444,
+      "Yes",
+      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+    ]
+  ]
+}

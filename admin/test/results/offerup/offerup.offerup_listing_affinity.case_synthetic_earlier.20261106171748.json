@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Listing Affinity",
+    "function_name": "offerup_listing_affinity",
+    "case_number": "case_synthetic_earlier",
+    "number_of_columns": 5,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_listing_affinity.case_synthetic_earlier.zip",
+    "start_time": "2026-11-06T17:17:48.392117+00:00",
+    "end_time": "2026-11-06T17:17:48.609596+00:00",
+    "run_time_seconds": 0.004628419876098633,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:17:48.567181",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Kind",
+    "Position",
+    "Listing ID",
+    "Category ID",
+    "Source File"
+  ],
+  "data": []
+}
