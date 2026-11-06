@@ -26,8 +26,8 @@ __artifacts_v2__ = {
                  "rows. The presence of the key does not show that anyone signed in, or when. No "
                  "transaction, balance or contact record was found in this file or in any other "
                  "readable store of the five installs examined. "
-                 "Account Info (Documents/com.paypal.ios.AccountInfo) is a high-entropy blob in all "
-                 "tested samples and is not decoded.",
+                 "Account Info (Documents/com.paypal.ios.AccountInfo) is a high-entropy blob (7.88 to "
+                 "7.94 bits per byte) in the 4 tested installs that had it and is not decoded.",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist",),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
                  "install; the key carries no time, so the list is not an upgrade timeline, and a "
                  "version missing from it is not shown never to have run. Direct-deposit keys are "
                  "reported only as present, with whether the stored text is empty; they were empty in "
-                 "all tested samples. The several hundred remote-configuration and feature-flag keys "
+                 "the one tested install that had them. The several hundred remote-configuration and feature-flag keys "
                  "(RCSDefault-*, kElmoSavedCacheKey, isPasskey* and similar) are server supplied and "
                  "are not reported. OptInData values pn_sync_time and pn_prev_sync_at are text with no "
                  "time zone.",
