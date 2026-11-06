@@ -36,16 +36,31 @@ __artifacts_v2__ = {
     "cloudkit_files": {
         "name": "iCloud Backup Files",
         "description": "Parses file listings from CloudKit cache snapshots",
-        "author": "@JamesHabben",
+        "author": "@JamesHabben, @AlexisBrignoni, Claude",
         "creation_date": "2023-04-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-11-05",
         "requirements": "none",
         "category": "CloudKit",
         "notes": "The File Type labels File and Folder are assigned to stored fileType values 0 "
                  "and 1 without a vendor source; unrecognized values are reported as stored. A "
                  "manifest with no file rows is reported as one row with empty file columns. "
                  "Modified is the stored modified value read as Unix seconds; the basis for "
-                 "that reading is not stated here.",
+                 "that reading is not stated here. Field 8 and Field 10 are varint fields 8 "
+                 "and 10 of the protobuf stored in the file column, read as seconds since "
+                 "2001-01-01 UTC; what each one records is not established. Field 9 of that "
+                 "protobuf is not reported. On the 13 corpus images with file rows, where "
+                 "field 9 was present it equalled Modified less 978307200 seconds wherever "
+                 "that difference fitted in 32 bits, and held it truncated or clamped to 32 "
+                 "bits where it did not; it was absent on most rows where Modified was 0. "
+                 "Every value "
+                 "seen in fields 8, 9 and 10 on those images fitted in 32 bits, so a Field 8 "
+                 "or Field 10 date may come from a larger value cut to 32 bits. Modified, "
+                 "Field 8 and Field 10 are left empty when the value is absent, below 1000 "
+                 "Unix seconds, or cannot be converted to a date, and Field 8 and Field 10 "
+                 "also when the protobuf cannot be decoded (not exercised on the corpus); the "
+                 "stored value remains in cloudkit_cache.db. On three corpus images Modified "
+                 "held 9223372036; it is reported as the date it converts to, 2262-04-11, and "
+                 "its meaning is not established.",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -70,16 +85,60 @@ __artifacts_v2__ = {
 }
 
 import nska_deserialize as nd
+from google.protobuf.message import DecodeError
 
+from scripts import blackboxprotobuf
 from scripts.ilapfuncs import (
     artifact_processor,
     get_sqlite_db_records, null_absent_columns,
     open_sqlite_db_readonly,
     convert_unix_ts_to_utc,
-    convert_plist_date_to_utc
+    convert_plist_date_to_utc,
+    logfunc
 )
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timedelta, timezone
+
+_UNIX_EPOCH_UTC = _dt(1970, 1, 1, tzinfo=timezone.utc)
+# Seconds between the Unix epoch and 2001-01-01 UTC.
+_APPLE_EPOCH_OFFSET = 978307200
+# Values below this many Unix seconds are left empty rather than shown as January 1970.
+_NEAR_EPOCH_LIMIT = 1000
+_FILE_TYPEDEF = {'8': {'type': 'int'}, '10': {'type': 'int'}}
+_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError, IndexError)
+
+
+def _unix_seconds_to_utc(seconds):
+    """A UTC datetime for a Unix seconds value, or '' when absent, near the epoch or invalid.
+
+    The unit is known to be seconds, so the value is added to the epoch here rather than
+    passed to convert_unix_ts_to_utc, which reads large values as sub-second units.
+    """
+    if seconds is None:
+        return ''
+    try:
+        seconds = int(seconds)
+        if seconds < _NEAR_EPOCH_LIMIT:
+            return ''
+        return _UNIX_EPOCH_UTC + timedelta(seconds=seconds)
+    except (ValueError, TypeError, OverflowError):
+        return ''
+
+
+def _file_field_times(blob):
+    """Fields 8 and 10 of a Files.file protobuf as UTC datetimes; None when it cannot be decoded."""
+    if not blob:
+        return '', ''
+    try:
+        message, _ = blackboxprotobuf.decode_message(blob, _FILE_TYPEDEF)
+    except _DECODE_ERRORS:
+        return None
+    times = []
+    for field in ('8', '10'):
+        value = message.get(field)
+        times.append(_unix_seconds_to_utc(value + _APPLE_EPOCH_OFFSET)
+                     if isinstance(value, int) else '')
+    return tuple(times)
 
 def _safe_plist_date(value):
     """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
@@ -200,6 +259,8 @@ def cloudkit_files(context):
     files_found = context.get_files_found()
     data_headers = (
         ('Modified', 'datetime'),
+        ('Field 8', 'datetime'),
+        ('Field 10', 'datetime'),
         'Snapshot ID',
         'Relative Path',
         'File ID',
@@ -245,17 +306,24 @@ def cloudkit_files(context):
                 END AS file_type,
                 Files.size,
                 Files.protectionClass,
-                Manifests.manifestID
+                Manifests.manifestID,
+                Files.file
             FROM Manifests
             LEFT JOIN Files ON Files.manifestID = Manifests.manifestID
         '''
 
         db_records = get_sqlite_db_records(file_found, null_absent_columns(file_found, query))
+        undecoded = 0
         for record in db_records:
-            modified_ts = convert_unix_ts_to_utc(record[1]) if record[1] else ""
+            field_times = _file_field_times(record[10])
+            if field_times is None:
+                undecoded += 1
+                field_times = ('', '')
 
             results.add_row((
-                modified_ts,  # Modified
+                _unix_seconds_to_utc(record[1]),  # Modified
+                field_times[0],  # Field 8
+                field_times[1],  # Field 10
                 record[0],    # Snapshot ID
                 record[2],    # Relative Path
                 record[3],    # File ID
@@ -266,5 +334,9 @@ def cloudkit_files(context):
                 record[8],    # Protection Class
                 record[9]     # ManifestID
             ))
+        if undecoded:
+            logfunc(f'iCloud Backup Files: {undecoded} file protobufs in '
+                    f'{context.get_relative_path(file_found)} could not be decoded; '
+                    'Field 8 and Field 10 left empty for those rows')
 
     return results
