@@ -107,7 +107,7 @@ __artifacts_v2__ = {
                  "install; the key carries no time, so the list is not an upgrade timeline, and a "
                  "version missing from it is not shown never to have run. Direct-deposit keys are "
                  "reported only as present, with whether the stored text is empty; they were empty in "
-                 "the one tested install that had them. The several hundred remote-configuration and feature-flag keys "
+                 "the one tested install that had them. The many remote-configuration and feature-flag keys "
                  "(RCSDefault-*, kElmoSavedCacheKey, isPasskey* and similar) are server supplied and "
                  "are not reported. OptInData values pn_sync_time and pn_prev_sync_at are text with no "
                  "time zone.",
