@@ -40,7 +40,7 @@
       "Two Core Plugin Start",
       "",
       "Two Core Plugin Start",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460000,
@@ -50,7 +50,7 @@
       "Application has started successfully",
       "",
       "Application  has started successfully",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460001,
@@ -60,7 +60,7 @@
       "GET_APPLICATION_SECRETS",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460003,
@@ -70,7 +70,7 @@
       "GetSecrets",
       "success",
       "Received msg of type GetSecrets, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460003,
@@ -80,7 +80,7 @@
       "START_RISK_SESSION",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460003,
@@ -90,7 +90,7 @@
       "adddevice",
       "",
       "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460003,
@@ -100,7 +100,7 @@
       "StartRiskSession",
       "success",
       "Received msg of type StartRiskSession, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460003,
@@ -110,7 +110,7 @@
       "DEV_STATE_READY",
       "",
       "device state set to: DEV_STATE_READY",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460303,
@@ -120,7 +120,7 @@
       "QUERY_USER_STATE",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request....",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772460303,
@@ -130,7 +130,7 @@
       "StateCheck",
       "success",
       "Received msg of type StateCheck, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719260,
@@ -140,7 +140,7 @@
       "Two Core Plugin Start",
       "",
       "Two Core Plugin Start",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719260,
@@ -150,7 +150,7 @@
       "Application has started successfully",
       "",
       "Application  has started successfully",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719261,
@@ -160,7 +160,7 @@
       "GET_APPLICATION_SECRETS",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719263,
@@ -170,7 +170,7 @@
       "GetSecrets",
       "success",
       "Received msg of type GetSecrets, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719263,
@@ -180,7 +180,7 @@
       "START_RISK_SESSION",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719263,
@@ -190,7 +190,7 @@
       "adddevice",
       "",
       "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719263,
@@ -200,7 +200,7 @@
       "StartRiskSession",
       "success",
       "Received msg of type StartRiskSession, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719263,
@@ -210,7 +210,7 @@
       "DEV_STATE_READY",
       "",
       "device state set to: DEV_STATE_READY",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719563,
@@ -220,7 +220,7 @@
       "QUERY_USER_STATE",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request....",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772719563,
@@ -230,7 +230,7 @@
       "StateCheck",
       "success",
       "Received msg of type StateCheck, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978520,
@@ -240,7 +240,7 @@
       "Two Core Plugin Start",
       "",
       "Two Core Plugin Start",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978520,
@@ -250,7 +250,7 @@
       "Application has started successfully",
       "",
       "Application  has started successfully",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978521,
@@ -260,7 +260,7 @@
       "GET_APPLICATION_SECRETS",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978523,
@@ -270,7 +270,7 @@
       "GetSecrets",
       "success",
       "Received msg of type GetSecrets, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978523,
@@ -280,7 +280,7 @@
       "START_RISK_SESSION",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978523,
@@ -290,7 +290,7 @@
       "adddevice",
       "",
       "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978523,
@@ -300,7 +300,7 @@
       "StartRiskSession",
       "success",
       "Received msg of type StartRiskSession, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978523,
@@ -310,7 +310,7 @@
       "DEV_STATE_READY",
       "",
       "device state set to: DEV_STATE_READY",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978823,
@@ -320,7 +320,7 @@
       "QUERY_USER_STATE",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request....",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772978823,
@@ -330,7 +330,7 @@
       "StateCheck",
       "success",
       "Received msg of type StateCheck, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772982423,
@@ -340,7 +340,7 @@
       "DEL_DEVICE",
       "",
       "handle2ChkGuiRequest received: TwoChkGuiReqMsg: DEL_DEVICE request....",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772982423,
@@ -350,7 +350,7 @@
       "RemoveDevice",
       "success",
       "Received msg of type RemoveDevice, status code =success",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772982423,
@@ -360,7 +360,7 @@
       "DEV_STATE_FRESH_INSTALL",
       "",
       "device state set to: DEV_STATE_FRESH_INSTALL",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772982423,
@@ -370,7 +370,7 @@
       "Cleared the credentials",
       "",
       "Cleared the credentials!",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772982453,
@@ -380,7 +380,7 @@
       "No device key to sign anything with..",
       "",
       "No device key to sign anything with..",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772982453,
@@ -390,7 +390,7 @@
       "SSL Handshake failed with error & sslErr -9806:0",
       "",
       "SSL Handshake failed with error & sslErr -9806:0, errno=0",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ],
     [
       1772982453,
@@ -400,7 +400,7 @@
       "Connect",
       "MobileAuthStarted",
       "Received msg of type Connect, status code =MobileAuthStarted",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ]
   ]
 }

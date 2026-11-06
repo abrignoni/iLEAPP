@@ -40,7 +40,7 @@
       2,
       3,
       "risk-east.example.test",
-      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/AAAAAAAA-0000-4000-8000-000000000001/Documents/log1.txt"
     ]
   ]
 }

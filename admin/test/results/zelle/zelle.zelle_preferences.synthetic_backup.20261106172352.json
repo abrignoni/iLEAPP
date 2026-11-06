@@ -34,133 +34,133 @@
       "com.crashlytics.install.iid",
       "synthetic-install-id",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Application Support\\com.crashlytics\\CLSUserDefaults.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Application Support/com.crashlytics/CLSUserDefaults.plist"
     ],
     [
       "CLSUserDefaults.plist",
       "com.crashlytics.iuuid",
       "synthetic-uuid",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Application Support\\com.crashlytics\\CLSUserDefaults.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Application Support/com.crashlytics/CLSUserDefaults.plist"
     ],
     [
       "Mixpanel.plist",
       "MPAppVersion",
       "9.9.9",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "Mixpanel.plist",
       "mixpanel-AppStore-MPAnonymousId",
       "synthetic-anon-1",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "Mixpanel.plist",
       "mixpanel-AppStore-MPDistinctID",
       "synthetic-distinct-1",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "Mixpanel.plist",
       "mixpanel-AppStore-MPUserId",
       "synthetic-user-1",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "Mixpanel.plist (superProperties)",
       "Current App Screen",
       "synthetic_home",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "Mixpanel.plist (superProperties)",
       "Enabled Push",
       true,
       "bool",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "Mixpanel.plist (superProperties)",
       "Last App Screen",
       "synthetic_login",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "Mixpanel.plist (superProperties)",
       "Returning User?",
       true,
       "bool",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/Mixpanel.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "AccountAssociatedWithUserKey",
       true,
       "bool",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "AppAlreadyLaunchedKey",
       true,
       "bool",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "MixpanelRecordEventType",
       "DONT_RECORD",
       "str",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "PreferencesTouchIDKey",
       false,
       "bool",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "PushIDKey",
       "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
       "bytes",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "RecipientNameAlertWhitelist",
       "[]",
       "list",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "SKPurchaseIntentUpdatesLastChecked",
       123456789.5,
       "float",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "SafeUserAlertWhitelist",
       "[]",
       "list",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ],
     [
       "com.zellepay.zelle.plist",
       "qrCodeSeen",
       true,
       "bool",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Preferences/com.zellepay.zelle.plist"
     ]
   ]
 }

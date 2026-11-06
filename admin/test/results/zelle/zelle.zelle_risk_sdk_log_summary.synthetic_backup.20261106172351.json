@@ -40,7 +40,7 @@
       2,
       3,
       "risk-east.example.test",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Documents\\log1.txt"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Documents/log1.txt"
     ]
   ]
 }

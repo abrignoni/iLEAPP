@@ -36,7 +36,7 @@
       "Crashlytics",
       "9.9.9",
       "[Firebase/Crashlytics] Version 9.9.9",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:06.300",
@@ -44,7 +44,7 @@
       "SDK step 1",
       "Initializing InAuth Sdk",
       "STEP 1 --- Initializing InAuth Sdk.....",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:07.000",
@@ -52,7 +52,7 @@
       "Signature files version",
       "(null)",
       "InAuth Sig files versions: (null)",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:07.500",
@@ -60,7 +60,7 @@
       "SDK step 2",
       "Generate Registration Payload",
       "STEP 2 --- Generate Registration Payload.....",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:08.000",
@@ -68,7 +68,7 @@
       "Device log generation",
       "00000000-0000-4000-8000-0000000000aa",
       "EwsMrdExtension.onGenerateLogs Generating device logs for sessionId: 00000000-0000-4000-8000-0000000000aa",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:08.100",
@@ -76,7 +76,7 @@
       "Root detection",
       "started",
       "running root detection...",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:08.200",
@@ -84,7 +84,7 @@
       "Root status",
       "NotRooted",
       "EwsMrdExtension.getRootStatus:: root status is: NotRooted",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:08.300",
@@ -92,7 +92,7 @@
       "Malware detection",
       "started",
       "running malware detection...",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:08.400",
@@ -100,7 +100,7 @@
       "Malware status",
       "NoMalwareDetected",
       "EwsMrdExtension.getMalwareStatus:: malware status is: NoMalwareDetected",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-02 09:00:08.500",
@@ -108,7 +108,7 @@
       "Root scan list",
       "not found",
       "Root scan list not found",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-04 18:30:00.000",
@@ -116,7 +116,7 @@
       "Error",
       "<Google/Utilities/Network/ERROR> Encounter network error. Code, error: -1009",
       "<Google/Utilities/Network/ERROR> Encounter network error. Code, error: -1009",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ],
     [
       "2026-03-04 18:30:00.500",
@@ -124,7 +124,7 @@
       "Signature files version",
       "1.2",
       "InAuth Sig files versions: 1.2",
-      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Caches\\file.log"
+      "private/var/mobile/Containers/Data/Application/com.zellepay.zelle/Library/Caches/file.log"
     ]
   ]
 }

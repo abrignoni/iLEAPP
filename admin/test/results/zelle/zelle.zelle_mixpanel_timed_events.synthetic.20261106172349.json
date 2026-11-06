@@ -30,17 +30,17 @@
     [
       1772546400,
       "login",
-      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/AAAAAAAA-0000-4000-8000-000000000001/Library/Preferences/Mixpanel.plist"
     ],
     [
       1772632800,
       "Enable Touch ID",
-      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/AAAAAAAA-0000-4000-8000-000000000001/Library/Preferences/Mixpanel.plist"
     ],
     [
       1772636400,
       "Add Profile Photo",
-      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Preferences\\Mixpanel.plist"
+      "private/var/mobile/Containers/Data/Application/AAAAAAAA-0000-4000-8000-000000000001/Library/Preferences/Mixpanel.plist"
     ]
   ]
 }
