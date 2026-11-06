@@ -42,7 +42,7 @@
       86,
       "No",
       "action, connectionId, connectionDetails",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Caches\\com.offerup.iphone.consumer\\Cache.db"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
     ],
     [
       1789984809,
@@ -53,7 +53,7 @@
       32,
       "No",
       "statusCode, response",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Caches\\com.offerup.iphone.consumer\\Cache.db"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
     ],
     [
       1789984820,
@@ -64,7 +64,7 @@
       6,
       "No",
       "",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Caches\\com.offerup.iphone.consumer\\Cache.db"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
     ],
     [
       1789984830,
@@ -75,7 +75,7 @@
       "",
       "Yes",
       "",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Caches\\com.offerup.iphone.consumer\\Cache.db"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
     ]
   ]
 }

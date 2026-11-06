@@ -42,7 +42,7 @@
       12.3456,
       -65.4321,
       "",
-      "private\\var\\mobile\\Containers\\Data\\Application\\409D5814-586A-514A-82B2-95B6B4BF6C14\\Documents\\mmkv\\redux"
+      "private/var/mobile/Containers/Data/Application/409D5814-586A-514A-82B2-95B6B4BF6C14/Documents/mmkv/redux"
     ],
     [
       "Rentals search location",
@@ -53,7 +53,7 @@
       11.1111,
       -22.2222,
       "",
-      "private\\var\\mobile\\Containers\\Data\\Application\\409D5814-586A-514A-82B2-95B6B4BF6C14\\Documents\\mmkv\\redux"
+      "private/var/mobile/Containers/Data/Application/409D5814-586A-514A-82B2-95B6B4BF6C14/Documents/mmkv/redux"
     ],
     [
       "Posting location",
@@ -64,7 +64,7 @@
       33.3333,
       -44.4444,
       "Yes",
-      "private\\var\\mobile\\Containers\\Data\\Application\\409D5814-586A-514A-82B2-95B6B4BF6C14\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/409D5814-586A-514A-82B2-95B6B4BF6C14/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ]
   ]
 }

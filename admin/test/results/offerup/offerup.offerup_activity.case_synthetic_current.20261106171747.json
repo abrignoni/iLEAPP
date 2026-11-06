@@ -34,84 +34,84 @@
       1790000300,
       "Statsig session",
       "Session 00000000-0000-4000-8000-0000000000a1",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\statsig"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Documents/mmkv/statsig"
     ],
     [
       1790000900,
       1790000960,
       "Statsig session",
       "Session 00000000-0000-4000-8000-0000000000a2",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\statsig"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Documents/mmkv/statsig"
     ],
     [
       1790000005,
       1790000006,
       "Prompt exposure: POST_DETAIL_FTUE_KEY",
       "run count 2; attempted 3",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Documents/mmkv/redux"
     ],
     [
       1790000001,
       "",
       "Push permission prompt shown",
       "shown 1 times",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Documents/mmkv/redux"
     ],
     [
       1790000007,
       "",
       "Realtime (Ably) heartbeat",
       "lastHeartbeatTime",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Documents\\mmkv\\redux"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Documents/mmkv/redux"
     ],
     [
       1789913600,
       "",
       "AppsFlyer install timestamp",
       "AppsFlyerInstallTimestamp",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Preferences\\com.offerup.iphone.consumer.plist"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Preferences/com.offerup.iphone.consumer.plist"
     ],
     [
       1789862405,
       "",
       "Facebook SDK install timestamp",
       "FBSDKSettingsInstallTimestamp",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Preferences\\com.offerup.iphone.consumer.plist"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Preferences/com.offerup.iphone.consumer.plist"
     ],
     [
       1790000003,
       "",
       "Push registration",
       "LAST_REGISTERED_AT",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1790000001,
       1790000001,
       "Prompt counter: PUSH_NOTIFICATION_PERMISSIONS_RUNNER_KEY",
       "run count 1; attempted 1",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1790000002,
       1790000002,
       "Prompt counter: BUSINESS_TOOLS",
       "run count 4; attempted 6",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1790000004,
       "",
       "Stored time: LAST_ACCOUNT_PAGE_REFRESH",
       "meaning not established beyond the key name",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1790000004,
       "",
       "Stored time: profile_location_after_filter",
       "meaning not established beyond the key name",
-      "private\\var\\mobile\\Containers\\Data\\Application\\1C373BA9-528C-59F6-9531-AA4328E83299\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ]
   ]
 }

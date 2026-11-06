@@ -40,7 +40,7 @@
       "keyword",
       "",
       "/search/?q=synthetic+bike",
-      "private\\var\\mobile\\Containers\\Data\\Application\\409D5814-586A-514A-82B2-95B6B4BF6C14\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/409D5814-586A-514A-82B2-95B6B4BF6C14/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       "Recent search",
@@ -50,7 +50,7 @@
       "keyword",
       "in",
       "/search/?q=synthetic+couch&delivery_param=p",
-      "private\\var\\mobile\\Containers\\Data\\Application\\409D5814-586A-514A-82B2-95B6B4BF6C14\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/409D5814-586A-514A-82B2-95B6B4BF6C14/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       "Recent rentals search",
@@ -60,7 +60,7 @@
       "keyword",
       "",
       "/rentals/search?q=synthetic+flat",
-      "private\\var\\mobile\\Containers\\Data\\Application\\409D5814-586A-514A-82B2-95B6B4BF6C14\\Library\\Application Support\\com.offerup.iphone.consumer\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/409D5814-586A-514A-82B2-95B6B4BF6C14/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
     ]
   ]
 }
