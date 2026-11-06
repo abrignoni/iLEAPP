@@ -53,12 +53,12 @@ def keyed_archive(mapping):
         values.append(plistlib.UID(len(objects) - 1))
     objects[1] = {'NS.keys': keys, 'NS.objects': values, '$class': plistlib.UID(2)}
     return plistlib.dumps({'$version': 100000, '$archiver': 'NSKeyedArchiver',
-                           '$top': {'root': plistlib.UID(1)}, '$objects': objects}, fmt=plistlib.FMT_BINARY)
+                           '$top': {'root': plistlib.UID(1)}, '$objects': objects}, fmt=plistlib.PlistFormat.FMT_BINARY)
 
 
 def metadata_plist(identifier):
     return plistlib.dumps({'MCMMetadataIdentifier': identifier, 'MCMMetadataVersion': 1,
-                           'MCMMetadataUUID': 'SYNTHETIC'}, fmt=plistlib.FMT_BINARY)
+                           'MCMMetadataUUID': 'SYNTHETIC'}, fmt=plistlib.PlistFormat.FMT_BINARY)
 
 
 def _sqlite(statements, rows=()):
@@ -243,8 +243,8 @@ def build_members(variant):
     members = {
         f'{DATA_ROOT}/.com.apple.mobile_container_manager.metadata.plist': metadata_plist(BUNDLE),
         f'{GROUP_ROOT}/.com.apple.mobile_container_manager.metadata.plist': metadata_plist(GROUP),
-        f'{DATA_ROOT}/Library/Preferences/{BUNDLE}.plist': plistlib.dumps(app_prefs(variant), fmt=plistlib.FMT_BINARY),
-        f'{GROUP_ROOT}/Library/Preferences/{GROUP}.plist': plistlib.dumps(group_prefs(variant), fmt=plistlib.FMT_BINARY),
+        f'{DATA_ROOT}/Library/Preferences/{BUNDLE}.plist': plistlib.dumps(app_prefs(variant), fmt=plistlib.PlistFormat.FMT_BINARY),
+        f'{GROUP_ROOT}/Library/Preferences/{GROUP}.plist': plistlib.dumps(group_prefs(variant), fmt=plistlib.PlistFormat.FMT_BINARY),
         f'{DATA_ROOT}/Library/Application Support/Thales-v2/slog-TSH-48bbb8-01.log': thales_log(variant),
         f'{DATA_ROOT}/Library/Caches/{BUNDLE}/Cache.db': url_cache(variant),
         f'{DATA_ROOT}/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db': analytics_db(variant),
