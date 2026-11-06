@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Device Integrity Checks",
+    "function_name": "zelle_device_integrity",
+    "case_number": "synthetic_minimal",
+    "number_of_columns": 6,
+    "number_of_rows": 12,
+    "total_data_size_bytes": 2565,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_device_integrity.synthetic_minimal.zip",
+    "start_time": "2026-11-06T17:23:50.562446+00:00",
+    "end_time": "2026-11-06T17:23:50.773643+00:00",
+    "run_time_seconds": 0.002445697784423828,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:23:50.749850",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Local Time",
+    "PID",
+    "Check",
+    "Result",
+    "Message",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2026-03-02 09:00:00.100",
+      500,
+      "Crashlytics",
+      "9.9.9",
+      "[Firebase/Crashlytics] Version 9.9.9",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:06.300",
+      500,
+      "SDK step 1",
+      "Initializing InAuth Sdk",
+      "STEP 1 --- Initializing InAuth Sdk.....",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:07.000",
+      500,
+      "Signature files version",
+      "(null)",
+      "InAuth Sig files versions: (null)",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:07.500",
+      500,
+      "SDK step 2",
+      "Generate Registration Payload",
+      "STEP 2 --- Generate Registration Payload.....",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:08.000",
+      500,
+      "Device log generation",
+      "00000000-0000-4000-8000-0000000000aa",
+      "EwsMrdExtension.onGenerateLogs Generating device logs for sessionId: 00000000-0000-4000-8000-0000000000aa",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:08.100",
+      500,
+      "Root detection",
+      "started",
+      "running root detection...",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:08.200",
+      500,
+      "Root status",
+      "NotRooted",
+      "EwsMrdExtension.getRootStatus:: root status is: NotRooted",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:08.300",
+      500,
+      "Malware detection",
+      "started",
+      "running malware detection...",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:08.400",
+      500,
+      "Malware status",
+      "NoMalwareDetected",
+      "EwsMrdExtension.getMalwareStatus:: malware status is: NoMalwareDetected",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-02 09:00:08.500",
+      500,
+      "Root scan list",
+      "not found",
+      "Root scan list not found",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-04 18:30:00.000",
+      777,
+      "Error",
+      "<Google/Utilities/Network/ERROR> Encounter network error. Code, error: -1009",
+      "<Google/Utilities/Network/ERROR> Encounter network error. Code, error: -1009",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ],
+    [
+      "2026-03-04 18:30:00.500",
+      777,
+      "Signature files version",
+      "1.2",
+      "InAuth Sig files versions: 1.2",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Caches\\file.log"
+    ]
+  ]
+}

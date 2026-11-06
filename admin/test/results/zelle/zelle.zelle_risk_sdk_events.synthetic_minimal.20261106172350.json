@@ -1,0 +1,406 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Risk SDK Events",
+    "function_name": "zelle_risk_sdk_events",
+    "case_number": "synthetic_minimal",
+    "number_of_columns": 8,
+    "number_of_rows": 37,
+    "total_data_size_bytes": 8094,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_risk_sdk_events.synthetic_minimal.zip",
+    "start_time": "2026-11-06T17:23:50.131797+00:00",
+    "end_time": "2026-11-06T17:23:50.343302+00:00",
+    "run_time_seconds": 0.002722024917602539,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:23:50.319095",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Event Time",
+    "Level",
+    "Component",
+    "Event Type",
+    "Event",
+    "Status",
+    "Log Message",
+    "Source File"
+  ],
+  "data": [
+    [
+      1772460000,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "SDK start",
+      "Two Core Plugin Start",
+      "",
+      "Two Core Plugin Start",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460000,
+      "DEBUG",
+      "ManagerPlugin",
+      "SDK start",
+      "Application has started successfully",
+      "",
+      "Application  has started successfully",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460001,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "GET_APPLICATION_SECRETS",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "GetSecrets",
+      "success",
+      "Received msg of type GetSecrets, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "START_RISK_SESSION",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Risk reason",
+      "adddevice",
+      "",
+      "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "StartRiskSession",
+      "success",
+      "Received msg of type StartRiskSession, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_READY",
+      "",
+      "device state set to: DEV_STATE_READY",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460303,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "QUERY_USER_STATE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request....",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772460303,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "StateCheck",
+      "success",
+      "Received msg of type StateCheck, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719260,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "SDK start",
+      "Two Core Plugin Start",
+      "",
+      "Two Core Plugin Start",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719260,
+      "DEBUG",
+      "ManagerPlugin",
+      "SDK start",
+      "Application has started successfully",
+      "",
+      "Application  has started successfully",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719261,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "GET_APPLICATION_SECRETS",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "GetSecrets",
+      "success",
+      "Received msg of type GetSecrets, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "START_RISK_SESSION",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Risk reason",
+      "adddevice",
+      "",
+      "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "StartRiskSession",
+      "success",
+      "Received msg of type StartRiskSession, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_READY",
+      "",
+      "device state set to: DEV_STATE_READY",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719563,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "QUERY_USER_STATE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request....",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772719563,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "StateCheck",
+      "success",
+      "Received msg of type StateCheck, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978520,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "SDK start",
+      "Two Core Plugin Start",
+      "",
+      "Two Core Plugin Start",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978520,
+      "DEBUG",
+      "ManagerPlugin",
+      "SDK start",
+      "Application has started successfully",
+      "",
+      "Application  has started successfully",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978521,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "GET_APPLICATION_SECRETS",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "GetSecrets",
+      "success",
+      "Received msg of type GetSecrets, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "START_RISK_SESSION",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Risk reason",
+      "adddevice",
+      "",
+      "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "StartRiskSession",
+      "success",
+      "Received msg of type StartRiskSession, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_READY",
+      "",
+      "device state set to: DEV_STATE_READY",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978823,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "QUERY_USER_STATE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request....",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772978823,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "StateCheck",
+      "success",
+      "Received msg of type StateCheck, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Request to SDK",
+      "DEL_DEVICE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: DEL_DEVICE request....",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "RemoveDevice",
+      "success",
+      "Received msg of type RemoveDevice, status code =success",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_FRESH_INSTALL",
+      "",
+      "device state set to: DEV_STATE_FRESH_INSTALL",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Credentials",
+      "Cleared the credentials",
+      "",
+      "Cleared the credentials!",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772982453,
+      "ERROR",
+      "TwoChkCorePlugin",
+      "Error",
+      "No device key to sign anything with..",
+      "",
+      "No device key to sign anything with..",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772982453,
+      "ERROR",
+      "HttpPlugin",
+      "Error",
+      "SSL Handshake failed with error & sslErr -9806:0",
+      "",
+      "SSL Handshake failed with error & sslErr -9806:0, errno=0",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ],
+    [
+      1772982453,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Server response",
+      "Connect",
+      "MobileAuthStarted",
+      "Received msg of type Connect, status code =MobileAuthStarted",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ]
+  ]
+}

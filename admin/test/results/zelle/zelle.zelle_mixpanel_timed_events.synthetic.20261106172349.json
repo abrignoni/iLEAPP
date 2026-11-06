@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Mixpanel Timed Events",
+    "function_name": "zelle_mixpanel_timed_events",
+    "case_number": "synthetic",
+    "number_of_columns": 3,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 421,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_mixpanel_timed_events.synthetic.zip",
+    "start_time": "2026-11-06T17:23:49.703832+00:00",
+    "end_time": "2026-11-06T17:23:49.912415+00:00",
+    "run_time_seconds": 0.004062652587890625,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:23:49.883829",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Start Time",
+    "Event Name",
+    "Source File"
+  ],
+  "data": [
+    [
+      1772546400,
+      "login",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      1772632800,
+      "Enable Touch ID",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      1772636400,
+      "Add Profile Photo",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Library\\Preferences\\Mixpanel.plist"
+    ]
+  ]
+}

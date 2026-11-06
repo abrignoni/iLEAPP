@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Risk SDK Log Summary",
+    "function_name": "zelle_risk_sdk_log_summary",
+    "case_number": "synthetic_minimal",
+    "number_of_columns": 8,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 150,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_risk_sdk_log_summary.synthetic_minimal.zip",
+    "start_time": "2026-11-06T17:23:50.346375+00:00",
+    "end_time": "2026-11-06T17:23:50.560185+00:00",
+    "run_time_seconds": 0.0023965835571289062,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:23:50.537019",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "First Entry",
+    "Last Entry",
+    "Entries",
+    "Debug Entries",
+    "Error Entries",
+    "SDK Starts",
+    "Servers",
+    "Source File"
+  ],
+  "data": [
+    [
+      1772460000,
+      1772982453,
+      40,
+      38,
+      2,
+      3,
+      "risk-east.example.test",
+      "private\\var\\mobile\\Containers\\Data\\Application\\AAAAAAAA-0000-4000-8000-000000000001\\Documents\\log1.txt"
+    ]
+  ]
+}

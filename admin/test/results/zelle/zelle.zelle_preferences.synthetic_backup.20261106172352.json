@@ -1,0 +1,166 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Preferences and Identifiers",
+    "function_name": "zelle_preferences",
+    "case_number": "synthetic_backup",
+    "number_of_columns": 5,
+    "number_of_rows": 19,
+    "total_data_size_bytes": 3200,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_preferences.synthetic_backup.zip",
+    "start_time": "2026-11-06T17:23:52.022871+00:00",
+    "end_time": "2026-11-06T17:23:52.237280+00:00",
+    "run_time_seconds": 0.003512144088745117,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:23:52.206534",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Preference File",
+    "Key",
+    "Value",
+    "Value Type",
+    "Source File"
+  ],
+  "data": [
+    [
+      "CLSUserDefaults.plist",
+      "com.crashlytics.install.iid",
+      "synthetic-install-id",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Application Support\\com.crashlytics\\CLSUserDefaults.plist"
+    ],
+    [
+      "CLSUserDefaults.plist",
+      "com.crashlytics.iuuid",
+      "synthetic-uuid",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Application Support\\com.crashlytics\\CLSUserDefaults.plist"
+    ],
+    [
+      "Mixpanel.plist",
+      "MPAppVersion",
+      "9.9.9",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "Mixpanel.plist",
+      "mixpanel-AppStore-MPAnonymousId",
+      "synthetic-anon-1",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "Mixpanel.plist",
+      "mixpanel-AppStore-MPDistinctID",
+      "synthetic-distinct-1",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "Mixpanel.plist",
+      "mixpanel-AppStore-MPUserId",
+      "synthetic-user-1",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Current App Screen",
+      "synthetic_home",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Enabled Push",
+      true,
+      "bool",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Last App Screen",
+      "synthetic_login",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Returning User?",
+      true,
+      "bool",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\Mixpanel.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "AccountAssociatedWithUserKey",
+      true,
+      "bool",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "AppAlreadyLaunchedKey",
+      true,
+      "bool",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "MixpanelRecordEventType",
+      "DONT_RECORD",
+      "str",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "PreferencesTouchIDKey",
+      false,
+      "bool",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "PushIDKey",
+      "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "bytes",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "RecipientNameAlertWhitelist",
+      "[]",
+      "list",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "SKPurchaseIntentUpdatesLastChecked",
+      123456789.5,
+      "float",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "SafeUserAlertWhitelist",
+      "[]",
+      "list",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "qrCodeSeen",
+      true,
+      "bool",
+      "private\\var\\mobile\\Containers\\Data\\Application\\com.zellepay.zelle\\Library\\Preferences\\com.zellepay.zelle.plist"
+    ]
+  ]
+}
