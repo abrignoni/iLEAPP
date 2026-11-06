@@ -173,7 +173,7 @@ class CraigslistFixtureTests(CraigslistBase):
         self.assertTrue(any('fsCachedData' in str(c.args[0]) for c in self.log.call_args_list))
 
     def test_every_artifact_pattern_matches_the_fixture_once(self):
-        for name, function in ARTIFACTS.items():
+        for name in ARTIFACTS:
             _names, rows, _source = self.rows(name)
             self.assertTrue(rows, name)
 
@@ -190,7 +190,7 @@ class CraigslistRobustnessTests(CraigslistBase):
 
     def test_empty_manifest_and_missing_hashed_files(self):
         root, folder = self.container()
-        Path(folder, 'manifest.json').write_text(json.dumps({'persist:search': None, 'persist:root': None}))
+        Path(folder, 'manifest.json').write_text(json.dumps({'persist:search': None, 'persist:root': None}), encoding='utf-8')
         for name in ('recent_searches', 'visited_postings', 'saved_items', 'account_state', 'startup_log'):
             _headers, rows, _source = self.run_artifact(name, root)
             self.assertEqual(list(rows), [], name)
@@ -198,7 +198,7 @@ class CraigslistRobustnessTests(CraigslistBase):
     def test_manifest_that_is_not_json_or_not_an_object(self):
         root, folder = self.container()
         for text in ('not json', '[1, 2]', ''):
-            Path(folder, 'manifest.json').write_text(text)
+            Path(folder, 'manifest.json').write_text(text, encoding='utf-8')
             _headers, rows, _source = self.run_artifact('recent_searches', root)
             self.assertEqual(list(rows), [], text)
 
@@ -206,7 +206,7 @@ class CraigslistRobustnessTests(CraigslistBase):
         root, folder = self.container()
         state = {'recentSearches': [{'params': {'query': 'inline form'}, 'timestamp': 1772366400000}]}
         # a value small enough to stay inline in manifest.json, as JSON text
-        Path(folder, 'manifest.json').write_text(json.dumps({'persist:search': json.dumps(state)}))
+        Path(folder, 'manifest.json').write_text(json.dumps({'persist:search': json.dumps(state)}), encoding='utf-8')
         _headers, rows, _source = self.run_artifact('recent_searches', root)
         self.assertEqual(rows[0][1], 'inline form')
 
@@ -214,8 +214,8 @@ class CraigslistRobustnessTests(CraigslistBase):
         root, folder = self.container()
         odd = {'recentSearches': ['x', 7, {'timestamp': 'soon', 'location': 'here', 'humanReadableParams': 'y'}],
                'visitedPostings': {'1': 'not a time', '2': None, '3': 10 ** 30}}
-        Path(folder, 'manifest.json').write_text(json.dumps({'persist:search': None}))
-        Path(folder, hashlib.md5(b'persist:search').hexdigest()).write_text(json.dumps(odd))
+        Path(folder, 'manifest.json').write_text(json.dumps({'persist:search': None}), encoding='utf-8')
+        Path(folder, hashlib.md5(b'persist:search').hexdigest()).write_text(json.dumps(odd), encoding='utf-8')
         _headers, rows, _source = self.run_artifact('recent_searches', root)
         self.assertEqual(len(rows), 1)
         _headers, rows, _source = self.run_artifact('visited_postings', root)
