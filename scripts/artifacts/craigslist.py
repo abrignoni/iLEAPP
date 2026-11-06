@@ -9,8 +9,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "Each entry timestamp is read as Unix milliseconds and shown in UTC. Observed on app versions "
-                 "1.27.0 and 1.29.1 (see sample_data); the value is stored by the app as one JSON object, kept "
+        "notes": "Each entry timestamp is read as Unix milliseconds and shown in UTC. Read on three real "
+                 "containers (installed app versions 1.27.0 and 1.29.1, see sample_data); the value is stored by "
+                 "the app as one JSON object, kept "
                  "in a file named with the MD5 of the key when it is large and inline in manifest.json when it "
                  "is small, and both forms are read. Filters are listed as name=value as stored. Radius is shown "
                  "as stored: its unit is not established here. The search area is the area saved with the "
@@ -21,8 +22,9 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "search",
         "sample_data": {
-            "local_ff_a": "app 1.27.0 | 24 rows, ms timestamps, 1-2 filters per entry",
-            "local_ff_b": "app 1.27.0 | 24 rows",
+            "local_ffs_a": "iOS FFS | 24 rows, ms timestamps, 1-2 filters per entry",
+            "local_ffs_b": "iOS FFS | 24 rows",
+            "local_ffs_c": "iOS FFS | recentSearches present and empty, 0 rows",
             "synthetic": "admin/test/cases: case_synthetic, 3 rows incl. an entry with no location",
         }
     },
@@ -35,15 +37,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "Times are Unix milliseconds shown in UTC. In the tested samples the time agreed with the "
-                 "Cache.db timestamp of the cached detail request for the same posting id (offsets of 0 to a "
-                 "few seconds on 27 of 27 ids that shared a time source, other ids differed by the age of the "
-                 "cache entry), so the time is read as the last time the posting id was opened in the app; the "
-                 "meaning is observed, not documented by the vendor. The map holds a capped number of ids "
-                 "(30 and 85 in the tested samples). Title and category are filled only when a cached detail "
-                 "response for the id survives; blanks do not mean the posting had no title. Entries in "
-                 "postingsNotFound and postingViewTelemetrySent are not exported: the first was empty and the "
-                 "second held one id with an integer whose meaning was not established.",
+        "notes": "Times are Unix milliseconds shown in UTC. The map is read as the app's own record of when a "
+                 "posting id was opened; the vendor does not document it. Of 28 viewed ids that also had a "
+                 "cached detail request on three real containers, 14 had a Cache.db time within 60 seconds of "
+                 "the viewed time, 8 a later cache time and 6 an earlier one, so the viewed time is not a "
+                 "cache time. The map held 1, 85 and 178 ids on the three containers. Title and category are "
+                 "filled only when a cached detail response for the id survives; blanks do not mean the "
+                 "posting had no title. Entries in postingsNotFound and postingViewTelemetrySent are not "
+                 "exported: the first was empty and the second held at most one id with an integer whose "
+                 "meaning was not established.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/'
@@ -51,8 +53,9 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "eye",
         "sample_data": {
-            "local_ff_a": "app 1.27.0 | 85 rows",
-            "local_ff_b": "app 1.27.0 | 30 rows",
+            "local_ffs_a": "iOS FFS | 85 rows",
+            "local_ffs_b": "iOS FFS | 178 rows",
+            "local_ffs_c": "iOS FFS | 1 row",
             "synthetic": "admin/test/cases: case_synthetic, 3 rows, 2 with a cached title",
         }
     },
@@ -65,7 +68,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "Favorites were observed with one entry on one tested image and none on another; the "
+        "notes": "Favorites were observed with one entry on one of three tested images and none on the others; the "
                  "favorite fields (posting id, title, posted date in Unix seconds, location description) are "
                  "read as stored. The hidden and saved-search lists were empty on every tested image, so "
                  "their field names are not established: those rows carry the entry as stored JSON in "
@@ -77,8 +80,9 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "star",
         "sample_data": {
-            "local_ff_a": "app 1.27.0 | 1 favorite, hidden and saved searches empty",
-            "local_ff_b": "app 1.27.0 | lists empty, 0 rows",
+            "local_ffs_a": "iOS FFS | 1 favorite, hidden and saved searches empty",
+            "local_ffs_b": "iOS FFS | all lists empty, 0 rows",
+            "local_ffs_c": "iOS FFS | all lists empty, 0 rows",
             "synthetic": "admin/test/cases: case_synthetic, 3 rows (favorite, hidden, saved search)",
         }
     },
@@ -106,8 +110,9 @@ __artifacts_v2__ = {
         "output_types": ["html", "lava", "tsv"],
         "artifact_icon": "user",
         "sample_data": {
-            "local_ff_a": "app 1.27.0 | signed out, 27 rows",
-            "local_ff_b": "app 1.27.0 | signed out",
+            "local_ffs_a": "iOS FFS | signed out, 32 rows",
+            "local_ffs_b": "iOS FFS | signed out, 32 rows",
+            "local_ffs_c": "iOS FFS | signed out, 32 rows, extra token and permission keys present",
             "synthetic": "admin/test/cases: case_synthetic, signed in with a stored login",
         }
     },
@@ -128,8 +133,9 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "player-play",
         "sample_data": {
-            "local_ff_a": "app 1.27.0 | 5 rows",
-            "local_ff_b": "app 1.27.0 | 5 rows",
+            "local_ffs_a": "iOS FFS | 5 rows",
+            "local_ffs_b": "iOS FFS | 5 rows",
+            "local_ffs_c": "iOS FFS | 5 rows",
             "synthetic": "admin/test/cases: case_synthetic, 5 rows",
         }
     },
@@ -153,8 +159,9 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "world-search",
         "sample_data": {
-            "local_ff_a": "app 1.27.0 | 36 rows (9 suggest, 8 category count, 4 results and others)",
-            "local_ff_b": "app 1.27.0 | 3 rows",
+            "local_ffs_a": "iOS FFS | 35 rows",
+            "local_ffs_b": "iOS FFS | 3 rows",
+            "local_ffs_c": "iOS FFS | 17 rows",
             "synthetic": "admin/test/cases: case_synthetic, 4 rows",
         }
     },
@@ -178,8 +185,9 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "file-description",
         "sample_data": {
-            "local_ff_a": "app 1.27.0 | 56 detail requests, all with an in-database body",
-            "local_ff_b": "app 1.27.0 | 32 detail requests",
+            "local_ffs_a": "iOS FFS | 49 rows, 7 bodies kept in fsCachedData and not parsed",
+            "local_ffs_b": "iOS FFS | 31 rows, 1 body in fsCachedData",
+            "local_ffs_c": "iOS FFS | 14 rows",
             "synthetic": "admin/test/cases: case_synthetic, 3 rows incl. one body kept on disk",
         }
     },
@@ -310,7 +318,8 @@ def _cache_rows(db_path):
         LEFT JOIN cfurl_cache_receiver_data d ON d.entry_ID = r.entry_ID
     '''
     try:
-        records = get_sqlite_db_records(db_path, query)
+        # absolute, because the SQLite URI helper mishandles a relative path on Windows
+        records = get_sqlite_db_records(os.path.abspath(db_path), query)
         return [tuple(r) for r in records]
     except sqlite3.DatabaseError as err:
         logfunc(f'Craigslist Cache.db: {err}')
