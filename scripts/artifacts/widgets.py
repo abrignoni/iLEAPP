@@ -3,16 +3,26 @@ __artifacts_v2__ = {
         "name": "Widgets",
         "description": "Snapshot images from the com.apple.chrono snapshot-cache folder. Dates "
                        "and times shown are from file modified timestamps",
-        "author": "@maala-nfi",
+        "author": "@maala-nfi, @AlexisBrignoni",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "Each .snapshot file under com.apple.chrono/snapshot-cache that decodes as a KTX "
                  "image is converted to PNG and shown; files that do not decode are not listed. "
-                 "App Name is cut from the snapshot folder name (the text before the first space, "
-                 "with 'sceneID:' removed, up to the first hyphen). Date Modified is the modified "
-                 "time recorded for the snapshot file when it was checked in as media.",
+                 "In the 12 tested extractions every snapshot sat two folders below snapshot-cache. "
+                 "Both folder names are reported as found in the extraction. Widget Extension Bundle "
+                 "ID is the first folder, and the label rests on this match: in those 12 extractions "
+                 "(iOS 15 to 18), 81 of its 86 distinct values (counted per extraction) matched the "
+                 "CFBundleIdentifier of a WidgetKit extension (NSExtensionPointIdentifier "
+                 "com.apple.widgetkit-extension) in the same extraction, and each of those began "
+                 "with the bundle identifier of the app that holds the extension; for the other 5, "
+                 "no .appex Info.plist in the extraction carried that CFBundleIdentifier. Snapshot "
+                 "Folder is the second folder. On some rows it equals the bundle identifier of an "
+                 "app or extension in the same extraction, on others a dotted identifier not found "
+                 "there, and on others a single word. Its meaning is not established. Date Modified "
+                 "is the modified time recorded for the snapshot file when it was checked in as "
+                 "media.",
         "paths": ('*/Library/Caches/com.apple.chrono/snapshot-cache/*/*/*.snapshot',),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -33,7 +43,7 @@ __artifacts_v2__ = {
     },
 }
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from PIL import Image
 from scripts.ktx.ios_ktx2png import KTX_reader
@@ -41,7 +51,7 @@ from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_
 
 
 def save_ktx_to_png_if_valid(ktx_path, save_to_path):
-    '''Excludes all white or all black blank images'''
+    '''Convert a valid iOS KTX image to PNG.'''
 
     with open(ktx_path, 'rb') as f:
         ktx = KTX_reader()
@@ -59,6 +69,22 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     return False
 
 
+def _cache_folders(source_path):
+    """Return the two folder names below snapshot-cache, as stored.
+
+    source_path is the evidence-relative path, so a folder of the examiner's that
+    happens to be named snapshot-cache cannot be read as the cache."""
+
+    parts = PurePosixPath(str(source_path).replace('\\', '/')).parts
+    positions = [idx for idx, part in enumerate(parts) if part == 'snapshot-cache']
+    if not positions:
+        return '', ''
+    below = parts[positions[-1] + 1:-1]
+    extension_id = below[0] if below else ''
+    snapshot_folder = below[1] if len(below) > 1 else ''
+    return extension_id, snapshot_folder
+
+
 @artifact_processor
 def widgets(context):
     data_list = []
@@ -66,18 +92,13 @@ def widgets(context):
 
     for file_found in context.get_files_found():
         media_path = Path(file_found)
-        parts = media_path.parts
-        if parts[-2] != 'downscaled':
-            app_name = parts[-2].split(' ')[0].replace("sceneID:", "")
-        else:
-            app_name = parts[-3].split(' ')[0].replace("sceneID:", "")
-        dash_pos = app_name.find('-')
-        if dash_pos > 0:
-            app_name = app_name[0:dash_pos]
+        source_path = context.get_relative_path(file_found)
+        extension_id, snapshot_folder = _cache_folders(source_path)
 
         png_path = media_path.with_suffix((".png"))
         if save_ktx_to_png_if_valid(media_path, png_path):
-            media_item = check_in_media(file_found, app_name, png_path)
+            media_item = check_in_media(
+                file_found, extension_id, png_path, force_type='image/png', force_extension='png')
         else:
             continue
 
@@ -88,9 +109,9 @@ def widgets(context):
         last_modified_date = convert_unix_ts_to_utc(
             lava_get_full_media_info(media_item)[-2])
         data_list.append(
-            [last_modified_date, app_name, context.get_relative_path(file_found), media_item])
+            [last_modified_date, extension_id, snapshot_folder, source_path, media_item])
 
-    data_headers = (('Date Modified', 'datetime'), 'App Name',
+    data_headers = (('Date Modified', 'datetime'), 'Widget Extension Bundle ID', 'Snapshot Folder',
                     'Source Path', ('Snapshot', 'media'))
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
