@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - Per-Account Preference Keys",
+    "function_name": "paypalAccountKeys",
+    "case_number": "case_synthetic_sparse",
+    "number_of_columns": 4,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalAccountKeys.case_synthetic_sparse.zip",
+    "start_time": "2026-11-06T17:39:02.010323+00:00",
+    "end_time": "2026-11-06T17:39:02.256117+00:00",
+    "run_time_seconds": 0.0023527145385742188,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:39:02.233734",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Account Key",
+    "Setting",
+    "Value",
+    "Source File"
+  ],
+  "data": []
+}

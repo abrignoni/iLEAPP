@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - Dated Preference Keys",
+    "function_name": "paypalDatedKeys",
+    "case_number": "case_synthetic_sparse",
+    "number_of_columns": 3,
+    "number_of_rows": 7,
+    "total_data_size_bytes": 1241,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalDatedKeys.case_synthetic_sparse.zip",
+    "start_time": "2026-11-06T17:39:02.258394+00:00",
+    "end_time": "2026-11-06T17:39:02.487015+00:00",
+    "run_time_seconds": 0.002894878387451172,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:39:02.457169",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Stored Date",
+    "Key",
+    "Source File"
+  ],
+  "data": [
+    [
+      1778155200,
+      "adj_skad_register_call_time",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      1778241600,
+      "gdprConsentedDate",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      1778328600,
+      "KronosStableTime.Timestamp (read as Unix seconds)",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      1778331600,
+      "com.paypalPKPeerPaymentRecurringPaymentsLastUpdatedKey",
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      1778335200,
+      "rampConfigLastUpdateTime",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      1778335200,
+      "remoteConfigLastUpdateTime",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      1778338800,
+      "timestampAppInBGUserDefaultsKey",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ]
+  ]
+}

@@ -1,0 +1,347 @@
+{
+  "case_synthetic_full": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated PayPal Data container and app-group container (invented account, example.invalid addresses, SYNTH* ids) with every store populated: remembered-account archive, per-account preference keys, dated keys, version markers, a Thales SDK log, a URL cache with statistics beacons, a queued analytics database (one row with invalid JSON), an mParticle sessions table and a ZTRANSACTIONENTRY table with a dated and an undated row. A decoy container of another bundle id reuses the third-party file names and must not be reported. Built by admin/test/scripts/synthetic_paypal.py with the file, table, column and key names of PayPal 8.98 to 8.107; it carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_paypal_full.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-11-06T12:24:07.387605",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-11-06T12:24:07.195316",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "paypalRememberedAccount": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAccountKeys": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalDatedKeys": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAppSettings": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalSecuritySdkStarts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/Thales-v2/slog-TSH-*",
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalCachedRequests": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.yourcompany.PPClient/Cache.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAnalyticsEvents": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalMparticleSessions": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Documents/mParticle*.db*",
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalDebitTransactions": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Application Support/default.store*",
+          "*/mobile/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.2"
+  },
+  "case_synthetic_empty": {
+    "description": "SYNTHETIC fixture, not a real device. The same containers with the stores present but empty, as in the real installs examined: empty cache, analytics, transaction tables, no mParticle database and no per-account keys. The account archive, dated keys, settings and SDK log remain.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_paypal_empty.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-11-06T12:24:08.458633",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-11-06T12:24:08.228290",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "paypalRememberedAccount": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAccountKeys": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalDatedKeys": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAppSettings": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalSecuritySdkStarts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/Thales-v2/slog-TSH-*",
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalCachedRequests": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.yourcompany.PPClient/Cache.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAnalyticsEvents": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalMparticleSessions": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Documents/mParticle*.db*",
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalDebitTransactions": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Application Support/default.store*",
+          "*/mobile/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.2"
+  },
+  "case_synthetic_sparse": {
+    "description": "SYNTHETIC fixture, not a real device. The same containers with the databases reduced to an unrelated table, no remembered-account archive and a log with no record lines, to check that every artifact returns no rows instead of failing.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_paypal_sparse.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-11-06T12:24:09.540561",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-11-06T12:24:09.336246",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "paypalRememberedAccount": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAccountKeys": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalDatedKeys": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAppSettings": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalSecuritySdkStarts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/Thales-v2/slog-TSH-*",
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalCachedRequests": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.yourcompany.PPClient/Cache.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalAnalyticsEvents": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalMparticleSessions": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Documents/mParticle*.db*",
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "paypalDebitTransactions": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Application Support/default.store*",
+          "*/mobile/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.2"
+  }
+}

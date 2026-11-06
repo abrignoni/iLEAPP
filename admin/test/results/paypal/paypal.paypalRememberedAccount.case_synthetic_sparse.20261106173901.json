@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - Remembered Account",
+    "function_name": "paypalRememberedAccount",
+    "case_number": "case_synthetic_sparse",
+    "number_of_columns": 10,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalRememberedAccount.case_synthetic_sparse.zip",
+    "start_time": "2026-11-06T17:39:01.762186+00:00",
+    "end_time": "2026-11-06T17:39:02.007252+00:00",
+    "run_time_seconds": 0.0017962455749511719,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-06T17:39:01.985355",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Display Name",
+    "Username",
+    "Primary E-mail",
+    "Primary Phone",
+    "Account Profile ID",
+    "Account Type (as stored)",
+    "Country Code",
+    "Photo URL",
+    "Phone-Password Login Flag",
+    "Source File"
+  ],
+  "data": []
+}
