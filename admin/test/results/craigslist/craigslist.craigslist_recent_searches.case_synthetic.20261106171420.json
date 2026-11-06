@@ -56,7 +56,7 @@
       1,
       0,
       "https://exampleville.example.invalid",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772366520,
@@ -74,7 +74,7 @@
       1,
       0,
       "https://exampleville.example.invalid",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772366580,
@@ -92,7 +92,7 @@
       null,
       null,
       null,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ]
   ]
 }

@@ -32,31 +32,31 @@
       1772367000,
       "Init Log File",
       "",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772367000,
       "setAppMode",
       "init",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772367001,
       "setAppMode",
       "onboarding",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772367002,
       "setAppMode",
       "tab",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772367003,
       "STARTUP COMPLETE",
       "AppReadyListener",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ]
   ]
 }

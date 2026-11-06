@@ -64,7 +64,7 @@
       true,
       "https://exampleville.example.invalid/fua/d/9000000001.html",
       "Synthetic body for Synthetic desk.",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Caches\\org.craigslist.CraigslistMobile\\Cache.db"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Caches/org.craigslist.CraigslistMobile/Cache.db"
     ],
     [
       1772366760,
@@ -86,7 +86,7 @@
       true,
       "https://exampleville.example.invalid/fua/d/9000000002.html",
       "Synthetic body for Synthetic chair.",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Caches\\org.craigslist.CraigslistMobile\\Cache.db"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Caches/org.craigslist.CraigslistMobile/Cache.db"
     ]
   ]
 }

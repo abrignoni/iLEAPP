@@ -32,163 +32,163 @@
       null,
       "Is Logged In",
       true,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Login (as stored)",
       "owner@example.invalid",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area City",
       "Exampleville",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area Region",
       "EX",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area Postal Code",
       "00000",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area Country",
       "US",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area Latitude",
       10.5,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area Longitude",
       20.5,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area Radius (as stored)",
       25.0,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area ID",
       1,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Subarea ID",
       0,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Home Area Site",
       "https://exampleville.example.invalid",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Email App Setting",
       "standard",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Color Scheme Override",
       "system",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Push Token Sent (as stored)",
       "unsynched",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Permission: camera",
       "undetermined",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Permission: location",
       "blocked",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Permission: notification",
       "granted",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Access Token Present",
       "Yes",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Browser Cookie Token Present",
       "Yes",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Push Token Present",
       "No",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Config App Version",
       "1.29.1-synthetic",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772366405,
       "Config Timestamp (Unix seconds)",
       1772366405,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772367000,
       "Last Day Used (Unix ms)",
       1772367000000,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       1772367060,
       "Rating Startup Prompt Shown (Unix ms)",
       1772367060000,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Days In A Row (as stored)",
       2,
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Application Support\\org.craigslist.CraigslistMobile\\RCTAsyncLocalStorage_V1\\manifest.json"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
     ],
     [
       null,
       "Device UID (as stored)",
       "SYNTHETIC-DEVICE-UID-0001",
-      "private\\var\\mobile\\Containers\\Data\\Application\\00000000-0000-4000-8000-000000000001\\Library\\Preferences\\org.craigslist.CraigslistMobile.plist"
+      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Preferences/org.craigslist.CraigslistMobile.plist"
     ]
   ]
 }
