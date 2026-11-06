@@ -21,6 +21,9 @@ This script closes that gap in four escalating steps:
 2. Registry. With ``--registry``, checks that every key an artifact cites
    exists in the registry, that each registered corpus is present on disk, and
    with ``--verify-hashes`` that its SHA-256 still matches what was recorded.
+   A cited key whose entry has ``allow_public_metadata`` false is an error, and
+   one where it is null (terms not established) is a warning. An entry without
+   the field has no designation recorded and is not reported.
 
 3. Counts. With ``--run KEY``, parses that corpus end to end and compares the
    rows each artifact actually produced against the rows it declares. The run must
@@ -70,6 +73,10 @@ import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+from admin.scripts import corpus_privacy  # noqa: E402  pylint: disable=wrong-import-position
+
 ARTIFACTS_DIR = REPO_ROOT / "scripts" / "artifacts"
 ROW_COUNT_RE = re.compile(r"(\d[\d,]*)\s+rows?\b", re.I)
 HASH_CHUNK = 1 << 22
@@ -237,6 +244,22 @@ def check_registry(artifacts, registry, registry_path, verify_hashes, report):
         if corpus not in samples:
             report.error(f"corpus '{corpus}' is cited by {len(users)} artifact(s) "
                          f"but is not in the registry (first: {users[0]})")
+            continue
+        # sample_data puts the key and a row count in repository text, which is what
+        # allow_public_metadata governs. An entry that does not carry the field has no
+        # designation recorded, and is left alone.
+        state = corpus_privacy.field_state(samples[corpus], "allow_public_metadata")
+        if state is False:
+            report.error(f"corpus '{corpus}' is cited by {len(users)} artifact(s) but its "
+                         f"key may not appear in repository text (first: {users[0]}): "
+                         + corpus_privacy.describe(corpus, samples[corpus],
+                                                   "allow_public_metadata"))
+        elif state is None:
+            report.warn(f"corpus '{corpus}' is cited by {len(users)} artifact(s) but whether "
+                        f"its key may appear in repository text is not established "
+                        f"(first: {users[0]}): "
+                        + corpus_privacy.describe(corpus, samples[corpus],
+                                                  "allow_public_metadata"))
 
     for name, entry in sorted(samples.items()):
         match = (entry or {}).get("match") or {}

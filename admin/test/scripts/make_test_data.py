@@ -37,6 +37,7 @@ repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 
 sys.path.append(repo_root)
 
 import msgpack  # noqa: E402  pylint: disable=wrong-import-position
+from admin.scripts import corpus_privacy  # noqa: E402  pylint: disable=wrong-import-position
 from scripts.search_files import (  # noqa: E402  pylint: disable=wrong-import-position
     _CLBX_VERSION_MEMBER, _clbx_member_names, clbx_metadata_members)
 
@@ -602,6 +603,32 @@ def write_case_zip(file_name, matched, source_archive, input_file):
             write_clbx_members(zip_file, source_archive, clbx, names)
 
 
+# A corpus registry (samples.json) is optional here. Given one, an input that is a
+# registered corpus is checked for its allow_fixtures designation before anything
+# is written. Without one, nothing changes.
+SAMPLES_ENV = "iLEAPP_SAMPLES"
+
+
+def fixture_refusal(input_file, registry_path):
+    """Return why a test case may not be cut from input_file, or None.
+
+    The input is looked up in the registry by path, then by content. A case cut
+    from it puts the corpus's own bytes in the repository, so an entry whose
+    allow_fixtures is false, or null (terms not established), is refused. An
+    input the registry does not hold, or an entry without the field, is allowed.
+    """
+    if not registry_path:
+        return None
+    with open(registry_path, 'r', encoding='utf-8') as f:
+        registry = json.load(f)
+    name, entry = corpus_privacy.find_entry(registry, registry_path, input_file)
+    if name is None or not corpus_privacy.refuses(entry, "allow_fixtures"):
+        return None
+    return (corpus_privacy.describe(name, entry, "allow_fixtures")
+            + "\nA test case cut from it would commit its bytes to this repository, so none "
+              "was written. Cut the case from an image whose terms allow it.")
+
+
 def create_test_data(module_name, image_name=None, case_number=None, input_file=None, image_metadata=None):
     """Orchestrates the creation of test data for a specific module.
 
@@ -869,6 +896,10 @@ if __name__ == "__main__":
     group.add_argument("--case", help="Case number for the test data")
     group.add_argument("--image-prompt", action="store_true", help="Prompt for image selection from the manifest")
     parser.add_argument("--input", help="Path to the input file (zip, tar, or tar.gz)", required='--case' in sys.argv)
+    parser.add_argument("--registry", default=os.environ.get(SAMPLES_ENV),
+                        help=f"corpus registry (samples.json) to check the input against "
+                             f"(or set {SAMPLES_ENV}); a registered corpus whose terms do not "
+                             f"allow fixtures is refused")
 
     args = parser.parse_args()
 
@@ -888,6 +919,10 @@ if __name__ == "__main__":
             input_image_info = get_image_info(args.image)
             print(f"Using image: {args.image}")
             print(f"Image path: {input_image_info['input_file']}")
+            refusal = fixture_refusal(input_image_info['input_file'], args.registry)
+            if refusal:
+                print(f"Error: {refusal}")
+                sys.exit(1)
 
             # Check if case data already exists
             case_summary = get_case_data_summary(input_module_name, args.image)
@@ -910,6 +945,10 @@ if __name__ == "__main__":
             parser.error("--input is required when --case is used")
         print(f"Using case number: {args.case}")
         print(f"Input file: {args.input}")
+        refusal = fixture_refusal(args.input, args.registry)
+        if refusal:
+            print(f"Error: {refusal}")
+            sys.exit(1)
         create_test_data(input_module_name, case_number=args.case, input_file=args.input)
 
     print("\nTest data creation completed.")
