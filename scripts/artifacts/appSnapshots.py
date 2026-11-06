@@ -7,11 +7,11 @@ __artifacts_v2__ = {
                        "KTX files that do not decode are left out.",
         "author": "@ydkhatri - @AlexisBrignoni",
         "creation_date": "2020-07-23",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "Apple explains that UIKit takes a scene snapshot after an app enters the background for display in "
-                 "the app switcher. Apps may deliberately hide or replace sensitive content before capture, so an "
+        "notes": "Apple explains that UIKit takes a snapshot of the app's user interface after it enters the "
+                 "background, for display in the app switcher. Apps may deliberately hide or replace sensitive content before capture, so an "
                  "image can be a launch/default screen or privacy overlay and should not by itself be treated as proof "
                  "that the user viewed the depicted content. File Modified Date is source-file metadata; Manifest "
                  "Creation Date and Manifest Last Used Date are separate fields stored by SplashBoard. Reference: "
@@ -81,6 +81,12 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     return False
 
 
+# The manifest names a scene directory sceneID:<bundle>-<suffix>. Extractions write
+# it as sceneID_ or without the colon (iphone12_ios18 uses the colon-less spelling,
+# with -default and -<UUID> suffixes), so accept all three spellings.
+_SCENE_PREFIX = re.compile(r'^sceneID[:_]?')
+
+
 def _bundle_id_from_path(media_path):
     """Return the bundle directory immediately below a Snapshots directory."""
 
@@ -89,8 +95,8 @@ def _bundle_id_from_path(media_path):
         if parts[idx] == 'Snapshots' and idx + 1 < len(parts):
             bundle_id = parts[idx + 1]
             bundle_id = bundle_id.split(' - {', 1)[0]
-            if bundle_id.startswith(('sceneID:', 'sceneID_')):
-                bundle_id = bundle_id[len('sceneID:'):]
+            if _SCENE_PREFIX.match(bundle_id):
+                bundle_id = _SCENE_PREFIX.sub('', bundle_id, count=1)
                 bundle_id = re.sub(
                     r'-(?:default|[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12})$',
                     '',
@@ -101,15 +107,16 @@ def _bundle_id_from_path(media_path):
     # Fallback for an unexpected layout. The parent is normally either the
     # snapshot group or its downscaled variant directory.
     group_path = media_path.parent.parent if media_path.parent.name == 'downscaled' else media_path.parent
-    group_name = group_path.name.replace('sceneID:', '').replace('sceneID_', '')
+    group_name = _SCENE_PREFIX.sub('', group_path.name, count=1)
     return group_name.split(' - {', 1)[0].rsplit('-default', 1)[0]
 
 
 def _snapshot_group_from_path(media_path):
-    """Return the group or scene directory that contains a snapshot."""
+    """Return the group or scene directory that contains a snapshot, with a scene
+    directory spelled sceneID: as the manifest stores it."""
 
     group_path = media_path.parent.parent if media_path.parent.name == 'downscaled' else media_path.parent
-    return group_path.name.replace('sceneID_', 'sceneID:')
+    return _SCENE_PREFIX.sub('sceneID:', group_path.name, count=1)
 
 
 def _manifest_index(files_found):
