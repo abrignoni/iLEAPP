@@ -58,7 +58,7 @@ pathlib2==2.3.5
 PGPy>=0.6.0  # the newest PGPy wheel is 0.5.4, which breaks on cryptography>=38; only the 0.6.0 sdist works, so keep wheel-preferring installs off 0.5.4
 standard-imghdr; python_version >= "3.13"  # PGPy imports stdlib imghdr, removed in Python 3.13 (PEP 594)
 pillow
-pillow_heif
+pillow_heif==1.8.1
 # protobuf is required by the vendored scripts/blackboxprotobuf. Do NOT add the
 # PyPI 'blackboxprotobuf' back: it pins protobuf==3.10.0, reintroducing patched
 # CVEs. 5.29.6 is the minimum that clears CVE-2022-1941/2025-4565/2026-0994.
