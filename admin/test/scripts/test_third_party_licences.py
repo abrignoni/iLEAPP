@@ -123,11 +123,18 @@ class BuildTests(unittest.TestCase):
 
     def test_gpl_codecs_are_found_by_name(self):
         names = ['_internal/pillow_heif/libx265-217-abc.dll', 'lib/libx264.so.164',
-                 'heicreader/bin/heicreader.exe', '_internal/PIL/_imaging.pyd']
-        self.assertEqual(licences.gpl_codecs(names), sorted(names[:2]))
+                 '_internal/libreadline.so.8',
+                 'heicreader/bin/heicreader.exe', '_internal/PIL/_imaging.pyd',
+                 '_internal/libedit.3.dylib']
+        self.assertEqual(licences.gpl_codecs(names), sorted(names[:3]))
         with self.assertRaises(SystemExit):
             licences.refuse_gpl_codecs(names)
-        licences.refuse_gpl_codecs(names[2:])
+        licences.refuse_gpl_codecs(names[3:])
+
+    def test_the_spec_leaves_out_readline(self):
+        self.assertIn('readline', licences.EXCLUDES)
+        spec = next((REPO_ROOT / 'packaging').glob('*.spec')).read_text(encoding='utf-8')
+        self.assertIn('excludes=driver.licenses.EXCLUDES,', spec)
 
 
 class InstalledVersionTests(unittest.TestCase):

@@ -46,7 +46,7 @@ a = Analysis(
     hiddenimports=hiddenimports,
     hookspath=[],
     runtime_hooks=[],
-    excludes=[],
+    excludes=driver.licenses.EXCLUDES,
     noarchive=False,
 )
 # The licence files of everything the bundle holds, written to build/licences/ and

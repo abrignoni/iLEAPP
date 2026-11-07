@@ -15,7 +15,7 @@ bundled package with neither stops the build.
 
 heicreader's version is pinned by the wheel URLs in requirements.txt. A build refuses to run
 when the installed heicreader is another version, when its licence texts differ from the
-copies in LICENSES/, or when a file named like a GPL video codec (GPL_CODECS below) would be
+copies in LICENSES/, or when a file named like a GPL library (GPL_CODECS below) would be
 bundled: pillow-heif once brought x265 in that way. This file is the same in all five LEAPP cores.
 """
 
@@ -35,8 +35,12 @@ LICENSES = ROOT / "LICENSES"
 NOTICES = "THIRD-PARTY-NOTICES.md"
 DEST = "LICENSES"
 HELPER_DEST = "heicreader/bin"
-# Name parts of GPL-licensed codec libraries that must never be bundled.
-GPL_CODECS = ("x264", "x265", "xvid", "rubberband", "vidstab", "frei0r")
+# Name parts of GPL-licensed libraries that must never be bundled: video codecs (pillow-heif
+# once brought x265 in) and GNU Readline, which Python's readline module links on Linux.
+GPL_CODECS = ("x264", "x265", "xvid", "rubberband", "vidstab", "frei0r", "libreadline")
+# Modules the spec leaves out. Python's readline module links GNU Readline (GPL-3.0) on Linux;
+# the programs never import it, and the standard library imports it only inside try/except.
+EXCLUDES = ["readline"]
 
 # Licence texts for packages whose wheels ship none, by normalised package name.
 FALLBACKS = LICENSES / "packages"
@@ -158,7 +162,7 @@ def gpl_codecs(names) -> list[str]:
 def refuse_gpl_codecs(names) -> None:
     hits = gpl_codecs(names)
     if hits:
-        sys.exit("licences: these GPL codec libraries would ship, and the program is MIT: "
+        sys.exit("licences: these GPL libraries would ship, and the program is MIT: "
                  + ", ".join(hits))
 
 

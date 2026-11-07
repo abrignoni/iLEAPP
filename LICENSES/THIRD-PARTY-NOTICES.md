@@ -29,7 +29,9 @@ from the code below; heicreader-THIRD-PARTY-NOTICES.md is its own list of it.
 
 All of these are permissive licences. The build also refuses to package any file whose name
 contains x264, x265, xvid, rubberband, vidstab or frei0r. Those are GPL video codecs; x265 is
-the one pillow-heif, the HEIC reader used before heicreader, bundled.
+the one pillow-heif, the HEIC reader used before heicreader, bundled. It refuses libreadline
+too: GNU Readline is GPL-3.0, and Python's readline module links it on Linux, so the build
+leaves that module out.
 
 HEVC is subject to patents. These licence texts do not mention patents, and this notice does
 not address them.
