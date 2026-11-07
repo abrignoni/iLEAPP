@@ -62,6 +62,7 @@ from functools import wraps
 # LEAPP version unique imports
 import binascii
 from PIL import Image
+from pillow_heif import register_heif_opener
 
 from scripts.html_safe import esc, safe_local_path
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_iter_artifact_rows, \
@@ -339,6 +340,29 @@ def _resolve_media_source(source_path):
         return extraction_path, file_info, file_info.source_path
     return extraction_path, None, Context.get_relative_path(source_path)
 
+# LAVA shows media in a Chromium view, which cannot decode HEIC or HEIF.
+_HEIC_MIME_TYPES = ('image/heic', 'image/heif')
+
+
+def _heic_to_png(source):
+    '''
+    Decode a HEIC or HEIF image and return it encoded as PNG.
+    Args:
+        source: A file path, or the image's bytes.
+    Returns:
+        The PNG bytes, or None when the image could not be decoded.
+    '''
+    register_heif_opener()
+    try:
+        with Image.open(io.BytesIO(source) if isinstance(source, bytes) else source) as image:
+            buffer = io.BytesIO()
+            image.save(buffer, format='PNG')
+            return buffer.getvalue()
+    except (OSError, ValueError, RuntimeError, Image.DecompressionBombError) as ex:
+        logfunc(f'HEIC image could not be converted to PNG, the original is attached instead: {ex}')
+        return None
+
+
 def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, converted_file_path=None, force_type=None,
                     force_extension=None, force_creation_date=None, force_modification_date=None):
     '''
@@ -410,9 +434,21 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
             else:
                 media_item.updated_at = 0
 
+        # A HEIC or HEIF image is attached as a PNG copy so the report can show it. The
+        # original stays in the evidence copy, and the media's source path still names it.
+        # A caller that passed its own converted file or type is left as it asked.
+        converted_data = None
+        if not force_type and not converted_file_path and media_item.mimetype in _HEIC_MIME_TYPES:
+            converted_data = _heic_to_png(media_data if is_embedded else str(file_to_copy))
+            if converted_data is not None:
+                media_item.mimetype = 'image/png'
+                suffix = '.png'
+
         # 1. Create the canonical media file
         canonical_media_path = Path(output_params.media_folder).joinpath(media_id).with_suffix(suffix)
-        if is_embedded:
+        if converted_data is not None:
+            canonical_media_path.write_bytes(converted_data)
+        elif is_embedded:
             canonical_media_path.write_bytes(media_data)
         else:
             try:
