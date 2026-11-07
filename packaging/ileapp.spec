@@ -49,6 +49,9 @@ a = Analysis(
     excludes=driver.licenses.EXCLUDES,
     noarchive=False,
 )
+# Windows 10 and later always load the Universal C Runtime from the system, never a
+# bundled copy (packaging/licenses.py).
+a.binaries = driver.licenses.without_ucrt(a.binaries)
 # The licence files of everything the bundle holds, written to build/licences/ and
 # shipped in LICENSES/bundled/ (packaging/licenses.py).
 a.datas += driver.licenses.collect_bundled((a.pure, a.scripts, a.binaries, a.datas),

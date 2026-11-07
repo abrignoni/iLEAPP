@@ -339,7 +339,7 @@ The same policy covers the other LEAPPs:
 iLEAPP's code is under the MIT licence (`LICENSE`). To show HEIC images the packaged programs on
 the releases page include heicreader, which is MIT and built from MIT and BSD-3-Clause code. Its
 licence texts are in [`LICENSES/`](LICENSES/THIRD-PARTY-NOTICES.md). Every packaged program also
-carries, in `LICENSES/bundled/`, the licence of each Python package it holds, and names the ones
+carries, in `LICENSES/bundled/`, the licence of each Python package it holds and of each library it takes from the build machine, and names the ones
 under copyleft terms, such as simplekml (LGPL), with a link to their source.
 
 ## Acknowledgements

@@ -9,7 +9,11 @@ of each Python package that has a file in the bundle, Python's own licence, PyIn
 (its bootloader starts the program), the licences of the repository's vendored code, and
 INDEX.md, which lists them and names the packages under copyleft terms with their source.
 A package whose wheel ships no licence file takes its text from LICENSES/packages/; a
-bundled package with neither stops the build.
+bundled package with neither stops the build. A file from the build machine itself, such as
+a system library a package compiled on that machine links, is traced to the system package
+that installed it (dpkg on Debian and Ubuntu, a Homebrew keg on macOS) and that package's
+licence file is shipped; a file traced to nothing stops the build. Windows builds leave out
+the Universal C Runtime, which Windows 10 and later always load from the system.
 
     python packaging/licenses.py check     the installed heicreader matches LICENSES/
 
@@ -26,6 +30,7 @@ import os
 import platform
 import re
 import shutil
+import subprocess
 import sys
 from importlib import metadata
 from pathlib import Path
@@ -57,6 +62,15 @@ _COPYLEFT = re.compile(r"\bL?GPL|General Public License|Mozilla Public License|\
 _COPYLEFT_TEXT = re.compile(r"GNU (LESSER |LIBRARY )?GENERAL PUBLIC LICENSE|\b(L?GPL|MPL)-[0-9]")
 _COPYLEFT_HEADER = re.compile(r"GNU (LESSER |LIBRARY )?GENERAL PUBLIC LICENSE|"
                               r"SPDX-License-Identifier:.*\b(L?GPL|MPL)", re.I)
+# The Universal C Runtime: ucrtbase.dll and its api-ms-win-*.dll forwarders. "On Windows 10 and
+# Windows 11, the Universal CRT in the system directory is always used, even if an application
+# includes an application-local copy" (learn.microsoft.com/cpp/windows/universal-crt-deployment),
+# and Python's Windows guide says "If you require Windows 8.1 support, install Python 3.12"
+# (docs.python.org/3.14/using/windows.html), so from 3.13 every Windows that runs it has one.
+_UCRT = re.compile(r"^(api-ms-win-.+|ucrtbase)\.dll$", re.I)
+# Where each Debian or Ubuntu package keeps its copyright file (Debian Policy 12.5).
+DEBIAN_DOCS = Path("/usr/share/doc")
+_CELLAR = re.compile(r"^(?P<keg>.*/Cellar/(?P<formula>[^/]+)/(?P<version>[^/]+))/")
 
 
 def pinned_version() -> str | None:
@@ -166,6 +180,140 @@ def refuse_gpl_codecs(names) -> None:
                  + ", ".join(hits))
 
 
+def without_ucrt(binaries, platform_: str = sys.platform, version=sys.version_info) -> list:
+    """The spec's binaries without the Universal C Runtime, on Windows from Python 3.13."""
+    if platform_ != "win32" or tuple(version[:2]) < (3, 13):
+        return list(binaries)
+    return [entry for entry in binaries
+            if not _UCRT.match(Path(str(entry[0]).replace("\\", "/")).name)]
+
+
+# -- files from the build machine -----------------------------------------------------------
+
+def _dpkg_query(args: list[str]) -> str | None:
+    """dpkg-query's output, or None where there is no dpkg."""
+    try:
+        run = subprocess.run(["dpkg-query", *args], capture_output=True, text=True,
+                             stdin=subprocess.DEVNULL, check=False)
+    except OSError:
+        return None
+    return run.stdout
+
+
+def _path_spellings(src: str) -> list[str]:
+    """The paths dpkg may know a file by: as found, resolved, and across the /usr merge.
+
+    On a merged /usr, /lib is a link to /usr/lib, and dpkg's database records a library under
+    whichever of the two its package installed it, so a resolved path is not enough.
+    """
+    found = []
+    for path in (src, os.path.realpath(src)):
+        merged = re.match(r"^/usr(/(?:lib|lib32|lib64|bin|sbin)/.*)$", path)
+        split = re.match(r"^/(?:lib|lib32|lib64|bin|sbin)/", path)
+        for spelling in (path, merged.group(1) if merged else "/usr" + path if split else path):
+            if spelling not in found:
+                found.append(spelling)
+    return found
+
+
+def _dpkg_owners(sources: list[str]) -> dict[str, str]:
+    """{source path: the dpkg package that installed it}, for the paths dpkg knows."""
+    spellings = {src: _path_spellings(src) for src in sources}
+    query = sorted({s for found in spellings.values() for s in found})
+    output = _dpkg_query(["-S", *query]) if query else None
+    if not output:
+        return {}
+    owner = {}
+    for line in output.splitlines():
+        # "package[:arch][, package...]: /path"; diversion lines are not ownership.
+        if line.startswith("diversion ") or ": " not in line:
+            continue
+        packages, path = line.split(": ", 1)
+        owner.setdefault(path, packages.split(",")[0].strip().split(":")[0])
+    return {src: next(owner[s] for s in found if s in owner)
+            for src, found in spellings.items() if any(s in owner for s in found)}
+
+
+def _debian_source_link(name: str, version: str) -> str:
+    try:
+        system = platform.freedesktop_os_release().get("ID", "")
+    except OSError:
+        system = ""
+    if system == "ubuntu":
+        return f"https://launchpad.net/ubuntu/+source/{name}/{version}"
+    if system == "debian":
+        return f"https://snapshot.debian.org/package/{name}/{version}/"
+    return f"source package {name} {version}"
+
+
+def _dpkg_package(name: str) -> dict:
+    fields = (_dpkg_query(["-W", "-f", "${Version}\\t${source:Package}\\t${source:Version}\\n",
+                           name]) or "").splitlines()
+    version, source, source_version = (fields[0].split("\t") + ["", "", ""])[:3] if fields \
+        else ("", "", "")
+    copyright_file = DEBIAN_DOCS / name / "copyright"
+    return {
+        "name": name, "version": version,
+        "licence": "see its copyright file",
+        "source": _debian_source_link(source or name, source_version or version),
+        "files": [("copyright", copyright_file)] if copyright_file.is_file() else [],
+    }
+
+
+def _homebrew_package(keg: Path, formula: str, version: str) -> dict:
+    """A Homebrew keg's licence files, and the licence and source its SBOM states."""
+    files = sorted((p.name, p) for p in keg.iterdir() if p.is_file() and _LICENCE_NAME.match(p.name))
+    licence, source = "not stated by Homebrew", f"https://formulae.brew.sh/formula/{formula}"
+    try:
+        sbom = json.loads((keg / "sbom.spdx.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        sbom = {}
+    for package in sbom.get("packages", []):
+        if package.get("name") != formula:
+            continue
+        concluded = package.get("licenseConcluded") or ""
+        if concluded and concluded != "NOASSERTION" and licence.startswith("not stated"):
+            licence = f"{concluded} (Homebrew's SBOM)"
+        location = package.get("downloadLocation") or ""
+        if location.startswith("https://") and "ghcr.io" not in location:
+            source = location
+    return {"name": formula, "version": version, "licence": licence, "source": source,
+            "files": files}
+
+
+def system_packages(entries: list[tuple[str, str]]):
+    """Trace files from the build machine to the system packages that installed them.
+
+    entries are (name in the bundle, source path). Returns ({package: record}, {package: the
+    names it supplies}, [names traced to no package]). A record holds the package's name,
+    version, licence, source and licence files.
+    """
+    packages, supplies, untraced = {}, {}, []
+    if sys.platform.startswith("linux"):
+        owners = _dpkg_owners(sorted({src for _, src in entries}))
+        for name, src in entries:
+            package = owners.get(src)
+            if package is None:
+                untraced.append(name)
+                continue
+            if package not in packages:
+                packages[package] = _dpkg_package(package)
+            supplies.setdefault(package, []).append(name)
+    elif sys.platform == "darwin":
+        for name, src in entries:
+            match = _CELLAR.match(os.path.realpath(src).replace("\\", "/"))
+            if match is None:
+                untraced.append(name)
+                continue
+            formula = match["formula"]
+            if formula not in packages:
+                packages[formula] = _homebrew_package(Path(match["keg"]), formula, match["version"])
+            supplies.setdefault(formula, []).append(name)
+    else:
+        untraced = [name for name, _ in entries]
+    return packages, supplies, untraced
+
+
 # -- the licences of what a build holds -----------------------------------------------------
 
 def _key(path) -> str:
@@ -254,20 +402,21 @@ def _cell(text: str) -> str:
 
 
 def collect_bundled(tocs, app: str, version: str, out: Path = GENERATED,
-                    distributions=None) -> list[tuple[str, str, str]]:
+                    distributions=None, system=None) -> list[tuple[str, str, str]]:
     """Write LICENSES/bundled/ for the files a build holds; return it as PyInstaller data.
 
     tocs are the spec's a.pure, a.scripts, a.binaries and a.datas. Each entry's source file is
     looked up in the RECORD of every installed distribution, so a package is listed when, and
     only when, one of its files is in the bundle. A file under the repository is the
     program's own; one under the Python installation, outside site-packages, is Python's;
-    any other is listed in INDEX.md as coming from no package.
+    any other came from the build machine and is traced by system (system_packages unless
+    given) to the system package that installed it. A file traced to none stops the build.
     """
     dists = list(metadata.distributions()) if distributions is None else list(distributions)
     owned = _owners(dists)
     root = _key(ROOT) + os.sep
     bases = {_key(sys.base_prefix) + os.sep, _key(sys.prefix) + os.sep}
-    bundled, repo_sources, other = {}, set(), set()
+    bundled, repo_sources, other = {}, set(), {}
     for toc in tocs:
         for entry in toc:
             src = entry[1]
@@ -283,8 +432,17 @@ def collect_bundled(tocs, app: str, version: str, out: Path = GENERATED,
                   and "site-packages" not in Path(key).parts):
                 continue
             else:
-                other.add(str(entry[0]).replace("\\", "/"))
+                other[str(entry[0]).replace("\\", "/")] = str(src)
     bundled.pop("pyinstaller", None)   # listed on its own below
+    machine, supplies, untraced = (system or system_packages)(sorted(other.items()))
+    if untraced:
+        shown = ", ".join(sorted(untraced)[:20]) + (" ..." if len(untraced) > 20 else "")
+        sys.exit(f"licences: {len(untraced)} bundled files came from the build machine and were "
+                 "traced to no system package, so their licences cannot be shipped: " + shown)
+    unlicensed = sorted(f"{p['name']} {p['version']}" for p in machine.values() if not p["files"])
+    if unlicensed:
+        sys.exit("licences: these system packages supply bundled files but have no licence "
+                 "file on the build machine: " + ", ".join(unlicensed))
 
     if out.exists():
         shutil.rmtree(out)
@@ -326,6 +484,16 @@ def collect_bundled(tocs, app: str, version: str, out: Path = GENERATED,
         sys.exit("licences: the installed PyInstaller ships no licence file")
     for rel, path in pyinstaller_files:
         _copy(path, out, f"pyinstaller/{rel}", written)
+
+    machine_rows = []
+    for key in sorted(machine):
+        package = machine[key]
+        folder = f"system/{package['name']}-{package['version']}".replace(":", "_")
+        names = []
+        for rel, path in package["files"]:
+            _copy(Path(path), out, f"{folder}/{rel}", names)
+        written += names
+        machine_rows.append((package, names, sorted(supplies[key])))
 
     _copy(ROOT / "LICENSE", out, "repository/LICENSE", written)
     for path in sorted((ROOT / "scripts").rglob("*")):
@@ -389,11 +557,25 @@ def collect_bundled(tocs, app: str, version: str, out: Path = GENERATED,
         "in a program and distributing it without restriction from that licence "
         "(pyinstaller/).",
     ]
-    if other:
-        lines += ["", "## Files from no Python package", "",
-                  "These files came from the build machine, not from a Python package, so their "
-                  "licences are not collected here.", ""]
-        lines += [f"- {name}" for name in sorted(other)]
+    if machine_rows:
+        lines += [
+            "",
+            "## Libraries from the build machine",
+            "",
+            "These files came from packages installed on the build machine, not from a Python "
+            "package. Each package's licence files are under system/. A Debian or Ubuntu "
+            "copyright file covers the package's whole source, so it can name licences for "
+            "parts not shipped here. The Source column names where the source of each, at "
+            "the version bundled, can be had.",
+            "",
+            "| Package | Version | Licence | Files in this program | Licence files | Source |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+        for package, names, files in machine_rows:
+            shown = ", ".join(files) if len(files) <= 3 else f"{len(files)} files"
+            lines.append(f"| {_cell(package['name'])} | {_cell(package['version'])} | "
+                         f"{_cell(package['licence'])} | {_cell(shown)} | "
+                         f"{_cell(', '.join(names))} | {_cell(package['source'])} |")
     (out / "INDEX.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     written.append("INDEX.md")
     return [(f"{BUNDLED_DEST}/{rel}", str(out / rel), "DATA") for rel in sorted(written)]

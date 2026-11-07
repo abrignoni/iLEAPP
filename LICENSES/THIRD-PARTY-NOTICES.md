@@ -14,6 +14,15 @@ vendors. An index there lists them and names the packages under copyleft terms (
 for example) with a link to their source. LICENSES/packages/ holds the texts for packages
 whose wheels ship no licence file; each says where its text came from.
 
+Some files come from the build machine instead of a Python package: on Linux, system
+libraries such as the Tcl/Tk toolkit the window uses, and on Linux and macOS a library a
+package links when pip compiles it on that machine. The build traces each of them to the
+system package that installed it (dpkg on Ubuntu, Homebrew on macOS), ships that package's
+licence file under LICENSES/bundled/system/, and lists it in the index with its version and
+source. A file it cannot trace stops the build. Windows builds leave out the Universal C
+Runtime: Windows 10 and later always use the system's copy, and the Python the builds use
+runs only on Windows 10 and later.
+
 ## HEIC and HEIF images: heicreader
 
 Packaged programs include heicreader 0.1.0 so that HEIC images found in an extraction can be

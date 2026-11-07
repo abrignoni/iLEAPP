@@ -240,10 +240,13 @@ class CollectBundledTests(unittest.TestCase):
         import shutil  # pylint: disable=import-outside-toplevel
         shutil.rmtree(self.tmp, ignore_errors=True)
 
-    def _collect(self, dists, toc):
+    def _collect(self, dists, toc, system=None):
+        # The build machine is stubbed, so no test asks this machine's dpkg or Homebrew.
+        system = system or (lambda entries: ({}, {}, [name for name, _ in entries]))
         with mock.patch.object(licences.metadata, 'distribution', return_value=self.pyinstaller):
             return licences.collect_bundled([toc], 'TOOL', '1.2.3', out=self.out,
-                                            distributions=dists + [self.pyinstaller])
+                                            distributions=dists + [self.pyinstaller],
+                                            system=system)
 
     def _entry(self, rel):
         return (rel, str(self.site / rel), 'DATA')
@@ -317,16 +320,63 @@ class CollectBundledTests(unittest.TestCase):
             self._collect([bare], [self._entry('nolicencepkg/__init__.py')])
         self.assertIn('nolicencepkg 0.1', str(raised.exception))
 
-    def test_a_file_from_no_package_is_listed(self):
-        stray = self.tmp / 'elsewhere' / 'libstray.so'
-        stray.parent.mkdir()
+    def _stray(self, name='libstray.so.1'):
+        stray = self.tmp / 'elsewhere' / name
+        stray.parent.mkdir(exist_ok=True)
         stray.write_bytes(b'\x7fELF')
+        return stray
 
-        self._collect([], [('libstray.so', str(stray), 'BINARY')])
+    def test_a_file_from_a_system_package_ships_that_package_s_licence(self):
+        stray = self._stray()
+        copyright_file = self.tmp / 'doc' / 'copyright'
+        copyright_file.parent.mkdir()
+        copyright_file.write_text('Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/\n')
+        record = {'name': 'libstray1', 'version': '1:2.0-1', 'licence': 'see its copyright file',
+                  'source': 'https://launchpad.net/ubuntu/+source/stray/1:2.0-1',
+                  'files': [('copyright', copyright_file)]}
+        seen = []
 
+        def system(entries):
+            seen.extend(entries)
+            return {'libstray1': record}, {'libstray1': [name for name, _ in entries]}, []
+
+        entries = self._collect([], [('libstray.so.1', str(stray), 'BINARY')], system)
+
+        self.assertEqual(seen, [('libstray.so.1', str(stray))])
         index = (self.out / 'INDEX.md').read_text(encoding='utf-8')
-        self.assertIn('## Files from no Python package', index)
-        self.assertIn('- libstray.so', index)
+        self.assertIn('## Libraries from the build machine', index)
+        self.assertIn('| libstray1 | 1:2.0-1 | see its copyright file | libstray.so.1 | '
+                      'system/libstray1-1_2.0-1/copyright | '
+                      'https://launchpad.net/ubuntu/+source/stray/1:2.0-1 |', index)
+        self.assertNotIn('Files from no Python package', index)
+        self.assertIn('LICENSES/bundled/system/libstray1-1_2.0-1/copyright',
+                      {dest for dest, _, _ in entries})
+
+    def test_many_files_from_one_package_are_counted_not_listed(self):
+        files = [(f'_tcl_data/f{i}.tcl', str(self._stray(f'f{i}.tcl'))) for i in range(5)]
+        licence = self._stray('LICENSE')
+        record = {'name': 'libtcl', 'version': '8.6', 'licence': 'x', 'source': 'y',
+                  'files': [('copyright', licence)]}
+
+        self._collect([], [(name, src, 'DATA') for name, src in files],
+                      lambda entries: ({'libtcl': record}, {'libtcl': [n for n, _ in entries]}, []))
+
+        self.assertIn('| libtcl | 8.6 | x | 5 files |', (self.out / 'INDEX.md').read_text(encoding='utf-8'))
+
+    def test_a_file_traced_to_no_system_package_stops_the_build(self):
+        stray = self._stray()
+        with self.assertRaises(SystemExit) as raised:
+            self._collect([], [('libstray.so.1', str(stray), 'BINARY')])
+        self.assertIn('traced to no system package', str(raised.exception))
+        self.assertIn('libstray.so.1', str(raised.exception))
+
+    def test_a_system_package_with_no_licence_file_stops_the_build(self):
+        stray = self._stray()
+        record = {'name': 'libbare1', 'version': '3', 'licence': '', 'source': '', 'files': []}
+        with self.assertRaises(SystemExit) as raised:
+            self._collect([], [('libstray.so.1', str(stray), 'BINARY')],
+                          lambda entries: ({'libbare1': record}, {'libbare1': ['libstray.so.1']}, []))
+        self.assertIn('libbare1 3', str(raised.exception))
 
     def test_a_bundled_repository_file_with_a_gpl_header_is_named(self):
         gpl = next((p for p in sorted((REPO_ROOT / 'scripts').rglob('*.py'))
@@ -346,6 +396,117 @@ class CollectBundledTests(unittest.TestCase):
         spec = next((REPO_ROOT / 'packaging').glob('*.spec')).read_text(encoding='utf-8')
         self.assertIn('a.datas += driver.licenses.collect_bundled(', spec)
         self.assertLess(spec.index('collect_bundled('), spec.index('pyz = PYZ(a.pure)'))
+
+
+class SystemPackageTests(unittest.TestCase):
+    """Tracing build-machine files, with dpkg-query and the keg stubbed or built here."""
+
+    def setUp(self):
+        self.tmp = pathlib.Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        import shutil  # pylint: disable=import-outside-toplevel
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    @mock.patch.object(licences.os.path, 'realpath', side_effect=lambda p: p)
+    def test_a_library_is_looked_up_on_both_sides_of_the_usr_merge(self, _realpath):
+        spellings = licences._path_spellings('/usr/lib/x86_64-linux-gnu/libz.so.1')  # pylint: disable=protected-access
+        self.assertIn('/usr/lib/x86_64-linux-gnu/libz.so.1', spellings)
+        self.assertIn('/lib/x86_64-linux-gnu/libz.so.1', spellings)
+        spellings = licences._path_spellings('/lib/aarch64-linux-gnu/libz.so.1')  # pylint: disable=protected-access
+        self.assertIn('/usr/lib/aarch64-linux-gnu/libz.so.1', spellings)
+        self.assertEqual(licences._path_spellings('/usr/share/tcltk/tcl8.6/init.tcl'),  # pylint: disable=protected-access
+                         ['/usr/share/tcltk/tcl8.6/init.tcl'])
+
+    def test_dpkg_output_is_read_as_package_and_path(self):
+        output = ('zlib1g:amd64: /lib/x86_64-linux-gnu/libz.so.1\n'
+                  'diversion by foo from: /usr/share/tcltk/tcl8.6/init.tcl\n'
+                  'libtcl8.6:amd64, tcl8.6-extra: /usr/share/tcltk/tcl8.6/init.tcl\n')
+        with mock.patch.object(licences, '_dpkg_query', return_value=output) as query, \
+                mock.patch.object(licences.os.path, 'realpath', side_effect=lambda p: p):
+            owners = licences._dpkg_owners(['/usr/lib/x86_64-linux-gnu/libz.so.1',  # pylint: disable=protected-access
+                                            '/usr/share/tcltk/tcl8.6/init.tcl',
+                                            '/opt/elsewhere/libnot.so'])
+        self.assertEqual(query.call_count, 1)
+        self.assertEqual(owners, {'/usr/lib/x86_64-linux-gnu/libz.so.1': 'zlib1g',
+                                  '/usr/share/tcltk/tcl8.6/init.tcl': 'libtcl8.6'})
+
+    def test_no_dpkg_traces_nothing(self):
+        with mock.patch.object(licences.subprocess, 'run', side_effect=FileNotFoundError):
+            self.assertEqual(licences._dpkg_owners(['/usr/lib/libz.so.1']), {})  # pylint: disable=protected-access
+
+    def test_a_dpkg_package_takes_its_copyright_file_and_source_package(self):
+        docs = self.tmp / 'doc'
+        (docs / 'zlib1g').mkdir(parents=True)
+        (docs / 'zlib1g' / 'copyright').write_text('zlib', encoding='utf-8')
+        with mock.patch.object(licences, 'DEBIAN_DOCS', docs), \
+                mock.patch.object(licences, '_dpkg_query', return_value='1:1.2.11-2\tzlib\t1:1.2.11-2\n'), \
+                mock.patch.object(licences.platform, 'freedesktop_os_release', return_value={'ID': 'ubuntu'}):
+            record = licences._dpkg_package('zlib1g')  # pylint: disable=protected-access
+        self.assertEqual(record['version'], '1:1.2.11-2')
+        self.assertEqual(record['source'], 'https://launchpad.net/ubuntu/+source/zlib/1:1.2.11-2')
+        self.assertEqual(record['files'], [('copyright', docs / 'zlib1g' / 'copyright')])
+
+    def _keg(self, sbom=None, licence=True):
+        keg = self.tmp / 'opt' / 'homebrew' / 'Cellar' / 'lz4' / '1.10.0'
+        (keg / 'lib').mkdir(parents=True)
+        (keg / 'lib' / 'liblz4.1.dylib').write_bytes(b'\xcf\xfa\xed\xfe')
+        (keg / 'README.md').write_text('readme', encoding='utf-8')
+        if licence:
+            (keg / 'LICENSE').write_text('BSD 2-Clause', encoding='utf-8')
+        if sbom is not None:
+            (keg / 'sbom.spdx.json').write_text(sbom, encoding='utf-8')
+        return keg
+
+    def test_a_homebrew_library_takes_its_keg_s_licence_and_sbom(self):
+        sbom = ('{"packages": [{"name": "lz4", "licenseConcluded": "BSD-2-Clause", '
+                '"downloadLocation": "https://github.com/lz4/lz4/archive/refs/tags/v1.10.0.tar.gz"}, '
+                '{"name": "lz4", "licenseConcluded": "BSD-2-Clause", '
+                '"downloadLocation": "https://ghcr.io/v2/homebrew/core/lz4/blobs/sha256:00"}]}')
+        keg = self._keg(sbom)
+        with mock.patch.object(licences.sys, 'platform', 'darwin'):
+            packages, supplies, untraced = licences.system_packages(
+                [('liblz4.1.dylib', str(keg / 'lib' / 'liblz4.1.dylib'))])
+        self.assertEqual(untraced, [])
+        self.assertEqual(supplies, {'lz4': ['liblz4.1.dylib']})
+        record = packages['lz4']
+        self.assertEqual((record['version'], record['licence']), ('1.10.0', "BSD-2-Clause (Homebrew's SBOM)"))
+        self.assertEqual(record['source'], 'https://github.com/lz4/lz4/archive/refs/tags/v1.10.0.tar.gz')
+        self.assertEqual([name for name, _ in record['files']], ['LICENSE'])
+
+    def test_a_keg_without_a_licence_file_has_none(self):
+        keg = self._keg(licence=False)
+        with mock.patch.object(licences.sys, 'platform', 'darwin'):
+            packages, _, _ = licences.system_packages([('liblz4.1.dylib', str(keg / 'lib' / 'liblz4.1.dylib'))])
+        self.assertEqual(packages['lz4']['files'], [])
+        self.assertEqual(packages['lz4']['licence'], 'not stated by Homebrew')
+
+    def test_a_mac_file_outside_homebrew_is_untraced(self):
+        stray = self.tmp / 'usr' / 'local' / 'lib' / 'libx.dylib'
+        stray.parent.mkdir(parents=True)
+        stray.write_bytes(b'x')
+        with mock.patch.object(licences.sys, 'platform', 'darwin'):
+            self.assertEqual(licences.system_packages([('libx.dylib', str(stray))])[2], ['libx.dylib'])
+
+    def test_on_windows_every_build_machine_file_is_untraced(self):
+        with mock.patch.object(licences.sys, 'platform', 'win32'):
+            self.assertEqual(licences.system_packages([('x.dll', 'C:/x.dll')])[2], ['x.dll'])
+
+    def test_the_universal_c_runtime_is_left_out_on_windows_from_python_3_13(self):
+        binaries = [('ucrtbase.dll', 'C:/k/ucrtbase.dll', 'BINARY'),
+                    ('api-ms-win-crt-heap-l1-1-0.dll', 'C:/k/a.dll', 'BINARY'),
+                    ('API-MS-WIN-CORE-FILE-L1-1-0.DLL', 'C:/k/b.dll', 'BINARY'),
+                    ('vcruntime140.dll', 'C:/py/vcruntime140.dll', 'BINARY'),
+                    ('lz4\\_version.pyd', 'C:/sp/lz4/_version.pyd', 'EXTENSION')]
+        kept = licences.without_ucrt(binaries, 'win32', (3, 14, 0))
+        self.assertEqual([name for name, _, _ in kept], ['vcruntime140.dll', 'lz4\\_version.pyd'])
+        self.assertEqual(licences.without_ucrt(binaries, 'win32', (3, 12, 9)), binaries)
+        self.assertEqual(licences.without_ucrt(binaries, 'linux', (3, 14, 0)), binaries)
+
+    def test_the_spec_leaves_out_the_universal_c_runtime_before_listing_licences(self):
+        spec = next((REPO_ROOT / 'packaging').glob('*.spec')).read_text(encoding='utf-8')
+        self.assertIn('a.binaries = driver.licenses.without_ucrt(a.binaries)', spec)
+        self.assertLess(spec.index('without_ucrt('), spec.index('collect_bundled('))
 
 
 class ReleaseWorkflowTests(unittest.TestCase):
