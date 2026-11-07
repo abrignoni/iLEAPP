@@ -3,22 +3,22 @@
     "module_name": "anydesk",
     "artifact_name": "AnyDesk - Trace Log Startups",
     "function_name": "anydeskTraceStartups",
-    "case_number": "synthetic_anydesk_ios7",
+    "case_number": "synthetic_anydesk_minimal",
     "number_of_columns": 11,
     "number_of_rows": 3,
     "total_data_size_bytes": 673,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskTraceStartups.synthetic_anydesk_ios7.zip",
-    "start_time": "2026-11-06T17:11:47.262260+00:00",
-    "end_time": "2026-11-06T17:11:47.445331+00:00",
-    "run_time_seconds": 0.0013844966888427734,
+    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskTraceStartups.synthetic_anydesk_minimal.zip",
+    "start_time": "2026-11-07T05:06:17.138633+00:00",
+    "end_time": "2026-11-07T05:06:17.289092+00:00",
+    "run_time_seconds": 0.0012607574462890625,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:11:47.394951",
-      "message": "File not yet committed to git"
+      "hash": "8c0e9a7bd161418f00f3ac746d08e2e5f5095799",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:18:35-05:00",
+      "message": "AnyDesk iOS: connection history, settings and trace log startups"
     }
   },
   "headers": [
