@@ -27,7 +27,7 @@ __artifacts_v2__ = {
                  "transaction, balance or contact record was found in this file or in any other "
                  "readable store of the five research containers examined. "
                  "Account Info (Documents/com.paypal.ios.AccountInfo) is a high-entropy blob (7.88 to "
-                 "7.94 bits per byte) in the 4 research containers that had it and is not decoded. The rows come from the one app-group preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "7.94 bits per byte) in the 4 research containers that had it and is not decoded. The rows come from the one app-group preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist",),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
                  "used. The push notification key stores one value per notification channel, "
                  "shown as one row each. Account Key and Value held one value on every row of the install "
                  "that had a single account key (every stored channel value was true); that is the data, "
-                 "not a derivation that did not run. The rows come from the one app preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "not a derivation that did not run. The rows come from the one app preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
                  "artifact. A preference key holds one value, so each date is the latest write to that "
                  "key, not a history. KronosStableTime.Timestamp is read as Unix seconds: in two of the "
                  "research containers it fell within minutes of the last entry of the Thales SDK log of the same "
-                 "container, which is an observation, not a documented meaning. Source File is kept because the keys can come from the app preferences or the app-group preferences, and no other column says which. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "container, which is an observation, not a documented meaning. Source File is kept because the keys can come from the app preferences or the app-group preferences, and no other column says which. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
                   "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"),
         "output_types": "standard",
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
                  "the one research container that had them. The many remote-configuration and feature-flag keys "
                  "(RCSDefault-*, kElmoSavedCacheKey, isPasskey* and similar) are server supplied and "
                  "are not reported. OptInData values pn_sync_time and pn_prev_sync_at are text with no "
-                 "time zone. Source File is kept because the keys can come from the app preferences or the app-group preferences, and no other column says which. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "time zone. Source File is kept because the keys can come from the app preferences or the app-group preferences, and no other column says which. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
                   "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"),
         "output_types": "standard",
@@ -112,7 +112,7 @@ __artifacts_v2__ = {
                  "records them. The first line also holds the app name and a number whose meaning is not "
                  "established; neither is shown. This artifact does not claim that each row is an app launch. The log is a rolling file: its first entry is not the install date and a "
                  "quiet period is not shown to have had no use. Other record tags in the file "
-                 "(LPIS, LPIE, LPIC, storage) are internal SDK traces and are not reported. Source File is kept because the paths pattern slog-TSH-* can match more than one rolling log file. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "(LPIS, LPIE, LPIC, storage) are internal SDK traces and are not reported. Source File is kept because the paths pattern slog-TSH-* can match more than one rolling log file. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/Thales-v2/slog-TSH-*",
                   "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
                  "balance response. The cache is size-limited and rewritten by the system, so absence "
                  "of a request is not evidence the app did not send it. A second cache "
                  "(Library/Caches/CustomCache/Cache.db) held only two address-reference-data requests "
-                 "and is not reported. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "and is not reported. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/com.yourcompany.PPClient/Cache.db*",),
         "output_types": "standard",
         "artifact_icon": "world",
@@ -162,7 +162,7 @@ __artifacts_v2__ = {
                  "within the same second, so Event Time is constant at whole-second resolution (the stored "
                  "value keeps the fraction and the rows are ordered by it); Channel, Network Type, Wi-Fi, "
                  "UI Mode and Orientation also held one value on every row of one database, which is the "
-                 "data and not a derivation that did not run. The rows come from the one lighthouseanalytics.db of the container, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "data and not a derivation that did not run. The rows come from the one lighthouseanalytics.db of the container, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/com.paypal.lighthouseanalytics/"
                   "lighthouseanalytics.db*",),
         "output_types": "standard",
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
                  "Start, End and Length are the stored Unix seconds. Session Number was 0 on every row and is not shown. This database was present in 1 of 5 "
                  "research containers and its newest session was years older than the install's other "
                  "files, so it is a leftover of an older app version, not current use. Other tables "
-                 "(messages, consumer_info, cookies) are not reported. Source File is kept because the paths pattern mParticle*.db can match more than one database file (the name carries a version number). Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "(messages, consumer_info, cookies) are not reported. Source File is kept because the paths pattern mParticle*.db can match more than one database file (the name carries a version number). Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; all five devices on iOS 26) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/mParticle*.db*",
                   "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
