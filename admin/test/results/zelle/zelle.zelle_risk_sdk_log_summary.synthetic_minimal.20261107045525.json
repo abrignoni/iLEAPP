@@ -4,21 +4,21 @@
     "artifact_name": "Zelle - Risk SDK Log Summary",
     "function_name": "zelle_risk_sdk_log_summary",
     "case_number": "synthetic_minimal",
-    "number_of_columns": 8,
+    "number_of_columns": 7,
     "number_of_rows": 1,
-    "total_data_size_bytes": 150,
+    "total_data_size_bytes": 48,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_risk_sdk_log_summary.synthetic_minimal.zip",
-    "start_time": "2026-11-06T17:23:50.346375+00:00",
-    "end_time": "2026-11-06T17:23:50.560185+00:00",
-    "run_time_seconds": 0.0023965835571289062,
+    "start_time": "2026-11-07T04:55:25.863673+00:00",
+    "end_time": "2026-11-07T04:55:26.004475+00:00",
+    "run_time_seconds": 0.003190279006958008,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:23:50.537019",
-      "message": "File not yet committed to git"
+      "hash": "7bdc8fa59a6354f2d2febb7e50af8b80d00fe743",
+      "author_name": "Daniel Addai",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:38-05:00",
+      "message": "Add Zelle app artifacts: risk-SDK log, device integrity checks, preferences, Mixpanel timed events, Firebase analytics"
     }
   },
   "headers": [
@@ -28,8 +28,7 @@
     "Debug Entries",
     "Error Entries",
     "SDK Starts",
-    "Servers",
-    "Source File"
+    "Servers"
   ],
   "data": [
     [
@@ -39,8 +38,7 @@
       38,
       2,
       3,
-      "risk-east.example.test",
-      "private/var/mobile/Containers/Data/Application/AAAAAAAA-0000-4000-8000-000000000001/Documents/log1.txt"
+      "risk-east.example.test"
     ]
   ]
 }

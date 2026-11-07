@@ -31,11 +31,15 @@ class Context:
         return Path(path).relative_to(self.root).as_posix()
 
 
-def run(root, name):
-    headers, rows, _ = inspect.unwrap(getattr(zelle, name))(Context(root, name))
+def run_with_source(root, name):
+    headers, rows, source = inspect.unwrap(getattr(zelle, name))(Context(root, name))
     names = [h[0] if isinstance(h, tuple) else h for h in headers]
     assert all(len(row) == len(names) for row in rows)
-    return [dict(zip(names, row)) for row in rows]
+    return [dict(zip(names, row)) for row in rows], source
+
+
+def run(root, name):
+    return run_with_source(root, name)[0]
 
 
 def build(case):
@@ -64,10 +68,11 @@ class ZelleTests(unittest.TestCase):
     def test_other_app_container_is_ignored(self):
         with build('synthetic') as root:
             for name in ('zelle_risk_sdk_events', 'zelle_risk_sdk_log_summary'):
-                sources = {r['Source File'] for r in run(root, name)}
-                self.assertEqual(len(sources), 1)
-                self.assertIn(fx.CONTAINER, next(iter(sources)))
-                self.assertNotIn(fx.OTHER_CONTAINER, next(iter(sources)))
+                rows, source = run_with_source(root, name)
+                self.assertTrue(rows)
+                self.assertEqual(len(source.split('\n')), 1)
+                self.assertIn(fx.CONTAINER, source)
+                self.assertNotIn(fx.OTHER_CONTAINER, source)
 
     def test_backup_layout_without_metadata_plist(self):
         with build('synthetic_backup') as root:
