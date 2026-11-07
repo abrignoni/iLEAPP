@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Mixpanel Timed Events",
+    "function_name": "zelle_mixpanel_timed_events",
+    "case_number": "synthetic_backup",
+    "number_of_columns": 2,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 67,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_mixpanel_timed_events.synthetic_backup.zip",
+    "start_time": "2026-11-07T04:55:27.213183+00:00",
+    "end_time": "2026-11-07T04:55:27.350675+00:00",
+    "run_time_seconds": 0.0014469623565673828,
+    "last_commit": {
+      "hash": "7bdc8fa59a6354f2d2febb7e50af8b80d00fe743",
+      "author_name": "Daniel Addai",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:38-05:00",
+      "message": "Add Zelle app artifacts: risk-SDK log, device integrity checks, preferences, Mixpanel timed events, Firebase analytics"
+    }
+  },
+  "headers": [
+    "Start Time",
+    "Event Name"
+  ],
+  "data": [
+    [
+      1772546400,
+      "login"
+    ],
+    [
+      1772632800,
+      "Enable Touch ID"
+    ],
+    [
+      1772636400,
+      "Add Profile Photo"
+    ]
+  ]
+}

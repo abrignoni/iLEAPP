@@ -1,0 +1,146 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Preferences and Identifiers",
+    "function_name": "zelle_preferences",
+    "case_number": "synthetic",
+    "number_of_columns": 4,
+    "number_of_rows": 19,
+    "total_data_size_bytes": 1148,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_preferences.synthetic.zip",
+    "start_time": "2026-11-07T04:55:25.255062+00:00",
+    "end_time": "2026-11-07T04:55:25.395767+00:00",
+    "run_time_seconds": 0.005424976348876953,
+    "last_commit": {
+      "hash": "7bdc8fa59a6354f2d2febb7e50af8b80d00fe743",
+      "author_name": "Daniel Addai",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:38-05:00",
+      "message": "Add Zelle app artifacts: risk-SDK log, device integrity checks, preferences, Mixpanel timed events, Firebase analytics"
+    }
+  },
+  "headers": [
+    "Preference File",
+    "Key",
+    "Value",
+    "Value Type"
+  ],
+  "data": [
+    [
+      "CLSUserDefaults.plist",
+      "com.crashlytics.install.iid",
+      "synthetic-install-id",
+      "str"
+    ],
+    [
+      "CLSUserDefaults.plist",
+      "com.crashlytics.iuuid",
+      "synthetic-uuid",
+      "str"
+    ],
+    [
+      "Mixpanel.plist",
+      "MPAppVersion",
+      "9.9.9",
+      "str"
+    ],
+    [
+      "Mixpanel.plist",
+      "mixpanel-AppStore-MPAnonymousId",
+      "synthetic-anon-1",
+      "str"
+    ],
+    [
+      "Mixpanel.plist",
+      "mixpanel-AppStore-MPDistinctID",
+      "synthetic-distinct-1",
+      "str"
+    ],
+    [
+      "Mixpanel.plist",
+      "mixpanel-AppStore-MPUserId",
+      "synthetic-user-1",
+      "str"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Current App Screen",
+      "synthetic_home",
+      "str"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Enabled Push",
+      true,
+      "bool"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Last App Screen",
+      "synthetic_login",
+      "str"
+    ],
+    [
+      "Mixpanel.plist (superProperties)",
+      "Returning User?",
+      true,
+      "bool"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "AccountAssociatedWithUserKey",
+      true,
+      "bool"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "AppAlreadyLaunchedKey",
+      true,
+      "bool"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "MixpanelRecordEventType",
+      "DONT_RECORD",
+      "str"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "PreferencesTouchIDKey",
+      false,
+      "bool"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "PushIDKey",
+      "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "bytes"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "RecipientNameAlertWhitelist",
+      "[]",
+      "list"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "SKPurchaseIntentUpdatesLastChecked",
+      123456789.5,
+      "float"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "SafeUserAlertWhitelist",
+      "[]",
+      "list"
+    ],
+    [
+      "com.zellepay.zelle.plist",
+      "qrCodeSeen",
+      true,
+      "bool"
+    ]
+  ]
+}
