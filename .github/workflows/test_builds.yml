@@ -76,7 +76,7 @@ jobs:
         # cryptography publishes no win_arm64 wheels at all (49.0.0 checked), so on
         # Windows-on-ARM pip builds it from source: Rust is on the runner already,
         # OpenSSL is not. Everything else heavy (numpy, pandas, pillow, mmh3,
-        # pillow_heif) ships cp314 win_arm64 wheels, and pycryptodome covers it with
+        # heicreader) ships cp314 win_arm64 wheels, and pycryptodome covers it with
         # an abi3 wheel - cryptography is the one wall.
         if: matrix.os == 'windows-11-arm'
         shell: pwsh

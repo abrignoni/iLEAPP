@@ -102,4 +102,4 @@ jobs:
 
       - name: Import the compiled dependencies
         run: |
-          python -c "import liblzfse, astc_decomp_faster, ahocorasick, numpy, pandas, PIL, pillow_heif, Crypto, mmh3; print('ok')"
+          python -c "import liblzfse, astc_decomp_faster, ahocorasick, numpy, pandas, PIL, heicreader, Crypto, mmh3; print('ok')"

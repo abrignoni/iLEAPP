@@ -62,7 +62,7 @@ from functools import wraps
 # LEAPP version unique imports
 import binascii
 from PIL import Image
-from pillow_heif import register_heif_opener
+import heicreader
 
 from scripts.html_safe import esc, safe_local_path
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_iter_artifact_rows, \
@@ -340,31 +340,39 @@ def _resolve_media_source(source_path):
         return extraction_path, file_info, file_info.source_path
     return extraction_path, None, Context.get_relative_path(source_path)
 
-# LAVA shows a media item of type image/heic as "This file could not be shown".
+# LAVA 2026.1.0 and 2026.1.1 show a media item of type image/heic as "This file could not be
+# shown" (media.cannot_display in RenderMedia.jsx): its viewer cannot decode HEIC.
 _HEIC_MIME_TYPES = ('image/heic', 'image/heif')
+_heic_unavailable_logged = False
 
 
 def _heic_to_viewable(source):
     '''
-    Decode a HEIC or HEIF image and encode it as JPEG, or as PNG when it has transparency,
-    which JPEG cannot hold.
+    Decode a HEIC or HEIF image with heicreader and encode it as JPEG, or as PNG when it has
+    transparency, which JPEG cannot hold.
     Args:
         source: A file path, or the image's bytes.
     Returns:
         (bytes, mime type, extension), or None when the image could not be decoded.
     '''
-    register_heif_opener()
+    global _heic_unavailable_logged  # pylint: disable=global-statement
     try:
-        with Image.open(io.BytesIO(source) if isinstance(source, bytes) else source) as image:
-            buffer = io.BytesIO()
-            if 'A' in image.getbands() or 'transparency' in image.info:
-                image.save(buffer, format='PNG')
-                return buffer.getvalue(), 'image/png', '.png'
-            image.convert('RGB').save(buffer, format='JPEG', quality=90)
-            return buffer.getvalue(), 'image/jpeg', '.jpg'
-    except (OSError, ValueError, RuntimeError, Image.DecompressionBombError) as ex:
+        image = heicreader.to_pil(source)
+    except heicreader.Unavailable as ex:
+        # Said once per run, not once per image: every HEIC would fail the same way.
+        if not _heic_unavailable_logged:
+            logfunc(f'HEIC images are attached as they are: heicreader is not available ({ex})')
+            _heic_unavailable_logged = True
+        return None
+    except (heicreader.HeicReaderError, OSError, ValueError) as ex:
         logfunc(f'HEIC image could not be converted for display, the original is attached instead: {ex}')
         return None
+    buffer = io.BytesIO()
+    if image.mode == 'RGBA':
+        image.save(buffer, format='PNG')
+        return buffer.getvalue(), 'image/png', '.png'
+    image.save(buffer, format='JPEG', quality=90)
+    return buffer.getvalue(), 'image/jpeg', '.jpg'
 
 
 def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, converted_file_path=None, force_type=None,

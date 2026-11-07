@@ -20,7 +20,6 @@ import unittest
 from unittest import mock
 
 from PIL import Image
-from pillow_heif import register_heif_opener
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -31,7 +30,6 @@ from scripts.context import Context  # pylint: disable=wrong-import-position
 from scripts.ilapfuncs import OutputParameters  # pylint: disable=wrong-import-position
 from scripts.search_files import FileInfo  # pylint: disable=wrong-import-position
 
-register_heif_opener()
 LAYERS = 'private/var/mobile/Containers/Data/Application/A/Library/output.layerStack'
 
 
@@ -76,7 +74,7 @@ class ConvertedMediaOutOfEvidenceCopyTest(unittest.TestCase):
         folder.mkdir(parents=True)
         heic = folder / 'layer.HEIC'
         png = folder / 'layer.png'
-        heic.write_bytes(image_bytes('HEIF', 'red'))
+        heic.write_bytes((REPO_ROOT / 'admin' / 'test' / 'fixtures' / 'heic' / 'plain.heic').read_bytes())
         png.write_bytes(image_bytes('PNG', 'blue'))
         before = tree_digest(data)
         seeker = types.SimpleNamespace(directory=self.tmpdir, file_infos={

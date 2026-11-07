@@ -336,10 +336,9 @@ The same policy covers the other LEAPPs:
 
 ## Licence
 
-iLEAPP's code is under the MIT licence (`LICENSE`). The packaged programs on the releases page
-also include libraries under the LGPL and the GPL, through pillow-heif, which reads HEIC images,
-so each packaged program as a whole is shared under the GPL version 3. The licence texts and
-where to get those libraries' source are in [`LICENSES/`](LICENSES/THIRD-PARTY-NOTICES.md).
+iLEAPP's code is under the MIT licence (`LICENSE`). To show HEIC images the packaged programs on
+the releases page include heicreader, which is MIT and built from MIT and BSD-3-Clause code. Its
+licence texts are in [`LICENSES/`](LICENSES/THIRD-PARTY-NOTICES.md).
 
 ## Acknowledgements
 

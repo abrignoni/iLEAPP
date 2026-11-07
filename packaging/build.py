@@ -121,7 +121,7 @@ FIXED_HIDDEN_IMPORTS = (
     "nska_deserialize",
     "pandas",
     "pgpy",
-    "pillow_heif",
+    "heicreader",
     "typedstream",
     "xml.etree.ElementTree",
 )
@@ -350,7 +350,7 @@ def build_exe(onefile: bool, clean_first: bool) -> Path:
     refuse_collision(onefile)
     run([sys.executable, "-m", "pip", "install", "-q", "--disable-pip-version-check",
          "-r", str(ROOT / "requirements.txt"), "-r", str(BUILD_REQUIREMENTS)])
-    # pillow-heif bundles LGPL and GPL libraries; LICENSES/ describes one version of it.
+    # heicreader is pinned by requirements.txt and LICENSES/ carries its licence texts.
     licenses.check()
     env = dict(os.environ, ILEAPP_ONEFILE="1" if onefile else "0")
     run([sys.executable, "-m", "PyInstaller", str(SPEC), "--noconfirm",
@@ -359,6 +359,11 @@ def build_exe(onefile: bool, clean_first: bool) -> Path:
         assert_artifact(DIST / APP / EXE, "one-folder executable")
     out = output(onefile)
     assert_artifact(out, "executable")
+    # The program is MIT: refuse to ship a file named like a GPL video codec, whatever brought it in.
+    if onefile:
+        licenses.refuse_gpl_codecs(_onefile_members(out))
+    else:
+        licenses.refuse_gpl_codecs(p.name for p in DIST.rglob("*") if p.is_file())
     return out
 
 
@@ -710,6 +715,18 @@ def smoke(onefile: bool) -> int:
         missing = [name for name in wanted if not (bundled_data_dir() / name).is_file()]
     detail = f" (missing: {', '.join(missing)})" if missing else ""
     check(not missing, f"the third-party licences are inside the build{detail}")
+
+    # The HEIC helper ships beside heicreader's package, where heicreader looks for it.
+    helper = f"heicreader/bin/{exe_name('heicreader')}"
+    if onefile:
+        check(helper in _onefile_members(exe), f"the HEIC helper is inside the executable ({helper})")
+    else:
+        bundled = (macos_app() / "Contents" / "Frameworks" if sys.platform == "darwin"
+                   else DIST / APP / CONTENTS) / helper
+        result = _run_built([str(bundled), "version"]) if bundled.is_file() else None
+        check(result is not None and result.returncode == 0
+              and result.stdout.strip() == licenses.pinned_version(),
+              f"the HEIC helper is bundled and runs ({bundled})", result)
 
     # The window is built with Tk, so on Linux it needs a display, which CI gets from
     # xvfb-run. Skipping it without one would pass a build nobody has tested.

@@ -58,7 +58,13 @@ pathlib2==2.3.5
 PGPy>=0.6.0  # the newest PGPy wheel is 0.5.4, which breaks on cryptography>=38; only the 0.6.0 sdist works, so keep wheel-preferring installs off 0.5.4
 standard-imghdr; python_version >= "3.13"  # PGPy imports stdlib imghdr, removed in Python 3.13 (PEP 594)
 pillow
-pillow_heif==1.8.1
+# heicreader reads HEIC images; one wheel per platform from its GitHub release.
+heicreader @ https://github.com/abrignoni/heicreader/releases/download/v0.1.0/heicreader-0.1.0-py3-none-macosx_12_0_arm64.whl ; sys_platform == "darwin" and platform_machine == "arm64"
+heicreader @ https://github.com/abrignoni/heicreader/releases/download/v0.1.0/heicreader-0.1.0-py3-none-macosx_12_0_x86_64.whl ; sys_platform == "darwin" and platform_machine == "x86_64"
+heicreader @ https://github.com/abrignoni/heicreader/releases/download/v0.1.0/heicreader-0.1.0-py3-none-win_amd64.whl ; sys_platform == "win32" and platform_machine == "AMD64"
+heicreader @ https://github.com/abrignoni/heicreader/releases/download/v0.1.0/heicreader-0.1.0-py3-none-win_arm64.whl ; sys_platform == "win32" and platform_machine == "ARM64"
+heicreader @ https://github.com/abrignoni/heicreader/releases/download/v0.1.0/heicreader-0.1.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.musllinux_1_1_x86_64.whl ; sys_platform == "linux" and platform_machine == "x86_64"
+heicreader @ https://github.com/abrignoni/heicreader/releases/download/v0.1.0/heicreader-0.1.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl ; sys_platform == "linux" and platform_machine == "aarch64"
 # protobuf is required by the vendored scripts/blackboxprotobuf. Do NOT add the
 # PyPI 'blackboxprotobuf' back: it pins protobuf==3.10.0, reintroducing patched
 # CVEs. 5.29.6 is the minimum that clears CVE-2022-1941/2025-4565/2026-0994.
