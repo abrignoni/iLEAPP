@@ -368,8 +368,19 @@ jobs:
             echo "::error::notarisation $STATUS"
             exit 1
           fi
-          xcrun stapler staple "$DMG"
-          xcrun stapler validate "$DMG"
+          # Stapling and validating both fetch the ticket from Apple's servers. That connection
+          # sometimes drops after notarisation succeeded, so each gets three tries.
+          for step in staple validate; do
+            for try in 1 2 3; do
+              xcrun stapler "$step" "$DMG" && break
+              if [ "$try" = 3 ]; then
+                echo "::error::stapler $step failed three times"
+                exit 1
+              fi
+              echo "::warning::stapler $step failed on try $try; trying again in 60 seconds"
+              sleep 60
+            done
+          done
           spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
 
       - name: macOS, remove the signing keychain and key
