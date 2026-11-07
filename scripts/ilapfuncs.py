@@ -340,7 +340,7 @@ def _resolve_media_source(source_path):
         return extraction_path, file_info, file_info.source_path
     return extraction_path, None, Context.get_relative_path(source_path)
 
-# LAVA shows media in a Chromium view, which cannot decode HEIC or HEIF.
+# LAVA shows a media item of type image/heic as "This file could not be shown".
 _HEIC_MIME_TYPES = ('image/heic', 'image/heif')
 
 
@@ -436,9 +436,10 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
 
         # A HEIC or HEIF image is attached as a PNG copy so the report can show it. The
         # original stays in the evidence copy, and the media's source path still names it.
-        # A caller that passed its own converted file or type is left as it asked.
+        # A caller that passed its own converted file, or forced a type other than HEIC or
+        # HEIF, is left as it asked.
         converted_data = None
-        if not force_type and not converted_file_path and media_item.mimetype in _HEIC_MIME_TYPES:
+        if not converted_file_path and media_item.mimetype in _HEIC_MIME_TYPES:
             converted_data = _heic_to_png(media_data if is_embedded else str(file_to_copy))
             if converted_data is not None:
                 media_item.mimetype = 'image/png'

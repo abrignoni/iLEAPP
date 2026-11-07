@@ -1,12 +1,12 @@
 """check_in_media attaches a HEIC or HEIF image as a PNG copy, so LAVA can show it.
 
-LAVA shows media in a Chromium view, which cannot decode HEIC. fsCachedData checked its
-HEIC files in as they were, so on an iOS 17 image all 917 of its HEIC rows read "This file
-could not be shown". Five modules converted HEIC on their own; every other caller did not.
+LAVA shows a media item of type image/heic as "This file could not be shown". fsCachedData
+checked its HEIC files in as they were, so on hc_ios18_7 all 917 of its HEIC media read that
+way. Five modules converted HEIC on their own; every other caller did not.
 
 These tests check a file and an embedded image in through the shared code and read back the
 media item, the media file and the evidence copy. A HEIC that cannot be decoded, and a
-caller that passes its own type, keep the original bytes.
+caller that forces a type other than HEIC, keep the original bytes.
 """
 import hashlib
 import io
@@ -140,15 +140,24 @@ class CheckInMediaHeicPreviewTests(unittest.TestCase):
         self.assertEqual(self._media_bytes(extraction_path), damaged)
         self.assertTrue(any('could not be converted' in str(call) for call in log.call_args_list))
 
-    def test_a_caller_that_forces_a_type_is_left_as_it_asked(self):
+    def test_a_caller_that_forces_another_type_is_left_as_it_asked(self):
         original = heic_bytes()
-        rel_path, staged = self._stage('forced.heic', original)
+        rel_path, staged = self._stage('forced.bin', original)
+
+        ilapfuncs.check_in_media(staged, force_type='application/octet-stream', force_extension='bin')
+
+        _, extraction_path, mime = self._media_item(hashlib.sha1(rel_path.encode()).hexdigest())
+        self.assertEqual(mime, 'application/octet-stream')
+        self.assertEqual(self._media_bytes(extraction_path), original)
+
+    def test_a_caller_that_forces_the_heic_type_still_gets_a_png(self):
+        rel_path, staged = self._stage('forced.heic', heic_bytes())
 
         ilapfuncs.check_in_media(staged, force_type='image/heic', force_extension='heic')
 
         _, extraction_path, mime = self._media_item(hashlib.sha1(rel_path.encode()).hexdigest())
-        self.assertEqual(mime, 'image/heic')
-        self.assertEqual(self._media_bytes(extraction_path), original)
+        self.assertEqual(mime, 'image/png')
+        self.assertTrue(extraction_path.endswith('.png'))
 
     def test_a_jpeg_is_copied_as_it_is(self):
         buffer = io.BytesIO()
