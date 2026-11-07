@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - Security SDK Start Records",
+    "function_name": "paypalSecuritySdkStarts",
+    "case_number": "case_synthetic_sparse",
+    "number_of_columns": 5,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalSecuritySdkStarts.case_synthetic_sparse.zip",
+    "start_time": "2026-11-07T05:15:19.425154+00:00",
+    "end_time": "2026-11-07T05:15:19.568975+00:00",
+    "run_time_seconds": 0.003467082977294922,
+    "last_commit": {
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
+    }
+  },
+  "headers": [
+    "SDK Record Time",
+    "SDK Build",
+    "OS Version (log header)",
+    "Device Model (log header)",
+    "Source File"
+  ],
+  "data": []
+}
