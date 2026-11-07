@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "module_name": "craigslist",
+    "artifact_name": "Craigslist - Viewed Postings",
+    "function_name": "craigslist_visited_postings",
+    "case_number": "case_synthetic",
+    "number_of_columns": 5,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 171,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\craigslist\\testdata.craigslist.craigslist_visited_postings.case_synthetic.zip",
+    "start_time": "2026-11-07T05:09:40.009227+00:00",
+    "end_time": "2026-11-07T05:09:40.190383+00:00",
+    "run_time_seconds": 0.009899139404296875,
+    "last_commit": {
+      "hash": "9f58ace5a92bb9ea33e4f850fcbd903410e488a2",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:19:39-05:00",
+      "message": "Craigslist: record synthetic test cases and baselines, read Cache.db by absolute path, record real-container counts in sample_data"
+    }
+  },
+  "headers": [
+    "Viewed Time",
+    "Posting ID",
+    "Cached Title",
+    "Cached Category",
+    "Cache Time"
+  ],
+  "data": [
+    [
+      1772366700,
+      "9000000001",
+      "Synthetic desk",
+      "furniture",
+      1772366700
+    ],
+    [
+      1772366760,
+      "9000000002",
+      "Synthetic chair",
+      "furniture",
+      1772366760
+    ],
+    [
+      1772366820,
+      "9000000003",
+      null,
+      null,
+      null
+    ],
+    [
+      1772366880,
+      "9000000099",
+      null,
+      null,
+      null
+    ]
+  ]
+}

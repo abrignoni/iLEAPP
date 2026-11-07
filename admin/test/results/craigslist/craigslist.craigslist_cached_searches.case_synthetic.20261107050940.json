@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "module_name": "craigslist",
+    "artifact_name": "Craigslist - Cached Search Requests",
+    "function_name": "craigslist_cached_searches",
+    "case_number": "case_synthetic",
+    "number_of_columns": 12,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 758,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\craigslist\\testdata.craigslist.craigslist_cached_searches.case_synthetic.zip",
+    "start_time": "2026-11-07T05:09:40.693429+00:00",
+    "end_time": "2026-11-07T05:09:40.853193+00:00",
+    "run_time_seconds": 0.0035660266876220703,
+    "last_commit": {
+      "hash": "9f58ace5a92bb9ea33e4f850fcbd903410e488a2",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:19:39-05:00",
+      "message": "Craigslist: record synthetic test cases and baselines, read Cache.db by absolute path, record real-container counts in sample_data"
+    }
+  },
+  "headers": [
+    "Cache Time",
+    "Request Type",
+    "Search Text",
+    "Category",
+    "Search Distance (as stored)",
+    "Area ID",
+    "Latitude",
+    "Longitude",
+    "Start Index",
+    "Batch Size",
+    "Response Stored",
+    "Request URL"
+  ],
+  "data": [
+    [
+      1772366460,
+      "Search suggestions",
+      "synthetic de",
+      "sss",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Database",
+      "https://sapi.example.invalid/v8/suggest/search?cc=us&lang=en&query=synthetic%20de&catabbr=sss"
+    ],
+    [
+      1772366465,
+      "Search suggestions",
+      "synthetic desk",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Database",
+      "https://sapi.example.invalid/v8/suggest/search?cc=us&lang=en&query=synthetic%20desk"
+    ],
+    [
+      1772366470,
+      "Category counts",
+      "synthetic desk",
+      null,
+      25.0,
+      "1",
+      10.5,
+      20.5,
+      null,
+      null,
+      "Database",
+      "https://sapi.example.invalid/v8/categories/count?areaId=1&cc=us&lang=en&lat=10.5&lon=20.5&query=synthetic%20desk&search_distance=25"
+    ],
+    [
+      1772366475,
+      "Search results",
+      "synthetic desk",
+      "sss",
+      25.0,
+      "1",
+      10.5,
+      20.5,
+      "0",
+      "20",
+      "Database",
+      "https://sapi.example.invalid/v8/postings/sss/search?area_id=1&batchSize=20&cc=us&lang=en&lat=10.5&lon=20.5&query=synthetic%20desk&search_distance=25&startIndex=0"
+    ]
+  ]
+}

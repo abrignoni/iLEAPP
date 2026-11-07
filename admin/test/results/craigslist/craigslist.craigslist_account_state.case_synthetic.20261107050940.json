@@ -1,0 +1,166 @@
+{
+  "metadata": {
+    "module_name": "craigslist",
+    "artifact_name": "Craigslist - Account and App State",
+    "function_name": "craigslist_account_state",
+    "case_number": "case_synthetic",
+    "number_of_columns": 3,
+    "number_of_rows": 27,
+    "total_data_size_bytes": 909,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\craigslist\\testdata.craigslist.craigslist_account_state.case_synthetic.zip",
+    "start_time": "2026-11-07T05:09:40.359869+00:00",
+    "end_time": "2026-11-07T05:09:40.531764+00:00",
+    "run_time_seconds": 0.007563114166259766,
+    "last_commit": {
+      "hash": "9f58ace5a92bb9ea33e4f850fcbd903410e488a2",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:19:39-05:00",
+      "message": "Craigslist: record synthetic test cases and baselines, read Cache.db by absolute path, record real-container counts in sample_data"
+    }
+  },
+  "headers": [
+    "Time",
+    "Item",
+    "Value"
+  ],
+  "data": [
+    [
+      null,
+      "Is Logged In",
+      true
+    ],
+    [
+      null,
+      "Login (as stored)",
+      "owner@example.invalid"
+    ],
+    [
+      null,
+      "Home Area City",
+      "Exampleville"
+    ],
+    [
+      null,
+      "Home Area Region",
+      "EX"
+    ],
+    [
+      null,
+      "Home Area Postal Code",
+      "00000"
+    ],
+    [
+      null,
+      "Home Area Country",
+      "US"
+    ],
+    [
+      null,
+      "Home Area Latitude",
+      10.5
+    ],
+    [
+      null,
+      "Home Area Longitude",
+      20.5
+    ],
+    [
+      null,
+      "Home Area Radius (as stored)",
+      25.0
+    ],
+    [
+      null,
+      "Home Area ID",
+      1
+    ],
+    [
+      null,
+      "Home Subarea ID",
+      0
+    ],
+    [
+      null,
+      "Home Area Site",
+      "https://exampleville.example.invalid"
+    ],
+    [
+      null,
+      "Email App Setting",
+      "standard"
+    ],
+    [
+      null,
+      "Color Scheme Override",
+      "system"
+    ],
+    [
+      null,
+      "Push Token Sent (as stored)",
+      "unsynched"
+    ],
+    [
+      null,
+      "Permission: camera",
+      "undetermined"
+    ],
+    [
+      null,
+      "Permission: location",
+      "blocked"
+    ],
+    [
+      null,
+      "Permission: notification",
+      "granted"
+    ],
+    [
+      null,
+      "Access Token Present",
+      "Yes"
+    ],
+    [
+      null,
+      "Browser Cookie Token Present",
+      "Yes"
+    ],
+    [
+      null,
+      "Push Token Present",
+      "No"
+    ],
+    [
+      null,
+      "Config App Version",
+      "1.29.1-synthetic"
+    ],
+    [
+      1772366405,
+      "Config Timestamp (Unix seconds)",
+      1772366405
+    ],
+    [
+      1772367000,
+      "Last Day Used (Unix ms)",
+      1772367000000
+    ],
+    [
+      1772367060,
+      "Rating Startup Prompt Shown (Unix ms)",
+      1772367060000
+    ],
+    [
+      null,
+      "Days In A Row (as stored)",
+      2
+    ],
+    [
+      null,
+      "Device UID (as stored)",
+      "SYNTHETIC-DEVICE-UID-0001"
+    ]
+  ]
+}
