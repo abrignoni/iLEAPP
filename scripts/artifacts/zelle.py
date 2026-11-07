@@ -33,7 +33,7 @@ __artifacts_v2__ = {
             "(constant in both logs), 'Router core get/set environment' and handler plumbing. They are "
             "counted in Zelle - Risk SDK Log Summary. The log is a rolling file, so earlier entries may have been "
             "overwritten; absence of an entry does not show that nothing happened. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the version the Mixpanel SDK last stored, not necessarily the installed one. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Documents/log1.txt',
@@ -59,7 +59,7 @@ __artifacts_v2__ = {
             "names that follow 'siteId:' or 'send connect request to' in the log, de-duplicated and sorted; they "
             "are the SDK vendor's service names and say nothing about a person. The log is a rolling file, so "
             "First Entry is the oldest entry still present, not the first run of the app. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the version the Mixpanel SDK last stored, not necessarily the installed one. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Documents/log1.txt',
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
             "clipped (one payload-error line seen held several thousand). The file is a small cache file: the "
             "two files held 20 and 70 timestamped lines, so it is not a complete launch history. The "
             "session id after 'sessionId:' was empty on every line seen. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the version the Mixpanel SDK last stored, not necessarily the installed one. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Caches/file.log',
@@ -132,7 +132,7 @@ __artifacts_v2__ = {
             "not evidence that a setting is off. The Mixpanel event queue (AppStore_MPDB.sqlite) is covered by "
             "the Mixpanel - Events artifact, and the app plist is also listed by the generic Application User "
             "Defaults artifact. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the version the Mixpanel SDK last stored, not necessarily the installed one. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.zellepay.zelle.plist',
@@ -162,7 +162,7 @@ __artifacts_v2__ = {
             "spanned 375 and 631 days in the two containers, so they are not one session. Event names are app "
             "defined (for example login or an enrolment step name) and are shown as stored. An event in this "
             "dictionary is not evidence that the user completed the step it names. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the version the Mixpanel SDK last stored, not necessarily the installed one. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist',
@@ -202,7 +202,7 @@ __artifacts_v2__ = {
             "'_fi', '_npa', '_lte' and '_se' are not established. os_version is the value last written by "
             "the SDK, not necessarily the OS now installed. Not covered: the other tables of the "
             "database (empty, or SDK configuration and counters, in the two research containers) and google_experimentation_database.sql. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the version the Mixpanel SDK last stored, not necessarily the installed one. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*',
