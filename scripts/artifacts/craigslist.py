@@ -9,24 +9,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "Each entry timestamp is read as Unix milliseconds and shown in UTC. Read on three real "
-                 "containers (installed app versions 1.27.0 and 1.29.1, see sample_data); the value is stored by "
+        "notes": "Each entry timestamp is read as Unix milliseconds and shown in UTC. The value is stored by "
                  "the app as one JSON object, kept "
                  "in a file named with the MD5 of the key when it is large and inline in manifest.json when it "
                  "is small, and both forms are read. Filters are listed as name=value as stored. Radius is shown "
                  "as stored: its unit is not established here. The search area is the area saved with the "
-                 "search, not a device location. The list is a capped recent list (24 entries in the tested "
-                 "samples), so absence of a search does not show that it was not made.",
+                 "search, not a device location. The list is a capped recent list (24 entries in the research "
+                 "containers where it was full), so absence of a search does not show that it was not made. "
+                 "The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
         "artifact_icon": "search",
-        "sample_data": {
-            "local_ffs_a": "iOS FFS | 24 rows, ms timestamps, 1-2 filters per entry",
-            "local_ffs_b": "iOS FFS | 24 rows",
-            "local_ffs_c": "iOS FFS | recentSearches present and empty, 0 rows",
-            "synthetic": "admin/test/cases: case_synthetic, 3 rows incl. an entry with no location",
-        }
     },
     "craigslist_visited_postings": {
         "name": "Craigslist - Viewed Postings",
@@ -39,25 +33,19 @@ __artifacts_v2__ = {
         "category": "Craigslist",
         "notes": "Times are Unix milliseconds shown in UTC. The map is read as the app's own record of when a "
                  "posting id was opened; the vendor does not document it. Of 28 viewed ids that also had a "
-                 "cached detail request on three real containers, 14 had a Cache.db time within 60 seconds of "
+                 "cached detail request across the three research containers, 14 had a Cache.db time within 60 seconds of "
                  "the viewed time, 8 a later cache time and 6 an earlier one, so the viewed time is not a "
-                 "cache time. The map held 1, 85 and 178 ids on the three containers. Title and category are "
+                 "cache time. The map held 1, 85 and 178 ids in the three containers. Title and category are "
                  "filled only when a cached detail response for the id survives; blanks do not mean the "
                  "posting had no title. Entries in postingsNotFound and postingViewTelemetrySent are not "
                  "exported: the first was empty and the second held at most one id with an integer whose "
-                 "meaning was not established.",
+                 "meaning was not established. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/'
                   'org.craigslist.CraigslistMobile/Cache.db*',),
         "output_types": "standard",
         "artifact_icon": "eye",
-        "sample_data": {
-            "local_ffs_a": "iOS FFS | 85 rows",
-            "local_ffs_b": "iOS FFS | 178 rows",
-            "local_ffs_c": "iOS FFS | 1 row",
-            "synthetic": "admin/test/cases: case_synthetic, 3 rows, 2 with a cached title",
-        }
     },
     "craigslist_saved_items": {
         "name": "Craigslist - Favorites, Hidden and Saved Searches",
@@ -68,23 +56,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "Favorites were observed with one entry on one of three tested images and none on the others; the "
-                 "favorite fields (posting id, title, posted date in Unix seconds, location description) are "
-                 "read as stored. The hidden and saved-search lists were empty on every tested image, so "
+        "notes": "Favorites were seen as one entry in one of the three research containers and none in the others, so "
+                 "the favorite fields (posting id, title, posted date in Unix seconds, location description) are "
+                 "read as stored from a single observed entry. The hidden and saved-search lists were empty in "
+                 "all three containers, so "
                  "their field names are not established: those rows carry the entry as stored JSON in "
                  "Stored Entry and use the favorite field names only if the entry has them. Sync State is the "
                  "lookup value as stored (unsynched was the only value observed). A favorite is a "
-                 "bookmark kept in the app; it does not show that the posting was contacted or answered.",
+                 "bookmark kept in the app; it does not show that the posting was contacted or answered. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
         "artifact_icon": "star",
-        "sample_data": {
-            "local_ffs_a": "iOS FFS | 1 favorite, hidden and saved searches empty",
-            "local_ffs_b": "iOS FFS | all lists empty, 0 rows",
-            "local_ffs_c": "iOS FFS | all lists empty, 0 rows",
-            "synthetic": "admin/test/cases: case_synthetic, 3 rows (favorite, hidden, saved search)",
-        }
     },
     "craigslist_account_state": {
         "name": "Craigslist - Account and App State",
@@ -96,25 +79,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "The login value is exported as stored; it was empty and isLoggedIn false on every tested "
-                 "image, so how it is filled after sign-in was not observed. Access, push and cookie tokens "
+        "notes": "The login value is exported as stored; it was empty and isLoggedIn false in all three "
+                 "research containers, so how it is filled after sign-in was not observed. Access, push and cookie tokens "
                  "are NOT exported: only whether a value is present is shown. Device UID is the identifier "
                  "stored in the preferences plist under deviceUID; its use by the vendor is not established "
                  "here. Permission values are the strings the app stored (granted, denied, blocked, "
                  "undetermined, unavailable). Times are Unix milliseconds or seconds as noted in the Item "
-                 "name and shown in UTC. Home Area is the area saved in the app, not a device location.",
+                 "name and shown in UTC. Home Area is the area saved in the app, not a device location. "
+                 "The Device UID row is read from the preferences plist and every other row from the "
+                 "AsyncStorage manifest, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/'
                   'org.craigslist.CraigslistMobile.plist',),
         "output_types": ["html", "lava", "tsv"],
         "artifact_icon": "user",
-        "sample_data": {
-            "local_ffs_a": "iOS FFS | signed out, 32 rows",
-            "local_ffs_b": "iOS FFS | signed out, 32 rows",
-            "local_ffs_c": "iOS FFS | signed out, 32 rows, extra token and permission keys present",
-            "synthetic": "admin/test/cases: case_synthetic, signed in with a stored login",
-        }
     },
     "craigslist_startup_log": {
         "name": "Craigslist - Startup Log",
@@ -126,18 +105,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Craigslist",
         "notes": "Times are ISO 8601 UTC as stored. The log held one start sequence (init, onboarding, tab, "
-                 "startup complete) on each tested image, so it is read as a short log of the most recent "
-                 "start(s); it is not evidence of every launch.",
+                 "startup complete) in each of the three research containers, so it is read as a short log of "
+                 "the most recent start(s); it is not evidence of every launch. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json',),
         "output_types": "standard",
         "artifact_icon": "player-play",
-        "sample_data": {
-            "local_ffs_a": "iOS FFS | 5 rows",
-            "local_ffs_b": "iOS FFS | 5 rows",
-            "local_ffs_c": "iOS FFS | 5 rows",
-            "synthetic": "admin/test/cases: case_synthetic, 5 rows",
-        }
     },
     "craigslist_cached_searches": {
         "name": "Craigslist - Cached Search Requests",
@@ -153,17 +126,11 @@ __artifacts_v2__ = {
                  "text is entered, so a query on a suggestion row can be a partial entry. Entries exist only "
                  "while the system cache keeps them. Search Distance is shown as stored (unit not "
                  "established); latitude and longitude are the values sent in the request. Response Stored "
-                 "says whether the body is in the database or in an fsCachedData file, which is not read here.",
+                 "says whether the body is in the database or in an fsCachedData file, which is not read here. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/'
                   'org.craigslist.CraigslistMobile/Cache.db*',),
         "output_types": "standard",
         "artifact_icon": "world-search",
-        "sample_data": {
-            "local_ffs_a": "iOS FFS | 35 rows",
-            "local_ffs_b": "iOS FFS | 3 rows",
-            "local_ffs_c": "iOS FFS | 17 rows",
-            "synthetic": "admin/test/cases: case_synthetic, 4 rows",
-        }
     },
     "craigslist_cached_postings": {
         "name": "Craigslist - Cached Posting Details",
@@ -179,17 +146,11 @@ __artifacts_v2__ = {
                  "established. Location fields are the posting's published location, which can be an "
                  "approximate area. Only responses stored inside the database are read; responses kept in "
                  "fsCachedData files are counted in the log but not parsed. A cached posting shows what the "
-                 "app downloaded for that id, not that the user contacted the poster.",
+                 "app downloaded for that id, not that the user contacted the poster. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/'
                   'org.craigslist.CraigslistMobile/Cache.db*',),
         "output_types": "standard",
         "artifact_icon": "file-description",
-        "sample_data": {
-            "local_ffs_a": "iOS FFS | 49 rows, 7 bodies kept in fsCachedData and not parsed",
-            "local_ffs_b": "iOS FFS | 31 rows, 1 body in fsCachedData",
-            "local_ffs_c": "iOS FFS | 14 rows",
-            "synthetic": "admin/test/cases: case_synthetic, 3 rows incl. one body kept on disk",
-        }
     },
 }
 
@@ -367,12 +328,10 @@ def _cached_details(context):
 def craigslist_recent_searches(context):
     headers = (('Search Time', 'datetime'), 'Search Text', 'Category Abbreviation', 'Category Labels',
                'Filters', 'City', 'Region', 'Postal Code', 'Country', ('Latitude', 'latitude'),
-               ('Longitude', 'longitude'), 'Radius (as stored)', 'Area ID', 'Subarea ID', 'Area Site',
-               'Source File')
+               ('Longitude', 'longitude'), 'Radius (as stored)', 'Area ID', 'Subarea ID', 'Area Site')
     data_list = []
     sources = []
     for manifest, store in _async_stores(context):
-        relative = context.get_relative_path(manifest)
         entries = _list(_state(store, 'persist:search').get('recentSearches'))
         if entries:
             sources.append(manifest)
@@ -391,26 +350,25 @@ def craigslist_recent_searches(context):
                 entry.get('catabbr'), ' > '.join(map(str, labels)) if isinstance(labels, list) else _text(labels),
                 '; '.join(filters), location.get('city'), location.get('region'), location.get('postal'),
                 location.get('country'), location.get('lat'), location.get('lon'), location.get('radius'),
-                location.get('areaId'), location.get('subareaId'), location.get('url'), relative))
+                location.get('areaId'), location.get('subareaId'), location.get('url')))
     return headers, data_list, _paths(context, *sources) if sources else ''
 
 
 @artifact_processor
 def craigslist_visited_postings(context):
     headers = (('Viewed Time', 'datetime'), 'Posting ID', 'Cached Title', 'Cached Category',
-               ('Cache Time', 'datetime'), 'Source File')
+               ('Cache Time', 'datetime'))
     details = _cached_details(context)
     data_list = []
     sources = []
     for manifest, store in _async_stores(context):
-        relative = context.get_relative_path(manifest)
         visited = _dict(_state(store, 'persist:search').get('visitedPostings'))
         if visited:
             sources.append(manifest)
         for posting_id, when in visited.items():
             cache_time, item = details.get(str(posting_id), (None, {}))
             data_list.append((_ts(when, 'ms'), str(posting_id), item.get('title'), item.get('category'),
-                              cache_time, relative))
+                              cache_time))
     return headers, data_list, _paths(context, *sources) if sources else ''
 
 
@@ -419,13 +377,12 @@ def craigslist_saved_items(context):
     headers = (('Posted', 'datetime'), 'List', 'Posting ID', 'Posting UUID', 'Title', 'Category Abbreviation',
                'Category ID', 'Remuneration (as stored)', 'Location Description', 'Area Host',
                'Subarea Abbreviation', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Sync State',
-               'Stored Entry', 'Source File')
+               'Stored Entry')
     lists = (('favorites', 'Favorite', 'favoriteLookup'), ('hidden', 'Hidden', 'hiddenLookup'),
              ('searches', 'Saved search', None))
     data_list = []
     sources = []
     for manifest, store in _async_stores(context):
-        relative = context.get_relative_path(manifest)
         saved = _dict(_dict(_state(store, 'persist:root').get('user')).get('savedSearches'))
         used = False
         for key, label, lookup_key in lists:
@@ -441,8 +398,7 @@ def craigslist_saved_items(context):
                     entry.get('remuneration'), location.get('description'), location.get('hostname'),
                     location.get('subareaAbbr'), location.get('lat'), location.get('lon'),
                     _text(lookup.get(str(posting_id))) if posting_id is not None else None,
-                    json.dumps(entry, ensure_ascii=False, separators=(',', ':')) if key != 'favorites' else '',
-                    relative))
+                    json.dumps(entry, ensure_ascii=False, separators=(',', ':')) if key != 'favorites' else ''))
         if used:
             sources.append(manifest)
     return headers, data_list, _paths(context, *sources) if sources else ''
@@ -450,25 +406,24 @@ def craigslist_saved_items(context):
 
 @artifact_processor
 def craigslist_account_state(context):
-    headers = (('Time', 'datetime'), 'Item', 'Value', 'Source File')
+    headers = (('Time', 'datetime'), 'Item', 'Value')
     data_list = []
     sources = []
 
-    def add(rows, item, value, when=None, relative=''):
+    def add(rows, item, value, when=None):
         if value is None or value == '':
             value = ''
-        rows.append((when, item, _text(value), relative))
+        rows.append((when, item, _text(value)))
 
     for manifest, store in _async_stores(context):
-        relative = context.get_relative_path(manifest)
         root = _state(store, 'persist:root')
         user = _dict(root.get('user'))
         config = _dict(root.get('config'))
         tokens = _dict(root.get('tokens'))
         before = len(data_list)
         if root:
-            add(data_list, 'Is Logged In', user.get('isLoggedIn'), relative=relative)
-            add(data_list, 'Login (as stored)', user.get('login'), relative=relative)
+            add(data_list, 'Is Logged In', user.get('isLoggedIn'))
+            add(data_list, 'Login (as stored)', user.get('login'))
             home = _dict(user.get('location'))
             for name, key in (('Home Area City', 'city'), ('Home Area Region', 'region'),
                               ('Home Area Postal Code', 'postal'), ('Home Area Country', 'country'),
@@ -476,31 +431,31 @@ def craigslist_account_state(context):
                               ('Home Area Radius (as stored)', 'radius'), ('Home Area ID', 'areaId'),
                               ('Home Subarea ID', 'subareaId'), ('Home Area Site', 'url')):
                 if key in home:
-                    add(data_list, name, home.get(key), relative=relative)
+                    add(data_list, name, home.get(key))
             for name, key in (('Email App Setting', 'emailAppToUse'), ('Color Scheme Override', 'colorSchemeOverride'),
                               ('Push Token Sent (as stored)', 'pushTokenSent')):
                 if key in user:
-                    add(data_list, name, user.get(key), relative=relative)
+                    add(data_list, name, user.get(key))
             for key, value in _dict(root.get('permissions')).items():
-                add(data_list, f'Permission: {key}', value, relative=relative)
+                add(data_list, f'Permission: {key}', value)
             for name, key in (('Access Token Present', 'accessToken'), ('Browser Cookie Token Present', 'browserCookie'),
                               ('Push Token Present', 'pushToken')):
                 if key in tokens:
-                    add(data_list, name, 'Yes' if tokens.get(key) else 'No', relative=relative)
+                    add(data_list, name, 'Yes' if tokens.get(key) else 'No')
             if config.get('appVersion') is not None:
-                add(data_list, 'Config App Version', config.get('appVersion'), relative=relative)
+                add(data_list, 'Config App Version', config.get('appVersion'))
             if config.get('configTs') is not None:
                 add(data_list, 'Config Timestamp (Unix seconds)', config.get('configTs'),
-                    _ts(config.get('configTs'), 's'), relative)
+                    _ts(config.get('configTs'), 's'))
             rating = _dict(user.get('ratingStatus'))
             for name, key in (('Last Day Used (Unix ms)', 'lastDayIUsedTheApp'),
                               ('Rating Startup Prompt Shown (Unix ms)', 'gotStartupPrompt'),
                               ('Rating Delete Prompt Shown (Unix ms)', 'gotDeletePrompt')):
                 value = rating.get(key)
                 if value:
-                    add(data_list, name, value, _ts(value, 'ms'), relative)
+                    add(data_list, name, value, _ts(value, 'ms'))
             if 'daysInARow' in rating:
-                add(data_list, 'Days In A Row (as stored)', rating.get('daysInARow'), relative=relative)
+                add(data_list, 'Days In A Row (as stored)', rating.get('daysInARow'))
         if len(data_list) > before:
             sources.append(manifest)
     for found in context.get_files_found():
@@ -508,22 +463,20 @@ def craigslist_account_state(context):
         if os.path.basename(found) == f'{BUNDLE}.plist' and os.path.isfile(found):
             plist = get_plist_file_content(found)
             if isinstance(plist, dict) and plist.get('deviceUID') is not None:
-                add(data_list, 'Device UID (as stored)', plist.get('deviceUID'),
-                    relative=context.get_relative_path(found))
+                add(data_list, 'Device UID (as stored)', plist.get('deviceUID'))
                 sources.append(found)
     return headers, data_list, _paths(context, *sources) if sources else ''
 
 
 @artifact_processor
 def craigslist_startup_log(context):
-    headers = (('Log Time', 'datetime'), 'Event', 'Detail', 'Source File')
+    headers = (('Log Time', 'datetime'), 'Event', 'Detail')
     data_list = []
     sources = []
     for manifest, store in _async_stores(context):
         raw = store.get('startupLog')
         if not isinstance(raw, str):
             continue
-        relative = context.get_relative_path(manifest)
         sources.append(manifest)
         for line in raw.split('\n'):
             line = line[1:] if line.startswith(',') else line
@@ -535,7 +488,7 @@ def craigslist_startup_log(context):
                 when = datetime.strptime(parts[0], '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=timezone.utc)
             except ValueError:
                 when = parts[0]
-            data_list.append((when, parts[1] if len(parts) > 1 else '', '\t'.join(parts[2:]).strip(), relative))
+            data_list.append((when, parts[1] if len(parts) > 1 else '', '\t'.join(parts[2:]).strip()))
     return headers, data_list, _paths(context, *sources) if sources else ''
 
 
@@ -555,11 +508,10 @@ def _number(text):
 def craigslist_cached_searches(context):
     headers = (('Cache Time', 'datetime'), 'Request Type', 'Search Text', 'Category', 'Search Distance (as stored)',
                'Area ID', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Start Index', 'Batch Size',
-               'Response Stored', 'Request URL', 'Source File')
+               'Response Stored', 'Request URL')
     data_list = []
     sources = []
     for db_path in _cache_dbs(context):
-        relative = context.get_relative_path(db_path)
         used = False
         for _eid, stamp, url, on_disk, _body in _cache_rows(db_path):
             parsed = urlparse(url or '')
@@ -579,7 +531,7 @@ def craigslist_cached_searches(context):
                 _first(params, 'area_id') or _first(params, 'areaId'),
                 _number(_first(params, 'lat')), _number(_first(params, 'lon')),
                 _first(params, 'startIndex'), _first(params, 'batchSize'),
-                'fsCachedData file' if on_disk else 'Database', url, relative))
+                'fsCachedData file' if on_disk else 'Database', url))
             used = True
         if used:
             sources.append(db_path)
@@ -592,12 +544,11 @@ def craigslist_cached_postings(context):
                'Price', ('Posted', 'datetime'), ('Updated', 'datetime'),
                ('Record Created (as stored)', 'datetime'), 'Location Description', 'Location Area',
                'Neighborhood', 'Location Type', ('Latitude', 'latitude'), ('Longitude', 'longitude'),
-               'Image Count', 'Has Contact Info', 'Posting URL', 'Body', 'Source File')
+               'Image Count', 'Has Contact Info', 'Posting URL', 'Body')
     data_list = []
     sources = []
     on_disk_count = 0
     for db_path in _cache_dbs(context):
-        relative = context.get_relative_path(db_path)
         used = False
         for _eid, stamp, url, on_disk, body in _cache_rows(db_path):
             if not _RX_DETAIL.match(urlparse(url or '').path):
@@ -617,7 +568,7 @@ def craigslist_cached_postings(context):
                 _ts(item.get('recordCreated'), 's'), location.get('description'), location.get('area'),
                 location.get('neighborhood'), location.get('type'), location.get('lat'), location.get('lon'),
                 len(images) if isinstance(images, list) else None, item.get('hasContactInfo'),
-                item.get('url'), item.get('body'), relative))
+                item.get('url'), item.get('body')))
             used = True
         if used:
             sources.append(db_path)

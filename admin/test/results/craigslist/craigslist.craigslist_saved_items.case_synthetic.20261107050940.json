@@ -4,21 +4,21 @@
     "artifact_name": "Craigslist - Favorites, Hidden and Saved Searches",
     "function_name": "craigslist_saved_items",
     "case_number": "case_synthetic",
-    "number_of_columns": 16,
+    "number_of_columns": 15,
     "number_of_rows": 3,
-    "total_data_size_bytes": 937,
+    "total_data_size_bytes": 394,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\craigslist\\testdata.craigslist.craigslist_saved_items.case_synthetic.zip",
-    "start_time": "2026-11-06T17:14:20.452993+00:00",
-    "end_time": "2026-11-06T17:14:20.566863+00:00",
-    "run_time_seconds": 0.004544973373413086,
+    "start_time": "2026-11-07T05:09:40.193386+00:00",
+    "end_time": "2026-11-07T05:09:40.356457+00:00",
+    "run_time_seconds": 0.005190134048461914,
     "last_commit": {
-      "hash": "47c7e2038fc51e2434ae070fdb2cad1f9d330238",
+      "hash": "9f58ace5a92bb9ea33e4f850fcbd903410e488a2",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:13:19-05:00",
-      "message": "Craigslist app artifacts: recent searches, viewed postings, saved items, account state, startup log, cached searches and posting details"
+      "date": "2026-11-06T12:19:39-05:00",
+      "message": "Craigslist: record synthetic test cases and baselines, read Cache.db by absolute path, record real-container counts in sample_data"
     }
   },
   "headers": [
@@ -36,8 +36,7 @@
     "Latitude",
     "Longitude",
     "Sync State",
-    "Stored Entry",
-    "Source File"
+    "Stored Entry"
   ],
   "data": [
     [
@@ -55,8 +54,7 @@
       10.5,
       20.5,
       "unsynched",
-      "",
-      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
+      ""
     ],
     [
       null,
@@ -73,8 +71,7 @@
       null,
       null,
       null,
-      "{\"postingId\":9000000050,\"title\":\"Synthetic hidden posting\"}",
-      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
+      "{\"postingId\":9000000050,\"title\":\"Synthetic hidden posting\"}"
     ],
     [
       null,
@@ -91,8 +88,7 @@
       null,
       null,
       null,
-      "{\"name\":\"synthetic saved search\",\"query\":\"example lamp\"}",
-      "private/var/mobile/Containers/Data/Application/00000000-0000-4000-8000-000000000001/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
+      "{\"name\":\"synthetic saved search\",\"query\":\"example lamp\"}"
     ]
   ]
 }
