@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                  "messages and no meet-up details: those are fetched from the server and were not "
                  "found stored on the device in either research container. Origin names the store a "
                  "row came from, which is why there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
                  "stored as text and are converted to numbers. Kind tells which store a row came "
                  "from: the search and rentals locations are read from the redux store, the posting "
                  "location from React Native storage, so there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
                  "the app held for the user, which is not proof that the user ran that search. "
                  "The rows come from the one React Native storage manifest of the container, so "
                  "there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
             "com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*",
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
                  "redux store file of the container, so there is no Source File column. The "
                  "feedAffinity store was present in the 2026.9.0 container and absent in the 2026.3.0 "
                  "one. "
-                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -129,7 +129,7 @@ __artifacts_v2__ = {
                  "messages were not found stored in either research container. The rows come from "
                  "the one React Native storage manifest of the container, so there is no Source "
                  "File column. "
-                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
             "com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*",
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
                  "and Realtime heartbeat: the redux store; the install timestamps: the app "
                  "preferences; Push registration, Prompt counter and Stored time: React Native "
                  "storage), so there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -190,7 +190,7 @@ __artifacts_v2__ = {
                  "bodies are not decoded, and body text is not reported. Where the payload is "
                  "kept in a separate file (isDataOnFS) the body is not read. The rows come from "
                  "the one Cache.db of the container, so there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Caches/com.offerup.iphone.consumer/Cache.db*",
         ),

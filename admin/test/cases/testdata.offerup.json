@@ -1,6 +1,6 @@
 {
   "case_synthetic_current": {
-    "description": "SYNTHETIC fixture, not a real device. A fabricated OfferUp (com.offerup.iphone.consumer) data container shaped like a 2026.9.0 build: metadata plist, redux and Statsig MMKV stores, SDK preferences, React Native AsyncStorage manifest, an NSURLCache Cache.db, plus a decoy container of another app with the same Documents/mmkv names (must yield no rows). Built by admin/test/scripts/synthetic_offerup.py, packed as a tar.gz and cut with make_test_data.py. Every value is invented; it carries no data from any real extraction.",
+    "description": "SYNTHETIC fixture, not a real device. A fabricated OfferUp (com.offerup.iphone.consumer) data container shaped like the newer research container (installed 2026.9.0, stores last written by 2026.8.0): metadata plist, redux and Statsig MMKV stores, SDK preferences, React Native AsyncStorage manifest, an NSURLCache Cache.db, plus a decoy container of another app with the same Documents/mmkv names (must yield no rows). Built by admin/test/scripts/synthetic_offerup.py, packed as a tar.gz and cut with make_test_data.py. Every value is invented; it carries no data from any real extraction.",
     "maker": "@danjethh, Claude",
     "make_data": {
       "input_data_path": "OfferUp_SYNTHETIC_current.tar.gz",
@@ -106,7 +106,7 @@
     }
   },
   "case_synthetic_earlier": {
-    "description": "SYNTHETIC fixture, not a real device. A fabricated OfferUp data container shaped like a 2026.3.0 build: no feedAffinity store, no chat draft, no Cache.db, and the recent-searches value kept in the React Native overflow file named by the MD5 of its key. Includes the same decoy container. Built by admin/test/scripts/synthetic_offerup.py and cut with make_test_data.py. Every value is invented.",
+    "description": "SYNTHETIC fixture, not a real device. A fabricated OfferUp data container shaped like the older research container (installed 2026.3.0, stores last written by 2026.2.0): no feedAffinity store, no chat draft, no Cache.db, and the recent-searches value kept in the React Native overflow file named by the MD5 of its key. Includes the same decoy container. Built by admin/test/scripts/synthetic_offerup.py and cut with make_test_data.py. Every value is invented.",
     "maker": "@danjethh, Claude",
     "make_data": {
       "input_data_path": "OfferUp_SYNTHETIC_earlier.tar.gz",

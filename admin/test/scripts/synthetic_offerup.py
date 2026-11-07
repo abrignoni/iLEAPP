@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build a SYNTHETIC OfferUp (com.offerup.iphone.consumer) data container: invented values, no data from any device.
 
-The layout is the one the offerup artifacts read, taken from two research containers (OfferUp 2026.3.0 and
-2026.9.0) and rebuilt here with invented values:
+The layout is the one the offerup artifacts read, taken from two research containers (installed app versions 2026.3.0
+and 2026.9.0; the stores in them record 2026.2.0 and 2026.8.0 as the version last run) and rebuilt here with invented values:
 
     .com.apple.mobile_container_manager.metadata.plist      names the bundle id
     Documents/mmkv/redux (+ .crc)                           redux-persist stores in an MMKV file
@@ -13,8 +13,8 @@ The layout is the one the offerup artifacts read, taken from two research contai
     Library/Caches/com.offerup.iphone.consumer/Cache.db     NSURLCache
 
 Two variants:
-    current   an OfferUp 2026.9.0-shaped container with every store
-    earlier   a 2026.3.0-shaped container with no feedAffinity store, no chat draft, no Cache.db, and a
+    current   a container shaped like the newer research container (installed 2026.9.0, stores last run by 2026.8.0) with every store
+    earlier   a container shaped like the older research container (installed 2026.3.0, stores last run by 2026.2.0) with no feedAffinity store, no chat draft, no Cache.db, and a
               recent-searches value kept in the React Native overflow file
 
 A decoy container of another app (a different bundle id) carries the same Documents/mmkv names; it must
