@@ -72,6 +72,9 @@ an older distribution.
 iLEAPP's own code is MIT. To show HEIC images the packaged programs include heicreader, which is
 MIT and built from MIT and BSD-3-Clause code. The licence texts are in the `LICENSES` folder
 inside every download and in `LICENSES/THIRD-PARTY-NOTICES.md` in the repository.
+`LICENSES/bundled/` in every download holds the licence of each Python package the program
+carries, and its index names the ones under copyleft terms, such as simplekml (LGPL), with a
+link to their source.
 
 ## Code signing policy
 

@@ -396,8 +396,9 @@ jobs:
           case "$RUNNER_OS" in
             Windows)
               # The single executable carries LICENSES/ inside; the zip also carries it
-              # beside the executable, where someone who unzips it can read it.
-              powershell -NoProfile -Command "Compress-Archive -Path 'dist/ileapp.exe','LICENSES' -DestinationPath 'release-assets/$STEM-portable.zip'"
+              # beside the executable, where someone who unzips it can read it, with the
+              # licences the build collected (build/licences/bundled, packaging/licenses.py).
+              powershell -NoProfile -Command "Copy-Item -Recurse 'build/licences/bundled' 'LICENSES/bundled'; Compress-Archive -Path 'dist/ileapp.exe','LICENSES' -DestinationPath 'release-assets/$STEM-portable.zip'"
               ;;
             macOS)
               mv "dist/iLEAPP-$VERSION.dmg" "release-assets/$STEM.dmg"

@@ -46,9 +46,13 @@ a = Analysis(
     hiddenimports=hiddenimports,
     hookspath=[],
     runtime_hooks=[],
-    excludes=[],
+    excludes=driver.licenses.EXCLUDES,
     noarchive=False,
 )
+# The licence files of everything the bundle holds, written to build/licences/ and
+# shipped in LICENSES/bundled/ (packaging/licenses.py).
+a.datas += driver.licenses.collect_bundled((a.pure, a.scripts, a.binaries, a.datas),
+                                           driver.APP, VERSION)
 pyz = PYZ(a.pure)
 
 exe_kwargs = dict(

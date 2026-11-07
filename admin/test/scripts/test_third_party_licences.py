@@ -48,11 +48,23 @@ class CommittedFolderTests(unittest.TestCase):
         missing = sorted(name for name in named if not (LICENSES / name).is_file())
         self.assertEqual(missing, [])
 
-    def test_no_gpl_or_lgpl_text_ships(self):
-        for path in LICENSES.iterdir():
-            text = path.read_text(encoding='utf-8', errors='replace')
-            self.assertNotIn('GNU GENERAL PUBLIC LICENSE', text.upper(), path.name)
-            self.assertNotIn('GNU LESSER GENERAL PUBLIC LICENSE', text.upper(), path.name)
+    def test_the_committed_texts_are_not_gpl_or_lgpl(self):
+        # The committed folder covers heicreader and the packages without licence files, all
+        # permissive. The GPL and LGPL texts of bundled packages are written into
+        # LICENSES/bundled/ at build time (CollectBundledTests), not committed here.
+        paths = licences.license_files() + sorted(licences.FALLBACKS.iterdir())
+        self.assertGreater(len(paths), len(licences.license_files()))
+        for path in paths:
+            text = path.read_text(encoding='utf-8', errors='replace').upper()
+            self.assertNotIn('GNU GENERAL PUBLIC LICENSE', text, path.name)
+            self.assertNotIn('GNU LESSER GENERAL PUBLIC LICENSE', text, path.name)
+
+    def test_each_fallback_text_says_where_it_came_from(self):
+        for path in sorted(licences.FALLBACKS.iterdir()):
+            first = path.read_text(encoding='utf-8').splitlines()[0]
+            self.assertTrue(first.startswith(path.stem + ' '), path.name)
+            self.assertIn('ships no licence file', first, path.name)
+            self.assertNotIn('—', path.read_text(encoding='utf-8'), path.name)
 
     def test_the_notice_names_the_pinned_version(self):
         self.assertIn(f'heicreader {licences.pinned_version()}', self.notice)
@@ -111,11 +123,18 @@ class BuildTests(unittest.TestCase):
 
     def test_gpl_codecs_are_found_by_name(self):
         names = ['_internal/pillow_heif/libx265-217-abc.dll', 'lib/libx264.so.164',
-                 'heicreader/bin/heicreader.exe', '_internal/PIL/_imaging.pyd']
-        self.assertEqual(licences.gpl_codecs(names), sorted(names[:2]))
+                 '_internal/libreadline.so.8',
+                 'heicreader/bin/heicreader.exe', '_internal/PIL/_imaging.pyd',
+                 '_internal/libedit.3.dylib']
+        self.assertEqual(licences.gpl_codecs(names), sorted(names[:3]))
         with self.assertRaises(SystemExit):
             licences.refuse_gpl_codecs(names)
-        licences.refuse_gpl_codecs(names[2:])
+        licences.refuse_gpl_codecs(names[3:])
+
+    def test_the_spec_leaves_out_readline(self):
+        self.assertIn('readline', licences.EXCLUDES)
+        spec = next((REPO_ROOT / 'packaging').glob('*.spec')).read_text(encoding='utf-8')
+        self.assertIn('excludes=driver.licenses.EXCLUDES,', spec)
 
 
 class InstalledVersionTests(unittest.TestCase):
@@ -132,7 +151,7 @@ class InstalledVersionTests(unittest.TestCase):
 
     def _matching_licences(self):
         found = {}
-        for path in LICENSES.iterdir():
+        for path in licences.license_files():
             if path.name == licences.NOTICES:
                 continue
             if path.name == 'heicreader-LICENSE.txt':
@@ -176,6 +195,159 @@ class InstalledVersionTests(unittest.TestCase):
                 licences.check()
 
 
+class _Meta(dict):
+
+    def get_all(self, key, default=None):
+        value = self.get(key)
+        return value if isinstance(value, list) else default
+
+
+class _Dist:
+    """An installed distribution with the RECORD, metadata and licence files given."""
+
+    def __init__(self, site, name, version, files, licence_files=(), direct_url=None, **meta):
+        self.site, self.version, self.direct_url = site, version, direct_url
+        self.metadata = _Meta(Name=name, **meta)
+        info = f'{name}-{version}.dist-info'
+        self.files = [pathlib.PurePosixPath(f) for f in files]
+        for rel in files:
+            path = site / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('# code\n', encoding='utf-8')
+        for rel, text in licence_files:
+            path = site / info / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding='utf-8')
+            self.files.append(pathlib.PurePosixPath(f'{info}/{rel}'))
+
+    def locate_file(self, entry):
+        return self.site / str(entry)
+
+    def read_text(self, name):
+        return self.direct_url if name == 'direct_url.json' else None
+
+
+class CollectBundledTests(unittest.TestCase):
+
+    def setUp(self):
+        self.tmp = pathlib.Path(tempfile.mkdtemp())
+        self.site = self.tmp / 'site-packages'
+        self.out = self.tmp / 'out'
+        self.pyinstaller = _Dist(self.site, 'pyinstaller', '6.0', ['PyInstaller/loader/x.py'],
+                                 [('licenses/COPYING.txt', 'Bootloader Exception')])
+
+    def tearDown(self):
+        import shutil  # pylint: disable=import-outside-toplevel
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _collect(self, dists, toc):
+        with mock.patch.object(licences.metadata, 'distribution', return_value=self.pyinstaller):
+            return licences.collect_bundled([toc], 'TOOL', '1.2.3', out=self.out,
+                                            distributions=dists + [self.pyinstaller])
+
+    def _entry(self, rel):
+        return (rel, str(self.site / rel), 'DATA')
+
+    def test_only_packages_with_a_file_in_the_bundle_are_listed(self):
+        used = _Dist(self.site, 'usedpkg', '1.0', ['usedpkg/__init__.py'],
+                     [('licenses/LICENSE', 'MIT text')], **{'License-Expression': 'MIT'})
+        unused = _Dist(self.site, 'unusedpkg', '2.0', ['unusedpkg/__init__.py'],
+                       [('licenses/LICENSE', 'MIT text')])
+
+        entries = self._collect([used, unused], [self._entry('usedpkg/__init__.py')])
+
+        index = (self.out / 'INDEX.md').read_text(encoding='utf-8')
+        self.assertIn('| usedpkg | 1.0 | MIT | packages/usedpkg-1.0/LICENSE |', index)
+        self.assertNotIn('unusedpkg', index)
+        self.assertEqual((self.out / 'packages/usedpkg-1.0/LICENSE').read_text(), 'MIT text')
+        dests = {dest for dest, _, _ in entries}
+        self.assertIn('LICENSES/bundled/INDEX.md', dests)
+        self.assertIn('LICENSES/bundled/packages/usedpkg-1.0/LICENSE', dests)
+        self.assertIn('LICENSES/bundled/python/LICENSE.txt', dests)
+        self.assertIn('LICENSES/bundled/pyinstaller/COPYING.txt', dests)
+        self.assertIn('LICENSES/bundled/repository/LICENSE', dests)
+        self.assertTrue(all(dest.startswith('LICENSES/bundled/') for dest in dests))
+        self.assertTrue(all(pathlib.Path(src).is_file() for _, src, _ in entries))
+
+    def test_an_lgpl_package_is_named_with_its_source(self):
+        lgpl = _Dist(self.site, 'kmlpkg', '1.3.6', ['kmlpkg/__init__.py'],
+                     [('licenses/LICENSE.txt', 'GNU LESSER GENERAL PUBLIC LICENSE')],
+                     License='GNU Lesser General Public License v3+')
+
+        self._collect([lgpl], [self._entry('kmlpkg/__init__.py')])
+
+        index = (self.out / 'INDEX.md').read_text(encoding='utf-8')
+        self.assertIn('## Packages with copyleft terms', index)
+        self.assertIn('- kmlpkg 1.3.6 (GNU Lesser General Public License v3+): '
+                      'https://pypi.org/project/kmlpkg/1.3.6/#files', index)
+
+    def test_a_package_from_a_url_is_named_with_that_url(self):
+        url = 'https://example.org/lgplpkg-2.0-py3-none-any.whl'
+        lgpl = _Dist(self.site, 'lgplpkg', '2.0', ['lgplpkg/__init__.py'],
+                     [('licenses/COPYING', 'GNU LESSER GENERAL PUBLIC LICENSE')],
+                     direct_url='{"url": "%s", "archive_info": {}}' % url, License='MIT')
+
+        self._collect([lgpl], [self._entry('lgplpkg/__init__.py')])
+
+        self.assertIn(f'- lgplpkg 2.0 (MIT): {url}', (self.out / 'INDEX.md').read_text(encoding='utf-8'))
+
+    def test_a_permissive_package_is_not_named_as_copyleft(self):
+        # Prose that mentions the GPL, as heicreader's and Pillow's notices do, is not a GPL text.
+        mit = _Dist(self.site, 'mitpkg', '1.0', ['mitpkg/__init__.py'],
+                    [('licenses/LICENSE', 'Permission is hereby granted. None of this is the GPL; '
+                                          'see the GNU Lesser General Public License for that.')],
+                    License='MIT')
+
+        self._collect([mit], [self._entry('mitpkg/__init__.py')])
+
+        self.assertNotIn('copyleft terms', (self.out / 'INDEX.md').read_text(encoding='utf-8'))
+
+    def test_a_package_without_a_licence_file_takes_the_committed_text(self):
+        name = sorted(licences.FALLBACKS.iterdir())[0].stem
+        bare = _Dist(self.site, name, '0.1', [f'{name}/__init__.py'], License='MIT')
+
+        self._collect([bare], [self._entry(f'{name}/__init__.py')])
+
+        copied = self.out / f'packages/{name}-0.1/LICENSE-from-LICENSES-packages.txt'
+        self.assertEqual(copied.read_bytes(), (licences.FALLBACKS / f'{name}.txt').read_bytes())
+
+    def test_a_package_without_any_licence_text_stops_the_build(self):
+        bare = _Dist(self.site, 'nolicencepkg', '0.1', ['nolicencepkg/__init__.py'])
+        with self.assertRaises(SystemExit) as raised:
+            self._collect([bare], [self._entry('nolicencepkg/__init__.py')])
+        self.assertIn('nolicencepkg 0.1', str(raised.exception))
+
+    def test_a_file_from_no_package_is_listed(self):
+        stray = self.tmp / 'elsewhere' / 'libstray.so'
+        stray.parent.mkdir()
+        stray.write_bytes(b'\x7fELF')
+
+        self._collect([], [('libstray.so', str(stray), 'BINARY')])
+
+        index = (self.out / 'INDEX.md').read_text(encoding='utf-8')
+        self.assertIn('## Files from no Python package', index)
+        self.assertIn('- libstray.so', index)
+
+    def test_a_bundled_repository_file_with_a_gpl_header_is_named(self):
+        gpl = next((p for p in sorted((REPO_ROOT / 'scripts').rglob('*.py'))
+                    if 'GNU GENERAL PUBLIC LICENSE' in p.read_text(encoding='utf-8', errors='replace')[:8192]),
+                   None)
+        if gpl is None:
+            self.skipTest('no repository file carries a GPL header')
+        mine = REPO_ROOT / 'scripts' / 'ilapfuncs.py'
+
+        self._collect([], [('a', str(gpl), 'PYMODULE'), ('b', str(mine), 'PYMODULE')])
+
+        index = (self.out / 'INDEX.md').read_text(encoding='utf-8')
+        self.assertIn(f'- {gpl.relative_to(REPO_ROOT).as_posix()}', index)
+        self.assertNotIn('ilapfuncs.py', index)
+
+    def test_the_spec_adds_the_collected_licences_to_the_bundle(self):
+        spec = next((REPO_ROOT / 'packaging').glob('*.spec')).read_text(encoding='utf-8')
+        self.assertIn('a.datas += driver.licenses.collect_bundled(', spec)
+        self.assertLess(spec.index('collect_bundled('), spec.index('pyz = PYZ(a.pure)'))
+
+
 class ReleaseWorkflowTests(unittest.TestCase):
 
     def setUp(self):
@@ -188,6 +360,11 @@ class ReleaseWorkflowTests(unittest.TestCase):
         zips = re.findall(r'Compress-Archive -Path ([^ ]+)', self.release)
         self.assertTrue(zips, 'no Windows zip step found, so the test proves nothing')
         self.assertTrue(all("'LICENSES'" in path for path in zips), zips)
+
+    def test_the_windows_zip_carries_the_collected_licences(self):
+        copy = "Copy-Item -Recurse 'build/licences/bundled' 'LICENSES/bundled'; Compress-Archive"
+        self.assertEqual(self.release.count(copy), 1)
+        self.assertEqual(licences.GENERATED.relative_to(REPO_ROOT).as_posix(), 'build/licences/bundled')
 
 
 if __name__ == '__main__':
