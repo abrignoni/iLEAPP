@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "and the media file.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Photos",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
@@ -460,9 +460,8 @@ def photosDbexif(context):
                 skipped_no_exif += 1
                 continue
 
-            thumb = ''
-            # check_in_media attaches a HEIC / HEIF as a JPEG copy the report can show.
-            thumb = check_in_media(media_path)
+            # check_in_media attaches a HEIC as a JPEG copy the report can show.
+            thumb = check_in_media(media_path) or ''
 
             db_modify_lag, db_modify_drift = _db_modify_metrics(zdatecreated, zmodificationdate)
             primary_file_dt = _primary_file_datetime(file_datetime, file_datetime_original)

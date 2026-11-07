@@ -1,4 +1,4 @@
-"""check_in_media attaches a HEIC or HEIF image as a JPEG copy, so LAVA can show it.
+"""check_in_media attaches an image sniffed or forced as HEIC as a JPEG copy, so LAVA can show it.
 
 An image with transparency is attached as a PNG instead, since JPEG cannot hold it.
 

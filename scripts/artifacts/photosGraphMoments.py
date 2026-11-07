@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "moment's located photos captured inside that window.",
         "author": "Heather Charpentier, Claude",
         "creation_date": "2026-10-14",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Photos",
         "notes": "The graph is a generic store of nodes (things such as a moment or an address), "
@@ -47,8 +47,8 @@ __artifacts_v2__ = {
                  "the Photos.sqlite being read, and that file's size equals the ZORIGINALFILESIZE "
                  "Photos.sqlite stored for it; any other photo is not attached and Photo Check names it "
                  "and why. That match is by path and size and does not prove the file's content: no "
-                 "file hash is compared. A HEIC / HEIF still is attached as a JPEG copy made for the "
-                 "report (PNG when it has transparency); the original file is not changed. The "
+                 "file hash is compared. A HEIC still (a file whose header identifies it as HEIC) is attached as a JPEG "
+                 "copy made for the report (PNG when it has transparency); the original file is not changed. The "
                  "Photos columns are empty when Photos.sqlite is not in the extraction. "
                  "The moments are groups of photos in the library, which may not have been taken on "
                  "this device; a row does not establish that the device was at the place. Moment "
@@ -83,8 +83,8 @@ from scripts.ilapfuncs import (artifact_processor, check_in_media,
 
 
 def _attach(path, name):
-    """Register one photo / video file as media. check_in_media attaches a HEIC / HEIF still
-    as a JPEG copy so a browser can show it; the original stays in the extraction."""
+    """Register one photo / video file as media. check_in_media attaches a HEIC still as a
+    JPEG copy the report can show; the original stays in the extraction."""
     return check_in_media(path, name)
 
 

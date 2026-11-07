@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Map tile records from the first MapTiles.sqlitedb matched",
         "author": "@ydkhatri",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-06-17",
+        "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Location",
         "notes": "Only the first MapTiles.sqlitedb matched is read. Timestamp is the tile's "
