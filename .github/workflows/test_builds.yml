@@ -26,6 +26,7 @@ on:
     paths:
       - 'packaging/**'
       - 'requirements.txt'
+      - 'LICENSES/**'
       - 'admin/scripts/fetch_unifiedlog_iterator.py'
       - '.github/workflows/test_builds.yml'
 

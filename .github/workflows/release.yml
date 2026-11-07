@@ -395,7 +395,9 @@ jobs:
           STEM="iLEAPP-$VERSION-${{ matrix.platform }}-$ARCH"
           case "$RUNNER_OS" in
             Windows)
-              powershell -NoProfile -Command "Compress-Archive -Path 'dist/ileapp.exe' -DestinationPath 'release-assets/$STEM-portable.zip'"
+              # The single executable carries LICENSES/ inside; the zip also carries it
+              # beside the executable, where someone who unzips it can read it.
+              powershell -NoProfile -Command "Compress-Archive -Path 'dist/ileapp.exe','LICENSES' -DestinationPath 'release-assets/$STEM-portable.zip'"
               ;;
             macOS)
               mv "dist/iLEAPP-$VERSION.dmg" "release-assets/$STEM.dmg"
@@ -429,6 +431,13 @@ jobs:
           path: release-assets
           pattern: assets-*
           merge-multiple: true
+
+      # The packaged programs bundle LGPL and GPL libraries through pillow-heif, so each
+      # release carries their source at the versions LICENSES/sources.json names, each
+      # checked against its SHA-256 there (LICENSES/THIRD-PARTY-NOTICES.md).
+      - name: Attach the third-party source archives
+        shell: bash
+        run: python3 packaging/licenses.py fetch-sources release-assets
 
       # An examiner who downloads a forensic tool should be able to check that what they
       # got is what was built. The file is generated here, over the assets as they will be

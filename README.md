@@ -334,6 +334,13 @@ user or the person installing or operating it.
 The same policy covers the other LEAPPs:
 [leapps.org/releases#code-signing-policy](https://leapps.org/releases#code-signing-policy).
 
+## Licence
+
+iLEAPP's code is under the MIT licence (`LICENSE`). The packaged programs on the releases page
+also include libraries under the LGPL and the GPL, through pillow-heif, which reads HEIC images,
+so each packaged program as a whole is shared under the GPL version 3. The licence texts and
+where to get those libraries' source are in [`LICENSES/`](LICENSES/THIRD-PARTY-NOTICES.md).
+
 ## Acknowledgements
 
 This traiging tool is the result of a collaborative effort of many people in the DFIR community.
