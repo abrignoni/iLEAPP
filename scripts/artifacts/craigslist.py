@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                  "as stored: its unit is not established here. The search area is the area saved with the "
                  "search, not a device location. The list is a capped recent list (24 entries in the research "
                  "containers where it was full), so absence of a search does not show that it was not made. "
-                 "The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
                  "filled only when a cached detail response for the id survives; blanks do not mean the "
                  "posting had no title. Entries in postingsNotFound and postingViewTelemetrySent are not "
                  "exported: the first was empty and the second held at most one id with an integer whose "
-                 "meaning was not established. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "meaning was not established. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/'
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
                  "their field names are not established: those rows carry the entry as stored JSON in "
                  "Stored Entry and use the favorite field names only if the entry has them. Sync State is the "
                  "lookup value as stored (unsynched was the only value observed). A favorite is a "
-                 "bookmark kept in the app; it does not show that the posting was contacted or answered. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "bookmark kept in the app; it does not show that the posting was contacted or answered. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
                  "undetermined, unavailable). Times are Unix milliseconds or seconds as noted in the Item "
                  "name and shown in UTC. Home Area is the area saved in the app, not a device location. "
                  "The Device UID row is read from the preferences plist and every other row from the "
-                 "AsyncStorage manifest, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "AsyncStorage manifest, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/'
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
         "category": "Craigslist",
         "notes": "Times are ISO 8601 UTC as stored. The log held one start sequence (init, onboarding, tab, "
                  "startup complete) in each of the three research containers, so it is read as a short log of "
-                 "the most recent start(s); it is not evidence of every launch. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "the most recent start(s); it is not evidence of every launch. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json',),
         "output_types": "standard",
@@ -126,7 +126,7 @@ __artifacts_v2__ = {
                  "text is entered, so a query on a suggestion row can be a partial entry. Entries exist only "
                  "while the system cache keeps them. Search Distance is shown as stored (unit not "
                  "established); latitude and longitude are the values sent in the request. Response Stored "
-                 "says whether the body is in the database or in an fsCachedData file, which is not read here. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "says whether the body is in the database or in an fsCachedData file, which is not read here. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/'
                   'org.craigslist.CraigslistMobile/Cache.db*',),
         "output_types": "standard",
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
                  "established. Location fields are the posting's published location, which can be an "
                  "approximate area. Only responses stored inside the database are read; responses kept in "
                  "fsCachedData files are counted in the log but not parsed. A cached posting shows what the "
-                 "app downloaded for that id, not that the user contacted the poster. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "app downloaded for that id, not that the user contacted the poster. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/'
                   'org.craigslist.CraigslistMobile/Cache.db*',),
         "output_types": "standard",
