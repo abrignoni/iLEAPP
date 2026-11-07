@@ -1,0 +1,211 @@
+{
+  "case_synthetic_current": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated OfferUp (com.offerup.iphone.consumer) data container shaped like the newer research container (installed 2026.9.0, stores last written by 2026.8.0): metadata plist, redux and Statsig MMKV stores, SDK preferences, React Native AsyncStorage manifest, an NSURLCache Cache.db, plus a decoy container of another app with the same Documents/mmkv names (must yield no rows). Built by admin/test/scripts/synthetic_offerup.py, packed as a tar.gz and cut with make_test_data.py. Every value is invented; it carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "OfferUp_SYNTHETIC_current.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-11-06T12:16:18.405744",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-11-06T12:16:18.148833",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "offerup_app_state": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/statsig*",
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.offerup.iphone.consumer.plist",
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
+        ],
+        "file_count": 12,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_locations": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
+        ],
+        "file_count": 7,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_recent_searches": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_listing_affinity": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_chat_drafts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_activity": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/statsig*",
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.offerup.iphone.consumer.plist",
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
+        ],
+        "file_count": 12,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_network_cache": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.offerup.iphone.consumer/Cache.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "26.0",
+      "device_model": "SYNTHETIC",
+      "extraction_method": "Synthetic fixture",
+      "extraction_tool": "admin/test/scripts/synthetic_offerup.py"
+    }
+  },
+  "case_synthetic_earlier": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated OfferUp data container shaped like the older research container (installed 2026.3.0, stores last written by 2026.2.0): no feedAffinity store, no chat draft, no Cache.db, and the recent-searches value kept in the React Native overflow file named by the MD5 of its key. Includes the same decoy container. Built by admin/test/scripts/synthetic_offerup.py and cut with make_test_data.py. Every value is invented.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "OfferUp_SYNTHETIC_earlier.tar.gz",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-11-06T12:16:19.576257",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-11-06T12:16:19.350282",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "offerup_app_state": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/statsig*",
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.offerup.iphone.consumer.plist",
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
+        ],
+        "file_count": 12,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_locations": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
+        ],
+        "file_count": 7,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_recent_searches": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_listing_affinity": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_chat_drafts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_activity": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
+          "*/mobile/Containers/Data/Application/*/Documents/mmkv/statsig*",
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.offerup.iphone.consumer.plist",
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/manifest.json"
+        ],
+        "file_count": 12,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "offerup_network_cache": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/com.offerup.iphone.consumer/Cache.db*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "26.0",
+      "device_model": "SYNTHETIC",
+      "extraction_method": "Synthetic fixture",
+      "extraction_tool": "admin/test/scripts/synthetic_offerup.py"
+    }
+  }
+}

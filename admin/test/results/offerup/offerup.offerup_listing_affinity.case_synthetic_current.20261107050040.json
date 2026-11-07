@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Listing Affinity",
+    "function_name": "offerup_listing_affinity",
+    "case_number": "case_synthetic_current",
+    "number_of_columns": 4,
+    "number_of_rows": 6,
+    "total_data_size_bytes": 162,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_listing_affinity.case_synthetic_current.zip",
+    "start_time": "2026-11-07T05:00:40.617292+00:00",
+    "end_time": "2026-11-07T05:00:40.808108+00:00",
+    "run_time_seconds": 0.0055353641510009766,
+    "last_commit": {
+      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:31-05:00",
+      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
+    }
+  },
+  "headers": [
+    "Kind",
+    "Position",
+    "Listing ID",
+    "Category ID"
+  ],
+  "data": [
+    [
+      "Listing affinity",
+      1,
+      "1000000001",
+      "1.1"
+    ],
+    [
+      "Listing affinity",
+      2,
+      "1000000002",
+      "2.3"
+    ],
+    [
+      "Listing affinity",
+      3,
+      "1000000003",
+      "1.1"
+    ],
+    [
+      "Last viewed category",
+      1,
+      "",
+      "1.1"
+    ],
+    [
+      "Last viewed category",
+      2,
+      "",
+      "2.3"
+    ],
+    [
+      "Last viewed category",
+      3,
+      "",
+      "9.9"
+    ]
+  ]
+}

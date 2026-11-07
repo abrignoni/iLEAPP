@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Recent Searches",
+    "function_name": "offerup_recent_searches",
+    "case_number": "case_synthetic_current",
+    "number_of_columns": 7,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 242,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_recent_searches.case_synthetic_current.zip",
+    "start_time": "2026-11-07T05:00:40.450993+00:00",
+    "end_time": "2026-11-07T05:00:40.613899+00:00",
+    "run_time_seconds": 0.0018775463104248047,
+    "last_commit": {
+      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:31-05:00",
+      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
+    }
+  },
+  "headers": [
+    "Kind",
+    "Position",
+    "Label",
+    "Sub Label",
+    "Type",
+    "Preposition",
+    "Action Path"
+  ],
+  "data": [
+    [
+      "Recent search",
+      1,
+      "synthetic bike",
+      "",
+      "keyword",
+      "",
+      "/search/?q=synthetic+bike"
+    ],
+    [
+      "Recent search",
+      2,
+      "synthetic couch",
+      "in Exampleton",
+      "keyword",
+      "in",
+      "/search/?q=synthetic+couch&delivery_param=p"
+    ],
+    [
+      "Recent rentals search",
+      1,
+      "synthetic flat",
+      "Rentville, EX",
+      "keyword",
+      "",
+      "/rentals/search?q=synthetic+flat"
+    ]
+  ]
+}

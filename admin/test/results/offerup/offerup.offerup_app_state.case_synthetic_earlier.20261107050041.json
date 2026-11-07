@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Account and App State",
+    "function_name": "offerup_app_state",
+    "case_number": "case_synthetic_earlier",
+    "number_of_columns": 3,
+    "number_of_rows": 31,
+    "total_data_size_bytes": 1475,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_app_state.case_synthetic_earlier.zip",
+    "start_time": "2026-11-07T05:00:41.658009+00:00",
+    "end_time": "2026-11-07T05:00:41.861952+00:00",
+    "run_time_seconds": 0.008887290954589844,
+    "last_commit": {
+      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:31-05:00",
+      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
+    }
+  },
+  "headers": [
+    "Item",
+    "Value",
+    "Origin"
+  ],
+  "data": [
+    [
+      "App version (current)",
+      "2026.3.0",
+      "Redux store"
+    ],
+    [
+      "App version (previous)",
+      "2025.51.0",
+      "Redux store"
+    ],
+    [
+      "Logged in at least once",
+      "Yes",
+      "Redux store"
+    ],
+    [
+      "Onboarding step: searchLocation",
+      "Yes",
+      "Redux store"
+    ],
+    [
+      "Onboarding step: notificationPermissions",
+      "Yes",
+      "Redux store"
+    ],
+    [
+      "Onboarding step: buyerInterests",
+      "No",
+      "Redux store"
+    ],
+    [
+      "Onboarding step: tappedOnSaveItem",
+      "Yes",
+      "Redux store"
+    ],
+    [
+      "Do not sell my data",
+      "No",
+      "Redux store"
+    ],
+    [
+      "Advertising ID",
+      "00000000-0000-4000-8000-000000000001",
+      "Redux store"
+    ],
+    [
+      "Limit ad tracking",
+      "No",
+      "Redux store"
+    ],
+    [
+      "Device ID (app instrumentation)",
+      "00000000-0000-4000-8000-000000000002",
+      "Redux store"
+    ],
+    [
+      "Locale",
+      "en",
+      "Redux store"
+    ],
+    [
+      "App user agent",
+      "OfferUp/0.0 (SyntheticPhone; iOS 0.0)",
+      "Redux store"
+    ],
+    [
+      "Premium user",
+      "No",
+      "Redux store"
+    ],
+    [
+      "First open after install",
+      "No",
+      "Redux store"
+    ],
+    [
+      "First open after update",
+      "Yes",
+      "Redux store"
+    ],
+    [
+      "Push permission prompt shown (times)",
+      1,
+      "Redux store"
+    ],
+    [
+      "Theme follows system",
+      "Yes",
+      "Redux store"
+    ],
+    [
+      "Service posting draft started",
+      "No",
+      "Redux store"
+    ],
+    [
+      "App version of last run",
+      "2026.9.0",
+      "Preferences"
+    ],
+    [
+      "AppsFlyer user ID",
+      "synthetic-appsflyer-id-0001",
+      "Preferences"
+    ],
+    [
+      "AppsFlyer launch counter",
+      42,
+      "Preferences"
+    ],
+    [
+      "AppsFlyer reinstall counter",
+      0,
+      "Preferences"
+    ],
+    [
+      "Account ID (from storage key name)",
+      "900000001",
+      "Async storage key"
+    ],
+    [
+      "Push registration key suffix (meaning not established)",
+      "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "Async storage key"
+    ],
+    [
+      "Push permission status",
+      "granted",
+      "Async storage"
+    ],
+    [
+      "Push permission setting: alert",
+      "Yes",
+      "Async storage"
+    ],
+    [
+      "Push permission setting: badge",
+      "Yes",
+      "Async storage"
+    ],
+    [
+      "Push permission setting: providesAppSettings",
+      "No",
+      "Async storage"
+    ],
+    [
+      "Push permission setting: sound",
+      "Yes",
+      "Async storage"
+    ],
+    [
+      "Statsig stable ID",
+      "synthetic-stable-id-0001",
+      "Statsig store"
+    ]
+  ]
+}

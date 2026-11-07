@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Chat Drafts",
+    "function_name": "offerup_chat_drafts",
+    "case_number": "case_synthetic_earlier",
+    "number_of_columns": 3,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_chat_drafts.case_synthetic_earlier.zip",
+    "start_time": "2026-11-07T05:00:42.405483+00:00",
+    "end_time": "2026-11-07T05:00:42.561695+00:00",
+    "run_time_seconds": 0.0015666484832763672,
+    "last_commit": {
+      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:31-05:00",
+      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
+    }
+  },
+  "headers": [
+    "Conversation ID",
+    "Draft",
+    "Length"
+  ],
+  "data": []
+}

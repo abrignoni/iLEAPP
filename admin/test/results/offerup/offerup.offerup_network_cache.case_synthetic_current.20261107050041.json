@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Cached Network Responses",
+    "function_name": "offerup_network_cache",
+    "case_number": "case_synthetic_current",
+    "number_of_columns": 8,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 497,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_network_cache.case_synthetic_current.zip",
+    "start_time": "2026-11-07T05:00:41.468598+00:00",
+    "end_time": "2026-11-07T05:00:41.654527+00:00",
+    "run_time_seconds": 0.0032057762145996094,
+    "last_commit": {
+      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:31-05:00",
+      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
+    }
+  },
+  "headers": [
+    "Cached",
+    "Host",
+    "URL",
+    "HTTP Status",
+    "MIME Type",
+    "Body Size",
+    "Body In File",
+    "Body Keys"
+  ],
+  "data": [
+    [
+      1789984801,
+      "offerup-rest.ably.io:443",
+      "https://offerup-rest.ably.io:443/comet/connect",
+      200,
+      "application/json",
+      86,
+      "No",
+      "action, connectionId, connectionDetails"
+    ],
+    [
+      1789984809,
+      "offerup-realtime.ably.io:443",
+      "https://offerup-realtime.ably.io:443/channels/notification%3Asynthetic/messages",
+      200,
+      "application/json",
+      32,
+      "No",
+      "statusCode, response"
+    ],
+    [
+      1789984820,
+      "images.offerup.com",
+      "https://images.offerup.com/synthetic/100x100/smart",
+      200,
+      "image/png",
+      6,
+      "No",
+      ""
+    ],
+    [
+      1789984830,
+      "static.offerup.com",
+      "https://static.offerup.com/high_intent/variants/pill",
+      200,
+      "application/json",
+      "",
+      "Yes",
+      ""
+    ]
+  ]
+}
