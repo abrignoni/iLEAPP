@@ -1,4 +1,6 @@
-"""check_in_media attaches a HEIC or HEIF image as a PNG copy, so LAVA can show it.
+"""check_in_media attaches a HEIC or HEIF image as a JPEG copy, so LAVA can show it.
+
+An image with transparency is attached as a PNG instead, since JPEG cannot hold it.
 
 LAVA shows a media item of type image/heic as "This file could not be shown". fsCachedData
 checked its HEIC files in as they were, so on hc_ios18_7 all 917 of its HEIC media read that
@@ -34,9 +36,9 @@ register_heif_opener()
 CACHE = 'private/var/mobile/Containers/Data/Application/A/Library/Caches/com.example/fsCachedData'
 
 
-def heic_bytes(colour='red', size=(8, 6)):
+def heic_bytes(colour='red', size=(8, 6), mode='RGB'):
     buffer = io.BytesIO()
-    Image.new('RGB', size, colour).save(buffer, 'HEIF')
+    Image.new(mode, size, colour).save(buffer, 'HEIF')
     return buffer.getvalue()
 
 
@@ -95,7 +97,7 @@ class CheckInMediaHeicPreviewTests(unittest.TestCase):
     def test_the_fixture_sniffs_as_heic(self):
         self.assertEqual(guess_mime(heic_bytes()), 'image/heic')
 
-    def test_a_heic_file_is_attached_as_a_png_and_the_evidence_copy_is_untouched(self):
+    def test_a_heic_file_is_attached_as_a_jpeg_and_the_evidence_copy_is_untouched(self):
         original = heic_bytes('red', (8, 6))
         rel_path, staged = self._stage('B2AB81F5', original)
 
@@ -103,10 +105,10 @@ class CheckInMediaHeicPreviewTests(unittest.TestCase):
 
         source_path, extraction_path, mime = self._media_item(hashlib.sha1(rel_path.encode()).hexdigest())
         self.assertEqual(source_path, rel_path)
-        self.assertEqual(mime, 'image/png')
-        self.assertTrue(extraction_path.endswith('.png'))
+        self.assertEqual(mime, 'image/jpeg')
+        self.assertTrue(extraction_path.endswith('.jpg'))
         with Image.open(io.BytesIO(self._media_bytes(extraction_path))) as image:
-            self.assertEqual(image.format, 'PNG')
+            self.assertEqual(image.format, 'JPEG')
             self.assertEqual(image.size, (8, 6))
             red, green, blue = image.convert('RGB').getpixel((4, 3))
             self.assertGreater(red, 200)
@@ -115,7 +117,7 @@ class CheckInMediaHeicPreviewTests(unittest.TestCase):
         html_copy = self.report / '_HTML' / extraction_path
         self.assertEqual(html_copy.read_bytes(), self._media_bytes(extraction_path))
 
-    def test_an_embedded_heic_is_attached_as_a_png(self):
+    def test_an_embedded_heic_is_attached_as_a_jpeg(self):
         _, staged = self._stage('container.db', b'SQLite format 3\x00')
 
         ref = ilapfuncs.check_in_embedded_media(staged, heic_bytes('blue'), name='thumb')
@@ -123,9 +125,20 @@ class CheckInMediaHeicPreviewTests(unittest.TestCase):
         self.assertIsNotNone(ref)
         _, extraction_path, mime = lavafuncs.lava_db.execute(
             'SELECT source_path, extraction_path, type FROM _lava_media_items').fetchone()
+        self.assertEqual(mime, 'image/jpeg')
+        with Image.open(io.BytesIO(self._media_bytes(extraction_path))) as image:
+            self.assertEqual(image.format, 'JPEG')
+
+    def test_a_heic_with_transparency_is_attached_as_a_png(self):
+        rel_path, staged = self._stage('layer', heic_bytes((255, 0, 0, 0), mode='RGBA'))
+
+        ilapfuncs.check_in_media(staged)
+
+        _, extraction_path, mime = self._media_item(hashlib.sha1(rel_path.encode()).hexdigest())
         self.assertEqual(mime, 'image/png')
         with Image.open(io.BytesIO(self._media_bytes(extraction_path))) as image:
             self.assertEqual(image.format, 'PNG')
+            self.assertEqual(image.getchannel('A').getextrema(), (0, 0))
 
     def test_a_heic_that_cannot_be_decoded_keeps_the_original(self):
         damaged = heic_bytes()[:64]
@@ -150,14 +163,14 @@ class CheckInMediaHeicPreviewTests(unittest.TestCase):
         self.assertEqual(mime, 'application/octet-stream')
         self.assertEqual(self._media_bytes(extraction_path), original)
 
-    def test_a_caller_that_forces_the_heic_type_still_gets_a_png(self):
+    def test_a_caller_that_forces_the_heic_type_still_gets_a_jpeg(self):
         rel_path, staged = self._stage('forced.heic', heic_bytes())
 
         ilapfuncs.check_in_media(staged, force_type='image/heic', force_extension='heic')
 
         _, extraction_path, mime = self._media_item(hashlib.sha1(rel_path.encode()).hexdigest())
-        self.assertEqual(mime, 'image/png')
-        self.assertTrue(extraction_path.endswith('.png'))
+        self.assertEqual(mime, 'image/jpeg')
+        self.assertTrue(extraction_path.endswith('.jpg'))
 
     def test_a_jpeg_is_copied_as_it_is(self):
         buffer = io.BytesIO()

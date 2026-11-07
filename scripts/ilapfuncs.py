@@ -344,22 +344,26 @@ def _resolve_media_source(source_path):
 _HEIC_MIME_TYPES = ('image/heic', 'image/heif')
 
 
-def _heic_to_png(source):
+def _heic_to_viewable(source):
     '''
-    Decode a HEIC or HEIF image and return it encoded as PNG.
+    Decode a HEIC or HEIF image and encode it as JPEG, or as PNG when it has transparency,
+    which JPEG cannot hold.
     Args:
         source: A file path, or the image's bytes.
     Returns:
-        The PNG bytes, or None when the image could not be decoded.
+        (bytes, mime type, extension), or None when the image could not be decoded.
     '''
     register_heif_opener()
     try:
         with Image.open(io.BytesIO(source) if isinstance(source, bytes) else source) as image:
             buffer = io.BytesIO()
-            image.save(buffer, format='PNG')
-            return buffer.getvalue()
+            if 'A' in image.getbands() or 'transparency' in image.info:
+                image.save(buffer, format='PNG')
+                return buffer.getvalue(), 'image/png', '.png'
+            image.convert('RGB').save(buffer, format='JPEG', quality=90)
+            return buffer.getvalue(), 'image/jpeg', '.jpg'
     except (OSError, ValueError, RuntimeError, Image.DecompressionBombError) as ex:
-        logfunc(f'HEIC image could not be converted to PNG, the original is attached instead: {ex}')
+        logfunc(f'HEIC image could not be converted for display, the original is attached instead: {ex}')
         return None
 
 
@@ -434,16 +438,16 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
             else:
                 media_item.updated_at = 0
 
-        # A HEIC or HEIF image is attached as a PNG copy so the report can show it. The
+        # A HEIC or HEIF image is attached as a JPEG copy (PNG when it has transparency) so
+        # the report can show it. The
         # original stays in the evidence copy, and the media's source path still names it.
         # A caller that passed its own converted file, or forced a type other than HEIC or
         # HEIF, is left as it asked.
         converted_data = None
         if not converted_file_path and media_item.mimetype in _HEIC_MIME_TYPES:
-            converted_data = _heic_to_png(media_data if is_embedded else str(file_to_copy))
-            if converted_data is not None:
-                media_item.mimetype = 'image/png'
-                suffix = '.png'
+            converted = _heic_to_viewable(media_data if is_embedded else str(file_to_copy))
+            if converted is not None:
+                converted_data, media_item.mimetype, suffix = converted
 
         # 1. Create the canonical media file
         canonical_media_path = Path(output_params.media_folder).joinpath(media_id).with_suffix(suffix)
