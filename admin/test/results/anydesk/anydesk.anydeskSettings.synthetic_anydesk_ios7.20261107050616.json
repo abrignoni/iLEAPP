@@ -1,0 +1,121 @@
+{
+  "metadata": {
+    "module_name": "anydesk",
+    "artifact_name": "AnyDesk - Settings",
+    "function_name": "anydeskSettings",
+    "case_number": "synthetic_anydesk_ios7",
+    "number_of_columns": 3,
+    "number_of_rows": 18,
+    "total_data_size_bytes": 794,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskSettings.synthetic_anydesk_ios7.zip",
+    "start_time": "2026-11-07T05:06:16.150477+00:00",
+    "end_time": "2026-11-07T05:06:16.319368+00:00",
+    "run_time_seconds": 0.004741668701171875,
+    "last_commit": {
+      "hash": "8c0e9a7bd161418f00f3ac746d08e2e5f5095799",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:18:35-05:00",
+      "message": "AnyDesk iOS: connection history, settings and trace log startups"
+    }
+  },
+  "headers": [
+    "Store",
+    "Key",
+    "Value"
+  ],
+  "data": [
+    [
+      "system.conf",
+      "ad.anynet.alias",
+      ""
+    ],
+    [
+      "system.conf",
+      "ad.anynet.fpr",
+      "0000000000000000000000000000000000000000"
+    ],
+    [
+      "system.conf",
+      "ad.anynet.id",
+      "900000100"
+    ],
+    [
+      "system.conf",
+      "ad.anynet.network_id",
+      "0001"
+    ],
+    [
+      "system.conf",
+      "ad.license.name",
+      "free"
+    ],
+    [
+      "system.conf",
+      "ad.security.frontend_clipboard",
+      "1"
+    ],
+    [
+      "system.conf",
+      "ad.telemetry.active_consents",
+      ""
+    ],
+    [
+      "user.conf",
+      "ad.general.online_status.remote_client",
+      "1"
+    ],
+    [
+      "user.conf",
+      "ad.privacy.name.show",
+      "1"
+    ],
+    [
+      "user.conf",
+      "ad.ui.lang",
+      "en"
+    ],
+    [
+      "service.conf",
+      "ad.anynet.cert",
+      "(withheld)"
+    ],
+    [
+      "service.conf",
+      "ad.anynet.pkey",
+      "(withheld)"
+    ],
+    [
+      "service.conf",
+      "ad.license.state_store",
+      "(withheld)"
+    ],
+    [
+      "service.conf",
+      "ad.telemetry.last_cid",
+      "(withheld)"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "com.apple.feedback.managed",
+      "{}"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "user.preference.already.connected.users",
+      "[900000001, 900000002]"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "user.preference.install.date",
+      "2023-12-01 08:30:00"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "user.preference.speed.dial.mode",
+      1
+    ]
+  ]
+}

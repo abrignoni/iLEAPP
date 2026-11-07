@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "module_name": "anydesk",
+    "artifact_name": "AnyDesk - Connection History",
+    "function_name": "anydeskConnectionHistory",
+    "case_number": "synthetic_anydesk_ios7",
+    "number_of_columns": 8,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 198,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskConnectionHistory.synthetic_anydesk_ios7.zip",
+    "start_time": "2026-11-07T05:06:15.958010+00:00",
+    "end_time": "2026-11-07T05:06:16.147129+00:00",
+    "run_time_seconds": 0.007407426834106445,
+    "last_commit": {
+      "hash": "8c0e9a7bd161418f00f3ac746d08e2e5f5095799",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:18:35-05:00",
+      "message": "AnyDesk iOS: connection history, settings and trace log startups"
+    }
+  },
+  "headers": [
+    "Time (As Stored)",
+    "Direction",
+    "Mode (As Stored)",
+    "Name Field (As Stored)",
+    "ID 1 (As Stored)",
+    "ID 2 (As Stored)",
+    "ID 1 In Preferences List",
+    "Raw Line"
+  ],
+  "data": [
+    [
+      "2024-01-05 10:15",
+      "Incoming",
+      "User",
+      "",
+      "900000001",
+      "900000001",
+      "Yes",
+      ""
+    ],
+    [
+      "2024-01-05 11:40",
+      "Incoming",
+      "Passwd",
+      "synthetic-name",
+      "900000002",
+      "900000002",
+      "Yes",
+      ""
+    ],
+    [
+      "2024-01-06 09:02",
+      "Outgoing",
+      "User",
+      "",
+      "900000003",
+      "900000003",
+      "No",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "this line is not a connection record"
+    ]
+  ]
+}

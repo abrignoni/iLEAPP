@@ -1,0 +1,78 @@
+{
+  "metadata": {
+    "module_name": "anydesk",
+    "artifact_name": "AnyDesk - Trace Log Startups",
+    "function_name": "anydeskTraceStartups",
+    "case_number": "synthetic_anydesk_ios7",
+    "number_of_columns": 11,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 673,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskTraceStartups.synthetic_anydesk_ios7.zip",
+    "start_time": "2026-11-07T05:06:16.322036+00:00",
+    "end_time": "2026-11-07T05:06:16.495305+00:00",
+    "run_time_seconds": 0.008189916610717773,
+    "last_commit": {
+      "hash": "8c0e9a7bd161418f00f3ac746d08e2e5f5095799",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:18:35-05:00",
+      "message": "AnyDesk iOS: connection history, settings and trace log startups"
+    }
+  },
+  "headers": [
+    "Block Start (As Stored)",
+    "Starts With Startup Banner",
+    "Version",
+    "Version Detail (As Stored)",
+    "Build",
+    "Log Lines",
+    "Relay Established Lines",
+    "Relay Failed Lines",
+    "Warning Lines",
+    "Error Lines",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2023-12-31 23:59:00.000",
+      "No",
+      "",
+      "",
+      "",
+      1,
+      0,
+      0,
+      0,
+      0,
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/anydesk.trace"
+    ],
+    [
+      "2024-01-05 10:00:00.100",
+      "Yes",
+      "7.0.2",
+      "ios_release_7.0.2 0123456789abcdef0123456789abcdef01234567",
+      "89abcdef0123456789abcdef0123456789abcdef",
+      9,
+      2,
+      1,
+      1,
+      1,
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/anydesk.trace"
+    ],
+    [
+      "2024-01-06 10:00:00.100",
+      "Yes",
+      "7.1.2",
+      "release/ios_7.1.x 0123456789abcdef0123456789abcdef01234567",
+      "89abcdef0123456789abcdef0123456789abcdef",
+      9,
+      0,
+      3,
+      1,
+      1,
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/anydesk.trace"
+    ]
+  ]
+}
