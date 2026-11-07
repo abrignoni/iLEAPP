@@ -85,16 +85,15 @@ import os
 import sqlite3
 from datetime import datetime, timedelta
 
+import heicreader
 from PIL import Image
-from pillow_heif import register_heif_opener
 
 from scripts.ilapfuncs import (artifact_processor, check_in_media,
                                does_column_exist_in_db, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
 
-register_heif_opener()
-
-_EXIF_ERRORS = (OSError, ValueError, KeyError, IndexError, TypeError, AttributeError)
+_EXIF_ERRORS = (OSError, ValueError, KeyError, IndexError, TypeError, AttributeError,
+                heicreader.HeicReaderError)
 _MAX_LATITUDE = 90.0
 _DB_MODIFY_DRIFT_THRESHOLD = timedelta(minutes=5)
 _TIMESTAMP_TOLERANCE = timedelta(seconds=2)
@@ -319,9 +318,19 @@ def _gps_from_ifd(gps_ifd):
 
 
 def _read_file_exif(path):
-    """Read EXIF once: timestamps, GPS, and a formatted tag dump."""
-    with Image.open(path) as image:
-        exif = image.getexif()
+    """Read EXIF once: timestamps, GPS, and a formatted tag dump.
+
+    A HEIC or HEIF file's Exif block is read with heicreader, as stored: its Orientation is
+    the value in the file.
+    """
+    if str(path).upper().endswith(('.HEIC', '.HEIF')):
+        exif = Image.Exif()
+        raw = heicreader.raw_exif(path)
+        if raw:
+            exif.load(raw)
+    else:
+        with Image.open(path) as image:
+            exif = image.getexif()
     if not exif:
         return '', '', '', '', ''
 

@@ -5,15 +5,17 @@ import unittest
 import zipfile
 from unittest.mock import patch
 
+import heicreader
 from PIL import Image
-from pillow_heif import register_heif_opener
 from scripts.artifacts.photosDbexif import __artifacts_v2__
 from scripts.search_files import FileSeekerDir, FileSeekerZip
 
 
+HEIC_WITH_DATETIME = (Path(__file__).resolve().parents[1] / 'fixtures' / 'heic' / 'exif_datetime.heic').read_bytes()
+
+
 class TestPhotosExifDiscoveryCases(unittest.TestCase):
     def test_actual_formats_cases_and_layouts_filesystem_and_zip(self):
-        register_heif_opener()
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source = root / 'source'
@@ -27,10 +29,14 @@ class TestPhotosExifDiscoveryCases(unittest.TestCase):
                         relative = f'private/var/mobile/Media/{directory}/{counter}.{suffix}'
                         path = source / relative
                         path.parent.mkdir(parents=True, exist_ok=True)
-                        exif = Image.Exif()
-                        exif[306] = '2024:01:02 03:04:05'
-                        Image.new('RGB', (8, 8), (counter, 70, 100)).save(
-                            path, format=fmt, exif=exif)
+                        if fmt == 'HEIF':
+                            # A synthetic HEIC carrying DateTime 2024:01:02 03:04:05.
+                            path.write_bytes(HEIC_WITH_DATETIME)
+                        else:
+                            exif = Image.Exif()
+                            exif[306] = '2024:01:02 03:04:05'
+                            Image.new('RGB', (8, 8), (counter, 70, 100)).save(
+                                path, format=fmt, exif=exif)
                         expected.add(relative)
             for name in ('negative.GIF', 'negative.JPG.bak'):
                 path = source / 'private/var/mobile/Media/DCIM/100APPLE' / name
@@ -54,8 +60,13 @@ class TestPhotosExifDiscoveryCases(unittest.TestCase):
                         self.assertEqual({seeker.file_infos[p].source_path for p in found}, expected)
                         self.assertEqual(len(found), 30)
                         for path in found:
-                            with Image.open(path) as image:
-                                self.assertEqual(image.getexif()[306], '2024:01:02 03:04:05')
+                            if path.upper().endswith(('.HEIC', '.HEIF')):
+                                exif = Image.Exif()
+                                exif.load(heicreader.raw_exif(path))
+                            else:
+                                with Image.open(path) as image:
+                                    exif = image.getexif()
+                            self.assertEqual(exif[306], '2024:01:02 03:04:05')
                         close = getattr(seeker, 'close', None)
                         if close:
                             close()

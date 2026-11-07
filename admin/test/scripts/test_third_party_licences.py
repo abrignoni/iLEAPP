@@ -1,15 +1,13 @@
-"""The third-party licences in LICENSES/ ship with every packaged build and match what it bundles.
+"""The third-party licences in LICENSES/ ship with every packaged build and match heicreader.
 
-pillow-heif's binary wheels bundle libheif and libde265 (LGPL-3.0) and x265
-(GPL-2.0-or-later). packaging/licenses.py puts LICENSES/ in every build, refuses a build
-whose installed pillow-heif is not the version LICENSES/ describes, and fetches the source
-archives a release attaches. These tests check the committed folder, the build's data
-list, the refusals, and the release workflow's two steps. The file is the same in all five
-LEAPP cores.
+HEIC images are read with heicreader (MIT), whose helper is built from MIT and BSD-3-Clause
+code. packaging/licenses.py puts LICENSES/ in every build, refuses a build whose installed
+heicreader is not the version requirements.txt pins or whose licence texts differ from the
+committed copies, and refuses to package a GPL video codec. These tests check the committed
+folder, requirements.txt, the build's data and binaries, the refusals, and the release
+workflow. The file is the same in all five LEAPP cores.
 """
-import hashlib
 import importlib.util
-import json
 import pathlib
 import re
 import tempfile
@@ -19,6 +17,14 @@ from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 LICENSES = REPO_ROOT / 'LICENSES'
+PLATFORMS = {
+    ('darwin', 'arm64'): 'macosx_12_0_arm64',
+    ('darwin', 'x86_64'): 'macosx_12_0_x86_64',
+    ('win32', 'AMD64'): 'win_amd64',
+    ('win32', 'ARM64'): 'win_arm64',
+    ('linux', 'x86_64'): 'manylinux_2_17_x86_64',
+    ('linux', 'aarch64'): 'manylinux_2_17_aarch64',
+}
 
 
 def load(name, path):
@@ -34,125 +40,140 @@ licences = load('leapp_licenses_under_test', REPO_ROOT / 'packaging' / 'licenses
 class CommittedFolderTests(unittest.TestCase):
 
     def setUp(self):
-        self.sources = json.loads((LICENSES / 'sources.json').read_text(encoding='utf-8'))
-        self.notice = (LICENSES / 'THIRD-PARTY-NOTICES.md').read_text(encoding='utf-8')
+        self.notice = (LICENSES / licences.NOTICES).read_text(encoding='utf-8')
 
     def test_every_licence_text_the_notice_names_is_in_the_folder(self):
-        named = set(re.findall(r'[\w.+-]+\.txt', self.notice))
+        named = set(re.findall(r'[\w.+-]+\.(?:txt|md)', self.notice))
         self.assertTrue(named, 'the notice names no licence files, so the test proves nothing')
         missing = sorted(name for name in named if not (LICENSES / name).is_file())
         self.assertEqual(missing, [])
 
-    def test_requirements_pin_the_version_the_folder_describes(self):
-        text = (REPO_ROOT / 'requirements.txt').read_text(encoding='utf-8')
-        pins = re.findall(r'^pillow[-_]heif==([\w.]+)\s*$', text, re.M | re.I)
-        self.assertEqual(pins, [self.sources['pillow-heif']])
-        unpinned = re.findall(r'^pillow[-_]heif\s*$', text, re.M | re.I)
-        self.assertEqual(unpinned, [])
+    def test_no_gpl_or_lgpl_text_ships(self):
+        for path in LICENSES.iterdir():
+            text = path.read_text(encoding='utf-8', errors='replace')
+            self.assertNotIn('GNU GENERAL PUBLIC LICENSE', text.upper(), path.name)
+            self.assertNotIn('GNU LESSER GENERAL PUBLIC LICENSE', text.upper(), path.name)
 
-    def test_the_notice_names_every_source_archive_and_version(self):
-        for entry in self.sources['sources']:
-            self.assertIn(entry['asset'], self.notice)
-            self.assertIn(entry['version'], self.notice)
-            self.assertRegex(entry['sha256'], r'^[0-9a-f]{64}$')
-            self.assertTrue(entry['url'].startswith('https://'))
-
-    def test_the_bundled_list_names_the_versions_sources_json_fetches(self):
-        bundled = (LICENSES / licences.BUNDLED_LIST).read_text(encoding='utf-8')
-        for entry in self.sources['sources']:
-            if entry['name'] == 'pillow-heif':
-                continue
-            self.assertIn(f"/tree/{'' if entry['name'] == 'x265' else 'v'}{entry['version']}", bundled)
+    def test_the_notice_names_the_pinned_version(self):
+        self.assertIn(f'heicreader {licences.pinned_version()}', self.notice)
 
     def test_the_notice_has_no_em_dash(self):
         self.assertNotIn('—', self.notice)
 
 
-class BuildDataTests(unittest.TestCase):
+class RequirementsTests(unittest.TestCase):
+
+    def setUp(self):
+        self.text = (REPO_ROOT / 'requirements.txt').read_text(encoding='utf-8')
+
+    def test_pillow_heif_is_gone(self):
+        self.assertIsNone(re.search(r'^\s*pillow[-_]heif', self.text, re.M | re.I))
+
+    def test_one_heicreader_wheel_for_each_platform(self):
+        lines = [line.strip() for line in self.text.splitlines() if line.strip().startswith('heicreader @')]
+        self.assertEqual(len(lines), len(PLATFORMS), lines)
+        version = licences.pinned_version()
+        self.assertIsNotNone(version)
+        for (system, machine), tag in PLATFORMS.items():
+            matching = [line for line in lines
+                        if f'sys_platform == "{system}"' in line and f'platform_machine == "{machine}"' in line]
+            self.assertEqual(len(matching), 1, (system, machine))
+            url = matching[0].split('@', 1)[1].split(';', 1)[0].strip()
+            self.assertTrue(url.startswith(
+                f'https://github.com/abrignoni/heicreader/releases/download/v{version}/'
+                f'heicreader-{version}-py3-none-{tag}'), url)
+            self.assertTrue(url.endswith('.whl'), url)
+
+
+class BuildTests(unittest.TestCase):
 
     def test_the_build_ships_every_file_in_the_folder_under_licenses(self):
         build = load('leapp_build_under_test', REPO_ROOT / 'packaging' / 'build.py')
         shipped = {pathlib.Path(src).name for src, dest in build.bundle_datas() if dest == 'LICENSES'}
         on_disk = {p.name for p in LICENSES.iterdir() if p.is_file() and not p.name.startswith('.')}
         self.assertEqual(shipped, on_disk)
-        self.assertIn('THIRD-PARTY-NOTICES.md', shipped)
 
-    def test_the_smoke_names_are_relative_to_the_bundle(self):
-        names = licences.bundled_names()
-        self.assertIn('LICENSES/THIRD-PARTY-NOTICES.md', names)
-        self.assertTrue(all(name.startswith('LICENSES/') for name in names))
+    def test_heicreader_is_a_hidden_import_and_pillow_heif_is_not(self):
+        build = load('leapp_build_hidden_under_test', REPO_ROOT / 'packaging' / 'build.py')
+        hidden = build.hidden_imports()
+        self.assertIn('heicreader', hidden)
+        self.assertNotIn('pillow_heif', hidden)
+
+    def test_the_spec_bundles_the_helper(self):
+        spec = next((REPO_ROOT / 'packaging').glob('*.spec')).read_text(encoding='utf-8')
+        self.assertIn('licenses.heicreader_binaries()', spec)
+
+    def test_the_helper_goes_where_heicreader_looks_for_it(self):
+        with mock.patch.object(licences, 'helper_binary', return_value=pathlib.Path('/x/heicreader')):
+            self.assertEqual(licences.heicreader_binaries(), [(str(pathlib.Path('/x/heicreader')), 'heicreader/bin')])
+        with mock.patch.object(licences, 'helper_binary', return_value=None):
+            self.assertEqual(licences.heicreader_binaries(), [])
+
+    def test_gpl_codecs_are_found_by_name(self):
+        names = ['_internal/pillow_heif/libx265-217-abc.dll', 'lib/libx264.so.164',
+                 'heicreader/bin/heicreader.exe', '_internal/PIL/_imaging.pyd']
+        self.assertEqual(licences.gpl_codecs(names), sorted(names[:2]))
+        with self.assertRaises(SystemExit):
+            licences.refuse_gpl_codecs(names)
+        licences.refuse_gpl_codecs(names[2:])
 
 
 class InstalledVersionTests(unittest.TestCase):
 
-    def _distribution(self, version, bundled_text):
+    def _dist(self, version, licence_files):
         folder = pathlib.Path(tempfile.mkdtemp())
-        self.addCleanup(lambda: [p.unlink() for p in folder.iterdir()] and folder.rmdir())
-        (folder / 'LICENSES_bundled.txt').write_text(bundled_text, encoding='utf-8')
-        listed = types.SimpleNamespace(name='LICENSES_bundled.txt')
-        return types.SimpleNamespace(version=version, files=[listed],
-                                     locate_file=lambda _f: folder / 'LICENSES_bundled.txt')
+        files = []
+        for name, data in licence_files.items():
+            path = folder / 'heicreader-x.dist-info' / 'licenses' / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+            files.append(pathlib.PurePosixPath(path.relative_to(folder).as_posix()))
+        return types.SimpleNamespace(version=version, files=files, locate_file=lambda f: folder / f)
 
-    def test_the_pinned_version_with_the_same_list_passes(self):
-        pinned = licences.sources()['pillow-heif']
-        same = (LICENSES / licences.BUNDLED_LIST).read_text(encoding='utf-8')
-        with mock.patch.object(licences.metadata, 'distribution',
-                               return_value=self._distribution(pinned, same)):
-            self.assertEqual(licences.problems(), [])
+    def _matching_licences(self):
+        found = {}
+        for path in LICENSES.iterdir():
+            if path.name == licences.NOTICES:
+                continue
+            if path.name == 'heicreader-LICENSE.txt':
+                found['LICENSE'] = path.read_bytes()
+            elif path.name == 'heicreader-THIRD-PARTY-NOTICES.md':
+                found['LICENSES/THIRD-PARTY-NOTICES.md'] = path.read_bytes()
+            else:
+                found[f'LICENSES/{path.name}'] = path.read_bytes()
+        return found
+
+    def _problems(self, dist, binary=pathlib.Path('/x/heicreader')):
+        with mock.patch.object(licences.metadata, 'distribution', return_value=dist), \
+                mock.patch.object(licences, 'helper_binary', return_value=binary):
+            return licences.problems()
+
+    def test_the_pinned_version_with_the_same_licences_passes(self):
+        dist = self._dist(licences.pinned_version(), self._matching_licences())
+        self.assertEqual(self._problems(dist), [])
 
     def test_another_version_is_refused(self):
-        same = (LICENSES / licences.BUNDLED_LIST).read_text(encoding='utf-8')
-        with mock.patch.object(licences.metadata, 'distribution',
-                               return_value=self._distribution('0.0.1', same)):
-            found = licences.problems()
+        found = self._problems(self._dist('0.0.1', self._matching_licences()))
         self.assertEqual(len(found), 1)
         self.assertIn('0.0.1 is installed', found[0])
+
+    def test_a_changed_licence_text_is_refused(self):
+        files = self._matching_licences()
+        files['LICENSES/go-LICENSE.txt'] = b'something else'
+        found = self._problems(self._dist(licences.pinned_version(), files))
+        self.assertEqual(len(found), 1)
+        self.assertIn('go-LICENSE.txt differs', found[0])
+
+    def test_no_helper_for_the_platform_is_refused(self):
+        dist = self._dist(licences.pinned_version(), self._matching_licences())
+        self.assertIn('no helper', self._problems(dist, binary=None)[0])
+
+    def test_heicreader_not_installed_is_refused(self):
         with mock.patch.object(licences.metadata, 'distribution',
-                               return_value=self._distribution('0.0.1', same)):
+                               side_effect=licences.metadata.PackageNotFoundError('heicreader')):
+            self.assertIn('not installed', licences.problems()[0])
             with self.assertRaises(SystemExit):
                 licences.check()
-
-    def test_the_pinned_version_with_another_list_is_refused(self):
-        pinned = licences.sources()['pillow-heif']
-        with mock.patch.object(licences.metadata, 'distribution',
-                               return_value=self._distribution(pinned, 'Name: something else\n')):
-            found = licences.problems()
-        self.assertEqual(len(found), 1)
-        self.assertIn('other bundled libraries', found[0])
-
-    def test_pillow_heif_not_installed_is_refused(self):
-        with mock.patch.object(licences.metadata, 'distribution',
-                               side_effect=licences.metadata.PackageNotFoundError('pillow-heif')):
-            self.assertIn('not installed', licences.problems()[0])
-
-
-class FetchSourcesTests(unittest.TestCase):
-
-    def _sources(self, payload, sha256):
-        folder = pathlib.Path(tempfile.mkdtemp())
-        archive = folder / 'archive.tar.gz'
-        archive.write_bytes(payload)
-        listing = {'pillow-heif': '1.0', 'sources': [
-            {'name': 'x', 'version': '1', 'license': 'MIT', 'asset': 'source-x-1.tar.gz',
-             'url': archive.as_uri(), 'sha256': sha256}]}
-        return folder, listing
-
-    def test_a_matching_archive_is_kept_under_its_asset_name(self):
-        payload = b'archive bytes'
-        folder, listing = self._sources(payload, hashlib.sha256(payload).hexdigest())
-        out = folder / 'out'
-        with mock.patch.object(licences, 'sources', return_value=listing):
-            fetched = licences.fetch_sources(out)
-        self.assertEqual([p.name for p in fetched], ['source-x-1.tar.gz'])
-        self.assertEqual((out / 'source-x-1.tar.gz').read_bytes(), payload)
-
-    def test_an_archive_with_another_hash_is_refused_and_removed(self):
-        folder, listing = self._sources(b'changed upstream', '0' * 64)
-        out = folder / 'out'
-        with mock.patch.object(licences, 'sources', return_value=listing):
-            with self.assertRaises(SystemExit):
-                licences.fetch_sources(out)
-        self.assertFalse((out / 'source-x-1.tar.gz').exists())
 
 
 class ReleaseWorkflowTests(unittest.TestCase):
@@ -160,12 +181,8 @@ class ReleaseWorkflowTests(unittest.TestCase):
     def setUp(self):
         self.release = (REPO_ROOT / '.github' / 'workflows' / 'release.yml').read_text(encoding='utf-8')
 
-    def test_the_release_attaches_the_source_archives_before_the_checksums(self):
-        fetch = self.release.find('packaging/licenses.py fetch-sources release-assets')
-        sums = self.release.find('sha256sum * > SHA256SUMS.txt')
-        self.assertNotEqual(fetch, -1)
-        self.assertNotEqual(sums, -1)
-        self.assertLess(fetch, sums)
+    def test_no_source_archives_are_fetched_any_more(self):
+        self.assertNotIn('fetch-sources', self.release)
 
     def test_the_windows_zip_carries_the_licences_beside_the_executable(self):
         zips = re.findall(r'Compress-Archive -Path ([^ ]+)', self.release)

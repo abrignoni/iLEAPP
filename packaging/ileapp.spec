@@ -41,7 +41,7 @@ hiddenimports = driver.hidden_imports() + [
 a = Analysis(
     [str(driver.ENTRYPOINT)],
     pathex=[str(driver.ROOT)],
-    binaries=driver.bundle_binaries(),
+    binaries=driver.bundle_binaries() + driver.licenses.heicreader_binaries(),
     datas=driver.bundle_datas(),
     hiddenimports=hiddenimports,
     hookspath=[],

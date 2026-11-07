@@ -137,8 +137,8 @@ import tempfile
 from pathlib import Path
 
 from packaging import version
+import heicreader
 from PIL import Image, ImageDraw, ImageFont
-from pillow_heif import register_heif_opener
 
 from scripts.context import Context
 
@@ -335,9 +335,7 @@ def _convert_cpbitmap_to_png(cpbitmap_path, png_path, ios_version=''):
 
 
 def _convert_heic_to_png(heic_path, png_path):
-    register_heif_opener()
-    with Image.open(heic_path) as image:
-        image.convert('RGBA').save(png_path, 'PNG')
+    heicreader.to_pil(heic_path).convert('RGBA').save(png_path, 'PNG')
 
 
 def _conversion_dir():
@@ -469,7 +467,7 @@ def springboard_wallpaper(context):
                     media_ref = check_in_media(file_found, filename, png_path,
                                                force_type='image/png', force_extension='png')
                     status = 'Converted HEIC to PNG'
-                except (OSError, ValueError) as ex:
+                except (OSError, ValueError, heicreader.HeicReaderError) as ex:
                     logfunc(f'Failed to convert HEIC wallpaper {file_found}: {ex}')
                     status = 'Found, but HEIC conversion failed'
             else:
@@ -528,7 +526,7 @@ def posterboard_wallpaper(context):
                     media_ref = check_in_media(file_found, filename, png_path,
                                                force_type='image/png', force_extension='png')
                     status = 'Converted HEIC to PNG'
-                except (OSError, ValueError) as ex:
+                except (OSError, ValueError, heicreader.HeicReaderError) as ex:
                     logfunc(f'Failed to convert HEIC wallpaper {file_found}: {ex}')
                     status = 'Found, but HEIC conversion failed'
             else:
