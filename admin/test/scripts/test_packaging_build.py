@@ -25,6 +25,7 @@ names stubbed out, and what it passed to them inspected.
 """
 import functools
 import hashlib
+import importlib.metadata
 import importlib.util
 import os
 import pathlib
@@ -101,6 +102,19 @@ def _pyinstaller_stubs():
             'PyInstaller.utils.win32': win32, 'PyInstaller.utils.win32.versioninfo': versioninfo}
 
 
+def _pyinstaller_dist(folder):
+    """PyInstaller's distribution as the spec's licence collector reads it. The
+    runtime-contract job runs these tests without PyInstaller installed, and the collector
+    stops a build that cannot bundle PyInstaller's licence."""
+    path = pathlib.Path(folder) / 'pyinstaller-0.dist-info' / 'licenses' / 'COPYING.txt'
+    path.parent.mkdir(parents=True)
+    path.write_text('stand-in for PyInstaller\'s licence\n', encoding='utf-8')
+    return types.SimpleNamespace(
+        files=[pathlib.PurePosixPath('pyinstaller-0.dist-info/licenses/COPYING.txt')],
+        locate_file=lambda entry: pathlib.Path(folder) / str(entry),
+        metadata={'Name': 'pyinstaller'}, version='0')
+
+
 def _run_spec(platform, onefile):
     """Execute the spec as PyInstaller would on `platform`, returning the calls it made."""
     calls = []
@@ -108,7 +122,12 @@ def _run_spec(platform, onefile):
                  for kind in ('Analysis', 'PYZ', 'EXE', 'COLLECT', 'BUNDLE')}
     namespace.update(SPECPATH=str(PACKAGING), __file__=str(SPEC))
     env = {'ILEAPP_ONEFILE': '1' if onefile else '0'}
-    with mock.patch.dict(sys.modules, _pyinstaller_stubs()), \
+    real_distribution = importlib.metadata.distribution
+    with tempfile.TemporaryDirectory() as folder, \
+            mock.patch('importlib.metadata.distribution',
+                       side_effect=lambda name, stand_in=_pyinstaller_dist(folder):
+                       stand_in if name.lower() == 'pyinstaller' else real_distribution(name)), \
+            mock.patch.dict(sys.modules, _pyinstaller_stubs()), \
             mock.patch.dict('os.environ', env), \
             mock.patch.object(sys, 'platform', platform):
         exec(compile(SPEC.read_text(encoding='utf-8'), str(SPEC), 'exec'),  # pylint: disable=exec-used
