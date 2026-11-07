@@ -19,7 +19,9 @@ __artifacts_v2__ = {
                  "under those names. The Statsig and AppsFlyer values are identifiers created by "
                  "those SDKs inside this app. The OfferUp container holds no listings, no chat "
                  "messages and no meet-up details: those are fetched from the server and were not "
-                 "found stored on the device. Origin names the store a row came from.",
+                 "found stored on the device in either research container. Origin names the store a "
+                 "row came from, which is why there is no Source File column. "
+                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -30,9 +32,6 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "user-circle",
-        "sample_data": {
-            "synthetic_offerup": "synthetic fixture | OfferUp 2026.9.0 | 31 rows",
-        },
     },
     "offerup_locations": {
         "name": "OfferUp - Search and Posting Locations",
@@ -48,7 +47,10 @@ __artifacts_v2__ = {
                  "posting location row has a Used GPS column taken from the stored didUseGPS "
                  "flag; for the other rows the file does not say how the place was chosen. "
                  "Only the value current at acquisition is read. The rentals coordinates are "
-                 "stored as text and are converted to numbers.",
+                 "stored as text and are converted to numbers. Kind tells which store a row came "
+                 "from: the search and rentals locations are read from the redux store, the posting "
+                 "location from React Native storage, so there is no Source File column. "
+                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -57,9 +59,6 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map-pin",
-        "sample_data": {
-            "synthetic_offerup": "synthetic fixture | OfferUp 2026.9.0 | 3 rows",
-        },
     },
     "offerup_recent_searches": {
         "name": "OfferUp - Recent Searches",
@@ -76,16 +75,16 @@ __artifacts_v2__ = {
                  "beyond the names is not established. A value too large for the manifest is "
                  "kept by React Native in a separate file named by the MD5 of the key; that "
                  "file is read when it is present in the extraction. An entry is a suggestion "
-                 "the app held for the user, which is not proof that the user ran that search.",
+                 "the app held for the user, which is not proof that the user ran that search. "
+                 "The rows come from the one React Native storage manifest of the container, so "
+                 "there is no Source File column. "
+                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
             "com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*",
         ),
         "output_types": "standard",
         "artifact_icon": "search",
-        "sample_data": {
-            "synthetic_offerup": "synthetic fixture | OfferUp 2026.9.0 | 4 rows",
-        },
     },
     "offerup_listing_affinity": {
         "name": "OfferUp - Listing Affinity",
@@ -101,16 +100,17 @@ __artifacts_v2__ = {
                  "list of category identifiers (LAST_VIEWED_CATEGORIES). The file does not say "
                  "whether a listing was viewed, saved or contacted, and holds no listing title, "
                  "price, seller or time, so the identifiers can only be looked up on the "
-                 "service. Position is the place in the stored list.",
+                 "service. Position is the place in the stored list. The rows come from the one "
+                 "redux store file of the container, so there is no Source File column. The "
+                 "feedAffinity store was present in the 2026.9.0 container and absent in the 2026.3.0 "
+                 "one. "
+                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
         ),
         "output_types": "standard",
         "artifact_icon": "list-details",
-        "sample_data": {
-            "synthetic_offerup": "synthetic fixture | OfferUp 2026.9.0 | 6 rows",
-        },
     },
     "offerup_chat_drafts": {
         "name": "OfferUp - Chat Drafts",
@@ -126,16 +126,16 @@ __artifacts_v2__ = {
                  "established by the file. A draft is text typed and not sent at the time of the "
                  "last write; whether the app clears a draft after sending is not established, "
                  "so a row does not prove the message was never sent. Sent and received chat "
-                 "messages are not stored in the container.",
+                 "messages were not found stored in either research container. The rows come from "
+                 "the one React Native storage manifest of the container, so there is no Source "
+                 "File column. "
+                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
             "com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*",
         ),
         "output_types": "standard",
         "artifact_icon": "message-2",
-        "sample_data": {
-            "synthetic_offerup": "synthetic fixture | OfferUp 2026.9.0 | 2 rows",
-        },
     },
     "offerup_activity": {
         "name": "OfferUp - Activity and Timing",
@@ -155,7 +155,12 @@ __artifacts_v2__ = {
                  "LAST_ACCOUNT_PAGE_REFRESH timestamps is not established beyond the key name. "
                  "The realtime heartbeat is the last time the app recorded for its Ably "
                  "connection. Install times are SDK values (AppsFlyer, Facebook) and can differ "
-                 "from the App Store install time.",
+                 "from the App Store install time. Event tells which store a row came from "
+                 "(Statsig session: the Statsig store; Prompt exposure, Push permission prompt "
+                 "and Realtime heartbeat: the redux store; the install timestamps: the app "
+                 "preferences; Push registration, Prompt counter and Stored time: React Native "
+                 "storage), so there is no Source File column. "
+                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -166,9 +171,6 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "clock",
-        "sample_data": {
-            "synthetic_offerup": "synthetic fixture | OfferUp 2026.9.0 | 12 rows",
-        },
     },
     "offerup_network_cache": {
         "name": "OfferUp - Cached Network Responses",
@@ -186,15 +188,14 @@ __artifacts_v2__ = {
                  "time zone and read as UTC. A cached request records that the app made it, not "
                  "that the user saw the content. Body Keys lists the top-level JSON keys only; "
                  "bodies are not decoded, and body text is not reported. Where the payload is "
-                 "kept in a separate file (isDataOnFS) the body is not read.",
+                 "kept in a separate file (isDataOnFS) the body is not read. The rows come from "
+                 "the one Cache.db of the container, so there is no Source File column. "
+                 "Evidence base: the layouts were read from 2 research containers (OfferUp 2026.3.0 and 2026.9.0); the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Caches/com.offerup.iphone.consumer/Cache.db*",
         ),
         "output_types": "standard",
         "artifact_icon": "world-www",
-        "sample_data": {
-            "synthetic_offerup": "synthetic fixture | OfferUp 2026.9.0 | 4 rows",
-        },
     },
 }
 
@@ -393,14 +394,14 @@ def _prefs_files(files_found, containers):
 def offerup_app_state(context):
     files_found = context.get_files_found()
     containers = _offerup_containers(files_found)
-    headers = ('Item', 'Value', 'Origin', 'Source File')
+    headers = ('Item', 'Value', 'Origin')
     rows = []
     sources = set()
 
     def add(item, value, origin, path):
         if value is None or value == '':
             return
-        rows.append((item, _yes_no(value), origin, context.get_relative_path(path)))
+        rows.append((item, _yes_no(value), origin))
         sources.add(path)
 
     for path in _redux_files(files_found, containers):
@@ -490,7 +491,7 @@ def offerup_app_state(context):
     return headers, rows, '\n'.join(sorted(sources))
 
 
-def _location_row(kind, location, source, gps):
+def _location_row(kind, location, gps):
     if not isinstance(location, dict):
         return None
     name = location.get('locationName', '')
@@ -499,7 +500,7 @@ def _location_row(kind, location, source, gps):
     if name in ('', None) and lat in ('', None) and lon in ('', None):
         return None
     return (kind, name, location.get('city', ''), location.get('adminArea', location.get('state', '')),
-            location.get('zipcode', ''), lat, lon, _yes_no(gps) if gps is not None else '', source)
+            location.get('zipcode', ''), lat, lon, _yes_no(gps) if gps is not None else '')
 
 
 @artifact_processor
@@ -507,20 +508,19 @@ def offerup_locations(context):
     files_found = context.get_files_found()
     containers = _offerup_containers(files_found)
     headers = ('Kind', 'Place', 'City', 'State', 'Zip', ('Latitude', 'latitude'),
-               ('Longitude', 'longitude'), 'Used GPS', 'Source File')
+               ('Longitude', 'longitude'), 'Used GPS')
     rows = []
     sources = set()
 
     for path in _redux_files(files_found, containers):
         state = _redux_state(path)
-        source = context.get_relative_path(path)
-        row = _location_row('Search location', state.get('search', {}).get('location'), source, None)
+        row = _location_row('Search location', state.get('search', {}).get('location'), None)
         if row:
             rows.append(row)
             sources.add(path)
         rentals = state.get('root', {}).get('rentals')
         if isinstance(rentals, dict):
-            row = _location_row('Rentals search location', rentals.get('rentalsSearchLocation'), source, None)
+            row = _location_row('Rentals search location', rentals.get('rentalsSearchLocation'), None)
             if row:
                 rows.append(row)
                 sources.add(path)
@@ -531,7 +531,7 @@ def offerup_locations(context):
         if isinstance(flow, dict):
             location = flow.get('location')
             gps = location.get('didUseGPS') if isinstance(location, dict) else None
-            row = _location_row('Posting location', location, context.get_relative_path(path), gps)
+            row = _location_row('Posting location', location, gps)
             if row:
                 rows.append(row)
                 sources.add(path)
@@ -546,7 +546,7 @@ def offerup_recent_searches(context):
     files_found = context.get_files_found()
     containers = _offerup_containers(files_found)
     headers = ('Kind', ('Position', 'number'), 'Label', 'Sub Label', 'Type', 'Preposition',
-               'Action Path', 'Source File')
+               'Action Path')
     rows = []
     sources = set()
 
@@ -562,7 +562,7 @@ def offerup_recent_searches(context):
                     continue
                 rows.append((kind, position, entry.get('label', ''), entry.get('subLabel') or '',
                              entry.get('type', ''), entry.get('preposition') or '',
-                             entry.get('actionPath', ''), context.get_relative_path(path)))
+                             entry.get('actionPath', '')))
                 sources.add(path)
 
     if not rows:
@@ -574,25 +574,24 @@ def offerup_recent_searches(context):
 def offerup_listing_affinity(context):
     files_found = context.get_files_found()
     containers = _offerup_containers(files_found)
-    headers = ('Kind', ('Position', 'number'), 'Listing ID', 'Category ID', 'Source File')
+    headers = ('Kind', ('Position', 'number'), 'Listing ID', 'Category ID')
     rows = []
     sources = set()
 
     for path in _redux_files(files_found, containers):
         store = _redux_state(path).get('feedAffinity', {})
-        source = context.get_relative_path(path)
         listings = store.get('listingAffinities')
         if isinstance(listings, list):
             for position, entry in enumerate(listings, start=1):
                 if isinstance(entry, dict):
                     rows.append(('Listing affinity', position, str(entry.get('listingId', '')),
-                                 str(entry.get('categoryId', '')), source))
+                                 str(entry.get('categoryId', ''))))
                     sources.add(path)
         formatted = store.get('formattedAffinities')
         last = formatted.get('LAST_VIEWED_CATEGORIES') if isinstance(formatted, dict) else None
         if isinstance(last, str) and last:
             for position, category in enumerate(last.split(','), start=1):
-                rows.append(('Last viewed category', position, '', category.strip(), source))
+                rows.append(('Last viewed category', position, '', category.strip()))
                 sources.add(path)
 
     if not rows:
@@ -604,7 +603,7 @@ def offerup_listing_affinity(context):
 def offerup_chat_drafts(context):
     files_found = context.get_files_found()
     containers = _offerup_containers(files_found)
-    headers = ('Conversation ID', 'Draft', ('Length', 'number'), 'Source File')
+    headers = ('Conversation ID', 'Draft', ('Length', 'number'))
     rows = []
     sources = set()
 
@@ -614,7 +613,7 @@ def offerup_chat_drafts(context):
             continue
         for conversation, text in drafts.items():
             text = text if isinstance(text, str) else json.dumps(text, ensure_ascii=False)
-            rows.append((str(conversation), text, len(text), context.get_relative_path(path)))
+            rows.append((str(conversation), text, len(text)))
             sources.add(path)
 
     if not rows:
@@ -622,18 +621,18 @@ def offerup_chat_drafts(context):
     return headers, rows, '\n'.join(sorted(sources))
 
 
-def _counter_row(event, source, last_success, last_attempt, runs, attempts):
+def _counter_row(event, last_success, last_attempt, runs, attempts):
     detail = f'run count {runs}' if runs not in (None, '') else ''
     if attempts not in (None, ''):
         detail += f'{"; " if detail else ""}attempted {attempts}'
-    return (_ms_time(last_success), _ms_time(last_attempt), event, detail, source)
+    return (_ms_time(last_success), _ms_time(last_attempt), event, detail)
 
 
 @artifact_processor
 def offerup_activity(context):
     files_found = context.get_files_found()
     containers = _offerup_containers(files_found)
-    headers = (('Time', 'datetime'), ('Last Update', 'datetime'), 'Event', 'Detail', 'Source File')
+    headers = (('Time', 'datetime'), ('Last Update', 'datetime'), 'Event', 'Detail')
     rows = []
     sources = set()
 
@@ -655,19 +654,17 @@ def offerup_activity(context):
             if old is None or (update or 0) >= (old[1] or 0):
                 sessions[value['sessionID']] = (start, update)
         for session_id, (start, update) in sessions.items():
-            rows.append((_ms_time(start), _ms_time(update), 'Statsig session', f'Session {session_id}',
-                         context.get_relative_path(path)))
+            rows.append((_ms_time(start), _ms_time(update), 'Statsig session', f'Session {session_id}'))
             sources.add(path)
 
     for path in _redux_files(files_found, containers):
         state = _redux_state(path)
-        source = context.get_relative_path(path)
         root = state.get('root', {})
         exposures = root.get('exposureTracking')
         if isinstance(exposures, dict) and isinstance(exposures.get('exposures'), dict):
             for name, item in exposures['exposures'].items():
                 if isinstance(item, dict):
-                    rows.append(_counter_row(f'Prompt exposure: {name}', source,
+                    rows.append(_counter_row(f'Prompt exposure: {name}',
                                              item.get('lastSuccessfulExposureTimestamp'),
                                              item.get('lastAttemptedExposureTimestamp'),
                                              item.get('exposureCount'), item.get('attemptedExposureCount')))
@@ -675,51 +672,49 @@ def offerup_activity(context):
         shown = root.get('pushNotificationPermissions')
         if isinstance(shown, dict) and shown.get('lastShown'):
             rows.append((_ms_time(shown.get('lastShown')), '', 'Push permission prompt shown',
-                         f"shown {shown.get('numberOfTimesShown', '')} times", source))
+                         f"shown {shown.get('numberOfTimesShown', '')} times"))
             sources.add(path)
         notifications = root.get('notifications')
         if isinstance(notifications, dict) and isinstance(notifications.get('ablyState'), dict):
             beat = notifications['ablyState'].get('lastHeartbeatTime')
             if beat:
-                rows.append((_ms_time(beat), '', 'Realtime (Ably) heartbeat', 'lastHeartbeatTime', source))
+                rows.append((_ms_time(beat), '', 'Realtime (Ably) heartbeat', 'lastHeartbeatTime'))
                 sources.add(path)
 
     for path in _prefs_files(files_found, containers):
         prefs = get_plist_file_content(path)
         if not isinstance(prefs, dict):
             continue
-        source = context.get_relative_path(path)
         stamp = prefs.get('AppsFlyerInstallTimestamp')
         if stamp:
             rows.append((convert_unix_ts_to_utc(int(float(stamp))), '', 'AppsFlyer install timestamp',
-                         'AppsFlyerInstallTimestamp', source))
+                         'AppsFlyerInstallTimestamp'))
             sources.add(path)
         installed = prefs.get('com.facebook.sdk:FBSDKSettingsInstallTimestamp')
         if isinstance(installed, datetime.datetime):
             rows.append((convert_plist_date_to_utc(installed), '', 'Facebook SDK install timestamp',
-                         'FBSDKSettingsInstallTimestamp', source))
+                         'FBSDKSettingsInstallTimestamp'))
             sources.add(path)
 
     for path in _manifests(files_found, containers):
         manifest = _manifest(path)
-        source = context.get_relative_path(path)
         for key in manifest:
             match = ACCOUNT_KEY_RE.match(key)
             if match and match.group(2) == 'LAST_REGISTERED_AT':
                 value = _load_json(manifest[key])
-                rows.append((_ms_time(value), '', 'Push registration', 'LAST_REGISTERED_AT', source))
+                rows.append((_ms_time(value), '', 'Push registration', 'LAST_REGISTERED_AT'))
                 sources.add(path)
         for key in RUNNER_KEYS:
             item = _load_json(manifest.get(key))
             if isinstance(item, dict):
-                rows.append(_counter_row(f'Prompt counter: {key}', source,
+                rows.append(_counter_row(f'Prompt counter: {key}',
                                          item.get('lastSuccessfulRunDate'), item.get('lastAttemptedRunDate'),
                                          item.get('runCount'), item.get('attemptedRunCount')))
                 sources.add(path)
         for key in MILLISECOND_TEXT_KEYS:
             if manifest.get(key):
                 rows.append((_ms_time(_load_json(manifest[key])), '', f'Stored time: {key}',
-                             'meaning not established beyond the key name', source))
+                             'meaning not established beyond the key name'))
                 sources.add(path)
 
     rows = [row for row in rows if row[0] != '' or row[1] != '']
@@ -776,7 +771,7 @@ def _status_and_mime(array):
 def offerup_network_cache(context):
     files_found = context.get_files_found()
     headers = (('Cached', 'datetime'), 'Host', 'URL', 'HTTP Status', 'MIME Type',
-               ('Body Size', 'number'), 'Body In File', 'Body Keys', 'Source File')
+               ('Body Size', 'number'), 'Body In File', 'Body Keys')
     rows = []
     sources = set()
 
@@ -796,8 +791,7 @@ def offerup_network_cache(context):
             cached = convert_ts_human_to_utc(stamp) if stamp else ''
             size = '' if on_disk else (len(body) if body is not None else '')
             keys = '' if on_disk else _body_keys(body)
-            rows.append((cached, host, url, status, mime, size, 'Yes' if on_disk else 'No', keys,
-                         context.get_relative_path(path)))
+            rows.append((cached, host, url, status, mime, size, 'Yes' if on_disk else 'No', keys))
             sources.add(path)
 
     if not rows:

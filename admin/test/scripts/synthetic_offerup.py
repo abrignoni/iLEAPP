@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Build a SYNTHETIC OfferUp (com.offerup.iphone.consumer) data container: invented values, no data from any device.
 
-The layout mirrors what the offerup artifacts read in an iOS full file system extraction:
+The layout is the one the offerup artifacts read, taken from two research containers (OfferUp 2026.3.0 and
+2026.9.0) and rebuilt here with invented values:
 
     .com.apple.mobile_container_manager.metadata.plist      names the bundle id
     Documents/mmkv/redux (+ .crc)                           redux-persist stores in an MMKV file

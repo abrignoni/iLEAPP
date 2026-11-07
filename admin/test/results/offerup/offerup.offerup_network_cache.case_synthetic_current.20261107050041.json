@@ -4,21 +4,21 @@
     "artifact_name": "OfferUp - Cached Network Responses",
     "function_name": "offerup_network_cache",
     "case_number": "case_synthetic_current",
-    "number_of_columns": 9,
+    "number_of_columns": 8,
     "number_of_rows": 4,
-    "total_data_size_bytes": 1037,
+    "total_data_size_bytes": 497,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_network_cache.case_synthetic_current.zip",
-    "start_time": "2026-11-06T17:17:47.550459+00:00",
-    "end_time": "2026-11-06T17:17:47.733252+00:00",
-    "run_time_seconds": 0.009528160095214844,
+    "start_time": "2026-11-07T05:00:41.468598+00:00",
+    "end_time": "2026-11-07T05:00:41.654527+00:00",
+    "run_time_seconds": 0.0032057762145996094,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:17:47.704909",
-      "message": "File not yet committed to git"
+      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:31-05:00",
+      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
     }
   },
   "headers": [
@@ -29,8 +29,7 @@
     "MIME Type",
     "Body Size",
     "Body In File",
-    "Body Keys",
-    "Source File"
+    "Body Keys"
   ],
   "data": [
     [
@@ -41,8 +40,7 @@
       "application/json",
       86,
       "No",
-      "action, connectionId, connectionDetails",
-      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
+      "action, connectionId, connectionDetails"
     ],
     [
       1789984809,
@@ -52,8 +50,7 @@
       "application/json",
       32,
       "No",
-      "statusCode, response",
-      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
+      "statusCode, response"
     ],
     [
       1789984820,
@@ -63,8 +60,7 @@
       "image/png",
       6,
       "No",
-      "",
-      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
+      ""
     ],
     [
       1789984830,
@@ -74,8 +70,7 @@
       "application/json",
       "",
       "Yes",
-      "",
-      "private/var/mobile/Containers/Data/Application/1C373BA9-528C-59F6-9531-AA4328E83299/Library/Caches/com.offerup.iphone.consumer/Cache.db"
+      ""
     ]
   ]
 }

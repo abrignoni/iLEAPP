@@ -4,29 +4,28 @@
     "artifact_name": "OfferUp - Listing Affinity",
     "function_name": "offerup_listing_affinity",
     "case_number": "case_synthetic_earlier",
-    "number_of_columns": 5,
+    "number_of_columns": 4,
     "number_of_rows": 0,
     "total_data_size_bytes": 0,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_listing_affinity.case_synthetic_earlier.zip",
-    "start_time": "2026-11-06T17:17:48.392117+00:00",
-    "end_time": "2026-11-06T17:17:48.609596+00:00",
-    "run_time_seconds": 0.004628419876098633,
+    "start_time": "2026-11-07T05:00:42.233359+00:00",
+    "end_time": "2026-11-07T05:00:42.402072+00:00",
+    "run_time_seconds": 0.005683183670043945,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:17:48.567181",
-      "message": "File not yet committed to git"
+      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:25:31-05:00",
+      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
     }
   },
   "headers": [
     "Kind",
     "Position",
     "Listing ID",
-    "Category ID",
-    "Source File"
+    "Category ID"
   ],
   "data": []
 }
