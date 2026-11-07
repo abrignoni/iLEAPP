@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "and the media file.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Photos",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
@@ -81,7 +81,6 @@ __artifacts_v2__ = {
     }
 }
 
-import io
 import os
 import sqlite3
 from datetime import datetime, timedelta
@@ -89,7 +88,7 @@ from datetime import datetime, timedelta
 from PIL import Image
 from pillow_heif import register_heif_opener
 
-from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, check_in_media,
+from scripts.ilapfuncs import (artifact_processor, check_in_media,
                                does_column_exist_in_db, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
 
@@ -118,10 +117,6 @@ _EXIF_TAG_NAMES = {
 
 def _is_exif_image_path(path):
     return str(path).upper().endswith(_IMAGE_EXTENSIONS)
-
-
-def _is_heic_path(path):
-    return str(path).upper().endswith(('.HEIC', '.HEIF'))
 
 
 def _resolved_path_matches(resolved_path, zdirectory, zfilename):
@@ -465,19 +460,8 @@ def photosDbexif(context):
                 skipped_no_exif += 1
                 continue
 
-            thumb = ''
-            searchbase = os.path.basename(media_path)
-            if _is_heic_path(media_path):
-                try:
-                    with io.BytesIO() as buf:
-                        Image.open(media_path).save(buf, format='JPEG')
-                        thumb = check_in_embedded_media(
-                            media_path, buf.getvalue(), f'{searchbase}.jpg',
-                            force_type='image/jpeg', force_extension='jpg')
-                except _EXIF_ERRORS as ex:
-                    logfunc(f'Error converting HEIC thumbnail on {media_path}: {ex}')
-            else:
-                thumb = check_in_media(media_path)
+            # check_in_media attaches a HEIC as a JPEG copy the report can show.
+            thumb = check_in_media(media_path) or ''
 
             db_modify_lag, db_modify_drift = _db_modify_metrics(zdatecreated, zmodificationdate)
             primary_file_dt = _primary_file_datetime(file_datetime, file_datetime_original)

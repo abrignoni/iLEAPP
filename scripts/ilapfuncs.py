@@ -438,11 +438,11 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
             else:
                 media_item.updated_at = 0
 
-        # A HEIC or HEIF image is attached as a JPEG copy (PNG when it has transparency) so
-        # the report can show it. The
-        # original stays in the evidence copy, and the media's source path still names it.
-        # A caller that passed its own converted file, or forced a type other than HEIC or
-        # HEIF, is left as it asked.
+        # An image sniffed as image/heic, or forced by the caller as image/heic or image/heif,
+        # is attached as a JPEG copy (PNG when it has transparency) so the report can show it.
+        # The original stays in the evidence copy, and the media's source path still names it.
+        # A caller that passed its own converted file, or forced another type, is left as it
+        # asked.
         converted_data = None
         if not converted_file_path and media_item.mimetype in _HEIC_MIME_TYPES:
             converted = _heic_to_viewable(media_data if is_embedded else str(file_to_copy))
