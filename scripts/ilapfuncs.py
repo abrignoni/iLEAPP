@@ -340,7 +340,8 @@ def _resolve_media_source(source_path):
         return extraction_path, file_info, file_info.source_path
     return extraction_path, None, Context.get_relative_path(source_path)
 
-# LAVA shows a media item of type image/heic as "This file could not be shown".
+# LAVA 2026.1.0 and 2026.1.1 show a media item of type image/heic as "This file could not be
+# shown" (media.cannot_display in RenderMedia.jsx): its viewer cannot decode HEIC.
 _HEIC_MIME_TYPES = ('image/heic', 'image/heif')
 _heic_unavailable_logged = False
 

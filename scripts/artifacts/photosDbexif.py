@@ -6,23 +6,22 @@ __artifacts_v2__ = {
                        "and the media file.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-07",
         "requirements": "none",
         "category": "Photos",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
                  "Scott Koenig's query, "
                  "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS15/Previous_Queries/iOS15_LPL_Phsql_Locations.txt#L257-L260) "
                  "and to file names ending in HEIC, HEIF, JPG, JPEG or PNG. Only assets with a "
-                 "matching on-disk image file and readable EXIF are output. The number of assets "
+                 "matching on-disk image file and at least one EXIF tag in the main image IFD are output. The number of assets "
                  "skipped for each reason is written to the run log, not to the table. Search "
                  "patterns cover files in DCIM and PhotoCloudSharingData whose names end in .HEIC, "
-                 ".HEIF, .JPG, .JPEG or .PNG in any ASCII letter case. This extends only extension "
-                 "discovery; directory and basename matching behavior is unchanged. Original contribution "
+                 ".HEIF, .JPG, .JPEG or .PNG in any ASCII letter case. Original contribution "
                  "credited to @abrignoni. DB Created is ZDATECREATED and DB Modified is "
                  "ZMODIFICATIONDATE from the asset table, read as seconds from 2001-01-01 and "
                  "shown in UTC. What event sets each value is not established here; ZADDEDDATE is "
-                 "not read. File DateTime and File DateTimeOriginal are EXIF tags 306 and 36867 "
-                 "from the media file; Cache DateTime is ZEXIFTIMESTAMPSTRING from Photos.sqlite. "
+                 "not read. File DateTime is EXIF tag 306 from the main image IFD and File DateTimeOriginal "
+                 "is tag 36867 from the Exif sub-IFD of the media file; Cache DateTime is ZEXIFTIMESTAMPSTRING from Photos.sqlite. "
                  "All three are strings with no time zone recorded and are reported as stored. "
                  "EXIF offset tags 36880 to 36882 are not read. The comparisons use wall-clock "
                  "readings and do not establish a zone for any given file. DB Modify Lag is the interval "
@@ -318,10 +317,10 @@ def _gps_from_ifd(gps_ifd):
 
 
 def _read_file_exif(path):
-    """Read EXIF once: timestamps, GPS, and a formatted tag dump.
+    """Read EXIF once: timestamps, GPS, and a formatted tag dump of the main image IFD.
 
     A HEIC or HEIF file's Exif block is read with heicreader, as stored: its Orientation is
-    the value in the file.
+    the value in the file. DateTimeOriginal lives in the Exif sub-IFD, not the main one.
     """
     if str(path).upper().endswith(('.HEIC', '.HEIF')):
         exif = Image.Exif()
@@ -343,6 +342,10 @@ def _read_file_exif(path):
             file_datetime = str(value)
         elif tag_id == 36867:
             file_datetime_original = str(value)
+
+    exif_ifd = exif.get_ifd(0x8769)
+    if not file_datetime_original and 36867 in exif_ifd:
+        file_datetime_original = str(exif_ifd[36867])
 
     file_lat, file_lon = _gps_from_ifd(exif.get_ifd(0x8825))
     return file_datetime, file_datetime_original, file_lat, file_lon, '\n'.join(tag_lines)

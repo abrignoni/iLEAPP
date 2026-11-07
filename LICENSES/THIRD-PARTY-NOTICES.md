@@ -20,8 +20,9 @@ from the code below; heicreader-THIRD-PARTY-NOTICES.md is its own list of it.
 | OxideAV/oxideav-h265, which that decoder was ported from | MIT | oxideav-h265-LICENSE.txt |
 | The Go runtime and standard library, compiled into the helper | BSD-3-Clause | go-LICENSE.txt |
 
-All of these are permissive licences. The build refuses to package a GPL video codec (x264,
-x265 and the like), so one cannot arrive through another dependency.
+All of these are permissive licences. The build also refuses to package any file whose name
+contains x264, x265, xvid, rubberband, vidstab or frei0r. Those are GPL video codecs; x265 is
+the one pillow-heif, the HEIC reader used before heicreader, bundled.
 
-HEVC is covered by patents held by several patent pools and by companies outside them. These
-licences cover copyright only and give no rights under those patents.
+HEVC is subject to patents. These licence texts do not mention patents, and this notice does
+not address them.

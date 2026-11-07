@@ -8,8 +8,8 @@ LICENSES/ holds those texts and THIRD-PARTY-NOTICES.md, and ships inside every b
 
 heicreader's version is pinned by the wheel URLs in requirements.txt. A build refuses to run
 when the installed heicreader is another version, when its licence texts differ from the
-copies in LICENSES/, or when a GPL video codec (x264, x265 and the like) would be bundled:
-pillow-heif once brought x265 in that way. This file is the same in all five LEAPP cores.
+copies in LICENSES/, or when a file named like a GPL video codec (GPL_CODECS below) would be
+bundled: pillow-heif once brought x265 in that way. This file is the same in all five LEAPP cores.
 """
 
 from __future__ import annotations

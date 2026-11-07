@@ -2,7 +2,8 @@
 
 An image with transparency is attached as a PNG instead, since JPEG cannot hold it.
 
-LAVA shows a media item of type image/heic as "This file could not be shown". The images are
+LAVA 2026.1.0 and 2026.1.1 show a media item of type image/heic as "This file could not be
+shown" (media.cannot_display in RenderMedia.jsx). The images are
 decoded with heicreader. The fixtures in admin/test/fixtures/heic are synthetic (see the
 README there): plain.heic is 200x120 with a red block at x 10-59, y 10-29, and grid_alpha.heic
 is 1100x700 with its alpha stored as a grid of its own, transparent outside an ellipse.

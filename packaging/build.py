@@ -359,7 +359,7 @@ def build_exe(onefile: bool, clean_first: bool) -> Path:
         assert_artifact(DIST / APP / EXE, "one-folder executable")
     out = output(onefile)
     assert_artifact(out, "executable")
-    # The program is MIT: refuse to ship a GPL video codec, whatever brought it in.
+    # The program is MIT: refuse to ship a file named like a GPL video codec, whatever brought it in.
     if onefile:
         licenses.refuse_gpl_codecs(_onefile_members(out))
     else:
