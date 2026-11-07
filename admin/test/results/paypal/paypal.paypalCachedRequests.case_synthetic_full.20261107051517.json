@@ -4,21 +4,21 @@
     "artifact_name": "PayPal - Cached Network Requests",
     "function_name": "paypalCachedRequests",
     "case_number": "case_synthetic_full",
-    "number_of_columns": 8,
+    "number_of_columns": 7,
     "number_of_rows": 5,
-    "total_data_size_bytes": 995,
+    "total_data_size_bytes": 335,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalCachedRequests.case_synthetic_full.zip",
-    "start_time": "2026-11-06T17:38:58.611970+00:00",
-    "end_time": "2026-11-06T17:38:58.836886+00:00",
-    "run_time_seconds": 0.004865407943725586,
+    "start_time": "2026-11-07T05:15:17.121839+00:00",
+    "end_time": "2026-11-07T05:15:17.262269+00:00",
+    "run_time_seconds": 0.0045528411865234375,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:38:58.811621",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [
@@ -28,8 +28,7 @@
     "Beacon t (Unix seconds)",
     "Beacon i (as stored)",
     "Beacon p (as stored)",
-    "Beacon a (as stored)",
-    "Source File"
+    "Beacon a (as stored)"
   ],
   "data": [
     [
@@ -39,8 +38,7 @@
       1778328000,
       "192.0.2.10",
       "SYNTHPAGEID000000000000000000A1",
-      "10",
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.yourcompany.PPClient/Cache.db"
+      "10"
     ],
     [
       1778328061,
@@ -49,8 +47,7 @@
       1778328061,
       "10.0.0.7",
       "SYNTHPAGEID000000000000000000A2",
-      "10",
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.yourcompany.PPClient/Cache.db"
+      "10"
     ],
     [
       1778328090,
@@ -59,8 +56,7 @@
       "",
       "",
       "",
-      "",
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.yourcompany.PPClient/Cache.db"
+      ""
     ],
     [
       1778328120,
@@ -69,8 +65,7 @@
       "",
       "",
       "",
-      "",
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.yourcompany.PPClient/Cache.db"
+      ""
     ],
     [
       1778328150,
@@ -79,8 +74,7 @@
       "",
       "",
       "",
-      "",
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.yourcompany.PPClient/Cache.db"
+      ""
     ]
   ]
 }

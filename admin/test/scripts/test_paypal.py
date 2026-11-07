@@ -17,7 +17,7 @@ SPEC.loader.exec_module(SYNTH)
 
 ARTIFACTS = (module.paypalRememberedAccount, module.paypalAccountKeys, module.paypalDatedKeys,
              module.paypalAppSettings, module.paypalSecuritySdkStarts, module.paypalCachedRequests,
-             module.paypalAnalyticsEvents, module.paypalMparticleSessions, module.paypalDebitTransactions)
+             module.paypalAnalyticsEvents, module.paypalMparticleSessions)
 
 
 def _files(folder):
@@ -64,14 +64,12 @@ class PayPalTest(unittest.TestCase):
         cache = self._path(f'{SYNTH.DATA_ROOT}/Library/Caches/{SYNTH.BUNDLE}/Cache.db')
         events = self._path(f'{SYNTH.DATA_ROOT}/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db')
         mparticle = self._path(f'{SYNTH.DATA_ROOT}/Documents/mParticle28.db')
-        store = self._path(f'{SYNTH.GROUP_ROOT}/Library/Application Support/default.store')
         log = Path(self._path(f'{SYNTH.DATA_ROOT}/Library/Application Support/Thales-v2/slog-TSH-48bbb8-01.log'))
         expected = {
             module.paypalRememberedAccount: 1,
             module.paypalCachedRequests: _count(cache, 'SELECT COUNT(*) FROM cfurl_cache_response'),
             module.paypalAnalyticsEvents: _count(events, 'SELECT COUNT(*) FROM events'),
             module.paypalMparticleSessions: _count(mparticle, 'SELECT COUNT(*) FROM sessions'),
-            module.paypalDebitTransactions: _count(store, 'SELECT COUNT(*) FROM ZTRANSACTIONENTRY'),
             module.paypalSecuritySdkStarts: sum(' SDKV ' in line for line in log.read_text(encoding='utf-8').splitlines()),
         }
         for function, count in expected.items():
@@ -83,8 +81,7 @@ class PayPalTest(unittest.TestCase):
         files = self._tree('full')
         decoy = [name for name in files if SYNTH.DECOY_UUID in name]
         self.assertTrue(decoy)
-        for function in (module.paypalSecuritySdkStarts, module.paypalMparticleSessions,
-                         module.paypalDebitTransactions):
+        for function in (module.paypalSecuritySdkStarts, module.paypalMparticleSessions):
             with self.subTest(function.__name__):
                 _, rows, source = _run(function, files)
                 self.assertTrue(rows)
@@ -92,12 +89,10 @@ class PayPalTest(unittest.TestCase):
         # the decoy holds the same rows again, so reading it would double the counts
         self.assertEqual(len(_rows(module.paypalSecuritySdkStarts, files)), 3)
         self.assertEqual(len(_rows(module.paypalMparticleSessions, files)), 3)
-        self.assertEqual(len(_rows(module.paypalDebitTransactions, files)), 2)
 
     def test_third_party_names_need_the_container_marker(self):
         files = [name for name in self._tree('full') if not name.endswith(module.MARKER)]
-        for function in (module.paypalSecuritySdkStarts, module.paypalMparticleSessions,
-                         module.paypalDebitTransactions):
+        for function in (module.paypalSecuritySdkStarts, module.paypalMparticleSessions):
             with self.subTest(function.__name__):
                 self.assertEqual(_rows(function, files), [])
 
@@ -167,19 +162,10 @@ class PayPalTest(unittest.TestCase):
         self.assertEqual(bad[1:18], ('',) * 17)
         self.assertEqual((first[18], first[19]), (-1, 0))
 
-    def test_transaction_dates_and_blank_values(self):
-        rows = _rows(module.paypalDebitTransactions, self._tree('full'))
-        blank, dated = rows                          # null date sorts first
-        self.assertEqual(blank[0], '')
-        self.assertEqual(blank[1], '')
-        self.assertEqual(blank[2], 3.0)
-        self.assertEqual(dated[1], SYNTH.CORE_DATA_EPOCH + 100)
-        self.assertEqual(int(dated[0].timestamp()), SYNTH.UNIX_EPOCH + 100)
-
     def test_empty_stores_give_no_rows_but_keep_the_account(self):
         files = self._tree('empty')
         for function in (module.paypalCachedRequests, module.paypalAnalyticsEvents, module.paypalMparticleSessions,
-                         module.paypalDebitTransactions, module.paypalAccountKeys):
+                         module.paypalAccountKeys):
             with self.subTest(function.__name__):
                 self.assertEqual(_rows(function, files), [])
         self.assertEqual(len(_rows(module.paypalRememberedAccount, files)), 1)
@@ -198,7 +184,7 @@ class PayPalTest(unittest.TestCase):
     def test_unreadable_plist_and_database_are_skipped(self):
         files = self._tree('full')
         for name in files:
-            if name.endswith(('.plist', 'Cache.db', 'lighthouseanalytics.db', 'default.store')) \
+            if name.endswith(('.plist', 'Cache.db', 'lighthouseanalytics.db')) \
                     and not name.endswith(module.MARKER):
                 Path(name).write_bytes(b'not a database or a plist')
         for function in ARTIFACTS:

@@ -4,21 +4,21 @@
     "artifact_name": "PayPal - Remembered Account",
     "function_name": "paypalRememberedAccount",
     "case_number": "case_synthetic_full",
-    "number_of_columns": 10,
+    "number_of_columns": 9,
     "number_of_rows": 1,
-    "total_data_size_bytes": 277,
+    "total_data_size_bytes": 138,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalRememberedAccount.case_synthetic_full.zip",
-    "start_time": "2026-11-06T17:38:57.512223+00:00",
-    "end_time": "2026-11-06T17:38:57.717452+00:00",
-    "run_time_seconds": 0.013197183609008789,
+    "start_time": "2026-11-07T05:15:16.244100+00:00",
+    "end_time": "2026-11-07T05:15:16.407112+00:00",
+    "run_time_seconds": 0.007917165756225586,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:38:57.683530",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [
@@ -30,8 +30,7 @@
     "Account Type (as stored)",
     "Country Code",
     "Photo URL",
-    "Phone-Password Login Flag",
-    "Source File"
+    "Phone-Password Login Flag"
   ],
   "data": [
     [
@@ -43,8 +42,7 @@
       1,
       "US",
       "https://img.example.invalid/synthetic/profile.png",
-      "",
-      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+      ""
     ]
   ]
 }

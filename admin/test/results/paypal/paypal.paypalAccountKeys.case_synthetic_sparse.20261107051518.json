@@ -4,28 +4,27 @@
     "artifact_name": "PayPal - Per-Account Preference Keys",
     "function_name": "paypalAccountKeys",
     "case_number": "case_synthetic_sparse",
-    "number_of_columns": 4,
+    "number_of_columns": 3,
     "number_of_rows": 0,
     "total_data_size_bytes": 0,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalAccountKeys.case_synthetic_sparse.zip",
-    "start_time": "2026-11-06T17:39:02.010323+00:00",
-    "end_time": "2026-11-06T17:39:02.256117+00:00",
-    "run_time_seconds": 0.0023527145385742188,
+    "start_time": "2026-11-07T05:15:18.976400+00:00",
+    "end_time": "2026-11-07T05:15:19.114243+00:00",
+    "run_time_seconds": 0.0012943744659423828,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:39:02.233734",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [
     "Account Key",
     "Setting",
-    "Value",
-    "Source File"
+    "Value"
   ],
   "data": []
 }

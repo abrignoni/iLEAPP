@@ -4,21 +4,21 @@
     "artifact_name": "PayPal - Cached Network Requests",
     "function_name": "paypalCachedRequests",
     "case_number": "case_synthetic_sparse",
-    "number_of_columns": 8,
+    "number_of_columns": 7,
     "number_of_rows": 0,
     "total_data_size_bytes": 0,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalCachedRequests.case_synthetic_sparse.zip",
-    "start_time": "2026-11-06T17:39:02.948749+00:00",
-    "end_time": "2026-11-06T17:39:03.182640+00:00",
-    "run_time_seconds": 0.003289461135864258,
+    "start_time": "2026-11-07T05:15:19.580455+00:00",
+    "end_time": "2026-11-07T05:15:19.708199+00:00",
+    "run_time_seconds": 0.0021622180938720703,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:39:03.157047",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [
@@ -28,8 +28,7 @@
     "Beacon t (Unix seconds)",
     "Beacon i (as stored)",
     "Beacon p (as stored)",
-    "Beacon a (as stored)",
-    "Source File"
+    "Beacon a (as stored)"
   ],
   "data": []
 }

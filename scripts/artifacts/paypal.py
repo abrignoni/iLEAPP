@@ -1,10 +1,10 @@
 """PayPal (com.yourcompany.PPClient): the small set of stores that exist on the device.
 
-In the five full file system installs examined (app versions 8.98 to 8.107), no readable local store
+In the five research containers examined (app versions 8.98.0 to 8.107.2), no readable local store
 held a transaction history, contact list, balance or session token. What was readable is
 account-identity preferences, dated preference keys, a security SDK log, a network cache of
 telemetry requests, a queue of unsent analytics events and, in one install, an analytics SDK
-session table. Absence from these installs is not shown to hold for every app version.
+session table. Absence from these containers is not shown to hold for every app version.
 The Notes of each artifact say which store it reads and what it does not cover.
 """
 
@@ -19,25 +19,18 @@ __artifacts_v2__ = {
         "category": "PayPal",
         "notes": "Read from the RememberedUserV1 key of group.com.yourcompany.PPClient.plist, a keyed "
                  "archive. Each field is shown as stored; Account Type is the stored integer and its "
-                 "meaning is not established. Fields absent from an archive are blank: in the tested "
-                 "samples the photo URL and the phone-password flag were each present in only some of "
+                 "meaning is not established. Fields absent from an archive are blank: in the research "
+                 "containers the photo URL and the phone-password flag were each present in only some of "
                  "them. Phone-Password Login Flag is blank when the archive has no phonePasswordLoginAccount "
                  "entry: it was present in 1 of the 4 archives found, so the column is empty on most "
                  "rows. The presence of the key does not show that anyone signed in, or when. No "
                  "transaction, balance or contact record was found in this file or in any other "
-                 "readable store of the five installs examined. "
+                 "readable store of the five research containers examined. "
                  "Account Info (Documents/com.paypal.ios.AccountInfo) is a high-entropy blob (7.88 to "
-                 "7.94 bits per byte) in the 4 tested installs that had it and is not decoded.",
+                 "7.94 bits per byte) in the 4 research containers that had it and is not decoded. The rows come from the one app-group preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist",),
         "output_types": "standard",
         "artifact_icon": "user",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 1 row",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 1 row",
-            "lab_ffs_ios26_2": "iOS 26.2 | 1 row",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 1 row",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 0 rows, no RememberedUserV1 key (the group preferences hold a logout key)",
-        },
     },
     "paypalAccountKeys": {
         "name": "PayPal - Per-Account Preference Keys",
@@ -54,17 +47,10 @@ __artifacts_v2__ = {
                  "used. The push notification key stores one value per notification channel, "
                  "shown as one row each. Account Key and Value held one value on every row of the install "
                  "that had a single account key (every stored channel value was true); that is the data, "
-                 "not a derivation that did not run.",
+                 "not a derivation that did not run. The rows come from the one app preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",),
         "output_types": "standard",
         "artifact_icon": "users",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 2 rows",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 8 rows",
-            "lab_ffs_ios26_2": "iOS 26.2 | 1 row",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 0 rows",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 9 rows",
-        },
     },
     "paypalDatedKeys": {
         "name": "PayPal - Dated Preference Keys",
@@ -78,20 +64,13 @@ __artifacts_v2__ = {
                  "group.com.yourcompany.PPClient.plist, shown as stored (a plist date is UTC). The key "
                  "name is shown unchanged; the event each date records is not established by this "
                  "artifact. A preference key holds one value, so each date is the latest write to that "
-                 "key, not a history. KronosStableTime.Timestamp is read as Unix seconds: in two tested "
-                 "samples it fell within minutes of the last entry of the Thales SDK log of the same "
-                 "container, which is an observation, not a documented meaning.",
+                 "key, not a history. KronosStableTime.Timestamp is read as Unix seconds: in two of the "
+                 "research containers it fell within minutes of the last entry of the Thales SDK log of the same "
+                 "container, which is an observation, not a documented meaning. Source File is kept because the keys can come from the app preferences or the app-group preferences, and no other column says which. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
                   "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"),
         "output_types": "standard",
         "artifact_icon": "clock",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 9 rows",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 13 rows",
-            "lab_ffs_ios26_2": "iOS 26.2 | 6 rows",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 7 rows",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 8 rows",
-        },
     },
     "paypalAppSettings": {
         "name": "PayPal - App Settings and Version Markers",
@@ -107,21 +86,14 @@ __artifacts_v2__ = {
                  "install; the key carries no time, so the list is not an upgrade timeline, and a "
                  "version missing from it is not shown never to have run. Direct-deposit keys are "
                  "reported only as present, with whether the stored text is empty; they were empty in "
-                 "the one tested install that had them. The many remote-configuration and feature-flag keys "
+                 "the one research container that had them. The many remote-configuration and feature-flag keys "
                  "(RCSDefault-*, kElmoSavedCacheKey, isPasskey* and similar) are server supplied and "
                  "are not reported. OptInData values pn_sync_time and pn_prev_sync_at are text with no "
-                 "time zone.",
+                 "time zone. Source File is kept because the keys can come from the app preferences or the app-group preferences, and no other column says which. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",
                   "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.yourcompany.PPClient.plist"),
         "output_types": "standard",
         "artifact_icon": "settings",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 46 rows",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 62 rows",
-            "lab_ffs_ios26_2": "iOS 26.2 | 26 rows",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 26 rows",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 28 rows",
-        },
     },
     "paypalSecuritySdkStarts": {
         "name": "PayPal - Security SDK Start Records",
@@ -135,23 +107,16 @@ __artifacts_v2__ = {
                  "container whose .com.apple.mobile_container_manager.metadata.plist names "
                  "com.yourcompany.PPClient. One row per line tagged SDKV, which carries the SDK build; "
                  "the time is the UTC stamp at the start of the line. SDK Build, OS Version (log header) and Device Model (log header) held one value on every row of "
-                 "most tested logs; OS Version and Device Model come from the first line of the log and "
+                 "most of the logs seen; OS Version and Device Model come from the first line of the log and "
                  "repeat down its rows, and they are kept because that line is the only place the log "
                  "records them. The first line also holds the app name and a number whose meaning is not "
                  "established; neither is shown. This artifact does not claim that each row is an app launch. The log is a rolling file: its first entry is not the install date and a "
                  "quiet period is not shown to have had no use. Other record tags in the file "
-                 "(LPIS, LPIE, LPIC, storage) are internal SDK traces and are not reported.",
+                 "(LPIS, LPIE, LPIC, storage) are internal SDK traces and are not reported. Source File is kept because the paths pattern slog-TSH-* can match more than one rolling log file. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/Thales-v2/slog-TSH-*",
                   "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
         "artifact_icon": "shield",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 5 rows",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 89 rows",
-            "lab_ffs_ios26_2": "iOS 26.2 | 8 rows",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 4 rows",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 10 rows",
-        },
     },
     "paypalCachedRequests": {
         "name": "PayPal - Cached Network Requests",
@@ -165,24 +130,17 @@ __artifacts_v2__ = {
                  "cfurl_cache_response). Cached Time is when the response was cached. Only the host and "
                  "path are shown, never the query or any body. For the *.stats.paypal.com/counter*.cgi "
                  "requests the query fields p, i, t and a are shown as stored: t read as Unix seconds "
-                 "matched the cache time to within 2 seconds on every beacon of the tested samples, "
+                 "matched the cache time to within 2 seconds on every beacon in the research containers, "
                  "and i held a private (RFC 1918) IPv4 address on every beacon; what p and a mean is "
-                 "not established. In the tested samples the cache held telemetry, advertising "
+                 "not established. In the research containers the cache held telemetry, advertising "
                  "attribution and static-resource requests; none held a transaction, contact or "
                  "balance response. The cache is size-limited and rewritten by the system, so absence "
                  "of a request is not evidence the app did not send it. A second cache "
                  "(Library/Caches/CustomCache/Cache.db) held only two address-reference-data requests "
-                 "and is not reported.",
+                 "and is not reported. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/com.yourcompany.PPClient/Cache.db*",),
         "output_types": "standard",
         "artifact_icon": "world",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 192 rows",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 388 rows",
-            "lab_ffs_ios26_2": "iOS 26.2 | 0 rows, no Cache.db in the container",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 54 rows",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 101 rows",
-        },
     },
     "paypalAnalyticsEvents": {
         "name": "PayPal - Queued Analytics Events",
@@ -195,27 +153,20 @@ __artifacts_v2__ = {
         "notes": "Read from Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db, table "
                  "events. Event Time is event_ts read as Unix seconds. Fields come from the JSON in "
                  "event_payload, falling back to original_event; a field absent from both is blank. "
-                 "Dispatch Status and Dispatch Tries are as stored (every row of the tested samples "
+                 "Dispatch Status and Dispatch Tries are as stored (every row in the research containers "
                  "held -1 and 0) and their meaning is not established. The queue is a cache: events "
                  "appear to be removed once sent, so the rows are those still queued, not all activity. "
                  "Customer ID, Visitor ID and Session ID are identifiers as stored. Sign-in fields "
-                 "(login method, auth state) are as the app recorded them for the event. The "
-                 "tested samples held 0 rows on 2 of 4 databases. In the two databases with rows every event fell "
+                 "(login method, auth state) are as the app recorded them for the event. Four "
+                 "research containers had this database and 2 of them held 0 rows. In the two with rows every event fell "
                  "within the same second, so Event Time is constant at whole-second resolution (the stored "
                  "value keeps the fraction and the rows are ordered by it); Channel, Network Type, Wi-Fi, "
                  "UI Mode and Orientation also held one value on every row of one database, which is the "
-                 "data and not a derivation that did not run.",
+                 "data and not a derivation that did not run. The rows come from the one lighthouseanalytics.db of the container, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/com.paypal.lighthouseanalytics/"
                   "lighthouseanalytics.db*",),
         "output_types": "standard",
         "artifact_icon": "chart-line",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 0 rows",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 0 rows",
-            "lab_ffs_ios26_2": "iOS 26.2 | 0 rows, no database in the container",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 25 rows",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 5 rows",
-        },
     },
     "paypalMparticleSessions": {
         "name": "PayPal - Analytics SDK Sessions (mParticle)",
@@ -228,53 +179,13 @@ __artifacts_v2__ = {
         "notes": "Read from Documents/mParticle28.db (table sessions), accepted only in a container whose "
                  ".com.apple.mobile_container_manager.metadata.plist names com.yourcompany.PPClient. "
                  "Start, End and Length are the stored Unix seconds. Session Number was 0 on every row and is not shown. This database was present in 1 of 5 "
-                 "tested installs and its newest session was years older than the install's other "
+                 "research containers and its newest session was years older than the install's other "
                  "files, so it is a leftover of an older app version, not current use. Other tables "
-                 "(messages, consumer_info, cookies) are not reported.",
+                 "(messages, consumer_info, cookies) are not reported. Source File is kept because the paths pattern mParticle*.db can match more than one database file (the name carries a version number). Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2; iOS 18.5 to 26.2.1) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/mParticle*.db*",
                   "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
         "artifact_icon": "device-analytics",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 0 rows, no mParticle database",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 5 rows",
-            "lab_ffs_ios26_2": "iOS 26.2 | 0 rows, no mParticle database",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 0 rows, no mParticle database",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 0 rows, no mParticle database",
-        },
-    },
-    "paypalDebitTransactions": {
-        "name": "PayPal - Wallet Transaction Store",
-        "description": "Rows of the TransactionEntry table of the app-group default.store.",
-        "author": "@danjethh",
-        "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
-        "requirements": "none",
-        "category": "PayPal",
-        "notes": "Read from Library/Application Support/default.store in the app-group container "
-                 "(table ZTRANSACTIONENTRY), accepted only in a container whose "
-                 ".com.apple.mobile_container_manager.metadata.plist names group.com.yourcompany.PPClient. "
-                 "Validation boundary: the table was empty in all 5 tested installs, so this reader "
-                 "was built from the schema and exercised only on synthetic rows. The date column is "
-                 "typed TIMESTAMP and is read as Core Data seconds since 2001-01-01 UTC; that is the "
-                 "usual convention and is not confirmed for this table, so the stored value is shown "
-                 "beside it. Amount is shown as stored, with the stored display text; its scale "
-                 "is not established. The status columns (approved, cleared, declined, refunded, "
-                 "cashback, purchase, refund, unknown, withdrawal) are text columns shown as stored "
-                 "with no interpretation. An empty table is not shown to mean that no card was used. "
-                 "Sibling stores card_data.store, sync_queue.store and QRCodeOfflineCoreDataModel.sqlite "
-                 "held 0 rows of card, sync or QR data in all tested installs and are not reported.",
-        "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Application Support/default.store*",
-                  "*/mobile/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"),
-        "output_types": "standard",
-        "artifact_icon": "credit-card",
-        "sample_data": {
-            "lab_ffs_ios18_5": "iOS 18.5 | 0 rows, table present",
-            "lab_ffs_ios18_6_2_a": "iOS 18.6.2 | 0 rows, table present",
-            "lab_ffs_ios26_2": "iOS 26.2 | 0 rows, table present",
-            "lab_ffs_ios18_6_2_b": "iOS 18.6.2 | 0 rows, table present",
-            "lab_ffs_ios26_2_1": "iOS 26.2.1 | 0 rows, table present",
-        },
     },
 }
 
@@ -285,7 +196,7 @@ import re
 from urllib.parse import urlsplit, parse_qsl
 
 from scripts.ilapfuncs import (
-    artifact_processor, convert_cocoa_core_data_ts_to_utc, convert_plist_date_to_utc,
+    artifact_processor, convert_plist_date_to_utc,
     convert_unix_ts_to_utc, does_table_exist_in_db, get_plist_content, get_plist_file_content,
     get_sqlite_db_records, logfunc,
 )
@@ -307,7 +218,7 @@ def _find(files, name):
 
 def _owned_roots(files, identifier):
     """Container folders whose metadata plist names the identifier; the check that a third-party
-    file name (Thales-v2, mParticle, default.store) belongs to PayPal and not to another app."""
+    file name (Thales-v2, mParticle) belongs to PayPal and not to another app."""
     roots = set()
     for found in _find(files, MARKER):
         meta = get_plist_file_content(found)
@@ -345,8 +256,7 @@ def _rel(context, path):
 @artifact_processor
 def paypalRememberedAccount(context):
     headers = ('Display Name', 'Username', 'Primary E-mail', 'Primary Phone', 'Account Profile ID',
-               'Account Type (as stored)', 'Country Code', 'Photo URL', 'Phone-Password Login Flag',
-               'Source File')
+               'Account Type (as stored)', 'Country Code', 'Photo URL', 'Phone-Password Login Flag')
     rows = []
     source = []
     for found in context.get_files_found():
@@ -363,7 +273,7 @@ def paypalRememberedAccount(context):
                      user.get('RememberedUserPrimaryEmail', ''), user.get('RememberedUserPrimaryPhone', ''),
                      user.get('RememberedAccountProfileId', ''), user.get('RememberedAccountType', ''),
                      user.get('RememberedUserCountryCode', ''), user.get('RememberedUserPhotoURL', ''),
-                     '' if flag is None else _clean(flag), _rel(context, found)))
+                     '' if flag is None else _clean(flag)))
     return headers, rows, '\n'.join(source)
 
 
@@ -376,7 +286,7 @@ ACCOUNT_KEY_PATTERNS = (
 
 @artifact_processor
 def paypalAccountKeys(context):
-    headers = ('Account Key', 'Setting', 'Value', 'Source File')
+    headers = ('Account Key', 'Setting', 'Value')
     rows = []
     source = []
     for found in context.get_files_found():
@@ -393,9 +303,9 @@ def paypalAccountKeys(context):
                 account = match.group('k')
                 if isinstance(value, dict):
                     for name, item in sorted(value.items()):
-                        rows.append((account, f'{label}: {name}', _clean(item), _rel(context, found)))
+                        rows.append((account, f'{label}: {name}', _clean(item)))
                 else:
-                    rows.append((account, label, _clean(value), _rel(context, found)))
+                    rows.append((account, label, _clean(value)))
                 break
         if used:
             source.append(found)
@@ -533,7 +443,7 @@ def _beacon_fields(host, query):
 @artifact_processor
 def paypalCachedRequests(context):
     headers = (('Cached Time', 'datetime'), 'Host', 'Path', ('Beacon t (Unix seconds)', 'datetime'),
-               'Beacon i (as stored)', 'Beacon p (as stored)', 'Beacon a (as stored)', 'Source File')
+               'Beacon i (as stored)', 'Beacon p (as stored)', 'Beacon a (as stored)')
     rows = []
     source = []
     for found in _find(context.get_files_found(), 'Cache.db'):
@@ -551,8 +461,7 @@ def paypalCachedRequests(context):
                         tzinfo=datetime.timezone.utc)
                 except ValueError:
                     cached = stamp
-            rows.append((cached, parts.hostname or '', parts.path, *_beacon_fields(parts.hostname or '', parts.query),
-                         _rel(context, found)))
+            rows.append((cached, parts.hostname or '', parts.path, *_beacon_fields(parts.hostname or '', parts.query)))
             found_rows += 1
         if found_rows:
             source.append(found)
@@ -582,7 +491,7 @@ def paypalAnalyticsEvents(context):
     headers = (('Event Time', 'datetime'), 'Event Name', 'Page', 'Page Group', 'Event Type', 'Flow', 'Channel',
                'Network Type', 'Wi-Fi', 'UI Mode', 'Orientation', 'Device Locked', 'Login Method',
                'Auth State', 'API Response', 'Session ID', 'Customer ID', 'Visitor ID',
-               'Dispatch Status (as stored)', 'Dispatch Tries (as stored)', 'Source File')
+               'Dispatch Status (as stored)', 'Dispatch Tries (as stored)')
     rows = []
     source = []
     for found in _find(context.get_files_found(), 'lighthouseanalytics.db'):
@@ -601,8 +510,7 @@ def paypalAnalyticsEvents(context):
                          field('network_type'), field('wifi'), field('ui_mode'), field('device_orientation'),
                          field('is_device_locked'), field('login_method'), field('auth_state'),
                          field('api_response'), field('sessn_id'), field('cust_id'), field('visitor_id'),
-                         '' if status is None else status, '' if tries is None else tries,
-                         _rel(context, found)))
+                         '' if status is None else status, '' if tries is None else tries))
             found_rows += 1
         if found_rows:
             source.append(found)
@@ -636,34 +544,3 @@ def paypalMparticleSessions(context):
             source.append(found)
     return headers, rows, '\n'.join(source)
 
-
-@artifact_processor
-def paypalDebitTransactions(context):
-    headers = (('Transaction Date (read as Core Data seconds)', 'datetime'), 'Transaction Date (as stored)',
-               'Amount (as stored)', 'Display Amount', 'Currency', 'Merchant Name', 'Merchant Category Code',
-               'Merchant Postal Code', 'Card ID', 'Transaction ID', 'Approved', 'Cleared', 'Declined',
-               'Refunded', 'Cashback', 'Purchase', 'Refund', 'Unknown', 'Withdrawal', 'Source File')
-    files = context.get_files_found()
-    roots = _owned_roots(files, GROUP_ID)
-    rows = []
-    source = []
-    for found in files:
-        if os.path.basename(_norm(found)).lower() != 'default.store' or not _in_roots(found, roots):
-            continue
-        if not does_table_exist_in_db(found, 'ZTRANSACTIONENTRY'):
-            logfunc('PayPal: default.store has no ZTRANSACTIONENTRY table')
-            continue
-        query = ('SELECT ZTRANSACTIONDATE, ZAMOUNT, ZDISPLAYAMOUNT, ZCURRENCYCODE, ZMERCHANTNAME, '
-                 'ZMERCHANTCATEGORYCODE, ZMERCHANTPOSTALCODE, ZCARDID, ZID, ZAPPROVED, ZCLEARED, ZDECLINED, '
-                 'ZREFUNDED, ZCASHBACK, ZPURCHASE, ZREFUND, ZUNKNOWN, ZWITHDRAWAL '
-                 'FROM ZTRANSACTIONENTRY ORDER BY ZTRANSACTIONDATE')
-        found_rows = 0
-        for record in get_sqlite_db_records(found, query):
-            values = [_clean(item) for item in record]
-            stamp = record[0]
-            when = convert_cocoa_core_data_ts_to_utc(stamp) if isinstance(stamp, (int, float)) else ''
-            rows.append((when, values[0], *values[1:], _rel(context, found)))
-            found_rows += 1
-        if found_rows:
-            source.append(found)
-    return headers, rows, '\n'.join(source)

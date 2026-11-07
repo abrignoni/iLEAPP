@@ -3,22 +3,22 @@
     "module_name": "paypal",
     "artifact_name": "PayPal - Security SDK Start Records",
     "function_name": "paypalSecuritySdkStarts",
-    "case_number": "case_synthetic_full",
+    "case_number": "case_synthetic_empty",
     "number_of_columns": 5,
     "number_of_rows": 3,
     "total_data_size_bytes": 576,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalSecuritySdkStarts.case_synthetic_full.zip",
-    "start_time": "2026-11-06T17:38:58.368082+00:00",
-    "end_time": "2026-11-06T17:38:58.609437+00:00",
-    "run_time_seconds": 0.009900808334350586,
+    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalSecuritySdkStarts.case_synthetic_empty.zip",
+    "start_time": "2026-11-07T05:15:18.227425+00:00",
+    "end_time": "2026-11-07T05:15:18.377554+00:00",
+    "run_time_seconds": 0.0025458335876464844,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:38:58.565594",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [

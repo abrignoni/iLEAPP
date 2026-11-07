@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalSecuritySdkStarts.case_synthetic_sparse.zip",
-    "start_time": "2026-11-06T17:39:02.718231+00:00",
-    "end_time": "2026-11-06T17:39:02.945631+00:00",
-    "run_time_seconds": 0.0024194717407226562,
+    "start_time": "2026-11-07T05:15:19.425154+00:00",
+    "end_time": "2026-11-07T05:15:19.568975+00:00",
+    "run_time_seconds": 0.003467082977294922,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:39:02.918622",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [

@@ -12,7 +12,7 @@ reproducible.
     python synthetic_paypal.py sparse out.tar.gz   # stores missing or without the expected tables
 
 ``write_archive(path, variant)`` packs the two containers (and, for ``full``, a decoy container of
-another bundle id that holds a Thales log, an mParticle database and a default.store which the
+another bundle id that holds a Thales log and an mParticle database which the
 artifacts must not report) below ``private/var/mobile/Containers``.
 """
 
@@ -34,7 +34,6 @@ DECOY_UUID = '33333333-CCCC-4CCC-8CCC-000000000003'
 
 EPOCH = datetime.datetime(2026, 5, 9, 12, 0, 0)         # naive UTC, as a plist date is
 UNIX_EPOCH = int(EPOCH.replace(tzinfo=datetime.timezone.utc).timestamp())
-CORE_DATA_EPOCH = UNIX_EPOCH - 978307200
 
 DATA_ROOT = f'private/var/mobile/Containers/Data/Application/{DATA_UUID}'
 GROUP_ROOT = f'private/var/mobile/Containers/Shared/AppGroup/{GROUP_UUID}'
@@ -213,30 +212,6 @@ def mparticle_db(variant):
     return _sqlite(schema, rows)
 
 
-def default_store(variant, populated):
-    if variant == 'sparse':
-        return _sqlite(['CREATE TABLE Z_PRIMARYKEY(Z_ENT INTEGER)'])
-    schema = ['CREATE TABLE ZTRANSACTIONENTRY(Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, ZAMOUNT FLOAT, '
-              'ZTRANSACTIONDATE TIMESTAMP, ZCARDID VARCHAR, ZCURRENCYCODE VARCHAR, ZDISPLAYAMOUNT VARCHAR, ZID VARCHAR, '
-              'ZMERCHANTCATEGORYCODE VARCHAR, ZMERCHANTNAME VARCHAR, ZMERCHANTPOSTALCODE VARCHAR, ZAPPROVED VARCHAR, '
-              'ZCLEARED VARCHAR, ZDECLINED VARCHAR, ZREFUNDED VARCHAR, ZCASHBACK VARCHAR, ZPURCHASE VARCHAR, '
-              'ZREFUND VARCHAR, ZUNKNOWN VARCHAR, ZWITHDRAWAL VARCHAR)']
-    rows = []
-    if populated:
-        rows = [
-            ('INSERT INTO ZTRANSACTIONENTRY(Z_PK,Z_ENT,Z_OPT,ZAMOUNT,ZTRANSACTIONDATE,ZCARDID,ZCURRENCYCODE,ZDISPLAYAMOUNT,'
-             'ZID,ZMERCHANTCATEGORYCODE,ZMERCHANTNAME,ZMERCHANTPOSTALCODE,ZAPPROVED,ZCLEARED,ZDECLINED,ZREFUNDED,ZCASHBACK,'
-             'ZPURCHASE,ZREFUND,ZUNKNOWN,ZWITHDRAWAL) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-             (1, 1, 1, 12.5, CORE_DATA_EPOCH + 100, 'SYNTH-CARD-1', 'USD', '$12.50', 'SYNTH-TXN-1', '5999',
-              'Example Merchant One', '00000', 'true', 'false', 'false', 'false', 'false', 'true', 'false', 'false', 'false')),
-            ('INSERT INTO ZTRANSACTIONENTRY(Z_PK,Z_ENT,Z_OPT,ZAMOUNT,ZTRANSACTIONDATE,ZCARDID,ZCURRENCYCODE,ZDISPLAYAMOUNT,'
-             'ZID,ZMERCHANTCATEGORYCODE,ZMERCHANTNAME,ZMERCHANTPOSTALCODE,ZAPPROVED,ZCLEARED,ZDECLINED,ZREFUNDED,ZCASHBACK,'
-             'ZPURCHASE,ZREFUND,ZUNKNOWN,ZWITHDRAWAL) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-             (2, 1, 1, 3.0, None, 'SYNTH-CARD-1', 'USD', None, 'SYNTH-TXN-2', None, 'Example Merchant Two', None,
-              None, None, 'true', None, None, None, None, None, None)),
-        ]
-    return _sqlite(schema + ['CREATE TABLE Z_PRIMARYKEY(Z_ENT INTEGER)'], rows)
-
 
 def build_members(variant):
     """{archive path: bytes} for one variant."""
@@ -248,7 +223,6 @@ def build_members(variant):
         f'{DATA_ROOT}/Library/Application Support/Thales-v2/slog-TSH-48bbb8-01.log': thales_log(variant),
         f'{DATA_ROOT}/Library/Caches/{BUNDLE}/Cache.db': url_cache(variant),
         f'{DATA_ROOT}/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db': analytics_db(variant),
-        f'{GROUP_ROOT}/Library/Application Support/default.store': default_store(variant, variant == 'full'),
     }
     mparticle = mparticle_db(variant)
     if mparticle:
@@ -258,7 +232,6 @@ def build_members(variant):
         members[f'{DECOY_ROOT}/.com.apple.mobile_container_manager.metadata.plist'] = metadata_plist('com.example.other')
         members[f'{DECOY_ROOT}/Library/Application Support/Thales-v2/slog-TSH-aaaaaa-01.log'] = thales_log('full')
         members[f'{DECOY_ROOT}/Documents/mParticle28.db'] = mparticle_db('full')
-        members[f'{DECOY_ROOT}/Library/Application Support/default.store'] = default_store('full', True)
     return members
 
 

@@ -4,21 +4,21 @@
     "artifact_name": "PayPal - Queued Analytics Events",
     "function_name": "paypalAnalyticsEvents",
     "case_number": "case_synthetic_full",
-    "number_of_columns": 21,
+    "number_of_columns": 20,
     "number_of_rows": 3,
-    "total_data_size_bytes": 782,
+    "total_data_size_bytes": 326,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalAnalyticsEvents.case_synthetic_full.zip",
-    "start_time": "2026-11-06T17:38:58.839253+00:00",
-    "end_time": "2026-11-06T17:38:59.069494+00:00",
-    "run_time_seconds": 0.0041353702545166016,
+    "start_time": "2026-11-07T05:15:17.273332+00:00",
+    "end_time": "2026-11-07T05:15:17.418260+00:00",
+    "run_time_seconds": 0.004019498825073242,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:38:59.044770",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [
@@ -41,8 +41,7 @@
     "Customer ID",
     "Visitor ID",
     "Dispatch Status (as stored)",
-    "Dispatch Tries (as stored)",
-    "Source File"
+    "Dispatch Tries (as stored)"
   ],
   "data": [
     [
@@ -65,8 +64,7 @@
       "SYNTHCUST0001",
       "SYNTHVISITOR01",
       -1,
-      0,
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db"
+      0
     ],
     [
       1778328045,
@@ -88,8 +86,7 @@
       "",
       "",
       -1,
-      0,
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db"
+      0
     ],
     [
       1778328090,
@@ -111,8 +108,7 @@
       "",
       "",
       -1,
-      0,
-      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db"
+      0
     ]
   ]
 }

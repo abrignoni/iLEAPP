@@ -3,22 +3,22 @@
     "module_name": "paypal",
     "artifact_name": "PayPal - Queued Analytics Events",
     "function_name": "paypalAnalyticsEvents",
-    "case_number": "case_synthetic_empty",
-    "number_of_columns": 21,
+    "case_number": "case_synthetic_sparse",
+    "number_of_columns": 20,
     "number_of_rows": 0,
     "total_data_size_bytes": 0,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalAnalyticsEvents.case_synthetic_empty.zip",
-    "start_time": "2026-11-06T17:39:01.048816+00:00",
-    "end_time": "2026-11-06T17:39:01.277851+00:00",
-    "run_time_seconds": 0.0038428306579589844,
+    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalAnalyticsEvents.case_synthetic_sparse.zip",
+    "start_time": "2026-11-07T05:15:19.718124+00:00",
+    "end_time": "2026-11-07T05:15:19.872155+00:00",
+    "run_time_seconds": 0.0027489662170410156,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-06T17:39:01.252948",
-      "message": "File not yet committed to git"
+      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-06T12:41:29-05:00",
+      "message": "PayPal: reword the feature-flag count in the settings notes"
     }
   },
   "headers": [
@@ -41,8 +41,7 @@
     "Customer ID",
     "Visitor ID",
     "Dispatch Status (as stored)",
-    "Dispatch Tries (as stored)",
-    "Source File"
+    "Dispatch Tries (as stored)"
   ],
   "data": []
 }
