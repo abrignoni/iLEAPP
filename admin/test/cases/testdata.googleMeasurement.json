@@ -1,0 +1,62 @@
+{
+  "synthetic": {
+    "description": "Fabricated containers of three apps with invented identifiers: one with the events and user_attributes tables and the measurement plist, one with an older layout (events table only), one without a metadata plist so the app cannot be named, plus an app container with no Google Measurement folder (must add nothing).",
+    "maker": "@danjethh",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "google_measurement_store": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*",
+          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/com.google.gmp.measurement.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 8
+      }
+    }
+  },
+  "synthetic_minimal": {
+    "description": "Fabricated container of one app with the events table only and no measurement plist.",
+    "maker": "@danjethh",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "google_measurement_store": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*",
+          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/com.google.gmp.measurement.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2
+      }
+    }
+  },
+  "synthetic_backup": {
+    "description": "Fabricated iTunes-backup style container: the folder is named by the bundle id and there is no metadata plist.",
+    "maker": "@danjethh",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "google_measurement_store": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*",
+          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/com.google.gmp.measurement.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2
+      }
+    }
+  }
+}
