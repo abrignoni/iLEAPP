@@ -48,7 +48,7 @@ __artifacts_v2__ = {
                  "Photos.sqlite stored for it; any other photo is not attached and Photo Check names it "
                  "and why. That match is by path and size and does not prove the file's content: no "
                  "file hash is compared. A HEIC / HEIF still is attached as a JPEG copy made for the "
-                 "report, as the photosDbexif artifact does; the original file is not changed. The "
+                 "report (PNG when it has transparency); the original file is not changed. The "
                  "Photos columns are empty when Photos.sqlite is not in the extraction. "
                  "The moments are groups of photos in the library, which may not have been taken on "
                  "this device; a row does not establish that the device was at the place. Moment "
@@ -74,31 +74,17 @@ __artifacts_v2__ = {
     }
 }
 
-import io
 import os
 from datetime import datetime, timezone
 
-from PIL import Image
-from pillow_heif import register_heif_opener
-
-from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, check_in_media,
+from scripts.ilapfuncs import (artifact_processor, check_in_media,
                                does_table_exist_in_db, get_sqlite_db_records, logfunc,
                                null_absent_columns, open_sqlite_db_readonly)
 
-register_heif_opener()
-
 
 def _attach(path, name):
-    """Register one photo / video file as media. A HEIC / HEIF still is attached as a JPEG copy
-    so a browser can show it (as photosDbexif does); the original stays in the extraction."""
-    if str(path).upper().endswith(('.HEIC', '.HEIF')):
-        try:
-            with io.BytesIO() as buf, Image.open(path) as image:
-                image.save(buf, format='JPEG')
-                return check_in_embedded_media(path, buf.getvalue(), f'{name}.jpg',
-                                               force_type='image/jpeg', force_extension='jpg')
-        except (OSError, ValueError) as ex:
-            logfunc(f'Error converting {name} to JPEG for the report: {ex}')
+    """Register one photo / video file as media. check_in_media attaches a HEIC / HEIF still
+    as a JPEG copy so a browser can show it; the original stays in the extraction."""
     return check_in_media(path, name)
 
 

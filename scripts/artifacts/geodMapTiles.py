@@ -43,10 +43,7 @@ import gzip
 import struct
 import sqlite3
 import zlib
-from io import BytesIO
 
-from PIL import Image
-from pillow_heif import register_heif_opener
 from scripts.filetype import guess_mime
 from scripts.ilapfuncs import (
     artifact_processor,
@@ -137,23 +134,8 @@ def check_in_tile_image(source_file, data, name):
     if not (mime_type and mime_type.startswith('image/')):
         return None
 
-    if mime_type == 'image/heic':
-        try:
-            register_heif_opener()
-            with Image.open(BytesIO(data)) as image:
-                converted = BytesIO()
-                image.convert('RGB').save(converted, format='JPEG')
-                data = converted.getvalue()
-                mime_type = 'image/jpeg'
-                force_extension = 'jpg'
-        except (OSError, ValueError) as ex:
-            logfunc(f'Failed to convert HEIC map tile image, using original. Error was: {ex}')
-            force_extension = None
-    else:
-        force_extension = None
-
-    return check_in_embedded_media(
-        source_file, data, name, force_type=mime_type, force_extension=force_extension)
+    # check_in_embedded_media attaches a HEIC tile as a JPEG copy the report can show.
+    return check_in_embedded_media(source_file, data, name, force_type=mime_type)
 
 
 @artifact_processor
