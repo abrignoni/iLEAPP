@@ -1,0 +1,3 @@
+hexdump 3.3 ships no licence file. Its package metadata says "License: Public Domain", and
+the License section of the README.txt in its source distribution on PyPI (hexdump-3.3.zip)
+reads "Public Domain". Its README credits anatoly techtonik, George Schizas and Ian Land.

@@ -7,6 +7,13 @@ The packaged programs attached to each release also carry code from other projec
 holds the licence texts for the code that reads HEIC images, and it ships inside every packaged
 program, in a folder named LICENSES.
 
+Each packaged program also carries LICENSES/bundled/, written when it is built from the files
+the build put in it: the licence files of every Python package it holds, the licence of the
+Python it runs on, PyInstaller's licence, and the licences of the code this repository
+vendors. An index there lists them and names the packages under copyleft terms (the GNU LGPL,
+for example) with a link to their source. LICENSES/packages/ holds the texts for packages
+whose wheels ship no licence file; each says where its text came from.
+
 ## HEIC and HEIF images: heicreader
 
 Packaged programs include heicreader 0.1.0 so that HEIC images found in an extraction can be

@@ -122,6 +122,15 @@ class TestSpec(unittest.TestCase):
     def setUpClass(cls):
         cls.driver = _load_driver()
 
+    def _assert_datas_carry_the_licences(self, args):
+        # The spec appends the licences it collected (packaging/licenses.py) to a.datas.
+        datas = [arg for arg in args if isinstance(arg, list) and arg[:1] == ['<a.datas>']]
+        self.assertEqual(len(datas), 1, args)
+        added = datas[0][1:]
+        self.assertIn('LICENSES/bundled/INDEX.md', [dest for dest, _, _ in added])
+        self.assertTrue(all(dest.startswith('LICENSES/bundled/') and kind == 'DATA'
+                            for dest, _, kind in added))
+
     def test_one_executable_starts_from_the_entry_point(self):
         calls, _ = _run_spec('linux', onefile=False)
         analysis = calls['Analysis']
@@ -154,7 +163,7 @@ class TestSpec(unittest.TestCase):
         collect = calls['COLLECT']
         self.assertEqual(collect.kwargs['name'], 'iLEAPP')
         self.assertIn(['<a.binaries>'], collect.args)
-        self.assertIn(['<a.datas>'], collect.args)
+        self._assert_datas_carry_the_licences(collect.args)
         self.assertNotIn('BUNDLE', calls)
 
     def test_the_onefile_build_carries_everything_in_the_executable(self):
@@ -162,7 +171,7 @@ class TestSpec(unittest.TestCase):
             with self.subTest(platform=platform):
                 calls, _ = _run_spec(platform, onefile=True)
                 self.assertIn(['<a.binaries>'], calls['EXE'].args)
-                self.assertIn(['<a.datas>'], calls['EXE'].args)
+                self._assert_datas_carry_the_licences(calls['EXE'].args)
                 self.assertNotIn('COLLECT', calls)
                 self.assertNotIn('BUNDLE', calls)
 
