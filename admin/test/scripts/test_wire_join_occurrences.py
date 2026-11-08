@@ -5,6 +5,7 @@ import shutil
 import sqlite3
 import tempfile
 import unittest
+import uuid
 
 from scripts.artifacts import wire
 
@@ -64,7 +65,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                                   datetime.timedelta(seconds=row[0])) if row[0] else row[0],) + row[1:]
                                 for row in raw]
                     connection.close()
-                    headers, rows, source = wire.wireAccount.__wrapped__(_Context([str(path)]))
+                    headers, rows, source = wire.wireUsers.__wrapped__(_Context([str(path)]))
                     self.assertEqual(rows, expected)
                     self.assertEqual(len(rows), 6)
                     self.assertEqual(len(distinct), 3)
@@ -90,7 +91,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                 expected = connection.execute(query).fetchall()
                 old = connection.execute(query.replace('SELECT ', 'SELECT DISTINCT ', 1)).fetchall()
                 connection.close()
-                _, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
+                _, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
                 self.assertEqual([(type(row[3]), row) for row in rows],
                                  [(type(row[3]), row) for row in expected])
                 self.assertEqual(len(rows), 16)
@@ -118,7 +119,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                     pairs = connection.execute('SELECT u.rowid,c.rowid FROM ZUSER u '
                                                'LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER').fetchall()
                     connection.close()
-                    _, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
+                    _, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
                     self.assertEqual(rows, expected)
                     self.assertEqual(len(rows), len(pairs))
                     self.assertGreater(len(rows), len(distinct))
@@ -137,7 +138,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                                    [(600000000, 'aa', 'phone'), (600000010, 'bb', 'phone')])
             connection.commit()
             connection.close()
-            headers, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
+            headers, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
             self.assertEqual([h[0] if isinstance(h, tuple) else h for h in headers][:2],
                              ['Activation Date', 'Discovery Date'])
             self.assertEqual(len(headers), 14)
@@ -170,15 +171,18 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                 shutil.copyfile(str(writer) + suffix, str(full) + suffix)
             shutil.copyfile(writer, main)
             connection.close()
-            _, rows, source = wire.wireAccount.__wrapped__(_Context([str(full), str(main), str(full)]))
+            _, rows, source = wire.wireUsers.__wrapped__(_Context([str(full), str(main), str(full)]))
             self.assertEqual(len(rows), 2)
             self.assertEqual(source, str(full))
-            _, empty, source = wire.wireAccount.__wrapped__(_Context([str(main), str(full)]))
+            _, empty, source = wire.wireUsers.__wrapped__(_Context([str(main), str(full)]))
             self.assertEqual(empty, [])
             self.assertEqual(source, str(main))
             headers, messages, _ = wire.wireMessages.__wrapped__(_Context([str(full)]))
-            self.assertEqual(len(headers), 7)
-            self.assertEqual(messages, [(0, 'handle', None, 'name', 'included', None, 0)])
+            self.assertEqual(len(headers), 14)
+            # No ZSESSION, no ZCONVERSATION, no cache and no system message type: direction,
+            # conversation, media and call columns stay blank.
+            self.assertEqual(messages, [(0, None, '', 'name', None, 'included', '', 'handle', None,
+                                         None, None, None, None, None)])
 
     def test_user_id_renders_uuid_bytes_in_stored_order(self):
         user_id = bytes(range(16))
@@ -195,13 +199,76 @@ class WireJoinOccurrencesTests(unittest.TestCase):
             connection.execute("INSERT INTO ZMESSAGE VALUES (0, 'text', 2, NULL, 1)")
             connection.commit()
             connection.close()
-            headers, rows, _ = wire.wireAccount.__wrapped__(_Context([str(path)]))
+            headers, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
             self.assertEqual(headers[3:5], ('Handle', 'User ID'))
             self.assertEqual([row[4] for row in rows],
                              ['00010203-0405-0607-0809-0a0b0c0d0e0f', b'short'.hex(), None])
             headers, messages, _ = wire.wireMessages.__wrapped__(_Context([str(path)]))
-            self.assertEqual(headers[1:3], ('Handle', 'User ID'))
-            self.assertEqual(messages[0][2], '00010203-0405-0607-0809-0a0b0c0d0e0f')
+            self.assertEqual(headers[7:9], ('Handle', 'User ID'))
+            self.assertEqual(messages[0][8], '00010203-0405-0607-0809-0a0b0c0d0e0f')
+
+    def test_direction_conversation_and_placement(self):
+        conv_group, conv_one = bytes(range(16)), bytes(range(16, 32))
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / 'store.wiredatabase'
+            connection = sqlite3.connect(path)
+            connection.execute('CREATE TABLE ZUSER (Z_PK, ZHANDLE, ZREMOTEIDENTIFIER_DATA, ZNAME, ZEMAILADDRESS)')
+            connection.execute('CREATE TABLE ZSESSION (Z_PK, ZSELFUSER)')
+            connection.execute('CREATE TABLE ZCONVERSATION (Z_PK, ZCONVERSATIONTYPE, ZONEONONEUSER, '
+                               'ZUSERDEFINEDNAME, ZREMOTEIDENTIFIER_DATA)')
+            connection.execute('CREATE TABLE ZMESSAGE (ZSERVERTIMESTAMP, ZNORMALIZEDTEXT, ZCACHEDCATEGORY, '
+                               'ZDURATION, ZSENDER, ZVISIBLEINCONVERSATION, ZHIDDENINCONVERSATION)')
+            connection.executemany('INSERT INTO ZUSER VALUES (?,?,NULL,?,NULL)',
+                                   [(1, 'me', 'Self Name'), (2, 'peer', 'Peer Name')])
+            connection.execute('INSERT INTO ZSESSION VALUES (1, 1)')
+            connection.executemany('INSERT INTO ZCONVERSATION VALUES (?,?,?,?,?)',
+                                   [(10, 3, None, 'Group Title', conv_group),
+                                    # One-on-one holding the self user's name, as seen on a corpus:
+                                    # Wire's displayName ignores it and names the other user.
+                                    (11, 2, 2, 'Self Name', conv_one),
+                                    (12, 7, None, None, None)])
+            connection.executemany('INSERT INTO ZMESSAGE VALUES (?,?,2,NULL,?,?,?)',
+                                   [(1, 'sent', 1, 10, None),
+                                    (2, 'received', 2, 11, None),
+                                    (3, 'removed', 2, None, 11),
+                                    (4, 'nosender', None, 12, None),
+                                    (5, 'orphan', 2, None, None)])
+            connection.commit()
+            connection.close()
+            headers, rows, _ = wire.wireMessages.__wrapped__(_Context([str(path)]))
+            names = [h[0] if isinstance(h, tuple) else h for h in headers]
+            by_text = {row[names.index('Message')]: dict(zip(names, row)) for row in rows}
+            self.assertEqual(by_text['sent']['Direction'], 'Outgoing')
+            self.assertEqual(by_text['sent']['Conversation'], 'Group Title')
+            self.assertEqual(by_text['sent']['Conversation Type'], 'Group')
+            self.assertEqual(by_text['sent']['Placement'], 'Visible')
+            self.assertEqual(by_text['received']['Direction'], 'Incoming')
+            self.assertEqual(by_text['received']['Conversation'], 'Peer Name')
+            self.assertEqual(by_text['received']['Conversation ID'], str(uuid.UUID(bytes=conv_one)))
+            self.assertEqual(by_text['removed']['Placement'], 'Hidden')
+            self.assertEqual(by_text['removed']['Conversation ID'], str(uuid.UUID(bytes=conv_one)))
+            self.assertEqual(by_text['nosender']['Direction'], '')
+            self.assertEqual(by_text['nosender']['Conversation Type'], 7)
+            self.assertIsNone(by_text['nosender']['Conversation'])
+            self.assertIsNone(by_text['orphan']['Placement'])
+            self.assertIsNone(by_text['orphan']['Conversation ID'])
+
+    def test_direction_blank_without_exactly_one_session(self):
+        for sessions in ([], [(1, 1), (2, 2)]):
+            with self.subTest(sessions=len(sessions)), tempfile.TemporaryDirectory() as tmp:
+                path = pathlib.Path(tmp) / 'store.wiredatabase'
+                connection = sqlite3.connect(path)
+                connection.execute('CREATE TABLE ZUSER (Z_PK, ZHANDLE, ZNAME, ZEMAILADDRESS)')
+                connection.execute('CREATE TABLE ZSESSION (Z_PK, ZSELFUSER)')
+                connection.execute('CREATE TABLE ZMESSAGE '
+                                   '(ZSERVERTIMESTAMP, ZNORMALIZEDTEXT, ZCACHEDCATEGORY, ZDURATION, ZSENDER)')
+                connection.executemany('INSERT INTO ZSESSION VALUES (?,?)', sessions)
+                connection.execute("INSERT INTO ZUSER VALUES (1, 'me', 'name', NULL)")
+                connection.execute("INSERT INTO ZMESSAGE VALUES (0, 'text', 2, NULL, 1)")
+                connection.commit()
+                connection.close()
+                _, rows, _ = wire.wireMessages.__wrapped__(_Context([str(path)]))
+                self.assertEqual(rows[0][2], '')
 
 
 if __name__ == '__main__':

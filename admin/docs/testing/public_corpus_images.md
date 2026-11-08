@@ -105,6 +105,8 @@ for a file that was never distributed.
 | `rodeo_ios17_sysdiag` | Sysdiagnose, iOS 17.3. Not distributed. |
 | `fsfull002_ios17` | GrayKey full filesystem, iOS 17.1. Not distributed. |
 | `jess_ios15` | GrayKey full filesystem, iPhone 8, iOS 15.0.2, acquired 2022-02-14. Checked against the full Evidence Locker catalog by hash and it is not published there. |
+| `kalink0_ios18_0_1` | iPhone extraction, iOS 18.0.1, Wire 3.113.3. Not distributed. |
+| `kalink0_ios18_4_1` | iPhone extraction, iOS 18.4.1, Wire 3.122.0. Not distributed. |
 
 If you hold an image that would let one of these counts be reproduced publicly, that is a
 genuinely useful contribution. See [guide_adding_images.md](guide_adding_images.md).

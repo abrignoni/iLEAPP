@@ -19,6 +19,7 @@ they skip, which is what happens in CI.
 Accepts a .zip extraction or a directory of extracted files.
 """
 
+import fnmatch
 import os
 import re
 import shutil
@@ -27,6 +28,7 @@ import unittest
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest import mock
 
 from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
     appleAccountDeviceList
@@ -41,6 +43,8 @@ from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemApp
     storeSystemAppUpdates
 from scripts.artifacts.threeBars import threeBarsAccessPoints, threeBarsNetworks, \
     threeBarsTiles
+from scripts.artifacts import wire
+from scripts.filetype import guess_mime
 
 LOCAL_IMAGE = os.environ.get('ILEAPP_LOCAL_IMAGE', '')
 
@@ -667,6 +671,192 @@ class _ListContext(_Context):
 
     def get_files_found(self):
         return self.paths
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class WireLocalTest(LocalCorpusTestCase):
+    """Structural checks for the five Wire artifacts.
+
+    The files are those the artifacts' own `paths` globs select, copied once per class
+    with their path from the AppGroup folder on, because the artifacts pair the account
+    file with the app group plist and the database with the cache of the same account.
+    Media check-in is stubbed: it needs a report folder, and what it is handed is checked
+    here instead.
+    """
+
+    ANCHOR = 'AppGroup/'
+    _temp = None
+    paths = []
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # pylint: disable-next=consider-using-with
+        cls._temp = tempfile.TemporaryDirectory()
+        cls.paths = cls.fetch_wire_tree(Path(cls._temp.name))
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._temp:
+            cls._temp.cleanup()
+        super().tearDownClass()
+
+    @classmethod
+    def fetch_wire_tree(cls, root):
+        """Copy every file a Wire artifact's paths glob matches, keeping the AppGroup tail."""
+        patterns = {pattern for info in wire.__artifacts_v2__.values() for pattern in
+                    (info['paths'] if isinstance(info['paths'], tuple) else (info['paths'],))}
+        found = []
+        source = Path(LOCAL_IMAGE)
+
+        def wanted(name):
+            normalized = 'root/' + name.replace(os.sep, '/').lstrip('/')
+            return cls.ANCHOR in normalized and any(
+                fnmatch.fnmatchcase(normalized, pattern) for pattern in patterns)
+
+        def destination_for(name):
+            normalized = name.replace(os.sep, '/')
+            destination = root / normalized[normalized.index(cls.ANCHOR):]
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            return destination
+
+        if source.is_dir():
+            for candidate in source.rglob('*'):
+                relative = str(candidate.relative_to(source))
+                if candidate.is_file() and wanted(relative):
+                    destination = destination_for(relative)
+                    shutil.copy2(candidate, destination)
+                    found.append(str(destination))
+        else:
+            with zipfile.ZipFile(source) as archive:
+                for name in archive.namelist():
+                    if not name.endswith('/') and wanted(name):
+                        destination = destination_for(name)
+                        with archive.open(name) as member, open(destination, 'wb') as out:
+                            shutil.copyfileobj(member, out)
+                        found.append(str(destination))
+        # The main database first, as get_file_path takes the first match.
+        return sorted(found, key=lambda p: (not p.endswith('/store.wiredatabase'), p))
+
+    def setUp(self):
+        super().setUp()
+        if not any(p.endswith('/store.wiredatabase') for p in self.paths):
+            self.skipTest(f'no Wire store.wiredatabase in {LOCAL_IMAGE}')
+
+    def assert_image(self, data, label):
+        """Bytes the report would sniff as an image, as check_in_embedded_media does.
+
+        A failure reports the sniffed type and the leading signature bytes, which name a
+        file format and carry no image content.
+        """
+        mime = guess_mime(data) or ''
+        self.assertTrue(mime.startswith('image/'),
+                        f'{label} sniffed as {mime or "unknown"}; '
+                        f'{len(data)} bytes, signature {data[:12].hex()}')
+
+    def run_artifact(self, func):
+        """Headers as plain names and rows as dicts, with media check-in recorded."""
+        handed = []
+
+        def media(path, *args, **kwargs):     # pylint: disable=unused-argument
+            handed.append(Path(path))
+            return 'media'
+
+        def embedded(source, data, name):     # pylint: disable=unused-argument
+            handed.append(data)
+            return 'media'
+
+        with mock.patch.object(wire, 'check_in_media', side_effect=media), \
+                mock.patch.object(wire, 'check_in_embedded_media', side_effect=embedded):
+            # The Wire artifacts call context() to reach the context object.
+            headers, rows, _ = func.__wrapped__(lambda: _ListContext(self.paths))
+        self.assert_row_shape(headers, rows)
+        names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        return [dict(zip(names, row)) for row in rows], handed
+
+    def test_accounts_structure(self):
+        rows, handed = self.run_artifact(wire.wireAccount)
+        self.assertTrue(rows, 'no account file parsed')
+        for row in rows:
+            self.assert_matches(row['Account ID'], r'^[0-9A-Fa-f-]{36}( \(file name [0-9A-F-]{36}\))?$',
+                                'Account ID')
+            self.assert_matches(row['Selected'], r'^(Yes|No|)$', 'Selected')
+            for flag in ('Uses Company Login', 'Has Password'):
+                self.assertIn(row[flag], (True, False, None), f'{flag} is not a stored boolean')
+        for data in handed:
+            self.assert_image(data, 'account picture')
+        selected = sum(row['Selected'] == 'Yes' for row in rows)
+        self.assertLessEqual(selected, 1, 'more than one account is selected')
+
+    def test_messages_structure(self):
+        rows, handed = self.run_artifact(wire.wireMessages)
+        self.assertTrue(rows, 'no message parsed')
+        for row in rows:
+            self.assert_plausible_timestamp(row['Date / Time'])
+            self.assert_plausible_timestamp(row['Call Connected'])
+            self.assert_matches(row['Direction'], r'^(Incoming|Outgoing|)$', 'Direction')
+            self.assert_matches(row['Placement'] or '', r'^(Visible|Hidden|)$', 'Placement')
+            if row['Call Connected']:
+                self.assertEqual(row['Message Type'], 'Call')
+                self.assertLessEqual(row['Call Connected'], row['Date / Time'])
+            if row['Call Duration (seconds)'] is not None:
+                self.assertEqual(row['Message Type'], 'Call')
+                self.assertGreaterEqual(row['Call Duration (seconds)'], 0)
+            if row['Conversation ID']:
+                self.assert_matches(row['Conversation ID'], r'^[0-9a-f-]{36}$', 'Conversation ID')
+                self.assertTrue(row['Conversation'], 'a conversation with an ID has no label')
+        self.assertEqual(len(handed), sum(bool(row['Media']) for row in rows))
+
+    def test_one_on_one_label_is_not_the_self_user(self):
+        """A one-on-one conversation is named after the other user, never the account itself."""
+        rows, _ = self.run_artifact(wire.wireMessages)
+        self_names = {row['Display Name'] for row in rows
+                      if row['Direction'] == 'Outgoing' and row['Display Name']}
+        one_on_one = [row for row in rows if row['Conversation Type'] == 'One-on-one']
+        if not one_on_one:
+            self.skipTest('no one-on-one conversation with messages in this image')
+        labelled_self = sum(row['Conversation'] in self_names for row in one_on_one)
+        self.assertEqual(labelled_self, 0,
+                         f'{labelled_self} of {len(one_on_one)} one-on-one rows carry the self user\'s name')
+
+    def test_media_listing_agrees_with_messages(self):
+        media_rows, handed = self.run_artifact(wire.wireMedia)
+        message_rows, _ = self.run_artifact(wire.wireMessages)
+        self.assertEqual(len(handed), len(media_rows), 'not every cache file was checked in')
+        for row in media_rows:
+            self.assert_plausible_timestamp(row['Message Date / Time'])
+            self.assert_matches(row['Cache File Name'], r'^[0-9a-f]{64}$', 'Cache File Name')
+            self.assert_matches(row['Format'] or '',
+                                r'^((none|original|medium|preview)( \(encrypted\))?|)$', 'Format')
+            self.assertEqual(bool(row['Format']), bool(row['Message Date / Time']),
+                             'a matched file lacks its message time, or the reverse')
+            self.assertGreater(row['Size (bytes)'], 0)
+        matched = sum(bool(row['Format']) for row in media_rows)
+        with_media = sum(bool(row['Media']) for row in message_rows)
+        self.assertLessEqual(with_media, matched,
+                             'more messages show media than cache files were matched')
+
+    def test_contacts_structure(self):
+        rows, handed = self.run_artifact(wire.wireContacts)
+        self.assertTrue(rows, 'no user parsed')
+        self.assertLessEqual(sum(row['Self'] == 'Yes' for row in rows), 1, 'more than one self user')
+        known = {'Invalid', 'Accepted', 'Pending', 'Ignored', 'Blocked', 'Sent', 'Cancelled',
+                 'Blocked (missing legal hold consent)', None}
+        for row in rows:
+            self.assert_matches(row['Self'], r'^(Yes|)$', 'Self')
+            self.assertTrue(row['Connection Status'] in known or isinstance(row['Connection Status'], int),
+                            f'connection status shape {_redact(row["Connection Status"])}')
+            if row['User ID']:
+                self.assert_matches(row['User ID'], r'^[0-9a-f-]{36}$', 'User ID')
+        for data in handed:
+            self.assert_image(data, 'cached profile picture')
+
+    def test_users_and_clients_structure(self):
+        rows, _ = self.run_artifact(wire.wireUsers)
+        self.assertTrue(rows, 'no user parsed')
+        for row in rows:
+            for column in ('Activation Date', 'Discovery Date', 'Last Active Date'):
+                self.assert_plausible_timestamp(row[column])
 
 
 if __name__ == '__main__':
