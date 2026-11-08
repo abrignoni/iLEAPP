@@ -21,6 +21,13 @@ class _Context:
         return self.files
 
 
+def _users(files):
+    """wireUsers without its trailing Account column, which these join tests do not compare."""
+    headers, rows, source = wire.wireUsers.__wrapped__(_Context(files))
+    assert headers[-1] == 'Account'
+    return headers[:-1], [row[:-1] for row in rows], source
+
+
 def _create(path, locations=True, phone=True, affinity='', collation='BINARY'):
     connection = sqlite3.connect(path)
     user = ['Z_PK', f'ZHANDLE {affinity} COLLATE {collation}', 'ZNAME', 'ZEMAILADDRESS']
@@ -65,7 +72,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                                   datetime.timedelta(seconds=row[0])) if row[0] else row[0],) + row[1:]
                                 for row in raw]
                     connection.close()
-                    headers, rows, source = wire.wireUsers.__wrapped__(_Context([str(path)]))
+                    headers, rows, source = _users([str(path)])
                     self.assertEqual(rows, expected)
                     self.assertEqual(len(rows), 6)
                     self.assertEqual(len(distinct), 3)
@@ -91,7 +98,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                 expected = connection.execute(query).fetchall()
                 old = connection.execute(query.replace('SELECT ', 'SELECT DISTINCT ', 1)).fetchall()
                 connection.close()
-                _, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
+                _, rows, _ = _users([str(path)])
                 self.assertEqual([(type(row[3]), row) for row in rows],
                                  [(type(row[3]), row) for row in expected])
                 self.assertEqual(len(rows), 16)
@@ -119,7 +126,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                     pairs = connection.execute('SELECT u.rowid,c.rowid FROM ZUSER u '
                                                'LEFT JOIN ZUSERCLIENT c ON u.Z_PK=c.ZUSER').fetchall()
                     connection.close()
-                    _, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
+                    _, rows, _ = _users([str(path)])
                     self.assertEqual(rows, expected)
                     self.assertEqual(len(rows), len(pairs))
                     self.assertGreater(len(rows), len(distinct))
@@ -138,7 +145,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                                    [(600000000, 'aa', 'phone'), (600000010, 'bb', 'phone')])
             connection.commit()
             connection.close()
-            headers, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
+            headers, rows, _ = _users([str(path)])
             self.assertEqual([h[0] if isinstance(h, tuple) else h for h in headers][:2],
                              ['Activation Date', 'Discovery Date'])
             self.assertEqual(len(headers), 14)
@@ -171,18 +178,19 @@ class WireJoinOccurrencesTests(unittest.TestCase):
                 shutil.copyfile(str(writer) + suffix, str(full) + suffix)
             shutil.copyfile(writer, main)
             connection.close()
-            _, rows, source = wire.wireUsers.__wrapped__(_Context([str(full), str(main), str(full)]))
-            self.assertEqual(len(rows), 2)
-            self.assertEqual(source, str(full))
-            _, empty, source = wire.wireUsers.__wrapped__(_Context([str(main), str(full)]))
-            self.assertEqual(empty, [])
-            self.assertEqual(source, str(main))
+            # Every database is read, each once however often it is found, whatever the order.
+            # The copy without its -wal holds none of the rows, which live in the log.
+            for order in ([full, main, full], [main, full]):
+                with self.subTest(order=[p.parent.name for p in order]):
+                    _, rows, source = _users([str(p) for p in order])
+                    self.assertEqual(len(rows), 2)
+                    self.assertEqual(source.split('\n'), sorted({str(full), str(main)}))
             headers, messages, _ = wire.wireMessages.__wrapped__(_Context([str(full)]))
-            self.assertEqual(len(headers), 14)
+            self.assertEqual(len(headers), 16)
             # No ZSESSION, no ZCONVERSATION, no cache and no system message type: direction,
             # conversation, media and call columns stay blank.
             self.assertEqual(messages, [(0, None, '', 'name', None, 'included', '', 'handle', None,
-                                         None, None, None, None, None)])
+                                         None, None, None, None, None, root.name.upper(), None)])
 
     def test_user_id_renders_uuid_bytes_in_stored_order(self):
         user_id = bytes(range(16))
@@ -199,7 +207,7 @@ class WireJoinOccurrencesTests(unittest.TestCase):
             connection.execute("INSERT INTO ZMESSAGE VALUES (0, 'text', 2, NULL, 1)")
             connection.commit()
             connection.close()
-            headers, rows, _ = wire.wireUsers.__wrapped__(_Context([str(path)]))
+            headers, rows, _ = _users([str(path)])
             self.assertEqual(headers[3:5], ('Handle', 'User ID'))
             self.assertEqual([row[4] for row in rows],
                              ['00010203-0405-0607-0809-0a0b0c0d0e0f', b'short'.hex(), None])

@@ -1,4 +1,5 @@
 """Wire calls, message media from the asset cache, the media listing and contacts with cached pictures."""
+import collections
 import datetime
 import hashlib
 import pathlib
@@ -50,6 +51,8 @@ def _build(root, account=ACCOUNT):
         CREATE TABLE ZSESSION (Z_PK, ZSELFUSER);
         CREATE TABLE ZUSER (Z_PK, ZNAME, ZHANDLE, ZEMAILADDRESS, ZREMOTEIDENTIFIER_DATA,
                             ZCOMPLETEPROFILEASSETIDENTIFIER, ZPREVIEWPROFILEASSETIDENTIFIER);
+        CREATE TABLE ZUSERCLIENT (ZUSER, ZACTIVATIONDATE);
+        INSERT INTO ZUSERCLIENT VALUES (1, 100.0), (2, 200.0);
         CREATE TABLE ZCONNECTION (Z_PK, ZTO, ZSTATUS);
         CREATE TABLE ZCONVERSATION (Z_PK, ZCONVERSATIONTYPE, ZUSERDEFINEDNAME, ZREMOTEIDENTIFIER_DATA);
         CREATE TABLE ZMESSAGE (ZSERVERTIMESTAMP, ZNORMALIZEDTEXT, ZCACHEDCATEGORY, ZSENDER,
@@ -157,12 +160,67 @@ class WireCallsAndMediaTests(unittest.TestCase):
             self.assertNotIn(str(other / name), _patched(wire.wireMessages, files)[2])
 
 
+class WireTwoAccountTests(unittest.TestCase):
+    """Two accounts with identical stores: every artifact doubles, nothing crosses accounts."""
+
+    SECOND = '99999999-8888-7777-6666-555555555555'
+
+    def _two_accounts(self, root):
+        first, _ = _build(root)
+        second, _ = _build(root, self.SECOND)
+        return first, first + second
+
+    def test_every_artifact_doubles_exactly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            one, both = self._two_accounts(pathlib.Path(tmp))
+            for function in (wire.wireUsers, wire.wireMessages, wire.wireContacts, wire.wireMedia):
+                with self.subTest(artifact=function.__name__):
+                    _, single, _ = _patched(function, one)
+                    _, double, source = _patched(function, both)
+                    self.assertEqual(len(double), 2 * len(single))
+                    self.assertEqual(
+                        collections.Counter(row['Account'] for row in double),
+                        {ACCOUNT: len(single), self.SECOND: len(single)})
+                    self.assertEqual(sum(line.endswith('/store.wiredatabase')
+                                         for line in source.split('\n')), 2)
+
+    def test_media_stays_with_its_own_account(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _, both = self._two_accounts(pathlib.Path(tmp))
+            _, messages, _ = _patched(wire.wireMessages, both)
+            for row in messages:
+                if row['Media']:
+                    # The stub names the media after the checked-in path's file name, so the
+                    # account is checked through the path handed to check_in_media instead.
+                    self.assertTrue(row['Conversation Key'].startswith(row['Account'] + '/'))
+            with mock.patch.object(wire, 'check_in_media',
+                                   side_effect=lambda path, *a, **k: str(path)):
+                headers, rows, _ = wire.wireMessages.__wrapped__(_Context(both))
+            names = [h[0] if isinstance(h, tuple) else h for h in headers]
+            for row in (dict(zip(names, r)) for r in rows):
+                if row['Media']:
+                    self.assertIn(f"wire-account-{row['Account']}", row['Media'])
+            _, media, _ = _patched(wire.wireMedia, both)
+            matched = collections.Counter(row['Account'] for row in media if row['Format'])
+            self.assertEqual(matched, {ACCOUNT: 3, self.SECOND: 3})
+
+    def test_conversation_view_keeps_the_accounts_apart(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _, both = self._two_accounts(pathlib.Path(tmp))
+            _, messages, _ = _patched(wire.wireMessages, both)
+            self.assertEqual(len({row['Conversation ID'] for row in messages}), 1)
+            self.assertEqual(len({row['Conversation Key'] for row in messages}), 2)
+            self.assertEqual(wire.__artifacts_v2__['wireMessages']['data_views']['conversation']
+                             ['conversationDiscriminatorColumn'], 'Conversation Key')
+
+
 class WireContactsTests(unittest.TestCase):
     def test_contacts_status_self_and_pictures(self):
         with tempfile.TemporaryDirectory() as tmp:
             files, _ = _build(pathlib.Path(tmp))
             names, rows, source = _patched(wire.wireContacts, files)
-            self.assertEqual(len(names), 9)
+            self.assertEqual(len(names), 10)
+            self.assertEqual({row['Account'] for row in rows}, {ACCOUNT})
             self_row, peer, stranger = rows
             self.assertEqual(self_row['Self'], 'Yes')
             self.assertIsNone(self_row['Connection Status'])

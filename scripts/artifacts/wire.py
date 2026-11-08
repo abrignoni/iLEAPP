@@ -78,8 +78,13 @@ __artifacts_v2__ = {
         "category": "Wire Messenger",
         "notes": "Each result of ZUSER LEFT JOIN ZUSERCLIENT is reported without DISTINCT: a user with several "
                  "clients gives one row per client, and a user with no client gives one row with the client "
-                 "columns blank. Clients with no matching ZUSER are not selected. Only the first "
-                 "store.wiredatabase found is read. Client ID is ZUSERCLIENT.ZREMOTEIDENTIFIER. Handle is "
+                 "columns blank. Clients with no matching ZUSER are not selected. Every "
+                 "AccountData/<account>/store/store.wiredatabase found is read, and Account is that "
+                 "folder's name, uppercased; Latitude and Longitude are blank for a database whose "
+                 "schema lacks them. On iphone11_ios17 Account held one value on all 13 rows, the image's "
+                 "only account; a tree holding that account twice, under two account folders, gave "
+                 "exactly twice the rows, each account's from its own folder. No device with two Wire "
+                 "accounts was available. Client ID is ZUSERCLIENT.ZREMOTEIDENTIFIER. Handle is "
                  "ZUSER.ZHANDLE, the handle attribute of Wire's User entity, which Wire's header describes as "
                  "the \"@name\" handle "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Public/ZMUser.h#L55-L56). "
@@ -262,7 +267,15 @@ __artifacts_v2__ = {
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/Conversation/ZMConversation%2BMessage.swift#L482-L483) "
                  "and for system messages added as children of another "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/Conversation/Calling/ZMConversation%2BCalling.swift#L65-L68), "
-                 "so Hidden does not by itself say which of these happened. Conversation ID is "
+                 "so Hidden does not by itself say which of these happened. Every "
+                 "AccountData/<account>/store/store.wiredatabase found is read, and Account is that "
+                 "folder's name, uppercased. Conversation Key is Account and Conversation ID joined with "
+                 "a slash; the conversation view groups by it, so a conversation two accounts on the "
+                 "device both belong to shows as one thread per account. On iphone11_ios17 Account held "
+                 "one value on all 50 rows, the image's only account; a tree holding that account twice, "
+                 "under two account folders, gave exactly twice the rows, each account's media from its "
+                 "own cache and one thread per account and conversation. No device with two Wire "
+                 "accounts was available. Conversation ID is "
                  "ZCONVERSATION.ZREMOTEIDENTIFIER_DATA shown as a UUID like User ID. Conversation is a "
                  "label derived here, not a stored title. It follows Wire's displayName "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/Conversation/ZMConversation%2BDisplayName.swift#L22-L73), "
@@ -310,7 +323,7 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "data_views": {
             "conversation": {
-                "conversationDiscriminatorColumn": "Conversation ID",
+                "conversationDiscriminatorColumn": "Conversation Key",
                 "conversationLabelColumn": "Conversation",
                 "textColumn": "Message",
                 "senderColumn": "Display Name",
@@ -342,8 +355,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-08",
         "requirements": "",
         "category": "Wire Messenger",
-        "notes": "Every ZUSER row of the first store.wiredatabase found is reported, the same rows as Wire "
-                 "Secure Messenger Users and Clients without the per-client fan-out. ZUSER holds every user "
+        "notes": "Every ZUSER row of every AccountData/<account>/store/store.wiredatabase found is "
+                 "reported, the same rows as Wire Secure Messenger Users and Clients without the "
+                 "per-client fan-out, with Account naming the account folder and pictures taken only from "
+                 "that account's caches. On iphone11_ios17 Account held one value on all 4 rows, the "
+                 "image's only account; a tree holding that account twice, under two account folders, "
+                 "gave exactly twice the rows, each account's pictures from its own cache. No device with "
+                 "two Wire accounts was available. ZUSER holds every user "
                  "the account's database knows, which includes members of shared conversations as well as "
                  "connected users, so a row is not by itself a contact the account added. Self is Yes for "
                  "the user that ZSESSION.ZSELFUSER names and blank for the others, and blank on every row "
@@ -407,9 +425,11 @@ __artifacts_v2__ = {
                  "2 sent images; the 2 unmatched files began with a multipart boundary line, so Message "
                  "Date / Time, Direction, Sender, Conversation, Format and Message Type were blank on "
                  "them. Account is the account named by the cache folder; on iphone11_ios17 Account "
-                 "held one value on all 8 rows, the image's only account. Only the first "
-                 "store.wiredatabase found is used for matching, so the files of any "
-                 "other account are listed unmatched. Encrypted copies are listed as stored and are not "
+                 "held one value on all 8 rows, the image's only account; a tree holding that account "
+                 "twice, under two account folders, gave exactly twice the rows, with 6 of 8 matched in "
+                 "each account. No device with two Wire accounts was available. A file is matched only against "
+                 "the store.wiredatabase of its own account, so a cache folder without that account's "
+                 "database is listed unmatched. Encrypted copies are listed as stored and are not "
                  "decrypted. On kalink0_ios18_4_1 (Wire 3.122.0) 3 of the 34 files were matched to an "
                  "unencrypted format and the other 31 rows had an encrypted Format, so most of that "
                  "image's cached media is held only as encrypted copies, which this artifact lists but "
@@ -451,7 +471,6 @@ from scripts.ilapfuncs import (
     check_in_embedded_media,
     check_in_media,
     logfunc,
-    get_file_path,
     get_sqlite_db_records,
     does_column_exist_in_db,
     does_table_exist_in_db,
@@ -682,34 +701,21 @@ def wireAccount(context):
     return data_headers, data_list, '\n'.join(dict.fromkeys(source_paths))
 
 
+def _stores(files_found):
+    """Every main store.wiredatabase, one per AccountData/<account> folder, in path order."""
+    return sorted(dict.fromkeys(str(f) for f in files_found if Path(f).name == 'store.wiredatabase'))
+
+
 @artifact_processor
 def wireUsers(context):
     files_found = context().get_files_found()
-    source_path = get_file_path(files_found, "store.wiredatabase")
+    stores = _stores(files_found)
     data_list = []
 
-    has_location_data = does_column_exist_in_db(
-        source_path,
-        'ZUSERCLIENT',
-        'ZACTIVATIONLOCATIONLATITUDE'
-        )
+    has_location_data = any(
+        does_column_exist_in_db(source_path, 'ZUSERCLIENT', 'ZACTIVATIONLOCATIONLATITUDE')
+        for source_path in stores)
 
-    # Newer Wire versions drop ZUSER.ZPHONENUMBER, so it is selected only when present.
-    # The client columns are selected the same way, so a schema without one still reports the rest.
-    columns = [
-        'ZUSERCLIENT.ZACTIVATIONDATE',
-        _optional_column(source_path, 'ZUSERCLIENT', 'ZDISCOVERYDATE'),
-        _optional_column(source_path, 'ZUSERCLIENT', 'ZLASTACTIVEDATE'),
-        'ZUSER.ZHANDLE',
-        _optional_column(source_path, 'ZUSER', 'ZREMOTEIDENTIFIER_DATA'),
-        'ZUSER.ZNAME',
-        _optional_column(source_path, 'ZUSER', 'ZPHONENUMBER'),
-        'ZUSER.ZEMAILADDRESS',
-        _optional_column(source_path, 'ZUSERCLIENT', 'ZREMOTEIDENTIFIER'),
-        _optional_column(source_path, 'ZUSERCLIENT', 'ZDEVICECLASS'),
-        _optional_column(source_path, 'ZUSERCLIENT', 'ZLABEL'),
-        _optional_column(source_path, 'ZUSERCLIENT', 'ZMODEL'),
-        ]
     data_headers = [
         ('Activation Date', 'datetime'),
         ('Discovery Date', 'datetime'),
@@ -725,31 +731,52 @@ def wireUsers(context):
         'Device Model',
         ]
     if has_location_data:
-        columns.extend([
-            'ZUSERCLIENT.ZACTIVATIONLOCATIONLATITUDE',
-            'ZUSERCLIENT.ZACTIVATIONLOCATIONLONGITUDE',
-            ])
         data_headers.extend(['Latitude', 'Longitude'])
+    data_headers.append('Account')
 
-    query = f'''
-    SELECT
-        {', '.join(columns)}
-    FROM ZUSER
-    LEFT JOIN ZUSERCLIENT ON ZUSER.Z_PK = ZUSERCLIENT.ZUSER;
-    '''
+    for source_path in stores:
+        # Newer Wire versions drop ZUSER.ZPHONENUMBER, so it is selected only when present.
+        # The client columns are selected the same way, so a schema without one still
+        # reports the rest, and a database without the location columns leaves them blank.
+        columns = [
+            'ZUSERCLIENT.ZACTIVATIONDATE',
+            _optional_column(source_path, 'ZUSERCLIENT', 'ZDISCOVERYDATE'),
+            _optional_column(source_path, 'ZUSERCLIENT', 'ZLASTACTIVEDATE'),
+            'ZUSER.ZHANDLE',
+            _optional_column(source_path, 'ZUSER', 'ZREMOTEIDENTIFIER_DATA'),
+            'ZUSER.ZNAME',
+            _optional_column(source_path, 'ZUSER', 'ZPHONENUMBER'),
+            'ZUSER.ZEMAILADDRESS',
+            _optional_column(source_path, 'ZUSERCLIENT', 'ZREMOTEIDENTIFIER'),
+            _optional_column(source_path, 'ZUSERCLIENT', 'ZDEVICECLASS'),
+            _optional_column(source_path, 'ZUSERCLIENT', 'ZLABEL'),
+            _optional_column(source_path, 'ZUSERCLIENT', 'ZMODEL'),
+            ]
+        if has_location_data:
+            columns.extend([
+                _optional_column(source_path, 'ZUSERCLIENT', 'ZACTIVATIONLOCATIONLATITUDE'),
+                _optional_column(source_path, 'ZUSERCLIENT', 'ZACTIVATIONLOCATIONLONGITUDE'),
+                ])
 
-    db_records = get_sqlite_db_records(source_path, query)
+        query = f'''
+        SELECT
+            {', '.join(columns)}
+        FROM ZUSER
+        LEFT JOIN ZUSERCLIENT ON ZUSER.Z_PK = ZUSERCLIENT.ZUSER;
+        '''
 
-    for record in db_records:
-        data_list.append((
-            convert_cocoa_core_data_ts_to_utc(record[0]),
-            convert_cocoa_core_data_ts_to_utc(record[1]),
-            convert_cocoa_core_data_ts_to_utc(record[2]),
-            record[3],
-            _uuid_text(record[4]),
-            *tuple(record)[5:]
-            ))
-    return tuple(data_headers), data_list, source_path
+        account = _store_account(source_path)
+        for record in get_sqlite_db_records(source_path, query):
+            data_list.append((
+                convert_cocoa_core_data_ts_to_utc(record[0]),
+                convert_cocoa_core_data_ts_to_utc(record[1]),
+                convert_cocoa_core_data_ts_to_utc(record[2]),
+                record[3],
+                _uuid_text(record[4]),
+                *tuple(record)[5:],
+                account,
+                ))
+    return tuple(data_headers), data_list, '\n'.join(stores)
 
 
 def _message_type(category, system_type):
@@ -868,12 +895,9 @@ def _asset_keys(message):
 @artifact_processor
 def wireMessages(context):
     files_found = context().get_files_found()
-    source_path = get_file_path(files_found, "store.wiredatabase")
+    stores = _stores(files_found)
+    cache_files = _asset_cache_files(files_found)
     data_list = []
-
-    account = _store_account(source_path)
-    cache = {path.name.lower(): path for path in _asset_cache_files(files_found)
-             if _cache_account(path) == account}
     media_sources = []
 
     data_headers = (
@@ -890,50 +914,63 @@ def wireMessages(context):
         'Conversation Type',
         'Placement',
         'Message Type',
-        ('Call Duration (seconds)', 'number'))
+        ('Call Duration (seconds)', 'number'),
+        'Account',
+        'Conversation Key')
 
-    for message in _messages(source_path):
-        media = ''
-        if cache:
-            found = dict((label, cache[key]) for label, key in _asset_keys(message) if key in cache)
-            for label in ('original', 'medium', 'preview', 'none'):
-                if label in found:
-                    media = check_in_media(str(found[label])) or ''
-                    media_sources.append(str(found[label]))
-                    break
-        data_list.append((
-            convert_cocoa_core_data_ts_to_utc(message['timestamp']),
-            _call_connected(message),
-            message['direction'],
-            message['sender'],
-            message['conversation'],
-            message['text'],
-            media,
-            message['handle'],
-            message['user_id'],
-            message['conversation_id'],
-            message['conversation_type'],
-            message['placement'],
-            message['message_type'],
-            message['call_duration'],
-            ))
+    for source_path in stores:
+        account = _store_account(source_path)
+        cache = {path.name.lower(): path for path in cache_files if _cache_account(path) == account}
+        for message in _messages(source_path):
+            media = ''
+            if cache:
+                found = dict((label, cache[key]) for label, key in _asset_keys(message) if key in cache)
+                for label in ('original', 'medium', 'preview', 'none'):
+                    if label in found:
+                        media = check_in_media(str(found[label])) or ''
+                        media_sources.append(str(found[label]))
+                        break
+            data_list.append((
+                convert_cocoa_core_data_ts_to_utc(message['timestamp']),
+                _call_connected(message),
+                message['direction'],
+                message['sender'],
+                message['conversation'],
+                message['text'],
+                media,
+                message['handle'],
+                message['user_id'],
+                message['conversation_id'],
+                message['conversation_type'],
+                message['placement'],
+                message['message_type'],
+                message['call_duration'],
+                account,
+                f"{account}/{message['conversation_id']}" if message['conversation_id'] else None,
+                ))
 
-    return data_headers, data_list, '\n'.join([source_path] + media_sources) if source_path else ''
+    return data_headers, data_list, '\n'.join(stores + media_sources)
 
 
 @artifact_processor
 def wireMedia(context):
     files_found = context().get_files_found()
-    source_path = get_file_path(files_found, "store.wiredatabase")
+    stores = _stores(files_found)
     cache_files = _asset_cache_files(files_found)
     data_list = []
 
-    account = _store_account(source_path)
+    # (account, cache key) -> (message, format), each account matched only against its own store.
     matches = {}
-    if source_path and any(_cache_account(path) == account for path in cache_files):
+    matched_stores = []
+    cached_accounts = {_cache_account(path) for path in cache_files}
+    for source_path in stores:
+        account = _store_account(source_path)
+        if account not in cached_accounts:
+            continue
+        matched_stores.append(source_path)
         for message in _messages(source_path):
             for label, key in _asset_keys(message):
-                matches.setdefault(key, (message, label))
+                matches.setdefault((account, key), (message, label))
 
     data_headers = (
         ('Message Date / Time', 'datetime'),
@@ -948,7 +985,7 @@ def wireMedia(context):
         ('Size (bytes)', 'number'))
 
     for path in cache_files:
-        matched = matches.get(path.name.lower()) if _cache_account(path) == account else None
+        matched = matches.get((_cache_account(path), path.name.lower()))
         message, label = matched if matched else ({}, None)
         try:
             size = os.path.getsize(path)
@@ -967,8 +1004,7 @@ def wireMedia(context):
             size,
             ))
 
-    sources = ([source_path] if source_path and matches else []) + [str(path) for path in cache_files]
-    return data_headers, data_list, '\n'.join(sources)
+    return data_headers, data_list, '\n'.join(matched_stores + [str(path) for path in cache_files])
 
 
 def _user_image_files(files_found):
@@ -997,18 +1033,11 @@ def _archived_image(path):
     return None
 
 
-@artifact_processor
-def wireContacts(context):
-    files_found = context().get_files_found()
-    source_path = get_file_path(files_found, "store.wiredatabase")
-    data_list = []
-    if not source_path:
-        return (), [], ''
-
+def _contacts(source_path, images, image_sources):
+    """The wireContacts rows of one database, pictures taken from that account's caches."""
+    rows = []
     self_user_pk = _self_user_pk(source_path)
     account = _store_account(source_path)
-    images = _user_image_files(files_found)
-    image_sources = []
 
     connections = {}
     if (does_column_exist_in_db(source_path, 'ZCONNECTION', 'ZTO')
@@ -1048,7 +1077,7 @@ def wireContacts(context):
             is_self = ''
         else:
             is_self = 'Yes' if record[0] == self_user_pk else ''
-        data_list.append((
+        rows.append((
             record[1],
             record[2],
             record[3],
@@ -1058,7 +1087,20 @@ def wireContacts(context):
             _CONNECTION_STATUSES.get(status, status),
             pictures[0],
             pictures[1],
+            account,
             ))
+    return rows
+
+
+@artifact_processor
+def wireContacts(context):
+    files_found = context().get_files_found()
+    stores = _stores(files_found)
+    images = _user_image_files(files_found)
+    image_sources = []
+    data_list = []
+    for source_path in stores:
+        data_list.extend(_contacts(source_path, images, image_sources))
 
     data_headers = (
         'Display Name',
@@ -1070,5 +1112,6 @@ def wireContacts(context):
         'Connection Status',
         ('Profile Picture', 'media'),
         ('Profile Picture Preview', 'media'),
+        'Account',
         )
-    return data_headers, data_list, '\n'.join([source_path] + image_sources)
+    return data_headers, data_list, '\n'.join(stores + image_sources)
