@@ -51,7 +51,7 @@ def measurement_db(path, tables='both', offset_days=0):
     if tables == 'both':
         con.execute('CREATE TABLE user_attributes (name TEXT, set_timestamp REAL, value, origin TEXT)')
         con.executemany('INSERT INTO user_attributes VALUES (?,?,?,?)', [
-            ('_fot', _ts(start), int(start.timestamp() * 1000) + 3_600_000 - 1_000, 'auto'),
+            ('_fot', _ts(start), int(start.timestamp() * 1000) + 3_600_000, 'auto'),
             ('_sno', _ts(start), 3, 'auto'),
             ('synthetic_tier', _ts(start + datetime.timedelta(days=1)), 'example', 'app'),
         ])
@@ -66,7 +66,7 @@ def measurement_plist(last_event, offset_days=0):
     return {
         prefix + 'first_open_timestamp_ms': int(start.timestamp() * 1000),
         prefix + 'last_uploaded_event_millis': int(last_event * 1000),
-        prefix + 'last_engagement_end': last_event,
+        prefix + 'last_engagement_end': last_event + 60,
         prefix + 'last_successful_upload': last_event + 30,
         prefix + 'last_failed_upload': 0.0,
         prefix + 'session_number': 3,

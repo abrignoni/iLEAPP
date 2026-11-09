@@ -91,7 +91,7 @@ class GoogleMeasurementTests(unittest.TestCase):
         plist = {r['Name']: r for r in rows
                  if r['App Bundle ID'] == 'com.example.alpha' and r['Record Type'] == 'Measurement plist'}
         self.assertEqual(plist['first_open_timestamp_ms']['Time'], fx.FIRST_OPEN)
-        self.assertEqual(plist['last_engagement_end']['Time'], events['_e']['Time'])
+        self.assertEqual(plist['last_engagement_end']['Time'], events['_e']['Time'] + datetime.timedelta(seconds=60))
         self.assertEqual(plist['last_failed_upload']['Time'], '')
         self.assertEqual(plist['last_failed_upload']['Value'], 0.0)
 

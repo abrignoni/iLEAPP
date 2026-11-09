@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\googleMeasurement\\testdata.googleMeasurement.google_measurement_store.synthetic_backup.zip",
-    "start_time": "2026-11-07T05:20:41.732638+00:00",
-    "end_time": "2026-11-07T05:20:41.989012+00:00",
-    "run_time_seconds": 0.007091999053955078,
+    "start_time": "2026-11-09T14:19:32.670939+00:00",
+    "end_time": "2026-11-09T14:19:32.790297+00:00",
+    "run_time_seconds": 0.006232500076293945,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-11-07T00:20:41.956143",
-      "message": "File not yet committed to git"
+      "hash": "9cc16ddb25dbf1944cb21ac5240902eeb3a7d79d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-07T00:30:52-05:00",
+      "message": "Add Google Measurement (Firebase Analytics) store artifact for any app"
     }
   },
   "headers": [
@@ -50,7 +50,7 @@
       ""
     ],
     [
-      1772978820,
+      1772978880,
       "com.example.alpha",
       "Measurement plist",
       "last_engagement_end",
@@ -153,7 +153,7 @@
       "com.example.alpha",
       "User Property",
       "_fot",
-      1772463599000,
+      1772463600000,
       "",
       "auto"
     ],
