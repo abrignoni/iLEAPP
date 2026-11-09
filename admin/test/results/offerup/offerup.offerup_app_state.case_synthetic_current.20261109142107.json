@@ -6,19 +6,19 @@
     "case_number": "case_synthetic_current",
     "number_of_columns": 3,
     "number_of_rows": 31,
-    "total_data_size_bytes": 1474,
+    "total_data_size_bytes": 1551,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_app_state.case_synthetic_current.zip",
-    "start_time": "2026-11-07T05:00:39.934215+00:00",
-    "end_time": "2026-11-07T05:00:40.249647+00:00",
-    "run_time_seconds": 0.015408039093017578,
+    "start_time": "2026-11-09T14:21:07.141106+00:00",
+    "end_time": "2026-11-09T14:21:07.281624+00:00",
+    "run_time_seconds": 0.009718894958496094,
     "last_commit": {
-      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "hash": "97d14b16613db2cf27d99506995cc9cba0c8ac9b",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:25:31-05:00",
-      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
+      "date": "2026-11-07T01:26:07-05:00",
+      "message": "OfferUp: state installed versus last-run versions, say no app binary was analysed"
     }
   },
   "headers": [
@@ -28,17 +28,17 @@
   ],
   "data": [
     [
-      "App version (current)",
+      "App version last run (core.currentVersion)",
       "2026.9.0",
       "Redux store"
     ],
     [
-      "App version (previous)",
+      "App version previous (core.previousVersion)",
       "2026.3.0",
       "Redux store"
     ],
     [
-      "Logged in at least once",
+      "userHasLoggedInAtLeastOnce (meaning beyond the name not established)",
       "Yes",
       "Redux store"
     ],
@@ -148,7 +148,7 @@
       "Async storage key"
     ],
     [
-      "Push registration key suffix (meaning not established)",
+      "Storage key suffix (meaning not established)",
       "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
       "Async storage key"
     ],

@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_activity.case_synthetic_current.zip",
-    "start_time": "2026-11-07T05:00:41.032090+00:00",
-    "end_time": "2026-11-07T05:00:41.464193+00:00",
-    "run_time_seconds": 0.014780044555664062,
+    "start_time": "2026-11-09T14:21:07.758068+00:00",
+    "end_time": "2026-11-09T14:21:07.905774+00:00",
+    "run_time_seconds": 0.009728670120239258,
     "last_commit": {
-      "hash": "77c3d9695c6c9078943331037861326117d4a188",
+      "hash": "97d14b16613db2cf27d99506995cc9cba0c8ac9b",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:25:31-05:00",
-      "message": "OfferUp: account/app state, locations, searches, listing affinity, chat drafts, activity and cache artifacts"
+      "date": "2026-11-07T01:26:07-05:00",
+      "message": "OfferUp: state installed versus last-run versions, say no app binary was analysed"
     }
   },
   "headers": [

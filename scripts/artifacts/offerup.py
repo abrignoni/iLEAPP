@@ -12,16 +12,19 @@ __artifacts_v2__ = {
         "category": "OfferUp",
         "notes": "The Account ID is read from the name of a React Native storage key of the form "
                  "<number>:<NAME>:<hex>; it is the number in the key, and the file does not say "
-                 "that the account was signed in at acquisition (the redux store records whether "
-                 "the user ever logged in, shown here as Logged in at least once). The hex part "
-                 "of that key is reported as the push registration key suffix and its meaning is "
-                 "not established. Device ID and Advertising ID are the values the app wrote "
-                 "under those names. The Statsig and AppsFlyer values are identifiers created by "
-                 "those SDKs inside this app. The OfferUp container holds no listings, no chat "
-                 "messages and no meet-up details: those are fetched from the server and were not "
-                 "found stored on the device in either research container. Origin names the store a "
+                 "that the account was signed in at acquisition. The item userHasLoggedInAtLeastOnce "
+                 "is the redux store key of that name; its meaning beyond the name is not "
+                 "established. The hex part of the storage key is reported as the Storage key "
+                 "suffix, and its meaning is not established; the key pattern matches any NAME, "
+                 "not only a push registration key. App version last run (core.currentVersion) "
+                 "and App version previous (core.previousVersion) are the values of those redux "
+                 "store keys. Device ID and Advertising ID are the values the app wrote "
+                 "under those names. The Statsig and AppsFlyer values are read from keys "
+                 "carrying those SDK names. No listings, chat messages or meet-up details were "
+                 "found stored in the two research containers; whether the app stores them "
+                 "under other conditions is not established. Origin names the store a "
                  "row came from, which is why there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -46,11 +49,13 @@ __artifacts_v2__ = {
                  "search or posting area, not a record of where the device was at any time. The "
                  "posting location row has a Used GPS column taken from the stored didUseGPS "
                  "flag; for the other rows the file does not say how the place was chosen. "
-                 "Only the value current at acquisition is read. The rentals coordinates are "
-                 "stored as text and are converted to numbers. Kind tells which store a row came "
+                 "Only the value current at acquisition is read. State is read from the state "
+                 "key; when that key is absent or empty, the adminArea key is used. In the "
+                 "research containers the rentals coordinates are stored as text and are "
+                 "converted to numbers. Kind tells which store a row came "
                  "from: the search and rentals locations are read from the redux store, the posting "
                  "location from React Native storage, so there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -78,7 +83,7 @@ __artifacts_v2__ = {
                  "the app held for the user, which is not proof that the user ran that search. "
                  "The rows come from the one React Native storage manifest of the container, so "
                  "there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
             "com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*",
@@ -88,8 +93,8 @@ __artifacts_v2__ = {
     },
     "offerup_listing_affinity": {
         "name": "OfferUp - Listing Affinity",
-        "description": "Listing and category identifiers the OfferUp app keeps for feed "
-                       "personalisation.",
+        "description": "Listing and category identifiers the OfferUp app keeps in its "
+                       "feedAffinity redux store.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
@@ -98,13 +103,13 @@ __artifacts_v2__ = {
         "notes": "Read from the feedAffinity store of the redux state. The store holds a list of "
                  "listing and category identifiers (listingAffinities) and a comma separated "
                  "list of category identifiers (LAST_VIEWED_CATEGORIES). The file does not say "
-                 "whether a listing was viewed, saved or contacted, and holds no listing title, "
-                 "price, seller or time, so the identifiers can only be looked up on the "
-                 "service. Position is the place in the stored list. The rows come from the one "
+                 "whether a listing was viewed, saved or contacted. In the research containers the "
+                 "feedAffinity store holds only listingId and categoryId per entry, with no "
+                 "listing title, price, seller or time. Position is the place in the stored list. The rows come from the one "
                  "redux store file of the container, so there is no Source File column. The "
                  "feedAffinity store was present in the 2026.9.0 container and absent in the 2026.3.0 "
                  "one. "
-                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -129,7 +134,7 @@ __artifacts_v2__ = {
                  "messages were not found stored in either research container. The rows come from "
                  "the one React Native storage manifest of the container, so there is no Source "
                  "File column. "
-                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
             "com.offerup.iphone.consumer/RCTAsyncLocalStorage_V1/*",
@@ -147,20 +152,22 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "OfferUp",
         "notes": "Statsig sessions come from the session_id entries of the Statsig MMKV store. "
-                 "MMKV is append-only, so superseded entries of the same session are read too "
-                 "and the latest Last Update per session is reported. A Statsig session is the "
-                 "SDK's own measure of app use, not a login. For prompt counters, Time is the "
-                 "last successful run and Last Update the last attempt; both are Unix "
-                 "milliseconds as stored. The meaning of the profile_location_after_filter and "
+                 "MMKV is append-only between rewrites, so superseded entries of the same session "
+                 "can be present and are read too; the latest Last Update per session is "
+                 "reported. The meaning of a Statsig session beyond the key names is not "
+                 "established. For prompt counters, Time is the value of the "
+                 "last successful run key and Last Update that of the last attempt key; both "
+                 "are stored as Unix milliseconds and shown as UTC. The meaning of the profile_location_after_filter and "
                  "LAST_ACCOUNT_PAGE_REFRESH timestamps is not established beyond the key name. "
-                 "The realtime heartbeat is the last time the app recorded for its Ably "
-                 "connection. Install times are SDK values (AppsFlyer, Facebook) and can differ "
-                 "from the App Store install time. Event tells which store a row came from "
+                 "The realtime heartbeat is the value of the lastHeartbeatTime key in the "
+                 "ablyState entry of the redux store. The install times are the values of the "
+                 "AppsFlyerInstallTimestamp and FBSDKSettingsInstallTimestamp preference keys; "
+                 "how they relate to the App Store install time is not established. Event tells which store a row came from "
                  "(Statsig session: the Statsig store; Prompt exposure, Push permission prompt "
                  "and Realtime heartbeat: the redux store; the install timestamps: the app "
                  "preferences; Push registration, Prompt counter and Stored time: React Native "
                  "storage), so there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/mobile/Containers/Data/Application/*/Documents/mmkv/redux*",
@@ -187,10 +194,13 @@ __artifacts_v2__ = {
                  "Cached is the time_stamp column of the cache row, stored as text without a "
                  "time zone and read as UTC. A cached request records that the app made it, not "
                  "that the user saw the content. Body Keys lists the top-level JSON keys only; "
-                 "bodies are not decoded, and body text is not reported. Where the payload is "
+                 "bodies are not decoded, and body text is not reported. HTTP Status and MIME Type "
+                 "are a heuristic read of the archived response: the status is the first "
+                 "integer between 100 and 599 and the MIME type the first type-shaped string "
+                 "in it, or a content-type header entry when there is none. Where the payload is "
                  "kept in a separate file (isDataOnFS) the body is not read. The rows come from "
                  "the one Cache.db of the container, so there is no Source File column. "
-                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the layouts were written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
+                 "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Caches/com.offerup.iphone.consumer/Cache.db*",
         ),
@@ -329,17 +339,21 @@ def _manifest(path):
 
 
 def _async_value(manifest, key, storage_dir):
-    """Value for key: the manifest entry, or the overflow file React Native names by MD5(key)."""
+    """(value, overflow path) for key.
+
+    The value is the manifest entry, or the content of the overflow file React Native
+    names by MD5(key). The path is that overflow file when the value came from it, else ''.
+    """
     if key not in manifest:
-        return None
+        return None, ''
     if manifest[key] is not None:
-        return _load_json(manifest[key])
+        return _load_json(manifest[key]), ''
     overflow = os.path.join(storage_dir, hashlib.md5(key.encode('utf-8')).hexdigest())
     try:
         with open(overflow, 'r', encoding='utf-8') as handle:
-            return _load_json(handle.read())
+            return _load_json(handle.read()), overflow
     except (OSError, UnicodeDecodeError):
-        return None
+        return None, ''
 
 
 def _storage_dir(manifest_path):
@@ -407,10 +421,10 @@ def offerup_app_state(context):
     for path in _redux_files(files_found, containers):
         state = _redux_state(path)
         core = state.get('core', {})
-        add('App version (current)', core.get('currentVersion'), 'Redux store', path)
-        add('App version (previous)', core.get('previousVersion'), 'Redux store', path)
+        add('App version last run (core.currentVersion)', core.get('currentVersion'), 'Redux store', path)
+        add('App version previous (core.previousVersion)', core.get('previousVersion'), 'Redux store', path)
         onboarding = state.get('onboarding', {})
-        add('Logged in at least once', onboarding.get('userHasLoggedInAtLeastOnce'), 'Redux store', path)
+        add('userHasLoggedInAtLeastOnce (meaning beyond the name not established)', onboarding.get('userHasLoggedInAtLeastOnce'), 'Redux store', path)
         steps = onboarding.get('steps')
         if isinstance(steps, dict):
             for name, step in steps.items():
@@ -464,7 +478,7 @@ def offerup_app_state(context):
         for number in sorted(accounts):
             add('Account ID (from storage key name)', number, 'Async storage key', path)
             for suffix in sorted(accounts[number]):
-                add('Push registration key suffix (meaning not established)', suffix, 'Async storage key', path)
+                add('Storage key suffix (meaning not established)', suffix, 'Async storage key', path)
         status = _load_json(manifest.get('push_permission_status'))
         if isinstance(status, dict):
             add('Push permission status', status.get('status'), 'Async storage', path)
@@ -499,7 +513,7 @@ def _location_row(kind, location, gps):
     lon = _number(location.get('lon', location.get('longitude')))
     if name in ('', None) and lat in ('', None) and lon in ('', None):
         return None
-    return (kind, name, location.get('city', ''), location.get('adminArea', location.get('state', '')),
+    return (kind, name, location.get('city', ''), location.get('state') or location.get('adminArea', ''),
             location.get('zipcode', ''), lat, lon, _yes_no(gps) if gps is not None else '')
 
 
@@ -554,7 +568,7 @@ def offerup_recent_searches(context):
         manifest = _manifest(path)
         directory = _storage_dir(path)
         for key, kind in RECENT_SEARCH_KEYS:
-            entries = _async_value(manifest, key, directory)
+            entries, overflow = _async_value(manifest, key, directory)
             if not isinstance(entries, list):
                 continue
             for position, entry in enumerate(entries, start=1):
@@ -564,6 +578,8 @@ def offerup_recent_searches(context):
                              entry.get('type', ''), entry.get('preposition') or '',
                              entry.get('actionPath', '')))
                 sources.add(path)
+                if overflow:
+                    sources.add(overflow)
 
     if not rows:
         return headers, [], ''
@@ -608,13 +624,15 @@ def offerup_chat_drafts(context):
     sources = set()
 
     for path in _manifests(files_found, containers):
-        drafts = _async_value(_manifest(path), 'chat_draft_message', _storage_dir(path))
+        drafts, overflow = _async_value(_manifest(path), 'chat_draft_message', _storage_dir(path))
         if not isinstance(drafts, dict):
             continue
         for conversation, text in drafts.items():
             text = text if isinstance(text, str) else json.dumps(text, ensure_ascii=False)
             rows.append((str(conversation), text, len(text)))
             sources.add(path)
+            if overflow:
+                sources.add(overflow)
 
     if not rows:
         return headers, [], ''

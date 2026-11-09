@@ -66,10 +66,16 @@ class OfferUpTest(unittest.TestCase):
         self.assertEqual(values['Account ID (from storage key name)'], SYNTH.ACCOUNT_ID)
         self.assertEqual(values['Advertising ID'], SYNTH.ADVERTISING_ID)
         self.assertEqual(values['Statsig stable ID'], SYNTH.STABLE_ID)
-        self.assertEqual(values['App version (current)'], '2026.9.0')
+        self.assertEqual(values['App version last run (core.currentVersion)'], '2026.9.0')
         self.assertNotIn('9.9.9', values.values())
         places = _column(*out['offerup_locations'][:2], 'Place')
         self.assertNotIn('Decoyville', places)
+
+    def test_state_column_reads_the_state_key_before_admin_area(self):
+        out = self._run_all(SYNTH.build_files('current'))
+        headers, rows, _ = out['offerup_locations']
+        by_kind = dict(zip(_column(headers, rows, 'Kind'), _column(headers, rows, 'State')))
+        self.assertEqual(by_kind['Search location'], 'EX')
 
     def test_decoy_container_with_the_same_mmkv_names_yields_nothing(self):
         files = {name: data for name, data in SYNTH.build_files('current').items()
@@ -87,6 +93,9 @@ class OfferUpTest(unittest.TestCase):
     def test_earlier_container_reads_the_overflow_file_and_reports_absent_stores_as_empty(self):
         out = self._run_all(SYNTH.build_files('earlier'))
         self.assertEqual(len(out['offerup_recent_searches'][1]), 3)
+        sources = out['offerup_recent_searches'][2].replace(chr(92), '/').split(chr(10))
+        self.assertTrue(any(path.endswith('/manifest.json') for path in sources))
+        self.assertTrue(any(not path.endswith('/manifest.json') for path in sources), sources)
         for name in ('offerup_listing_affinity', 'offerup_chat_drafts', 'offerup_network_cache'):
             self.assertEqual(out[name][1], [], name)
 
