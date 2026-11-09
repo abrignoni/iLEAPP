@@ -86,13 +86,25 @@ copies.
 - `ccl_simplesnappy.py`: ccl_simplesnappy 2161c40 (2024-07-29), verbatim, recorded in vendored.json.
   That commit carried no LICENSE file; the MIT text kept here is the repository's later one, and
   the file's own header holds the same licence.
-- `ccl_leveldb.py`: ccl_chromium_reader ad37443 (2026-10-28) with two changes, so it is not in
+- `ccl_leveldb.py`: ccl_chromium_reader ad37443 (2026-10-28) with local changes, so it is not in
   vendored.json. `import ccl_simplesnappy` is `from . import ccl_simplesnappy`, and the file
   handle bounding from iLEAPP 41af38df is merged in: a reader closes each .log and .ldb file
   after checking it and reopens it for each pass, and what a pass skips as damage is copied back
   to the file's reader. That change is offered upstream as
   https://github.com/cclgroupltd/ccl_chromium_reader/pull/56; once upstream has it, re-vendor
   and record the file in vendored.json.
+  A further local change, from DLEAPP 0e4953a (2026-11-08): a data block of a table (.ldb)
+  file that cannot be read whole or whose snappy stream does not decompress is skipped, logged
+  (noting when its checksum does not match) and listed in the reader's `damage`, and reading goes
+  on with the next block and file. Upstream ad37443 raises there, so a caller gets nothing more
+  from that folder. Measured 2026-11-09 over the zip, tar and folder sources in the corpus
+  registries (disk images and other containers were not read): of 9,305 table files (six-digit .ldb and .sst
+  names) under 62 corpus keys, the reader before and after this change returns the same records
+  from 9,287, and both refuse the other 18
+  when the table is opened (footer magic), a check this change does not touch. A skipped block
+  can have held a newer version of a key, so a caller that keeps the newest record per key can
+  then see an older one. admin/test/scripts/test_leveldb_table_damage.py pins the decompression
+  cases and the read of the next file.
 
 Before 2026-11-03 iLEAPP kept an older copy of this reader (closest to upstream 210b5c6, 2021) in
 `scripts/`. The newer upstream code skips and reports a damaged or zero-filled .log block where
