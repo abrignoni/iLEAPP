@@ -3,22 +3,22 @@
     "module_name": "paypal",
     "artifact_name": "PayPal - Dated Preference Keys",
     "function_name": "paypalDatedKeys",
-    "case_number": "case_synthetic_full",
+    "case_number": "case_synthetic_sparse",
     "number_of_columns": 3,
     "number_of_rows": 7,
     "total_data_size_bytes": 1241,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalDatedKeys.case_synthetic_full.zip",
-    "start_time": "2026-11-07T05:15:16.565869+00:00",
-    "end_time": "2026-11-07T05:15:16.712062+00:00",
-    "run_time_seconds": 0.002857208251953125,
+    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalDatedKeys.case_synthetic_sparse.zip",
+    "start_time": "2026-11-09T14:23:25.091776+00:00",
+    "end_time": "2026-11-09T14:23:25.193448+00:00",
+    "run_time_seconds": 0.0024635791778564453,
     "last_commit": {
-      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "hash": "17c95d12baf04b6f5744fe6f0b1a89a7b2dc2a72",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:41:29-05:00",
-      "message": "PayPal: reword the feature-flag count in the settings notes"
+      "date": "2026-11-07T01:33:29-05:00",
+      "message": "PayPal: replace the iOS range with all five devices on iOS 26"
     }
   },
   "headers": [

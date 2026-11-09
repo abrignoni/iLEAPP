@@ -10,22 +10,22 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalCachedRequests.case_synthetic_full.zip",
-    "start_time": "2026-11-07T05:15:17.121839+00:00",
-    "end_time": "2026-11-07T05:15:17.262269+00:00",
-    "run_time_seconds": 0.0045528411865234375,
+    "start_time": "2026-11-09T14:23:23.569687+00:00",
+    "end_time": "2026-11-09T14:23:23.680587+00:00",
+    "run_time_seconds": 0.004312038421630859,
     "last_commit": {
-      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "hash": "17c95d12baf04b6f5744fe6f0b1a89a7b2dc2a72",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:41:29-05:00",
-      "message": "PayPal: reword the feature-flag count in the settings notes"
+      "date": "2026-11-07T01:33:29-05:00",
+      "message": "PayPal: replace the iOS range with all five devices on iOS 26"
     }
   },
   "headers": [
     "Cached Time",
+    "Beacon t (read as Unix seconds)",
     "Host",
     "Path",
-    "Beacon t (Unix seconds)",
     "Beacon i (as stored)",
     "Beacon p (as stored)",
     "Beacon a (as stored)"
@@ -33,45 +33,45 @@
   "data": [
     [
       1778328000,
+      1778328000,
       "slc.stats.paypal.com",
       "/counter1.cgi",
-      1778328000,
       "192.0.2.10",
       "SYNTHPAGEID000000000000000000A1",
       "10"
     ],
     [
       1778328061,
+      1778328061,
       "lvs.stats.paypal.com",
       "/counter2.cgi",
-      1778328061,
       "10.0.0.7",
       "SYNTHPAGEID000000000000000000A2",
       "10"
     ],
     [
       1778328090,
+      "",
       "analytics.adjust.com",
       "/session",
-      "",
       "",
       "",
       ""
     ],
     [
       1778328120,
+      "",
       "www.paypalobjects.com",
       "/rdaAssets/magnes/synthetic.json",
-      "",
       "",
       "",
       ""
     ],
     [
       1778328150,
+      "",
       "api-m.paypal.com",
       "/v1/synthetic/path",
-      "",
       "",
       "",
       ""

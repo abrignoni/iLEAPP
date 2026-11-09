@@ -1,7 +1,7 @@
 {
   "metadata": {
     "module_name": "paypal",
-    "artifact_name": "PayPal - Security SDK Start Records",
+    "artifact_name": "PayPal - Security SDK Log Records (SDKV)",
     "function_name": "paypalSecuritySdkStarts",
     "case_number": "case_synthetic_empty",
     "number_of_columns": 5,
@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalSecuritySdkStarts.case_synthetic_empty.zip",
-    "start_time": "2026-11-07T05:15:18.227425+00:00",
-    "end_time": "2026-11-07T05:15:18.377554+00:00",
-    "run_time_seconds": 0.0025458335876464844,
+    "start_time": "2026-11-09T14:23:24.413171+00:00",
+    "end_time": "2026-11-09T14:23:24.529065+00:00",
+    "run_time_seconds": 0.007863759994506836,
     "last_commit": {
-      "hash": "c80dbd1adf6b08e602bb1840186f879f04206869",
+      "hash": "17c95d12baf04b6f5744fe6f0b1a89a7b2dc2a72",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:41:29-05:00",
-      "message": "PayPal: reword the feature-flag count in the settings notes"
+      "date": "2026-11-07T01:33:29-05:00",
+      "message": "PayPal: replace the iOS range with all five devices on iOS 26"
     }
   },
   "headers": [

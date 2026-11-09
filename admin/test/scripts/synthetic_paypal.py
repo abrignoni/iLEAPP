@@ -2,7 +2,7 @@
 """Build SYNTHETIC PayPal (com.yourcompany.PPClient) containers (fabricated values, no data from any device).
 
 File names, table names, column names and key names follow what the paypal artifacts read in the
-Data container and the app-group container of PayPal 8.98 to 8.107 on iOS 18 and iOS 26 full file
+Data container and the app-group container of PayPal 8.98 to 8.107 full file
 systems. Every value below is invented: accounts are ``*.example.invalid``, ids start with ``SYNTH``,
 phone numbers are 555-01xx style and every date derives from the fixed epoch below, so the output is
 reproducible.

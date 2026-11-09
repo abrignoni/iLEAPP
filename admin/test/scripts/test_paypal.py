@@ -142,14 +142,14 @@ class PayPalTest(unittest.TestCase):
 
     def test_cached_requests_show_host_and_path_but_never_the_query(self):
         rows = _rows(module.paypalCachedRequests, self._tree('full'))
-        self.assertEqual(rows[0][1:3], ('slc.stats.paypal.com', '/counter1.cgi'))
+        self.assertEqual(rows[0][2:4], ('slc.stats.paypal.com', '/counter1.cgi'))
         for row in rows:
-            self.assertNotIn('?', row[2])
+            self.assertNotIn('?', row[3])
             self.assertNotIn('SYNTHTOKEN', ' '.join(str(cell) for cell in row))
         beacon, other = rows[0], rows[2]
         self.assertEqual((beacon[4], beacon[6]), ('192.0.2.10', '10'))
-        self.assertEqual(beacon[3], beacon[0])
-        self.assertEqual(other[3:7], ('', '', '', ''))
+        self.assertEqual(beacon[1], beacon[0])
+        self.assertEqual((other[1], *other[4:7]), ('', '', '', ''))
 
     def test_analytics_events_tolerate_bad_json_and_prefer_the_payload(self):
         rows = _rows(module.paypalAnalyticsEvents, self._tree('full'))
