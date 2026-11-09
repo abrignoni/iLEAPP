@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# File handle lifecycle updates: @AlexisBrignoni, Codex.
+# File handle lifecycle updates: @AlexisBrignoni, Codex. Damaged table block handling: @AlexisBrignoni, Claude.
 import typing
 import struct
 import re
@@ -216,6 +216,7 @@ class LdbFile:
 
         self.path = file
         self.file_no = int(file.stem, 16)
+        self.damage: typing.List[LogDamage] = []
 
         self._f = file.open("rb")
         try:
@@ -254,6 +255,15 @@ class LdbFile:
 
         return Block(raw_block, is_compressed, self, handle.offset)
 
+    def _block_checksum_matches(self, handle: BlockHandle) -> bool:
+        """Whether the masked crc32c in the block's trailer matches its contents and compression type byte."""
+        self._f.seek(handle.offset)
+        data = self._f.read(handle.length + 1)
+        stored = self._f.read(4)
+        if len(data) != handle.length + 1 or len(stored) != 4:
+            return False
+        return ccl_simplesnappy.check_masked_crc(struct.unpack("<I", stored)[0], data)
+
     def _read_index(self) -> typing.Tuple[typing.Tuple[bytes, BlockHandle], ...]:
         index_block = self._read_block(self._index_handle)
         # key is earliest key, value is BlockHandle to that data block
@@ -261,9 +271,22 @@ class LdbFile:
                      for entry in index_block)
 
     def __iter__(self) -> typing.Iterable[Record]:
-        """Iterate Records in this Table file"""
+        """Iterate Records in this Table file. Afterwards, `damage` lists any data block that had to be skipped.
+
+        A data block that cannot be read whole, or whose snappy stream ccl_simplesnappy cannot decompress (it raises
+        ValueError, TypeError or struct.error), is skipped and reading goes on with the next block the index names, so damage costs the records of that block rather than the rest of the
+        table and every file read after it. The index block is still required: without it no block can be
+        found, and the table is refused when it is opened.
+        """
+        self.damage.clear()
         for block_key, handle in self._index:
-            block = self._read_block(handle)
+            try:
+                block = self._read_block(handle)
+            except (ValueError, TypeError, struct.error) as ex:
+                checksum = "" if self._block_checksum_matches(handle) else "; block checksum does not match"
+                _record_damage(self.damage, self.path, handle.offset, handle.length + LdbFile.BLOCK_TRAILER_SIZE,
+                               f"data block not readable ({ex}){checksum}")
+                continue
             for entry in block:
                 yield Record.ldb_record(
                     entry.key, entry.value, self.path,
