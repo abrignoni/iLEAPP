@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
     "zelle_risk_sdk_events": {
         "name": "Zelle - Risk SDK Events",
-        "description": "Start, request, response, device-state and error entries from the debug log "
-                       "(Documents/log1.txt) of the device-risk SDK embedded in the Zelle app "
-                       "(com.zellepay.zelle).",
+        "description": "Start, GuiReq, received-message, device-state, risk-reason and error entries from "
+                       "Documents/log1.txt, a text log in the Zelle container (com.zellepay.zelle) whose "
+                       "component names are TwoChkCorePlugin, HttpPlugin and ManagerPlugin.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
@@ -11,29 +11,32 @@ __artifacts_v2__ = {
         "category": "Zelle",
         "notes": (
             "Reads Documents/log1.txt in a container whose metadata plist names com.zellepay.zelle, or in an "
-            "iTunes backup AppDomain folder named com.zellepay.zelle. The file is a text log written by an SDK "
-            "whose component names are TwoChkCorePlugin, HttpPlugin and ManagerPlugin. Each entry is a header line "
+            "iTunes backup AppDomain folder named com.zellepay.zelle. The file is a text log whose "
+            "component names are TwoChkCorePlugin, HttpPlugin and ManagerPlugin. Each entry is a header line "
             "'+++ [M-D-YYYY HH:MM:SS] [LEVEL] [Component]' followed by a message line. Event Time is the "
             "bracketed time read as UTC. That held on both research containers we examined: the first entry of the "
             "log fell within 1 s of first_open_timestamp_ms, a UTC epoch value, in the Firebase measurement plist "
             "of the same container (see Zelle - Firebase Analytics). Two containers are a small basis and it is not "
             "established for other app versions. The month is written first: the first field never exceeded 12 "
             "and the second reached 31 in the logs of both containers, and entries were in ascending time order "
-            "in both. One row is reported for each entry that "
-            "starts the SDK (Two Core Plugin Start; Application has started successfully), each request the app "
-            "passed to the SDK (TwoChkGuiReqMsg name), each server response (message type and status code), each "
-            "device-state change, each risk reason, each 'Cleared the credentials' entry, and each entry logged at "
-            "ERROR level. Event Type, Event and Status are words from the message, as stored; this module does not "
-            "state what a request or a status means to the user or the bank. Reported as stored are also the "
-            "message text, which can include values the SDK printed (for example a credential length on a "
-            "credential-check request). Not reported, because they were repeated or constant in the logs of the two "
+            "in both. One row is reported for each entry whose "
+            "message is 'Two Core Plugin Start' or 'Application has started successfully' (Event Type 'SDK start'), "
+            "each 'received: <NAME>' line of a GuiReq message (Event Type 'Request to SDK', Event is NAME), each "
+            "'Received msg of type <TYPE>, status code = <CODE>' line (Event Type 'Server response', Event is TYPE, "
+            "Status is CODE), each 'device state set to: <STATE>' line, each 'riskReason' line, each 'Cleared the "
+            "credentials' entry, and each entry logged at ERROR level. Event Type is a label this module assigns "
+            "from the message wording. Event and Status are words taken from the message; for an Error entry, Event "
+            "is the text before the first comma, at most 80 characters. This module does not state what a request "
+            "or a status means to the user or the bank. Log Message joins the message's body lines with ' / ' and is "
+            "clipped at 300 characters; it can include values printed in the message (for example a credential "
+            "length on a credential-check request). Not reported, because they were repeated or constant in the logs of the two "
             "research containers "
-            "and describe the SDK's connection handling rather than the user: socket and connection-state "
+            "and are connection and handler lines rather than lines about the user: socket and connection-state "
             "entries, 'Found Dlg in transaction map', credential enrolment and availability bit values "
             "(constant in both logs), 'Router core get/set environment' and handler plumbing. They are "
-            "counted in Zelle - Risk SDK Log Summary. The log is a rolling file, so earlier entries may have been "
-            "overwritten; absence of an entry does not show that nothing happened. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "counted in Zelle - Risk SDK Log Summary. Whether the file is rotated or truncated is not "
+            "established; absence of an entry does not show that nothing happened. "
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Documents/log1.txt',
@@ -44,8 +47,9 @@ __artifacts_v2__ = {
     },
     "zelle_risk_sdk_log_summary": {
         "name": "Zelle - Risk SDK Log Summary",
-        "description": "One row per Zelle risk-SDK log file: first and last entry time, entry counts by level, "
-                       "SDK start count and the server host names the log mentions.",
+        "description": "One row per Documents/log1.txt in a Zelle container: first and last entry time, entry "
+                       "counts by level, the count of 'Application has started successfully' entries and the host "
+                       "names the log mentions.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
@@ -57,9 +61,10 @@ __artifacts_v2__ = {
             "Error columns count the levels written in those headers (no other level was seen in the logs of the "
             "two research containers). SDK Starts counts 'Application has started successfully' entries. Servers lists the host "
             "names that follow 'siteId:' or 'send connect request to' in the log, de-duplicated and sorted; they "
-            "are the SDK vendor's service names and say nothing about a person. The log is a rolling file, so "
-            "First Entry is the oldest entry still present, not the first run of the app. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "are names written in the log and say nothing about a person. Whether the file is rotated or "
+            "truncated is not established, so First Entry is the first entry in the file and may not be the first "
+            "run of the app. "
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Documents/log1.txt',
@@ -70,8 +75,8 @@ __artifacts_v2__ = {
     },
     "zelle_device_integrity": {
         "name": "Zelle - Device Integrity Checks",
-        "description": "Root-detection, malware-detection, SDK initialisation and error lines from the app's "
-                       "Library/Caches/file.log.",
+        "description": "Lines about root status, malware status, 'STEP' initialisation, the signature file version "
+                       "and errors from the app's Library/Caches/file.log.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
@@ -80,23 +85,24 @@ __artifacts_v2__ = {
         "notes": (
             "Reads Library/Caches/file.log in a Zelle container. The file holds the app's console lines, one "
             "per line, as 'YYYY-MM-DD HH:MM:SS.mmm Zelle[pid:thread] message'; PID is the process id, which changes "
-            "with each launch of the app, and the process name (Zelle on every line) is not reported. Local Time is written without a "
+            "with each launch of the app, and the process name (Zelle on every line) is not reported. Log Time is written without a "
             "time zone, so this column is text and no UTC value is derived. On both research containers the first "
             "line fell a whole number of hours before first_open_timestamp_ms (UTC) in the Firebase measurement "
             "plist of the same container (see Zelle - Firebase Analytics), which fits device local time but does "
-            "not establish it. Check is the reporting method named in the line "
-            "(EwsMrdExtension getRootStatus or getMalwareStatus) and Result is the word the app printed after "
+            "not establish it. Check is a label this module assigns from the line's wording; for the two status lines it comes from "
+            "the method named in the line (getRootStatus or getMalwareStatus). Result is the word the app printed after "
             "'root status is' or 'malware status is' (NotRooted and NoMalwareDetected on every line seen). A "
             "Result states what the SDK printed, not that the device was or was not modified; this module has "
-            "no source for how the SDK reaches it. Other rows are the SDK initialisation steps, the signature "
-            "file version line, the session id the SDK logged when generating device logs, the error lines "
-            "printed by the Google and payload-handling code, and the Crashlytics version line. The JSON "
-            "blocks that follow some lines (keys, signatures, payloads) are not reported. Keyboard-layout "
+            "no source for how the status is reached. Other rows are the 'STEP n ---' lines, the "
+            "signature file version line, the session id on the 'Generating device logs for sessionId:' line, "
+            "lines that contain ERROR or start with Error, and the Crashlytics version line. Untimestamped lines, "
+            "such as the JSON blocks that follow some lines (keys, signatures, payloads), are not reported; JSON "
+            "on a timestamped line itself is part of its Message and is clipped with it. Keyboard-layout "
             "messages and other lines not named above are not reported. A Message longer than 300 characters is "
             "clipped (one payload-error line seen held several thousand). The file is a small cache file: the "
             "two files held 20 and 70 timestamped lines, so it is not a complete launch history. The "
             "session id after 'sessionId:' was empty on every line seen. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Caches/file.log',
@@ -117,8 +123,10 @@ __artifacts_v2__ = {
         "notes": (
             "One row per key of Library/Preferences/com.zellepay.zelle.plist, Library/Preferences/Mixpanel.plist "
             "(the two archived blobs are expanded: super properties here, timed events in Zelle - Mixpanel Timed "
-            "Events) and Library/Application Support/com.crashlytics/CLSUserDefaults.plist. Values are as "
-            "stored; byte values are shown as hex, lists as JSON. The meaning of a key is not established unless "
+            "Events) and Library/Application Support/com.crashlytics/CLSUserDefaults.plist. Value shows bytes as hex "
+            "(bytes longer than 64 are cut to the first 64 bytes of hex, followed by '...'), lists and dicts as "
+            "JSON and dates as ISO text; other values are shown as stored. Value Type is the Python type name "
+            "of the value. The meaning of a key is not established unless "
             "the key's own name states it. Keys seen in the two research containers were: AccountAssociatedWithUserKey, "
             "AppAlreadyLaunchedKey, PreferencesTouchIDKey, PushIDKey (32 bytes), qrCodeSeen, zrcSeen, "
             "ShouldKeepPrivacySettingsKey, trackedKey, MixpanelRecordEventType (DONT_RECORD in one container, "
@@ -132,7 +140,7 @@ __artifacts_v2__ = {
             "not evidence that a setting is off. The Mixpanel event queue (AppStore_MPDB.sqlite) is covered by "
             "the Mixpanel - Events artifact, and the app plist is also listed by the generic Application User "
             "Defaults artifact. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.zellepay.zelle.plist',
@@ -155,14 +163,18 @@ __artifacts_v2__ = {
         "notes": (
             "Reads the mixpanel-<name>-timedEvents key of Library/Preferences/Mixpanel.plist, an "
             "NSKeyedArchiver NSDictionary of event name to a number, with the core's plist helper. Start Time is "
-            "that number read as Unix seconds. That reading is checked, not sourced: in both research "
-            "containers all values fall between the first and last entry of the Zelle risk-SDK log in the same "
-            "container, whereas read as seconds since 2001 they would be in 2054 and 2055. What it is the "
-            "start time of is not established; 'timed events' is the Mixpanel SDK's own term and the entries "
+            "that number read as Unix seconds. Sources: mixpanel-swift at commit "
+            "38e63de7d71a2b6787bbd190ef8fcc04d053f259 (MixpanelInstance.swift, time(event:)) takes "
+            "Date().timeIntervalSince1970 when the app calls time(event:), and mixpanel-iphone at commit "
+            "1e0a3c5a59b018507555d52ae60246c4237b0ef0 (Mixpanel.m, timeEvent:) does the same. "
+            "Consistent with that, in both research containers all values fall between the first and last "
+            "entry of Documents/log1.txt in the same container, whereas read as seconds since 2001 they would "
+            "be in 2054 and 2055. What the value is the start time of in a given container is not established "
+            "beyond those sources; the key is named timedEvents and the entries "
             "spanned 375 and 631 days in the two containers, so they are not one session. Event names are app "
             "defined (for example login or an enrolment step name) and are shown as stored. An event in this "
             "dictionary is not evidence that the user completed the step it names. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist',
@@ -184,9 +196,10 @@ __artifacts_v2__ = {
             "Reads the events and user_attributes tables of Library/Application Support/Google/Measurement/"
             "google-app-measurement.sql and selected keys of com.google.gmp.measurement.plist in the same "
             "folder. Event rows: Name is events.name as stored, Count is lifetime_count and Time is "
-            "last_fire_timestamp, a float read as Unix seconds; one row per event name, not per occurrence "
+            "last_fire_timestamp, a float read as Unix seconds (the code passes unit 's', so a large value is not "
+            "read as milliseconds); one row per event name, not per occurrence "
             "(raw_events and queue were empty in both research containers). User Property rows: Name, Value and Origin "
-            "as stored, Time is set_timestamp as Unix seconds. Record Type tells which file a row came from (Event and User "
+            "as stored, Time is set_timestamp as Unix seconds, read the same way. Record Type tells which file a row came from (Event and User "
             "Property rows are from the database, Measurement plist rows from the plist), so there is no Source File "
             "column. Measurement plist rows: first_open_timestamp_ms "
             "and last_uploaded_event_millis are read as Unix milliseconds, last_engagement_end, "
@@ -196,13 +209,13 @@ __artifacts_v2__ = {
             "last_engagement_end equalled the latest event Time; the user property '_fot' was a whole number "
             "of hours in milliseconds and within 30 min after first_open_timestamp_ms; the set_timestamp of "
             "'_sid' equalled the Time of event '_s' and its value was within 0.5 s of it; '_sno' equalled "
-            "session_number and the Count of '_s'. The names that start with an underscore are the SDK's "
-            "own abbreviations and this module does not expand them; '_f', '_vs', '_ab', '_au', '_s', '_ou' "
-            "and '_e' and the app-defined 'click' and 'zelle_screen_view' were seen. Value expansions for "
+            "session_number and the Count of '_s'. Names that start with an underscore are written by the SDK, not by the app; "
+            "this module does not expand them. '_f', '_vs', '_ab', '_au', '_s', '_ou' "
+            "and '_e' and 'click' and 'zelle_screen_view' were seen. Value expansions for "
             "'_fi', '_npa', '_lte' and '_se' are not established. os_version is the value last written by "
             "the SDK, not necessarily the OS now installed. Not covered: the other tables of the "
             "database (empty, or SDK configuration and counters, in the two research containers) and google_experimentation_database.sql. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key, so the stores were last written by an older build than the installed one, and nothing in either container shows 9.4.1 itself writing them. What is said here about what was seen rests on those two containers; other app versions are untested."
+            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*',
@@ -303,11 +316,9 @@ def _utc(year, month, day, hour, minute, second):
         return ''
 
 
-def _epoch(value, unit='auto'):
+def _epoch(value, unit='s'):
     if isinstance(value, bool) or not isinstance(value, (int, float)) or value == 0 or value != value:
         return ''
-    if unit == 'auto':
-        unit = 'ms' if abs(value) >= 100_000_000_000 else 's'
     try:
         return datetime.datetime.fromtimestamp(value / (1000 if unit == 'ms' else 1), _UTC)
     except (ValueError, OverflowError, OSError):
@@ -344,7 +355,7 @@ def _read_lines(path):
 
 
 def _sdk_entries(path):
-    """Yield (time, level, component, message) for each header in a risk-SDK log."""
+    """Yield (time, level, component, message) for each header in a Documents/log1.txt log."""
     header = None
     body = []
 
@@ -442,7 +453,7 @@ def zelle_risk_sdk_log_summary(context):
 
 @artifact_processor
 def zelle_device_integrity(context):
-    data_headers = ('Local Time', ('PID', 'number'), 'Check', 'Result', 'Message')
+    data_headers = ('Log Time', ('PID', 'number'), 'Check', 'Result', 'Message')
     rows = []
     sources = []
     for path in _zelle_files(context, lambda p: p.endswith('/Library/Caches/file.log')):
@@ -578,13 +589,13 @@ def _firebase_db_rows(path, display):
     if does_table_exist_in_db(path, 'events'):
         for name, count, last_fire in get_sqlite_db_records(
                 path, 'SELECT name, lifetime_count, last_fire_timestamp FROM events ORDER BY name'):
-            rows.append((_epoch(last_fire), 'Event', name, '', count, ''))
+            rows.append((_epoch(last_fire, 's'), 'Event', name, '', count, ''))
     else:
         logfunc(f'Zelle: no events table; file={display}')
     if does_table_exist_in_db(path, 'user_attributes'):
         for name, stamp, value, origin in get_sqlite_db_records(
                 path, 'SELECT name, set_timestamp, value, origin FROM user_attributes ORDER BY name'):
-            rows.append((_epoch(stamp), 'User Property', name, _show(value), '', origin))
+            rows.append((_epoch(stamp, 's'), 'User Property', name, _show(value), '', origin))
     else:
         logfunc(f'Zelle: no user_attributes table; file={display}')
     return rows

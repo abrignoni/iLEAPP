@@ -1,6 +1,6 @@
 {
   "synthetic": {
-    "description": "Fabricated Zelle container: risk-SDK log, console log, preferences, Mixpanel plist and Firebase measurement store with invented values, plus a second app container holding a same-named file that must be ignored.",
+    "description": "Fabricated Zelle container: log1.txt log, console log, preferences, Mixpanel plist and Firebase measurement store with invented values, plus a second app container holding a same-named file that must be ignored.",
     "maker": "@danjethh",
     "os_name": "iOS",
     "os_version": "synthetic",

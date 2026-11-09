@@ -108,7 +108,7 @@ class ZelleTests(unittest.TestCase):
         self.assertFalse(any('keyplane' in r['Message'] for r in rows))
         self.assertFalse(any('SYNTHETIC-NOT-A-KEY' in r['Message'] for r in rows))
         self.assertEqual({r['PID'] for r in rows}, {500, 777})
-        self.assertTrue(all(isinstance(r['Local Time'], str) for r in rows))
+        self.assertTrue(all(isinstance(r['Log Time'], str) for r in rows))
 
     def test_preferences_expand_archived_super_properties_only(self):
         with build('synthetic') as root:

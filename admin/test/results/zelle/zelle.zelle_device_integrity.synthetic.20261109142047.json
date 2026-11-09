@@ -10,19 +10,19 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_device_integrity.synthetic.zip",
-    "start_time": "2026-11-07T04:55:25.090352+00:00",
-    "end_time": "2026-11-07T04:55:25.252515+00:00",
-    "run_time_seconds": 0.011054754257202148,
+    "start_time": "2026-11-09T14:20:47.529150+00:00",
+    "end_time": "2026-11-09T14:20:47.633107+00:00",
+    "run_time_seconds": 0.003514528274536133,
     "last_commit": {
-      "hash": "7bdc8fa59a6354f2d2febb7e50af8b80d00fe743",
-      "author_name": "Daniel Addai",
+      "hash": "75a64af797df1ce7d37959f1a6c1175863aa9cd7",
+      "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:25:38-05:00",
-      "message": "Add Zelle app artifacts: risk-SDK log, device integrity checks, preferences, Mixpanel timed events, Firebase analytics"
+      "date": "2026-11-07T01:28:12-05:00",
+      "message": "Zelle: state the installed app version (9.4.1) next to the Mixpanel last-write version"
     }
   },
   "headers": [
-    "Local Time",
+    "Log Time",
     "PID",
     "Check",
     "Result",

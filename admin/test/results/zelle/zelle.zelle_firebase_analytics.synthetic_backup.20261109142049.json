@@ -3,22 +3,22 @@
     "module_name": "zelle",
     "artifact_name": "Zelle - Firebase Analytics",
     "function_name": "zelle_firebase_analytics",
-    "case_number": "synthetic_minimal",
+    "case_number": "synthetic_backup",
     "number_of_columns": 6,
-    "number_of_rows": 13,
-    "total_data_size_bytes": 476,
+    "number_of_rows": 15,
+    "total_data_size_bytes": 552,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_firebase_analytics.synthetic_minimal.zip",
-    "start_time": "2026-11-07T04:55:26.474058+00:00",
-    "end_time": "2026-11-07T04:55:26.631952+00:00",
-    "run_time_seconds": 0.007754325866699219,
+    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_firebase_analytics.synthetic_backup.zip",
+    "start_time": "2026-11-09T14:20:49.393894+00:00",
+    "end_time": "2026-11-09T14:20:49.508213+00:00",
+    "run_time_seconds": 0.0069277286529541016,
     "last_commit": {
-      "hash": "7bdc8fa59a6354f2d2febb7e50af8b80d00fe743",
-      "author_name": "Daniel Addai",
+      "hash": "75a64af797df1ce7d37959f1a6c1175863aa9cd7",
+      "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:25:38-05:00",
-      "message": "Add Zelle app artifacts: risk-SDK log, device integrity checks, preferences, Mixpanel timed events, Firebase analytics"
+      "date": "2026-11-07T01:28:12-05:00",
+      "message": "Zelle: state the installed app version (9.4.1) next to the Mixpanel last-write version"
     }
   },
   "headers": [
@@ -133,6 +133,22 @@
       "",
       5,
       ""
+    ],
+    [
+      1772460000,
+      "User Property",
+      "_fot",
+      1772463599000,
+      "",
+      "auto"
+    ],
+    [
+      1772460000,
+      "User Property",
+      "_sno",
+      3,
+      "",
+      "auto"
     ]
   ]
 }
