@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "anydeskConnectionHistory": {
         "name": "AnyDesk - Connection History",
         "description": "Lines of AnyDesk's connection_trace.txt, one row per line, split into direction, "
-                       "date and time, the next word, a name field and two numeric fields, as stored",
+                       "date and time, the next word, a name field and two numeric fields",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
@@ -11,7 +11,10 @@ __artifacts_v2__ = {
         "notes": "Reads Library/Application Support/.anydesk/connection_trace.txt in the app's Data "
                  "container. Each line is split with a pattern; a line that does not fit it is kept "
                  "whole in Raw Line (shown only for those lines) with the other columns blank, so no line is "
-                 "dropped. Every column is shown as stored. Date and time carry no time zone in the file "
+                 "dropped. Direction, Mode, ID 1 and ID 2 are shown as the line holds them. Date and Time "
+                 "joins the line's date and time with one space and drops the comma between them. "
+                 "Name Field has its surrounding spaces removed. ID 1 In Preferences List is derived, "
+                 "see below. Date and time carry no time zone in the file "
                  "and none was established here, so they are text and the artifact has no timeline. "
                  "Direction is the file's first word; in the one research container Direction holds one value on all 4 rows ('Incoming'). "
                  "Mode is the word after the time; Mode (As Stored) holds one value on all 4 rows of that container ('User'). Third-party write-ups of the "
@@ -21,15 +24,16 @@ __artifacts_v2__ = {
                  "Name Field was blank on every line of that container. ID 1 and ID 2 are the two numeric "
                  "fields; in that container ID 1 (As Stored) holds one value on all 4 rows, ID 2 (As Stored) holds the "
                  "same value, and ID 2's meaning is not established. In that container neither equalled the device's own AnyDesk ID in "
-                 "system.conf (ad.anynet.id), which the trace log (anydesk.trace) also names as Client-ID. "
+                 "system.conf (ad.anynet.id), which that container's trace log (anydesk.trace) also names as Client-ID. "
                  "ID 1 In Preferences List says whether ID 1 appears in the "
                  "user.preference.already.connected.users list of the same container's "
-                 "com.anydesk.AnyDesk.plist ('Yes', 'No', or blank when that plist or key is absent); in that container "
+                 "com.anydesk.AnyDesk.plist ('Yes', 'No', or blank when that plist is absent or unreadable or the key is absent or not a list); in that container "
                  "ID 1 In Preferences List holds one value on all 4 rows ('Yes'); "
                  "the key name is the app's, and what puts an ID on the list is not established. "
-                 "Presence of a line shows that the app wrote it; a file with no lines, or no file, "
+                 "A line shows only that the file holds it; a file with no lines, or no file, "
                  "is not evidence that no session took place, and the file's rotation or size limits "
-                 "are not established. The file is the only source of these rows, so there is no Source File column. "
+                 "are not established. Source File names the connection_trace.txt each row came from, because the "
+                 "paths have a wildcard container segment and a device can hold more than one container. "
                  "Evidence base: the author's own testing on one research container with AnyDesk 7.1.2 installed "
                  "(the startup banners in its trace log also name 7.0.2 and 7.1.1), 4 lines. Everything said here about what was seen rests on that one "
                  "container; other versions and layouts are untested. "
@@ -54,21 +58,22 @@ __artifacts_v2__ = {
         "notes": "system.conf and user.conf are 'key=value' text files in Library/Application Support/.anydesk; "
                  "their values are shown as stored. The preferences plist is read with plistlib; dates are "
                  "shown in UTC as the plist stores them, lists and dictionaries as JSON. "
-                 "service.conf has keys named for a certificate, a private key and tokens; "
-                 "only its key names are reported and every value is withheld "
+                 "Lines starting with '#' are skipped. A plist value that is bytes is shown as hex. "
+                 "In the one research container service.conf had keys named for a certificate, a private key and tokens; "
+                 "only the key names of any service.conf are reported and every value is withheld "
                  "('(withheld)'). The same rule applies to any key of the other files whose name "
                  "contains 'pkey', 'cert' or 'token'. "
-                 "Only a few keys have a meaning that can be checked from the data: "
-                 "ad.anynet.id equalled the Client-ID the trace log names in the one research container, and "
-                 "user.preference.install.date is a plist date. The meaning of the other "
-                 "keys is not established and the key names are the app's. A key that is "
+                 "In the one research container ad.anynet.id equalled the Client-ID its trace log names, and "
+                 "user.preference.install.date is a plist date. The meaning of the keys is "
+                 "not established and the key names are the app's. A key that is "
                  "absent is not evidence of a setting being off: no default is documented here. "
                  "Evidence base: the author's own testing on one research container with AnyDesk 7.1.2 installed "
                  "(the startup banners in its trace log also name 7.0.2 and 7.1.1): system.conf 21 keys, user.conf 7, plist 4, service.conf 6 key names. "
                  "Everything said here about what was seen rests on that one container; other versions "
                  "may carry other keys. "
-                 "Store names the file each row came from (system.conf, user.conf, service.conf or the "
-                 "preferences plist), so there is no Source File column. "
+                 "Store names the kind of file each row came from (system.conf, user.conf, service.conf or the "
+                 "preferences plist); Source File names the file itself, because the paths have a "
+                 "wildcard container segment and a device can hold more than one container. "
                  "The App Group container group.com.anydesk.Anydesk had an empty .anydesk folder in that "
                  "container and is not read.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/.anydesk/system.conf',
@@ -89,9 +94,14 @@ __artifacts_v2__ = {
         "category": "AnyDesk",
         "notes": "anydesk.trace (Library/Application Support) is a text log. A new block starts at each "
                  "'AnyDesk iOS Startup' banner line; entries before the first banner, if any, form one extra row "
-                 "(Starts With Startup Banner = No) with a blank Version and Build. Times are the log's own and carry no time zone, so they are "
+                 "(Starts With Startup Banner = No). Times are the log's own and carry no time zone, so they are "
                  "text, not a timeline; ordering is the file's order. "
-                 "Version and Build come from the banner's Version and Build lines as stored. "
+                 "Version is the first word of the block's first Version line and the parenthetical "
+                 "after it goes to Version Detail; Build is the first word of the block's first Build line. "
+                 "A block with no such line has them blank, and a block before the first banner can "
+                 "carry a Version or Build if such lines appear there. "
+                 "Log Lines counts only lines that start with a level word and a timestamp; other "
+                 "lines are not counted. "
                  "The count columns are numbers of log lines, "
                  "not sessions or connections: Relay Established Lines counts "
                  "'Main relay connection established.', Relay Failed Lines counts lines starting "
@@ -100,12 +110,14 @@ __artifacts_v2__ = {
                  "What a relay connection means for use of the app is not established here. "
                  "Whole-file detail (every other log line) is not reproduced: the log held about "
                  "6,800 lines in the one research container, almost all scheduler, IPC, DNS and "
-                 "configuration messages. A trace of that size spanned several years, "
-                 "so the log is not limited to recent use, but its rotation rules are not established. "
-                 "No session or file-transfer lines were present in that trace, so none "
-                 "are parsed; a trace from a device with such sessions may hold them. "
-                 "Source File is kept because the paths pattern anydesk.trace* can match more than one "
-                 "file, for example a rotated copy; it matched one file in the research container. "
+                 "configuration messages. That trace spanned several years; its rotation rules "
+                 "are not established. "
+                 "The author found no lines in that trace that he could identify as session or "
+                 "file-transfer entries, so none are parsed; a trace from a device with such "
+                 "sessions may hold them. "
+                 "Source File is kept because the paths have a wildcard container segment and the pattern "
+                 "anydesk.trace* can match more than one file, for example a rotated copy; it matched "
+                 "one file in the research container. "
                  "Evidence base: the author's own testing on one research container with AnyDesk 7.1.2 installed; "
                  "its trace held 79 startup banners naming versions 7.0.2, 7.1.1 and "
                  "7.1.2. Everything said here about what was seen rests on that one container; other "
@@ -200,9 +212,9 @@ def _files(context, name, parent='.anydesk'):
 
 @artifact_processor
 def anydeskConnectionHistory(context):
-    data_headers = ('Time (As Stored)', 'Direction', 'Mode (As Stored)', 'Name Field (As Stored)',
+    data_headers = ('Date and Time', 'Direction', 'Mode (As Stored)', 'Name Field',
                     'ID 1 (As Stored)', 'ID 2 (As Stored)', 'ID 1 In Preferences List',
-                    'Raw Line')
+                    'Raw Line', 'Source File')
     data_list = []
     sources = []
 
@@ -225,19 +237,19 @@ def anydeskConnectionHistory(context):
                 continue
             m = TRACE_LINE.match(line.strip())
             if not m:
-                data_list.append(('', '', '', '', '', '', '', line.strip()))
+                data_list.append(('', '', '', '', '', '', '', line.strip(), rel))
                 continue
             in_list = '' if known is None else ('Yes' if m.group('id1') in known else 'No')
             data_list.append((f"{m.group('date')} {m.group('time')}", m.group('direction'),
                               m.group('mode'), m.group('name'), m.group('id1'), m.group('id2'),
-                              in_list, ''))
+                              in_list, '', rel))
 
     return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
 def anydeskSettings(context):
-    data_headers = ('Store', 'Key', 'Value')
+    data_headers = ('Store', 'Key', 'Value', 'Source File')
     data_list = []
     sources = []
 
@@ -249,7 +261,7 @@ def anydeskSettings(context):
             if text is None:
                 continue
             for key, value in _conf_pairs(text):
-                data_list.append((store, key, WITHHELD if SECRET_KEY.search(key) else value))
+                data_list.append((store, key, WITHHELD if SECRET_KEY.search(key) else value, rel))
 
     for path in _files(context, 'service.conf'):
         text = _read_text(path)
@@ -258,7 +270,7 @@ def anydeskSettings(context):
         if text is None:
             continue
         for key, _ in _conf_pairs(text):
-            data_list.append(('service.conf', key, WITHHELD))
+            data_list.append(('service.conf', key, WITHHELD, rel))
 
     for path in _files(context, 'com.anydesk.AnyDesk.plist', 'Preferences'):
         plist = _read_plist(path)
@@ -269,7 +281,7 @@ def anydeskSettings(context):
         for key, value in plist.items():
             value = _plist_value(value)
             data_list.append(('com.anydesk.AnyDesk.plist', key,
-                              WITHHELD if SECRET_KEY.search(key) else value))
+                              WITHHELD if SECRET_KEY.search(key) else value, rel))
 
     return data_headers, data_list, '\n'.join(sources)
 

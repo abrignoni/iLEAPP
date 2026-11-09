@@ -1,0 +1,140 @@
+{
+  "metadata": {
+    "module_name": "anydesk",
+    "artifact_name": "AnyDesk - Settings",
+    "function_name": "anydeskSettings",
+    "case_number": "synthetic_anydesk_ios7",
+    "number_of_columns": 4,
+    "number_of_rows": 18,
+    "total_data_size_bytes": 3156,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskSettings.synthetic_anydesk_ios7.zip",
+    "start_time": "2026-11-09T14:23:52.120653+00:00",
+    "end_time": "2026-11-09T14:23:52.259077+00:00",
+    "run_time_seconds": 0.01952815055847168,
+    "last_commit": {
+      "hash": "f80b7fed8d068f117f5f7bc94c378245bf4012d2",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-07T01:33:27-05:00",
+      "message": "AnyDesk: say 7.1.2 is the installed version and the trace log names earlier ones"
+    }
+  },
+  "headers": [
+    "Store",
+    "Key",
+    "Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "system.conf",
+      "ad.anynet.alias",
+      "",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/system.conf"
+    ],
+    [
+      "system.conf",
+      "ad.anynet.fpr",
+      "0000000000000000000000000000000000000000",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/system.conf"
+    ],
+    [
+      "system.conf",
+      "ad.anynet.id",
+      "900000100",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/system.conf"
+    ],
+    [
+      "system.conf",
+      "ad.anynet.network_id",
+      "0001",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/system.conf"
+    ],
+    [
+      "system.conf",
+      "ad.license.name",
+      "free",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/system.conf"
+    ],
+    [
+      "system.conf",
+      "ad.security.frontend_clipboard",
+      "1",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/system.conf"
+    ],
+    [
+      "system.conf",
+      "ad.telemetry.active_consents",
+      "",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/system.conf"
+    ],
+    [
+      "user.conf",
+      "ad.general.online_status.remote_client",
+      "1",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/user.conf"
+    ],
+    [
+      "user.conf",
+      "ad.privacy.name.show",
+      "1",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/user.conf"
+    ],
+    [
+      "user.conf",
+      "ad.ui.lang",
+      "en",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/user.conf"
+    ],
+    [
+      "service.conf",
+      "ad.anynet.cert",
+      "(withheld)",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/service.conf"
+    ],
+    [
+      "service.conf",
+      "ad.anynet.pkey",
+      "(withheld)",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/service.conf"
+    ],
+    [
+      "service.conf",
+      "ad.license.state_store",
+      "(withheld)",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/service.conf"
+    ],
+    [
+      "service.conf",
+      "ad.telemetry.last_cid",
+      "(withheld)",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/service.conf"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "com.apple.feedback.managed",
+      "{}",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Preferences/com.anydesk.AnyDesk.plist"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "user.preference.already.connected.users",
+      "[900000001, 900000002]",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Preferences/com.anydesk.AnyDesk.plist"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "user.preference.install.date",
+      "2023-12-01 08:30:00",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Preferences/com.anydesk.AnyDesk.plist"
+    ],
+    [
+      "com.anydesk.AnyDesk.plist",
+      "user.preference.speed.dial.mode",
+      1,
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Preferences/com.anydesk.AnyDesk.plist"
+    ]
+  ]
+}

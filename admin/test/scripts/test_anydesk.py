@@ -54,6 +54,23 @@ class TestAnyDesk(unittest.TestCase):
             _, rows, _ = run(anydesk.anydeskConnectionHistory, files)
         self.assertEqual(sorted(r[6] for r in rows), ['No', 'Yes'])
 
+    def test_source_file_separates_containers(self):
+        with tempfile.TemporaryDirectory() as d:
+            files = [write(d, f'{APP}{uuid}/{SUPPORT}.anydesk/connection_trace.txt', LINE) for uuid in ('U1', 'U2')]
+            headers, rows, _ = run(anydesk.anydeskConnectionHistory, files)
+        self.assertEqual(headers[0], 'Date and Time')
+        self.assertEqual(headers[-1], 'Source File')
+        self.assertEqual(len({r[-1] for r in rows}), 2)
+        self.assertTrue(rows[0][-1].endswith('U1/Library/Application Support/.anydesk/connection_trace.txt'))
+
+    def test_unreadable_plist_or_non_list_key_leaves_cross_check_blank(self):
+        for plist_bytes in (b'not a plist', plistlib.dumps({'user.preference.already.connected.users': 'x'})):
+            with tempfile.TemporaryDirectory() as d:
+                files = [write(d, f'{APP}U1/{SUPPORT}.anydesk/connection_trace.txt', LINE),
+                         write(d, f'{APP}U1/Library/Preferences/com.anydesk.AnyDesk.plist', plist_bytes)]
+                _, rows, _ = run(anydesk.anydeskConnectionHistory, files)
+            self.assertEqual(rows[0][6], '')
+
     def test_no_plist_leaves_cross_check_blank(self):
         with tempfile.TemporaryDirectory() as d:
             trace = write(d, f'{APP}U1/{SUPPORT}.anydesk/connection_trace.txt', LINE)
@@ -72,6 +89,28 @@ class TestAnyDesk(unittest.TestCase):
         self.assertEqual(len(rows), 6)
         self.assertIn(('system.conf', 'ad.anynet.id', '900000100'), [r[:3] for r in rows])
         self.assertIn(('system.conf', 'empty', ''), [r[:3] for r in rows])
+
+    def test_settings_skip_comments_hex_bytes_and_name_source(self):
+        with tempfile.TemporaryDirectory() as d:
+            user = write(d, f'{APP}U1/{SUPPORT}.anydesk/user.conf', '# comment=1\n  # indented=2\nad.ui.lang=en\n')
+            plist = write(d, f'{APP}U1/Library/Preferences/com.anydesk.AnyDesk.plist',
+                          plistlib.dumps({'some.blob': b'\x01\xff'}))
+            headers, rows, _ = run(anydesk.anydeskSettings, [user, plist])
+        self.assertEqual(headers[-1], 'Source File')
+        self.assertEqual([r[:3] for r in rows],
+                         [('user.conf', 'ad.ui.lang', 'en'), ('com.anydesk.AnyDesk.plist', 'some.blob', '01ff')])
+        self.assertTrue(rows[0][3].endswith('user.conf') and rows[1][3].endswith('.plist'))
+
+    def test_startup_banner_after_unbannered_block_and_uncounted_lines(self):
+        with tempfile.TemporaryDirectory() as d:
+            trace = write(
+                d, f'{APP}U1/{SUPPORT}anydesk.trace',
+                'no level or stamp here\n'
+                '   info 2024-01-01 00:00:00.000         ad   main   1 2                 main - * Version 6.0.0 (pre)\n'
+                '   info 2024-01-01 00:00:01.000         ad   main   1 2                 main - x\n')
+            _, rows, _ = run(anydesk.anydeskTraceStartups, [trace])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][1:6], ('No', '6.0.0', 'pre', '', 2))
 
     def test_startup_blocks(self):
         with tempfile.TemporaryDirectory() as d:

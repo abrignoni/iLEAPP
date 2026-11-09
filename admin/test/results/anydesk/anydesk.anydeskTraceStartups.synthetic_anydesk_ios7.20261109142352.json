@@ -3,22 +3,22 @@
     "module_name": "anydesk",
     "artifact_name": "AnyDesk - Trace Log Startups",
     "function_name": "anydeskTraceStartups",
-    "case_number": "synthetic_anydesk_minimal",
+    "case_number": "synthetic_anydesk_ios7",
     "number_of_columns": 11,
     "number_of_rows": 3,
     "total_data_size_bytes": 673,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskTraceStartups.synthetic_anydesk_minimal.zip",
-    "start_time": "2026-11-07T05:06:17.138633+00:00",
-    "end_time": "2026-11-07T05:06:17.289092+00:00",
-    "run_time_seconds": 0.0012607574462890625,
+    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskTraceStartups.synthetic_anydesk_ios7.zip",
+    "start_time": "2026-11-09T14:23:52.268014+00:00",
+    "end_time": "2026-11-09T14:23:52.405108+00:00",
+    "run_time_seconds": 0.007292509078979492,
     "last_commit": {
-      "hash": "8c0e9a7bd161418f00f3ac746d08e2e5f5095799",
+      "hash": "f80b7fed8d068f117f5f7bc94c378245bf4012d2",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:18:35-05:00",
-      "message": "AnyDesk iOS: connection history, settings and trace log startups"
+      "date": "2026-11-07T01:33:27-05:00",
+      "message": "AnyDesk: say 7.1.2 is the installed version and the trace log names earlier ones"
     }
   },
   "headers": [

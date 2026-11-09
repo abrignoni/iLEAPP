@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "module_name": "anydesk",
+    "artifact_name": "AnyDesk - Connection History",
+    "function_name": "anydeskConnectionHistory",
+    "case_number": "synthetic_anydesk_two_tenants",
+    "number_of_columns": 9,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 951,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskConnectionHistory.synthetic_anydesk_two_tenants.zip",
+    "start_time": "2026-11-09T14:23:52.414481+00:00",
+    "end_time": "2026-11-09T14:23:52.573046+00:00",
+    "run_time_seconds": 0.01344919204711914,
+    "last_commit": {
+      "hash": "f80b7fed8d068f117f5f7bc94c378245bf4012d2",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-07T01:33:27-05:00",
+      "message": "AnyDesk: say 7.1.2 is the installed version and the trace log names earlier ones"
+    }
+  },
+  "headers": [
+    "Date and Time",
+    "Direction",
+    "Mode (As Stored)",
+    "Name Field",
+    "ID 1 (As Stored)",
+    "ID 2 (As Stored)",
+    "ID 1 In Preferences List",
+    "Raw Line",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2024-01-05 10:15",
+      "Incoming",
+      "User",
+      "",
+      "900000001",
+      "900000001",
+      "Yes",
+      "",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/connection_trace.txt"
+    ],
+    [
+      "2024-01-05 11:40",
+      "Incoming",
+      "Passwd",
+      "synthetic-name",
+      "900000002",
+      "900000002",
+      "Yes",
+      "",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/connection_trace.txt"
+    ],
+    [
+      "2024-01-06 09:02",
+      "Outgoing",
+      "User",
+      "",
+      "900000003",
+      "900000003",
+      "No",
+      "",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/connection_trace.txt"
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "this line is not a connection record",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-111111111111/Library/Application Support/.anydesk/connection_trace.txt"
+    ],
+    [
+      "2024-03-01 08:00",
+      "Incoming",
+      "User",
+      "",
+      "900000009",
+      "900000009",
+      "No",
+      "",
+      "private/var/mobile/Containers/Data/Application/22222222-BBBB-4BBB-8BBB-222222222222/Library/Application Support/.anydesk/connection_trace.txt"
+    ]
+  ]
+}
