@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\craigslist\\testdata.craigslist.craigslist_recent_searches.case_synthetic.zip",
-    "start_time": "2026-11-07T05:09:39.811149+00:00",
-    "end_time": "2026-11-07T05:09:40.004512+00:00",
-    "run_time_seconds": 0.004441738128662109,
+    "start_time": "2026-11-09T14:19:54.508769+00:00",
+    "end_time": "2026-11-09T14:19:54.652987+00:00",
+    "run_time_seconds": 0.021813631057739258,
     "last_commit": {
-      "hash": "9f58ace5a92bb9ea33e4f850fcbd903410e488a2",
+      "hash": "a61841aec842c364956b4728f0db88da76ae9d0d",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-06T12:19:39-05:00",
-      "message": "Craigslist: record synthetic test cases and baselines, read Cache.db by absolute path, record real-container counts in sample_data"
+      "date": "2026-11-07T01:33:28-05:00",
+      "message": "Craigslist: list the installed app versions of the three containers"
     }
   },
   "headers": [

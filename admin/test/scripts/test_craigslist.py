@@ -154,7 +154,7 @@ class CraigslistFixtureTests(CraigslistBase):
         self.assertEqual(kinds, ['Category counts', 'Search results', 'Search suggestions', 'Search suggestions'])
         count = next(r for r in rows if r['Request Type'] == 'Category counts')
         self.assertEqual(count['Search Text'], 'synthetic desk')
-        self.assertEqual(count['Search Distance (as stored)'], 25.0)
+        self.assertEqual(count['Search Distance'], 25.0)
         results = next(r for r in rows if r['Request Type'] == 'Search results')
         self.assertEqual(results['Category'], 'sss')
         self.assertEqual(results['Batch Size'], '20')

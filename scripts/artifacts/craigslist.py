@@ -12,11 +12,11 @@ __artifacts_v2__ = {
         "notes": "Each entry timestamp is read as Unix milliseconds and shown in UTC. The value is stored by "
                  "the app as one JSON object, kept "
                  "in a file named with the MD5 of the key when it is large and inline in manifest.json when it "
-                 "is small, and both forms are read. Filters are listed as name=value as stored. Radius is shown "
+                 "is small, and both forms are read. Filters are listed as key=value from humanReadableParams, with the query entry left out. Radius is shown "
                  "as stored: its unit is not established here. The search area is the area saved with the "
-                 "search, not a device location. The list is a capped recent list (24 entries in the research "
-                 "containers where it was full), so absence of a search does not show that it was not made. "
-                 "The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "search, not a device location. In the research containers where the list was full it held 24 entries; "
+                 "whether the app caps it at that number is not established, so absence of a search does not show that it was not made. "
+                 "The rows come from the AsyncStorage manifest of the container, so there is no Source File column; the source path line of the artifact lists the manifest or manifests read. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
@@ -25,21 +25,23 @@ __artifacts_v2__ = {
     "craigslist_visited_postings": {
         "name": "Craigslist - Viewed Postings",
         "description": "Posting ids and times in visitedPostings of the persist:search value, with the title and "
-                       "category when the same posting id is present in the app's URL cache (Cache.db).",
+                       "category when a detail response for the same posting id is stored inside Cache.db "
+                       "(responses kept in fsCachedData files are not read).",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
         "notes": "Times are Unix milliseconds shown in UTC. The map is read as the app's own record of when a "
-                 "posting id was opened; the vendor does not document it. Of 28 viewed ids that also had a "
+                 "posting id was opened. No vendor documentation of it was found. Of 28 viewed ids that also had a "
                  "cached detail request across the three research containers, 14 had a Cache.db time within 60 seconds of "
                  "the viewed time, 8 a later cache time and 6 an earlier one, so the viewed time is not a "
                  "cache time. The map held 1, 85 and 178 ids in the three containers. Title and category are "
-                 "filled only when a cached detail response for the id survives; blanks do not mean the "
+                 "filled only when a detail response for the id is stored inside Cache.db; a detail response kept in an "
+                 "fsCachedData file is not read, so such rows are skipped and the title stays blank. Blanks do not mean the "
                  "posting had no title. Entries in postingsNotFound and postingViewTelemetrySent are not "
                  "exported: the first was empty and the second held at most one id with an integer whose "
-                 "meaning was not established. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "meaning was not established. The rows come from the AsyncStorage manifest of the container, so there is no Source File column; the source path line of the artifact lists the manifest or manifests read. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/'
@@ -62,8 +64,9 @@ __artifacts_v2__ = {
                  "all three containers, so "
                  "their field names are not established: those rows carry the entry as stored JSON in "
                  "Stored Entry and use the favorite field names only if the entry has them. Sync State is the "
-                 "lookup value as stored (unsynched was the only value observed). A favorite is a "
-                 "bookmark kept in the app; it does not show that the posting was contacted or answered. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "lookup value as stored (unsynched was the only value observed). Posted is the posting's own date; the entry fields read here hold no save time. "
+                 "Stored Entry is the entry re-serialised as compact JSON (filled for hidden and saved-search rows, empty for favorites). A favorite is a "
+                 "bookmark kept in the app; it does not show that the posting was contacted or answered. The rows come from the AsyncStorage manifest of the container, so there is no Source File column; the source path line of the artifact lists the manifest or manifests read. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
@@ -72,7 +75,7 @@ __artifacts_v2__ = {
     "craigslist_account_state": {
         "name": "Craigslist - Account and App State",
         "description": "Sign-in state, stored login, home area, permission states, app/config version and the "
-                       "app's install identifier, read from persist:root, the preferences plist and "
+                       "deviceUID value from the preferences plist, read from persist:root, the preferences plist and "
                        "manifest.json.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
@@ -83,11 +86,10 @@ __artifacts_v2__ = {
                  "research containers, so how it is filled after sign-in was not observed. Access, push and cookie tokens "
                  "are NOT exported: only whether a value is present is shown. Device UID is the identifier "
                  "stored in the preferences plist under deviceUID; its use by the vendor is not established "
-                 "here. Permission values are the strings the app stored (granted, denied, blocked, "
-                 "undetermined, unavailable). Times are Unix milliseconds or seconds as noted in the Item "
+                 "here. Permission values are shown as the strings the app stored; the set of possible values is not established here. Times are Unix milliseconds or seconds as noted in the Item "
                  "name and shown in UTC. Home Area is the area saved in the app, not a device location. "
                  "The Device UID row is read from the preferences plist and every other row from the "
-                 "AsyncStorage manifest, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "AsyncStorage manifest, so there is no Source File column; the source path line of the artifact lists the manifest or manifests and the plist read. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/'
@@ -98,15 +100,15 @@ __artifacts_v2__ = {
     "craigslist_startup_log": {
         "name": "Craigslist - Startup Log",
         "description": "Entries of the startupLog key in the AsyncStorage manifest.json: ISO time, event and "
-                       "detail, tab separated as stored.",
+                       "detail, with the detail text as stored.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "Times are ISO 8601 UTC as stored. The log held one start sequence (init, onboarding, tab, "
+        "notes": "Times are parsed and shown as UTC datetimes; a value that does not parse is shown as stored. The log held one start sequence (init, onboarding, tab, "
                  "startup complete) in each of the three research containers, so it is read as a short log of "
-                 "the most recent start(s); it is not evidence of every launch. The rows come from the one AsyncStorage manifest of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "the most recent start(s); it is not evidence of every launch. The rows come from the AsyncStorage manifest of the container, so there is no Source File column; the source path line of the artifact lists the manifest or manifests read. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json',),
         "output_types": "standard",
@@ -122,11 +124,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "Craigslist",
-        "notes": "Cache Time is the cfurl_cache_response time_stamp (UTC). Suggestion requests are sent while "
-                 "text is entered, so a query on a suggestion row can be a partial entry. Entries exist only "
-                 "while the system cache keeps them. Search Distance is shown as stored (unit not "
+        "notes": "Cache Time is the cfurl_cache_response time_stamp (UTC). In our testing, suggestion requests were "
+                 "seen while text was being entered, so a query on a suggestion row can be a partial entry. Entries exist only "
+                 "while the system cache keeps them. Search Distance is shown as a number (unit not "
                  "established); latitude and longitude are the values sent in the request. Response Stored "
-                 "says whether the body is in the database or in an fsCachedData file, which is not read here. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "says whether the body is in the database or in an fsCachedData file, which is not read here. The rows come from the Cache.db of the container, so there is no Source File column; the source path line of the artifact lists the Cache.db or Cache.db files read. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/'
                   'org.craigslist.CraigslistMobile/Cache.db*',),
         "output_types": "standard",
@@ -142,11 +144,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Craigslist",
         "notes": "Cache Time is the cfurl_cache_response time_stamp (UTC). Posted and Updated are Unix seconds "
-                 "shown in UTC. Record Created (as stored) is a Unix-seconds field whose meaning was not "
-                 "established. Location fields are the posting's published location, which can be an "
-                 "approximate area. Only responses stored inside the database are read; responses kept in "
+                 "shown in UTC. Record Created is a Unix-seconds field shown in UTC whose meaning was not "
+                 "established. Location fields are the posting's published location; Location Type is shown as stored. Only responses stored inside the database are read; responses kept in "
                  "fsCachedData files are counted in the log but not parsed. A cached posting shows what the "
-                 "app downloaded for that id, not that the user contacted the poster. The rows come from the one Cache.db of the container, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "app downloaded for that id, not that the user contacted the poster. The rows come from the Cache.db of the container, so there is no Source File column; the source path line of the artifact lists the Cache.db or Cache.db files read. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/'
                   'org.craigslist.CraigslistMobile/Cache.db*',),
         "output_types": "standard",
@@ -356,8 +357,8 @@ def craigslist_recent_searches(context):
 
 @artifact_processor
 def craigslist_visited_postings(context):
-    headers = (('Viewed Time', 'datetime'), 'Posting ID', 'Cached Title', 'Cached Category',
-               ('Cache Time', 'datetime'))
+    headers = (('Viewed Time', 'datetime'), ('Cache Time', 'datetime'), 'Posting ID', 'Cached Title',
+               'Cached Category')
     details = _cached_details(context)
     data_list = []
     sources = []
@@ -367,8 +368,8 @@ def craigslist_visited_postings(context):
             sources.append(manifest)
         for posting_id, when in visited.items():
             cache_time, item = details.get(str(posting_id), (None, {}))
-            data_list.append((_ts(when, 'ms'), str(posting_id), item.get('title'), item.get('category'),
-                              cache_time))
+            data_list.append((_ts(when, 'ms'), cache_time, str(posting_id), item.get('title'),
+                              item.get('category')))
     return headers, data_list, _paths(context, *sources) if sources else ''
 
 
@@ -433,7 +434,7 @@ def craigslist_account_state(context):
                 if key in home:
                     add(data_list, name, home.get(key))
             for name, key in (('Email App Setting', 'emailAppToUse'), ('Color Scheme Override', 'colorSchemeOverride'),
-                              ('Push Token Sent (as stored)', 'pushTokenSent')):
+                              ('Push Token Sent State (as stored)', 'pushTokenSent')):
                 if key in user:
                     add(data_list, name, user.get(key))
             for key, value in _dict(root.get('permissions')).items():
@@ -506,7 +507,7 @@ def _number(text):
 
 @artifact_processor
 def craigslist_cached_searches(context):
-    headers = (('Cache Time', 'datetime'), 'Request Type', 'Search Text', 'Category', 'Search Distance (as stored)',
+    headers = (('Cache Time', 'datetime'), 'Request Type', 'Search Text', 'Category', 'Search Distance',
                'Area ID', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Start Index', 'Batch Size',
                'Response Stored', 'Request URL')
     data_list = []
@@ -542,7 +543,7 @@ def craigslist_cached_searches(context):
 def craigslist_cached_postings(context):
     headers = (('Cache Time', 'datetime'), 'Posting ID', 'Title', 'Category', 'Category Abbreviation',
                'Price', ('Posted', 'datetime'), ('Updated', 'datetime'),
-               ('Record Created (as stored)', 'datetime'), 'Location Description', 'Location Area',
+               ('Record Created', 'datetime'), 'Location Description', 'Location Area',
                'Neighborhood', 'Location Type', ('Latitude', 'latitude'), ('Longitude', 'longitude'),
                'Image Count', 'Has Contact Info', 'Posting URL', 'Body')
     data_list = []
