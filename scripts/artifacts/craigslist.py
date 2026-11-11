@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                  "as stored: its unit is not established here. The search area is the area saved with the "
                  "search, not a device location. The longest list seen in the research containers held 24 entries; "
                  "whether the app caps it at that number is not established, so absence of a search does not show that it was not made. "
-                 "The rows come from the AsyncStorage storage of the container: manifest.json, or the MD5-named file for a value kept there. The source path line lists each file read, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "The rows come from the AsyncStorage storage of the container: manifest.json, or the MD5-named file for a value kept there. The source path line lists each file that supplied a value, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
@@ -38,10 +38,10 @@ __artifacts_v2__ = {
                  "the viewed time, 8 a later cache time and 6 an earlier one, so the viewed time is not a "
                  "cache time. The map held 1, 85 and 178 ids in the three containers. Title and category are "
                  "filled only when a detail response for the id is stored inside Cache.db; a detail response kept in an "
-                 "fsCachedData file is not read, so for that posting id Cache Time, Cached Title and Cached Category stay blank. Cache Time is the cfurl_cache_response time_stamp (UTC) of one cached detail response for the id; when several are cached, which one is shown is not controlled. Blanks do not mean the "
+                 "fsCachedData file is not read, so for that posting id Cache Time, Cached Title and Cached Category stay blank unless another response for the id is stored inside Cache.db. Cache Time is the cfurl_cache_response time_stamp (UTC) of one cached detail response for the id; when several are cached, which one is shown is not controlled. Blanks do not mean the "
                  "posting had no title. Entries in postingsNotFound and postingViewTelemetrySent are not "
                  "exported: the first was empty and the second held at most one id with an integer whose "
-                 "meaning was not established. The rows come from the AsyncStorage storage of the container (manifest.json, or the MD5-named file for a value kept there), and the cache columns from Cache.db. The source path line lists each file read, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "meaning was not established. The rows come from the AsyncStorage storage of the container (manifest.json, or the MD5-named file for a value kept there), and the cache columns from Cache.db. The source path line lists each file that supplied a value, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/'
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
                  "Stored Entry and use the favorite field names only if the entry has them. Sync State is the "
                  "lookup value as stored (unsynched was the only value observed). Posted is the posting's own date; the entry fields read here hold no save time. "
                  "Stored Entry is the entry re-serialised as compact JSON (filled for hidden and saved-search rows, empty for favorites); an entry that is not a JSON object is wrapped under the key value. A favorite is a "
-                 "bookmark kept in the app; it does not show that the posting was contacted or answered. The rows come from the AsyncStorage storage of the container: manifest.json, or the MD5-named file for a value kept there. The source path line lists each file read, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "bookmark kept in the app; it does not show that the posting was contacted or answered. The rows come from the AsyncStorage storage of the container: manifest.json, or the MD5-named file for a value kept there. The source path line lists each file that supplied a value, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',),
         "output_types": "standard",
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
                  "here. Permission values are shown as the strings the app stored; the set of possible values is not established here. Times are Unix milliseconds or seconds as noted in the Item "
                  "name and shown in UTC. Home Area is the area saved in the app, not a device location. "
                  "The Device UID row is read from the preferences plist and every other row from the "
-                 "AsyncStorage storage (manifest.json, or the MD5-named file for a value kept there). The source path line lists each file read, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "AsyncStorage storage (manifest.json, or the MD5-named file for a value kept there). The source path line lists each file that supplied a value, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/'
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
         "category": "Craigslist",
         "notes": "Times in the app's ISO format are parsed and shown as UTC datetimes; a value in another shape is passed on unparsed. The log held one start sequence (init, onboarding, tab, "
                  "startup complete) in each of the three research containers, so it is read as a short log of "
-                 "the most recent start(s); it is not evidence of every launch. The rows come from the startupLog value in manifest.json; a value kept in an MD5-named file is not read by this artifact. The source path line lists each manifest read, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "the most recent start(s); it is not evidence of every launch. The rows come from the startupLog value in manifest.json; a value kept in an MD5-named file is not read by this artifact (a log line says so). The source path line lists each manifest that supplied a row, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json',),
         "output_types": "standard",
@@ -485,10 +485,14 @@ def craigslist_startup_log(context):
     data_list = []
     sources = []
     for manifest, store, value_files in _async_stores(context):
+        if 'startupLog' in value_files:
+            # paths match manifest.json only; a value file staged by another artifact is not used
+            logfunc('Craigslist: startupLog is kept in an MD5-named file, which this artifact does not read')
+            continue
         raw = store.get('startupLog')
         if not isinstance(raw, str):
             continue
-        sources.extend(_store_sources(manifest, value_files, 'startupLog'))
+        sources.append(manifest)
         for line in raw.split('\n'):
             line = line[1:] if line.startswith(',') else line
             if not line.strip():
