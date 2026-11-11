@@ -2,10 +2,11 @@ __artifacts_v2__ = {
     "mapsSync": {
         "name": "Maps Sync",
         "description": "Apple Maps MapsSync history rows, with each row's entity named from the store's own "
-                       "Z_PRIMARYKEY table and the stored Z_ENT value.",
-        "author": '@AlexisBrignoni, Codex',
+                       "Z_PRIMARYKEY table, the stored Z_ENT value, and the query text embedded in the row's "
+                       "stored placeRequest payloads.",
+        "author": '@AlexisBrignoni, Codex, @nwish',
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Location",
         "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
@@ -23,7 +24,16 @@ __artifacts_v2__ = {
                  "column; fallback schemas without the column report SQL NULL, and their rows have a "
                  "blank Entity. A blank Entity also results when the store has no Z_PRIMARYKEY table or "
                  "that table has no row for the stored Z_ENT. That output does not distinguish an absent "
-                 "column from a stored NULL.",
+                 "column from a stored NULL. The two Query columns come from base64 'placeRequest=' "
+                 "payloads embedded in the ZMAPITEMSTORAGE and ZROUTEREQUESTSTORAGE BLOBs: the Query "
+                 "(Sent) text is field 8.1.3 of the decoded request and Query (Raw) is field 10000 under "
+                 "8.1.7. In a controlled test (iPhone 13, 7 hand-timed Maps sessions) the raw field held "
+                 "the partial text typed before an autocomplete suggestion was tapped, and was absent in "
+                 "the sessions committed with Enter; a place opened by map click with no typed query "
+                 "produced no payload at all. Those are observations from that sample, not a general "
+                 "rule, and an absent raw field is reported as absence only. ZQUERY ('Location Search') "
+                 "was stored only on the search entity in that sample; the Query columns carry the text "
+                 "for place and directions rows where ZQUERY is empty.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -50,19 +60,27 @@ __artifacts_v2__ = {
             "hexordia_ios1651": "iOS 16.5.1 | com.apple.Maps | 0 rows",
             "hickman_ios15": "iOS 15.3.1 | com.apple.Maps | 27 rows",
             "iphone14plus_ios18_mvs2025": "iOS 18.0 | com.apple.Maps | 5 rows",
+            "mapsync_controlled_test": "iPhone 13 (OS version not recorded) | com.apple.Maps | 9 rows | "
+                                       "placeRequest sent/raw query fields exercised",
         }
     }
 }
 
+import base64
+import re
 import sqlite3
 import struct
+
+from google.protobuf.message import DecodeError
 
 from scripts import blackboxprotobuf
 
 from scripts.ilapfuncs import (artifact_processor, logfunc, open_sqlite_db_readonly,
                                does_column_exist_in_db)
 
-_DECODE_ERRORS = (KeyError, TypeError, IndexError, ValueError, AttributeError, struct.error)
+_DECODE_ERRORS = (KeyError, TypeError, IndexError, ValueError, AttributeError, struct.error, DecodeError)
+
+_PLACE_REQUEST_RE = re.compile(rb'placeRequest=([A-Za-z0-9+/=]+)')
 
 
 def get_recursively(search_dict, field):
@@ -146,6 +164,46 @@ def _parse_mapitem_blob(blob):
     return mapitem
 
 
+def _pb_get(message, path):
+    """Follow a protobuf field path through decoded blackboxprotobuf output; repeated fields flatten."""
+    current = [message]
+    for step in path:
+        nxt = []
+        for item in current:
+            if isinstance(item, dict) and step in item:
+                value = item[step]
+                nxt.extend(value if isinstance(value, list) else [value])
+        current = nxt
+    texts = []
+    for item in current:
+        if isinstance(item, bytes):
+            texts.append(item.decode('utf-8', 'replace'))
+        elif isinstance(item, str):
+            texts.append(item)
+    return '; '.join(dict.fromkeys(texts))
+
+
+def _place_request_queries(*blobs):
+    """Pull the query text out of base64 'placeRequest=' payloads embedded in MapsSync BLOBs.
+
+    Returns (query_sent, query_raw): field 8.1.3 of the decoded request, and field 10000 under
+    8.1.7. The raw field is present in some requests and absent in others; absence is returned
+    as the empty string."""
+    sent = raw = ''
+    for blob in blobs:
+        if not blob:
+            continue
+        for match in _PLACE_REQUEST_RE.finditer(blob):
+            try:
+                payload = base64.b64decode(match.group(1) + b'=' * (-len(match.group(1)) % 4))
+                message, _ = blackboxprotobuf.decode_message(payload)
+            except _DECODE_ERRORS:
+                continue
+            sent = sent or _pb_get(message, ('8', '1', '3'))
+            raw = raw or _pb_get(message, ('8', '1', '7', '10000'))
+    return sent, raw
+
+
 def _build_query(file_found):
     """Pick the MapsSync query variant that matches the schema present in this database."""
     if (does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLOCATIONDISPLAY')
@@ -222,7 +280,8 @@ def mapsSync(context):
     data_headers = (
         ('Timestamp', 'datetime'), ('Modified Time', 'datetime'), 'Item Number', 'Entity (Z_PRIMARYKEY Name)',
         'Z_ENT (As Stored)',
-        'Location Search', 'Location Display', 'Latitude', 'Longitude', 'Latitude1', 'Longitude1',
+        'Location Search', 'Location Display', 'Query (Sent)', 'Query (Raw)',
+        'Latitude', 'Longitude', 'Latitude1', 'Longitude1',
         'Journey Destination Address', 'Map Item Storage BLOB Address')
     data_list = []
     sources = []
@@ -246,8 +305,10 @@ def mapsSync(context):
         db.close()
 
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], entities.get(row[12], ''), row[12], row[4], row[5], row[6], row[7],
-                              row[8], row[9], _parse_journey_blob(row[10]), _parse_mapitem_blob(row[11])))
+            query_sent, query_raw = _place_request_queries(row[10], row[11])
+            data_list.append((row[0], row[1], row[2], entities.get(row[12], ''), row[12], row[4], row[5],
+                              query_sent, query_raw, row[6], row[7], row[8], row[9],
+                              _parse_journey_blob(row[10]), _parse_mapitem_blob(row[11])))
 
         if all_rows:
             sources.append(context.get_relative_path(file_found))
