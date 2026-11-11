@@ -55,7 +55,7 @@ __artifacts_v2__ = {
                        "conversation files; other versions were not tested.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "One row per node of the conversation's message tree, read from the same "
@@ -64,19 +64,53 @@ __artifacts_v2__ = {
                  "On felix_ios17 (9 of 150 rows) and otto_ios17 (27 of 172) that key differs from "
                  "the node's own id field, which is not reported. conversations-v3 files store a "
                  "list alternating the message id and its node; both layouts are read. Creation "
-                 "Time is the node's create_time, read as Unix seconds and shown to the whole "
-                 "second; the stored fraction is dropped. Rows with no create_time are kept with a "
-                 "blank time: 46 of 179 on adams_iphone12mini (25 tool, 19 system, 2 assistant), "
-                 "20 of 172 on otto_ios17, 8 of 150 on felix_ios17 and 2 of 17 on "
-                 "hexordia_ios1651, those three all system entries. Content Type is the message "
-                 "content's content_type, and held text on all 21 rows of abe_ios16. Voice Mode "
+                 "Time is the message's create_time, read as Unix seconds and shown to the whole "
+                 "second; the stored fraction is dropped. The Unix reading is not sourced from app "
+                 "documentation; it places every value between 2022 and 2026 on the tested "
+                 "images. Rows with no create_time are kept with a "
+                 "blank Creation Time: 46 of 179 on adams_iphone12mini (25 tool, 19 system, 2 "
+                 "assistant), 20 of 172 on otto_ios17, 8 of 150 on felix_ios17 and 2 of 17 on "
+                 "hexordia_ios1651, those three all system entries. Node Created At is the node's "
+                 "created_at, read as seconds since 2001-01-01 UTC and shown to the whole second; "
+                 "the stored fraction is dropped. That reading is not sourced from app "
+                 "documentation. It is used because it puts created_at within one second of "
+                 "create_time on 456 of the 463 rows that store both. created_at was present on "
+                 "every row of the five images with rows, including the 76 with no create_time. "
+                 "On the 463 rows that have both, the two shown values are equal on 449 and differ "
+                 "by 1 to 9 seconds on 12; on 7 of those 12 the stored values are less than one "
+                 "second apart, and on one otto_ios17 row Node Created At is the earlier of the "
+                 "two. On 2 rows Node Created At is later by about 20 minutes (otto_ios17) and by "
+                 "about two days (hexordia_ios1651). "
+                 "Creation Time and Node Created At are identical on all 21 rows of abe_ios16. What "
+                 "created_at records is not documented here, so it is reported as its own column. "
+                 "Content is the message's content.parts. Parts are joined with a newline; every "
+                 "message on the tested images stored one part, so the join was exercised only by "
+                 "a unit test, and a part can hold line breaks of its own. Where a message has no "
+                 "parts, Content shows its text key, or failing that its model_set_context key. "
+                 "On the tested images code messages and the system_error messages of "
+                 "adams_iphone12mini store text, and model_editable_context messages store "
+                 "model_set_context (code: 7 rows on felix_ios17 and 3 on adams_iphone12mini; "
+                 "system_error: 2 on adams_iphone12mini; model_set_context: 10 on otto_ios17, and "
+                 "an empty string on the 11 of adams_iphone12mini). The code language and the "
+                 "system_error name are not reported. Content is blank where every part is an "
+                 "empty string (9 rows on "
+                 "abe_ios16, 32 on felix_ios17, 5 on hexordia_ios1651, 32 on adams_iphone12mini, 42 "
+                 "on otto_ios17) and on the 9 tether_quote, 3 tether_browsing_display and 3 "
+                 "system_error rows of felix_ios17, whose content stores only its content_type. "
+                 "Content Type is the message content's content_type, and held text on all 21 "
+                 "rows of abe_ios16. Finish Details is the type key of metadata.finish_details. "
+                 "Voice Mode "
                  "Message is the metadata key voice_mode_message as stored. It was stored only on "
-                 "otto_ios17, True on 12 of 172 rows, and is blank where the key is absent. Media: "
+                 "otto_ios17, True on 12 of 172 rows, and is blank where the key is absent: "
+                 "Voice Mode Message has no value on any row of the other four images. "
+                 "Metadata is the message's metadata object written as JSON, and blank where the "
+                 "message stores no metadata key (6 rows on abe_ios16, 18 on felix_ios17, 4 on "
+                 "hexordia_ios1651, 34 on otto_ios17). Media: "
                  "rows whose Content Type is multimodal_text (30 on adams_iphone12mini, 7 on "
-                 "felix_ios17) carry an asset pointer, reported in Parts as the text form of the "
-                 "stored part. No file in the ChatGPT app container on either image is named by "
-                 "those asset ids, and no other recorded link from a part to a local file was "
-                 "found, so no image is shown.",
+                 "felix_ios17) carry an asset pointer, reported in Content as the stored part "
+                 "written as JSON. The pointer is an app scheme and an id, and the parts hold no "
+                 "file path. A search of the file names in the ChatGPT app container on both "
+                 "images for those asset ids returned no match, so no image is shown.",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist',
@@ -241,6 +275,32 @@ def _unix(value):
         return ''
 
 
+def _as_json(value):
+    """Text unchanged; objects and lists as JSON, the form the conversation file stores."""
+    if value is None:
+        return ''
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False)
+    return str(value)
+
+
+# The text of a message is in parts for most content types. code and system_error keep it in
+# text, and model_editable_context in model_set_context.
+_TEXT_KEYS = ('parts', 'text', 'model_set_context')
+
+
+def _message_text(body):
+    if not isinstance(body, dict):
+        return _as_json(body)
+    for key in _TEXT_KEYS:
+        if key in body:
+            value = body[key]
+            if isinstance(value, list):
+                return '\n'.join(_as_json(part) for part in value)
+            return _as_json(value)
+    return ''
+
+
 def _container_path(context, file_found):
     """Split a found file into (app container directory name, path inside that container).
 
@@ -326,9 +386,9 @@ def chatgptConversationsMetadata(context):
 @artifact_processor
 def chatgptConversations(context):
     data_headers = (
-        ('Creation Time', 'datetime'), 'Message ID', 'Conversation Title', 'Conversation ID',
-        'Author', 'Parts', 'Content Type', 'Finish Details', 'Voice Mode Message', 'Metadata',
-        'File Path')
+        ('Creation Time', 'datetime'), ('Node Created At', 'datetime'), 'Message ID',
+        'Conversation Title', 'Conversation ID', 'Author', 'Content', 'Content Type',
+        'Finish Details', 'Voice Mode Message', 'Metadata', 'File Path')
     data_list = []
     sources = []
 
@@ -352,13 +412,17 @@ def chatgptConversations(context):
             content = message_details.get('content', {})
             author = content.get('author', {}).get('role', '')
             body = content.get('content', {})
-            parts = body.get('parts', [''])
-            parts = '\n'.join(str(p) for p in parts) if isinstance(parts, list) else str(parts)
-            metadata = content.get('metadata', {})
+            # Metadata stays blank when the message has no metadata key, so it is not
+            # confused with a stored empty object.
+            stored_metadata = content.get('metadata')
+            metadata = stored_metadata if isinstance(stored_metadata, dict) else {}
+            finish_details = metadata.get('finish_details')
             data_list.append((
-                _unix(content.get('create_time')), message_id, title, conv_id, author, parts,
-                body.get('content_type', ''), metadata.get('finish_details', {}).get('type', ''),
-                metadata.get('voice_mode_message', ''), str(metadata), rel))
+                _unix(content.get('create_time')), _webkit(message_details.get('created_at')),
+                message_id, title, conv_id, author, _message_text(body),
+                body.get('content_type', ''),
+                finish_details.get('type', '') if isinstance(finish_details, dict) else '',
+                metadata.get('voice_mode_message', ''), _as_json(stored_metadata), rel))
         sources.append(rel)
 
     return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
