@@ -1,0 +1,94 @@
+{
+  "case_synthetic": {
+    "description": "SYNTHETIC fixture, not a real device. A fabricated app container (AsyncStorage manifest and two hashed state files, Cache.db with cfurl tables, preferences plist) built by admin/test/scripts/synthetic_craigslist.py with fixed dates and invented values; cut with make_test_data.py. It carries no data from any real extraction.",
+    "maker": "@danjethh, Claude",
+    "make_data": {
+      "input_data_path": "SYNTHETIC_craigslist_ios.zip",
+      "os": "Windows-10-10.0.19045-SP0",
+      "timestamp": "2026-11-06T17:13:21.412226",
+      "last_commit": {
+        "hash": "47c7e2038fc51e2434ae070fdb2cad1f9d330238",
+        "author_name": "danjethh",
+        "author_email": "danjethh@gmail.com",
+        "date": "2026-11-06T12:13:19-05:00",
+        "message": "Craigslist app artifacts: recent searches, viewed postings, saved items, account state, startup log, cached searches and posting details"
+      }
+    },
+    "artifacts": {
+      "craigslist_recent_searches": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "craigslist_visited_postings": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/org.craigslist.CraigslistMobile/Cache.db*"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "craigslist_saved_items": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "craigslist_account_state": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/*",
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/org.craigslist.CraigslistMobile.plist"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "craigslist_startup_log": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "craigslist_cached_searches": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/org.craigslist.CraigslistMobile/Cache.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "craigslist_cached_postings": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/org.craigslist.CraigslistMobile/Cache.db*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "iOS",
+    "os_version": "26.0"
+  }
+}
