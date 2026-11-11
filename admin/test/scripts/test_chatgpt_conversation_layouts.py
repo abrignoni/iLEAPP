@@ -63,7 +63,7 @@ class ChatGPTConversationLayoutsTest(unittest.TestCase):
     def test_legacy_folder_is_read_from_the_marked_container(self):
         files = [self.marker, self.legacy]
         self.assertEqual([r[3] for r in self.rows(module.chatgptConversationsMetadata, files)], ['c1'])
-        self.assertEqual([(r[1], r[6]) for r in self.rows(module.chatgptConversations, files)],
+        self.assertEqual([(r[2], r[7]) for r in self.rows(module.chatgptConversations, files)],
                          [('m1', 'text')])
 
     def test_legacy_folder_without_a_marker_is_not_read(self):
@@ -76,7 +76,7 @@ class ChatGPTConversationLayoutsTest(unittest.TestCase):
 
     def test_v3_list_tree_yields_one_row_per_node(self):
         rows = self.rows(module.chatgptConversations, [self.v3])
-        self.assertEqual([(r[1], r[3]) for r in rows], [('m1', 'c2'), ('m2', 'c2')])
+        self.assertEqual([(r[2], r[4]) for r in rows], [('m1', 'c2'), ('m2', 'c2')])
 
     def test_a_file_matched_by_two_patterns_is_read_once(self):
         rows = self.rows(module.chatgptConversationsMetadata, [self.v3, self.v3])
