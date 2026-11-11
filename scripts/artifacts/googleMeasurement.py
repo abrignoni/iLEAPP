@@ -27,7 +27,7 @@ __artifacts_v2__ = {
             "session_number, app_version, os_version and app_instance_id as stored. Names that start "
             "with an underscore are not names an app can choose through the documented API: Firebase's "
             "documentation says event names and user property names must start with a letter. This module does "
-            "not expand them. Other names are chosen by the app, and an event name does not by itself show that the user "
+            "not expand them. Other names have the form Firebase documents for names an app sets, and an event name does not by itself show that the user "
             "did what the name suggests. os_version is the value last written by the SDK, not necessarily "
             "the OS now installed. Not read: the tables of google-app-measurement.sql other than events and "
             "user_attributes (for example raw_events, queue and event_filters) and "
@@ -38,8 +38,9 @@ __artifacts_v2__ = {
             "second; the user property '_fot' was a whole number of hours in milliseconds; and '_sno' "
             "equalled session_number. The "
             "same store was seen in the container of at least one other app but was not read there. The fixtures are "
-            "synthetic. Corpus runs: on iphone12_ios18 the store was read in 12 app containers and on hc_ios26 in 3, "
-            "with every row given an App Bundle ID. Other SDK versions and app layouts are untested."
+            "synthetic. Corpus runs: on iphone12_ios18 the store was read in 12 app containers and on hc_ios26 in 3 (one of the 3 holds the plist only), "
+            "with every row given an App Bundle ID. The SDK versions that wrote these stores were not recorded. "
+            "The iTunes backup layout was read only from a synthetic fixture."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*',
