@@ -3,22 +3,22 @@
     "module_name": "zelle",
     "artifact_name": "Zelle - Risk SDK Log Summary",
     "function_name": "zelle_risk_sdk_log_summary",
-    "case_number": "synthetic_minimal",
+    "case_number": "synthetic",
     "number_of_columns": 7,
     "number_of_rows": 1,
     "total_data_size_bytes": 48,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_risk_sdk_log_summary.synthetic_minimal.zip",
-    "start_time": "2026-11-09T14:20:48.174591+00:00",
-    "end_time": "2026-11-09T14:20:48.282379+00:00",
-    "run_time_seconds": 0.002862691879272461,
+    "input_zip_path": "admin/test/cases/data/zelle/testdata.zelle.zelle_risk_sdk_log_summary.synthetic.zip",
+    "start_time": "2026-11-11T15:39:00.943623+00:00",
+    "end_time": "2026-11-11T15:39:01.042264+00:00",
+    "run_time_seconds": 0.004264354705810547,
     "last_commit": {
-      "hash": "75a64af797df1ce7d37959f1a6c1175863aa9cd7",
+      "hash": "4684a79cb97267b0eb49f43e7e092c68865fb81d",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-07T01:28:12-05:00",
-      "message": "Zelle: state the installed app version (9.4.1) next to the Mixpanel last-write version"
+      "date": "2026-11-09T09:25:30-05:00",
+      "message": "Zelle: address review (Log Time, seconds for Firebase times, Mixpanel epoch sourced, notes wording)"
     }
   },
   "headers": [
@@ -27,15 +27,15 @@
     "Entries",
     "Debug Entries",
     "Error Entries",
-    "SDK Starts",
-    "Servers"
+    "Start Entries",
+    "Hosts"
   ],
   "data": [
     [
       1772460000,
       1772982453,
-      40,
-      38,
+      73,
+      71,
       2,
       3,
       "risk-east.example.test"

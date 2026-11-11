@@ -3,22 +3,22 @@
     "module_name": "zelle",
     "artifact_name": "Zelle - Preferences and Identifiers",
     "function_name": "zelle_preferences",
-    "case_number": "synthetic_backup",
+    "case_number": "synthetic_minimal",
     "number_of_columns": 4,
-    "number_of_rows": 19,
-    "total_data_size_bytes": 1148,
+    "number_of_rows": 18,
+    "total_data_size_bytes": 1074,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_preferences.synthetic_backup.zip",
-    "start_time": "2026-11-09T14:20:49.153144+00:00",
-    "end_time": "2026-11-09T14:20:49.266292+00:00",
-    "run_time_seconds": 0.0037305355072021484,
+    "input_zip_path": "admin/test/cases/data/zelle/testdata.zelle.zelle_preferences.synthetic_minimal.zip",
+    "start_time": "2026-11-11T15:39:01.702786+00:00",
+    "end_time": "2026-11-11T15:39:01.801037+00:00",
+    "run_time_seconds": 0.004824161529541016,
     "last_commit": {
-      "hash": "75a64af797df1ce7d37959f1a6c1175863aa9cd7",
+      "hash": "4684a79cb97267b0eb49f43e7e092c68865fb81d",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-07T01:28:12-05:00",
-      "message": "Zelle: state the installed app version (9.4.1) next to the Mixpanel last-write version"
+      "date": "2026-11-09T09:25:30-05:00",
+      "message": "Zelle: address review (Log Time, seconds for Firebase times, Mixpanel epoch sourced, notes wording)"
     }
   },
   "headers": [
@@ -123,12 +123,6 @@
       "RecipientNameAlertWhitelist",
       "[]",
       "list"
-    ],
-    [
-      "com.zellepay.zelle.plist",
-      "SKPurchaseIntentUpdatesLastChecked",
-      123456789.5,
-      "float"
     ],
     [
       "com.zellepay.zelle.plist",

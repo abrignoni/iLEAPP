@@ -2,7 +2,6 @@
 import datetime
 import fnmatch
 import inspect
-import sqlite3
 import sys
 import tempfile
 import unittest
@@ -49,15 +48,15 @@ def build(case):
 
 
 class ZelleTests(unittest.TestCase):
-    def test_sdk_events_are_utc_and_skip_connection_plumbing(self):
+    def test_events_are_utc_and_skip_connection_plumbing(self):
         with build('synthetic') as root:
             rows = run(root, 'zelle_risk_sdk_events')
         first = rows[0]
         self.assertEqual(first['Event Time'], fx.FIRST_OPEN)
         self.assertEqual(first['Event Time'].tzinfo, UTC)
         types = {r['Event Type'] for r in rows}
-        self.assertEqual(types, {'SDK start', 'Request to SDK', 'Server response', 'Risk reason', 'Device state',
-                                 'Credentials', 'Error'})
+        self.assertEqual(types, {'Plugin start', 'Started successfully', 'GuiReq received', 'Received msg',
+                                 'Risk reason', 'Device state', 'Credentials', 'Error'})
         messages = ' '.join(r['Log Message'] for r in rows)
         for plumbing in ('socket', 'Found Dlg', 'Credential Enrolled', 'environment'):
             self.assertNotIn(plumbing, messages)
@@ -79,13 +78,13 @@ class ZelleTests(unittest.TestCase):
             self.assertEqual(len(run(root, 'zelle_risk_sdk_log_summary')), 1)
             self.assertTrue(run(root, 'zelle_preferences'))
 
-    def test_summary_counts_levels_and_servers(self):
+    def test_summary_counts_levels_and_hosts(self):
         with build('synthetic') as root:
             row = run(root, 'zelle_risk_sdk_log_summary')[0]
         self.assertEqual(row['Entries'], row['Debug Entries'] + row['Error Entries'])
         self.assertEqual(row['Error Entries'], 2)
-        self.assertEqual(row['SDK Starts'], 3)
-        self.assertEqual(row['Servers'], 'risk-east.example.test')
+        self.assertEqual(row['Start Entries'], 3)
+        self.assertEqual(row['Hosts'], 'risk-east.example.test')
         self.assertLess(row['First Entry'], row['Last Entry'])
 
     def test_invalid_entry_time_does_not_stop_the_log(self):
@@ -105,6 +104,10 @@ class ZelleTests(unittest.TestCase):
         self.assertIn(('Malware status', 'NoMalwareDetected'), results)
         self.assertIn(('Root scan list', 'not found'), results)
         self.assertIn(('Signature files version', '1.2'), results)
+        self.assertIn(('STEP 1', 'Initializing InAuth Sdk'), results)
+        self.assertIn(('Root detection', 'started'), results)
+        self.assertIn(('Malware detection', 'started'), results)
+        self.assertFalse(any(r['Check'].startswith('SDK ') for r in rows))
         self.assertFalse(any('keyplane' in r['Message'] for r in rows))
         self.assertFalse(any('SYNTHETIC-NOT-A-KEY' in r['Message'] for r in rows))
         self.assertEqual({r['PID'] for r in rows}, {500, 777})
@@ -134,36 +137,6 @@ class ZelleTests(unittest.TestCase):
         self.assertEqual([r['Event Name'] for r in rows], ['login', 'Enable Touch ID', 'Add Profile Photo'])
         self.assertEqual(rows[0]['Start Time'], fx.FIRST_OPEN + datetime.timedelta(days=1))
 
-    def test_firebase_rows_and_cross_values(self):
-        with build('synthetic') as root:
-            rows = run(root, 'zelle_firebase_analytics')
-        by = {(r['Record Type'], r['Name']): r for r in rows}
-        self.assertEqual(by[('Event', '_f')]['Time'], fx.FIRST_OPEN)
-        self.assertEqual(by[('Measurement plist', 'first_open_timestamp_ms')]['Time'], fx.FIRST_OPEN)
-        self.assertEqual(by[('Measurement plist', 'last_engagement_end')]['Time'],
-                         max(r['Time'] for r in rows if r['Record Type'] == 'Event'))
-        self.assertEqual(by[('Event', '_s')]['Count'], 3)
-        self.assertEqual(by[('User Property', '_sno')]['Value'], 3)
-        # a zero time is shown as blank with the raw value kept
-        failed = by[('Measurement plist', 'last_failed_upload')]
-        self.assertEqual((failed['Time'], failed['Value']), ('', 0.0))
-
-    def test_firebase_missing_user_attributes_table(self):
-        with build('synthetic_minimal') as root:
-            rows = run(root, 'zelle_firebase_analytics')
-        self.assertFalse(any(r['Record Type'] == 'User Property' for r in rows))
-        self.assertTrue(any(r['Record Type'] == 'Event' for r in rows))
-
-    def test_firebase_database_without_tables(self):
-        with build('synthetic_minimal') as root:
-            db = next(Path(root).rglob('google-app-measurement.sql'))
-            con = sqlite3.connect(db)
-            con.execute('DROP TABLE events')
-            con.commit()
-            con.close()
-            rows = run(root, 'zelle_firebase_analytics')
-        self.assertEqual({r['Record Type'] for r in rows}, {'Measurement plist'})
-
     def test_unreadable_plists_do_not_raise(self):
         with build('synthetic') as root:
             for plist in Path(root).rglob('*.plist'):
@@ -171,7 +144,6 @@ class ZelleTests(unittest.TestCase):
                     plist.write_bytes(b'not a plist')
             self.assertEqual(run(root, 'zelle_preferences'), [])
             self.assertEqual(run(root, 'zelle_mixpanel_timed_events'), [])
-            self.assertTrue(run(root, 'zelle_firebase_analytics'))
 
     def test_unreadable_container_metadata_is_not_a_match(self):
         with build('synthetic') as root:

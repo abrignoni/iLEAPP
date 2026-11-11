@@ -6,19 +6,19 @@
     "case_number": "synthetic",
     "number_of_columns": 5,
     "number_of_rows": 12,
-    "total_data_size_bytes": 1281,
+    "total_data_size_bytes": 1273,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_device_integrity.synthetic.zip",
-    "start_time": "2026-11-09T14:20:47.529150+00:00",
-    "end_time": "2026-11-09T14:20:47.633107+00:00",
-    "run_time_seconds": 0.003514528274536133,
+    "input_zip_path": "admin/test/cases/data/zelle/testdata.zelle.zelle_device_integrity.synthetic.zip",
+    "start_time": "2026-11-11T15:39:01.052986+00:00",
+    "end_time": "2026-11-11T15:39:01.147770+00:00",
+    "run_time_seconds": 0.003544330596923828,
     "last_commit": {
-      "hash": "75a64af797df1ce7d37959f1a6c1175863aa9cd7",
+      "hash": "4684a79cb97267b0eb49f43e7e092c68865fb81d",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-07T01:28:12-05:00",
-      "message": "Zelle: state the installed app version (9.4.1) next to the Mixpanel last-write version"
+      "date": "2026-11-09T09:25:30-05:00",
+      "message": "Zelle: address review (Log Time, seconds for Firebase times, Mixpanel epoch sourced, notes wording)"
     }
   },
   "headers": [
@@ -39,7 +39,7 @@
     [
       "2026-03-02 09:00:06.300",
       500,
-      "SDK step 1",
+      "STEP 1",
       "Initializing InAuth Sdk",
       "STEP 1 --- Initializing InAuth Sdk....."
     ],
@@ -53,7 +53,7 @@
     [
       "2026-03-02 09:00:07.500",
       500,
-      "SDK step 2",
+      "STEP 2",
       "Generate Registration Payload",
       "STEP 2 --- Generate Registration Payload....."
     ],

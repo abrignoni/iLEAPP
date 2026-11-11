@@ -1,6 +1,6 @@
 {
   "synthetic": {
-    "description": "Fabricated Zelle container: log1.txt log, console log, preferences, Mixpanel plist and Firebase measurement store with invented values, plus a second app container holding a same-named file that must be ignored.",
+    "description": "Fabricated Zelle container: log1.txt log, console log, preferences and Mixpanel plist with invented values, plus a second app container holding a same-named file that must be ignored.",
     "maker": "@danjethh",
     "os_name": "iOS",
     "os_version": "synthetic",
@@ -45,19 +45,11 @@
           "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
         ],
         "file_count": 3
-      },
-      "zelle_firebase_analytics": {
-        "search_patterns": [
-          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*",
-          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/com.google.gmp.measurement.plist",
-          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
-        ],
-        "file_count": 4
       }
     }
   },
   "synthetic_minimal": {
-    "description": "Fabricated Zelle container without the repeated SDK connection lines, without the user_attributes table and without the optional preference key.",
+    "description": "Fabricated Zelle container without the repeated SDK connection lines and without the optional preference key.",
     "maker": "@danjethh",
     "os_name": "iOS",
     "os_version": "synthetic",
@@ -102,14 +94,6 @@
           "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
         ],
         "file_count": 2
-      },
-      "zelle_firebase_analytics": {
-        "search_patterns": [
-          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*",
-          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/com.google.gmp.measurement.plist",
-          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
-        ],
-        "file_count": 3
       }
     }
   },
@@ -159,14 +143,6 @@
           "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
         ],
         "file_count": 1
-      },
-      "zelle_firebase_analytics": {
-        "search_patterns": [
-          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*",
-          "*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/com.google.gmp.measurement.plist",
-          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
-        ],
-        "file_count": 2
       }
     }
   }

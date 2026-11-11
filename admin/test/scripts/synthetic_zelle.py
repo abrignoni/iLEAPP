@@ -15,7 +15,6 @@ import json
 import os
 import plistlib
 import shutil
-import sqlite3
 import sys
 import tempfile
 import zipfile
@@ -158,40 +157,6 @@ def preferences(full=True):
     return prefs, mix, crash
 
 
-def firebase_db(path, tables='both'):
-    con = sqlite3.connect(path)
-    con.execute('CREATE TABLE events (name TEXT, lifetime_count INTEGER, current_bundle_count INTEGER, '
-                'last_fire_timestamp REAL, last_sampled_complex_event_id INTEGER, last_bundled_timestamp REAL)')
-    events = [('_f', 1, 0, _ts(FIRST_OPEN)), ('_s', 3, 0, _ts(FIRST_OPEN + datetime.timedelta(days=6))),
-              ('_e', 9, 0, _ts(FIRST_OPEN + datetime.timedelta(days=6, minutes=7))),
-              ('synthetic_screen_view', 5, 0, _ts(FIRST_OPEN + datetime.timedelta(days=6, minutes=3)))]
-    con.executemany('INSERT INTO events VALUES (?,?,?,?,0,0)', events)
-    if tables == 'both':
-        con.execute('CREATE TABLE user_attributes (name TEXT, set_timestamp REAL, value, origin TEXT)')
-        con.executemany('INSERT INTO user_attributes VALUES (?,?,?,?)', [
-            ('_fot', _ts(FIRST_OPEN), int(FIRST_OPEN.timestamp() * 1000) + 3_600_000 - 1_000, 'auto'),
-            ('_sno', _ts(FIRST_OPEN), 3, 'auto'),
-        ])
-    con.commit()
-    con.close()
-    return max(e[3] for e in events)
-
-
-def measurement_plist(last_event):
-    prefix = '/google/measurement/'
-    return {
-        prefix + 'first_open_timestamp_ms': int(FIRST_OPEN.timestamp() * 1000),
-        prefix + 'last_uploaded_event_millis': int(last_event * 1000),
-        prefix + 'last_engagement_end': last_event,
-        prefix + 'last_successful_upload': last_event + 30,
-        prefix + 'last_failed_upload': 0.0,
-        prefix + 'session_number': 3,
-        prefix + 'app_version': '9.9.9',
-        prefix + 'os_version': '99.0',
-        prefix + 'app_instance_id': 'synthetic-instance-id',
-    }
-
-
 def _metadata(bundle):
     return plistlib.dumps({'MCMMetadataIdentifier': bundle, 'MCMMetadataContentClass': 2,
                            'MCMMetadataVersion': 15}, fmt=_BINARY)
@@ -215,11 +180,6 @@ def build_container(root, folder, bundle=BUNDLE, minimal=False, with_metadata=Tr
                       ('Library/Preferences/Mixpanel.plist', mix),
                       ('Library/Application Support/com.crashlytics/CLSUserDefaults.plist', crash)):
         _write(base / rel, plistlib.dumps(data, fmt=_BINARY))
-    measurement = base / 'Library/Application Support/Google/Measurement'
-    measurement.mkdir(parents=True, exist_ok=True)
-    last_event = firebase_db(str(measurement / 'google-app-measurement.sql'), tables='events' if minimal else 'both')
-    _write(measurement / 'com.google.gmp.measurement.plist',
-           plistlib.dumps(measurement_plist(last_event), fmt=_BINARY))
 
 
 CASES = {

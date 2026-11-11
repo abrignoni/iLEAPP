@@ -9,16 +9,16 @@
     "total_data_size_bytes": 48,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\zelle\\testdata.zelle.zelle_risk_sdk_log_summary.synthetic_backup.zip",
-    "start_time": "2026-11-09T14:20:48.925291+00:00",
-    "end_time": "2026-11-09T14:20:49.029331+00:00",
-    "run_time_seconds": 0.00168609619140625,
+    "input_zip_path": "admin/test/cases/data/zelle/testdata.zelle.zelle_risk_sdk_log_summary.synthetic_backup.zip",
+    "start_time": "2026-11-11T15:39:02.017411+00:00",
+    "end_time": "2026-11-11T15:39:02.107404+00:00",
+    "run_time_seconds": 0.0018165111541748047,
     "last_commit": {
-      "hash": "75a64af797df1ce7d37959f1a6c1175863aa9cd7",
+      "hash": "4684a79cb97267b0eb49f43e7e092c68865fb81d",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-07T01:28:12-05:00",
-      "message": "Zelle: state the installed app version (9.4.1) next to the Mixpanel last-write version"
+      "date": "2026-11-09T09:25:30-05:00",
+      "message": "Zelle: address review (Log Time, seconds for Firebase times, Mixpanel epoch sourced, notes wording)"
     }
   },
   "headers": [
@@ -27,8 +27,8 @@
     "Entries",
     "Debug Entries",
     "Error Entries",
-    "SDK Starts",
-    "Servers"
+    "Start Entries",
+    "Hosts"
   ],
   "data": [
     [

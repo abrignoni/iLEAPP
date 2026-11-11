@@ -15,23 +15,26 @@ __artifacts_v2__ = {
             "component names are TwoChkCorePlugin, HttpPlugin and ManagerPlugin. Each entry is a header line "
             "'+++ [M-D-YYYY HH:MM:SS] [LEVEL] [Component]' followed by a message line. Event Time is the "
             "bracketed time read as UTC. That held on both research containers we examined: the first entry of the "
-            "log fell within 1 s of first_open_timestamp_ms, a UTC epoch value, in the Firebase measurement plist "
-            "of the same container (see Zelle - Firebase Analytics). Two containers are a small basis and it is not "
+            "log fell within 1 s of first_open_timestamp_ms, a UTC epoch value, in com.google.gmp.measurement.plist "
+            "of the same container (read for any app by the Google Measurement - App Analytics Store artifact). "
+            "Two containers are a small basis and it is not "
             "established for other app versions. The month is written first: the first field never exceeded 12 "
             "and the second reached 31 in the logs of both containers, and entries were in ascending time order "
-            "in both. One row is reported for each entry whose "
-            "message is 'Two Core Plugin Start' or 'Application has started successfully' (Event Type 'SDK start'), "
-            "each 'received: <NAME>' line of a GuiReq message (Event Type 'Request to SDK', Event is NAME), each "
-            "'Received msg of type <TYPE>, status code = <CODE>' line (Event Type 'Server response', Event is TYPE, "
-            "Status is CODE), each 'device state set to: <STATE>' line, each 'riskReason' line, each 'Cleared the "
-            "credentials' entry, and each entry logged at ERROR level. Event Type is a label this module assigns "
-            "from the message wording. Event and Status are words taken from the message; for an Error entry, Event "
-            "is the text before the first comma, at most 80 characters. This module does not state what a request "
-            "or a status means to the user or the bank. Log Message joins the message's body lines with ' / ' and is "
+            "in both. An entry gives at most one row, and the first rule that matches decides it: a message "
+            "'Two Core Plugin Start' (Event Type 'Plugin start'); 'Application has started successfully' (Event Type "
+            "'Started successfully'); a GuiReq message with a 'received: <NAME>' line (Event Type 'GuiReq received', "
+            "Event is NAME); a 'Received msg of type <TYPE>, status code = <CODE>' line (Event Type 'Received msg', "
+            "Event is TYPE, Status is CODE); a 'device state set to: <STATE>' line (Event Type 'Device state', Event "
+            "is STATE); a 'riskReason' line (Event Type 'Risk reason', Event is the word after riskReason); a "
+            "'Cleared the credentials' message (Event Type 'Credentials'); and any other entry logged at ERROR level "
+            "(Event Type 'Error'). Event Type is a label this module assigns from the message wording. Event and "
+            "Status are words taken from the message, except that Event on the 'Plugin start', 'Started "
+            "successfully' and 'Credentials' rows is a fixed phrase the module writes; for an Error entry, Event "
+            "is the text before the first comma, at most 80 characters. This module does not state what a GuiReq, a "
+            "received message or a status means. Log Message joins the message's body lines with ' / ' and is "
             "clipped at 300 characters; it can include values printed in the message (for example a credential "
-            "length on a credential-check request). Not reported, because they were repeated or constant in the logs of the two "
-            "research containers "
-            "and are connection and handler lines rather than lines about the user: socket and connection-state "
+            "length on a credential-check request). Not reported, because they were repeated or constant in the "
+            "logs of the two research containers: socket and connection-state "
             "entries, 'Found Dlg in transaction map', credential enrolment and availability bit values "
             "(constant in both logs), 'Router core get/set environment' and handler plumbing. They are "
             "counted in Zelle - Risk SDK Log Summary. Whether the file is rotated or truncated is not "
@@ -57,13 +60,15 @@ __artifacts_v2__ = {
         "category": "Zelle",
         "notes": (
             "Built from the same Documents/log1.txt as Zelle - Risk SDK Events and read the same way (Event Time "
-            "rules apply to First Entry and Last Entry). Entries is the number of header lines; the Debug and "
+            "rules apply to First Entry and Last Entry). First Entry and Last Entry are the earliest and latest valid "
+            "entry times in the file, not necessarily the first and last entry in it; an entry with an invalid time "
+            "is counted in Entries but not used for them. Entries is the number of header lines; the Debug and "
             "Error columns count the levels written in those headers (no other level was seen in the logs of the "
-            "two research containers). SDK Starts counts 'Application has started successfully' entries. Servers lists the host "
-            "names that follow 'siteId:' or 'send connect request to' in the log, de-duplicated and sorted; they "
-            "are names written in the log and say nothing about a person. Whether the file is rotated or "
-            "truncated is not established, so First Entry is the first entry in the file and may not be the first "
-            "run of the app. "
+            "two research containers). Start Entries counts 'Application has started successfully' entries. Hosts "
+            "lists the host names that follow 'siteId:' or 'send connect request to' in the log, lower-cased, "
+            "de-duplicated and sorted; they are names written in the log and say nothing about a person. Whether "
+            "the file is rotated or truncated is not established, so the earliest entry in the file may not be the "
+            "first run of the app. "
             "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
         "paths": (
@@ -87,15 +92,22 @@ __artifacts_v2__ = {
             "per line, as 'YYYY-MM-DD HH:MM:SS.mmm Zelle[pid:thread] message'; PID is the process id, which changes "
             "with each launch of the app, and the process name (Zelle on every line) is not reported. Log Time is written without a "
             "time zone, so this column is text and no UTC value is derived. On both research containers the first "
-            "line fell a whole number of hours before first_open_timestamp_ms (UTC) in the Firebase measurement "
-            "plist of the same container (see Zelle - Firebase Analytics), which fits device local time but does "
+            "line fell a whole number of hours before first_open_timestamp_ms (UTC) in com.google.gmp.measurement.plist "
+            "of the same container (read for any app by the Google Measurement - App Analytics Store "
+            "artifact), which fits device local time but does "
             "not establish it. Check is a label this module assigns from the line's wording; for the two status lines it comes from "
-            "the method named in the line (getRootStatus or getMalwareStatus). Result is the word the app printed after "
-            "'root status is' or 'malware status is' (NotRooted and NoMalwareDetected on every line seen). A "
-            "Result states what the SDK printed, not that the device was or was not modified; this module has "
-            "no source for how the status is reached. Other rows are the 'STEP n ---' lines, the "
-            "signature file version line, the session id on the 'Generating device logs for sessionId:' line, "
-            "lines that contain ERROR or start with Error, and the Crashlytics version line. Untimestamped lines, "
+            "the method named in the line (getRootStatus or getMalwareStatus). An entry gives at most one row, and "
+            "the first rule that matches decides it. Result is the word the app printed after 'root status is' or "
+            "'malware status is' on the two status lines only (NotRooted and NoMalwareDetected on every line seen); "
+            "it is the word printed, not a finding that the device was or was not modified, and this module has no "
+            "source for how the status is reached. Other rows are the 'running root detection' and 'running "
+            "malware detection' lines (Result 'started', a fixed word the module writes), the 'Root scan list not "
+            "found' line (Result 'not found', also fixed), the 'STEP n ---' lines (Check 'STEP n', Result the text "
+            "after the dashes without trailing dots), the signature file version line (Result the text after "
+            "'versions: '), the session id on the 'Generating device logs for sessionId:' line (Result the session "
+            "id), the Crashlytics version line (Result the last word of the line), and lines that contain ERROR or "
+            "start with Error (Result the first 80 characters of the line). "
+            "Untimestamped lines, "
             "such as the JSON blocks that follow some lines (keys, signatures, payloads), are not reported; JSON "
             "on a timestamped line itself is part of its Message and is clipped with it. Keyboard-layout "
             "messages and other lines not named above are not reported. A Message longer than 300 characters is "
@@ -125,8 +137,9 @@ __artifacts_v2__ = {
             "(the two archived blobs are expanded: super properties here, timed events in Zelle - Mixpanel Timed "
             "Events) and Library/Application Support/com.crashlytics/CLSUserDefaults.plist. Value shows bytes as hex "
             "(bytes longer than 64 are cut to the first 64 bytes of hex, followed by '...'), lists and dicts as "
-            "JSON and dates as ISO text; other values are shown as stored. Value Type is the Python type name "
-            "of the value. The meaning of a key is not established unless "
+            "JSON with sorted keys, in which bytes are shown as full hex, and dates as ISO text; other values are "
+            "shown as stored. The super properties are shown as decoded from the archive. Value Type is the "
+            "Python type name of the value. The meaning of a key is not established unless "
             "the key's own name states it. Keys seen in the two research containers were: AccountAssociatedWithUserKey, "
             "AppAlreadyLaunchedKey, PreferencesTouchIDKey, PushIDKey (32 bytes), qrCodeSeen, zrcSeen, "
             "ShouldKeepPrivacySettingsKey, trackedKey, MixpanelRecordEventType (DONT_RECORD in one container, "
@@ -183,48 +196,6 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "stopwatch",
     },
-    "zelle_firebase_analytics": {
-        "name": "Zelle - Firebase Analytics",
-        "description": "Event counters, user properties and session values the Firebase analytics SDK kept "
-                       "inside the Zelle container.",
-        "author": "@danjethh, Claude",
-        "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
-        "requirements": "none",
-        "category": "Zelle",
-        "notes": (
-            "Reads the events and user_attributes tables of Library/Application Support/Google/Measurement/"
-            "google-app-measurement.sql and selected keys of com.google.gmp.measurement.plist in the same "
-            "folder. Event rows: Name is events.name as stored, Count is lifetime_count and Time is "
-            "last_fire_timestamp, a float read as Unix seconds (the code passes unit 's', so a large value is not "
-            "read as milliseconds); one row per event name, not per occurrence "
-            "(raw_events and queue were empty in both research containers). User Property rows: Name, Value and Origin "
-            "as stored, Time is set_timestamp as Unix seconds, read the same way. Record Type tells which file a row came from (Event and User "
-            "Property rows are from the database, Measurement plist rows from the plist), so there is no Source File "
-            "column. Measurement plist rows: first_open_timestamp_ms "
-            "and last_uploaded_event_millis are read as Unix milliseconds, last_engagement_end, "
-            "last_successful_upload and last_failed_upload as Unix seconds (a zero leaves Time blank and the stored value is shown in Value), "
-            "session_number, app_version, os_version and app_instance_id as stored. Cross-checks that held in both "
-            "research containers: the Time of event '_f' equalled first_open_timestamp_ms to the second; "
-            "last_engagement_end equalled the latest event Time; the user property '_fot' was a whole number "
-            "of hours in milliseconds and within 30 min after first_open_timestamp_ms; the set_timestamp of "
-            "'_sid' equalled the Time of event '_s' and its value was within 0.5 s of it; '_sno' equalled "
-            "session_number and the Count of '_s'. Names that start with an underscore are written by the SDK, not by the app; "
-            "this module does not expand them. '_f', '_vs', '_ab', '_au', '_s', '_ou' "
-            "and '_e' and 'click' and 'zelle_screen_view' were seen. Value expansions for "
-            "'_fi', '_npa', '_lte' and '_se' are not established. os_version is the value last written by "
-            "the SDK, not necessarily the OS now installed. Not covered: the other tables of the "
-            "database (empty, or SDK configuration and counters, in the two research containers) and google_experimentation_database.sql. "
-            "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
-        ),
-        "paths": (
-            '*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*',
-            '*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/com.google.gmp.measurement.plist',
-            '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
-        ),
-        "output_types": "standard",
-        "artifact_icon": "chart-line",
-    },
 }
 
 import datetime
@@ -234,8 +205,7 @@ import plistlib
 import re
 from xml.parsers.expat import ExpatError
 
-from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db, get_plist_content,
-                               get_sqlite_db_records, logfunc)
+from scripts.ilapfuncs import artifact_processor, get_plist_content, logfunc
 
 _BUNDLE = 'com.zellepay.zelle'
 _METADATA = '.com.apple.mobile_container_manager.metadata.plist'
@@ -254,14 +224,6 @@ _MALWARE_RX = re.compile(r'getMalwareStatus:+ malware status is: (\S+)')
 _STEP_RX = re.compile(r'^STEP (\d+) --- (.*?)\.*$')
 _SIG_RX = re.compile(r'InAuth Sig files versions: (.*)')
 _SESSION_RX = re.compile(r'Generating device logs for sessionId: (\S*)')
-
-_MEASUREMENT_PREFIX = '/google/measurement/'
-# (key, kind): kind is how the value is read.
-_MEASUREMENT_KEYS = (
-    ('first_open_timestamp_ms', 'ms'), ('last_uploaded_event_millis', 'ms'),
-    ('last_engagement_end', 's'), ('last_successful_upload', 's'), ('last_failed_upload', 's'),
-    ('session_number', 'n'), ('app_version', 'text'), ('os_version', 'text'), ('app_instance_id', 'text'),
-)
 
 
 def _norm(path):
@@ -316,11 +278,11 @@ def _utc(year, month, day, hour, minute, second):
         return ''
 
 
-def _epoch(value, unit='s'):
+def _epoch(value):
     if isinstance(value, bool) or not isinstance(value, (int, float)) or value == 0 or value != value:
         return ''
     try:
-        return datetime.datetime.fromtimestamp(value / (1000 if unit == 'ms' else 1), _UTC)
+        return datetime.datetime.fromtimestamp(value, _UTC)
     except (ValueError, OverflowError, OSError):
         return ''
 
@@ -383,15 +345,15 @@ def _sdk_entries(path):
 def _classify(level, message):
     """Return (event type, event, status) for a message worth reporting, else None."""
     if message.startswith('Two Core Plugin Start'):
-        return 'SDK start', 'Two Core Plugin Start', ''
+        return 'Plugin start', 'Two Core Plugin Start', ''
     if re.match(r'Application\s+has started successfully', message):
-        return 'SDK start', 'Application has started successfully', ''
+        return 'Started successfully', 'Application has started successfully', ''
     match = _GUI_REQ_RX.search(message)
     if match and 'GuiRe' in message:
-        return 'Request to SDK', match.group(1), ''
+        return 'GuiReq received', match.group(1), ''
     match = _RESPONSE_RX.search(message)
     if match:
-        return 'Server response', match.group(1), match.group(2)
+        return 'Received msg', match.group(1), match.group(2)
     match = _DEVICE_STATE_RX.search(message)
     if match:
         return 'Device state', match.group(1), ''
@@ -427,8 +389,8 @@ def zelle_risk_sdk_events(context):
 @artifact_processor
 def zelle_risk_sdk_log_summary(context):
     data_headers = (('First Entry', 'datetime'), ('Last Entry', 'datetime'), ('Entries', 'number'),
-               ('Debug Entries', 'number'), ('Error Entries', 'number'), ('SDK Starts', 'number'),
-               'Servers')
+               ('Debug Entries', 'number'), ('Error Entries', 'number'), ('Start Entries', 'number'),
+               'Hosts')
     rows = []
     sources = []
     for path in _zelle_files(context, lambda p: p.endswith('/Documents/log1.txt')):
@@ -488,7 +450,7 @@ def _integrity_line(message):
         return 'Signature files version', match.group(1)
     match = _STEP_RX.match(message)
     if match:
-        return f'SDK step {match.group(1)}', match.group(2)
+        return f'STEP {match.group(1)}', match.group(2)
     match = _SESSION_RX.search(message)
     if match:
         return 'Device log generation', match.group(1)
@@ -554,48 +516,6 @@ def zelle_mixpanel_timed_events(context):
             if not _is_blob_key(key, '-timedEvents'):
                 continue
             for event, started in sorted(_archived_dict(value).items(), key=lambda kv: str(kv[0])):
-                rows.append((_epoch(started, 's'), str(event)))
+                rows.append((_epoch(started), str(event)))
     rows.sort(key=lambda r: (r[0] == '', r[0] or datetime.datetime.min.replace(tzinfo=_UTC), r[1]))
     return data_headers, rows, '\n'.join(sources)
-
-
-@artifact_processor
-def zelle_firebase_analytics(context):
-    data_headers = (('Time', 'datetime'), 'Record Type', 'Name', 'Value', ('Count', 'number'), 'Origin')
-    rows = []
-    sources = []
-    for path in _zelle_files(context, lambda p: p.endswith(
-            ('/Measurement/google-app-measurement.sql', '/Measurement/com.google.gmp.measurement.plist'))):
-        display = context.get_relative_path(path)
-        sources.append(path)
-        if path.endswith('.sql'):
-            rows.extend(_firebase_db_rows(os.path.abspath(path), display))
-        else:
-            plist = _load_plist(path)
-            for key, kind in _MEASUREMENT_KEYS:
-                if _MEASUREMENT_PREFIX + key not in plist:
-                    continue
-                value = plist[_MEASUREMENT_PREFIX + key]
-                if kind in ('ms', 's'):
-                    rows.append((_epoch(value, kind), 'Measurement plist', key,
-                                 value if _epoch(value, kind) == '' else '', '', ''))
-                else:
-                    rows.append(('', 'Measurement plist', key, _show(value), '', ''))
-    return data_headers, rows, '\n'.join(sources)
-
-
-def _firebase_db_rows(path, display):
-    rows = []
-    if does_table_exist_in_db(path, 'events'):
-        for name, count, last_fire in get_sqlite_db_records(
-                path, 'SELECT name, lifetime_count, last_fire_timestamp FROM events ORDER BY name'):
-            rows.append((_epoch(last_fire, 's'), 'Event', name, '', count, ''))
-    else:
-        logfunc(f'Zelle: no events table; file={display}')
-    if does_table_exist_in_db(path, 'user_attributes'):
-        for name, stamp, value, origin in get_sqlite_db_records(
-                path, 'SELECT name, set_timestamp, value, origin FROM user_attributes ORDER BY name'):
-            rows.append((_epoch(stamp, 's'), 'User Property', name, _show(value), '', origin))
-    else:
-        logfunc(f'Zelle: no user_attributes table; file={display}')
-    return rows
