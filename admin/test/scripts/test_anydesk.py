@@ -44,6 +44,19 @@ class TestAnyDesk(unittest.TestCase):
         self.assertEqual(rows[2][:8], ('', '', '', '', '', '', '', 'garbage'))
         self.assertTrue(source)
 
+    def test_lines_that_would_split_inside_a_token_go_to_raw_line(self):
+        no_mode = 'Incoming    2024-01-05, 10:15    900000001    900000001'
+        digit_mode = 'Incoming    2024-01-05, 10:15    User9    900000001'
+        with tempfile.TemporaryDirectory() as d:
+            trace = write(d, f'{APP}U1/{SUPPORT}.anydesk/connection_trace.txt',
+                          f'{no_mode}\r\n{digit_mode}\r\n{LINE}')
+            _, rows, _ = run(anydesk.anydeskConnectionHistory, [trace])
+        self.assertEqual(len(rows), 3)
+        for row, raw in zip(rows[:2], (no_mode, digit_mode)):
+            self.assertEqual(row[:7], ('',) * 7)
+            self.assertEqual(row[7], raw)
+        self.assertEqual(rows[2][:3], ('2024-01-05 10:15', 'Incoming', 'User'))
+
     def test_preferences_list_is_per_container(self):
         with tempfile.TemporaryDirectory() as d:
             files = []

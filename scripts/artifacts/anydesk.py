@@ -9,9 +9,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "AnyDesk",
         "notes": "Reads Library/Application Support/.anydesk/connection_trace.txt in the app's Data "
-                 "container. Each line is split with a pattern; a line that does not fit it is kept "
-                 "whole in Raw Line (shown only for those lines) with the other columns blank, so no line is "
-                 "dropped. Direction, Mode, ID 1 and ID 2 are shown as the line holds them. Date and Time "
+                 "container. Each line is split with a pattern. A non-blank line that does not fit the "
+                 "pattern is kept in Raw Line with its surrounding spaces removed, and the other columns are "
+                 "blank. Blank lines are skipped. Direction, Mode, ID 1 and ID 2 are shown as the line holds them. Date and Time "
                  "joins the line's date and time with one space and drops the comma between them. "
                  "Name Field has its surrounding spaces removed. ID 1 In Preferences List is derived, "
                  "see below. Date and time carry no time zone in the file "
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                  "A line shows only that the file holds it; a file with no lines, or no file, "
                  "is not evidence that no session took place, and the file's rotation or size limits "
                  "are not established. Source File names the connection_trace.txt each row came from, because the "
-                 "paths have a wildcard container segment and a device can hold more than one container. "
+                 "paths have a wildcard container segment and can match more than one file. "
                  "Evidence base: the author's own testing on one research container with AnyDesk 7.1.2 installed "
                  "(the startup banners in its trace log also name 7.0.2 and 7.1.1), 4 lines. Everything said here about what was seen rests on that one "
                  "container; other versions and layouts are untested. "
@@ -58,7 +58,9 @@ __artifacts_v2__ = {
         "notes": "system.conf and user.conf are 'key=value' text files in Library/Application Support/.anydesk; "
                  "their values are shown as stored. The preferences plist is read with plistlib; dates are "
                  "shown in UTC as the plist stores them, lists and dictionaries as JSON. "
-                 "Lines starting with '#' are skipped. A plist value that is bytes is shown as hex. "
+                 "In the .conf files, blank lines are skipped and so are lines starting with '#'. "
+                 "A top-level plist value that is bytes is shown as hex. Bytes inside a list or "
+                 "dictionary are shown in Python's text form. "
                  "In the one research container service.conf had keys named for a certificate, a private key and tokens; "
                  "only the key names of any service.conf are reported and every value is withheld "
                  "('(withheld)'). The same rule applies to any key of the other files whose name "
@@ -73,7 +75,7 @@ __artifacts_v2__ = {
                  "may carry other keys. "
                  "Store names the kind of file each row came from (system.conf, user.conf, service.conf or the "
                  "preferences plist); Source File names the file itself, because the paths have a "
-                 "wildcard container segment and a device can hold more than one container. "
+                 "wildcard container segment and can match more than one file. "
                  "The App Group container group.com.anydesk.Anydesk had an empty .anydesk folder in that "
                  "container and is not read.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/.anydesk/system.conf',
@@ -142,7 +144,7 @@ SECRET_KEY = re.compile(r'pkey|cert|token', re.IGNORECASE)
 # Direction, date, time, the word after the time, then a free field and two numbers.
 TRACE_LINE = re.compile(
     r'^(?P<direction>\S+)\s+(?P<date>\d{4}-\d\d-\d\d),\s*(?P<time>\d\d:\d\d(?::\d\d)?)\s+'
-    r'(?P<mode>\S+)\s*(?P<name>.*?)\s*(?P<id1>\d+)\s+(?P<id2>\d+)\s*$')
+    r'(?P<mode>\S+)(?:\s+(?P<name>.*?))?\s+(?P<id1>\d+)\s+(?P<id2>\d+)\s*$')
 
 LOG_ENTRY = re.compile(
     r'^\s*(?P<level>[a-z]+)\s+(?P<stamp>\d{4}-\d\d-\d\d \d\d:\d\d:\d\d(?:\.\d+)?)\s+(?P<rest>.*)$')
@@ -241,7 +243,7 @@ def anydeskConnectionHistory(context):
                 continue
             in_list = '' if known is None else ('Yes' if m.group('id1') in known else 'No')
             data_list.append((f"{m.group('date')} {m.group('time')}", m.group('direction'),
-                              m.group('mode'), m.group('name'), m.group('id1'), m.group('id2'),
+                              m.group('mode'), m.group('name') or '', m.group('id1'), m.group('id2'),
                               in_list, '', rel))
 
     return data_headers, data_list, '\n'.join(sources)
@@ -293,7 +295,7 @@ def _new_block(stamp):
 
 @artifact_processor
 def anydeskTraceStartups(context):
-    data_headers = ('Block Start (As Stored)', 'Starts With Startup Banner', 'Version', 'Version Detail (As Stored)', 'Build',
+    data_headers = ('Block Start (As Stored)', 'Starts With Startup Banner', 'Version', 'Version Detail', 'Build',
                     'Log Lines', 'Relay Established Lines', 'Relay Failed Lines',
                     'Warning Lines', 'Error Lines', 'Source File')
     data_list = []

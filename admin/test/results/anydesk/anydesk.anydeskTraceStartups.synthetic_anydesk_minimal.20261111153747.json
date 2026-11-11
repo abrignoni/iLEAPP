@@ -9,23 +9,23 @@
     "total_data_size_bytes": 673,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\anydesk\\testdata.anydesk.anydeskTraceStartups.synthetic_anydesk_minimal.zip",
-    "start_time": "2026-11-09T14:23:52.933465+00:00",
-    "end_time": "2026-11-09T14:23:53.045719+00:00",
-    "run_time_seconds": 0.00148773193359375,
+    "input_zip_path": "admin/test/cases/data/anydesk/testdata.anydesk.anydeskTraceStartups.synthetic_anydesk_minimal.zip",
+    "start_time": "2026-11-11T15:37:47.389526+00:00",
+    "end_time": "2026-11-11T15:37:47.480778+00:00",
+    "run_time_seconds": 0.0012264251708984375,
     "last_commit": {
-      "hash": "f80b7fed8d068f117f5f7bc94c378245bf4012d2",
+      "hash": "53d0a706e135916dd715280274dcb6714797f689",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-07T01:33:27-05:00",
-      "message": "AnyDesk: say 7.1.2 is the installed version and the trace log names earlier ones"
+      "date": "2026-11-09T09:27:46-05:00",
+      "message": "AnyDesk: restore Source File, correct notes and headers per review, add fixture generator"
     }
   },
   "headers": [
     "Block Start (As Stored)",
     "Starts With Startup Banner",
     "Version",
-    "Version Detail (As Stored)",
+    "Version Detail",
     "Build",
     "Log Lines",
     "Relay Established Lines",

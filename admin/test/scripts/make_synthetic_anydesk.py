@@ -6,7 +6,7 @@ SYNTHETIC-NOT-A-REAL-*, and the trace log carries invented process numbers. The 
 folders the anydesk artifacts read, under private/var/mobile/Containers/Data/Application/<UUID>/.
 
 Three fixtures, each written once per artifact named in the case file (the three zips of a fixture
-hold the same bytes):
+hold the same members and contents):
 
   synthetic_anydesk_ios7         one container with every file the artifacts read, plus a decoy
                                  container whose files sit in a '.other' folder and must add nothing
@@ -16,7 +16,8 @@ hold the same bytes):
     python make_synthetic_anydesk.py OUT_DIR
 
 writes testdata.anydesk.<artifact>.<fixture>.zip into OUT_DIR (the repo keeps them in
-admin/test/cases/data/anydesk/). The output is reproducible: fixed timestamps and permissions.
+admin/test/cases/data/anydesk/). Running it rebuilds the 9 fixture zips with the same members and contents;
+member timestamps and permissions are fixed.
 """
 
 import plistlib
