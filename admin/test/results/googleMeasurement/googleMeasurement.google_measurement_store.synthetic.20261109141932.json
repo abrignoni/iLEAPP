@@ -1,0 +1,359 @@
+{
+  "metadata": {
+    "module_name": "googleMeasurement",
+    "artifact_name": "Google Measurement - App Analytics Store",
+    "function_name": "google_measurement_store",
+    "case_number": "synthetic",
+    "number_of_columns": 7,
+    "number_of_rows": 36,
+    "total_data_size_bytes": 1769,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/googleMeasurement/testdata.googleMeasurement.google_measurement_store.synthetic.zip",
+    "start_time": "2026-11-09T14:19:32.362349+00:00",
+    "end_time": "2026-11-09T14:19:32.531304+00:00",
+    "run_time_seconds": 0.020116329193115234,
+    "last_commit": {
+      "hash": "9cc16ddb25dbf1944cb21ac5240902eeb3a7d79d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-07T00:30:52-05:00",
+      "message": "Add Google Measurement (Firebase Analytics) store artifact for any app"
+    }
+  },
+  "headers": [
+    "Time",
+    "App Bundle ID",
+    "Record Type",
+    "Name",
+    "Value",
+    "Count",
+    "Origin"
+  ],
+  "data": [
+    [
+      1772460000,
+      "com.example.alpha",
+      "Measurement plist",
+      "first_open_timestamp_ms",
+      "",
+      "",
+      ""
+    ],
+    [
+      1772978820,
+      "com.example.alpha",
+      "Measurement plist",
+      "last_uploaded_event_millis",
+      "",
+      "",
+      ""
+    ],
+    [
+      1772978880,
+      "com.example.alpha",
+      "Measurement plist",
+      "last_engagement_end",
+      "",
+      "",
+      ""
+    ],
+    [
+      1772978850,
+      "com.example.alpha",
+      "Measurement plist",
+      "last_successful_upload",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.alpha",
+      "Measurement plist",
+      "last_failed_upload",
+      0.0,
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.alpha",
+      "Measurement plist",
+      "session_number",
+      3,
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.alpha",
+      "Measurement plist",
+      "app_version",
+      "9.9.9",
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.alpha",
+      "Measurement plist",
+      "os_version",
+      "99.0",
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.alpha",
+      "Measurement plist",
+      "app_instance_id",
+      "synthetic-instance-id",
+      "",
+      ""
+    ],
+    [
+      1772978820,
+      "com.example.alpha",
+      "Event",
+      "_e",
+      "",
+      9,
+      ""
+    ],
+    [
+      1772460000,
+      "com.example.alpha",
+      "Event",
+      "_f",
+      "",
+      1,
+      ""
+    ],
+    [
+      1772978400,
+      "com.example.alpha",
+      "Event",
+      "_s",
+      "",
+      3,
+      ""
+    ],
+    [
+      1772978580,
+      "com.example.alpha",
+      "Event",
+      "synthetic_screen_view",
+      "",
+      5,
+      ""
+    ],
+    [
+      1772460000,
+      "com.example.alpha",
+      "User Property",
+      "_fot",
+      1772463600000,
+      "",
+      "auto"
+    ],
+    [
+      1772460000,
+      "com.example.alpha",
+      "User Property",
+      "_sno",
+      3,
+      "",
+      "auto"
+    ],
+    [
+      1772546400,
+      "com.example.alpha",
+      "User Property",
+      "synthetic_tier",
+      "example",
+      "",
+      "app"
+    ],
+    [
+      1773324000,
+      "com.example.beta",
+      "Measurement plist",
+      "first_open_timestamp_ms",
+      "",
+      "",
+      ""
+    ],
+    [
+      1773842820,
+      "com.example.beta",
+      "Measurement plist",
+      "last_uploaded_event_millis",
+      "",
+      "",
+      ""
+    ],
+    [
+      1773842880,
+      "com.example.beta",
+      "Measurement plist",
+      "last_engagement_end",
+      "",
+      "",
+      ""
+    ],
+    [
+      1773842850,
+      "com.example.beta",
+      "Measurement plist",
+      "last_successful_upload",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.beta",
+      "Measurement plist",
+      "last_failed_upload",
+      0.0,
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.beta",
+      "Measurement plist",
+      "session_number",
+      3,
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.beta",
+      "Measurement plist",
+      "app_version",
+      "9.9.9",
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.beta",
+      "Measurement plist",
+      "os_version",
+      "99.0",
+      "",
+      ""
+    ],
+    [
+      "",
+      "com.example.beta",
+      "Measurement plist",
+      "app_instance_id",
+      "synthetic-instance-id",
+      "",
+      ""
+    ],
+    [
+      1773842820,
+      "com.example.beta",
+      "Event",
+      "_e",
+      "",
+      9,
+      ""
+    ],
+    [
+      1773324000,
+      "com.example.beta",
+      "Event",
+      "_f",
+      "",
+      1,
+      ""
+    ],
+    [
+      1773842400,
+      "com.example.beta",
+      "Event",
+      "_s",
+      "",
+      3,
+      ""
+    ],
+    [
+      1773842580,
+      "com.example.beta",
+      "Event",
+      "synthetic_screen_view",
+      "",
+      5,
+      ""
+    ],
+    [
+      1774706820,
+      "",
+      "Event",
+      "_e",
+      "",
+      9,
+      ""
+    ],
+    [
+      1774188000,
+      "",
+      "Event",
+      "_f",
+      "",
+      1,
+      ""
+    ],
+    [
+      1774706400,
+      "",
+      "Event",
+      "_s",
+      "",
+      3,
+      ""
+    ],
+    [
+      1774706580,
+      "",
+      "Event",
+      "synthetic_screen_view",
+      "",
+      5,
+      ""
+    ],
+    [
+      1774188000,
+      "",
+      "User Property",
+      "_fot",
+      1774191600000,
+      "",
+      "auto"
+    ],
+    [
+      1774188000,
+      "",
+      "User Property",
+      "_sno",
+      3,
+      "",
+      "auto"
+    ],
+    [
+      1774274400,
+      "",
+      "User Property",
+      "synthetic_tier",
+      "example",
+      "",
+      "app"
+    ]
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "module_name": "googleMeasurement",
+    "artifact_name": "Google Measurement - App Analytics Store",
+    "function_name": "google_measurement_store",
+    "case_number": "synthetic_minimal",
+    "number_of_columns": 7,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 159,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/googleMeasurement/testdata.googleMeasurement.google_measurement_store.synthetic_minimal.zip",
+    "start_time": "2026-11-07T05:20:41.475756+00:00",
+    "end_time": "2026-11-07T05:20:41.729100+00:00",
+    "run_time_seconds": 0.006910085678100586,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-07T00:20:41.692384",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Time",
+    "App Bundle ID",
+    "Record Type",
+    "Name",
+    "Value",
+    "Count",
+    "Origin"
+  ],
+  "data": [
+    [
+      1772978820,
+      "com.example.alpha",
+      "Event",
+      "_e",
+      "",
+      9,
+      ""
+    ],
+    [
+      1772460000,
+      "com.example.alpha",
+      "Event",
+      "_f",
+      "",
+      1,
+      ""
+    ],
+    [
+      1772978400,
+      "com.example.alpha",
+      "Event",
+      "_s",
+      "",
+      3,
+      ""
+    ],
+    [
+      1772978580,
+      "com.example.alpha",
+      "Event",
+      "synthetic_screen_view",
+      "",
+      5,
+      ""
+    ]
+  ]
+}
