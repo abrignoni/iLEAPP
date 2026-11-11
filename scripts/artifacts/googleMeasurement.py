@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "bundle identifier as a column.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-07",
-        "last_update_date": "2026-11-07",
+        "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Firebase Analytics",
         "notes": (
@@ -17,17 +17,17 @@ __artifacts_v2__ = {
             "for a container that has neither. Record Type tells which file a row came from (Event and User "
             "Property rows are from the database, Measurement plist rows from the plist), so there is no "
             "Source File column. Event rows: Name is events.name as stored, Count is lifetime_count and "
-            "Time is last_fire_timestamp, left blank when that is zero; one row per event name, not per "
-            "occurrence. User Property rows: Name, Value and Origin as stored, Time is "
-            "set_timestamp; Value is shown as stored except bytes, which are shown as hex. Times in the database are read as Unix seconds, "
+            "Time is last_fire_timestamp. It is left blank when that value is zero, empty or not a number. There is one row per event name, not per "
+            "occurrence. User Property rows: Name and Origin as stored, Time is "
+            "set_timestamp. Value is shown as stored, except bytes. Bytes are shown as hex; when there are more than 64 bytes only the first 64 are shown, followed by '...'. Times in the database are read as Unix seconds, "
             "and a value of 100000000000 or more is read as milliseconds. Measurement plist rows: first_open_timestamp_ms and "
             "last_uploaded_event_millis are read as Unix milliseconds, last_engagement_end, "
             "last_successful_upload and last_failed_upload as Unix seconds (a zero leaves Time blank and "
             "the stored value is shown in Value), "
             "session_number, app_version, os_version and app_instance_id as stored. Names that start "
-            "with an underscore are written by the SDK, not the app (Firebase does not accept app-chosen "
-            "event names that start with an underscore) and this module does not expand them; "
-            "other names are chosen by the app, and an event name does not by itself show that the user "
+            "with an underscore are not names an app can choose through the documented API: Firebase's "
+            "documentation says event names and user property names must start with a letter. This module does "
+            "not expand them. Other names are chosen by the app, and an event name does not by itself show that the user "
             "did what the name suggests. os_version is the value last written by the SDK, not necessarily "
             "the OS now installed. Not read: the tables of google-app-measurement.sql other than events and "
             "user_attributes (for example raw_events, queue and event_filters) and "
@@ -37,8 +37,9 @@ __artifacts_v2__ = {
             "research containers of one app: the Time of event '_f' equalled first_open_timestamp_ms to the "
             "second; the user property '_fot' was a whole number of hours in milliseconds; and '_sno' "
             "equalled session_number. The "
-            "same store was seen in the container of at least one other app but was not read there. Other "
-            "apps, SDK versions and app layouts are untested, and the fixtures are synthetic."
+            "same store was seen in the container of at least one other app but was not read there. The fixtures are "
+            "synthetic. Corpus runs: on iphone12_ios18 the store was read in 12 app containers and on hc_ios26 in 3, "
+            "with every row given an App Bundle ID. Other SDK versions and app layouts are untested."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Application Support/Google/Measurement/google-app-measurement.sql*',
@@ -47,6 +48,10 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "chart-line",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | 12 app containers | 314 rows",
+            "hc_ios26": "iOS 26.5.2 | 3 app containers | 23 rows",
+        },
     }
 }
 

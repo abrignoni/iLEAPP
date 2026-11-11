@@ -9,7 +9,7 @@
     "total_data_size_bytes": 159,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\googleMeasurement\\testdata.googleMeasurement.google_measurement_store.synthetic_minimal.zip",
+    "input_zip_path": "admin/test/cases/data/googleMeasurement/testdata.googleMeasurement.google_measurement_store.synthetic_minimal.zip",
     "start_time": "2026-11-07T05:20:41.475756+00:00",
     "end_time": "2026-11-07T05:20:41.729100+00:00",
     "run_time_seconds": 0.006910085678100586,
