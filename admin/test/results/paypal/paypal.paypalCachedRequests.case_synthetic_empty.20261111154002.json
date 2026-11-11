@@ -9,16 +9,16 @@
     "total_data_size_bytes": 0,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\paypal\\testdata.paypal.paypalCachedRequests.case_synthetic_empty.zip",
-    "start_time": "2026-11-09T14:23:24.539495+00:00",
-    "end_time": "2026-11-09T14:23:24.646800+00:00",
-    "run_time_seconds": 0.004112720489501953,
+    "input_zip_path": "admin/test/cases/data/paypal/testdata.paypal.paypalCachedRequests.case_synthetic_empty.zip",
+    "start_time": "2026-11-11T15:40:02.607595+00:00",
+    "end_time": "2026-11-11T15:40:03.273090+00:00",
+    "run_time_seconds": 0.176804780960083,
     "last_commit": {
-      "hash": "17c95d12baf04b6f5744fe6f0b1a89a7b2dc2a72",
+      "hash": "be48061e62d6fc2e4239d21121796210a551c101",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-07T01:33:29-05:00",
-      "message": "PayPal: replace the iOS range with all five devices on iOS 26"
+      "date": "2026-11-11T10:37:38-05:00",
+      "message": "PayPal: complete the notes wording (full key name, exception lists, Cached Requests decoding, mParticle, channel values)"
     }
   },
   "headers": [
@@ -26,9 +26,9 @@
     "Beacon t (read as Unix seconds)",
     "Host",
     "Path",
-    "Beacon i (as stored)",
-    "Beacon p (as stored)",
-    "Beacon a (as stored)"
+    "Beacon i",
+    "Beacon p",
+    "Beacon a"
   ],
   "data": []
 }
