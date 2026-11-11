@@ -11,14 +11,14 @@ The Notes of each artifact say which store it reads and what it does not cover.
 __artifacts_v2__ = {
     "paypalRememberedAccount": {
         "name": "PayPal - Remembered Account",
-        "description": "The account stored under the RememberedUserV1 key of the shared app-group preferences.",
+        "description": "The account stored under the com.paypalRememberedUserV1 key of the shared app-group preferences.",
         "author": "@danjethh",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
         "category": "PayPal",
-        "notes": "Read from the RememberedUserV1 key of group.com.yourcompany.PPClient.plist, a keyed "
-                 "archive. Each field is shown as stored, except that a boolean is shown as Yes or No; Account Type is the stored integer and its "
+        "notes": "Read from the com.paypalRememberedUserV1 key of group.com.yourcompany.PPClient.plist, a keyed "
+                 "archive. Each field is shown as the keyed-archive reader returns it. Phone-Password Login Flag is shown as Yes or No when it is a boolean. Account Type is the stored integer and its "
                  "meaning is not established. Fields absent from an archive are blank: in the research "
                  "containers the photo URL and the phone-password flag were each present in only some of "
                  "them. Phone-Password Login Flag is blank when the archive has no phonePasswordLoginAccount "
@@ -41,12 +41,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PayPal",
         "notes": "Read from com.yourcompany.PPClient.plist. The key suffix (or prefix, for the e-mail form) "
-                 "is shown as Account Key. Values are as stored, except that a boolean is shown as Yes or No. A key naming an account shows that the "
+                 "is shown as Account Key. Values are as stored, except that a boolean is shown as Yes or No, binary data is shown as its length, and a nested object or list is shown as text. A key naming an account shows that the "
                  "app wrote a setting for that account key on this install; it does not show that the "
                  "account was signed in. Absence of these keys is not evidence that only one account was "
                  "used. The push notification key stores one value per notification channel, "
                  "shown as one row each. Account Key and Value held one value on every row of the install "
-                 "that had a single account key (every stored channel value was true, shown as Yes). The rows come from the one app preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
+                 "that had a single account key (every stored channel value was true). The rows come from the one app preferences file, so there is no Source File column. Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.yourcompany.PPClient.plist",),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PayPal",
         "notes": "A curated set of keys from com.yourcompany.PPClient.plist and "
-                 "group.com.yourcompany.PPClient.plist, shown by key name with the stored value, except that a boolean is shown as Yes or No and a list is joined with \", \". "
+                 "group.com.yourcompany.PPClient.plist, shown by key name with the stored value, except that a boolean is shown as Yes or No, binary data is shown as its length, a list is joined with \", \", and a nested object is shown as text. "
                  "For appLaunchedFirstTime:<version> keys the key name suggests a first start of that version on this "
                  "install, but no source establishes that; the key carries no time, so the list is not an upgrade timeline, and a "
                  "version missing from it is not shown never to have run. Direct-deposit keys are "
@@ -128,7 +128,7 @@ __artifacts_v2__ = {
         "notes": "Read from Library/Caches/com.yourcompany.PPClient/Cache.db (table "
                  "cfurl_cache_response). Cached Time is the time_stamp column of the cache table read as UTC. Only the host and "
                  "path are shown, never the query or any body. For requests to stats.paypal.com or a subdomain of it "
-                 "(any path, not only counter*.cgi) the query fields p, i, t and a are shown as stored: t read as Unix seconds "
+                 "(any path, not only counter*.cgi) the query fields i, p and a are shown after URL decoding. t is read as Unix seconds and shown as a UTC time to the whole second; it "
                  "matched the cache time to within 2 seconds on every beacon in the research containers, "
                  "and i held a private (RFC 1918) IPv4 address on every beacon; what p and a mean is "
                  "not established. In the research containers the cache held telemetry, advertising "
@@ -155,7 +155,7 @@ __artifacts_v2__ = {
                  "Dispatch Status and Dispatch Tries are as stored (every row in the research containers "
                  "held -1 and 0) and their meaning is not established. The queue is a cache: events "
                  "appear to be removed once sent, so the rows are those still queued, not all activity. "
-                 "Values are shown as stored, except that a boolean is shown as Yes or No. "
+                 "Values are shown as stored, except that a boolean is shown as Yes or No, binary data is shown as its length, and a nested object or list is shown as text. "
                  "Customer ID, Visitor ID and Session ID are identifiers. Sign-in fields "
                  "(login method, auth state) are as the app recorded them for the event. Four "
                  "research containers had this database and 2 of them held 0 rows. In the two with rows every event fell "
@@ -179,7 +179,7 @@ __artifacts_v2__ = {
                  ".com.apple.mobile_container_manager.metadata.plist names com.yourcompany.PPClient. "
                  "Start and End are the stored Unix seconds read to the second; Length is rounded to one decimal. Session Number was 0 on every row and is not shown. This database was present in 1 of 5 "
                  "research containers and its newest session was years older than the install's other "
-                 "files, which is consistent with a leftover of an older app version and not with current use. Other tables "
+                 "files, which is consistent with a leftover of an older app version Other tables "
                  "(messages, consumer_info, cookies) are not reported. Source File is kept because the paths pattern mParticle*.db can match more than one database file (the name carries a version number). Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/mParticle*.db*",
                   "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
@@ -264,7 +264,7 @@ def paypalRememberedAccount(context):
             continue
         user = get_plist_content(bytes(raw))
         if not isinstance(user, dict):
-            logfunc('PayPal: RememberedUserV1 could not be read as a keyed archive')
+            logfunc('PayPal: com.paypalRememberedUserV1 could not be read as a keyed archive')
             continue
         source.append(found)
         flag = user.get('phonePasswordLoginAccount')
@@ -442,7 +442,7 @@ def _beacon_fields(host, query):
 @artifact_processor
 def paypalCachedRequests(context):
     headers = (('Cached Time', 'datetime'), ('Beacon t (read as Unix seconds)', 'datetime'), 'Host', 'Path',
-               'Beacon i (as stored)', 'Beacon p (as stored)', 'Beacon a (as stored)')
+               'Beacon i', 'Beacon p', 'Beacon a')
     rows = []
     source = []
     for found in _find(context.get_files_found(), 'Cache.db'):
