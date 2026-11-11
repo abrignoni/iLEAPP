@@ -1,6 +1,7 @@
 """offerup: OfferUp (com.offerup.iphone.consumer) container stores, SYNTHETIC input only."""
 import importlib.util
 import os
+import plistlib
 import sqlite3
 import tempfile
 import unittest
@@ -144,6 +145,19 @@ class OfferUpTest(unittest.TestCase):
         out = self._run_all(files)
         for name, (_, rows, _) in out.items():
             self.assertEqual(rows, [], name)
+
+    def test_non_numeric_install_timestamp_shows_the_stored_text_and_keeps_the_other_rows(self):
+        files = SYNTH.build_files('current')
+        name = next(key for key in files if key.endswith('consumer.plist'))
+        prefs = plistlib.loads(files[name])
+        prefs['AppsFlyerInstallTimestamp'] = 'not-a-number'
+        files[name] = plistlib.dumps(prefs, fmt=plistlib.PlistFormat.FMT_BINARY)
+        out = self._run_all(files)
+        headers, rows, _ = out['offerup_activity']
+        events = _column(headers, rows, 'Event')
+        stamp = [row for row, event in zip(rows, events) if event == 'AppsFlyer install timestamp']
+        self.assertEqual([row[0] for row in stamp], ['not-a-number'])
+        self.assertEqual(len(rows), 12)
 
     def test_draft_text_is_reported_in_full_with_its_length(self):
         out = self._run_all(SYNTH.build_files('current'))

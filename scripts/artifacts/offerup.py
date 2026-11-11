@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                  "is the redux store key of that name; its meaning beyond the name is not "
                  "established. The hex part of the storage key is reported as the Storage key "
                  "suffix, and its meaning is not established; the key pattern matches any NAME, "
-                 "not only a push registration key. App version last run (core.currentVersion) "
+                 "so the suffix is not tied to one key. App version last run (core.currentVersion) "
                  "and App version previous (core.previousVersion) are the values of those redux "
                  "store keys. Device ID and Advertising ID are the values the app wrote "
                  "under those names. The Statsig and AppsFlyer values are read from keys "
@@ -81,8 +81,9 @@ __artifacts_v2__ = {
                  "kept by React Native in a separate file named by the MD5 of the key; that "
                  "file is read when it is present in the extraction. An entry is a suggestion "
                  "the app held for the user, which is not proof that the user ran that search. "
-                 "The rows come from the one React Native storage manifest of the container, so "
-                 "there is no Source File column. "
+                 "The rows come from the React Native storage of the container: the manifest, or "
+                 "the overflow file for that key when the value is kept there. Both are listed "
+                 "as the source, so there is no Source File column. "
                  "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
@@ -103,9 +104,10 @@ __artifacts_v2__ = {
         "notes": "Read from the feedAffinity store of the redux state. The store holds a list of "
                  "listing and category identifiers (listingAffinities) and a comma separated "
                  "list of category identifiers (LAST_VIEWED_CATEGORIES). The file does not say "
-                 "whether a listing was viewed, saved or contacted. In the research containers the "
-                 "feedAffinity store holds only listingId and categoryId per entry, with no "
-                 "listing title, price, seller or time. Position is the place in the stored list. The rows come from the one "
+                 "whether a listing was viewed, saved or contacted. In the one research container "
+                 "that has a feedAffinity store, each listingAffinities entry holds only "
+                 "listingId and categoryId, with no listing title, price, seller or time. "
+                 "Position is the place in the stored list. The rows come from the one "
                  "redux store file of the container, so there is no Source File column. The "
                  "feedAffinity store was present in the 2026.9.0 container and absent in the 2026.3.0 "
                  "one. "
@@ -132,8 +134,9 @@ __artifacts_v2__ = {
                  "last write; whether the app clears a draft after sending is not established, "
                  "so a row does not prove the message was never sent. Sent and received chat "
                  "messages were not found stored in either research container. The rows come from "
-                 "the one React Native storage manifest of the container, so there is no Source "
-                 "File column. "
+                 "the React Native storage of the container: the manifest, or the overflow file "
+                 "(named by the MD5 of the key) when the value is kept there. Both are listed as "
+                 "the source, so there is no Source File column. "
                  "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/"
@@ -144,8 +147,9 @@ __artifacts_v2__ = {
     },
     "offerup_activity": {
         "name": "OfferUp - Activity and Timing",
-        "description": "Times the OfferUp app and the SDKs inside it recorded: Statsig sessions, "
-                       "push registration, prompt counters, realtime heartbeat and install times.",
+        "description": "Times read from the OfferUp app's stores: Statsig sessions, the "
+                       "LAST_REGISTERED_AT time, prompt counters, the Ably heartbeat time and the "
+                       "install timestamps.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
@@ -161,12 +165,13 @@ __artifacts_v2__ = {
                  "LAST_ACCOUNT_PAGE_REFRESH timestamps is not established beyond the key name. "
                  "The realtime heartbeat is the value of the lastHeartbeatTime key in the "
                  "ablyState entry of the redux store. The install times are the values of the "
-                 "AppsFlyerInstallTimestamp and FBSDKSettingsInstallTimestamp preference keys; "
+                 "AppsFlyerInstallTimestamp and com.facebook.sdk:FBSDKSettingsInstallTimestamp "
+                 "preference keys; "
                  "how they relate to the App Store install time is not established. Event tells which store a row came from "
                  "(Statsig session: the Statsig store; Prompt exposure, Push permission prompt "
                  "and Realtime heartbeat: the redux store; the install timestamps: the app "
-                 "preferences; Push registration, Prompt counter and Stored time: React Native "
-                 "storage), so there is no Source File column. "
+                 "preferences; Registration time (LAST_REGISTERED_AT), Prompt counter and Stored "
+                 "time: React Native storage), so there is no Source File column. "
                  "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
@@ -705,13 +710,17 @@ def offerup_activity(context):
             continue
         stamp = prefs.get('AppsFlyerInstallTimestamp')
         if stamp:
-            rows.append((convert_unix_ts_to_utc(int(float(stamp))), '', 'AppsFlyer install timestamp',
+            try:
+                stamp_time = convert_unix_ts_to_utc(int(float(stamp)))
+            except (TypeError, ValueError, OverflowError):
+                stamp_time = str(stamp)
+            rows.append((stamp_time, '', 'AppsFlyer install timestamp',
                          'AppsFlyerInstallTimestamp'))
             sources.add(path)
         installed = prefs.get('com.facebook.sdk:FBSDKSettingsInstallTimestamp')
         if isinstance(installed, datetime.datetime):
             rows.append((convert_plist_date_to_utc(installed), '', 'Facebook SDK install timestamp',
-                         'FBSDKSettingsInstallTimestamp'))
+                         'com.facebook.sdk:FBSDKSettingsInstallTimestamp'))
             sources.add(path)
 
     for path in _manifests(files_found, containers):
@@ -720,7 +729,8 @@ def offerup_activity(context):
             match = ACCOUNT_KEY_RE.match(key)
             if match and match.group(2) == 'LAST_REGISTERED_AT':
                 value = _load_json(manifest[key])
-                rows.append((_ms_time(value), '', 'Push registration', 'LAST_REGISTERED_AT'))
+                rows.append((_ms_time(value), '', 'Registration time (LAST_REGISTERED_AT)',
+                             'what was registered is not established'))
                 sources.add(path)
         for key in RUNNER_KEYS:
             item = _load_json(manifest.get(key))

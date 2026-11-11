@@ -9,16 +9,16 @@
     "total_data_size_bytes": 1551,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin\\test\\cases\\data\\offerup\\testdata.offerup.offerup_app_state.case_synthetic_current.zip",
-    "start_time": "2026-11-09T14:21:07.141106+00:00",
-    "end_time": "2026-11-09T14:21:07.281624+00:00",
-    "run_time_seconds": 0.009718894958496094,
+    "input_zip_path": "admin/test/cases/data/offerup/testdata.offerup.offerup_app_state.case_synthetic_current.zip",
+    "start_time": "2026-11-11T15:37:27.035746+00:00",
+    "end_time": "2026-11-11T15:37:27.198051+00:00",
+    "run_time_seconds": 0.015402078628540039,
     "last_commit": {
-      "hash": "97d14b16613db2cf27d99506995cc9cba0c8ac9b",
+      "hash": "91089898c73586b7dcea37318113e7c391756715",
       "author_name": "danjethh",
       "author_email": "danjethh@gmail.com",
-      "date": "2026-11-07T01:26:07-05:00",
-      "message": "OfferUp: state installed versus last-run versions, say no app binary was analysed"
+      "date": "2026-11-09T09:26:12-05:00",
+      "message": "OfferUp: State reads state before adminArea, key-named item labels, overflow file in source paths, notes describe keys not SDK meaning"
     }
   },
   "headers": [
