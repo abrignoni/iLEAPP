@@ -108,7 +108,7 @@ __artifacts_v2__ = {
         "category": "Craigslist",
         "notes": "Times in the app's ISO format are parsed and shown as UTC datetimes; a value in another shape is passed on unparsed. The log held one start sequence (init, onboarding, tab, "
                  "startup complete) in each of the three research containers, so it is read as a short log of "
-                 "the most recent start(s); it is not evidence of every launch. The rows come from the startupLog value in manifest.json; a value kept in an MD5-named file is not read by this artifact (a log line says so). The source path line lists each manifest that supplied a row, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
+                 "the most recent start(s); it is not evidence of every launch. The rows come from the startupLog value in manifest.json; a value kept in an MD5-named file is not read by this artifact. The source path line lists each manifest that supplied a row, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/'
                   'org.craigslist.CraigslistMobile/RCTAsyncLocalStorage_V1/manifest.json',),
         "output_types": "standard",
