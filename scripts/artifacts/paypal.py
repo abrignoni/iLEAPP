@@ -179,7 +179,7 @@ __artifacts_v2__ = {
                  ".com.apple.mobile_container_manager.metadata.plist names com.yourcompany.PPClient. "
                  "Start and End are the stored Unix seconds read to the second; Length is rounded to one decimal. Session Number was 0 on every row and is not shown. This database was present in 1 of 5 "
                  "research containers and its newest session was years older than the install's other "
-                 "files, which is consistent with a leftover of an older app version Other tables "
+                 "files, which is consistent with a leftover of an older app version. Other tables "
                  "(messages, consumer_info, cookies) are not reported. Source File is kept because the paths pattern mParticle*.db can match more than one database file (the name carries a version number). Evidence base: the author's own testing on 5 research containers (PayPal 8.98.0, 8.102.0 and 8.107.2) and on synthetic fixtures; what is said here about what was seen rests on those five containers, and other app versions are untested.",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/mParticle*.db*",
                   "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
