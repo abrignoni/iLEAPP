@@ -1,0 +1,146 @@
+{
+  "synthetic_anydesk_ios7": {
+    "description": "One synthetic AnyDesk container with every file the plugin reads, plus a decoy folder that must add nothing.",
+    "maker": "Daniel Addai",
+    "image_info": {
+      "creation_date": "2026-11-06",
+      "os_name": "iPhone OS",
+      "os_version": "18.0",
+      "device_model": "synthetic",
+      "extraction_method": "synthetic zip",
+      "extraction_tool": "make_synthetic_anydesk.py"
+    },
+    "artifacts": {
+      "anydeskConnectionHistory": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/connection_trace.txt",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anydesk.AnyDesk.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anydeskSettings": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/system.conf",
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/user.conf",
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/service.conf",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anydesk.AnyDesk.plist"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anydeskTraceStartups": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/anydesk.trace*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  },
+  "synthetic_anydesk_two_tenants": {
+    "description": "Two synthetic AnyDesk containers (a reinstall): the second adds its own rows and the per-container preferences cross-check stays per container.",
+    "maker": "Daniel Addai",
+    "image_info": {
+      "creation_date": "2026-11-06",
+      "os_name": "iPhone OS",
+      "os_version": "18.0",
+      "device_model": "synthetic",
+      "extraction_method": "synthetic zip",
+      "extraction_tool": "make_synthetic_anydesk.py"
+    },
+    "artifacts": {
+      "anydeskConnectionHistory": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/connection_trace.txt",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anydesk.AnyDesk.plist"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anydeskSettings": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/system.conf",
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/user.conf",
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/service.conf",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anydesk.AnyDesk.plist"
+        ],
+        "file_count": 8,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anydeskTraceStartups": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/anydesk.trace*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  },
+  "synthetic_anydesk_minimal": {
+    "description": "A synthetic container holding only anydesk.trace: the other two artifacts must return nothing without error.",
+    "maker": "Daniel Addai",
+    "image_info": {
+      "creation_date": "2026-11-06",
+      "os_name": "iPhone OS",
+      "os_version": "18.0",
+      "device_model": "synthetic",
+      "extraction_method": "synthetic zip",
+      "extraction_tool": "make_synthetic_anydesk.py"
+    },
+    "artifacts": {
+      "anydeskConnectionHistory": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/connection_trace.txt",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anydesk.AnyDesk.plist"
+        ],
+        "file_count": 0,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anydeskSettings": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/system.conf",
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/user.conf",
+          "*/Containers/Data/Application/*/Library/Application Support/.anydesk/service.conf",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anydesk.AnyDesk.plist"
+        ],
+        "file_count": 0,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anydeskTraceStartups": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Application Support/anydesk.trace*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}
