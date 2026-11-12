@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "preferences and Statsig store.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "OfferUp",
         "notes": "The Account ID is read from the name of a React Native storage key of the form "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
                        "in React Native storage.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "OfferUp",
         "notes": "Position is the place of the entry in the stored list; whether the list is "
@@ -98,7 +98,7 @@ __artifacts_v2__ = {
                        "feedAffinity redux store.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "OfferUp",
         "notes": "Read from the feedAffinity store of the redux state. The store holds a list of "
@@ -121,11 +121,11 @@ __artifacts_v2__ = {
     },
     "offerup_chat_drafts": {
         "name": "OfferUp - Chat Drafts",
-        "description": "Unsent chat message text the OfferUp app kept per conversation "
+        "description": "Draft chat message text the OfferUp app kept per conversation "
                        "(chat_draft_message in React Native storage).",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "OfferUp",
         "notes": "The key under chat_draft_message is reported as Conversation ID; that it "
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
                        "install timestamps.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "OfferUp",
         "notes": "Statsig sessions come from the session_id entries of the Statsig MMKV store. "
@@ -168,8 +168,8 @@ __artifacts_v2__ = {
                  "AppsFlyerInstallTimestamp and com.facebook.sdk:FBSDKSettingsInstallTimestamp "
                  "preference keys; "
                  "how they relate to the App Store install time is not established. Event tells which store a row came from "
-                 "(Statsig session: the Statsig store; Prompt exposure, Push permission prompt "
-                 "and Realtime heartbeat: the redux store; the install timestamps: the app "
+                 "(Statsig session: the Statsig store; Prompt exposure, Push permission prompt shown "
+                 "and Realtime (Ably) heartbeat: the redux store; the install timestamps: the app "
                  "preferences; Registration time (LAST_REGISTERED_AT), Prompt counter and Stored "
                  "time: React Native storage), so there is no Source File column. "
                  "Evidence base: the layouts were read from 2 research containers. The installed app versions are 2026.3.0 and 2026.9.0, but the stores in them record 2026.2.0 and 2026.8.0 as the version last run (VersionOfLastRun, core.currentVersion), so the stores were last written by those two builds; the test fixtures are synthetic, rebuilt from those layouts with invented values. Other app builds are untested. No app binary was analysed; everything here comes from the data containers.",
@@ -191,15 +191,15 @@ __artifacts_v2__ = {
                        "body.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "OfferUp",
         "notes": "Only entries whose host contains offerup or is an Ably host are listed; the "
                  "cache also holds advertising and analytics requests, which are left out. "
                  "Cached is the time_stamp column of the cache row, stored as text without a "
                  "time zone and read as UTC. A cached request records that the app made it, not "
-                 "that the user saw the content. Body Keys lists the top-level JSON keys only; "
-                 "bodies are not decoded, and body text is not reported. HTTP Status and MIME Type "
+                 "that the user saw the content. Body Keys lists the top-level JSON keys only. "
+                 "The body is parsed for those keys and its text is not reported. HTTP Status and MIME Type "
                  "are a heuristic read of the archived response: the status is the first "
                  "integer between 100 and 599 and the MIME type the first type-shaped string "
                  "in it, or a content-type header entry when there is none. Where the payload is "
