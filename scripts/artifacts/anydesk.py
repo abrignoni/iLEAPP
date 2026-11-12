@@ -1,30 +1,28 @@
 __artifacts_v2__ = {
     "anydeskConnectionHistory": {
         "name": "AnyDesk - Connection History",
-        "description": "Lines of AnyDesk's connection_trace.txt, one row per line, split into direction, "
+        "description": "Lines of AnyDesk's connection_trace.txt, one row per non-blank line, split into direction, "
                        "date and time, the next word, a name field and two numeric fields",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "AnyDesk",
         "notes": "Reads Library/Application Support/.anydesk/connection_trace.txt in the app's Data "
                  "container. Each line is split with a pattern. A non-blank line that does not fit the "
-                 "pattern is kept in Raw Line with its surrounding spaces removed, and the other columns are "
-                 "blank. Blank lines are skipped. Direction, Mode, ID 1 and ID 2 are shown as the line holds them. Date and Time "
+                 "pattern is kept in Raw Line with its surrounding spaces removed, and the other columns except "
+                 "Source File are blank. Blank lines are skipped. The file is read as UTF-8; a byte that is not "
+                 "valid UTF-8 is shown as a replacement character. Direction, Mode, ID 1 and ID 2 are shown as the line holds them. Date and Time "
                  "joins the line's date and time with one space and drops the comma between them. "
                  "Name Field has its surrounding spaces removed. ID 1 In Preferences List is derived, "
                  "see below. Date and time carry no time zone in the file "
                  "and none was established here, so they are text and the artifact has no timeline. "
-                 "Direction is the file's first word; in the one research container Direction holds one value on all 4 rows ('Incoming'). "
-                 "Mode is the word after the time; Mode (As Stored) holds one value on all 4 rows of that container ('User'). Third-party write-ups of the "
-                 "Windows client describe that position as an approval type (for example "
-                 "User, Passwd, Token); that is not AnyDesk documentation and was not checked against "
-                 "the iOS app, so no meaning is assigned here. "
+                 "Direction is the line's first word; in the one research container Direction holds one value on all 4 rows ('Incoming'). "
+                 "Mode is the word after the time; Mode (As Stored) holds one value on all 4 rows of that container ('User'). The meaning of Mode is not established. "
                  "Name Field was blank on every line of that container. ID 1 and ID 2 are the two numeric "
                  "fields; in that container ID 1 (As Stored) holds one value on all 4 rows, ID 2 (As Stored) holds the "
-                 "same value, and ID 2's meaning is not established. In that container neither equalled the device's own AnyDesk ID in "
-                 "system.conf (ad.anynet.id), which that container's trace log (anydesk.trace) also names as Client-ID. "
+                 "same value, and ID 2's meaning is not established. In that container neither equalled the value of ad.anynet.id in "
+                 "system.conf, which that container's trace log (anydesk.trace) also names as Client-ID. "
                  "ID 1 In Preferences List says whether ID 1 appears in the "
                  "user.preference.already.connected.users list of the same container's "
                  "com.anydesk.AnyDesk.plist ('Yes', 'No', or blank when that plist is absent or unreadable or the key is absent or not a list); in that container "
@@ -52,18 +50,18 @@ __artifacts_v2__ = {
                        "com.anydesk.AnyDesk.plist, and the key names of service.conf",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "AnyDesk",
         "notes": "system.conf and user.conf are 'key=value' text files in Library/Application Support/.anydesk; "
                  "their values are shown as stored. The preferences plist is read with plistlib; dates are "
-                 "shown in UTC as the plist stores them, lists and dictionaries as JSON. "
-                 "In the .conf files, blank lines are skipped and so are lines starting with '#'. "
+                 "shown in UTC (top-level dates cut to whole seconds), lists and dictionaries as JSON. "
+                 "In the .conf files, blank lines are skipped and so are lines whose first non-space character is '#'. "
                  "A top-level plist value that is bytes is shown as hex. Bytes inside a list or "
                  "dictionary are shown in Python's text form. "
                  "In the one research container service.conf had keys named for a certificate, a private key and tokens; "
                  "only the key names of any service.conf are reported and every value is withheld "
-                 "('(withheld)'). The same rule applies to any key of the other files whose name "
+                 "('(withheld)'). The same rule applies to any top-level key of the other files whose name "
                  "contains 'pkey', 'cert' or 'token'. "
                  "In the one research container ad.anynet.id equalled the Client-ID its trace log names, and "
                  "user.preference.install.date is a plist date. The meaning of the keys is "
@@ -91,7 +89,7 @@ __artifacts_v2__ = {
                        "version the banner names and counts of the log lines in the block",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "AnyDesk",
         "notes": "anydesk.trace (Library/Application Support) is a text log. A new block starts at each "
@@ -105,8 +103,8 @@ __artifacts_v2__ = {
                  "Log Lines counts only lines that start with a level word and a timestamp; other "
                  "lines are not counted. "
                  "The count columns are numbers of log lines, "
-                 "not sessions or connections: Relay Established Lines counts "
-                 "'Main relay connection established.', Relay Failed Lines counts lines starting "
+                 "not sessions or connections: Relay Established Lines counts log lines whose message starts with "
+                 "'Main relay connection established', Relay Failed Lines counts log lines whose message starts with "
                  "'Main relay connection failed', and Warning and Error Lines count entries "
                  "by the log's own level word. "
                  "What a relay connection means for use of the app is not established here. "
@@ -151,7 +149,10 @@ LOG_ENTRY = re.compile(
 
 
 def _container_key(path):
-    """The path segment after 'Application' (container UUID, or bundle id in a backup)."""
+    """The path segment after 'Application' (container UUID, or bundle id in a backup).
+
+    Called with the evidence-relative path, so a folder of the examiner's named 'Application' is not read.
+    """
     parts = str(path).replace('\\', '/').split('/')
     for i, part in enumerate(parts[:-1]):
         if part == 'Application':
@@ -225,7 +226,7 @@ def anydeskConnectionHistory(context):
         plist = _read_plist(plist_path)
         value = plist.get('user.preference.already.connected.users') if plist else None
         if isinstance(value, list):
-            connected[_container_key(plist_path)] = {str(v) for v in value}
+            connected[_container_key(context.get_relative_path(plist_path))] = {str(v) for v in value}
 
     for path in _files(context, 'connection_trace.txt'):
         text = _read_text(path)
@@ -233,7 +234,7 @@ def anydeskConnectionHistory(context):
         sources.append(rel)
         if text is None:
             continue
-        known = connected.get(_container_key(path))
+        known = connected.get(_container_key(rel))
         for line in text.splitlines():
             if not line.strip():
                 continue

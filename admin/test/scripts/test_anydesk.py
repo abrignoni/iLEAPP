@@ -67,6 +67,21 @@ class TestAnyDesk(unittest.TestCase):
             _, rows, _ = run(anydesk.anydeskConnectionHistory, files)
         self.assertEqual(sorted(r[6] for r in rows), ['No', 'Yes'])
 
+    def test_examiner_folder_named_application_does_not_merge_containers(self):
+        with tempfile.TemporaryDirectory() as d:
+            staged = 'Application/case/data/'
+            files = []
+            for uuid, listed in (('U1', [900000001]), ('U2', [])):
+                files.append(write(d, f'{staged}{APP}{uuid}/{SUPPORT}.anydesk/connection_trace.txt', LINE))
+                files.append(write(d, f'{staged}{APP}{uuid}/Library/Preferences/com.anydesk.AnyDesk.plist',
+                                   plistlib.dumps({'user.preference.already.connected.users': listed})))
+            prefix = str(Path(d) / staged).replace(chr(92), '/')
+            context = SimpleNamespace(
+                get_files_found=lambda: files,
+                get_relative_path=lambda p: str(p).replace(chr(92), '/')[len(prefix):])
+            _, rows, _ = anydesk.anydeskConnectionHistory.__wrapped__(context)
+        self.assertEqual(sorted(r[6] for r in rows), ['No', 'Yes'])
+
     def test_source_file_separates_containers(self):
         with tempfile.TemporaryDirectory() as d:
             files = [write(d, f'{APP}{uuid}/{SUPPORT}.anydesk/connection_trace.txt', LINE) for uuid in ('U1', 'U2')]
