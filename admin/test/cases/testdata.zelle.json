@@ -1,0 +1,149 @@
+{
+  "synthetic": {
+    "description": "Fabricated Zelle container: log1.txt log, console log, preferences and Mixpanel plist with invented values, plus a second app container holding a same-named file that must be ignored.",
+    "maker": "@danjethh",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "zelle_risk_sdk_events": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Documents/log1.txt",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 4
+      },
+      "zelle_risk_sdk_log_summary": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Documents/log1.txt",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 4
+      },
+      "zelle_device_integrity": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Caches/file.log",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3
+      },
+      "zelle_preferences": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Preferences/com.zellepay.zelle.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.crashlytics/CLSUserDefaults.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 5
+      },
+      "zelle_mixpanel_timed_events": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3
+      }
+    }
+  },
+  "synthetic_minimal": {
+    "description": "Fabricated Zelle container without the repeated SDK connection lines and without the optional preference key.",
+    "maker": "@danjethh",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "zelle_risk_sdk_events": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Documents/log1.txt",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2
+      },
+      "zelle_risk_sdk_log_summary": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Documents/log1.txt",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2
+      },
+      "zelle_device_integrity": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Caches/file.log",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2
+      },
+      "zelle_preferences": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Preferences/com.zellepay.zelle.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.crashlytics/CLSUserDefaults.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 4
+      },
+      "zelle_mixpanel_timed_events": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 2
+      }
+    }
+  },
+  "synthetic_backup": {
+    "description": "Fabricated iTunes-backup layout: the container folder is named by the bundle id and has no metadata plist.",
+    "maker": "@danjethh",
+    "os_name": "iOS",
+    "os_version": "synthetic",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "synthetic"
+    },
+    "artifacts": {
+      "zelle_risk_sdk_events": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Documents/log1.txt",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 1
+      },
+      "zelle_risk_sdk_log_summary": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Documents/log1.txt",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 1
+      },
+      "zelle_device_integrity": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Caches/file.log",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 1
+      },
+      "zelle_preferences": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Preferences/com.zellepay.zelle.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.crashlytics/CLSUserDefaults.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 3
+      },
+      "zelle_mixpanel_timed_events": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/Preferences/Mixpanel.plist",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 1
+      }
+    }
+  }
+}

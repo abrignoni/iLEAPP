@@ -1,0 +1,117 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Device Integrity Checks",
+    "function_name": "zelle_device_integrity",
+    "case_number": "synthetic",
+    "number_of_columns": 5,
+    "number_of_rows": 12,
+    "total_data_size_bytes": 1273,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/zelle/testdata.zelle.zelle_device_integrity.synthetic.zip",
+    "start_time": "2026-11-11T15:39:01.052986+00:00",
+    "end_time": "2026-11-11T15:39:01.147770+00:00",
+    "run_time_seconds": 0.003544330596923828,
+    "last_commit": {
+      "hash": "4684a79cb97267b0eb49f43e7e092c68865fb81d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-09T09:25:30-05:00",
+      "message": "Zelle: address review (Log Time, seconds for Firebase times, Mixpanel epoch sourced, notes wording)"
+    }
+  },
+  "headers": [
+    "Log Time",
+    "PID",
+    "Check",
+    "Result",
+    "Message"
+  ],
+  "data": [
+    [
+      "2026-03-02 09:00:00.100",
+      500,
+      "Crashlytics",
+      "9.9.9",
+      "[Firebase/Crashlytics] Version 9.9.9"
+    ],
+    [
+      "2026-03-02 09:00:06.300",
+      500,
+      "STEP 1",
+      "Initializing InAuth Sdk",
+      "STEP 1 --- Initializing InAuth Sdk....."
+    ],
+    [
+      "2026-03-02 09:00:07.000",
+      500,
+      "Signature files version",
+      "(null)",
+      "InAuth Sig files versions: (null)"
+    ],
+    [
+      "2026-03-02 09:00:07.500",
+      500,
+      "STEP 2",
+      "Generate Registration Payload",
+      "STEP 2 --- Generate Registration Payload....."
+    ],
+    [
+      "2026-03-02 09:00:08.000",
+      500,
+      "Device log generation",
+      "00000000-0000-4000-8000-0000000000aa",
+      "EwsMrdExtension.onGenerateLogs Generating device logs for sessionId: 00000000-0000-4000-8000-0000000000aa"
+    ],
+    [
+      "2026-03-02 09:00:08.100",
+      500,
+      "Root detection",
+      "started",
+      "running root detection..."
+    ],
+    [
+      "2026-03-02 09:00:08.200",
+      500,
+      "Root status",
+      "NotRooted",
+      "EwsMrdExtension.getRootStatus:: root status is: NotRooted"
+    ],
+    [
+      "2026-03-02 09:00:08.300",
+      500,
+      "Malware detection",
+      "started",
+      "running malware detection..."
+    ],
+    [
+      "2026-03-02 09:00:08.400",
+      500,
+      "Malware status",
+      "NoMalwareDetected",
+      "EwsMrdExtension.getMalwareStatus:: malware status is: NoMalwareDetected"
+    ],
+    [
+      "2026-03-02 09:00:08.500",
+      500,
+      "Root scan list",
+      "not found",
+      "Root scan list not found"
+    ],
+    [
+      "2026-03-04 18:30:00.000",
+      777,
+      "Error",
+      "<Google/Utilities/Network/ERROR> Encounter network error. Code, error: -1009",
+      "<Google/Utilities/Network/ERROR> Encounter network error. Code, error: -1009"
+    ],
+    [
+      "2026-03-04 18:30:00.500",
+      777,
+      "Signature files version",
+      "1.2",
+      "InAuth Sig files versions: 1.2"
+    ]
+  ]
+}

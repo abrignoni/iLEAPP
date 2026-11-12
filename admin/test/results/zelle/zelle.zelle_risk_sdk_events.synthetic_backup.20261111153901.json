@@ -1,0 +1,368 @@
+{
+  "metadata": {
+    "module_name": "zelle",
+    "artifact_name": "Zelle - Risk SDK Events",
+    "function_name": "zelle_risk_sdk_events",
+    "case_number": "synthetic_backup",
+    "number_of_columns": 7,
+    "number_of_rows": 37,
+    "total_data_size_bytes": 4339,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/zelle/testdata.zelle.zelle_risk_sdk_events.synthetic_backup.zip",
+    "start_time": "2026-11-11T15:39:01.916013+00:00",
+    "end_time": "2026-11-11T15:39:02.005900+00:00",
+    "run_time_seconds": 0.0019412040710449219,
+    "last_commit": {
+      "hash": "4684a79cb97267b0eb49f43e7e092c68865fb81d",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-09T09:25:30-05:00",
+      "message": "Zelle: address review (Log Time, seconds for Firebase times, Mixpanel epoch sourced, notes wording)"
+    }
+  },
+  "headers": [
+    "Event Time",
+    "Level",
+    "Component",
+    "Event Type",
+    "Event",
+    "Status",
+    "Log Message"
+  ],
+  "data": [
+    [
+      1772460000,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Plugin start",
+      "Two Core Plugin Start",
+      "",
+      "Two Core Plugin Start"
+    ],
+    [
+      1772460000,
+      "DEBUG",
+      "ManagerPlugin",
+      "Started successfully",
+      "Application has started successfully",
+      "",
+      "Application  has started successfully"
+    ],
+    [
+      1772460001,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "GET_APPLICATION_SECRETS",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "GetSecrets",
+      "success",
+      "Received msg of type GetSecrets, status code =success"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "START_RISK_SESSION",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Risk reason",
+      "adddevice",
+      "",
+      "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "StartRiskSession",
+      "success",
+      "Received msg of type StartRiskSession, status code =success"
+    ],
+    [
+      1772460003,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_READY",
+      "",
+      "device state set to: DEV_STATE_READY"
+    ],
+    [
+      1772460303,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "QUERY_USER_STATE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request...."
+    ],
+    [
+      1772460303,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "StateCheck",
+      "success",
+      "Received msg of type StateCheck, status code =success"
+    ],
+    [
+      1772719260,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Plugin start",
+      "Two Core Plugin Start",
+      "",
+      "Two Core Plugin Start"
+    ],
+    [
+      1772719260,
+      "DEBUG",
+      "ManagerPlugin",
+      "Started successfully",
+      "Application has started successfully",
+      "",
+      "Application  has started successfully"
+    ],
+    [
+      1772719261,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "GET_APPLICATION_SECRETS",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "GetSecrets",
+      "success",
+      "Received msg of type GetSecrets, status code =success"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "START_RISK_SESSION",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Risk reason",
+      "adddevice",
+      "",
+      "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "StartRiskSession",
+      "success",
+      "Received msg of type StartRiskSession, status code =success"
+    ],
+    [
+      1772719263,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_READY",
+      "",
+      "device state set to: DEV_STATE_READY"
+    ],
+    [
+      1772719563,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "QUERY_USER_STATE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request...."
+    ],
+    [
+      1772719563,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "StateCheck",
+      "success",
+      "Received msg of type StateCheck, status code =success"
+    ],
+    [
+      1772978520,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Plugin start",
+      "Two Core Plugin Start",
+      "",
+      "Two Core Plugin Start"
+    ],
+    [
+      1772978520,
+      "DEBUG",
+      "ManagerPlugin",
+      "Started successfully",
+      "Application has started successfully",
+      "",
+      "Application  has started successfully"
+    ],
+    [
+      1772978521,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "GET_APPLICATION_SECRETS",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: GET_APPLICATION_SECRETS"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "GetSecrets",
+      "success",
+      "Received msg of type GetSecrets, status code =success"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "START_RISK_SESSION",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: START_RISK_SESSION"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Risk reason",
+      "adddevice",
+      "",
+      "TCCP::handle2ChkRsp() msgDetails.msgContents.riskReason adddevice"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "StartRiskSession",
+      "success",
+      "Received msg of type StartRiskSession, status code =success"
+    ],
+    [
+      1772978523,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_READY",
+      "",
+      "device state set to: DEV_STATE_READY"
+    ],
+    [
+      1772978823,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "QUERY_USER_STATE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: QUERY_USER_STATE request...."
+    ],
+    [
+      1772978823,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "StateCheck",
+      "success",
+      "Received msg of type StateCheck, status code =success"
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "GuiReq received",
+      "DEL_DEVICE",
+      "",
+      "handle2ChkGuiRequest received: TwoChkGuiReqMsg: DEL_DEVICE request...."
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "RemoveDevice",
+      "success",
+      "Received msg of type RemoveDevice, status code =success"
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Device state",
+      "DEV_STATE_FRESH_INSTALL",
+      "",
+      "device state set to: DEV_STATE_FRESH_INSTALL"
+    ],
+    [
+      1772982423,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Credentials",
+      "Cleared the credentials",
+      "",
+      "Cleared the credentials!"
+    ],
+    [
+      1772982453,
+      "ERROR",
+      "TwoChkCorePlugin",
+      "Error",
+      "No device key to sign anything with..",
+      "",
+      "No device key to sign anything with.."
+    ],
+    [
+      1772982453,
+      "ERROR",
+      "HttpPlugin",
+      "Error",
+      "SSL Handshake failed with error & sslErr -9806:0",
+      "",
+      "SSL Handshake failed with error & sslErr -9806:0, errno=0"
+    ],
+    [
+      1772982453,
+      "DEBUG",
+      "TwoChkCorePlugin",
+      "Received msg",
+      "Connect",
+      "MobileAuthStarted",
+      "Received msg of type Connect, status code =MobileAuthStarted"
+    ]
+  ]
+}
