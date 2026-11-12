@@ -6,10 +6,11 @@ __artifacts_v2__ = {
                        "component names are TwoChkCorePlugin, HttpPlugin and ManagerPlugin.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "Zelle",
         "notes": (
+            "Risk SDK in the artifact name is a label this module assigns. It is not read from the log. "
             "Reads Documents/log1.txt in a container whose metadata plist names com.zellepay.zelle, or in an "
             "iTunes backup AppDomain folder named com.zellepay.zelle. The file is a text log whose "
             "component names are TwoChkCorePlugin, HttpPlugin and ManagerPlugin. Each entry is a header line "
@@ -22,7 +23,7 @@ __artifacts_v2__ = {
             "and the second reached 31 in the logs of both containers, and entries were in ascending time order "
             "in both. An entry gives at most one row, and the first rule that matches decides it: a message "
             "'Two Core Plugin Start' (Event Type 'Plugin start'); 'Application has started successfully' (Event Type "
-            "'Started successfully'); a GuiReq message with a 'received: <NAME>' line (Event Type 'GuiReq received', "
+            "'Started successfully'); a message that contains 'GuiRe' and 'received: <word>: <NAME>', where NAME is in capitals (Event Type 'GuiReq received', "
             "Event is NAME); a 'Received msg of type <TYPE>, status code = <CODE>' line (Event Type 'Received msg', "
             "Event is TYPE, Status is CODE); a 'device state set to: <STATE>' line (Event Type 'Device state', Event "
             "is STATE); a 'riskReason' line (Event Type 'Risk reason', Event is the word after riskReason); a "
@@ -30,13 +31,14 @@ __artifacts_v2__ = {
             "(Event Type 'Error'). Event Type is a label this module assigns from the message wording. Event and "
             "Status are words taken from the message, except that Event on the 'Plugin start', 'Started "
             "successfully' and 'Credentials' rows is a fixed phrase the module writes; for an Error entry, Event "
-            "is the text before the first comma, at most 80 characters. This module does not state what a GuiReq, a "
+            "is the text before the first comma, at most 80 characters. An entry with an invalid time is treated the same way; its row has an empty Event Time. This module does not state what a GuiReq, a "
             "received message or a status means. Log Message joins the message's body lines with ' / ' and is "
             "clipped at 300 characters; it can include values printed in the message (for example a credential "
             "length on a credential-check request). Not reported, because they were repeated or constant in the "
             "logs of the two research containers: socket and connection-state "
             "entries, 'Found Dlg in transaction map', credential enrolment and availability bit values "
-            "(constant in both logs), 'Router core get/set environment' and handler plumbing. They are "
+            "(constant in both logs), 'Router core get/set environment' and handler plumbing, unless the entry "
+            "is logged at ERROR level. They are "
             "counted in Zelle - Risk SDK Log Summary. Whether the file is rotated or truncated is not "
             "established; absence of an entry does not show that nothing happened. "
             "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
@@ -52,13 +54,14 @@ __artifacts_v2__ = {
         "name": "Zelle - Risk SDK Log Summary",
         "description": "One row per Documents/log1.txt in a Zelle container: first and last entry time, entry "
                        "counts by level, the count of 'Application has started successfully' entries and the host "
-                       "names the log mentions.",
+                       "names that follow 'siteId:' or 'send connect request to'.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "Zelle",
         "notes": (
+            "Risk SDK in the artifact name is a label this module assigns. It is not read from the log. "
             "Built from the same Documents/log1.txt as Zelle - Risk SDK Events and read the same way (Event Time "
             "rules apply to First Entry and Last Entry). First Entry and Last Entry are the earliest and latest valid "
             "entry times in the file, not necessarily the first and last entry in it; an entry with an invalid time "
@@ -80,17 +83,17 @@ __artifacts_v2__ = {
     },
     "zelle_device_integrity": {
         "name": "Zelle - Device Integrity Checks",
-        "description": "Lines about root status, malware status, 'STEP' initialisation, the signature file version "
-                       "and errors from the app's Library/Caches/file.log.",
+        "description": "Root status, malware status, 'STEP n ---', 'InAuth Sig files versions' and error lines "
+                       "from the app's Library/Caches/file.log.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "Zelle",
         "notes": (
             "Reads Library/Caches/file.log in a Zelle container. The file holds the app's console lines, one "
-            "per line, as 'YYYY-MM-DD HH:MM:SS.mmm Zelle[pid:thread] message'; PID is the process id, which changes "
-            "with each launch of the app, and the process name (Zelle on every line) is not reported. Log Time is written without a "
+            "per line, as 'YYYY-MM-DD HH:MM:SS.mmm Zelle[pid:thread] message'; PID is the number before the colon in "
+            "the brackets. The process name (Zelle on every line seen) is not reported. Log Time is written without a "
             "time zone, so this column is text and no UTC value is derived. On both research containers the first "
             "line fell a whole number of hours before first_open_timestamp_ms (UTC) in com.google.gmp.measurement.plist "
             "of the same container (read for any app by the Google Measurement - App Analytics Store "
@@ -105,14 +108,14 @@ __artifacts_v2__ = {
             "found' line (Result 'not found', also fixed), the 'STEP n ---' lines (Check 'STEP n', Result the text "
             "after the dashes without trailing dots), the signature file version line (Result the text after "
             "'versions: '), the session id on the 'Generating device logs for sessionId:' line (Result the session "
-            "id), the Crashlytics version line (Result the last word of the line), and lines that contain ERROR or "
-            "start with Error (Result the first 80 characters of the line). "
+            "id), the Crashlytics version line (Result the last word of the message), and lines that contain ERROR or "
+            "start with Error (Result the first 80 characters of the message). "
             "Untimestamped lines, "
             "such as the JSON blocks that follow some lines (keys, signatures, payloads), are not reported; JSON "
             "on a timestamped line itself is part of its Message and is clipped with it. Keyboard-layout "
             "messages and other lines not named above are not reported. A Message longer than 300 characters is "
-            "clipped (one payload-error line seen held several thousand). The file is a small cache file: the "
-            "two files held 20 and 70 timestamped lines, so it is not a complete launch history. The "
+            "clipped (one payload-error line seen held several thousand). The "
+            "two files held 20 and 70 timestamped lines. Whether the file keeps every launch is not established. The "
             "session id after 'sessionId:' was empty on every line seen. "
             "Evidence base: the author's own testing on 2 research containers and on synthetic fixtures. The installed app version is 9.4.1 in both containers. MPAppVersion in Mixpanel.plist read 9.3.2 in one container and 9.2.0 in the other; that is the app version at the time the Mixpanel SDK last wrote the key. So the installed 9.4.1 build did not update that key. Whether 9.4.1 wrote any of the stores read here is not established. What is said here about what was seen rests on those two containers; other app versions are untested."
         ),
@@ -129,7 +132,7 @@ __artifacts_v2__ = {
                        "archived super properties) and its Crashlytics defaults.",
         "author": "@danjethh, Claude",
         "creation_date": "2026-11-06",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "Zelle",
         "notes": (
@@ -138,7 +141,7 @@ __artifacts_v2__ = {
             "Events) and Library/Application Support/com.crashlytics/CLSUserDefaults.plist. Value shows bytes as hex "
             "(bytes longer than 64 are cut to the first 64 bytes of hex, followed by '...'), lists and dicts as "
             "JSON with sorted keys, in which bytes are shown as full hex, and dates as ISO text; other values are "
-            "shown as stored. The super properties are shown as decoded from the archive. Value Type is the "
+            "shown as stored. The super properties are shown as decoded from the archive; a super properties value that cannot be decoded gives no row. Value Type is the "
             "Python type name of the value. The meaning of a key is not established unless "
             "the key's own name states it. Keys seen in the two research containers were: AccountAssociatedWithUserKey, "
             "AppAlreadyLaunchedKey, PreferencesTouchIDKey, PushIDKey (32 bytes), qrCodeSeen, zrcSeen, "

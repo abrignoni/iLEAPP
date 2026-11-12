@@ -186,7 +186,7 @@ CASES = {
     # Full container, plus a second container of another app holding a file with the same name (must be ignored).
     'synthetic': lambda root: (build_container(root, CONTAINER),
                                build_container(root, OTHER_CONTAINER, bundle='com.example.other', decoy=True)),
-    # Only what an older app version or a trimmed extraction might hold: no noise lines, no user_attributes table,
+    # Only what an older app version or a trimmed extraction might hold: no noise lines,
     # no SKPurchaseIntentUpdatesLastChecked key.
     'synthetic_minimal': lambda root: build_container(root, CONTAINER, minimal=True),
     # An iTunes backup names the container folder by the bundle id and has no metadata plist.
