@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Activity and Timing",
+    "function_name": "offerup_activity",
+    "case_number": "case_synthetic_earlier",
+    "number_of_columns": 4,
+    "number_of_rows": 12,
+    "total_data_size_bytes": 936,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/offerup/testdata.offerup.offerup_activity.case_synthetic_earlier.zip",
+    "start_time": "2026-11-11T15:37:28.441611+00:00",
+    "end_time": "2026-11-11T15:37:28.580570+00:00",
+    "run_time_seconds": 0.009859800338745117,
+    "last_commit": {
+      "hash": "91089898c73586b7dcea37318113e7c391756715",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-09T09:26:12-05:00",
+      "message": "OfferUp: State reads state before adminArea, key-named item labels, overflow file in source paths, notes describe keys not SDK meaning"
+    }
+  },
+  "headers": [
+    "Time",
+    "Last Update",
+    "Event",
+    "Detail"
+  ],
+  "data": [
+    [
+      1790000000,
+      1790000300,
+      "Statsig session",
+      "Session 00000000-0000-4000-8000-0000000000a1"
+    ],
+    [
+      1790000900,
+      1790000960,
+      "Statsig session",
+      "Session 00000000-0000-4000-8000-0000000000a2"
+    ],
+    [
+      1790000005,
+      1790000006,
+      "Prompt exposure: POST_DETAIL_FTUE_KEY",
+      "run count 2; attempted 3"
+    ],
+    [
+      1790000001,
+      "",
+      "Push permission prompt shown",
+      "shown 1 times"
+    ],
+    [
+      1790000007,
+      "",
+      "Realtime (Ably) heartbeat",
+      "lastHeartbeatTime"
+    ],
+    [
+      1789913600,
+      "",
+      "AppsFlyer install timestamp",
+      "AppsFlyerInstallTimestamp"
+    ],
+    [
+      1789862405,
+      "",
+      "Facebook SDK install timestamp",
+      "com.facebook.sdk:FBSDKSettingsInstallTimestamp"
+    ],
+    [
+      1790000003,
+      "",
+      "Registration time (LAST_REGISTERED_AT)",
+      "what was registered is not established"
+    ],
+    [
+      1790000001,
+      1790000001,
+      "Prompt counter: PUSH_NOTIFICATION_PERMISSIONS_RUNNER_KEY",
+      "run count 1; attempted 1"
+    ],
+    [
+      1790000002,
+      1790000002,
+      "Prompt counter: BUSINESS_TOOLS",
+      "run count 4; attempted 6"
+    ],
+    [
+      1790000004,
+      "",
+      "Stored time: LAST_ACCOUNT_PAGE_REFRESH",
+      "meaning not established beyond the key name"
+    ],
+    [
+      1790000004,
+      "",
+      "Stored time: profile_location_after_filter",
+      "meaning not established beyond the key name"
+    ]
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "module_name": "offerup",
+    "artifact_name": "OfferUp - Listing Affinity",
+    "function_name": "offerup_listing_affinity",
+    "case_number": "case_synthetic_earlier",
+    "number_of_columns": 4,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/offerup/testdata.offerup.offerup_listing_affinity.case_synthetic_earlier.zip",
+    "start_time": "2026-11-11T15:37:28.222073+00:00",
+    "end_time": "2026-11-11T15:37:28.341748+00:00",
+    "run_time_seconds": 0.006081819534301758,
+    "last_commit": {
+      "hash": "91089898c73586b7dcea37318113e7c391756715",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-09T09:26:12-05:00",
+      "message": "OfferUp: State reads state before adminArea, key-named item labels, overflow file in source paths, notes describe keys not SDK meaning"
+    }
+  },
+  "headers": [
+    "Kind",
+    "Position",
+    "Listing ID",
+    "Category ID"
+  ],
+  "data": []
+}
