@@ -247,7 +247,143 @@ __artifacts_v2__ = {
             "jess_ios15": "iOS 15.0.2 | 1 row",
             "magnet_ios16": "iOS 16.1.1 | 1 row",
         }
-    }
+    },
+    "icloud_drive_server_files": {
+        "name": "Files App - iCloud Drive server files",
+        "description": "Rows of the server_items table of the CloudDocs server.db, with the stored times, size, zone "
+                       "name and the device name matched on version_device.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-12",
+        "last_update_date": "2026-11-12",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": (
+                 "Source is the server_items table of the CloudDocs server.db at "
+                 "/private/var/mobile/Library/Application Support/CloudDocs/session/db. Rows can live in the "
+                 "write-ahead log, which is read with the database; on iphone11_ios17 the file alone held 56 "
+                 "of 58 rows. Created, Modified and Last opened are item_birthtime, version_mtime and "
+                 "item_lastusedtime, read as Unix epoch seconds and shown in UTC; every non-zero value in "
+                 "the tested images was a 10-digit integer and the epoch is not sourced. A zero, empty or "
+                 "negative value reads blank. Path is rebuilt from the item_parent_id chain in server_items, "
+                 "outermost first, following only a 16-byte parent id; a parent id of another length ends "
+                 "the chain even when the table holds a row with that id (4 rows on felix_ios17), so Path "
+                 "can be incomplete or blank. A row whose version_size is not stored as an integer is "
+                 "treated as a folder: its name is appended to Path and Filename is left blank. Item type "
+                 "and Item state are the stored integer codes, reported as stored; their meanings are not "
+                 "sourced. Version name is version_name as stored. Size in bytes is version_size as stored; "
+                 "Size is the same value in 1024-based units, blank when the size is 0 or absent. Zone is "
+                 "server_zones.zone_name. From device name is devices.name matched on version_device, blank "
+                 "when version_device is empty or has no devices row. Item state held 0 on all 145 rows of "
+                 "the eight images. server_items had no account or user name column in the eight schemas "
+                 "read. Run against eight images, iOS 12 to 18; row counts 1 to 58 matched the table at "
+                 "every output. "
+        ),
+        "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "cloud",
+        "sample_data": {
+            'iphone11_ios17': 'iOS 17 | 58 rows',
+            'ctf2020_ios12': 'iOS 12 | 19 rows',
+            'jess_ios15': 'iOS 15 | 1 row',
+            'magnet_ios16': 'iOS 16 | 7 rows',
+            'felix_ios17': 'iOS 17 | 32 rows',
+            'iphone12_ios18': 'iOS 18 | 11 rows',
+            'hc_ios18_7': 'iOS 18.7 | 1 row',
+            'hickman_ios13': 'iOS 13 | 16 rows',
+        },
+    },
+    "icloud_drive_download_queue": {
+        "name": "Files App - iCloud Drive download queue",
+        "description": "Rows of the client_downloads table of the CloudDocs client.db, with the client_items row "
+                       "matched on throttle_id and the stored stamps.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-12",
+        "last_update_date": "2026-11-12",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": (
+                 "Source is the client_downloads table of the CloudDocs client.db at "
+                 "/private/var/mobile/Library/Application Support/CloudDocs/session/db. Rows can live in the "
+                 "write-ahead log, which is read with the database; on iphone11_ios17 the single row was "
+                 "present only in the -wal. throttle_id is matched to client_items.rowid to take the file "
+                 "name (item_filename) and rebuild Path from that row's item_parent_id chain; this link is "
+                 "not sourced, and on the rows tested each matched one client_items row whose zone and "
+                 "library agreed. Path follows only a 16-byte parent id, so it is blank when the parent id "
+                 "is another length, as on the iphone11_ios17 row. Last try, Request time, Next retry and "
+                 "Expires are last_try_stamp, download_request_stamp, next_retry_stamp and expire_stamp; the "
+                 "headers follow the column names and what each records is not sourced. Each is read as Unix "
+                 "nanoseconds and shown in whole seconds, UTC, dropping any sub-second part; the stored "
+                 "values were 19-digit integers resolving to 2024 and the unit and epoch are not sourced. A "
+                 "zero, empty or negative value reads blank. Transfer size in bytes is transfer_size as "
+                 "stored; Transfer size is the same value in units, blank when 0. Transfer queue, Transfer "
+                 "stage and Download kind are reported as stored; a queue or stage value stored as a blob "
+                 "would show as its byte length, which did not occur (the stored values were text). App "
+                 "library name is app_libraries.app_library_name; Zone is client_zones.zone_name. Run "
+                 "against eight images, iOS 12 to 18: 1 row on iphone11_ios17 (in the write-ahead log) and 0 "
+                 "rows on seven where the table was present and empty; one row is the whole tested "
+                 "population and the queue, stage and kind values were not sourced. "
+        ),
+        "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "download-cloud",
+        "sample_data": {
+            'iphone11_ios17': 'iOS 17 | 1 row (write-ahead log)',
+            'ctf2020_ios12': 'iOS 12 | 0 rows',
+            'jess_ios15': 'iOS 15 | 0 rows',
+            'magnet_ios16': 'iOS 16 | 0 rows',
+            'felix_ios17': 'iOS 17 | 0 rows',
+            'iphone12_ios18': 'iOS 18 | 0 rows',
+            'hc_ios18_7': 'iOS 18.7 | 0 rows',
+            'hickman_ios13': 'iOS 13 | 0 rows',
+        },
+    },
+    "icloud_drive_upload_queue": {
+        "name": "Files App - iCloud Drive upload queue",
+        "description": "Rows of the client_uploads table of the CloudDocs client.db, with the client_items row "
+                       "matched on throttle_id and the stored stamps.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-12",
+        "last_update_date": "2026-11-12",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": (
+                 "Source is the client_uploads table of the CloudDocs client.db at "
+                 "/private/var/mobile/Library/Application Support/CloudDocs/session/db. The write-ahead log "
+                 "is read with the database, so the rows are the table's current state; on ctf2020_ios12 the "
+                 "database file alone holds 2 rows the log removes. throttle_id is matched to "
+                 "client_items.rowid to take the file name (item_filename) and rebuild Path from that row's "
+                 "item_parent_id chain; this link is not sourced, and on the rows tested each matched one "
+                 "client_items row whose zone and library agreed. Path follows only a 16-byte parent id, so "
+                 "a file whose parent id is another length has a blank Path (both iphone12_ios18 rows); the "
+                 "hickman_ios13 row had a 16-byte parent and its Path resolved to a folder. Last try, "
+                 "Request time, Next retry and Expires are last_try_stamp, upload_request_stamp, "
+                 "next_retry_stamp and expire_stamp; upload_request_stamp and next_retry_stamp held 0 on all "
+                 "three rows and last_try_stamp held 0 on the hickman_ios13 row. Each stamp is read as Unix "
+                 "nanoseconds and shown in whole seconds, UTC, dropping any sub-second part; the stored "
+                 "values were 19-digit integers resolving to 2020 and 2025 and the unit and epoch are not "
+                 "sourced. A zero, empty or negative value reads blank. Transfer size in bytes is "
+                 "transfer_size as stored; Transfer size is the same value in units, blank when 0 (one row "
+                 "on iphone12_ios18). Transfer queue and Transfer stage are reported as stored; a value "
+                 "stored as a blob would show as its byte length, which did not occur, and Transfer stage "
+                 "was empty on all three rows. App library name is app_libraries.app_library_name; Zone is "
+                 "client_zones.zone_name. Run against eight images, iOS 12 to 18: 2 rows on iphone12_ios18 "
+                 "and 1 row on hickman_ios13, and 0 rows on six others where the table was present and empty "
+                 "as read with the write-ahead log; the queue and stage values were not sourced. "
+        ),
+        "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "upload-cloud",
+        "sample_data": {
+            'iphone11_ios17': 'iOS 17 | 0 rows',
+            'ctf2020_ios12': 'iOS 12 | 0 rows',
+            'jess_ios15': 'iOS 15 | 0 rows',
+            'magnet_ios16': 'iOS 16 | 0 rows',
+            'felix_ios17': 'iOS 17 | 0 rows',
+            'iphone12_ios18': 'iOS 18 | 2 rows',
+            'hc_ios18_7': 'iOS 18.7 | 0 rows',
+            'hickman_ios13': 'iOS 13 | 1 row',
+        },
+    },
 }
 
 from packaging import version
@@ -679,3 +815,146 @@ def files_ios_updates(context):
         data_list.append((os_date, os_os, os_version))
 
     return data_headers, data_list, source_path
+
+
+def _cloud_stamp(value):
+    """A CloudDocs stamp as Unix seconds: a value above 10**14 is nanoseconds, else seconds; 0/None -> None."""
+    if not isinstance(value, (int, float)) or value == 0:
+        return None
+    return value / 1_000_000_000 if abs(value) > 10 ** 14 else value
+
+
+def get_server_tree_structure(server_db_path):
+    """item_id -> full path, built from the server_items table of server.db (mirrors get_tree_structure)."""
+    query = '''
+    SELECT item_id, item_parent_id, item_filename
+    FROM server_items
+    WHERE item_type != 1
+    '''
+    records = get_sqlite_db_records(server_db_path, query)
+    nodes = {}
+    for item_id, parent_id, filename in records:
+        nodes[item_id] = (parent_id, filename)
+    paths = {}
+    for key, (parent_id, name) in nodes.items():
+        path = name
+        seen = {key}
+        while isinstance(parent_id, (bytes, bytearray)) and len(parent_id) == 16 and parent_id in nodes and parent_id not in seen:
+            seen.add(parent_id)
+            parent_id, parent_name = nodes[parent_id]
+            path = parent_name + "/" + path
+        paths[key] = f"{path}/"
+    return paths
+
+
+@artifact_processor
+def icloud_drive_server_files(context):
+    """ See artifact description """
+    files_found = context.get_files_found()
+    source_path = get_file_path(files_found, "server.db")
+    data_list = []
+    query = '''
+    SELECT
+        server_items.item_birthtime,
+        server_items.version_mtime,
+        server_items.item_lastusedtime,
+        server_items.item_parent_id,
+        server_items.item_filename,
+        server_items.version_name,
+        server_items.item_type,
+        server_items.item_state,
+        server_items.version_size,
+        server_zones.zone_name,
+        devices.name
+    FROM server_items
+    LEFT JOIN server_zones ON server_items.zone_rowid = server_zones.rowid
+    LEFT JOIN devices ON server_items.version_device = devices.key
+    '''
+    data_headers = (
+        ('Created', 'datetime'), ('Modified', 'datetime'), ('Last opened', 'datetime'),
+        'Filename', 'Path', 'Version name', 'Item type', 'Item state', 'Size in bytes', 'Size',
+        'Zone', 'From device name')
+    db_records = get_sqlite_db_records(source_path, query)
+    parents = get_server_tree_structure(source_path) if db_records else {}
+    for (cdate, mdate, lodate, parent_id, filename, version_name, item_type, item_state,
+         size_in_bytes, zone, device) in db_records:
+        path = parents.get(parent_id, '') if isinstance(parent_id, (bytes, bytearray)) and len(parent_id) == 16 else ''
+        if not isinstance(size_in_bytes, int):
+            path += f"{filename}/"
+            filename = ""
+        size = convert_bytes_to_unit(size_in_bytes) if size_in_bytes else ''
+        cdate = convert_unix_ts_to_utc(cdate) if cdate and cdate > 0 else ''
+        mdate = convert_unix_ts_to_utc(mdate) if mdate and mdate > 0 else ''
+        lodate = convert_unix_ts_to_utc(lodate) if lodate and lodate > 0 else ''
+        data_list.append((cdate, mdate, lodate, filename, path, version_name, item_type, item_state,
+                          size_in_bytes, size, zone, device))
+    return data_headers, data_list, source_path
+
+
+def _transfer_rows(context, table, extra_select, data_headers):
+    files_found = context.get_files_found()
+    source_path = get_file_path(files_found, "client.db")
+    data_list = []
+    query = f'''
+    SELECT
+        {table}.last_try_stamp,
+        {table}.{extra_select[0]},
+        {table}.next_retry_stamp,
+        {table}.expire_stamp,
+        client_items.item_parent_id,
+        client_items.item_filename,
+        {table}.transfer_size,
+        {table}.transfer_queue,
+        {table}.transfer_stage,
+        app_libraries.app_library_name,
+        client_zones.zone_name,
+        {table}.throttle_id{extra_select[1]}
+    FROM {table}
+    LEFT JOIN client_items ON client_items.rowid = {table}.throttle_id
+    LEFT JOIN app_libraries ON {table}.app_library_rowid = app_libraries.rowid
+    LEFT JOIN client_zones ON {table}.zone_rowid = client_zones.rowid
+    '''
+    def _t(value):
+        secs = _cloud_stamp(value)
+        return convert_unix_ts_to_utc(secs) if secs and secs > 0 else ''
+
+    def _blob(value):
+        if isinstance(value, (bytes, bytearray)):
+            return f"({len(value)} bytes)"
+        return value
+
+    db_records = get_sqlite_db_records(source_path, query)
+    parents = get_tree_structure(source_path) if db_records else {}
+    for record in db_records:
+        (last_try, request, next_retry, expire, parent_id, filename, size_in_bytes, queue, stage,
+         app_id, zone, throttle_id, *rest) = record
+        path = parents.get(parent_id, '') if isinstance(parent_id, (bytes, bytearray)) and len(parent_id) == 16 else ''
+        stage = _blob(stage)
+        queue = _blob(queue)
+        size = convert_bytes_to_unit(size_in_bytes) if size_in_bytes else ''
+        data_list.append((_t(last_try), _t(request), _t(next_retry), _t(expire), filename, path,
+                          size_in_bytes, size, queue, stage, app_id, zone, throttle_id, *rest))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def icloud_drive_download_queue(context):
+    """ See artifact description """
+    data_headers = (
+        ('Last try', 'datetime'), ('Request time', 'datetime'), ('Next retry', 'datetime'),
+        ('Expires', 'datetime'), 'Filename', 'Path', 'Transfer size in bytes', 'Transfer size',
+        'Transfer queue', 'Transfer stage', 'App library name', 'Zone', 'Throttle ID', 'Download kind')
+    return _transfer_rows(context, 'client_downloads',
+                          ('download_request_stamp', ', client_downloads.download_kind'),
+                          data_headers)
+
+
+@artifact_processor
+def icloud_drive_upload_queue(context):
+    """ See artifact description """
+    data_headers = (
+        ('Last try', 'datetime'), ('Request time', 'datetime'), ('Next retry', 'datetime'),
+        ('Expires', 'datetime'), 'Filename', 'Path', 'Transfer size in bytes', 'Transfer size',
+        'Transfer queue', 'Transfer stage', 'App library name', 'Zone', 'Throttle ID')
+    return _transfer_rows(context, 'client_uploads',
+                          ('upload_request_stamp', ''), data_headers)
