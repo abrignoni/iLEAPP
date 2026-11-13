@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "profile picture, and whether the account is the one the app has selected.",
         "author": "@kalink0",
         "creation_date": "2026-11-08",
-        "last_update_date": "2026-11-11",
+        "last_update_date": "2026-11-13",
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Each file under AppGroup/<group>/Accounts named by a UUID is Wire's JSON encoding of its "
@@ -31,12 +31,12 @@ __artifacts_v2__ = {
                  "keeps the selected account "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireDomain/Sources/WireDomain/Account/AccountManager.swift#L254-L266), "
                  "No when that plist names another account or none, and blank when no such plist was "
-                 "found. Account ID is the identifier key; where it differs from the file name, both are "
+                 "found or it could not be read. Account ID is the identifier key; where it differs from the file name, both are "
                  "given. Uses Company Login is loginCredentials.usesCompanyLogin as stored. In the code "
                  "read, a user's credentials take it from the user's usesCompanyLogin, which is set when "
                  "the backend's user record carries an sso_id subject "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-sync-engine/Source/UserSession/PreLoginAuthenticationNotification.swift#L24-L29, "
-                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L434-L437), "
+                 "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L434-L437). "
                  "Other callers of the LoginCredentials initialiser were not read. "
                  "Has Password is loginCredentials.hasPassword as stored; the LoginCredentials read has no "
                  "such field and the older writer was not read. Unread Count (as stored) is "
@@ -59,7 +59,10 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
         "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 1 row",
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | Wire • Secure Messenger 3.94 | 1 row",
         }
     },
     "wireAccount": {
@@ -159,10 +162,10 @@ __artifacts_v2__ = {
         "name": "Wire Secure Messenger Messages",
         "description": "Wire messages with direction, sender handle, user ID and display name, conversation, "
                        "conversation type and message type, the cached media file where Wire's asset cache "
-                       "holds one, and the stored duration of call records",
+                       "holds an unencrypted copy, and the stored duration of call records",
         "author": 'Elliot Glendye, @AlexisBrignoni, Codex, @kalink0',
         "creation_date": "2024-01-21",
-        "last_update_date": '2026-11-11',
+        "last_update_date": '2026-11-13',
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Rows with category 1 (undefined per the Wire source) are excluded; rows with "
@@ -306,8 +309,8 @@ __artifacts_v2__ = {
                  "Group, One-on-one and Self and on iphone12_ios18 One-on-one and Self, and every row "
                  "was labelled with a name. On iphone12_ios18 2 ZMESSAGE rows have ZHIDDENINCONVERSATION "
                  "set; both are category 1 with no sender and no text, so the category filter drops "
-                 "them, and Placement is Visible on every reported row. A removed message of that shape "
-                 "is therefore not reported. "
+                 "them, and Placement is Visible on every reported row. A message of that shape "
+                 "is therefore not reported, whether or not Wire removed it. "
                  "Conversation Type maps ZCONVERSATIONTYPE with Wire's ZMConversationType "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Public/ZMConversation.h#L41-L47); "
                  "other values are reported as stored. Where a schema lacks ZUSER.ZREMOTEIDENTIFIER_DATA, "
@@ -351,7 +354,7 @@ __artifacts_v2__ = {
                        "user image caches.",
         "author": "@kalink0",
         "creation_date": "2026-11-08",
-        "last_update_date": "2026-11-11",
+        "last_update_date": "2026-11-13",
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Every ZUSER row of every AccountData/<account>/store/store.wiredatabase found is "
@@ -394,7 +397,10 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "address-book",
         "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 2 rows",
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | Wire • Secure Messenger 3.94 | 1 row",
         }
     },
     "wireMedia": {
@@ -403,7 +409,7 @@ __artifacts_v2__ = {
                        "belongs to where Wire's cache key identifies it, and the file itself.",
         "author": "@kalink0",
         "creation_date": "2026-11-08",
-        "last_update_date": "2026-11-11",
+        "last_update_date": "2026-11-13",
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Every file directly under AppGroup/<group>/Library/Caches/wire-account-<account> whose name "
@@ -435,9 +441,9 @@ __artifacts_v2__ = {
                  "(https://github.com/wireapp/wire-ios/commit/255a6951d568ff308ede1690ee8fff6417978aff) "
                  "changed FileAssetCache to keep assets encrypted; of the App Store release tags checked, "
                  "appstore/3.111.9 does not contain it and appstore/3.112.3 and every later tag up to "
-                 "appstore/3.122.2 do. No tag exists for 3.112.0 to 3.112.2, and a tag's date is not the "
-                 "date the release reached a device, so the version a device was running when its files "
-                 "changed form is not established here. The Wire code cited is at commit 851bba15 and was not compared with "
+                 "appstore/3.122.2 do. No tag exists for 3.112.0 to 3.112.2. A tag's date is not the "
+                 "date a release reached a device, so which release first kept the cache encrypted on a "
+                 "device is not established here. The Wire code cited is at commit 851bba15 and was not compared with "
                  "the builds on the corpora below.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*',
                   '*/mobile/Containers/Shared/AppGroup/*/Library/Caches/wire-account-*/'
@@ -445,7 +451,10 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "photo",
         "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 5 rows",
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 8 rows",
+            "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 11 rows",
+            "jess_ios15": "iOS 15.0.2 | Wire • Secure Messenger 3.94 | 0 rows",
         }
     }
 }
