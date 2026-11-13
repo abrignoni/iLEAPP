@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - Security SDK Log Records (SDKV)",
+    "function_name": "paypalSecuritySdkStarts",
+    "case_number": "case_synthetic_full",
+    "number_of_columns": 5,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 579,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/paypal/testdata.paypal.paypalSecuritySdkStarts.case_synthetic_full.zip",
+    "start_time": "2026-11-13T02:22:10.887409+00:00",
+    "end_time": "2026-11-13T02:22:11.670021+00:00",
+    "run_time_seconds": 0.028230667114257812,
+    "last_commit": {
+      "hash": "0d83d261ad276720a567b99331bc6cf68b9b5f2b",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-11-12T14:47:37-05:00",
+      "message": "PayPal: restore a full stop in the mParticle notes"
+    }
+  },
+  "headers": [
+    "SDK Record Time",
+    "SDK Build",
+    "OS Version (log header)",
+    "Device Model (log header)",
+    "Source File"
+  ],
+  "data": [
+    [
+      1778328000,
+      "9.9.9.synth (Release)",
+      "iOS 26.2",
+      "iPhone99,9",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Application Support/Thales-v2/slog-TSH-5y0001-01.log"
+    ],
+    [
+      1778329800,
+      "9.9.9.synth (Release)",
+      "iOS 26.2",
+      "iPhone99,9",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Application Support/Thales-v2/slog-TSH-5y0001-01.log"
+    ],
+    [
+      1778342400,
+      "9.9.9.synth (Release)",
+      "iOS 26.2",
+      "iPhone99,9",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Application Support/Thales-v2/slog-TSH-5y0001-01.log"
+    ]
+  ]
+}

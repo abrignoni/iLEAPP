@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/paypal/testdata.paypal.paypalSecuritySdkStarts.case_synthetic_sparse.zip",
-    "start_time": "2026-11-11T15:40:06.211246+00:00",
-    "end_time": "2026-11-11T15:40:06.654888+00:00",
-    "run_time_seconds": 0.01864457130432129,
+    "start_time": "2026-11-13T02:22:12.136520+00:00",
+    "end_time": "2026-11-13T02:22:12.560058+00:00",
+    "run_time_seconds": 0.0172731876373291,
     "last_commit": {
-      "hash": "be48061e62d6fc2e4239d21121796210a551c101",
-      "author_name": "danjethh",
-      "author_email": "danjethh@gmail.com",
-      "date": "2026-11-11T10:37:38-05:00",
-      "message": "PayPal: complete the notes wording (full key name, exception lists, Cached Requests decoding, mParticle, channel values)"
+      "hash": "0d83d261ad276720a567b99331bc6cf68b9b5f2b",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-11-12T14:47:37-05:00",
+      "message": "PayPal: restore a full stop in the mParticle notes"
     }
   },
   "headers": [
