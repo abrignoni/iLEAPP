@@ -173,7 +173,7 @@ class WireTwoAccountTests(unittest.TestCase):
     def test_every_artifact_doubles_exactly(self):
         with tempfile.TemporaryDirectory() as tmp:
             one, both = self._two_accounts(pathlib.Path(tmp))
-            for function in (wire.wireUsers, wire.wireMessages, wire.wireContacts, wire.wireMedia):
+            for function in (wire.wireAccount, wire.wireMessages, wire.wireContacts, wire.wireMedia):
                 with self.subTest(artifact=function.__name__):
                     _, single, _ = _patched(function, one)
                     _, double, source = _patched(function, both)

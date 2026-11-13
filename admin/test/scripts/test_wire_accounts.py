@@ -49,7 +49,7 @@ def _write_plist(group, selected):
 
 def _run(files):
     with mock.patch.object(wire, 'check_in_embedded_media', side_effect=lambda src, data, name: f'media:{name}'):
-        headers, rows, source = wire.wireAccount.__wrapped__(_Context(files))
+        headers, rows, source = wire.wireAccountFiles.__wrapped__(_Context(files))
     names = [h[0] if isinstance(h, tuple) else h for h in headers]
     return names, [dict(zip(names, row)) for row in rows], source
 

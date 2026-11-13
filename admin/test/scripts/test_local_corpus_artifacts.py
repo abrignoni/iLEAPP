@@ -775,7 +775,7 @@ class WireLocalTest(LocalCorpusTestCase):
         return [dict(zip(names, row)) for row in rows], handed
 
     def test_accounts_structure(self):
-        rows, handed = self.run_artifact(wire.wireAccount)
+        rows, handed = self.run_artifact(wire.wireAccountFiles)
         self.assertTrue(rows, 'no account file parsed')
         for row in rows:
             self.assert_matches(row['Account ID'], r'^[0-9A-Fa-f-]{36}( \(file name [0-9A-F-]{36}\))?$',
@@ -852,7 +852,7 @@ class WireLocalTest(LocalCorpusTestCase):
             self.assert_image(data, 'cached profile picture')
 
     def test_users_and_clients_structure(self):
-        rows, _ = self.run_artifact(wire.wireUsers)
+        rows, _ = self.run_artifact(wire.wireAccount)
         self.assertTrue(rows, 'no user parsed')
         for row in rows:
             for column in ('Activation Date', 'Discovery Date', 'Last Active Date'):

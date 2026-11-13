@@ -22,8 +22,8 @@ class _Context:
 
 
 def _users(files):
-    """wireUsers without its trailing Account column, which these join tests do not compare."""
-    headers, rows, source = wire.wireUsers.__wrapped__(_Context(files))
+    """wireAccount without its trailing Account column, which these join tests do not compare."""
+    headers, rows, source = wire.wireAccount.__wrapped__(_Context(files))
     assert headers[-1] == 'Account'
     return headers[:-1], [row[:-1] for row in rows], source
 

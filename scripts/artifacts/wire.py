@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
-    "wireAccount": {
+    "wireAccountFiles": {
         "name": "Wire Secure Messenger Accounts",
         "description": "Wire accounts stored in the app group's Accounts folder, one row per account file, with "
                        "display name, handle, email address, team, login flags, the stored unread count, the "
                        "profile picture, and whether the account is the one the app has selected.",
         "author": "@kalink0",
         "creation_date": "2026-11-08",
-        "last_update_date": "2026-11-08",
+        "last_update_date": "2026-11-11",
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Each file under AppGroup/<group>/Accounts named by a UUID is Wire's JSON encoding of its "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
                  "the backend's user record carries an sso_id subject "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-sync-engine/Source/UserSession/PreLoginAuthenticationNotification.swift#L24-L29, "
                  "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/User/ZMUser.m#L434-L437), "
-                 "while other constructors set it false; which one wrote a given file was not established. "
+                 "Other callers of the LoginCredentials initialiser were not read. "
                  "Has Password is loginCredentials.hasPassword as stored; the LoginCredentials read has no "
                  "such field and the older writer was not read. Unread Count (as stored) is "
                  "unreadConversationCount as of the last time the file was written, not of the extraction. "
@@ -60,11 +60,9 @@ __artifacts_v2__ = {
         "artifact_icon": "user",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 1 row",
-            "kalink0_ios18_0_1": "iOS 18.0.1 | Wire • Secure Messenger 3.113.3 | 1 row",
-            "kalink0_ios18_4_1": "iOS 18.4.1 | Wire • Secure Messenger 3.122.0 | 1 row",
         }
     },
-    "wireUsers": {
+    "wireAccount": {
         "name": "Wire Secure Messenger Users and Clients",
         "description": "Wire users joined to the clients recorded for them (ZUSER LEFT JOIN ZUSERCLIENT), one row "
                        "per user and client, with handle, display name, phone and email as stored, the user ID as a UUID, and each client's "
@@ -73,7 +71,7 @@ __artifacts_v2__ = {
                        "is not limited to the account signed in on the device.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2024-01-21",
-        "last_update_date": "2026-10-23",
+        "last_update_date": "2026-11-11",
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Each result of ZUSER LEFT JOIN ZUSERCLIENT is reported without DISTINCT: a user with several "
@@ -151,8 +149,6 @@ __artifacts_v2__ = {
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 2 rows",
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 13 rows",
-            "kalink0_ios18_0_1": "iOS 18.0.1 | Wire • Secure Messenger 3.113.3 | 1359 rows",
-            "kalink0_ios18_4_1": "iOS 18.4.1 | Wire • Secure Messenger 3.122.0 | 1391 rows",
             "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 2 rows",
             "hickman_ios13": "iOS 13.3.1 | Wire • Secure Messenger 3.54 | 12 rows",
             "hickman_ios14": "iOS 14.3 | Wire • Secure Messenger 3.73 | 10 rows",
@@ -166,7 +162,7 @@ __artifacts_v2__ = {
                        "holds one, and the stored duration of call records",
         "author": 'Elliot Glendye, @AlexisBrignoni, Codex, @kalink0',
         "creation_date": "2024-01-21",
-        "last_update_date": '2026-11-08',
+        "last_update_date": '2026-11-11',
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Rows with category 1 (undefined per the Wire source) are excluded; rows with "
@@ -222,8 +218,9 @@ __artifacts_v2__ = {
                  "Direction says who placed the call, Call Duration (seconds) is ZDURATION and Call "
                  "Connected is Date / Time minus that duration, which is when the call was established, "
                  "not when it started ringing; Call Connected is blank where the duration is 0. "
-                 "The newer code read no longer writes Call rows "
+                 "The newer code read marks performedCall as deprecated "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Public/ZMMessage.h#L93). "
+                 "Whether it still writes the row was not read. "
                  "ZDURATION belongs to the SystemMessage entity only "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/WireData/Sources/WireData/Schema/zmessaging.xcdatamodeld/zmessaging2.144.0.xcdatamodel/contents#L309) "
                  "and is not reported for other system message types; on iphone11_ios17 it was filled on "
@@ -237,14 +234,16 @@ __artifacts_v2__ = {
                  "conversation ID, each as a lowercase UUID, and the format, joined with underscores "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/Message/FileAssetCache.swift#L827-L847, "
                  "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-transport/Source/TransportEncoding/UUID%2BTransportCoding.swift#L23-L25); "
-                 "the original is shown where it is cached, else the medium, else the preview; an "
+                 "the original is shown where it is cached, else the medium, else the preview, else the "
+                 "file under the key with no format; an "
                  "encrypted copy is never shown here, so a message whose file is cached only encrypted "
                  "has a blank Media and its file appears in Wire Secure Messenger Media. The account "
                  "is the AccountData folder the database sits in. A message whose file is not in the cache "
                  "has a blank Media, which says nothing about whether it carried one. On iphone11_ios17 "
-                 "the 4 Image Message rows each had a cached file, matching the image received at 12:02 "
-                 "and sent at 12:07 local time on 5 January 2024 in the image's documentation; Wire Secure "
-                 "Messenger Media lists every cached file, matched or not. "
+                 "the 4 Image Message rows each had a cached file; 2 of them fall on 5 January 2024 and "
+                 "match the image received at 12:02 and sent at 12:07 local time in the image's "
+                 "documentation, and the other 2 are from a later date. Wire Secure Messenger Media lists "
+                 "every cached file, matched or not. "
                  "Unrecognized category values (including bitmask combinations) are "
                  "reported as stored. Reference: Wire open source, wire-ios-data-model "
                  "MessageCategory (OptionSet raw values), "
@@ -277,7 +276,7 @@ __artifacts_v2__ = {
                  "own cache and one thread per account and conversation. No device with two Wire "
                  "accounts was available. Conversation ID is "
                  "ZCONVERSATION.ZREMOTEIDENTIFIER_DATA shown as a UUID like User ID. Conversation is a "
-                 "label derived here, not a stored title. It follows Wire's displayName "
+                 "label derived here, not a stored title. It is modelled on Wire's displayName "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/Conversation/ZMConversation%2BDisplayName.swift#L22-L73), "
                  "which for a one-on-one conversation ignores ZUSERDEFINEDNAME: Self gives the self "
                  "user's display name; One-on-one the display name of the first other user in "
@@ -303,17 +302,19 @@ __artifacts_v2__ = {
                  "and such a conversation is reported here as Group, labelled with that participant. "
                  "On iphone11_ios17 Conversation Type held One-on-one on all 50 rows and Placement held "
                  "Visible on all 50 rows: both conversations with messages are one-on-one, and no "
-                 "message there has ZHIDDENINCONVERSATION set. On kalink0_ios18_0_1, which holds group "
-                 "conversations and no one-on-one conversation, Conversation Type was Group, Conversation "
-                 "matched the group names shown in the app, and Placement held Visible on all 517 rows, so "
-                 "hidden messages were not exercised on a corpus. On kalink0_ios18_4_1, with 3 group and "
-                 "5 one-on-one conversations, each one-on-one conversation was labelled with the other "
-                 "user's display name (ZNAME, not the handle) and the group names matched the app. No "
-                 "call was made on that device, so whether Wire 3.122.0 still writes Call rows was not "
-                 "exercised. "
+                 "message there has ZHIDDENINCONVERSATION set. On hc_ios18_7 Conversation Type held "
+                 "Group, One-on-one and Self and on iphone12_ios18 One-on-one and Self, and every row "
+                 "was labelled with a name. On iphone12_ios18 2 ZMESSAGE rows have ZHIDDENINCONVERSATION "
+                 "set; both are category 1 with no sender and no text, so the category filter drops "
+                 "them, and Placement is Visible on every reported row. A removed message of that shape "
+                 "is therefore not reported. "
                  "Conversation Type maps ZCONVERSATIONTYPE with Wire's ZMConversationType "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Public/ZMConversation.h#L41-L47); "
-                 "other values are reported as stored. Columns missing from a schema are left blank. "
+                 "other values are reported as stored. Where a schema lacks ZUSER.ZREMOTEIDENTIFIER_DATA, "
+                 "ZMESSAGE.ZVISIBLEINCONVERSATION, ZHIDDENINCONVERSATION, ZSYSTEMMESSAGETYPE, ZDURATION "
+                 "or ZNONCE_DATA, the values drawn from it are left blank; ZMESSAGE.ZSERVERTIMESTAMP, "
+                 "ZSENDER, ZNORMALIZEDTEXT and ZCACHEDCATEGORY and ZUSER.ZNAME and ZHANDLE are selected "
+                 "unconditionally. "
                  "The Wire code cited for these columns is at commit 851bba15 and was not compared with "
                  "the builds on the corpora below.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*',
@@ -336,8 +337,6 @@ __artifacts_v2__ = {
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 19 rows",
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 50 rows",
-            "kalink0_ios18_0_1": "iOS 18.0.1 | Wire • Secure Messenger 3.113.3 | 517 rows",
-            "kalink0_ios18_4_1": "iOS 18.4.1 | Wire • Secure Messenger 3.122.0 | 3175 rows",
             "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 38 rows",
             "hickman_ios13": "iOS 13.3.1 | Wire • Secure Messenger 3.54 | 12 rows",
             "hickman_ios14": "iOS 14.3 | Wire • Secure Messenger 3.73 | 18 rows",
@@ -352,7 +351,7 @@ __artifacts_v2__ = {
                        "user image caches.",
         "author": "@kalink0",
         "creation_date": "2026-11-08",
-        "last_update_date": "2026-11-08",
+        "last_update_date": "2026-11-11",
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Every ZUSER row of every AccountData/<account>/store/store.wiredatabase found is "
@@ -361,9 +360,9 @@ __artifacts_v2__ = {
                  "that account's caches. On iphone11_ios17 Account held one value on all 4 rows, the "
                  "image's only account; a tree holding that account twice, under two account folders, "
                  "gave exactly twice the rows, each account's pictures from its own cache. No device with "
-                 "two Wire accounts was available. ZUSER holds every user "
-                 "the account's database knows, which includes members of shared conversations as well as "
-                 "connected users, so a row is not by itself a contact the account added. Self is Yes for "
+                 "two Wire accounts was available. A ZUSER row does not need a ZCONNECTION row (the self "
+                 "user has none on iphone11_ios17, hc_ios18_7, iphone12_ios18 and jess_ios15), so a row is "
+                 "not by itself a contact the account added. Self is Yes for "
                  "the user that ZSESSION.ZSELFUSER names and blank for the others, and blank on every row "
                  "when the database does not hold exactly one ZSESSION row. Connection Status maps "
                  "ZCONNECTION.ZSTATUS of the ZCONNECTION row whose ZTO is the user with Wire's "
@@ -378,16 +377,16 @@ __artifacts_v2__ = {
                  "and the user's ZCOMPLETEPROFILEASSETIDENTIFIER or ZPREVIEWPROFILEASSETIDENTIFIER "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Utilis/UserImageLocalCache.swift#L28-L40, "
                  "https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Utilis/UserImageLocalCache.swift#L77-L78). "
-                 "Each cache file is a keyed archive whose image bytes are read from its object list. Wire "
-                 "stores an image there when it has downloaded it "
+                 "Each cache file is a keyed archive whose image bytes are read from its object list. "
+                 "UserImageLocalCache stores an image there in setUserImage "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Utilis/UserImageLocalCache.swift#L125-L141), "
-                 "so a blank picture does not mean the user has none. Phone Number is blank where the "
+                 "and the callers of setUserImage were not read; a blank picture does not mean the user "
+                 "has none. Phone Number is blank where the "
                  "schema has no ZPHONENUMBER column; on iphone11_ios17 Phone Number was blank on all 4 "
                  "rows because ZPHONENUMBER held no value. On iphone11_ios17 all 4 users had "
-                 "both pictures cached, and every cache file matched a user and asset identifier in ZUSER; "
-                 "on kalink0_ios18_0_1, which holds group conversations and no one-on-one conversation, "
-                 "no picture of a group member was cached; on kalink0_ios18_4_1 each of the 5 users with "
-                 "a one-on-one conversation had a cached picture and Connection Status Accepted. The Wire code cited is at commit 851bba15 and was not compared with the builds "
+                 "both pictures cached, and every cache file matched a user and asset identifier in ZUSER. "
+                 "A cached picture was found for 1 of 2 users on hc_ios18_7, 0 of 2 on iphone12_ios18 "
+                 "and 1 of 1 on jess_ios15. The Wire code cited is at commit 851bba15 and was not compared with the builds "
                  "on the corpora below.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*',
                   '*/mobile/Containers/Shared/AppGroup/*/Library/Caches/wire-account-*/'
@@ -396,8 +395,6 @@ __artifacts_v2__ = {
         "artifact_icon": "address-book",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 4 rows",
-            "kalink0_ios18_0_1": "iOS 18.0.1 | Wire • Secure Messenger 3.113.3 | 782 rows",
-            "kalink0_ios18_4_1": "iOS 18.4.1 | Wire • Secure Messenger 3.122.0 | 813 rows",
         }
     },
     "wireMedia": {
@@ -406,7 +403,7 @@ __artifacts_v2__ = {
                        "belongs to where Wire's cache key identifies it, and the file itself.",
         "author": "@kalink0",
         "creation_date": "2026-11-08",
-        "last_update_date": "2026-11-08",
+        "last_update_date": "2026-11-11",
         "requirements": "",
         "category": "Wire Messenger",
         "notes": "Every file directly under AppGroup/<group>/Library/Caches/wire-account-<account> whose name "
@@ -416,7 +413,8 @@ __artifacts_v2__ = {
                  "the format, with \"_encrypted\" appended for the encrypted copy "
                  "(https://github.com/wireapp/wire-ios/blob/851bba150924e03ab6256f81ee96596552f878ba/wire-ios-data-model/Source/Model/Message/FileAssetCache.swift#L815-L847); "
                  "Format names the format whose key matched (original, medium, preview, or none for a key "
-                 "without one). Message Date / Time, Direction, Sender, Conversation and Message Type are "
+                 "without one), followed by \" (encrypted)\" for an encrypted copy, so it can also be, "
+                 "for example, medium (encrypted) or none (encrypted). Message Date / Time, Direction, Sender, Conversation and Message Type are "
                  "those of Wire Secure Messenger Messages for the matched message, and are blank for a file "
                  "no key matched; such a file is still listed, with Format blank. The key is computed, "
                  "not read, so a file Wire cached under another key, such as one built by code that was "
@@ -430,11 +428,9 @@ __artifacts_v2__ = {
                  "each account. No device with two Wire accounts was available. A file is matched only against "
                  "the store.wiredatabase of its own account, so a cache folder without that account's "
                  "database is listed unmatched. Encrypted copies are listed as stored and are not "
-                 "decrypted. On kalink0_ios18_4_1 (Wire 3.122.0) 3 of the 34 files were matched to an "
-                 "unencrypted format and the other 31 rows had an encrypted Format, so most of that "
-                 "image's cached media is held only as encrypted copies, which this artifact lists but "
-                 "does not render; every file matched to an unencrypted format there belonged to a "
-                 "message received before 10 June 2024. Wire's commit \"fix: assets are not encrypted at "
+                 "decrypted. All 5 cache files on hc_ios18_7 (Wire 4.16.3) and all 11 on iphone12_ios18 "
+                 "(Wire 4.10.0) matched an encrypted format, and none did on iphone11_ios17 (Wire "
+                 "3.111.9); such files are listed but not rendered. Wire's commit \"fix: assets are not encrypted at "
                  "rest\" of 22 March 2024 "
                  "(https://github.com/wireapp/wire-ios/commit/255a6951d568ff308ede1690ee8fff6417978aff) "
                  "changed FileAssetCache to keep assets encrypted; of the App Store release tags checked, "
@@ -450,8 +446,6 @@ __artifacts_v2__ = {
         "artifact_icon": "photo",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 8 rows",
-            "kalink0_ios18_0_1": "iOS 18.0.1 | Wire • Secure Messenger 3.113.3 | 26 rows",
-            "kalink0_ios18_4_1": "iOS 18.4.1 | Wire • Secure Messenger 3.122.0 | 34 rows",
         }
     }
 }
@@ -545,7 +539,7 @@ def _self_user_pk(source_path):
 def _conversations(source_path, self_user_pk):
     """ZCONVERSATION.Z_PK -> (label, Conversation ID, stored type).
 
-    The label follows Wire's ZMConversation.displayName: self user's name for a self
+    The label is modelled on Wire's ZMConversation.displayName: self user's name for a self
     conversation, the other participant (else the connected user) for one-on-one, the
     user-defined name (else the other participants' names) for a group, and the connected
     user (else the user-defined name) for a connection request. The Conversation ID stands
@@ -636,7 +630,7 @@ def _embedded_image(source_path, value, name):
 
 
 @artifact_processor
-def wireAccount(context):
+def wireAccountFiles(context):
     accounts, plists = _account_files(context().get_files_found())
     data_list = []
     source_paths = []
@@ -707,7 +701,7 @@ def _stores(files_found):
 
 
 @artifact_processor
-def wireUsers(context):
+def wireAccount(context):
     files_found = context().get_files_found()
     stores = _stores(files_found)
     data_list = []
