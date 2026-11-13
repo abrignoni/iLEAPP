@@ -1192,6 +1192,194 @@ __artifacts_v2__ = {
             "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 1623 rows",
         },
     },
+    "powerlogInCallService": {
+        "name": "PowerLog - In Call Service",
+        "description": "Call service events recorded by PowerLog (PLXPCAgent_EventForward_InCallService table)",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "Bundle ID and Provider Identifier are the stored bundleID and providerIdentifier "
+            "values; their meaning is not established here. Call Sub Type and Status are reported "
+            "as stored. On the 593 rows read from the images in sample_data (iOS 12.4 to 18.7.8), "
+            "Status held callStart, callStop, callForegrounded and callBackgrounded; Call Sub Type "
+            "held kCallSubTypeVoLTE, kCallSubTypeTelephony or kCallSubTypeWifi, and was empty on "
+            "286 rows. Video is an integer reported as stored; it held 0 or 1 on those rows. A row "
+            "is one record read from one PowerLog file; rows are not deduplicated across files, so "
+            "a record held in the current log and in a rotated archive appears once per file. A row "
+            "does not establish the call's direction or that it connected. Timestamps are adjusted "
+            "using PowerLog's time-offset table and the applied offset is reported in its own "
+            "column; where a file holds no offset entries the column is empty and the timestamp is "
+            "on the log's uncorrected clock (seen on 5 archives of hc_ios18_7). See the PowerLog - "
+            "Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            'ctf2020_ios12': 'iOS 12.4 | 22 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 91 rows',
+            'hickman_ios14': 'iOS 14.3 | 199 rows',
+            'jess_ios15': 'iOS 15.0.2 | 6 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+            'abe_ios16': 'iOS 16.5 | 57 rows',
+            'felix23_ios16': 'iOS 16.5 | 8 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 18 rows',
+            'iphone11_ios17': 'iOS 17.3 | 87 rows',
+            'otto_ios17': 'iOS 17.5.1 | 4 rows',
+            'felix_ios17': 'iOS 17.6.1 | 0 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows (only empty Quarantine .PLSQL files)',
+            'iphone12_ios18': 'iOS 18.7 | 81 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 20 rows',
+        },
+    },
+    "powerlogLightningConnector": {
+        "name": "PowerLog - Lightning Connector Status",
+        "description": "Lightning connector status records logged by PowerLog (PLBatteryAgent_EventForward_LightningConnectorStatus table)",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "Accessory Power Mode is the stored IOAccessoryPowerMode integer, reported as stored; "
+            "its values are not decoded here. On the 35,150 rows read from the images in "
+            "sample_data it held 1 (17,647 rows), 3 (17,502 rows) or 4 (1 row), and held only 1 on "
+            "iphone11_ios17. A row is one record read from one PowerLog file; consecutive rows can "
+            "hold the same value, and rows are not deduplicated across files. Timestamps are "
+            "adjusted using PowerLog's time-offset table and the applied offset is reported in its "
+            "own column; where a file holds no offset entries the column is empty and the timestamp "
+            "is on the log's uncorrected clock (seen on 5 archives of hc_ios18_7). See the PowerLog "
+            "- Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "link",
+        "sample_data": {
+            'ctf2020_ios12': 'iOS 12.4 | 10298 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 2049 rows',
+            'hickman_ios14': 'iOS 14.3 | 21 rows',
+            'jess_ios15': 'iOS 15.0.2 | 22 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 2 rows',
+            'abe_ios16': 'iOS 16.5 | 1699 rows',
+            'felix23_ios16': 'iOS 16.5 | 14 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 510 rows',
+            'iphone11_ios17': 'iOS 17.3 | 24 rows',
+            'otto_ios17': 'iOS 17.5.1 | 1010 rows',
+            'felix_ios17': 'iOS 17.6.1 | 15 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 9 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows (only empty Quarantine .PLSQL files)',
+            'iphone12_ios18': 'iOS 18.7 | 19452 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 25 rows',
+        },
+    },
+    "powerlogNetworkUsage": {
+        "name": "PowerLog - Network Usage",
+        "description": "Per-interface DownBytes and UpBytes counters recorded by PowerLog (PLNetworkAgent_EventBackward_CumulativeNetworkUsage table)",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "Interface is the stored Interface value; on the 22,101 rows read from the images in "
+            "sample_data it held awdl0, en0 or pdp_ip0, one row each per timestamp. Down Bytes and "
+            "Up Bytes are the stored DownBytes and UpBytes integers, reported as stored. The table "
+            "name calls them cumulative; a counter was in some rows lower than the previous row for "
+            "the same interface, so the values do not only increase. The table has no process or "
+            "app column; the counters are per interface. A row is one record read from one PowerLog "
+            "file and rows are not deduplicated across files. Timestamps are adjusted using "
+            "PowerLog's time-offset table and the applied offset is reported in its own column; "
+            "where a file holds no offset entries the column is empty and the timestamp is on the "
+            "log's uncorrected clock. See the PowerLog - Application Runtime notes for the "
+            "mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "activity",
+        "sample_data": {
+            'ctf2020_ios12': 'iOS 12.4 | 2664 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 2430 rows',
+            'hickman_ios14': 'iOS 14.3 | 3120 rows',
+            'jess_ios15': 'iOS 15.0.2 | 630 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 240 rows',
+            'abe_ios16': 'iOS 16.5 | 2688 rows',
+            'felix23_ios16': 'iOS 16.5 | 2262 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 693 rows',
+            'iphone11_ios17': 'iOS 17.3 | 2748 rows',
+            'otto_ios17': 'iOS 17.5.1 | 438 rows',
+            'felix_ios17': 'iOS 17.6.1 | 2016 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 693 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows (only empty Quarantine .PLSQL files)',
+            'iphone12_ios18': 'iOS 18.7 | 723 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 756 rows',
+        },
+    },
+    "powerlogTimeZone": {
+        "name": "PowerLog - Time Zone",
+        "description": "Device time-zone records logged by PowerLog (PLLocaleAgent_EventForward_TimeZone table)",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "Time Zone Name is the stored TimeZoneName text; on the 223 rows read from the images "
+            "in sample_data it had the Area/Location form of an IANA zone name. Seconds From GMT "
+            "and Is In DST are reported as stored. Country Code, Locale ID and Trigger are reported "
+            "as stored; Trigger held powerlog or kCFTimeZoneSystemTimeZoneDidChangeNotification. On "
+            "iphone11_ios17 all 24 rows held one Time Zone Name, one Country Code, one Locale ID "
+            "and the Trigger value powerlog. A row is one time-zone record read from one PowerLog "
+            "file and rows are not deduplicated across files. Timestamps are adjusted using "
+            "PowerLog's time-offset table and the applied offset is reported in its own column; "
+            "where a file holds no offset entries the column is empty and the timestamp is on the "
+            "log's uncorrected clock (seen on 5 archives of hc_ios18_7). See the PowerLog - "
+            "Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz", "*/*_sysdiagnose.tar.gz",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "clock",
+        "sample_data": {
+            'ctf2020_ios12': 'iOS 12.4 | 20 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 15 rows',
+            'hickman_ios14': 'iOS 14.3 | 25 rows',
+            'jess_ios15': 'iOS 15.0.2 | 16 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 3 rows',
+            'abe_ios16': 'iOS 16.5 | 26 rows',
+            'felix23_ios16': 'iOS 16.5 | 22 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 9 rows',
+            'iphone11_ios17': 'iOS 17.3 | 24 rows',
+            'otto_ios17': 'iOS 17.5.1 | 5 rows',
+            'felix_ios17': 'iOS 17.6.1 | 22 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 6 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows (only empty Quarantine .PLSQL files)',
+            'iphone12_ios18': 'iOS 18.7 | 14 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 16 rows',
+        },
+    },
 }
 
 import atexit
@@ -1920,5 +2108,66 @@ def powerTelemetryBackgroundTaskMetadata(context):
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], row[5], row[6], offset, rel),
         extension=".BGSQL", offset_prefix=BGSQL_OFFSET,
+    )
+    return data_headers, results, source
+
+
+@artifact_processor
+def powerlogInCallService(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Bundle ID", "Call Sub Type (as stored)",
+        "Provider Identifier", "Status (as stored)", "Video (as stored)",
+        "Time Offset (seconds)", "Source File",
+    )
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLXPCAgent_EventForward_InCallService",
+        ("timestamp", "bundleID", "kCallSubType", "providerIdentifier", "status", "video"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], row[3], row[4], row[5], offset, rel),
+    )
+    return data_headers, results, source
+
+
+@artifact_processor
+def powerlogLightningConnector(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Accessory Power Mode (as stored)",
+        "Time Offset (seconds)", "Source File",
+    )
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLBatteryAgent_EventForward_LightningConnectorStatus",
+        ("timestamp", "IOAccessoryPowerMode"),
+        lambda ts, offset, row, rel: (ts, row[1], offset, rel),
+    )
+    return data_headers, results, source
+
+
+@artifact_processor
+def powerlogNetworkUsage(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Interface", "Down Bytes (as stored)",
+        "Up Bytes (as stored)", "Time Offset (seconds)", "Source File",
+    )
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLNetworkAgent_EventBackward_CumulativeNetworkUsage",
+        ("timestamp", "Interface", "DownBytes", "UpBytes"),
+        lambda ts, offset, row, rel: (ts, row[1], row[2], row[3], offset, rel),
+    )
+    return data_headers, results, source
+
+
+@artifact_processor
+def powerlogTimeZone(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Time Zone Name", "Seconds From GMT (as stored)",
+        "Is In DST (as stored)", "Country Code", "Locale ID", "Trigger",
+        "Time Offset (seconds)", "Source File",
+    )
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLLocaleAgent_EventForward_TimeZone",
+        ("timestamp", "TimeZoneName", "SecondsFromGMT", "TimeZoneIsInDST",
+         "CountryCode", "LocaleId", "Trigger"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], row[3], row[4], row[5], row[6], offset, rel),
     )
     return data_headers, results, source
