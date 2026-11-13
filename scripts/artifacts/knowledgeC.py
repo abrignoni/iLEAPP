@@ -357,6 +357,55 @@ __artifacts_v2__ = {
             "falken_ios26": "iOS 26.2.1 | 0 rows",
             "hc_ios26": "iOS 26.5.2 | 0 rows",
         }
+    },
+    "knowledgeC_appInFocus": {
+        "name": "knowledgeC - Application In Focus",
+        "description": "Parses /app/inFocus events from the knowledgeC database: the application "
+                       "bundle id, the start and end of the focus interval, the duration in seconds, "
+                       "the launch reason and extension fields from the structured metadata, the GMT "
+                       "offset, the entry creation time and the row UUID. The columns are taken from "
+                       "Sarah Edwards' APOLLO knowledge_app_inFocus module.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "KnowledgeC",
+        "notes": "The columns and their source fields are taken from Sarah Edwards, APOLLO, "
+                 "knowledge_app_inFocus (https://github.com/mac4n6/APOLLO/blob/"
+                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_app_inFocus.txt). "
+                 "APOLLO's Usage in Minutes, Day of Week, ZMETADATAHASH and ZOBJECT table id columns "
+                 "are not carried. Launch Reason, Extension Containing Bundle ID and Extension Host "
+                 "ID are read from ZSTRUCTUREDMETADATA and reported as stored; they are read only "
+                 "when that table carries all three columns, and otherwise the three columns are "
+                 "blank (every tested image carried them). All three are blank on rows with no "
+                 "structured metadata (189 of 2186 rows on ctf2020_ios12), and each is also blank "
+                 "where the metadata row holds no value for it; Launch Reason was set on 574 of "
+                 "those 2186 rows. Usage in Seconds is ZENDDATE - ZSTARTDATE. GMT Offset is "
+                 "ZSECONDSFROMGMT divided by 3600 as an integer, so part of an hour is dropped; "
+                 "every tested value was a whole number of hours, and it held one value on three of "
+                 "the four images with rows and two on ctf2020_ios12. In tested data this stream "
+                 "carried rows on the iOS 12.4-15.0.2 images and no rows on the iOS 16.1.1-26.5.2 "
+                 "images checked; the Biome - In Focus and Biome - In Focus DKEvent artifacts read "
+                 "the Biome App.InFocus streams, which carry rows on the later images. An empty "
+                 "result on an iOS 16 or later image matches what the tested images showed and is "
+                 "not by itself evidence about the device.",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "standard",
+        "artifact_icon": "eye",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2186 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3987 rows",
+            "hickman_ios14": "iOS 14.3 | 719 rows",
+            "jess_ios15": "iOS 15.0.2 | 320 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+        },
     }
 }
 
@@ -968,5 +1017,78 @@ def knowledgeC_LocationActivity(context):
             convert_cocoa_core_data_ts_to_utc(start), convert_cocoa_core_data_ts_to_utc(created),
             location_name, display_name, address, lat, lon, '\n'.join(described),
             farthest if farthest is not None else '', status, activity_uuid, bundle))
+
+    return data_headers, data_list, db_file
+
+
+@artifact_processor
+def knowledgeC_appInFocus(context):
+    ''' parse /app/inFocus entries from knowledgeC.db '''
+
+    db_file = ''
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
+            break
+
+    data_list = []
+
+    meta_cols = (
+        'Z_DKAPPLICATIONMETADATAKEY__LAUNCHREASON',
+        'Z_DKAPPLICATIONMETADATAKEY__EXTENSIONCONTAININGBUNDLEIDENTIFIER',
+        'Z_DKAPPLICATIONMETADATAKEY__EXTENSIONHOSTIDENTIFIER',
+    )
+    has_meta = all(
+        does_column_exist_in_db(db_file, 'ZSTRUCTUREDMETADATA', col) for col in meta_cols)
+
+    if has_meta:
+        meta_select = (
+            "ZSM.Z_DKAPPLICATIONMETADATAKEY__LAUNCHREASON AS 'Launch Reason', "
+            "ZSM.Z_DKAPPLICATIONMETADATAKEY__EXTENSIONCONTAININGBUNDLEIDENTIFIER "
+            "AS 'Extension Containing Bundle ID', "
+            "ZSM.Z_DKAPPLICATIONMETADATAKEY__EXTENSIONHOSTIDENTIFIER AS 'Extension Host ID', ")
+        meta_join = ('LEFT JOIN ZSTRUCTUREDMETADATA ZSM '
+                     'ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSM.Z_PK ')
+    else:
+        meta_select = ''
+        meta_join = ''
+
+    query = (
+        "SELECT datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time', "
+        "datetime(ZOBJECT.ZENDDATE + 978307200, 'unixepoch') AS 'End Time', "
+        "datetime(ZOBJECT.ZCREATIONDATE + 978307200, 'unixepoch') AS 'Entry Creation', "
+        "ZOBJECT.ZVALUESTRING AS 'Bundle ID', "
+        "CAST(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE AS INTEGER) AS 'Usage in Seconds', "
+        + meta_select +
+        "ZOBJECT.ZSECONDSFROMGMT / 3600 AS 'GMT Offset', "
+        "ZOBJECT.ZUUID AS 'UUID' "
+        "FROM ZOBJECT "
+        + meta_join +
+        "WHERE ZOBJECT.ZSTREAMNAME = '/app/inFocus' "
+        "ORDER BY ZOBJECT.ZSTARTDATE, ZOBJECT.Z_PK")
+
+    with open_sqlite_db_readonly(db_file) as db:
+        cursor = db.cursor()
+        cursor.execute(query)
+        all_rows = cursor.fetchall()
+
+        for row in all_rows:
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
+            if has_meta:
+                data_list.append((start_time, end_time, added_time, row[3], row[4],
+                                  row[5], row[6], row[7], row[8], row[9]))
+            else:
+                data_list.append((start_time, end_time, added_time, row[3], row[4],
+                                  '', '', '', row[5], row[6]))
+
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Entry Creation', 'datetime'),
+        'Bundle ID', ('Usage in Seconds', 'number'), 'Launch Reason',
+        'Extension Containing Bundle ID', 'Extension Host ID', ('GMT Offset', 'number'),
+        ('UUID', 'hash'))
 
     return data_headers, data_list, db_file
