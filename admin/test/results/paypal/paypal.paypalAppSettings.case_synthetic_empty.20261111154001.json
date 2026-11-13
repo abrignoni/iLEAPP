@@ -1,0 +1,140 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - App Settings and Version Markers",
+    "function_name": "paypalAppSettings",
+    "case_number": "case_synthetic_empty",
+    "number_of_columns": 4,
+    "number_of_rows": 18,
+    "total_data_size_bytes": 3147,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/paypal/testdata.paypal.paypalAppSettings.case_synthetic_empty.zip",
+    "start_time": "2026-11-11T15:40:01.575707+00:00",
+    "end_time": "2026-11-11T15:40:02.111922+00:00",
+    "run_time_seconds": 0.02527308464050293,
+    "last_commit": {
+      "hash": "be48061e62d6fc2e4239d21121796210a551c101",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-11T10:37:38-05:00",
+      "message": "PayPal: complete the notes wording (full key name, exception lists, Cached Requests decoding, mParticle, channel values)"
+    }
+  },
+  "headers": [
+    "Group",
+    "Key (as stored)",
+    "Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Setting",
+      "OptInStatus",
+      "Declined",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Direct-deposit key",
+      "com.directdeposit.accountnumber",
+      "present, empty",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Direct-deposit key",
+      "com.directdeposit.accounttype",
+      "present, empty",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Direct-deposit key",
+      "com.directdeposit.routingnumber",
+      "present, empty",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Setting",
+      "gdprConsented",
+      "Yes",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Setting",
+      "home.appLocale",
+      "en_US",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Setting",
+      "is_app_reinstalled",
+      "No",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "appLaunchedFirstTime marker",
+      "appLaunchedFirstTime:8.9.1",
+      "Yes",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "appLaunchedFirstTime marker",
+      "appLaunchedFirstTime:8.98.0",
+      "Yes",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "appLaunchedFirstTime marker",
+      "appLaunchedFirstTime:8.107.2",
+      "Yes",
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Library/Preferences/com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Setting",
+      "OptInStatus",
+      "Declined",
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Setting",
+      "com.paypalAppleLocale",
+      "en_US",
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      "Setting",
+      "com.paypalloginSkipCount",
+      2,
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      "OptInData",
+      "pn_is_subscribed",
+      "No",
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      "OptInData",
+      "pn_opt_in",
+      "Declined",
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      "OptInData",
+      "pn_sync_time",
+      "09-May-2026 08:00 AM",
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      "OptInData",
+      "pn_user",
+      "SYNTHACCT0001A",
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ],
+    [
+      "OptInData",
+      "pn_version",
+      1,
+      "private/var/mobile/Containers/Shared/AppGroup/22222222-BBBB-4BBB-8BBB-000000000002/Library/Preferences/group.com.yourcompany.PPClient.plist"
+    ]
+  ]
+}

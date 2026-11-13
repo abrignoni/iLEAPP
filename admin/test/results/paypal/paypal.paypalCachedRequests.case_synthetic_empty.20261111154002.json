@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - Cached Network Requests",
+    "function_name": "paypalCachedRequests",
+    "case_number": "case_synthetic_empty",
+    "number_of_columns": 7,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/paypal/testdata.paypal.paypalCachedRequests.case_synthetic_empty.zip",
+    "start_time": "2026-11-11T15:40:02.607595+00:00",
+    "end_time": "2026-11-11T15:40:03.273090+00:00",
+    "run_time_seconds": 0.176804780960083,
+    "last_commit": {
+      "hash": "be48061e62d6fc2e4239d21121796210a551c101",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-11T10:37:38-05:00",
+      "message": "PayPal: complete the notes wording (full key name, exception lists, Cached Requests decoding, mParticle, channel values)"
+    }
+  },
+  "headers": [
+    "Cached Time",
+    "Beacon t (read as Unix seconds)",
+    "Host",
+    "Path",
+    "Beacon i",
+    "Beacon p",
+    "Beacon a"
+  ],
+  "data": []
+}

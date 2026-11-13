@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "module_name": "paypal",
+    "artifact_name": "PayPal - Analytics SDK Sessions (mParticle)",
+    "function_name": "paypalMparticleSessions",
+    "case_number": "case_synthetic_full",
+    "number_of_columns": 6,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 402,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/paypal/testdata.paypal.paypalMparticleSessions.case_synthetic_full.zip",
+    "start_time": "2026-11-11T15:39:59.390440+00:00",
+    "end_time": "2026-11-11T15:40:00.013015+00:00",
+    "run_time_seconds": 0.15210700035095215,
+    "last_commit": {
+      "hash": "be48061e62d6fc2e4239d21121796210a551c101",
+      "author_name": "danjethh",
+      "author_email": "danjethh@gmail.com",
+      "date": "2026-11-11T10:37:38-05:00",
+      "message": "PayPal: complete the notes wording (full key name, exception lists, Cached Requests decoding, mParticle, channel values)"
+    }
+  },
+  "headers": [
+    "Session Start",
+    "Session End",
+    "Length (seconds)",
+    "Interruptions",
+    "Event Count",
+    "Source File"
+  ],
+  "data": [
+    [
+      1778068800,
+      1778068887,
+      87.2,
+      1,
+      3,
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Documents/mParticle28.db"
+    ],
+    [
+      1778155200,
+      1778155287,
+      87.2,
+      1,
+      2,
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Documents/mParticle28.db"
+    ],
+    [
+      1778241600,
+      1778241687,
+      87.2,
+      1,
+      1,
+      "private/var/mobile/Containers/Data/Application/11111111-AAAA-4AAA-8AAA-000000000001/Documents/mParticle28.db"
+    ]
+  ]
+}
