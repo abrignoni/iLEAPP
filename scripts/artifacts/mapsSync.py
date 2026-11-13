@@ -51,6 +51,91 @@ __artifacts_v2__ = {
             "hickman_ios15": "iOS 15.3.1 | com.apple.Maps | 27 rows",
             "iphone14plus_ios18_mvs2025": "iOS 18.0 | com.apple.Maps | 5 rows",
         }
+    },
+    "mapsFavorites": {
+        "name": "Maps Favorites",
+        "description": "Rows of the ZFAVORITEITEM table of Apple Maps MapsSync_0.0.1, with the name, coordinates and "
+                       "decoded address where the row stores them.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "Location",
+        "notes": (
+                 "Source is the ZFAVORITEITEM table of the Apple Maps store MapsSync_0.0.1 (in the Maps "
+                 "folder of a shared app group container). Created and Modified are ZCREATETIME and "
+                 "ZMODIFICATIONTIME, Core Data seconds since 2001, shown in UTC. Name is ZCUSTOMNAME as "
+                 "stored and is blank when the row stores none; it was blank on 9 of the 12 rows tested. "
+                 "Favorite Type, Source and Hidden are ZTYPE, ZSOURCE and ZHIDDEN, the stored integer codes, "
+                 "reported as stored and not interpreted. Latitude and Longitude are ZFAVORITEITEM's own "
+                 "values when stored, otherwise the ZMIXINMAPITEM row joined on ZMAPITEM; the fallback was "
+                 "not reached by any tested row. Address is a best-effort decode of that map item's "
+                 "ZMAPITEMSTORAGE protobuf, using the decoder the Maps Sync history uses (courtesy "
+                 "CheekyForensicsMonkey), otherwise ZORIGINATINGADDRESSSTRING; that fallback was not reached "
+                 "by any tested row, and a blank Address does not mean the map item holds none. 4 of the 12 "
+                 "rows tested held no map item and so no coordinates or address. A row is a favorite entry "
+                 "in the store; whether it was created on this device or synced from another device on the "
+                 "account is not established, and it is not evidence that the device was at that place. Run "
+                 "against nine iOS 15 to 18 images (keys in sample_data): 1 to 4 rows on six, 12 rows in "
+                 "all, and 0 rows on three where the table exists and is empty. The ZTYPE, ZSOURCE and "
+                 "ZHIDDEN code meanings were not sourced."
+        ),
+        "paths": ('*/MapsSync_0.0.1*',),
+        "output_types": "all",
+        "artifact_icon": "star",
+        "sample_data": {
+            'iphone12_ios18': 'iOS 18.7 | com.apple.Maps | 3 rows',
+            'abe_ios16': 'iOS 16.5 | com.apple.Maps | 4 rows',
+            'iphone11_ios17': 'iOS 17.3 | com.apple.Maps | 2 rows',
+            'felix_ios17': 'iOS 17.6.1 | com.apple.Maps | 1 row',
+            'otto_ios17': 'iOS 17.5.1 | com.apple.Maps | 1 row',
+            'jess_ios15': 'iOS 15.0.2 | com.apple.Maps | 1 row',
+            'magnet_ios16': 'iOS 16.1.1 | com.apple.Maps | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | com.apple.Maps | 0 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | com.apple.Maps | 0 rows',
+        },
+    },
+    "mapsCollectionItems": {
+        "name": "Maps Collection Items",
+        "description": "Rows of the ZCOLLECTIONITEM table of Apple Maps MapsSync_0.0.1, with the name, category, "
+                       "note, coordinates and address where the row stores them.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "Location",
+        "notes": (
+                 "Source is the ZCOLLECTIONITEM table of MapsSync_0.0.1, one output row per table row. All "
+                 "15 rows tested are the CollectionPlaceItem entity and none is linked to a ZCOLLECTION row; "
+                 "what puts a row in this table was not sourced. Created and Modified are ZCREATETIME and "
+                 "ZMODIFICATIONTIME, Core Data seconds since 2001, shown in UTC. Name is ZCUSTOMNAME, "
+                 "falling back to ZMAPITEMNAME; the fallback was not reached by any tested row. Category and "
+                 "Note are ZMAPITEMCATEGORY and ZPLACEITEMNOTE as stored. These columns are present on the "
+                 "three iOS 18.3 to 18.7 stores tested and absent on the six iOS 15 to 17 stores tested; on "
+                 "a schema without them the code reports the fields blank, and no such store had rows. "
+                 "Latitude and Longitude are the row's own values when stored, otherwise the ZMIXINMAPITEM "
+                 "row joined on ZMAPITEM; the fallback was not reached by any tested row. Address is "
+                 "ZMAPITEMADDRESS when the row stores one, otherwise a best-effort decode of the map item's "
+                 "ZMAPITEMSTORAGE protobuf; the decode path was not reached by any tested row. A row is not "
+                 "evidence that the device was at that place, and whether it was created on this device or "
+                 "synced from another device on the account is not established. Run against nine iOS 15 to "
+                 "18 images (keys in sample_data): 15 rows on iphone12_ios18 and 0 rows on eight others "
+                 "where the table exists and is empty."
+        ),
+        "paths": ('*/MapsSync_0.0.1*',),
+        "output_types": "all",
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            'iphone12_ios18': 'iOS 18.7 | com.apple.Maps | 15 rows',
+            'abe_ios16': 'iOS 16.5 | com.apple.Maps | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | com.apple.Maps | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | com.apple.Maps | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | com.apple.Maps | 0 rows',
+            'jess_ios15': 'iOS 15.0.2 | com.apple.Maps | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | com.apple.Maps | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | com.apple.Maps | 0 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | com.apple.Maps | 0 rows',
+        },
     }
 }
 
@@ -248,6 +333,168 @@ def mapsSync(context):
         for row in all_rows:
             data_list.append((row[0], row[1], row[2], entities.get(row[12], ''), row[12], row[4], row[5], row[6], row[7],
                               row[8], row[9], _parse_journey_blob(row[10]), _parse_mapitem_blob(row[11])))
+
+        if all_rows:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
+
+
+def _col(file_found, table, column):
+    """True when the column exists in the table of this MapsSync store."""
+    return does_column_exist_in_db(file_found, table, column)
+
+
+def _favorites_query(file_found):
+    """ZFAVORITEITEM joined to ZMIXINMAPITEM, selecting only columns the schema exposes."""
+    name = 'ZFAVORITEITEM.ZCUSTOMNAME' if _col(file_found, 'ZFAVORITEITEM', 'ZCUSTOMNAME') else 'NULL'
+    orig = ('ZFAVORITEITEM.ZORIGINATINGADDRESSSTRING'
+            if _col(file_found, 'ZFAVORITEITEM', 'ZORIGINATINGADDRESSSTRING') else 'NULL')
+    ztype = 'ZFAVORITEITEM.ZTYPE' if _col(file_found, 'ZFAVORITEITEM', 'ZTYPE') else 'NULL'
+    zsource = 'ZFAVORITEITEM.ZSOURCE' if _col(file_found, 'ZFAVORITEITEM', 'ZSOURCE') else 'NULL'
+    zhidden = 'ZFAVORITEITEM.ZHIDDEN' if _col(file_found, 'ZFAVORITEITEM', 'ZHIDDEN') else 'NULL'
+    has_mixin = _col(file_found, 'ZMIXINMAPITEM', 'ZMAPITEMSTORAGE')
+    mlat = 'ZMIXINMAPITEM.ZLATITUDE' if has_mixin else 'NULL'
+    mlon = 'ZMIXINMAPITEM.ZLONGITUDE' if has_mixin else 'NULL'
+    blob = 'ZMIXINMAPITEM.ZMAPITEMSTORAGE' if has_mixin else 'NULL'
+    join = ('LEFT JOIN ZMIXINMAPITEM ON ZMIXINMAPITEM.Z_PK = ZFAVORITEITEM.ZMAPITEM'
+            if has_mixin else '')
+    return f'''
+    SELECT
+        datetime(ZFAVORITEITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
+        datetime(ZFAVORITEITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
+        ZFAVORITEITEM.Z_PK,
+        {name},
+        {ztype},
+        {zsource},
+        {zhidden},
+        ZFAVORITEITEM.ZLATITUDE,
+        ZFAVORITEITEM.ZLONGITUDE,
+        {mlat},
+        {mlon},
+        {blob},
+        {orig}
+    FROM ZFAVORITEITEM
+    {join}
+    '''
+
+
+@artifact_processor
+def mapsFavorites(context):
+    data_headers = (
+        ('Created', 'datetime'), ('Modified', 'datetime'), 'Item Number', 'Name',
+        'Favorite Type (As Stored)', 'Source (As Stored)', 'Hidden (As Stored)',
+        ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Address')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('MapsSync_0.0.1'):
+            continue
+        if not _col(file_found, 'ZFAVORITEITEM', 'Z_PK'):
+            continue
+        db = open_sqlite_db_readonly(file_found)
+        if db is None:
+            continue
+        cursor = db.cursor()
+        try:
+            cursor.execute(_favorites_query(file_found))
+            all_rows = cursor.fetchall()
+        except sqlite3.Error as ex:
+            logfunc(f'Error processing Maps Favorites: {ex}')
+            db.close()
+            continue
+        db.close()
+
+        for row in all_rows:
+            (created, modified, pk, name, ztype, zsource, zhidden, flat, flon,
+             mlat, mlon, blob, orig) = row
+            lat = flat if flat is not None else mlat
+            lon = flon if flon is not None else mlon
+            address = _parse_mapitem_blob(blob).strip()
+            if not address:
+                address = (orig or '').strip()
+            data_list.append((created, modified, pk, name, ztype, zsource, zhidden, lat, lon, address))
+
+        if all_rows:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
+
+
+def _collection_items_query(file_found):
+    """ZCOLLECTIONITEM, with the iOS 18 direct address columns when present, else a ZMIXINMAPITEM join."""
+    name = 'ZCOLLECTIONITEM.ZCUSTOMNAME' if _col(file_found, 'ZCOLLECTIONITEM', 'ZCUSTOMNAME') else 'NULL'
+    map_name = ('ZCOLLECTIONITEM.ZMAPITEMNAME'
+                if _col(file_found, 'ZCOLLECTIONITEM', 'ZMAPITEMNAME') else 'NULL')
+    direct_addr = ('ZCOLLECTIONITEM.ZMAPITEMADDRESS'
+                   if _col(file_found, 'ZCOLLECTIONITEM', 'ZMAPITEMADDRESS') else 'NULL')
+    category = ('ZCOLLECTIONITEM.ZMAPITEMCATEGORY'
+                if _col(file_found, 'ZCOLLECTIONITEM', 'ZMAPITEMCATEGORY') else 'NULL')
+    note = ('ZCOLLECTIONITEM.ZPLACEITEMNOTE'
+            if _col(file_found, 'ZCOLLECTIONITEM', 'ZPLACEITEMNOTE') else 'NULL')
+    has_mixin = _col(file_found, 'ZMIXINMAPITEM', 'ZMAPITEMSTORAGE')
+    mlat = 'ZMIXINMAPITEM.ZLATITUDE' if has_mixin else 'NULL'
+    mlon = 'ZMIXINMAPITEM.ZLONGITUDE' if has_mixin else 'NULL'
+    blob = 'ZMIXINMAPITEM.ZMAPITEMSTORAGE' if has_mixin else 'NULL'
+    join = ('LEFT JOIN ZMIXINMAPITEM ON ZMIXINMAPITEM.Z_PK = ZCOLLECTIONITEM.ZMAPITEM'
+            if has_mixin else '')
+    return f'''
+    SELECT
+        datetime(ZCOLLECTIONITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
+        datetime(ZCOLLECTIONITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
+        ZCOLLECTIONITEM.Z_PK,
+        {name},
+        {map_name},
+        {direct_addr},
+        {category},
+        {note},
+        ZCOLLECTIONITEM.ZLATITUDE,
+        ZCOLLECTIONITEM.ZLONGITUDE,
+        {mlat},
+        {mlon},
+        {blob}
+    FROM ZCOLLECTIONITEM
+    {join}
+    '''
+
+
+@artifact_processor
+def mapsCollectionItems(context):
+    data_headers = (
+        ('Created', 'datetime'), ('Modified', 'datetime'), 'Item Number', 'Name', 'Category',
+        'Note', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Address')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('MapsSync_0.0.1'):
+            continue
+        if not _col(file_found, 'ZCOLLECTIONITEM', 'Z_PK'):
+            continue
+        db = open_sqlite_db_readonly(file_found)
+        if db is None:
+            continue
+        cursor = db.cursor()
+        try:
+            cursor.execute(_collection_items_query(file_found))
+            all_rows = cursor.fetchall()
+        except sqlite3.Error as ex:
+            logfunc(f'Error processing Maps Collection Items: {ex}')
+            db.close()
+            continue
+        db.close()
+
+        for row in all_rows:
+            (created, modified, pk, custom_name, map_name, direct_addr, category,
+             note, clat, clon, mlat, mlon, blob) = row
+            name = custom_name or map_name
+            lat = clat if clat is not None else mlat
+            lon = clon if clon is not None else mlon
+            address = (direct_addr or _parse_mapitem_blob(blob) or '').strip()
+            data_list.append((created, modified, pk, name, category, note, lat, lon, address))
 
         if all_rows:
             sources.append(context.get_relative_path(file_found))
