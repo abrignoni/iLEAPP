@@ -64,7 +64,7 @@ class PayPalTest(unittest.TestCase):
         cache = self._path(f'{SYNTH.DATA_ROOT}/Library/Caches/{SYNTH.BUNDLE}/Cache.db')
         events = self._path(f'{SYNTH.DATA_ROOT}/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db')
         mparticle = self._path(f'{SYNTH.DATA_ROOT}/Documents/mParticle28.db')
-        log = Path(self._path(f'{SYNTH.DATA_ROOT}/Library/Application Support/Thales-v2/slog-TSH-48bbb8-01.log'))
+        log = Path(self._path(f'{SYNTH.DATA_ROOT}/Library/Application Support/Thales-v2/slog-TSH-5y0001-01.log'))
         expected = {
             module.paypalRememberedAccount: 1,
             module.paypalCachedRequests: _count(cache, 'SELECT COUNT(*) FROM cfurl_cache_response'),
@@ -135,7 +135,7 @@ class PayPalTest(unittest.TestCase):
 
     def test_sdk_starts_read_the_header_and_millisecond_times(self):
         rows = _rows(module.paypalSecuritySdkStarts, self._tree('full'))
-        self.assertEqual(rows[0][1], '7.2.3.rc01 (Release)')
+        self.assertEqual(rows[0][1], '9.9.9.synth (Release)')
         self.assertEqual((rows[0][2], rows[0][3]), ('iOS 26.2', 'iPhone99,9'))
         self.assertEqual(rows[0][0].microsecond, 871000)
         self.assertLess(rows[0][0], rows[1][0])

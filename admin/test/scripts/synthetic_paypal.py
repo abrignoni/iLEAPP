@@ -133,11 +133,11 @@ def group_prefs(variant):
 
 
 def thales_log(variant):
-    header = 'TSH-48bbb8 PayPal 50   iOS 26.2 iPhone99,9\na50c3659fa 2.0.0 Unknown Unknown\n'
+    header = 'TSH-5y0001 PayPal 50   iOS 26.2 iPhone99,9\nsynth00001 0.0.0 Unknown Unknown\n'
     body = []
-    for minutes, tag, rest in ((0, 'SDKV', '6 7.2.3.rc01 (Release)'), (0, 'LPIS', '7 S.TSHP.CWVPC'),
-                               (1, 'storage', '4 TPBS.IDTE'), (30, 'SDKV', '6 7.2.3.rc01 (Release)'),
-                               (31, 'LPIC', '3 MGU.GWIDI.(null) [260]'), (240, 'SDKV', '6 7.2.3.rc01 (Release)')):
+    for minutes, tag, rest in ((0, 'SDKV', '6 9.9.9.synth (Release)'), (0, 'LPIS', '7 SYNTH.START.ONE'),
+                               (1, 'storage', '4 SYNTH.STORE.ONE'), (30, 'SDKV', '6 9.9.9.synth (Release)'),
+                               (31, 'LPIC', '3 SYNTH.CALL.ONE.(null) [260]'), (240, 'SDKV', '6 9.9.9.synth (Release)')):
         moment = EPOCH + datetime.timedelta(minutes=minutes, milliseconds=871)
         body.append(f'{moment:%Y-%m-%dT%H:%M:%S}:{moment.microsecond // 1000:03d}Z {tag} {rest}')
         if tag == 'LPIS' and variant == 'full':
@@ -220,7 +220,7 @@ def build_members(variant):
         f'{GROUP_ROOT}/.com.apple.mobile_container_manager.metadata.plist': metadata_plist(GROUP),
         f'{DATA_ROOT}/Library/Preferences/{BUNDLE}.plist': plistlib.dumps(app_prefs(variant), fmt=plistlib.PlistFormat.FMT_BINARY),
         f'{GROUP_ROOT}/Library/Preferences/{GROUP}.plist': plistlib.dumps(group_prefs(variant), fmt=plistlib.PlistFormat.FMT_BINARY),
-        f'{DATA_ROOT}/Library/Application Support/Thales-v2/slog-TSH-48bbb8-01.log': thales_log(variant),
+        f'{DATA_ROOT}/Library/Application Support/Thales-v2/slog-TSH-5y0001-01.log': thales_log(variant),
         f'{DATA_ROOT}/Library/Caches/{BUNDLE}/Cache.db': url_cache(variant),
         f'{DATA_ROOT}/Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db': analytics_db(variant),
     }
