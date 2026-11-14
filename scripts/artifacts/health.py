@@ -285,6 +285,56 @@ __artifacts_v2__ = {
             "magnet_ios16": "iOS 16.1.1 | 183 rows",
         }
     },
+    "health_flights_climbed": {
+        "name": "Health - Flights Climbed",
+        "description": "Flights climbed samples from the samples table of healthdb_secure.sqlite, "
+                       "with start and end, flights climbed, duration and the origin product type "
+                       "recorded in the sample's provenance and the model it maps to.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "Reads samples whose data_type is 12 and that have a row in quantity_samples, an "
+                 "objects row and a data_provenances record. Sarah Edwards (@iamevltwin, "
+                 "mac4n6.com) documented data_type 12 as flights climbed in her APOLLO research "
+                 "(https://github.com/mac4n6/APOLLO/blob/"
+                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/health_flights.txt). The query "
+                 "follows this module's Health - Steps query with data_type 12. On the 13 images in "
+                 "sample_data with a readable database (3,577 rows) the stored quantity ranged from "
+                 "0.79364 to 56 and was never negative; 9 rows, all on iphone11_ios17, hold a "
+                 "non-integer value. On the 11 tested images that have the shared_summaries table, "
+                 "every summary whose name contains HKQuantityTypeIdentifierFlightsClimbed is linked "
+                 "in shared_summary_object_types to object_type 12, and no other summary is; "
+                 "hickman_ios13 and hickman_ios14 do not have these tables. Flights Climbed is "
+                 "reported as stored. Device ID is the origin product type from data_provenances and "
+                 "Device Model is the model it maps to; rows with different origin product types can "
+                 "cover the same time, which occurs on hickman_ios13, hickman_ios14, magnet_ios16 "
+                 "and iphone11_ios17. A sample needs a quantity_samples row, an objects row and a "
+                 "data_provenances record to be reported: 7 samples on hickman_ios13 and 7 on "
+                 "hickman_ios14 have no quantity_samples row and are not reported, none on the other "
+                 "tested images. On ctf2020_ios12 healthdb_secure.sqlite is an 8-byte file that is "
+                 "not a database.",
+        "paths": ("*Health/healthdb_secure.sqlite*",),
+        "output_types": "standard",
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 241 rows",
+            "hickman_ios14": "iOS 14.3 | 824 rows",
+            "jess_ios15": "iOS 15.0.2 | 20 rows",
+            "magnet_ios16": "iOS 16.1.1 | 34 rows",
+            "abe_ios16": "iOS 16.5 | 251 rows",
+            "felix23_ios16": "iOS 16.5 | 9 rows",
+            "otto_ios17": "iOS 17.5.1 | 226 rows",
+            "felix_ios17": "iOS 17.6.1 | 46 rows",
+            "fsfull002_ios17": "iOS 17.1 | 71 rows",
+            "iphone11_ios17": "iOS 17.3 | 1610 rows",
+            "dexter_ios18": "iOS 18.3.2 | 231 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 12 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+        }
+    },
     "health_distance_walking_running": {
         "name": "Health - Walking + Running Distance",
         "description": "Walking and running distance samples from the samples table of "
@@ -1771,5 +1821,41 @@ def health_wrist_temperature(context):
             (start_timestamp, end_timestamp, added_timestamp, record[3], record[4],
              record[5], record[6], record[7], record[8], record[9], record[10],
              record[11], record[12], record[13]))
+
+    return data_headers, data_list, data_source
+
+
+@artifact_processor
+def health_flights_climbed(context):
+    """ See artifact description """
+    data_source = context.get_source_file_path('healthdb_secure.sqlite')
+    data_list = []
+
+    query = '''
+    SELECT
+        samples.start_date AS "Start Date",
+        samples.end_date AS "End Date",
+        quantity_samples.quantity AS "Flights Climbed",
+        (samples.end_date - samples.start_date) AS "Duration (Seconds)",
+        data_provenances.origin_product_type AS "Device"
+    FROM samples, quantity_samples, data_provenances, objects
+    WHERE samples.data_type = 12
+    AND samples.data_id = quantity_samples.data_id
+    AND samples.data_id = objects.data_id
+    AND objects.provenance = data_provenances.rowid
+    '''
+
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Flights Climbed',
+        'Duration (Seconds)', 'Device ID', 'Device Model')
+
+    db_records = get_sqlite_db_records(data_source, query)
+
+    for record in db_records:
+        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
+        hardware = context.lookup_metadata('apple_device_id_to_model', record[4])
+        data_list.append((start_timestamp, end_timestamp, record[2], record[3],
+                          record[4], hardware))
 
     return data_headers, data_list, data_source
