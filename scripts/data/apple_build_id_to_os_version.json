@@ -3,7 +3,8 @@
     "22V438": "HomeView Software 18.1",
     "22W173": "HomeView Software 18.2",
     "23W714": "HomeView Software 26.5",
-    "24V514": "HomeView Software 27.2"
+    "24V514": "HomeView Software 27.2",
+    "24V526": "HomeView Software 27.2"
   },
   "iOS": {
     "1A282j": "iPhone Software 1.0",
@@ -4950,6 +4951,7 @@
     "24K120": "tvOS 27.2 RC",
     "24K122": "tvOS 27.2",
     "24K154": "tvOS 27.2",
+    "24K157": "tvOS 27.2.1",
     "24K5088l": "tvOS 27.2 beta",
     "24K5093g": "tvOS 27.2 beta 2",
     "24K5103f": "tvOS 27.2 beta 3",
