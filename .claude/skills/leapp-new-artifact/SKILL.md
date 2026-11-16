@@ -69,6 +69,15 @@ Get these right, because they are the ones most often wrong:
   manifest. Say only what the data proves. See the `leapp-claims` rule.
 - **`output_types`**: `"standard"` for the usual fan-out, `"all"` to add KML when the
   artifact has coordinates, `"lava_only"` for a producer another module reads.
+- **`platforms`** (DLEAPP, required): a tuple of the operating systems the artifact's
+  files come from, from `"Windows"`, `"macOS"` and `"Linux"`, or `("Device",)` alone for a
+  store read from the firmware of a TV, camera, doorbell or similar. The category decides
+  when it names a system. Otherwise the docstring and notes decide when they say where the
+  application keeps the files. Otherwise the paths decide, and a glob with no system root
+  (`*/.bash_history`, `*.pst`) gets all three. It says where the files are found, not where
+  you tested: `sample_data` records that. Put it right after `category`. DLEAPP's
+  `admin/test/scripts/test_artifact_platforms.py` fails any block without a valid value,
+  and leapps.org/artifacts filters DLEAPP by it. The other cores do not use the key.
 - **Column order**: most relevant event timestamp first, any other timestamps immediately
   after, then identifiers, then descriptive fields.
 - **Never write to evidence.** Use `open_sqlite_db_readonly()`, and
@@ -253,6 +262,8 @@ timers, coarse location denied), not a column to delete.
   sample that would close the gap.
 - Run the full tool once. Duplicate artifact `name` values are rejected at load and nothing
   else catches it.
+- In DLEAPP, check each new or changed block's `platforms` against its paths and notes. A
+  narrower value hides the artifact from an examiner filtering by the system it was left off.
 - Reproduce lint locally. Warnings fail the build. See the `leapp-ci` rule.
 - Reread the PR body for values copied out of someone's real data.
 
