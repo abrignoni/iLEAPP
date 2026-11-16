@@ -44,9 +44,10 @@ Decided in `build.py`, which the spec loads, so it is tested without running PyI
 (`admin/test/scripts/test_packaging_build.py`, which also exec's the spec with PyInstaller
 stubbed out).
 
-- `scripts/`, `leapp_functions/` and `assets/` ship as files, without `__pycache__`. The
-  plugin loader reads the artifacts from `scripts/artifacts` as source, the report copies
-  `scripts/_elements`, and the window loads its images from `assets/`.
+- `scripts/`, `leapp_functions/`, `assets/` and `data/` ship as files, without `__pycache__`.
+  The plugin loader reads the artifacts from `scripts/artifacts` as source, the report copies
+  `scripts/_elements`, the window loads its images from `assets/`, and `leapp_functions`
+  reads `data/leapp_config.json` (name, palette, input types) as soon as it is imported.
 - **Every artifact module is also a hidden import.** Shipped as source, the artifacts were
   invisible to PyInstaller's analysis, and everything they imported had to be listed by
   hand; three startup crashes came from that list (google.protobuf, PIL, leapp_functions).

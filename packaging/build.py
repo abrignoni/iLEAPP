@@ -99,8 +99,9 @@ ISCC_DEFAULT = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 
 # Folders shipped as files beside the executable. The plugin loader reads the artifacts
 # from scripts/artifacts as source, the report copies scripts/_elements, and the window
-# loads its images from assets/. leapp_functions/ is imported by the artifacts.
-DATA_TREES = ("scripts", "leapp_functions", "assets")
+# loads its images from assets/. leapp_functions/ is imported by the artifacts, and reads
+# data/leapp_config.json (the tool's name, its palette, its input types) when imported.
+DATA_TREES = ("scripts", "leapp_functions", "assets", "data")
 # Never shipped: bytecode caches from the build machine, and Finder metadata.
 DATA_EXCLUDED_DIRS = {"__pycache__"}
 DATA_EXCLUDED_SUFFIXES = (".pyc", ".pyo")

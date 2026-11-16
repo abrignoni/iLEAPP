@@ -373,18 +373,20 @@ class TestBundleContents(unittest.TestCase):
         self.assertEqual(real.BIN, REPO_ROOT / 'bin')
         self.assertTrue((real.BIN / 'THIRD-PARTY-NOTICES-unifiedlog_iterator.txt').is_file())
 
-    def test_scripts_leapp_functions_and_assets_ship_as_files(self):
+    def test_scripts_leapp_functions_assets_and_data_ship_as_files(self):
         datas = self.driver.bundle_datas()
         destinations = {dest for _, dest in datas}
-        for dest in ('scripts/artifacts', 'scripts/_elements', 'leapp_functions', 'assets'):
+        for dest in ('scripts/artifacts', 'scripts/_elements', 'leapp_functions', 'assets', 'data'):
             self.assertIn(dest, destinations)
         shipped = {(pathlib.Path(src).name, dest) for src, dest in datas}
         # The plugin loader reads every artifact from its source file.
         for artifact in (REPO_ROOT / 'scripts' / 'artifacts').glob('*.py'):
             self.assertIn((artifact.name, 'scripts/artifacts'), shipped)
         # The window's icon and logos.
-        for image in ('icon.png', 'iLEAPP_logo.png', 'settings.png', 'leapps_i_logo.png'):
+        for image in ('icon.png', 'iLEAPP_logo.png', 'leapps_logo.png'):
             self.assertIn((image, 'assets'), shipped)
+        # leapp_functions reads it when imported, from sys._MEIPASS/data in a build.
+        self.assertIn(('leapp_config.json', 'data'), shipped)
 
     def test_no_bytecode_cache_or_finder_file_ships(self):
         for src, dest in self.driver.bundle_datas():
