@@ -44,27 +44,36 @@ def fixture(root):
 
 
 class ConfigurationProfilesTest(unittest.TestCase):
-    def test_rows(self):
+    def _run(self, func):
         with tempfile.TemporaryDirectory() as directory:
             root = pathlib.Path(directory)
             paths = fixture(root)
-            headers, rows, source = parser.configuration_profiles.__wrapped__(
-                SimpleNamespace(get_files_found=lambda: paths))
+            return func.__wrapped__(SimpleNamespace(get_files_found=lambda: paths))
+
+    def test_installed(self):
+        headers, rows, source = self._run(parser.configuration_profiles)
         self.assertTrue(all(len(r) == len(headers) for r in rows))
-        by_id = {r[4]: r for r in rows}
-        self.assertEqual(by_id['carrier.one'][9], 'Hidden')
-        self.assertEqual(by_id['carrier.one'][12], 'Carrier')
-        self.assertEqual(by_id['user.two'][9], 'Listed')
-        self.assertEqual(by_id['user.two'][10], 'com.apple.Preferences')
-        self.assertEqual(by_id['orphan.three'][9], 'Not in PayloadManifest')
-        self.assertEqual(by_id['user.two'][8], 'com.apple.webClip.managed, com.apple.vpn.managed')
+        by_id = {r[2]: r for r in rows}
+        self.assertEqual(sorted(by_id), ['carrier.one', 'orphan.three', 'user.two'])
+        self.assertEqual(by_id['carrier.one'][7], 'HiddenProfiles')
+        self.assertEqual(by_id['carrier.one'][10], 'Carrier')
+        self.assertEqual(by_id['user.two'][7], 'OrderedProfiles')
+        self.assertEqual(by_id['user.two'][8], 'com.apple.Preferences')
+        self.assertEqual(by_id['orphan.three'][7], 'Not in PayloadManifest')
+        self.assertEqual(by_id['user.two'][6], 'com.apple.webClip.managed, com.apple.vpn.managed')
         self.assertEqual(by_id['user.two'][0].tzinfo, datetime.timezone.utc)
-        self.assertEqual(by_id['waiting.four'][2], 'Downloaded, not installed')
-        self.assertEqual(by_id['waiting.four'][1].replace(tzinfo=None), WHEN)
-        self.assertIn('', by_id)  # the undecodable download keeps a row
-        self.assertEqual(by_id[''][2], 'Downloaded, not installed; file not decoded (not a plain plist)')
-        self.assertEqual(len(rows), 5)
-        self.assertEqual(len(source.splitlines()), 7)
+        self.assertEqual(len(source.splitlines()), 4)
+
+    def test_holding_tank(self):
+        headers, rows, source = self._run(parser.configuration_profiles_holding_tank)
+        self.assertTrue(all(len(r) == len(headers) for r in rows))
+        by_id = {r[3]: r for r in rows}
+        self.assertEqual(by_id['waiting.four'][1], 'Yes')
+        self.assertEqual(by_id['waiting.four'][0].replace(tzinfo=None), WHEN)
+        self.assertEqual(by_id[''][1], 'No')           # the undecodable download keeps a row
+        self.assertEqual(by_id[''][0], '')
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(len(source.splitlines()), 3)
 
 
 if __name__ == '__main__':
