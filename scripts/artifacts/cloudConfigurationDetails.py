@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
     "cloud_configuration_details": {
         "name": "Cloud Configuration Details",
-        "description": "Keys and values of CloudConfigurationDetails.plist and "
+        "description": "Top-level keys and values of CloudConfigurationDetails.plist and "
                        "CloudConfigurationSetAsideDetails.plist in the configurationprofiles system group "
-                       "container, as stored.",
+                       "container. Byte strings are shown by size and SHA-256.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
@@ -13,24 +13,26 @@ __artifacts_v2__ = {
                  "CloudConfigurationSetAsideDetails.plist under Library/ConfigurationProfiles in the "
                  "systemgroup.com.apple.configurationprofiles Shared/SystemGroup container (iTunes backups"
                  " map SysSharedContainerDomain- to the same path, scripts/search_files.py; not exercised "
-                 "on a backup here). Keys and values are reported as stored, booleans and integers as "
-                 "text. A list of byte strings gives one row per item, with the item's index in Key; byte "
-                 "strings are shown by kind (DER certificate when they start 30 82), size and SHA-256, not"
-                 " their bytes; other lists and dictionaries are shown as JSON. Apple's published "
-                 "device-management schemas (github.com/apple/device-management, searched 2026-11-16) name"
-                 " IsSupervised only as a key of the MDM DeviceInformation query and do not name the other"
-                 " keys seen here, so no key's meaning in this file is established and none is "
-                 "interpreted. On the 22 images in sample_data (iOS 12.4 to 26.5.2, 114 rows) every image "
-                 "held CloudConfigurationDetails.plist. IsSupervised was False and ConfigurationSource 0 "
-                 "on all 20 that carry them, AllowPairing True on 20, CloudConfigurationUIComplete True on"
-                 " 22, PostSetupProfileWasInstalled True on 8 and False on 13, ConfigurationWasApplied "
-                 "True on 7, and SupervisorHostCertificates held one DER certificate on fsfull002_ios17 "
-                 "and on hc_ios17_2. No image in the corpus is known to be a supervised or enrolled "
-                 "device, so values from one are not represented here. File held "
-                 "CloudConfigurationDetails.plist on every row of 21 images; hc_ios18_7 also held "
-                 "CloudConfigurationSetAsideDetails.plist (CloudConfigurationUIComplete and "
-                 "ConfigurationWasApplied, both False), which is why the column is kept. Installed "
-                 "profiles are in Configuration Profiles.",
+                 "on a backup here, and whether a backup includes these files is not established). "
+                 "Booleans and integers are shown as text. A list of byte strings gives one row per item, "
+                 "with the item's index in Key. Byte strings are shown by a label, size and SHA-256, not "
+                 "their bytes; the label is 'bytes starting 30 82' when they start with those two bytes, "
+                 "which is not a certificate parse. Other lists and dictionaries are shown as JSON. "
+                 "Apple's device-management schemas (github.com/apple/device-management at commit 9e7fdbe,"
+                 " searched 2026-11-16) name IsSupervised only as a key of the MDM DeviceInformation "
+                 "query, and ConfigurationSource only as a string key of the Education profile payload. "
+                 "They do not name the other keys seen here or either file. No key's meaning in this file "
+                 "is established by that source, and none is interpreted. On the 22 images in sample_data "
+                 "(iOS 12.4 to 26.5.2, 114 rows) every image held CloudConfigurationDetails.plist. "
+                 "IsSupervised was False and ConfigurationSource 0 on all 20 that carry them, AllowPairing"
+                 " True on 20, CloudConfigurationUIComplete True on 22, PostSetupProfileWasInstalled True "
+                 "on 8 and False on 13, ConfigurationWasApplied True on 7, and SupervisorHostCertificates "
+                 "held one item starting 30 82 on fsfull002_ios17 and on hc_ios17_2. No image in "
+                 "sample_data held IsSupervised True; whether any of them was supervised or enrolled in "
+                 "device management is not established. File held CloudConfigurationDetails.plist on every"
+                 " row of 21 images; hc_ios18_7 also held CloudConfigurationSetAsideDetails.plist "
+                 "(CloudConfigurationUIComplete and ConfigurationWasApplied, both False), which is why the"
+                 " column is kept. Installed profiles are in Configuration Profiles.",
         "paths": (
             '*/systemgroup.com.apple.configurationprofiles/Library/ConfigurationProfiles/CloudConfigurationDetails.plist',
             '*/systemgroup.com.apple.configurationprofiles/Library/ConfigurationProfiles/CloudConfigurationSetAsideDetails.plist',
@@ -77,7 +79,7 @@ _PLIST_ERRORS = (plistlib.InvalidFileException, ExpatError, ValueError, TypeErro
 
 
 def _bytes_text(value):
-    kind = 'DER certificate' if value[:2] == b'\x30\x82' else 'bytes'
+    kind = 'bytes starting 30 82' if value[:2] == b'\x30\x82' else 'bytes'
     return f'{kind}, {len(value)} bytes, SHA-256 {hashlib.sha256(value).hexdigest()}'
 
 
@@ -123,5 +125,5 @@ def cloud_configuration_details(context):
             for shown_key, text in _value_rows(str(key), plist[key]):
                 data_list.append((name, shown_key, text))
 
-    data_headers = ('File', 'Key', 'Value (as stored)')
+    data_headers = ('File', 'Key', 'Value')
     return data_headers, data_list, '\n'.join(source_paths)

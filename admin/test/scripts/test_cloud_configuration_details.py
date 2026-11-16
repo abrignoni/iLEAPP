@@ -31,12 +31,12 @@ class CloudConfigurationDetailsTest(unittest.TestCase):
             paths = [str(main), str(aside), str(broken)]
             headers, rows, source = parser.cloud_configuration_details.__wrapped__(
                 SimpleNamespace(get_files_found=lambda: paths))
-        self.assertEqual(headers, ('File', 'Key', 'Value (as stored)'))
+        self.assertEqual(headers, ('File', 'Key', 'Value'))
         values = {(r[0], r[1]): r[2] for r in rows}
         self.assertEqual(values[('CloudConfigurationDetails.plist', 'IsSupervised')], 'False')
         self.assertEqual(values[('CloudConfigurationDetails.plist', 'ConfigurationSource')], '0')
         self.assertEqual(values[('CloudConfigurationDetails.plist', 'SupervisorHostCertificates [0]')],
-                         f'DER certificate, {len(CERT)} bytes, SHA-256 {hashlib.sha256(CERT).hexdigest()}')
+                         f'bytes starting 30 82, {len(CERT)} bytes, SHA-256 {hashlib.sha256(CERT).hexdigest()}')
         self.assertIn(('CloudConfigurationDetails.plist', 'SupervisorHostCertificates [1]'), values)
         nested = json.loads(values[('CloudConfigurationDetails.plist', 'Nested')])
         self.assertEqual(nested['b'], 1)
