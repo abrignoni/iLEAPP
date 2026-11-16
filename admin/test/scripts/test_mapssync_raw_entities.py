@@ -65,7 +65,7 @@ class TestMapsSyncRawEntities(unittest.TestCase):
                 self.assertEqual([type(r[4]) for r in rows], [type(r[1]) for r in expected])
                 self.assertEqual(len(rows), 14 if layout == 'basic' else 27)
                 self.assertEqual(source, main.name)
-                self.assertEqual(len(headers), 13)
+                self.assertEqual(len(headers), 15)
                 # Entity is the Z_PRIMARYKEY name SQLite's own comparison finds for the stored Z_ENT.
                 named = connection.execute('SELECT h.Z_PK, p.Z_NAME FROM ZHISTORYITEM h' + join +
                                            ' LEFT JOIN Z_PRIMARYKEY p ON p.Z_ENT = ' + raw).fetchall()
