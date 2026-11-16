@@ -19,10 +19,22 @@ class Gear(tk.Label):
                          for bright, color in ((False, colors.text_primary),
                                                (True, colors.main_bg))}
         super().__init__(parent, image=self.pictures[False], bg=colors.header_bg, borderwidth=0)
-        self.bind("<Enter>", lambda _event: self.configure(image=self.pictures[True]))
-        self.bind("<Leave>", lambda _event: self.configure(image=self.pictures[False]))
-        # The main window opens it: see settings.SettingsControl
-        self.bind("<Button-1>", lambda _event: app.event_generate("<<OpenSettings>>"))
+        self.app = app
+        self.bind("<Enter>", lambda _event: self.show(True))
+        self.bind("<Motion>", lambda _event: self.show(True))
+        self.bind("<Leave>", lambda _event: self.show(False))
+        self.bind("<ButtonRelease-1>", self.on_release)
+
+    def show(self, bright):
+        """ The icon as it is under the pointer, or at rest. """
+        self.configure(image=self.pictures[bright])
+
+    def on_release(self, event):
+        """ Opened when the button is released over the icon, as a button does. """
+        if self.winfo_containing(event.x_root, event.y_root) is self:
+            self.show(False)
+            # The main window opens it: see settings.SettingsControl
+            self.app.event_generate("<<OpenSettings>>")
 
 
 class Header(tk.Frame):
