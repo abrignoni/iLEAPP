@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple Maps MapsSync history rows, with each row's entity named from the store's own "
                        "Z_PRIMARYKEY table, the stored Z_ENT value, and the query text embedded in the row's "
                        "stored placeRequest payloads.",
-        "author": '@AlexisBrignoni, Codex',
+        "author": '@AlexisBrignoni, @nwish, Codex, Claude',
         "creation_date": "2026-06-23",
         "last_update_date": "2026-11-16",
         "requirements": "none",
@@ -24,19 +24,21 @@ __artifacts_v2__ = {
                  "column; fallback schemas without the column report SQL NULL, and their rows have a "
                  "blank Entity. A blank Entity also results when the store has no Z_PRIMARYKEY table or "
                  "that table has no row for the stored Z_ENT. That output does not distinguish an absent "
-                 "column from a stored NULL. The two Query columns come from base64 'placeRequest=' "
-                 "payloads embedded in the ZMAPITEMSTORAGE and ZROUTEREQUESTSTORAGE BLOBs: Query (Sent) "
-                 "is field 8.1.3 and Query (Raw) is field 10000 under 8.1.7, the same 8.1.7.10000 "
-                 "position the Get Apple Maps search history artifact extracts from GeoHistory.mapsdata. "
-                 "In a controlled test (iPhone 13, 7 hand-timed sessions) the raw field held partial "
-                 "text typed before an autocomplete tap and was absent when the search was committed "
-                 "with Enter; observations from that sample, not a rule. The payloads were present on "
-                 "the iOS 18.3.2 (30 of 50 rows) and 26.3 (4 of 9 rows) stores tested and absent from "
-                 "every row of the iOS 15.3.1, 16.5, 17.3 and 17.5.1 stores tested. ZQUERY was populated "
-                 "only on the search entity in the controlled sample; the Query columns carry the text "
-                 "for place and directions rows. MapsSync_0.0.1_deviceLocalCache.db has the same history "
-                 "schema but is not read here, and held no history rows on the three stores tested where "
-                 "it was present.",
+                 "column from a stored NULL. Query (Sent) and Query (Raw) come from base64 'placeRequest=' "
+                 "payloads embedded in the ZROUTEREQUESTSTORAGE and ZMAPITEMSTORAGE BLOBs: Query (Sent) is "
+                 "field 8.1.3 of the decoded request and Query (Raw) is field 10000 under 8.1.7, the "
+                 "position the Get Apple Maps search history artifact reads from GeoHistory.mapsdata. Both "
+                 "are read as text, and distinct values from several payloads on one row are joined with "
+                 "'; '. In the contributor's own test, Query (Raw) held the partial text typed before an "
+                 "autocomplete suggestion was tapped and was absent when the search was submitted with "
+                 "Enter; that is an observation from one device, not a sourced rule. Across the 248 rows "
+                 "of the 22 stores tested (iOS 14.3 to 26.5.2), Query (Sent) held text on 123 rows and "
+                 "Query (Raw) on 88, all of them HistoryPlaceItem or HistoryDirectionsItem rows; Location "
+                 "Search (ZQUERY) held text on 22 rows, all HistorySearchItem, none of them with a Query "
+                 "value. Each column is selected only when the store's schema has it, so the iOS 14 to 17 "
+                 "stores tested, which have no ZLATITUDE1, still have their BLOBs decoded. "
+                 "MapsSync_0.0.1_deviceLocalCache.db has the same history schema but is not read here; it "
+                 "held no history rows on any of the 22 stores tested.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -67,11 +69,11 @@ __artifacts_v2__ = {
     },
     "mapsFavorites": {
         "name": "Maps Favorites",
-        "description": "Rows of the ZFAVORITEITEM table of Apple Maps MapsSync_0.0.1, with the name, coordinates and "
-                       "decoded address where the row stores them.",
-        "author": "@AlexisBrignoni, Claude",
+        "description": "Rows of the ZFAVORITEITEM table of Apple Maps MapsSync_0.0.1, with the name, coordinates, "
+                       "decoded address and request query text where the row stores them.",
+        "author": "@AlexisBrignoni, @nwish, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-16",
         "requirements": "none",
         "category": "Location",
         "notes": (
@@ -91,7 +93,10 @@ __artifacts_v2__ = {
                  "account is not established, and it is not evidence that the device was at that place. Run "
                  "against nine iOS 15 to 18 images (keys in sample_data): 1 to 4 rows on six, 12 rows in "
                  "all, and 0 rows on three where the table exists and is empty. The ZTYPE, ZSOURCE and "
-                 "ZHIDDEN code meanings were not sourced."
+                 "ZHIDDEN code meanings were not sourced. Query (Sent) and Query (Raw) are read from the "
+                 "joined map item's ZMAPITEMSTORAGE the way the Maps Sync history reads them; across the 22 "
+                 "stores in the Maps Sync sample_data, a wider set than the nine above, ZFAVORITEITEM held "
+                 "20 rows and both columns held text on 4 of them."
         ),
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
@@ -167,6 +172,15 @@ from scripts.ilapfuncs import (artifact_processor, logfunc, open_sqlite_db_reado
 _DECODE_ERRORS = (KeyError, TypeError, IndexError, ValueError, AttributeError, struct.error, DecodeError)
 
 _PLACE_REQUEST_RE = re.compile(rb'placeRequest=([A-Za-z0-9+/=]+)')
+
+# Fields 8.1.3 and 8.1.7.10000 are text. Without a type the decoder can read a short string as a
+# nested message and drop it, so both are typed as bytes, as appleMapsSearchHistory.py does.
+_PLACE_REQUEST_TYPEDEF = {
+    '8': {'type': 'message', 'name': '', 'message_typedef': {
+        '1': {'type': 'message', 'name': '', 'message_typedef': {
+            '3': {'type': 'bytes', 'name': ''},
+            '7': {'type': 'message', 'name': '', 'message_typedef': {
+                '10000': {'type': 'bytes', 'name': ''}}}}}}}}
 
 
 def get_recursively(search_dict, field):
@@ -272,68 +286,46 @@ def _pb_get(message, path):
 def _place_request_queries(*blobs):
     """Pull the query text out of base64 'placeRequest=' payloads embedded in MapsSync BLOBs.
 
-    Returns (query_sent, query_raw): field 8.1.3 of the decoded request, and field 10000 under
-    8.1.7. The raw field is present in some requests and absent in others; absence is returned
-    as the empty string."""
-    sent = raw = ''
+    Returns (query_sent, query_raw): field 8.1.3 of each decoded request, and field 10000 under
+    8.1.7, each the distinct values of every payload in the BLOBs joined with '; '. A field that
+    no payload carries is returned as the empty string."""
+    sent, raw = [], []
     for blob in blobs:
         if not blob:
             continue
         for match in _PLACE_REQUEST_RE.finditer(blob):
             try:
                 payload = base64.b64decode(match.group(1) + b'=' * (-len(match.group(1)) % 4))
-                message, _ = blackboxprotobuf.decode_message(payload)
+                message, _ = blackboxprotobuf.decode_message(payload, _PLACE_REQUEST_TYPEDEF)
             except _DECODE_ERRORS:
                 continue
-            sent = sent or _pb_get(message, ('8', '1', '3'))
-            raw = raw or _pb_get(message, ('8', '1', '7', '10000'))
-    return sent, raw
+            sent.append(_pb_get(message, ('8', '1', '3')))
+            raw.append(_pb_get(message, ('8', '1', '7', '10000')))
+    return ('; '.join(dict.fromkeys(v for v in sent if v)),
+            '; '.join(dict.fromkeys(v for v in raw if v)))
 
 
 def _build_query(file_found):
-    """Pick the MapsSync query variant that matches the schema present in this database."""
-    if (does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLOCATIONDISPLAY')
-            and does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLATITUDE1')
-            and does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZROUTEREQUESTSTORAGE')
-            and does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZMAPITEMSTORAGE')):
-        return '''
-        SELECT
-        datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH'),
-        datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH'),
-        ZHISTORYITEM.z_pk,
-        NULL,
-        ZHISTORYITEM.ZQUERY,
-        ZHISTORYITEM.ZLOCATIONDISPLAY,
-        ZHISTORYITEM.ZLATITUDE,
-        ZHISTORYITEM.ZLONGITUDE,
-        ZHISTORYITEM.ZLATITUDE1,
-        ZHISTORYITEM.ZLONGITUDE1,
-        ZHISTORYITEM.ZROUTEREQUESTSTORAGE,
-        ZMIXINMAPITEM.ZMAPITEMSTORAGE,
-        ZHISTORYITEM.Z_ENT
-        from ZHISTORYITEM
-        left join ZMIXINMAPITEM on ZMIXINMAPITEM.Z_PK=ZHISTORYITEM.ZMAPITEM
-        '''
-    entity_column = ('ZHISTORYITEM.Z_ENT'
-                     if does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'Z_ENT') else 'NULL')
-    if does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZNAME'):
-        logfunc("INFO: MapsSync modern schema columns not found. Trying iOS 15 schema.")
-        return f'''
-        SELECT
-        datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
-        datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
-        ZHISTORYITEM.Z_PK,
-        NULL,
-        ZHISTORYITEM.ZQUERY,
-        ZMIXINMAPITEM.ZNAME,
-        ZHISTORYITEM.ZLATITUDE,
-        ZHISTORYITEM.ZLONGITUDE,
-        NULL, NULL, NULL, NULL,
-        {entity_column}
-        FROM ZHISTORYITEM
-        LEFT JOIN ZMIXINMAPITEM ON ZHISTORYITEM.ZMAPITEM = ZMIXINMAPITEM.Z_PK
-        '''
-    logfunc("INFO: MapsSync mixin map item columns not found. Trying basic history query.")
+    """Select the history columns this store's schema has, and NULL for the ones it lacks.
+
+    Each column is checked on its own, so a store missing one of them (the iOS 16 and 17 stores
+    tested have no ZLATITUDE1) still has its storage BLOBs read."""
+    def has(table, column):
+        return does_column_exist_in_db(file_found, table, column)
+
+    mixin = has('ZHISTORYITEM', 'ZMAPITEM') and has('ZMIXINMAPITEM', 'Z_PK')
+    if has('ZHISTORYITEM', 'ZLOCATIONDISPLAY'):
+        display = 'ZHISTORYITEM.ZLOCATIONDISPLAY'
+    elif mixin and has('ZMIXINMAPITEM', 'ZNAME'):
+        display = 'ZMIXINMAPITEM.ZNAME'
+    else:
+        display = "''"
+    lat1 = 'ZHISTORYITEM.ZLATITUDE1' if has('ZHISTORYITEM', 'ZLATITUDE1') else 'NULL'
+    lon1 = 'ZHISTORYITEM.ZLONGITUDE1' if has('ZHISTORYITEM', 'ZLONGITUDE1') else 'NULL'
+    route = 'ZHISTORYITEM.ZROUTEREQUESTSTORAGE' if has('ZHISTORYITEM', 'ZROUTEREQUESTSTORAGE') else 'NULL'
+    mapitem = 'ZMIXINMAPITEM.ZMAPITEMSTORAGE' if mixin and has('ZMIXINMAPITEM', 'ZMAPITEMSTORAGE') else 'NULL'
+    entity = 'ZHISTORYITEM.Z_ENT' if has('ZHISTORYITEM', 'Z_ENT') else 'NULL'
+    join = 'LEFT JOIN ZMIXINMAPITEM ON ZMIXINMAPITEM.Z_PK = ZHISTORYITEM.ZMAPITEM' if mixin else ''
     return f'''
     SELECT
     datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
@@ -341,12 +333,16 @@ def _build_query(file_found):
     ZHISTORYITEM.Z_PK,
     NULL,
     ZHISTORYITEM.ZQUERY,
-    '',
+    {display},
     ZHISTORYITEM.ZLATITUDE,
     ZHISTORYITEM.ZLONGITUDE,
-    NULL, NULL, NULL, NULL,
-    {entity_column}
+    {lat1},
+    {lon1},
+    {route},
+    {mapitem},
+    {entity}
     FROM ZHISTORYITEM
+    {join}
     '''
 
 
@@ -446,7 +442,7 @@ def mapsFavorites(context):
     data_headers = (
         ('Created', 'datetime'), ('Modified', 'datetime'), 'Item Number', 'Name',
         'Favorite Type (As Stored)', 'Source (As Stored)', 'Hidden (As Stored)',
-        ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Address')
+        ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Address', 'Query (Sent)', 'Query (Raw)')
     data_list = []
     sources = []
 
@@ -477,7 +473,9 @@ def mapsFavorites(context):
             address = _parse_mapitem_blob(blob).strip()
             if not address:
                 address = (orig or '').strip()
-            data_list.append((created, modified, pk, name, ztype, zsource, zhidden, lat, lon, address))
+            query_sent, query_raw = _place_request_queries(blob)
+            data_list.append((created, modified, pk, name, ztype, zsource, zhidden, lat, lon, address,
+                              query_sent, query_raw))
 
         if all_rows:
             sources.append(context.get_relative_path(file_found))

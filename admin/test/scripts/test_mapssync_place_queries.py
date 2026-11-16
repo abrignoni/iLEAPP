@@ -36,15 +36,18 @@ def embed(payload):
     return b'https://gsp.apple.com/path?placeRequest=' + base64.b64encode(payload) + b'&other=1'
 
 
-def make_store(path, mapitem_blob=None, journey_blob=None):
+def make_store(path, mapitem_blob=None, journey_blob=None, with_lat1=True):
+    """A modern store, or with with_lat1=False the iOS 16 and 17 shape that has no ZLATITUDE1."""
     connection = sqlite3.connect(path)
+    second = 'ZLATITUDE1, ZLONGITUDE1, ' if with_lat1 else ''
     connection.execute('CREATE TABLE ZHISTORYITEM (Z_PK, ZCREATETIME, ZMODIFICATIONTIME, ZQUERY, '
-                       'ZLATITUDE, ZLONGITUDE, ZMAPITEM, Z_ENT, ZLOCATIONDISPLAY, ZLATITUDE1, '
-                       'ZLONGITUDE1, ZROUTEREQUESTSTORAGE)')
+                       'ZLATITUDE, ZLONGITUDE, ZMAPITEM, Z_ENT, ZLOCATIONDISPLAY, ' + second +
+                       'ZROUTEREQUESTSTORAGE)')
     connection.execute('CREATE TABLE ZMIXINMAPITEM (Z_PK, ZMAPITEMSTORAGE)')
     connection.execute('INSERT INTO ZMIXINMAPITEM VALUES (1, ?)', (mapitem_blob,))
+    filler = 'NULL, NULL, ' if with_lat1 else ''
     connection.execute('INSERT INTO ZHISTORYITEM VALUES (1, 700000000, 700000001, NULL, 40, -74, 1, 20, '
-                       "'display', NULL, NULL, ?)", (journey_blob,))
+                       "'display', " + filler + '?)', (journey_blob,))
     connection.execute('CREATE TABLE Z_PRIMARYKEY (Z_ENT, Z_NAME)')
     connection.execute("INSERT INTO Z_PRIMARYKEY VALUES (20, 'HistoryPlaceItem')")
     connection.commit()
@@ -59,10 +62,10 @@ def run_module(main):
 
 
 class TestMapsSyncPlaceQueries(unittest.TestCase):
-    def check_row(self, mapitem_blob, journey_blob, expected):
+    def check_row(self, mapitem_blob, journey_blob, expected, with_lat1=True):
         with tempfile.TemporaryDirectory() as directory:
             main = Path(directory) / 'MapsSync_0.0.1'
-            connection = make_store(main, mapitem_blob, journey_blob)
+            connection = make_store(main, mapitem_blob, journey_blob, with_lat1)
             try:
                 headers, rows = run_module(main)
                 self.assertEqual(len(rows), 1)
@@ -97,6 +100,20 @@ class TestMapsSyncPlaceQueries(unittest.TestCase):
     def test_non_utf8_query_decodes_without_crash(self):
         self.check_row(embed(place_request_payload(b'\xff\xfe bad')),
                        None, ('\ufffd\ufffd bad', ''))
+
+    def test_store_without_latitude1_still_reads_blobs(self):
+        self.check_row(embed(place_request_payload('Akron, OH United States', 'Akron')), None,
+                       ('Akron, OH United States', 'Akron'), with_lat1=False)
+
+    def test_text_that_parses_as_a_message_is_kept_as_text(self):
+        # 'h1h2h3' is also a valid protobuf message (field 13, three varints).
+        self.check_row(embed(place_request_payload('Akron, OH', 'h1h2h3')), None, ('Akron, OH', 'h1h2h3'))
+
+    def test_distinct_queries_from_every_payload_are_joined(self):
+        self.check_row(embed(place_request_payload('bagel shops', 'bagel')),
+                       embed(place_request_payload('Akron, OH', 'Akr')) +
+                       embed(place_request_payload('bagel shops', 'bagel')),
+                       ('Akron, OH; bagel shops', 'Akr; bagel'))  # journey BLOB first
 
 
 if __name__ == '__main__':
