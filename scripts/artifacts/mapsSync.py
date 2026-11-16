@@ -2,10 +2,11 @@ __artifacts_v2__ = {
     "mapsSync": {
         "name": "Maps Sync",
         "description": "Apple Maps MapsSync history rows, with each row's entity named from the store's own "
-                       "Z_PRIMARYKEY table and the stored Z_ENT value.",
+                       "Z_PRIMARYKEY table, the stored Z_ENT value, and the query text embedded in the row's "
+                       "stored placeRequest payloads.",
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-16",
         "requirements": "none",
         "category": "Location",
         "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
@@ -23,7 +24,19 @@ __artifacts_v2__ = {
                  "column; fallback schemas without the column report SQL NULL, and their rows have a "
                  "blank Entity. A blank Entity also results when the store has no Z_PRIMARYKEY table or "
                  "that table has no row for the stored Z_ENT. That output does not distinguish an absent "
-                 "column from a stored NULL.",
+                 "column from a stored NULL. The two Query columns come from base64 'placeRequest=' "
+                 "payloads embedded in the ZMAPITEMSTORAGE and ZROUTEREQUESTSTORAGE BLOBs: Query (Sent) "
+                 "is field 8.1.3 and Query (Raw) is field 10000 under 8.1.7, the same 8.1.7.10000 "
+                 "position the Get Apple Maps search history artifact extracts from GeoHistory.mapsdata. "
+                 "In a controlled test (iPhone 13, 7 hand-timed sessions) the raw field held partial "
+                 "text typed before an autocomplete tap and was absent when the search was committed "
+                 "with Enter; observations from that sample, not a rule. The payloads were present on "
+                 "the iOS 18.3.2 (30 of 50 rows) and 26.3 (4 of 9 rows) stores tested and absent from "
+                 "every row of the iOS 15.3.1, 16.5, 17.3 and 17.5.1 stores tested. ZQUERY was populated "
+                 "only on the search entity in the controlled sample; the Query columns carry the text "
+                 "for place and directions rows. MapsSync_0.0.1_deviceLocalCache.db has the same history "
+                 "schema but is not read here, and held no history rows on the three stores tested where "
+                 "it was present.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
