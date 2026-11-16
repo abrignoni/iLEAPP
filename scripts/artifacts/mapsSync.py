@@ -96,7 +96,8 @@ __artifacts_v2__ = {
                  "ZHIDDEN code meanings were not sourced. Query (Sent) and Query (Raw) are read from the "
                  "joined map item's ZMAPITEMSTORAGE the way the Maps Sync history reads them; across the 22 "
                  "stores in the Maps Sync sample_data, a wider set than the nine above, ZFAVORITEITEM held "
-                 "20 rows and both columns held text on 4 of them."
+                 "20 rows; Query (Sent) and Query (Raw) held text on 4 of them and had no value on the "
+                 "other 16, so both can have no value on any row of a store."
         ),
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
