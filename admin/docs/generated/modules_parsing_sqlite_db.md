@@ -284,6 +284,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | odnoklassniki |
 | photosGraphMoments |
 | serialNumber |
+| shortcutsDatabase |
 | smsAppPayloads |
 | smsEdits |
 | smsReactions |
