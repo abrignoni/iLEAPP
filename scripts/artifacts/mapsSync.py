@@ -18,11 +18,12 @@ __artifacts_v2__ = {
                  "the same store's Z_PRIMARYKEY table gives for the row's Z_ENT, as stored; what each "
                  "entity records is not interpreted here. Entity numbers differ between stores: across "
                  "the 22 tested stores the Z_PRIMARYKEY table gives Z_ENT 16 five different names, the "
-                 "numbers in the fixed list used before this change (12, 14 and 16) each name several "
+                 "numbers in the fixed list an earlier version of this module used (12, 14 and 16) each name "
+                 "several "
                  "different entities, and 201 of the 248 tested rows carry a Z_ENT value outside that "
-                 "list. Z_ENT (As Stored) is the direct SQLite value when the selected schema exposes the "
-                 "column; fallback schemas without the column report SQL NULL, and their rows have a "
-                 "blank Entity. A blank Entity also results when the store has no Z_PRIMARYKEY table or "
+                 "list. Z_ENT (As Stored) is the direct SQLite value when ZHISTORYITEM has the column. A "
+                 "store without the column reports SQL NULL and a blank Entity. All 22 stores tested have "
+                 "the column. A blank Entity also results when the store has no Z_PRIMARYKEY table or "
                  "that table has no row for the stored Z_ENT. That output does not distinguish an absent "
                  "column from a stored NULL. Query (Sent) and Query (Raw) come from base64 'placeRequest=' "
                  "payloads embedded in the ZROUTEREQUESTSTORAGE and ZMAPITEMSTORAGE BLOBs: Query (Sent) is "
@@ -35,10 +36,14 @@ __artifacts_v2__ = {
                  "of the 22 stores tested (iOS 14.3 to 26.5.2), Query (Sent) held text on 123 rows and "
                  "Query (Raw) on 88, all of them HistoryPlaceItem or HistoryDirectionsItem rows; Location "
                  "Search (ZQUERY) held text on 22 rows, all HistorySearchItem, none of them with a Query "
-                 "value. Each column is selected only when the store's schema has it, so the iOS 14 to 17 "
+                 "value. Sent and Raw are labels chosen here; Apple's names for these fields are not sourced. "
+                 "Timestamp and Modified Time are ZCREATETIME and ZMODIFICATIONTIME, Core Data seconds "
+                 "since 2001, shown in UTC. ZLOCATIONDISPLAY, ZLATITUDE1, ZLONGITUDE1, "
+                 "ZROUTEREQUESTSTORAGE, ZMAPITEMSTORAGE and Z_ENT are each selected only when the store's "
+                 "schema has the column, so the iOS 14 to 17 "
                  "stores tested, which have no ZLATITUDE1, still have their BLOBs decoded. "
-                 "MapsSync_0.0.1_deviceLocalCache.db has the same history schema but is not read here; it "
-                 "held no history rows on any of the 22 stores tested.",
+                 "MapsSync_0.0.1_deviceLocalCache.db is not read here. On the 22 stores tested its "
+                 "ZHISTORYITEM table has the same columns as the main store and held no rows.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -97,7 +102,8 @@ __artifacts_v2__ = {
                  "joined map item's ZMAPITEMSTORAGE the way the Maps Sync history reads them; across the 22 "
                  "stores in the Maps Sync sample_data, a wider set than the nine above, ZFAVORITEITEM held "
                  "20 rows; Query (Sent) and Query (Raw) held text on 4 of them and had no value on the "
-                 "other 16, so both can have no value on any row of a store."
+                 "other 16, so a store can have no value in either column on every row. Sent and Raw are "
+                 "labels chosen here; Apple's names for these fields are not sourced."
         ),
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
@@ -309,7 +315,7 @@ def _place_request_queries(*blobs):
 def _build_query(file_found):
     """Select the history columns this store's schema has, and NULL for the ones it lacks.
 
-    Each column is checked on its own, so a store missing one of them (the iOS 16 and 17 stores
+    Each column is checked on its own, so a store missing one of them (the iOS 14 to 17 stores
     tested have no ZLATITUDE1) still has its storage BLOBs read."""
     def has(table, column):
         return does_column_exist_in_db(file_found, table, column)

@@ -75,24 +75,24 @@ class TestMapsSyncPlaceQueries(unittest.TestCase):
         return headers
 
     def test_mapitem_blob_sent_and_raw(self):
-        headers = self.check_row(embed(place_request_payload('Red\'s Old 395 Grill', 'Reds')),
-                                 None, ('Red\'s Old 395 Grill', 'Reds'))
+        headers = self.check_row(embed(place_request_payload('Sample Diner', 'Samp')),
+                                 None, ('Sample Diner', 'Samp'))
         self.assertEqual(headers[7:9], ('Query (Sent)', 'Query (Raw)'))
 
     def test_journey_blob_carries_queries_when_mapitem_empty(self):
-        self.check_row(None, embed(place_request_payload('Akron, OH United States', 'Akron')),
-                       ('Akron, OH United States', 'Akron'))
+        self.check_row(None, embed(place_request_payload('Springfield, ZZ Testland', 'Spring')),
+                       ('Springfield, ZZ Testland', 'Spring'))
 
     def test_sent_only_when_raw_field_absent(self):
-        self.check_row(embed(place_request_payload('Georgia atl')), None, ('Georgia atl', ''))
+        self.check_row(embed(place_request_payload('example town')), None, ('example town', ''))
 
     def test_no_payload_yields_empty_columns(self):
         self.check_row(b'blob without any request', None, ('', ''))
 
     def test_first_payload_without_query_skipped_for_later_one(self):
         earlier = _length_delim(8, _length_delim(1, _length_delim(2, b'other')))
-        self.check_row(embed(earlier) + b'&x=2&' + embed(place_request_payload('bagel shops', 'bagel')),
-                       None, ('bagel shops', 'bagel'))
+        self.check_row(embed(earlier) + b'&x=2&' + embed(place_request_payload('test cafes', 'test')),
+                       None, ('test cafes', 'test'))
 
     def test_undecodable_payload_yields_empty_columns(self):
         self.check_row(b'placeRequest=A', None, ('', ''))
@@ -102,18 +102,18 @@ class TestMapsSyncPlaceQueries(unittest.TestCase):
                        None, ('\ufffd\ufffd bad', ''))
 
     def test_store_without_latitude1_still_reads_blobs(self):
-        self.check_row(embed(place_request_payload('Akron, OH United States', 'Akron')), None,
-                       ('Akron, OH United States', 'Akron'), with_lat1=False)
+        self.check_row(embed(place_request_payload('Springfield, ZZ Testland', 'Spring')), None,
+                       ('Springfield, ZZ Testland', 'Spring'), with_lat1=False)
 
     def test_text_that_parses_as_a_message_is_kept_as_text(self):
         # 'h1h2h3' is also a valid protobuf message (field 13, three varints).
-        self.check_row(embed(place_request_payload('Akron, OH', 'h1h2h3')), None, ('Akron, OH', 'h1h2h3'))
+        self.check_row(embed(place_request_payload('Springfield, ZZ', 'h1h2h3')), None, ('Springfield, ZZ', 'h1h2h3'))
 
     def test_distinct_queries_from_every_payload_are_joined(self):
-        self.check_row(embed(place_request_payload('bagel shops', 'bagel')),
-                       embed(place_request_payload('Akron, OH', 'Akr')) +
-                       embed(place_request_payload('bagel shops', 'bagel')),
-                       ('Akron, OH; bagel shops', 'Akr; bagel'))  # journey BLOB first
+        self.check_row(embed(place_request_payload('test cafes', 'test')),
+                       embed(place_request_payload('Springfield, ZZ', 'Spr')) +
+                       embed(place_request_payload('test cafes', 'test')),
+                       ('Springfield, ZZ; test cafes', 'Spr; test'))  # journey BLOB first
 
 
 if __name__ == '__main__':
