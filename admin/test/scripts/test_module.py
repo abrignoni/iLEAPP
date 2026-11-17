@@ -203,6 +203,11 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
 
     # Create a unique temporary directory within the base temp directory
     temp_dir = base_temp_dir / f'extract_{module_name}_{artifact_name}_{int(time.time())}'
+    # On Windows a run puts \\?\ in front of its output folder, so every path an
+    # artifact is handed carries it. Stage under the same form, so a test sees the
+    # paths a run gives.
+    if os.name == 'nt':
+        temp_dir = Path('\\\\?\\' + str(temp_dir))
 
     # Define mock_report_folder path within the temp_dir and create it
     mock_report_folder_path = temp_dir / 'mock_reports'
@@ -588,10 +593,19 @@ def process_data(headers, data):
 
 
 def staged_temp_prefixes():
-    """(absolute, relative) spellings of admin/test/temp in the working directory."""
+    r"""(absolute, relative) spellings of admin/test/temp in the working directory.
+
+    On Windows the harness stages under the \\?\ form, as a run does, and an
+    artifact can hand that back as \\?\ or //?/. The longest spellings come first,
+    because the bare ones are part of the prefixed ones.
+    """
     root = Path('admin/test/temp').resolve().parents[2]
-    return [(f'{spelling}{sep}admin{sep}test{sep}temp{sep}', f'admin{sep}test{sep}temp{sep}')
-            for spelling in sorted({str(root), root.as_posix()}) for sep in ('/', '\\')]
+    bare = {str(root), root.as_posix()}
+    spellings = (bare | {'\\\\?\\' + s.replace('/', '\\') for s in bare}
+                 | {'//?/' + s.replace('\\', '/') for s in bare})
+    pairs = [(f'{spelling}{sep}admin{sep}test{sep}temp{sep}', f'admin{sep}test{sep}temp{sep}')
+             for spelling in spellings for sep in ('/', '\\')]
+    return sorted(pairs, key=lambda pair: (-len(pair[0]), pair[0]))
 
 
 def relative_temp_path(value, prefixes):
