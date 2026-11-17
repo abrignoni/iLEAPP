@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "module_name": "mapsSync",
+    "artifact_name": "Maps Collection Items",
+    "function_name": "mapsCollectionItems",
+    "case_number": "otto_ios17",
+    "number_of_columns": 9,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\mapsSync\\testdata.mapsSync.mapsCollectionItems.otto_ios17.zip",
+    "start_time": "2026-11-16T20:01:21.986015+00:00",
+    "end_time": "2026-11-16T20:01:22.041334+00:00",
+    "run_time_seconds": 0.01727581024169922,
+    "last_commit": {
+      "hash": "2a9405a3ae1c4c7d54b02f6e7e9a67895e60e5f8",
+      "author_name": "nwish",
+      "author_email": "max.davis702@gmail.com",
+      "date": "2026-11-16T09:49:07-08:00",
+      "message": "Extract placeRequest query text from base64 'placeRequest=' payloads stored in ZMAPITEMSTORAGE and ZROUTEREQUESTSTORAGE BLOBs"
+    }
+  },
+  "headers": [
+    "Created",
+    "Modified",
+    "Item Number",
+    "Name",
+    "Category",
+    "Note",
+    "Latitude",
+    "Longitude",
+    "Address"
+  ],
+  "data": []
+}

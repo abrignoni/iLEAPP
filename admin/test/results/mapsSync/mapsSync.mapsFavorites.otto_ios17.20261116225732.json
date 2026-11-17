@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "module_name": "mapsSync",
+    "artifact_name": "Maps Favorites",
+    "function_name": "mapsFavorites",
+    "case_number": "otto_ios17",
+    "number_of_columns": 12,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 117,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/mapsSync/testdata.mapsSync.mapsFavorites.otto_ios17.zip",
+    "start_time": "2026-11-16T22:57:32.648299+00:00",
+    "end_time": "2026-11-16T22:57:32.696593+00:00",
+    "run_time_seconds": 0.0215909481048584,
+    "last_commit": {
+      "hash": "13389867f33d5fc61c2ff41c68cad4f15acaae10",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-11-16T17:57:24-05:00",
+      "message": "Read MapsSync BLOBs on every schema and type the query fields"
+    }
+  },
+  "headers": [
+    "Created",
+    "Modified",
+    "Item Number",
+    "Name",
+    "Favorite Type (As Stored)",
+    "Source (As Stored)",
+    "Hidden (As Stored)",
+    "Latitude",
+    "Longitude",
+    "Address",
+    "Query (Sent)",
+    "Query (Raw)"
+  ],
+  "data": [
+    [
+      "2024-03-23 02:07:44",
+      "2024-03-23 02:07:44",
+      2,
+      null,
+      2,
+      1,
+      0,
+      47.6489619,
+      -122.1249197,
+      "16133 NE 44th Ct Redmond, WA  98052 United States",
+      "",
+      ""
+    ]
+  ]
+}
