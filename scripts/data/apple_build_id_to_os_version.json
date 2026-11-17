@@ -1254,7 +1254,8 @@
     "24B91016": "iOS 27.2 RC",
     "24B91020": "iOS 27.2",
     "24B91034": "iOS 27.2.1",
-    "24C5037i": "iOS 27.3 beta"
+    "24C5037i": "iOS 27.3 beta",
+    "24C5049d": "iOS 27.3 beta 2"
   },
   "iPadOS": {
     "17A844": "iPadOS 13.1",
@@ -1773,7 +1774,8 @@
     "24B5110a": "iPadOS 27.2 beta 4",
     "24B8120": "iPadOS 27.2",
     "24B8156": "iPadOS 27.2.1",
-    "24C5037i": "iPadOS 27.3 beta"
+    "24C5037i": "iPadOS 27.3 beta",
+    "24C5049d": "iPadOS 27.3 beta 2"
   },
   "macOS": {
     "1H39": "Mac OS X 10.0 beta",
@@ -4173,6 +4175,7 @@
     "24H232": "macOS 15.8.2",
     "24H241": "macOS 15.8.3",
     "24H314": "macOS 15.8.3 RC",
+    "24H319": "macOS 15.8.4 RC",
     "25A247b": "macOS 26.0",
     "25A321": "macOS 26.0",
     "25A353": "macOS 26.0 RC",
@@ -4263,6 +4266,7 @@
     "25G332": "macOS 26.7.2",
     "25G342": "macOS 26.7.3",
     "25G416": "macOS 26.7.3 RC",
+    "25G422": "macOS 26.7.4 RC",
     "25G5028f": "macOS 26.6 beta",
     "25G5043d": "macOS 26.6 beta 2",
     "25G5052e": "macOS 26.6 beta 3",
@@ -4316,7 +4320,8 @@
     "26B8123": "macOS 27.2",
     "26B8125": "macOS 27.2",
     "26B8132": "macOS 27.2.1",
-    "26C5035r": "macOS 27.3 beta"
+    "26C5035r": "macOS 27.3 beta",
+    "26C5047e": "macOS 27.3 beta 2"
   },
   "tvOS": {
     "8C150": "Apple TV Software 4.1",
@@ -4955,7 +4960,8 @@
     "24K5088l": "tvOS 27.2 beta",
     "24K5093g": "tvOS 27.2 beta 2",
     "24K5103f": "tvOS 27.2 beta 3",
-    "24K5286g": "tvOS 27.3 beta"
+    "24K5286g": "tvOS 27.3 beta",
+    "24K5298d": "tvOS 27.3 beta 2"
   },
   "visionOS": {
     "21N307": "visionOS 1.0",
@@ -5103,7 +5109,8 @@
     "24N5093f": "visionOS 27.2 beta 2",
     "24N5103f": "visionOS 27.2 beta 3",
     "24N5114a": "visionOS 27.2 beta 4",
-    "24N5286r": "visionOS 27.3 beta"
+    "24N5286r": "visionOS 27.3 beta",
+    "24N5298d": "visionOS 27.3 beta 2"
   },
   "watchOS": {
     "12S489": "watchOS 1.0",
@@ -5667,7 +5674,8 @@
     "24S5091f": "watchOS 27.2 beta 2",
     "24S5101f": "watchOS 27.2 beta 3",
     "24S5112a": "watchOS 27.2 beta 4",
-    "24S5284h": "watchOS 27.3 beta"
+    "24S5284h": "watchOS 27.3 beta",
+    "24S5296d": "watchOS 27.3 beta 2"
   },
   "Windows": {
     "6002": "Windows Vista",
