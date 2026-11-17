@@ -190,8 +190,10 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
 
     all_files = []
 
-    # Create the base temp directory if it doesn't exist
-    base_temp_dir = Path('admin/test/temp')
+    # Create the base temp directory if it doesn't exist. It is absolute because on
+    # Windows get_sqlite_db_path puts \\?\ in front of a database path, and SQLite
+    # cannot open a relative path with that prefix.
+    base_temp_dir = Path('admin/test/temp').resolve()
     base_temp_dir.mkdir(parents=True, exist_ok=True)
 
     # Create a unique temporary directory within the base temp directory
@@ -562,6 +564,7 @@ def process_data(headers, data):
 
     processed_headers = [header[0] if isinstance(header, tuple) else header for header in headers]
     processed_data = []
+    temp_prefixes = staged_temp_prefixes()
 
     for row in data:
         processed_row = []
@@ -570,11 +573,33 @@ def process_data(headers, data):
                 processed_row.append(convert_to_unix_time(value))
             elif isinstance(value, (datetime, date)):
                 processed_row.append(convert_to_unix_time(value))
+            elif isinstance(value, str):
+                processed_row.append(relative_temp_path(value, temp_prefixes))
             else:
                 processed_row.append(value)
         processed_data.append(processed_row)
 
     return processed_headers, processed_data
+
+
+def staged_temp_prefixes():
+    """(absolute, relative) spellings of admin/test/temp in the working directory."""
+    root = Path('admin/test/temp').resolve().parents[2]
+    return [(f'{spelling}{sep}admin{sep}test{sep}temp{sep}', f'admin{sep}test{sep}temp{sep}')
+            for spelling in sorted({str(root), root.as_posix()}) for sep in ('/', '\\')]
+
+
+def relative_temp_path(value, prefixes):
+    """A string with the working directory taken off any staged path in it.
+
+    process_artifact stages into an absolute admin/test/temp, so a path an artifact
+    reports without get_relative_path carries this machine's folders. Snapshots
+    record it from admin/test/temp on, as they did when the folder was relative,
+    so they hold no local path and compare alike on every machine.
+    """
+    for absolute, relative in prefixes:
+        value = value.replace(absolute, relative)
+    return value
 
 
 def main(module_name, artifact_name=None, case_number=None, allow_empty=False):
@@ -752,6 +777,15 @@ def get_last_commit_info(file_path):
         }
     except subprocess.CalledProcessError:
         return None
+    except OSError:
+        # git is not installed or not on PATH; the run itself does not need it.
+        return {
+            'hash': 'unknown',
+            'author_name': 'unknown',
+            'author_email': 'unknown',
+            'date': 'unknown',
+            'message': 'git not available'
+        }
 
 
 if __name__ == '__main__':

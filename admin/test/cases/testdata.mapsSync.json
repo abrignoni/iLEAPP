@@ -1,0 +1,162 @@
+{
+  "case_ip13_ios263": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "Windows-11-10.0.26300-SP0",
+      "timestamp": "2026-11-16T10:07:41.799762",
+      "last_commit": {
+        "hash": "2a9405a3ae1c4c7d54b02f6e7e9a67895e60e5f8",
+        "author_name": "nwish",
+        "author_email": "max.davis702@gmail.com",
+        "date": "2026-11-16T09:49:07-08:00",
+        "message": "Extract placeRequest query text from base64 'placeRequest=' payloads stored in ZMAPITEMSTORAGE and ZROUTEREQUESTSTORAGE BLOBs"
+      }
+    },
+    "artifacts": {
+      "mapsSync": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "mapsFavorites": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "mapsCollectionItems": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  },
+  "otto_ios17": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "Windows-11-10.0.26300-SP0",
+      "timestamp": "2026-11-16T11:41:44.271736",
+      "last_commit": {
+        "hash": "2a9405a3ae1c4c7d54b02f6e7e9a67895e60e5f8",
+        "author_name": "nwish",
+        "author_email": "max.davis702@gmail.com",
+        "date": "2026-11-16T09:49:07-08:00",
+        "message": "Extract placeRequest query text from base64 'placeRequest=' payloads stored in ZMAPITEMSTORAGE and ZROUTEREQUESTSTORAGE BLOBs"
+      }
+    },
+    "artifacts": {
+      "mapsSync": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "mapsFavorites": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "mapsCollectionItems": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "otto_ios17",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "17.5.1",
+      "device_model": "iPhone 11 Pro",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  },
+  "dexter_ios18": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "EXTRACTION_FFS.zip",
+      "os": "Windows-11-10.0.26300-SP0",
+      "timestamp": "2026-11-16T11:45:17.368397",
+      "last_commit": {
+        "hash": "2a9405a3ae1c4c7d54b02f6e7e9a67895e60e5f8",
+        "author_name": "nwish",
+        "author_email": "max.davis702@gmail.com",
+        "date": "2026-11-16T09:49:07-08:00",
+        "message": "Extract placeRequest query text from base64 'placeRequest=' payloads stored in ZMAPITEMSTORAGE and ZROUTEREQUESTSTORAGE BLOBs"
+      }
+    },
+    "artifacts": {
+      "mapsSync": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "mapsFavorites": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "mapsCollectionItems": {
+        "search_patterns": [
+          "*/MapsSync_0.0.1*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "dexter_ios18",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "18.3.2",
+      "device_model": "iPhone 16",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  }
+}

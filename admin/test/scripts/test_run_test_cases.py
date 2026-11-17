@@ -58,6 +58,27 @@ class NormalizeRowsTests(unittest.TestCase):
     def test_tuple_and_list_rows_normalize_alike(self):
         self.assertEqual(rtc.normalize_rows([(1, "a")]), rtc.normalize_rows([[1, "a"]]))
 
+    def test_windows_separators_compare_as_forward_slashes(self):
+        windows = [["data\\data\\pkg\\db", 'say \\"hi\\"']]
+        recorded = [["data/data/pkg/db", 'say /"hi/"']]
+        self.assertEqual(rtc.normalize_rows(windows, backslash_paths=True),
+                         rtc.normalize_rows(recorded, backslash_paths=True))
+
+    def test_separators_are_kept_off_windows(self):
+        self.assertNotEqual(rtc.normalize_rows([["data\\data"]], backslash_paths=False),
+                            rtc.normalize_rows([["data/data"]], backslash_paths=False))
+
+    def test_other_escapes_survive_separator_normalization(self):
+        rows = [['a "quote"\nline\ttab']]
+        self.assertEqual(rtc.normalize_rows(rows, backslash_paths=True),
+                         rtc.normalize_rows(rows, backslash_paths=False))
+
+    def test_windows_temp_extract_path_is_tokenized(self):
+        windows = [["admin\\test\\temp\\extract_case_1_123\\x.db"]]
+        recorded = [["admin/test/temp/extract_case_1_999/x.db"]]
+        self.assertEqual(rtc.normalize_rows(windows, backslash_paths=True),
+                         rtc.normalize_rows(recorded, backslash_paths=False))
+
 
 class CompareTests(unittest.TestCase):
     BASE = {"headers": ["A", "B"], "data": [[1, "x"], [2, "y"]]}
@@ -110,6 +131,45 @@ class BaselineJsonRoundTripTests(unittest.TestCase):
         fresh = [[ts, b"bytes-value"]]
         recorded = json.loads(json.dumps({"data": fresh}, default=str))["data"]
         self.assertEqual(rtc.normalize_rows(fresh), rtc.normalize_rows(recorded))
+
+
+class CommitInfoTests(unittest.TestCase):
+    def test_missing_git_records_unknown(self):
+        from unittest import mock  # pylint: disable=import-outside-toplevel
+        import test_module  # pylint: disable=import-outside-toplevel,redefined-outer-name,reimported
+        with mock.patch.object(test_module.subprocess, "check_output",
+                               side_effect=FileNotFoundError("git")):
+            info = test_module.get_last_commit_info("scripts/artifacts/x.py")
+        self.assertEqual(info["hash"], "unknown")
+
+
+class KnownFailurePlatformTests(unittest.TestCase):
+    def test_plain_reason_applies_everywhere(self):
+        for platform in ("win32", "darwin", "linux"):
+            self.assertEqual(rtc.applicable_known_failures({"m.a.c": "why"}, platform),
+                             {"m.a.c": "why"})
+
+    def test_platform_entry_applies_only_there(self):
+        entries = {"m.a.c": {"reason": "why", "platforms": ["win32"]}}
+        self.assertEqual(rtc.applicable_known_failures(entries, "win32"), {"m.a.c": "why"})
+        self.assertEqual(rtc.applicable_known_failures(entries, "linux"), {})
+        self.assertEqual(rtc.applicable_known_failures(entries, "darwin"), {})
+
+    def test_malformed_entries_are_refused(self):
+        for value in ({"reason": "why"}, {"platforms": ["win32"]},
+                      {"reason": "why", "platforms": []}, {"reason": "why", "platforms": "win32"},
+                      ["why"], None):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                rtc.applicable_known_failures({"m.a.c": value}, "win32")
+
+    def test_committed_file_is_valid_here(self):
+        path = rtc.KNOWN_FAILURES_PATH
+        if not path.exists():
+            self.skipTest("no known_failures.json in this core")
+        with open(path, encoding="utf-8") as f:
+            entries = json.load(f)
+        for platform in ("win32", "darwin", "linux"):
+            rtc.applicable_known_failures(entries, platform)
 
 
 if __name__ == "__main__":

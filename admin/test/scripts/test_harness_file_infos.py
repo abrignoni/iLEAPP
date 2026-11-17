@@ -54,7 +54,7 @@ class HarnessFileInfosTests(unittest.TestCase):
 
     def setUp(self):
         self._cwd = os.getcwd()
-        os.chdir(REPO_ROOT)  # process_artifact stages under the relative admin/test/temp
+        os.chdir(REPO_ROOT)  # process_artifact stages under admin/test/temp here
         module = types.ModuleType(PROBE_MODULE)
         module.__file__ = tm.__file__
         module.__artifacts_v2__ = {}

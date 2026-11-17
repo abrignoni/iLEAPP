@@ -193,7 +193,7 @@ def main():
     test_cases = get_test_cases(module_name)
     selected_case_name, selected_case = select_test_case(test_cases)
 
-    temp_folder = Path('admin/test/temp')
+    temp_folder = Path('admin/test/temp').resolve()
     if temp_folder.exists():
         # Delete contents of temp folder instead of the folder itself
         for item in temp_folder.iterdir():

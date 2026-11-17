@@ -20,7 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# File handle lifecycle updates: @AlexisBrignoni, Codex. Damaged table block handling: @AlexisBrignoni, Claude.
 import typing
 import struct
 import re
@@ -35,8 +34,9 @@ from collections import namedtuple
 from types import MappingProxyType
 
 from . import ccl_simplesnappy
+from .ccl_simplesnappy import check_masked_crc
 
-__version__ = "0.5"
+__version__ = "0.6"
 __description__ = "A module for reading LevelDB databases"
 __contact__ = "Alex Caithness"
 
@@ -204,6 +204,20 @@ class Block:
                 yield RawBlockEntry(key, value, start_offset)
 
 
+@dataclasses.dataclass(frozen=True)
+class LogDamage:
+    """A stretch of a ldb, log or manifest file that could not be read and was skipped"""
+    file_no: int
+    offset: int  # file offset where the skipped data starts
+    length: int  # bytes skipped
+    reason: str
+
+
+def _record_damage(damage: set[LogDamage], path: pathlib.Path, file_no: int, offset: int, length: int, reason: str):
+    log.warning("Damaged data at offset %d in %s (%d bytes skipped): %s", offset, path, length, reason)
+    damage.add(LogDamage(file_no, offset, length, reason))
+
+
 class LdbFile:
     """A leveldb table (.ldb or .sst) file."""
     BLOCK_TRAILER_SIZE = 5
@@ -216,34 +230,40 @@ class LdbFile:
 
         self.path = file
         self.file_no = int(file.stem, 16)
-        self.damage: typing.List[LogDamage] = []
+        self._damage: typing.Set[LogDamage] = set()
+        self._active_handles: typing.Set[typing.BinaryIO] = set()
+        self._closed = False
 
-        self._f = file.open("rb")
-        try:
-            self._f.seek(-LdbFile.FOOTER_SIZE, os.SEEK_END)
+        with file.open("rb") as f:
+            f.seek(-LdbFile.FOOTER_SIZE, os.SEEK_END)
 
-            self._meta_index_handle = BlockHandle.from_stream(self._f)
-            self._index_handle = BlockHandle.from_stream(self._f)
-            self._f.seek(-8, os.SEEK_END)
-            magic, = struct.unpack("<Q", self._f.read(8))
+            self._meta_index_handle = BlockHandle.from_stream(f)
+            self._index_handle = BlockHandle.from_stream(f)
+            f.seek(-8, os.SEEK_END)
+            magic, = struct.unpack("<Q", f.read(8))
             if magic != LdbFile.MAGIC:
                 raise ValueError(f"Invalid magic number in {file}")
 
-            self._index = self._read_index()
-        except BaseException:
-            self._f.close()
-            raise
+            self._index = self._read_index(f)
 
-    def _read_block(self, handle: BlockHandle) -> Block:
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
+    @property
+    def damage(self) -> typing.List[LogDamage]:
+        return sorted(self._damage, key=lambda x: x.offset)
+
+    def _read_block(self, handle: BlockHandle, stream: typing.BinaryIO) -> Block:
         # block is the size in the blockhandle plus the trailer
         # the trailer is 5 bytes long.
         # idx  size  meaning
         # 0    1     CompressionType (0 = none, 1 = snappy)
         # 1    4     CRC32
 
-        self._f.seek(handle.offset)
-        raw_block = self._f.read(handle.length)
-        trailer = self._f.read(LdbFile.BLOCK_TRAILER_SIZE)
+        stream.seek(handle.offset)
+        raw_block = stream.read(handle.length)
+        trailer = stream.read(LdbFile.BLOCK_TRAILER_SIZE)
 
         if len(raw_block) != handle.length or len(trailer) != LdbFile.BLOCK_TRAILER_SIZE:
             raise ValueError(f"Could not read all of the block at offset {handle.offset} in file {self.path}")
@@ -255,17 +275,18 @@ class LdbFile:
 
         return Block(raw_block, is_compressed, self, handle.offset)
 
-    def _block_checksum_matches(self, handle: BlockHandle) -> bool:
+    @staticmethod
+    def _block_checksum_matches(handle: BlockHandle, stream: typing.BinaryIO) -> bool:
         """Whether the masked crc32c in the block's trailer matches its contents and compression type byte."""
-        self._f.seek(handle.offset)
-        data = self._f.read(handle.length + 1)
-        stored = self._f.read(4)
+        stream.seek(handle.offset)
+        data = stream.read(handle.length + 1)
+        stored = stream.read(4)
         if len(data) != handle.length + 1 or len(stored) != 4:
             return False
-        return ccl_simplesnappy.check_masked_crc(struct.unpack("<I", stored)[0], data)
+        return check_masked_crc(struct.unpack("<I", stored)[0], data)
 
-    def _read_index(self) -> typing.Tuple[typing.Tuple[bytes, BlockHandle], ...]:
-        index_block = self._read_block(self._index_handle)
+    def _read_index(self, stream: typing.BinaryIO) -> typing.Tuple[typing.Tuple[bytes, BlockHandle], ...]:
+        index_block = self._read_block(self._index_handle, stream)
         # key is earliest key, value is BlockHandle to that data block
         return tuple((entry.key, BlockHandle.from_bytes(entry.value))
                      for entry in index_block)
@@ -273,28 +294,38 @@ class LdbFile:
     def __iter__(self) -> typing.Iterable[Record]:
         """Iterate Records in this Table file. Afterwards, `damage` lists any data block that had to be skipped.
 
-        A data block that cannot be read whole, or whose snappy stream ccl_simplesnappy cannot decompress (it raises
-        ValueError, TypeError or struct.error), is skipped and reading goes on with the next block the index names, so damage costs the records of that block rather than the rest of the
-        table and every file read after it. The index block is still required: without it no block can be
-        found, and the table is refused when it is opened.
+        A data block that cannot be read whole, or whose snappy stream cannot be decompressed (ValueError,
+        TypeError or struct.error), is skipped and reading goes on with the next block the index names, so the
+        damage costs the records of that block rather than the rest of the table and every file read after it.
+        The index block is still required: without it no block can be found.
         """
-        self.damage.clear()
-        for block_key, handle in self._index:
-            try:
-                block = self._read_block(handle)
-            except (ValueError, TypeError, struct.error) as ex:
-                checksum = "" if self._block_checksum_matches(handle) else "; block checksum does not match"
-                _record_damage(self.damage, self.path, handle.offset, handle.length + LdbFile.BLOCK_TRAILER_SIZE,
-                               f"data block not readable ({ex}){checksum}")
-                continue
-            for entry in block:
-                yield Record.ldb_record(
-                    entry.key, entry.value, self.path,
-                    block.offset if block.was_compressed else block.offset + entry.block_offset,
-                    block.was_compressed)
+        if self._closed:
+            raise IOError("Tried to read from a closed file")
+
+        with self.path.open("rb") as f:
+            self._active_handles.add(f)
+            for block_key, handle in self._index:
+                try:
+                    block = self._read_block(handle, f)
+                except (ValueError, TypeError, struct.error) as ex:
+                    checksum = "" if self._block_checksum_matches(handle, f) else "; block checksum does not match"
+                    _record_damage(self._damage, self.path, self.file_no, handle.offset,
+                                   handle.length + LdbFile.BLOCK_TRAILER_SIZE,
+                                   f"data block not readable ({ex}){checksum}")
+                    continue
+                for entry in block:
+                    yield Record.ldb_record(
+                        entry.key, entry.value, self.path,
+                        block.offset if block.was_compressed else block.offset + entry.block_offset,
+                        block.was_compressed)
+
+        self._active_handles.discard(f)
 
     def close(self):
-        self._f.close()
+        for h in self._active_handles:
+            h.close()
+
+        self._closed = True
 
 
 class LogEntryType(enum.IntEnum):
@@ -305,21 +336,8 @@ class LogEntryType(enum.IntEnum):
     Last = 4
 
 
-@dataclasses.dataclass(frozen=True)
-class LogDamage:
-    """A stretch of a log or manifest file that could not be read and was skipped"""
-    offset: int  # file offset where the skipped data starts
-    length: int  # bytes skipped
-    reason: str
-
-
-def _record_damage(damage: typing.List[LogDamage], path: pathlib.Path, offset: int, length: int, reason: str):
-    log.warning("Damaged data at offset %d in %s (%d bytes skipped): %s", offset, path, length, reason)
-    damage.append(LogDamage(offset, length, reason))
-
-
-def _read_log_batches(raw_blocks: typing.Iterable[bytes], path: pathlib.Path,
-                      damage: typing.List[LogDamage]) -> typing.Iterable[typing.Tuple[int, bytes]]:
+def _read_log_batches(raw_blocks: typing.Iterable[bytes], path: pathlib.Path, file_no: int,
+                      damage: set[LogDamage]) -> typing.Iterable[typing.Tuple[int, bytes]]:
     """
     Reassemble the batches in a file in the log format (a .log file or a manifest) from its blocks,
     yielding the file offset of each batch's data and the data.
@@ -331,8 +349,8 @@ def _read_log_batches(raw_blocks: typing.Iterable[bytes], path: pathlib.Path,
     quietly, and is only counted as damage when it interrupts a record or has data after it.
     See: https://github.com/google/leveldb/blob/main/doc/log_format.md
     """
-    def skip(offset, length, reason):
-        _record_damage(damage, path, offset, length, reason)
+    def skip(offset, skip_length, reason):
+        _record_damage(damage, path, file_no, offset, skip_length, reason)
 
     in_record = False
     record_start = 0  # file offset of the header of the current record's first fragment
@@ -413,22 +431,33 @@ class LogFile:
         self.path = file
         self.file_no = int(file.stem, 16)
 
-        # What the last iteration of this file had to skip; empty if it read cleanly.
-        self.damage: typing.List[LogDamage] = []
+        # Culmination of what this file had to skip; empty if it read cleanly.
+        self._damage: typing.Set[LogDamage] = set()
+        self._active_handles: typing.Set[typing.BinaryIO] = set()
+        self._closed = False
 
-        self._f = file.open("rb")
+    @property
+    def damage(self) -> typing.List[LogDamage]:
+        return sorted(self._damage, key=lambda x: x.offset)
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
 
     def _get_raw_blocks(self) -> typing.Iterable[bytes]:
-        self._f.seek(0)
+        with self.path.open("rb") as f:
+            self._active_handles.add(f)
+            f.seek(0)
 
-        while chunk := self._f.read(LogFile.LOG_BLOCK_SIZE):
-            yield chunk
+            while chunk := f.read(LogFile.LOG_BLOCK_SIZE):
+                yield chunk
+
+        self._active_handles.discard(f)
 
     def _get_batches(self) -> typing.Iterable[typing.Tuple[int, bytes]]:
-        yield from _read_log_batches(self._get_raw_blocks(), self.path, self.damage)
+        yield from _read_log_batches(self._get_raw_blocks(), self.path, self.file_no, self._damage)
 
-    @staticmethod
-    def _read_batch_entry(buff: typing.BinaryIO) -> typing.Optional[typing.Tuple[KeyState, bytes, bytes]]:
+    def _read_batch_entry(self, buff: typing.BinaryIO) -> typing.Optional[typing.Tuple[KeyState, bytes, bytes]]:
         """Read one entry of a write batch, or return None if the batch ends before it does."""
         raw_state = buff.read(1)
         # leveldb writes only these two tags; anything else means the batch is damaged.
@@ -456,12 +485,14 @@ class LogFile:
 
     def __iter__(self) -> typing.Iterable[Record]:
         """Iterate Records in this Log file. Afterwards, `damage` lists anything that had to be skipped."""
-        self.damage.clear()
+        if self._closed:
+            raise IOError("Cannot read a closed file")
+
         for batch_offset, batch in self._get_batches():
             # as per write_batch and write_batch_internal
             # offset       length      description
             # 0            8           (u?)int64 Sequence number
-            # 8            4           (u?)int32 Count - the log batch can contain multple entries
+            # 8            4           (u?)int32 Count - the log batch can contain multiple entries
             #
             #         Then Count * the following:
             #
@@ -474,7 +505,7 @@ class LogFile:
             with io.BytesIO(batch) as buff:  # it's just easier this way
                 header = buff.read(12)
                 if len(header) < 12:
-                    _record_damage(self.damage, self.path, batch_offset, len(batch),
+                    _record_damage(self._damage, self.path, self.file_no, batch_offset, len(batch),
                                    "write batch shorter than its 12-byte header")
                     continue
                 seq, count = struct.unpack("<QI", header)
@@ -484,7 +515,8 @@ class LogFile:
                     entry = self._read_batch_entry(buff)
                     if entry is None:
                         # As in leveldb, the entries before this one stand.
-                        _record_damage(self.damage, self.path, start_offset, len(batch) - (start_offset - batch_offset),
+                        _record_damage(self._damage, self.path, self.file_no, start_offset,
+                                       len(batch) - (start_offset - batch_offset),
                                        f"write batch cut short at entry {i + 1} of {count}")
                         break
                     state, key, value = entry
@@ -492,7 +524,10 @@ class LogFile:
                     yield Record.log_record(key, value, seq + i, state, self.path, start_offset)
 
     def close(self):
-        self._f.close()
+        for h in self._active_handles:
+            h.close()
+
+        self._closed = True
 
 
 class VersionEditTag(enum.IntEnum):
@@ -571,7 +606,8 @@ class VersionEdit:
                     largest = read_length_prefixed_blob(b)
                     new_files.append(new_file_nt(level, file_no, file_size, smallest, largest))
 
-        return cls(comparator, log_number, prev_log_number, last_sequence, next_file_number, tuple(compaction_pointers),
+        return cls(
+            comparator, log_number, prev_log_number, last_sequence, next_file_number, tuple(compaction_pointers),
             tuple(deleted_files), tuple(new_files))
 
 
@@ -596,40 +632,54 @@ class ManifestFile:
         else:
             raise ValueError("Invalid name for Manifest")
 
-        self._f = path.open("rb")
         self.path = path
 
-        # What the last iteration of this file had to skip; empty if it read cleanly.
-        self.damage: typing.List[LogDamage] = []
+        # What culmination of what this file had to skip; empty if it read cleanly.
+        self._damage: typing.Set[LogDamage] = set()
+        self._active_handles: typing.Set[typing.BinaryIO] = set()
+        self._closed = False
 
-        try:
-            self.file_to_level = {}
-            for edit in self:
-                if edit.new_files:
-                    for nf in edit.new_files:
-                        self.file_to_level[nf.file_no] = nf.level
+        self.file_to_level = {}
+        for edit in self:
+            if edit.new_files:
+                for nf in edit.new_files:
+                    self.file_to_level[nf.file_no] = nf.level
 
-            self.file_to_level = MappingProxyType(self.file_to_level)
-        except BaseException:
-            self._f.close()
-            raise
+        self.file_to_level = MappingProxyType(self.file_to_level)
+
+    @property
+    def damage(self) -> typing.List[LogDamage]:
+        return sorted(self._damage, key=lambda x: x.offset)
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
 
     def _get_raw_blocks(self) -> typing.Iterable[bytes]:
-        self._f.seek(0)
+        if self._closed:
+            raise IOError("Cannot read from a closed file")
 
-        while chunk := self._f.read(LogFile.LOG_BLOCK_SIZE):
-            yield chunk
+        with self.path.open("rb") as f:
+            self._active_handles.add(f)
+            f.seek(0)
+
+            while chunk := f.read(LogFile.LOG_BLOCK_SIZE):
+                yield chunk
+
+        self._active_handles.discard(f)
 
     def _get_batches(self) -> typing.Iterable[typing.Tuple[int, bytes]]:
-        yield from _read_log_batches(self._get_raw_blocks(), self.path, self.damage)
+        yield from _read_log_batches(self._get_raw_blocks(), self.path, self.file_no, self._damage)
 
     def __iter__(self):
-        self.damage.clear()
         for batch_offset, batch in self._get_batches():
             yield VersionEdit.from_buffer(batch)
 
     def close(self):
-        self._f.close()
+        for h in self._active_handles:
+            h.close()
+
+        self._closed = True
 
 
 class RawLevelDb:
@@ -642,27 +692,19 @@ class RawLevelDb:
             raise ValueError("in_dir is not a directory")
 
         self._files = []
-        self._active_files = set()
-        self._closed = False
-        self.manifest = None
-        try:
-            latest_manifest = (0, None)
-            for file in self._in_dir.iterdir():
-                if (file.is_file() and re.match(RawLevelDb.DATA_FILE_PATTERN, file.name)
-                        and file.suffix.lower() in (".log", ".ldb", ".sst")):
-                    reader = LogFile(file) if file.suffix.lower() == ".log" else LdbFile(file)
-                    # Preserve constructor validation without holding every table open.
-                    reader.close()
-                    self._files.append(reader)
-                if file.is_file() and re.match(ManifestFile.MANIFEST_FILENAME_PATTERN, file.name):
-                    manifest_no = int(re.match(ManifestFile.MANIFEST_FILENAME_PATTERN, file.name).group(1), 16)
-                    if latest_manifest[0] < manifest_no:
-                        latest_manifest = (manifest_no, file)
+        latest_manifest = (0, None)
+        for file in self._in_dir.iterdir():
+            if file.is_file() and re.match(RawLevelDb.DATA_FILE_PATTERN, file.name):
+                if file.suffix.lower() == ".log":
+                    self._files.append(LogFile(file))
+                elif file.suffix.lower() == ".ldb" or file.suffix.lower() == ".sst":
+                    self._files.append(LdbFile(file))
+            if file.is_file() and re.match(ManifestFile.MANIFEST_FILENAME_PATTERN, file.name):
+                manifest_no = int(re.match(ManifestFile.MANIFEST_FILENAME_PATTERN, file.name).group(1), 16)
+                if latest_manifest[0] < manifest_no:
+                    latest_manifest = (manifest_no, file)
 
-            self.manifest = ManifestFile(latest_manifest[1]) if latest_manifest[1] is not None else None
-        except BaseException:
-            self.close()
-            raise
+        self.manifest = ManifestFile(latest_manifest[1]) if latest_manifest[1] is not None else None
 
     def __enter__(self):
         return self
@@ -671,33 +713,19 @@ class RawLevelDb:
         self.close()
 
     @property
+    def damage(self):
+        return list(itertools.chain(*(x.damage for x in sorted(self._files, key=lambda y: y.file_no))))
+
+    @property
     def in_dir_path(self) -> pathlib.Path:
         return self._in_dir
 
     def iterate_records_raw(self, *, reverse=False) -> typing.Iterable[Record]:
-        if self._closed:
-            raise ValueError("I/O operation on closed LevelDB")
-        for file in sorted(self._files, reverse=reverse, key=lambda x: x.file_no):
-            if self._closed:
-                raise ValueError("I/O operation on closed LevelDB")
-            # Each pass gets its own reader so repeated scans and interleaved
-            # iterators do not share a seek position or handle.
-            reader = type(file)(file.path)
-            self._active_files.add(reader)
-            try:
-                yield from reader
-            finally:
-                if hasattr(reader, "damage"):
-                    # Keep what this pass skipped where upstream keeps it: on the file's reader.
-                    file.damage = list(reader.damage)
-                reader.close()
-                self._active_files.discard(reader)
+        for file_containing_records in sorted(self._files, reverse=reverse, key=lambda x: x.file_no):
+            yield from file_containing_records
 
     def close(self):
-        self._closed = True
-        # Also release readers belonging to generators paused at a yielded record.
-        for file in self._active_files:
+        for file in self._files:
             file.close()
-        self._active_files.clear()
         if self.manifest:
             self.manifest.close()

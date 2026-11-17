@@ -132,7 +132,7 @@ class LevelDbLifecycleTests(unittest.TestCase):
         first.close()
         second.close()
         db.close()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(OSError):  # each closed file refuses a new pass
             next(db.iterate_records_raw())
 
     def test_generator_close_releases_only_its_reader(self):
@@ -141,7 +141,7 @@ class LevelDbLifecycleTests(unittest.TestCase):
             iterator = db.iterate_records_raw()
             next(iterator)
             iterator.close()
-            self.assertEqual(sum(not h.closed for h in self.handles), 1)  # manifest only
+            self.assertEqual(sum(not h.closed for h in self.handles), 0)  # the manifest is read and closed when opened
             self.assertEqual(len(list(db.iterate_records_raw())), 5)
         self.assert_closed()
 

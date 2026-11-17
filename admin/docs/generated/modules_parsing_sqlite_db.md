@@ -284,6 +284,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | odnoklassniki |
 | photosGraphMoments |
 | serialNumber |
+| shortcutsDatabase |
 | smsAppPayloads |
 | smsEdits |
 | smsReactions |
@@ -297,6 +298,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | uberPlaces |
 | waze |
 | webkitResourceLoadStatistics |
+| whatsAppLID |
 | widgetEngagements |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->

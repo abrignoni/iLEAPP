@@ -23,10 +23,17 @@ Comparison notes:
   JSON round-trip (matching how snapshots were serialized) and the per-run
   extraction directory admin/test/temp/extract_<name>_<epoch> is replaced by
   a fixed token, since its epoch differs on every run by construction.
+- On Windows, backslashes are compared as forward slashes on both sides. The
+  core reports extraction-relative paths with the platform's separator
+  (Context.get_relative_path strips the data folder and leaves the rest), so
+  a baseline recorded on macOS or Linux cannot match a Windows run byte for
+  byte. Other platforms compare backslashes as recorded.
 
 Units listed in admin/test/cases/known_failures.json (unit -> reason) run and
 report but do not gate, so a unit can be excluded deliberately, with a stated
-reason, instead of blocking every PR while it is being repaired. A known
+reason, instead of blocking every PR while it is being repaired. An entry can
+also be {"reason": ..., "platforms": ["win32"]}, which excludes the unit only
+on those sys.platform values and keeps it gating everywhere else. A known
 failure that passes again is flagged so the entry gets removed.
 
 Exit status is 1 if any non-excluded unit failed, errored, or has no
@@ -49,6 +56,7 @@ CASES_DIR = REPO_ROOT / "admin" / "test" / "cases"
 RESULTS_DIR = REPO_ROOT / "admin" / "test" / "results"
 TEMP_EXTRACT_RE = re.compile(r"admin/test/temp/extract_[A-Za-z0-9_]+_\d+")
 TEMP_TOKEN = "<extract-dir>"
+NATIVE_BACKSLASH_PATHS = os.sep == "\\"
 KNOWN_FAILURES_PATH = CASES_DIR / "known_failures.json"
 COMPLETION_MARKER = "Test case comparison complete"
 
@@ -83,11 +91,38 @@ def latest_baseline(module, artifact, case):
     return candidates[-1] if candidates else None
 
 
-def normalize_rows(rows):
+def applicable_known_failures(entries, platform=sys.platform):
+    """{unit: reason} for the known_failures.json entries that apply on platform.
+
+    A value is either the reason, which applies everywhere, or an object with a
+    "reason" and a "platforms" list of sys.platform values ("win32", "darwin",
+    "linux"), which applies only there. A Windows-only failure listed with
+    "platforms": ["win32"] keeps gating on macOS and Linux.
+    """
+    applicable = {}
+    for unit, value in entries.items():
+        if isinstance(value, str):
+            applicable[unit] = value
+            continue
+        if not (isinstance(value, dict) and isinstance(value.get("reason"), str)
+                and isinstance(value.get("platforms"), list) and value["platforms"]
+                and all(isinstance(name, str) for name in value["platforms"])):
+            raise ValueError(f"known_failures.json: {unit} must map to a reason, or to "
+                             f'{{"reason": ..., "platforms": [...]}}')
+        if platform in value["platforms"]:
+            applicable[unit] = value["reason"]
+    return applicable
+
+
+def normalize_rows(rows, backslash_paths=NATIVE_BACKSLASH_PATHS):
     """Rows as a sorted list of JSON strings, with per-run paths tokenized."""
     normalized = []
     for row in rows:
         text = json.dumps(row, default=str, ensure_ascii=False)
+        if backslash_paths:
+            # A literal backslash is the two-character escape \\ in JSON text,
+            # and escapes pair left to right, so this touches no other escape.
+            text = text.replace("\\\\", "/")
         normalized.append(TEMP_EXTRACT_RE.sub(TEMP_TOKEN, text))
     return sorted(normalized)
 
@@ -150,11 +185,15 @@ def main(argv=None):
     parser.add_argument("--strict", action="store_true",
                         help="ignore known_failures.json and gate on everything")
     args = parser.parse_args(argv)
+    # A Windows console encodes with its code page, which cannot print every
+    # character a row can hold; a detail line must not end the run.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="backslashreplace")
 
     known = {}
     if KNOWN_FAILURES_PATH.exists() and not args.strict:
         with open(KNOWN_FAILURES_PATH, encoding="utf-8") as f:
-            known = json.load(f)
+            known = applicable_known_failures(json.load(f))
 
     os.chdir(REPO_ROOT)
     import test_module  # noqa: E402  imported late so sys.path is set

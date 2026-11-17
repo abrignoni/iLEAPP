@@ -71,33 +71,53 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni, Codex',
         'creation_date': '2021-03-26',
-        'last_update_date': '2026-10-09',
+        'last_update_date': '2026-11-16',
         'requirements': '',
         'category': 'WhatsApp',
-        'notes': "Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf "
-                 "wire format by a reader that decodes those two fields and skips every other "
-                 "field by the length its wire type gives, so a blob it cannot walk yields what "
-                 "was read before that point and does not stop the artifact. A ZMETADATA value "
-                 "stored as text or a number, which SQLite permits, yields blank Metadata columns "
-                 "for that row; no tested image holds one, so that branch is exercised by "
-                 "constructed input. Field 17 is taken as a varint and Field 21 as a UTF-8 "
-                 "string; the forward count and forwarder labels are observed and have no vendor "
-                 "source. On 10 of the tested images, 1,350 media item rows carry a metadata "
-                 "blob; Field 17 was present on 2 of them, both on the iOS 17.5.1 image, and "
-                 "Field 21 on none of them, so the forwarder column and its ContactsV2 lookup are "
-                 "exercised by constructed input and not by any tested image. Where Field 21 is "
-                 "present, the ContactsV2 address book is read once per run and the matching "
-                 "contact's full name and phone number are shown beside the ID. Coordinates are "
-                 "emitted only for rows whose ZMESSAGETYPE is 5; the ZMESSAGETYPE value mapping "
-                 "is not sourced. Local User or Chat Name is the literal Local User where "
-                 "ZISFROMME is 1 and otherwise the chat's ZPARTNERNAME, the same value shown as "
-                 "Chat Name. In a group chat that is the name of the chat and not the member "
-                 "who sent the message, which this artifact does not resolve: on otto_ios17 "
-                 "Local User or Chat Name equals Chat Name on all 1,440 Incoming rows of its "
-                 "11 group chats. From ID is the stored ZFROMJID, including NULL, and is the "
-                 "exported conversation sender column. No substitute name or local ownership "
-                 "is inferred. Direction is Outgoing where ZISFROMME is 1 and Incoming for "
-                 "every other value; on otto_ios17 and dexter_ios18 ZISFROMME held only 0 or 1.",
+        'notes': "Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf wire "
+                 "format by a reader that decodes those two fields and skips every other field by the "
+                 "length its wire type gives, so a blob it cannot walk yields what was read before that "
+                 "point and does not stop the artifact. A ZMETADATA value stored as text or a number, "
+                 "which SQLite permits, yields blank Metadata columns for that row; no tested image "
+                 "holds one, so that branch is exercised by constructed input. Field 17 is taken as a "
+                 "varint and Field 21 as a UTF-8 string; the forward count and forwarder labels are "
+                 "observed and have no vendor source. On 9 of the tested images, 1,354 media item rows "
+                 "carry a metadata blob; Field 17 was present on 2 of them, both on the iOS 17.5.1 "
+                 "image, and Field 21 on none of them, so the forwarder column is exercised by "
+                 "constructed input and not by any tested image. Its ContactsV2 lookup is not exercised. "
+                 "Where Field 21 is present, the ContactsV2 address book is read once per run and the "
+                 "matching contact's full name and phone number are shown beside the ID. Coordinates are "
+                 "emitted only for rows whose ZMESSAGETYPE is 5; the ZMESSAGETYPE value mapping is not "
+                 "sourced. Local User or Chat Name is the literal Local User where ZISFROMME is 1 and "
+                 "otherwise the chat's ZPARTNERNAME, the same value shown as Chat Name, so on an "
+                 "Incoming row of a group chat it is the name of the chat and not the member who sent "
+                 "the message. From ID is the stored ZFROMJID, including NULL. On the tested images From "
+                 "ID on an Incoming row of a group chat was a JID ending in @g.us. It equalled Chat ID "
+                 "on 1,445 of 1,454 such rows and was a different @g.us JID on 9 rows of otto_ios17. "
+                 "Sender ID is the ZMEMBERJID of the ZWAGROUPMEMBER row whose Z_PK equals the message's "
+                 "ZGROUPMEMBER, and From ID where there is no such row or it holds no JID. That join was "
+                 "not read from the Core Data model. On all 1,416 linked rows of the tested images the "
+                 "member row's ZCHATSESSION equals the message's. That the linked member is the sender "
+                 "has no vendor source. On the tested images every linked row is Incoming and in a group "
+                 "chat. Sender ID is the conversation view's sender column. On otto_ios17 1,414 of the "
+                 "1,440 Incoming rows of its 11 group chats point to a member, all with a JID ending in "
+                 "@s.whatsapp.net, and on abe_ios16 2 of 4 do. None of the 10 Incoming group rows on "
+                 "iphone11_ios17 points to a member, so Sender ID shows the group's JID there. Sender ID "
+                 "and From ID are identical on all rows of dexter_ios18, felix23_ios16, felix_ios17, "
+                 "fsfull002_ios17, hc_ios18_7, hickman_ios13, hickman_ios14 and iphone11_ios17, where "
+                 "ZGROUPMEMBER is NULL on every message. Group Sender Push Name is the ZPUSHNAME stored "
+                 "for the member's JID in ZWAPROFILEPUSHNAME, and Group Sender Address Book Name is the "
+                 "ContactsV2 ZFULLNAME whose ZWHATSAPPID equals that JID. Where several contacts share "
+                 "that ID the first one read is used. On the tested images that did not change a value. "
+                 "Whose names these are is not established. On otto_ios17 Group Sender Push Name had a "
+                 "value on 1,381 rows and Group Sender Address Book Name on 4, and on abe_ios16 both had "
+                 "a value on 2 rows. Group Sender Push Name and Group Sender Address Book Name have no "
+                 "value on any row of the other images. A member JID ending in @lid would be shown as "
+                 "stored, without resolving it (see WhatsApp - LID Phone Numbers), and none occurred as "
+                 "a sender on the tested images. Apart from the Sender ID fallback to From ID and the "
+                 "Local User literal described above, no name or ownership is inferred. Direction is "
+                 "Outgoing where ZISFROMME is 1 and Incoming for every other value; on otto_ios17 and "
+                 "dexter_ios18 ZISFROMME held only 0 or 1.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -126,7 +146,7 @@ __artifacts_v2__ = {
                 'directionColumn': 'Direction',
                 'directionSentValue': 'Outgoing',
                 'timeColumn': 'Timestamp',
-                'senderColumn': 'From ID',
+                'senderColumn': 'Sender ID',
                 'mediaColumn': 'Attachment File'
             }
         },
@@ -251,6 +271,14 @@ def _forwarder_contacts(contacts_db):
             contacts[whatsapp_id] = (fullname, phone)
     return contacts
 
+
+
+def _push_names(chat_db):
+    """Map JID to ZPUSHNAME from ChatStorage's ZWAPROFILEPUSHNAME, when the table exists."""
+    if not chat_db or not does_table_exist_in_db(chat_db, 'ZWAPROFILEPUSHNAME'):
+        return {}
+    return {jid: name or '' for jid, name in
+            get_sqlite_db_records(chat_db, 'SELECT ZJID, ZPUSHNAME FROM ZWAPROFILEPUSHNAME') if jid}
 
 
 def _stored(value):
@@ -450,19 +478,31 @@ def whatsAppMessages(context):
         ZMEDIALOCALPATH,
         ZXMPPTHUMBPATH,
         ZMETADATA,
-        ZWACHATSESSION.ZCONTACTJID
+        ZWACHATSESSION.ZCONTACTJID,
+        {member_jid} AS MEMBERJID
     FROM ZWAMESSAGE
     LEFT JOIN ZWAMEDIAITEM ON ZWAMESSAGE.Z_PK = ZWAMEDIAITEM.ZMESSAGE
     LEFT JOIN ZWACHATSESSION ON ZWACHATSESSION.Z_PK = ZWAMESSAGE.ZCHATSESSION
+    {member_join}
     '''
+    has_members = bool(source_path) and does_table_exist_in_db(source_path, 'ZWAGROUPMEMBER') and \
+        does_column_exist_in_db(source_path, 'ZWAMESSAGE', 'ZGROUPMEMBER')
+    query = query.format(
+        member_jid='ZWAGROUPMEMBER.ZMEMBERJID' if has_members else 'NULL',
+        member_join='LEFT JOIN ZWAGROUPMEMBER ON ZWAGROUPMEMBER.Z_PK = ZWAMESSAGE.ZGROUPMEMBER'
+        if has_members else '')
+    push_names = _push_names(source_path)
 
     data_headers = (
         ('Timestamp', 'datetime'),
         'Direction',
-        'From ID',
+        'Sender ID',
         'Chat Name',
         'Message',
         ('Attachment File', 'media'),
+        'From ID',
+        'Group Sender Push Name',
+        'Group Sender Address Book Name',
         'Local User or Chat Name',
         'Receiver',
         'To ID',
@@ -513,13 +553,23 @@ def whatsAppMessages(context):
         lat = record['ZLATITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
 
         direction = 'Outgoing' if record['ZISFROMME'] == 1 else 'Incoming'
+        member_jid = record['MEMBERJID']
+        push_name = book_name = ''
+        if member_jid:
+            push_name = push_names.get(member_jid, '')
+            if contacts is None:
+                contacts = _forwarder_contacts(contacts_db)
+            book_name = (contacts.get(member_jid) or ('',))[0] or ''
         data_list.append((
             message_date,
             direction,
-            record['ZFROMJID'],
+            member_jid or record['ZFROMJID'],
             record['ZPARTNERNAME'],
             record['ZTEXT'],
             attach_file,
+            record['ZFROMJID'],
+            push_name,
+            book_name,
             sender,
             receiver,
             record['ZTOJID'],

@@ -65,7 +65,7 @@ class TestMapsSyncRawEntities(unittest.TestCase):
                 self.assertEqual([type(r[4]) for r in rows], [type(r[1]) for r in expected])
                 self.assertEqual(len(rows), 14 if layout == 'basic' else 27)
                 self.assertEqual(source, main.name)
-                self.assertEqual(len(headers), 13)
+                self.assertEqual(len(headers), 15)
                 # Entity is the Z_PRIMARYKEY name SQLite's own comparison finds for the stored Z_ENT.
                 named = connection.execute('SELECT h.Z_PK, p.Z_NAME FROM ZHISTORYITEM h' + join +
                                            ' LEFT JOIN Z_PRIMARYKEY p ON p.Z_ENT = ' + raw).fetchall()
@@ -107,7 +107,7 @@ class TestMapsSyncRawEntities(unittest.TestCase):
             self.assertEqual(rows[0][4], 0.0)
             self.assertIs(type(rows[0][4]), float)
 
-    def test_modern_missing_entity_keeps_existing_query_failure(self):
+    def test_modern_missing_entity_reports_null(self):
         with tempfile.TemporaryDirectory() as directory:
             main = Path(directory) / 'MapsSync_0.0.1'
             connection = make_store(main, 'modern', [14], with_entity=False)
@@ -115,7 +115,9 @@ class TestMapsSyncRawEntities(unittest.TestCase):
             context = SimpleNamespace(get_files_found=lambda: [main],
                                       get_relative_path=lambda path: Path(path).name)
             _, rows, source = inspect.unwrap(mapsSync.mapsSync)(context)
-            self.assertEqual((rows, source), ([], ''))
+            self.assertEqual(len(rows), 1)
+            self.assertEqual((rows[0][3], rows[0][4]), ('', None))
+            self.assertEqual(source, main.name)
 
     def test_empty_store(self):
         with tempfile.TemporaryDirectory() as directory:
