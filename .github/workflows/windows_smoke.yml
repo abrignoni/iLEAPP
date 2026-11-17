@@ -64,6 +64,9 @@ jobs:
       - name: Open a database the test harness staged
         run: python admin/test/scripts/test_harness_absolute_temp.py
 
+      - name: Open SQLite on a relative path
+        run: python admin/test/scripts/test_sqlite_relative_path.py
+
       # The entry points hand a directory input to the seeker with the extended-length
       # prefix on Windows, so the recorded evidence path and the staged path are
       # checked here with that prefix as well as without it.
