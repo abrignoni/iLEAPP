@@ -10,6 +10,7 @@ helper the artifacts use. The path checks fail on any platform when the folder i
 relative; the open fails only on Windows, so windows_smoke.yml runs this file too.
 """
 import os
+import shutil
 import sqlite3
 import sys
 import tempfile
@@ -17,6 +18,7 @@ import types
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -89,8 +91,16 @@ class HarnessAbsoluteTempTests(unittest.TestCase):
             self.assertTrue(os.path.isabs(path), f'{kind} is relative: {path}')
 
     def test_the_folder_is_admin_test_temp_in_the_working_directory(self):
-        data_folder = Path(next(path for kind, path, _ in self.run_probe() if kind == 'data folder'))
-        self.assertEqual(data_folder.parent, REPO_ROOT / 'admin' / 'test' / 'temp')
+        data_folder = next(path for kind, path, _ in self.run_probe() if kind == 'data folder')
+        self.assertEqual(Path(data_folder.removeprefix('\\\\?\\')).parent,
+                         REPO_ROOT / 'admin' / 'test' / 'temp')
+
+    @unittest.skipUnless(os.name == 'nt', r'the \\?\ prefix is Windows-only')
+    def test_windows_stages_under_the_extended_length_prefix(self):
+        # A run puts \\?\ in front of its output folder on Windows; the harness does too.
+        for kind, path, _value in self.run_probe():
+            if kind in ('data folder', 'report folder', 'file found'):
+                self.assertTrue(path.startswith('\\\\?\\'), f'{kind} has no \\\\?\\ prefix: {path}')
 
     def test_a_staged_database_opens_read_only(self):
         opened = [value for kind, _path, value in self.run_probe() if kind == 'opened']
@@ -114,6 +124,29 @@ class HarnessAbsoluteTempTests(unittest.TestCase):
         self.assertEqual(tm.relative_temp_path('C:/repo/admin/test/temp/extract_a_1/x.db', prefixes),
                          'admin/test/temp/extract_a_1/x.db')
         self.assertEqual(tm.relative_temp_path('Dump/data/one.db', prefixes), 'Dump/data/one.db')
+
+    def test_a_temp_folder_name_is_never_reused(self):
+        base = Path(tempfile.mkdtemp())
+        try:
+            first = tm.unused_temp_dir(base, 'mod', 'art')
+            first.mkdir()
+            with mock.patch.object(tm.time, 'time_ns', return_value=int(first.name.rsplit('_', 1)[1])):
+                second = tm.unused_temp_dir(base, 'mod', 'art')
+            self.assertNotEqual(first, second)
+            self.assertFalse(second.exists())
+            self.assertRegex(second.name, r'^extract_mod_art_\d+$')
+        finally:
+            shutil.rmtree(base)
+
+    def test_an_extended_length_spelling_is_made_relative_without_its_prefix(self):
+        prefixes = tm.staged_temp_prefixes()
+        backslashed = '\\\\?\\' + str(REPO_ROOT).replace('/', '\\')
+        forward = '//?/' + REPO_ROOT.as_posix()
+        self.assertEqual(
+            tm.relative_temp_path(backslashed + '\\admin\\test\\temp\\extract_a_1\\x.db', prefixes),
+            'admin\\test\\temp\\extract_a_1\\x.db')
+        self.assertEqual(tm.relative_temp_path(forward + '/admin/test/temp/extract_a_1/x.db', prefixes),
+                         'admin/test/temp/extract_a_1/x.db')
 
 
 if __name__ == '__main__':

@@ -1,0 +1,55 @@
+name: Windows Test Cases
+
+# Runs every committed test case on Windows against the baselines recorded on
+# macOS or Linux, with the same runner and flags as test_cases.yml. The runner
+# compares backslashes as forward slashes on Windows, and the harness stages
+# under the \\?\ form a run uses there. A unit that fails on Windows only is
+# listed in admin/test/cases/known_failures.json with "platforms": ["win32"]
+# and a measured reason, so it keeps gating on Linux.
+#
+# It runs on pull requests that change shared code, weekly, and on demand. An
+# artifact's own change is covered by the weekly run.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/*.py'
+      - 'leapp_functions/**'
+      - 'admin/test/scripts/**'
+      - 'requirements.txt'
+      - '.github/workflows/windows_test_cases.yml'
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-test-cases-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-test-cases:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Report long path support
+        shell: pwsh
+        run: |
+          $value = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem').LongPathsEnabled
+          Write-Output "LongPathsEnabled=$value"
+
+      - name: Install dependencies
+        run: python -m pip install --prefer-binary -r requirements.txt
+
+      - name: Run test cases against recorded baselines
+        run: python admin/test/scripts/run_test_cases.py

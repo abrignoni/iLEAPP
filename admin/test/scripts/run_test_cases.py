@@ -121,8 +121,10 @@ def normalize_rows(rows, backslash_paths=NATIVE_BACKSLASH_PATHS):
         text = json.dumps(row, default=str, ensure_ascii=False)
         if backslash_paths:
             # A literal backslash is the two-character escape \\ in JSON text,
-            # and escapes pair left to right, so this touches no other escape.
-            text = text.replace("\\\\", "/")
+            # and escapes pair left to right, so this touches no other escape. A
+            # path inside a cell that itself holds JSON is escaped twice, so its
+            # separator is four characters here and is replaced first.
+            text = text.replace("\\\\\\\\", "/").replace("\\\\", "/")
         normalized.append(TEMP_EXTRACT_RE.sub(TEMP_TOKEN, text))
     return sorted(normalized)
 
