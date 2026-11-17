@@ -118,7 +118,8 @@ def stage_case_members(zip_ref, temp_dir, file_infos):
     extracted file's modification time is then set as the seeker sets it: that
     modification time, else the member's date and time read as local time. So an
     artifact sees the values a real run of the same zip gives it, not the time of
-    the test. A CLBX zip's version and metadata members are not staged: a run hands
+    the test. Each member is staged under the name the seeker gives it. A CLBX
+    zip's version and metadata members are not staged: a run hands
     an artifact only the members its patterns match.
 
     Args:
@@ -133,7 +134,11 @@ def stage_case_members(zip_ref, temp_dir, file_infos):
         for info in zip_ref.infolist():
             if info.filename in clbx_own:
                 continue
-            extracted_path = zip_ref.extract(info, temp_dir)
+            # Staged under the name a run gives it. The seeker replaces characters
+            # Windows cannot hold on every platform; ZipFile.extract replaces fewer,
+            # and only on Windows, so a case recorded on macOS or Linux saw names a
+            # real run never produces.
+            extracted_path = seeker._extract_member(info.filename, source=info)
             if info.is_dir():
                 continue
             creation_date, modification_date, staged, times = seeker._member_times(info.filename, info)
