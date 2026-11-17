@@ -10,9 +10,9 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/batteryBDC/testdata.batteryBDC.battery_bdc_once.abe_ios16.zip",
-    "start_time": "2026-11-17T06:34:28.566601+00:00",
-    "end_time": "2026-11-17T06:34:28.588294+00:00",
-    "run_time_seconds": 0.00010418891906738281,
+    "start_time": "2026-11-17T13:08:40.599529+00:00",
+    "end_time": "2026-11-17T13:08:40.629708+00:00",
+    "run_time_seconds": 0.00019502639770507812,
     "last_commit": {
       "hash": "0b8125f79f111bd779eb313b2e8be5aa46443023",
       "author_name": "Brigs",
@@ -40,7 +40,7 @@
       "748",
       "2701",
       "1538",
-      "filesystem2/db/Battery/BDC/BDC_Once_version2.0_2023-02-20_01_36_12.csv"
+      "filesystem2/db/Battery/BDC/BDC_Once_version2.0_2023-02-20_01:36:12.csv"
     ]
   ]
 }
