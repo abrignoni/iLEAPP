@@ -11,13 +11,14 @@ GEAR_SIZE = 32
 
 
 class Gear(tk.Label):
-    """ The icon that opens the Settings window. """
+    """ The icon that opens the Settings window. It sits on header_bg like the filled buttons, so
+    it takes their text colours: main_bg at rest, text_primary under the pointer. """
 
     def __init__(self, parent, app):
         colors = app.colors
         self.pictures = {bright: images.load_icon("settings", GEAR_SIZE, color)
-                         for bright, color in ((False, colors.text_primary),
-                                               (True, colors.main_bg))}
+                         for bright, color in ((False, colors.main_bg),
+                                               (True, colors.text_primary))}
         super().__init__(parent, image=self.pictures[False], bg=colors.header_bg, borderwidth=0)
         self.app = app
         self.bind("<Enter>", lambda _event: self.show(True))
