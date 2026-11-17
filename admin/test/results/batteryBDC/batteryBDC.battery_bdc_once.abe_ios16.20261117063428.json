@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/batteryBDC/testdata.batteryBDC.battery_bdc_once.abe_ios16.zip",
-    "start_time": "2026-10-04T20:45:39.979966+00:00",
-    "end_time": "2026-10-04T20:45:40.031428+00:00",
-    "run_time_seconds": 0.0004968643188476562,
+    "start_time": "2026-11-17T06:34:28.566601+00:00",
+    "end_time": "2026-11-17T06:34:28.588294+00:00",
+    "run_time_seconds": 0.00010418891906738281,
     "last_commit": {
-      "hash": "da155d0e0155a7321ae3e278bf6b0dea3e9c2bd4",
+      "hash": "0b8125f79f111bd779eb313b2e8be5aa46443023",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-10-04T02:02:01-04:00",
-      "message": "Correct artifact descriptions and notes against the code and sources"
+      "date": "2026-10-09T07:38:01-04:00",
+      "message": "Report stored values and keep dropped rows in audited artifacts"
     }
   },
   "headers": [
@@ -40,7 +40,7 @@
       "748",
       "2701",
       "1538",
-      "filesystem2/db/Battery/BDC/BDC_Once_version2.0_2023-02-20_01:36:12.csv"
+      "filesystem2/db/Battery/BDC/BDC_Once_version2.0_2023-02-20_01_36_12.csv"
     ]
   ]
 }

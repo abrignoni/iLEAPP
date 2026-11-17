@@ -114,3 +114,6 @@ jobs:
       # compare those against baselines recorded with forward slashes.
       - name: Compare test-case output with Windows separators
         run: python admin/test/scripts/test_run_test_cases.py
+
+      - name: Stage case members under the names a run gives them
+        run: python admin/test/scripts/test_harness_stages_like_the_seeker.py
