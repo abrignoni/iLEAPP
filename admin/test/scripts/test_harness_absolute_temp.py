@@ -10,6 +10,7 @@ helper the artifacts use. The path checks fail on any platform when the folder i
 relative; the open fails only on Windows, so windows_smoke.yml runs this file too.
 """
 import os
+import shutil
 import sqlite3
 import sys
 import tempfile
@@ -17,6 +18,7 @@ import types
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -122,6 +124,19 @@ class HarnessAbsoluteTempTests(unittest.TestCase):
         self.assertEqual(tm.relative_temp_path('C:/repo/admin/test/temp/extract_a_1/x.db', prefixes),
                          'admin/test/temp/extract_a_1/x.db')
         self.assertEqual(tm.relative_temp_path('Dump/data/one.db', prefixes), 'Dump/data/one.db')
+
+    def test_a_temp_folder_name_is_never_reused(self):
+        base = Path(tempfile.mkdtemp())
+        try:
+            first = tm.unused_temp_dir(base, 'mod', 'art')
+            first.mkdir()
+            with mock.patch.object(tm.time, 'time_ns', return_value=int(first.name.rsplit('_', 1)[1])):
+                second = tm.unused_temp_dir(base, 'mod', 'art')
+            self.assertNotEqual(first, second)
+            self.assertFalse(second.exists())
+            self.assertRegex(second.name, r'^extract_mod_art_\d+$')
+        finally:
+            shutil.rmtree(base)
 
     def test_an_extended_length_spelling_is_made_relative_without_its_prefix(self):
         prefixes = tm.staged_temp_prefixes()
