@@ -143,5 +143,34 @@ class CommitInfoTests(unittest.TestCase):
         self.assertEqual(info["hash"], "unknown")
 
 
+class KnownFailurePlatformTests(unittest.TestCase):
+    def test_plain_reason_applies_everywhere(self):
+        for platform in ("win32", "darwin", "linux"):
+            self.assertEqual(rtc.applicable_known_failures({"m.a.c": "why"}, platform),
+                             {"m.a.c": "why"})
+
+    def test_platform_entry_applies_only_there(self):
+        entries = {"m.a.c": {"reason": "why", "platforms": ["win32"]}}
+        self.assertEqual(rtc.applicable_known_failures(entries, "win32"), {"m.a.c": "why"})
+        self.assertEqual(rtc.applicable_known_failures(entries, "linux"), {})
+        self.assertEqual(rtc.applicable_known_failures(entries, "darwin"), {})
+
+    def test_malformed_entries_are_refused(self):
+        for value in ({"reason": "why"}, {"platforms": ["win32"]},
+                      {"reason": "why", "platforms": []}, {"reason": "why", "platforms": "win32"},
+                      ["why"], None):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                rtc.applicable_known_failures({"m.a.c": value}, "win32")
+
+    def test_committed_file_is_valid_here(self):
+        path = rtc.KNOWN_FAILURES_PATH
+        if not path.exists():
+            self.skipTest("no known_failures.json in this core")
+        with open(path, encoding="utf-8") as f:
+            entries = json.load(f)
+        for platform in ("win32", "darwin", "linux"):
+            rtc.applicable_known_failures(entries, platform)
+
+
 if __name__ == "__main__":
     unittest.main()
