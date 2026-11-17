@@ -1,14 +1,1 @@
-{
-  "life360Recovered.life360RecoveredWaypoints.casesynthetic_round2": {
-    "reason": "Row Key fingerprints the parent versions, and each parent's sourceFile is the staged path with the platform's separator, so the key differs on Windows. The key only matches HTML rows to exports within one report; every other column matches.",
-    "platforms": [
-      "win32"
-    ]
-  },
-  "life360Recovered.life360RecoveredIncidents.casesynthetic_round2": {
-    "reason": "Row Key fingerprints the parent versions, and each parent's sourceFile is the staged path with the platform's separator, so the key differs on Windows. The key only matches HTML rows to exports within one report; every other column matches.",
-    "platforms": [
-      "win32"
-    ]
-  }
-}
+{}

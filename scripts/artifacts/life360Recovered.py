@@ -533,9 +533,23 @@ def _nested_output(headers, rows):
     return rows, html_rows
 
 
+def _portable_path(value):
+    """Spell a staged relative path with '/' so the key does not depend on the platform."""
+    return value.replace(os.sep, '/') if isinstance(value, str) else value
+
+
+def _key_parent(parent):
+    """A parent as the key sees it: the same fields, with its source paths spelled with '/'."""
+    sources = [dict(source, sourceFile=_portable_path(source.get('sourceFile')))
+               for source in parent['recoverySources']]
+    return dict(parent, sourceFile=_portable_path(parent['sourceFile']),
+                walSourceFile=_portable_path(parent['walSourceFile']), recoverySources=sources)
+
+
 def _row_key(entry):
     """Identify this report's grouped item and parent versions for matching export rows."""
-    return fingerprint((entry['kind'], entry['session'], _json(entry['item']), _json(entry['parents'])))
+    parents = [_key_parent(parent) for parent in entry['parents']]
+    return fingerprint((entry['kind'], entry['session'], _json(entry['item']), _json(parents)))
 
 
 @artifact_processor
