@@ -777,6 +777,15 @@ def get_last_commit_info(file_path):
         }
     except subprocess.CalledProcessError:
         return None
+    except OSError:
+        # git is not installed or not on PATH; the run itself does not need it.
+        return {
+            'hash': 'unknown',
+            'author_name': 'unknown',
+            'author_email': 'unknown',
+            'date': 'unknown',
+            'message': 'git not available'
+        }
 
 
 if __name__ == '__main__':
