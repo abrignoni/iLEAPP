@@ -7,6 +7,8 @@ report used to give the staged name, which is not in the extraction. These tests
 pin which paths get the evidence name back and which keep the staged spelling.
 The Windows spellings are plain strings, so they run on every platform.
 """
+# The tests set Context's run state directly, as a run does through its setters.
+# pylint: disable=protected-access
 import pathlib
 import sys
 import unittest
