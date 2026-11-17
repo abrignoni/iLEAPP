@@ -8,6 +8,7 @@ import io
 import json
 import math
 import nska_deserialize
+import ntpath
 import os
 import atexit
 import plistlib
@@ -1153,7 +1154,15 @@ def get_sqlite_db_path(path):
         elif path_str.startswith('\\\\'):       # UNC path
             remainder = '\\UNC' + path_str[1:]
         else:                                   # normal path
-            remainder = path_str
+            # \\?\ turns off Windows path parsing, so it only works in front of
+            # a full path with a drive. Resolve a relative one (admin\test\x.db,
+            # \x.db or C:x.db) against the current directory first, or SQLite
+            # cannot open it.
+            drive, rest = ntpath.splitdrive(path_str)
+            if drive and rest.startswith('\\'):
+                remainder = path_str
+            else:
+                remainder = ntpath.abspath(path_str)
         # Encode special URI characters (e.g. '#', space) so SQLite doesn't
         # treat them as fragment delimiters or query separators. Keep ':' safe
         # so the drive letter is preserved; separators are now all backslashes.
