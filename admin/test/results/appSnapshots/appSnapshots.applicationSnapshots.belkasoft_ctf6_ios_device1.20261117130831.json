@@ -10,9 +10,9 @@
     "media_checkins": 99,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/appSnapshots/testdata.appSnapshots.applicationSnapshots.belkasoft_ctf6_ios_device1.zip",
-    "start_time": "2026-11-17T06:34:20.284393+00:00",
-    "end_time": "2026-11-17T06:34:21.796426+00:00",
-    "run_time_seconds": 1.3174049854278564,
+    "start_time": "2026-11-17T13:08:31.288181+00:00",
+    "end_time": "2026-11-17T13:08:32.889474+00:00",
+    "run_time_seconds": 1.3929619789123535,
     "last_commit": {
       "hash": "b554f143a1b71b5dd08a0e6cc43bb4e56e4326af",
       "author_name": "Brigs",
@@ -85,7 +85,7 @@
       "sceneID:com.apple.mobileslideshow-default",
       "19FAE416-6408-4DEC-B0A9-C287A8756ED0",
       "default",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID_com.apple.mobileslideshow-default/19FAE416-6408-4DEC-B0A9-C287A8756ED0@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID:com.apple.mobileslideshow-default/19FAE416-6408-4DEC-B0A9-C287A8756ED0@2x.ktx",
       "mock_hash_for_19FAE416-6408-4DEC-B0A9-C287A8756ED0@2x.ktx"
     ],
     [
@@ -96,7 +96,7 @@
       "sceneID:com.apple.mobileslideshow-default",
       "6337B4CE-D924-4426-A70A-C18D27BEE539",
       "default",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID_com.apple.mobileslideshow-default/6337B4CE-D924-4426-A70A-C18D27BEE539@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID:com.apple.mobileslideshow-default/6337B4CE-D924-4426-A70A-C18D27BEE539@2x.ktx",
       "mock_hash_for_6337B4CE-D924-4426-A70A-C18D27BEE539@2x.ktx"
     ],
     [
@@ -107,7 +107,7 @@
       "sceneID:com.apple.mobileslideshow-default",
       "7A025C55-22B1-46F4-BD74-CD2D58E6EE4A",
       "downscaled",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID_com.apple.mobileslideshow-default/downscaled/7A025C55-22B1-46F4-BD74-CD2D58E6EE4A@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID:com.apple.mobileslideshow-default/downscaled/7A025C55-22B1-46F4-BD74-CD2D58E6EE4A@2x.ktx",
       "mock_hash_for_7A025C55-22B1-46F4-BD74-CD2D58E6EE4A@2x.ktx"
     ],
     [
@@ -118,7 +118,7 @@
       "sceneID:com.apple.mobileslideshow-default",
       "88540DD9-8A14-41B2-A357-3FE3367E4C34",
       "downscaled",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID_com.apple.mobileslideshow-default/downscaled/88540DD9-8A14-41B2-A357-3FE3367E4C34@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.mobileslideshow/sceneID:com.apple.mobileslideshow-default/downscaled/88540DD9-8A14-41B2-A357-3FE3367E4C34@2x.ktx",
       "mock_hash_for_88540DD9-8A14-41B2-A357-3FE3367E4C34@2x.ktx"
     ],
     [
@@ -129,7 +129,7 @@
       "sceneID:com.apple.camera-default",
       "C6A04264-B5E3-403A-B6E3-D1FD9DE25C28",
       "default",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID_com.apple.camera-default/C6A04264-B5E3-403A-B6E3-D1FD9DE25C28@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID:com.apple.camera-default/C6A04264-B5E3-403A-B6E3-D1FD9DE25C28@2x.ktx",
       "mock_hash_for_C6A04264-B5E3-403A-B6E3-D1FD9DE25C28@2x.ktx"
     ],
     [
@@ -140,7 +140,7 @@
       "sceneID:com.apple.camera-default",
       "D8DD5538-B9CE-4D61-914B-339B441D27FE",
       "default",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID_com.apple.camera-default/D8DD5538-B9CE-4D61-914B-339B441D27FE@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID:com.apple.camera-default/D8DD5538-B9CE-4D61-914B-339B441D27FE@2x.ktx",
       "mock_hash_for_D8DD5538-B9CE-4D61-914B-339B441D27FE@2x.ktx"
     ],
     [
@@ -151,7 +151,7 @@
       "sceneID:com.apple.camera-default",
       "47061FC3-72E9-4432-88E1-878101608045",
       "downscaled",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID_com.apple.camera-default/downscaled/47061FC3-72E9-4432-88E1-878101608045@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID:com.apple.camera-default/downscaled/47061FC3-72E9-4432-88E1-878101608045@2x.ktx",
       "mock_hash_for_47061FC3-72E9-4432-88E1-878101608045@2x.ktx"
     ],
     [
@@ -162,7 +162,7 @@
       "sceneID:com.apple.camera-default",
       "D1C26881-84D3-4212-83D9-5A3D5BDF8F8B",
       "downscaled",
-      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID_com.apple.camera-default/downscaled/D1C26881-84D3-4212-83D9-5A3D5BDF8F8B@2x.ktx",
+      "private/var/mobile/Library/SplashBoard/Snapshots/com.apple.camera/sceneID:com.apple.camera-default/downscaled/D1C26881-84D3-4212-83D9-5A3D5BDF8F8B@2x.ktx",
       "mock_hash_for_D1C26881-84D3-4212-83D9-5A3D5BDF8F8B@2x.ktx"
     ],
     [
@@ -228,7 +228,7 @@
       "sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57",
       "09B23587-93F6-4AD7-B2CF-61F8B606AEEA",
       "default",
-      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID_com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/09B23587-93F6-4AD7-B2CF-61F8B606AEEA@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/09B23587-93F6-4AD7-B2CF-61F8B606AEEA@2x.ktx",
       "mock_hash_for_09B23587-93F6-4AD7-B2CF-61F8B606AEEA@2x.ktx"
     ],
     [
@@ -239,7 +239,7 @@
       "sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57",
       "2D60C2AB-BF7E-40BA-AB3A-4F03F261AFB5",
       "default",
-      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID_com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/2D60C2AB-BF7E-40BA-AB3A-4F03F261AFB5@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/2D60C2AB-BF7E-40BA-AB3A-4F03F261AFB5@2x.ktx",
       "mock_hash_for_2D60C2AB-BF7E-40BA-AB3A-4F03F261AFB5@2x.ktx"
     ],
     [
@@ -250,7 +250,7 @@
       "sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57",
       "029178A4-1C6F-4D8E-86AF-4A2B839A00CF",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID_com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/downscaled/029178A4-1C6F-4D8E-86AF-4A2B839A00CF@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/downscaled/029178A4-1C6F-4D8E-86AF-4A2B839A00CF@2x.ktx",
       "mock_hash_for_029178A4-1C6F-4D8E-86AF-4A2B839A00CF@2x.ktx"
     ],
     [
@@ -261,7 +261,7 @@
       "sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57",
       "E877F679-C28E-4926-ABA2-C9DF204C68A6",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID_com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/downscaled/E877F679-C28E-4926-ABA2-C9DF204C68A6@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D5B11F5D-8111-4F46-80AE-F50D6447F5EB/Library/SplashBoard/Snapshots/sceneID:com.apple.shortcuts-00E72E24-5CCE-4D1A-BD32-5A49E146FA57/downscaled/E877F679-C28E-4926-ABA2-C9DF204C68A6@2x.ktx",
       "mock_hash_for_E877F679-C28E-4926-ABA2-C9DF204C68A6@2x.ktx"
     ],
     [
@@ -272,7 +272,7 @@
       "sceneID:com.apple.AppStore-default",
       "43335240-D114-464A-B696-CB17A233646E",
       "default",
-      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID_com.apple.AppStore-default/43335240-D114-464A-B696-CB17A233646E@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID:com.apple.AppStore-default/43335240-D114-464A-B696-CB17A233646E@2x.ktx",
       "mock_hash_for_43335240-D114-464A-B696-CB17A233646E@2x.ktx"
     ],
     [
@@ -283,7 +283,7 @@
       "sceneID:com.apple.AppStore-default",
       "CE3B50F2-18CA-4401-A610-725F2AA4D201",
       "default",
-      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID_com.apple.AppStore-default/CE3B50F2-18CA-4401-A610-725F2AA4D201@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID:com.apple.AppStore-default/CE3B50F2-18CA-4401-A610-725F2AA4D201@2x.ktx",
       "mock_hash_for_CE3B50F2-18CA-4401-A610-725F2AA4D201@2x.ktx"
     ],
     [
@@ -294,7 +294,7 @@
       "sceneID:com.apple.AppStore-default",
       "44F65298-C829-4869-A7C4-2CE9D4CFEB55",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID_com.apple.AppStore-default/downscaled/44F65298-C829-4869-A7C4-2CE9D4CFEB55@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID:com.apple.AppStore-default/downscaled/44F65298-C829-4869-A7C4-2CE9D4CFEB55@2x.ktx",
       "mock_hash_for_44F65298-C829-4869-A7C4-2CE9D4CFEB55@2x.ktx"
     ],
     [
@@ -305,7 +305,7 @@
       "sceneID:com.apple.AppStore-default",
       "918EE27F-79B8-4730-BADB-BA307012DD87",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID_com.apple.AppStore-default/downscaled/918EE27F-79B8-4730-BADB-BA307012DD87@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/D44110E8-1EA2-4418-A508-8682D4669C9E/Library/SplashBoard/Snapshots/sceneID:com.apple.AppStore-default/downscaled/918EE27F-79B8-4730-BADB-BA307012DD87@2x.ktx",
       "mock_hash_for_918EE27F-79B8-4730-BADB-BA307012DD87@2x.ktx"
     ],
     [
@@ -316,7 +316,7 @@
       "sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89",
       "94B1ADA0-9F1B-40ED-8F9A-CE1B84B8A92D",
       "default",
-      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/94B1ADA0-9F1B-40ED-8F9A-CE1B84B8A92D@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/94B1ADA0-9F1B-40ED-8F9A-CE1B84B8A92D@2x.ktx",
       "mock_hash_for_94B1ADA0-9F1B-40ED-8F9A-CE1B84B8A92D@2x.ktx"
     ],
     [
@@ -327,7 +327,7 @@
       "sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89",
       "EB7A440B-DBA3-48BD-B939-0931AB9986A1",
       "default",
-      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/EB7A440B-DBA3-48BD-B939-0931AB9986A1@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/EB7A440B-DBA3-48BD-B939-0931AB9986A1@2x.ktx",
       "mock_hash_for_EB7A440B-DBA3-48BD-B939-0931AB9986A1@2x.ktx"
     ],
     [
@@ -338,7 +338,7 @@
       "sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89",
       "25293FDD-9E5C-4797-AC8D-25A5E55F6ABF",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/downscaled/25293FDD-9E5C-4797-AC8D-25A5E55F6ABF@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/downscaled/25293FDD-9E5C-4797-AC8D-25A5E55F6ABF@2x.ktx",
       "mock_hash_for_25293FDD-9E5C-4797-AC8D-25A5E55F6ABF@2x.ktx"
     ],
     [
@@ -349,7 +349,7 @@
       "sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89",
       "79F80935-F2AD-414D-89BC-9802ADA26A68",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/downscaled/79F80935-F2AD-414D-89BC-9802ADA26A68@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/CF013E85-64B6-4FDF-BF09-13DF60074403/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileSMS-4BD2FD52-FDD4-43FF-8C5E-DF8039375B89/downscaled/79F80935-F2AD-414D-89BC-9802ADA26A68@2x.ktx",
       "mock_hash_for_79F80935-F2AD-414D-89BC-9802ADA26A68@2x.ktx"
     ],
     [
@@ -360,7 +360,7 @@
       "sceneID:com.spotify.client-default",
       "C07DC9D3-B8AD-49A8-89FC-F4858BABF7B4",
       "default",
-      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID_com.spotify.client-default/C07DC9D3-B8AD-49A8-89FC-F4858BABF7B4@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID:com.spotify.client-default/C07DC9D3-B8AD-49A8-89FC-F4858BABF7B4@2x.ktx",
       "mock_hash_for_C07DC9D3-B8AD-49A8-89FC-F4858BABF7B4@2x.ktx"
     ],
     [
@@ -371,7 +371,7 @@
       "sceneID:com.spotify.client-default",
       "DE2A66FF-047E-4943-BE79-A34626CF31C8",
       "default",
-      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID_com.spotify.client-default/DE2A66FF-047E-4943-BE79-A34626CF31C8@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID:com.spotify.client-default/DE2A66FF-047E-4943-BE79-A34626CF31C8@2x.ktx",
       "mock_hash_for_DE2A66FF-047E-4943-BE79-A34626CF31C8@2x.ktx"
     ],
     [
@@ -382,7 +382,7 @@
       "sceneID:com.spotify.client-default",
       "B9B94090-5B91-4627-80AD-CA8474ADAA11",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID_com.spotify.client-default/downscaled/B9B94090-5B91-4627-80AD-CA8474ADAA11@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID:com.spotify.client-default/downscaled/B9B94090-5B91-4627-80AD-CA8474ADAA11@2x.ktx",
       "mock_hash_for_B9B94090-5B91-4627-80AD-CA8474ADAA11@2x.ktx"
     ],
     [
@@ -393,7 +393,7 @@
       "sceneID:com.spotify.client-default",
       "DCD2FADC-FFCB-4FC3-B76B-B11234376218",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID_com.spotify.client-default/downscaled/DCD2FADC-FFCB-4FC3-B76B-B11234376218@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/C77DAB23-6182-42FB-A253-9F4CC57338EF/Library/SplashBoard/Snapshots/sceneID:com.spotify.client-default/downscaled/DCD2FADC-FFCB-4FC3-B76B-B11234376218@2x.ktx",
       "mock_hash_for_DCD2FADC-FFCB-4FC3-B76B-B11234376218@2x.ktx"
     ],
     [
@@ -470,7 +470,7 @@
       "sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473",
       "3C0F9624-5818-42A8-B594-0BA0F4F6036E",
       "default",
-      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/3C0F9624-5818-42A8-B594-0BA0F4F6036E@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/3C0F9624-5818-42A8-B594-0BA0F4F6036E@2x.ktx",
       "mock_hash_for_3C0F9624-5818-42A8-B594-0BA0F4F6036E@2x.ktx"
     ],
     [
@@ -481,7 +481,7 @@
       "sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473",
       "6D449727-616D-4547-BE0E-9E158833854B",
       "default",
-      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/6D449727-616D-4547-BE0E-9E158833854B@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/6D449727-616D-4547-BE0E-9E158833854B@2x.ktx",
       "mock_hash_for_6D449727-616D-4547-BE0E-9E158833854B@2x.ktx"
     ],
     [
@@ -492,7 +492,7 @@
       "sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473",
       "481386FB-2B2E-4A24-94D1-658B3C9B891A",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/downscaled/481386FB-2B2E-4A24-94D1-658B3C9B891A@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/downscaled/481386FB-2B2E-4A24-94D1-658B3C9B891A@2x.ktx",
       "mock_hash_for_481386FB-2B2E-4A24-94D1-658B3C9B891A@2x.ktx"
     ],
     [
@@ -503,7 +503,7 @@
       "sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473",
       "ED2DC692-58A4-467A-AF50-89E3F7E70B8C",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/downscaled/ED2DC692-58A4-467A-AF50-89E3F7E70B8C@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/B528CF3D-7AF8-48DC-938B-FD9B41603282/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilesafari-00BEC005-6F1C-461A-9E8B-39BF53626473/downscaled/ED2DC692-58A4-467A-AF50-89E3F7E70B8C@2x.ktx",
       "mock_hash_for_ED2DC692-58A4-467A-AF50-89E3F7E70B8C@2x.ktx"
     ],
     [
@@ -591,7 +591,7 @@
       "sceneID:ph.telegra.Telegraph-default",
       "0E826650-CF23-459A-AA07-A95A2391CFF2",
       "default",
-      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID_ph.telegra.Telegraph-default/0E826650-CF23-459A-AA07-A95A2391CFF2@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID:ph.telegra.Telegraph-default/0E826650-CF23-459A-AA07-A95A2391CFF2@2x.ktx",
       "mock_hash_for_0E826650-CF23-459A-AA07-A95A2391CFF2@2x.ktx"
     ],
     [
@@ -602,7 +602,7 @@
       "sceneID:ph.telegra.Telegraph-default",
       "82843C57-6432-44CE-9859-EA5BF5093BD0",
       "default",
-      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID_ph.telegra.Telegraph-default/82843C57-6432-44CE-9859-EA5BF5093BD0@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID:ph.telegra.Telegraph-default/82843C57-6432-44CE-9859-EA5BF5093BD0@2x.ktx",
       "mock_hash_for_82843C57-6432-44CE-9859-EA5BF5093BD0@2x.ktx"
     ],
     [
@@ -613,7 +613,7 @@
       "sceneID:ph.telegra.Telegraph-default",
       "7C7A453D-AB02-4A90-936C-790712A39A02",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID_ph.telegra.Telegraph-default/downscaled/7C7A453D-AB02-4A90-936C-790712A39A02@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID:ph.telegra.Telegraph-default/downscaled/7C7A453D-AB02-4A90-936C-790712A39A02@2x.ktx",
       "mock_hash_for_7C7A453D-AB02-4A90-936C-790712A39A02@2x.ktx"
     ],
     [
@@ -624,7 +624,7 @@
       "sceneID:ph.telegra.Telegraph-default",
       "A1B6438D-6299-4E17-9963-8C424001353B",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID_ph.telegra.Telegraph-default/downscaled/A1B6438D-6299-4E17-9963-8C424001353B@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/804BE784-7AAA-4AC5-ADA6-95CC15F00DCC/Library/SplashBoard/Snapshots/sceneID:ph.telegra.Telegraph-default/downscaled/A1B6438D-6299-4E17-9963-8C424001353B@2x.ktx",
       "mock_hash_for_A1B6438D-6299-4E17-9963-8C424001353B@2x.ktx"
     ],
     [
@@ -635,7 +635,7 @@
       "sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240",
       "7975A6D7-356F-4B08-89C7-A049B725BBDB",
       "default",
-      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/7975A6D7-356F-4B08-89C7-A049B725BBDB@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/7975A6D7-356F-4B08-89C7-A049B725BBDB@2x.ktx",
       "mock_hash_for_7975A6D7-356F-4B08-89C7-A049B725BBDB@2x.ktx"
     ],
     [
@@ -646,7 +646,7 @@
       "sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240",
       "D0687919-BA66-49A1-A6C0-F60AADCBBB69",
       "default",
-      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/D0687919-BA66-49A1-A6C0-F60AADCBBB69@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/D0687919-BA66-49A1-A6C0-F60AADCBBB69@2x.ktx",
       "mock_hash_for_D0687919-BA66-49A1-A6C0-F60AADCBBB69@2x.ktx"
     ],
     [
@@ -657,7 +657,7 @@
       "sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240",
       "3E95A376-B27A-4FCA-AF03-9871C8194E9E",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/downscaled/3E95A376-B27A-4FCA-AF03-9871C8194E9E@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/downscaled/3E95A376-B27A-4FCA-AF03-9871C8194E9E@2x.ktx",
       "mock_hash_for_3E95A376-B27A-4FCA-AF03-9871C8194E9E@2x.ktx"
     ],
     [
@@ -668,7 +668,7 @@
       "sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240",
       "B1F1CD42-0C44-444F-9327-D26315F0822D",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/downscaled/B1F1CD42-0C44-444F-9327-D26315F0822D@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/620ABF07-F51D-45CA-98B9-F28A6979221E/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilenotes-9DE1E5C6-97ED-4913-BF84-9C837E41C240/downscaled/B1F1CD42-0C44-444F-9327-D26315F0822D@2x.ktx",
       "mock_hash_for_B1F1CD42-0C44-444F-9327-D26315F0822D@2x.ktx"
     ],
     [
@@ -679,7 +679,7 @@
       "sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D",
       "0A09BC59-04C7-44B7-B20D-FE2C678B6BF2",
       "default",
-      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/0A09BC59-04C7-44B7-B20D-FE2C678B6BF2@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/0A09BC59-04C7-44B7-B20D-FE2C678B6BF2@2x.ktx",
       "mock_hash_for_0A09BC59-04C7-44B7-B20D-FE2C678B6BF2@2x.ktx"
     ],
     [
@@ -690,7 +690,7 @@
       "sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D",
       "90CA603B-2FAB-43BF-999D-6B2F3E4E2390",
       "default",
-      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/90CA603B-2FAB-43BF-999D-6B2F3E4E2390@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/90CA603B-2FAB-43BF-999D-6B2F3E4E2390@2x.ktx",
       "mock_hash_for_90CA603B-2FAB-43BF-999D-6B2F3E4E2390@2x.ktx"
     ],
     [
@@ -701,7 +701,7 @@
       "sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D",
       "2F836B9B-0A32-4518-BF94-2A05D50D9CB8",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/downscaled/2F836B9B-0A32-4518-BF94-2A05D50D9CB8@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/downscaled/2F836B9B-0A32-4518-BF94-2A05D50D9CB8@2x.ktx",
       "mock_hash_for_2F836B9B-0A32-4518-BF94-2A05D50D9CB8@2x.ktx"
     ],
     [
@@ -712,7 +712,7 @@
       "sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D",
       "59066770-C9B4-4600-8F86-78449E81AA3A",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID_com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/downscaled/59066770-C9B4-4600-8F86-78449E81AA3A@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/372D88CD-E768-4EEB-8E41-AE8BD909BB96/Library/SplashBoard/Snapshots/sceneID:com.apple.MobileAddressBook-10E839A3-5FAA-4863-AB63-BD3425EDD81D/downscaled/59066770-C9B4-4600-8F86-78449E81AA3A@2x.ktx",
       "mock_hash_for_59066770-C9B4-4600-8F86-78449E81AA3A@2x.ktx"
     ],
     [
@@ -723,7 +723,7 @@
       "sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2",
       "6970B553-0AA1-40F0-9AB2-DE4BDDFBC54D",
       "default",
-      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID_com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/6970B553-0AA1-40F0-9AB2-DE4BDDFBC54D@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/6970B553-0AA1-40F0-9AB2-DE4BDDFBC54D@2x.ktx",
       "mock_hash_for_6970B553-0AA1-40F0-9AB2-DE4BDDFBC54D@2x.ktx"
     ],
     [
@@ -734,7 +734,7 @@
       "sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2",
       "94AFA825-844A-4E30-9504-DCA4D279C873",
       "default",
-      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID_com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/94AFA825-844A-4E30-9504-DCA4D279C873@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/94AFA825-844A-4E30-9504-DCA4D279C873@2x.ktx",
       "mock_hash_for_94AFA825-844A-4E30-9504-DCA4D279C873@2x.ktx"
     ],
     [
@@ -745,7 +745,7 @@
       "sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2",
       "718053ED-2674-488B-8283-D9BB57549F48",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID_com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/downscaled/718053ED-2674-488B-8283-D9BB57549F48@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/downscaled/718053ED-2674-488B-8283-D9BB57549F48@2x.ktx",
       "mock_hash_for_718053ED-2674-488B-8283-D9BB57549F48@2x.ktx"
     ],
     [
@@ -756,7 +756,7 @@
       "sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2",
       "C3DD78B5-6A8A-47A1-96C7-6604E9D97740",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID_com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/downscaled/C3DD78B5-6A8A-47A1-96C7-6604E9D97740@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/34CC4C80-9A0D-44BF-91D9-75EFA41F2EFC/Library/SplashBoard/Snapshots/sceneID:com.apple.Maps-CEF62403-C8A6-45F4-986E-D50D150A6CD2/downscaled/C3DD78B5-6A8A-47A1-96C7-6604E9D97740@2x.ktx",
       "mock_hash_for_C3DD78B5-6A8A-47A1-96C7-6604E9D97740@2x.ktx"
     ],
     [
@@ -767,7 +767,7 @@
       "sceneID:com.apple.mobiletimer-default",
       "7A89F313-6E5B-42C3-8D05-A0BB3656C576",
       "default",
-      "private/var/mobile/Containers/Data/Application/3492DEF4-3D2F-4F8C-A541-8E7E7023A74B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobiletimer-default/7A89F313-6E5B-42C3-8D05-A0BB3656C576@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/3492DEF4-3D2F-4F8C-A541-8E7E7023A74B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobiletimer-default/7A89F313-6E5B-42C3-8D05-A0BB3656C576@2x.ktx",
       "mock_hash_for_7A89F313-6E5B-42C3-8D05-A0BB3656C576@2x.ktx"
     ],
     [
@@ -778,7 +778,7 @@
       "sceneID:com.apple.mobiletimer-default",
       "1D7B7515-26CB-46A0-A793-1E6EC4D6276A",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/3492DEF4-3D2F-4F8C-A541-8E7E7023A74B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobiletimer-default/downscaled/1D7B7515-26CB-46A0-A793-1E6EC4D6276A@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/3492DEF4-3D2F-4F8C-A541-8E7E7023A74B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobiletimer-default/downscaled/1D7B7515-26CB-46A0-A793-1E6EC4D6276A@2x.ktx",
       "mock_hash_for_1D7B7515-26CB-46A0-A793-1E6EC4D6276A@2x.ktx"
     ],
     [
@@ -800,7 +800,7 @@
       "sceneID:com.apple.weather-default",
       "600E1DA2-99C8-4BEC-8426-4FBCD290469B",
       "default",
-      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID_com.apple.weather-default/600E1DA2-99C8-4BEC-8426-4FBCD290469B@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID:com.apple.weather-default/600E1DA2-99C8-4BEC-8426-4FBCD290469B@2x.ktx",
       "mock_hash_for_600E1DA2-99C8-4BEC-8426-4FBCD290469B@2x.ktx"
     ],
     [
@@ -811,7 +811,7 @@
       "sceneID:com.apple.weather-default",
       "AA9126E9-8230-4F20-990C-87DFFC5BF241",
       "default",
-      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID_com.apple.weather-default/AA9126E9-8230-4F20-990C-87DFFC5BF241@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID:com.apple.weather-default/AA9126E9-8230-4F20-990C-87DFFC5BF241@2x.ktx",
       "mock_hash_for_AA9126E9-8230-4F20-990C-87DFFC5BF241@2x.ktx"
     ],
     [
@@ -822,7 +822,7 @@
       "sceneID:com.apple.weather-default",
       "8E813B30-6842-4B6A-B239-206D2EF0BCAF",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID_com.apple.weather-default/downscaled/8E813B30-6842-4B6A-B239-206D2EF0BCAF@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID:com.apple.weather-default/downscaled/8E813B30-6842-4B6A-B239-206D2EF0BCAF@2x.ktx",
       "mock_hash_for_8E813B30-6842-4B6A-B239-206D2EF0BCAF@2x.ktx"
     ],
     [
@@ -833,7 +833,7 @@
       "sceneID:com.apple.weather-default",
       "A505E810-DCC6-4708-957F-270FBD04FDB2",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID_com.apple.weather-default/downscaled/A505E810-DCC6-4708-957F-270FBD04FDB2@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/33B5C963-9C12-4966-8188-35CDBB41A723/Library/SplashBoard/Snapshots/sceneID:com.apple.weather-default/downscaled/A505E810-DCC6-4708-957F-270FBD04FDB2@2x.ktx",
       "mock_hash_for_A505E810-DCC6-4708-957F-270FBD04FDB2@2x.ktx"
     ],
     [
@@ -987,7 +987,7 @@
       "sceneID:com.apple.mobilecal-F11111BF-F171-4734-B26D-4871E4362EE4",
       "340556EA-EE64-414A-A932-9E1F10F34356",
       "default",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-F11111BF-F171-4734-B26D-4871E4362EE4/340556EA-EE64-414A-A932-9E1F10F34356@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-F11111BF-F171-4734-B26D-4871E4362EE4/340556EA-EE64-414A-A932-9E1F10F34356@2x.ktx",
       "mock_hash_for_340556EA-EE64-414A-A932-9E1F10F34356@2x.ktx"
     ],
     [
@@ -998,7 +998,7 @@
       "sceneID:com.apple.mobilecal-F11111BF-F171-4734-B26D-4871E4362EE4",
       "9FA8C833-670F-4C56-90CB-0AA77DF618BF",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-F11111BF-F171-4734-B26D-4871E4362EE4/downscaled/9FA8C833-670F-4C56-90CB-0AA77DF618BF@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-F11111BF-F171-4734-B26D-4871E4362EE4/downscaled/9FA8C833-670F-4C56-90CB-0AA77DF618BF@2x.ktx",
       "mock_hash_for_9FA8C833-670F-4C56-90CB-0AA77DF618BF@2x.ktx"
     ],
     [
@@ -1009,7 +1009,7 @@
       "sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F",
       "BF51C6DD-83A7-4B37-8335-2FF8E41E8152",
       "default",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/BF51C6DD-83A7-4B37-8335-2FF8E41E8152@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/BF51C6DD-83A7-4B37-8335-2FF8E41E8152@2x.ktx",
       "mock_hash_for_BF51C6DD-83A7-4B37-8335-2FF8E41E8152@2x.ktx"
     ],
     [
@@ -1020,7 +1020,7 @@
       "sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F",
       "D11106B1-44A3-4CDD-955D-68D27580D0C0",
       "default",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/D11106B1-44A3-4CDD-955D-68D27580D0C0@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/D11106B1-44A3-4CDD-955D-68D27580D0C0@2x.ktx",
       "mock_hash_for_D11106B1-44A3-4CDD-955D-68D27580D0C0@2x.ktx"
     ],
     [
@@ -1031,7 +1031,7 @@
       "sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F",
       "11FBCD4B-9759-445A-B1CF-97CFEE89CBAE",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/downscaled/11FBCD4B-9759-445A-B1CF-97CFEE89CBAE@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/downscaled/11FBCD4B-9759-445A-B1CF-97CFEE89CBAE@2x.ktx",
       "mock_hash_for_11FBCD4B-9759-445A-B1CF-97CFEE89CBAE@2x.ktx"
     ],
     [
@@ -1042,7 +1042,7 @@
       "sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F",
       "4F19E866-22B9-4691-8333-491F48D6F8BE",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/downscaled/4F19E866-22B9-4691-8333-491F48D6F8BE@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-BE305C16-8CC5-467E-AC05-2E8A970B1A4F/downscaled/4F19E866-22B9-4691-8333-491F48D6F8BE@2x.ktx",
       "mock_hash_for_4F19E866-22B9-4691-8333-491F48D6F8BE@2x.ktx"
     ],
     [
@@ -1053,7 +1053,7 @@
       "sceneID:com.apple.mobilecal-37833B1F-F726-49B9-9187-397AFFA55692",
       "8FDB71A0-57E5-41AA-9B6D-46E1D2FC6DE2",
       "default",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-37833B1F-F726-49B9-9187-397AFFA55692/8FDB71A0-57E5-41AA-9B6D-46E1D2FC6DE2@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-37833B1F-F726-49B9-9187-397AFFA55692/8FDB71A0-57E5-41AA-9B6D-46E1D2FC6DE2@2x.ktx",
       "mock_hash_for_8FDB71A0-57E5-41AA-9B6D-46E1D2FC6DE2@2x.ktx"
     ],
     [
@@ -1064,7 +1064,7 @@
       "sceneID:com.apple.mobilecal-37833B1F-F726-49B9-9187-397AFFA55692",
       "4D7A217E-AD69-42D4-9BE4-80EA6AD5DCAB",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID_com.apple.mobilecal-37833B1F-F726-49B9-9187-397AFFA55692/downscaled/4D7A217E-AD69-42D4-9BE4-80EA6AD5DCAB@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/209A663B-B943-43A5-A9CA-00F7A22D4F0B/Library/SplashBoard/Snapshots/sceneID:com.apple.mobilecal-37833B1F-F726-49B9-9187-397AFFA55692/downscaled/4D7A217E-AD69-42D4-9BE4-80EA6AD5DCAB@2x.ktx",
       "mock_hash_for_4D7A217E-AD69-42D4-9BE4-80EA6AD5DCAB@2x.ktx"
     ],
     [
@@ -1075,7 +1075,7 @@
       "sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D",
       "03EF472D-99A6-4CE3-AAA3-F286FBE44768",
       "default",
-      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID_com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/03EF472D-99A6-4CE3-AAA3-F286FBE44768@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/03EF472D-99A6-4CE3-AAA3-F286FBE44768@2x.ktx",
       "mock_hash_for_03EF472D-99A6-4CE3-AAA3-F286FBE44768@2x.ktx"
     ],
     [
@@ -1086,7 +1086,7 @@
       "sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D",
       "0A9A2440-4BA4-4280-A97A-9702E8007837",
       "default",
-      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID_com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/0A9A2440-4BA4-4280-A97A-9702E8007837@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/0A9A2440-4BA4-4280-A97A-9702E8007837@2x.ktx",
       "mock_hash_for_0A9A2440-4BA4-4280-A97A-9702E8007837@2x.ktx"
     ],
     [
@@ -1097,7 +1097,7 @@
       "sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D",
       "71154D7D-7FA9-45E5-B48E-B89956A4B97D",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID_com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/downscaled/71154D7D-7FA9-45E5-B48E-B89956A4B97D@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/downscaled/71154D7D-7FA9-45E5-B48E-B89956A4B97D@2x.ktx",
       "mock_hash_for_71154D7D-7FA9-45E5-B48E-B89956A4B97D@2x.ktx"
     ],
     [
@@ -1108,7 +1108,7 @@
       "sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D",
       "B014CB6C-7DA6-4B15-B783-588C7EE0E163",
       "downscaled",
-      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID_com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/downscaled/B014CB6C-7DA6-4B15-B783-588C7EE0E163@2x.ktx",
+      "private/var/mobile/Containers/Data/Application/1C2CFCCC-23E0-499F-9043-7A6B9B8B0822/Library/SplashBoard/Snapshots/sceneID:com.apple.reminders-57D3C9CD-3C7D-4995-859A-8A60F68E801D/downscaled/B014CB6C-7DA6-4B15-B783-588C7EE0E163@2x.ktx",
       "mock_hash_for_B014CB6C-7DA6-4B15-B783-588C7EE0E163@2x.ktx"
     ],
     [

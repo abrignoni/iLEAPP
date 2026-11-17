@@ -6,6 +6,7 @@ from os.path import basename
 from pathlib import Path
 
 from leapp_functions.app.artifact_result import ArtifactResult
+from leapp_functions.app.platform import sanitize_file_path
 
 
 class Context:
@@ -548,7 +549,8 @@ class Context:
     def get_relative_path(full_path):
         """
         Converts a full on-disk path into one that carries none of the
-        examiner's own filesystem layout.
+        examiner's own filesystem layout, and that names a staged file as the
+        evidence names it.
 
         Two prefixes are stripped, in this order:
 
@@ -575,6 +577,17 @@ class Context:
         prefix, before reporting it would otherwise, on Windows, publish the
         examiner's own folders, because those spellings never matched.
 
+        The seeker stages a file whose evidence name holds a character Windows
+        cannot write (':', '|', '?', a control character) under that name with
+        the character replaced, and on every platform. For a staged file the
+        seeker recorded, the evidence name is reported instead of the staged
+        one, so an examiner can find the file in the extraction by the path the
+        report gives. Only the replaced characters change. A path the artifact
+        built from a staged one (its folder, a joined list) is not a staged file
+        and keeps the staged spelling, and so does a copy staged under another
+        name because its name differs only in case from one already staged, and
+        a file whose evidence name holds a line break.
+
         Args:
             full_path (str): The full path to the file.
 
@@ -585,6 +598,58 @@ class Context:
         if not full_path:
             return full_path
 
+        relative = Context._strip_run_folders(full_path)
+        evidence_name = Context._evidence_name(full_path, relative)
+        return relative if evidence_name is None else evidence_name
+
+    @staticmethod
+    def _staged_file_info(full_path):
+        """The FileInfo the seeker recorded for a staged path, in any spelling a run uses."""
+        seeker = Context._seeker
+        infos = getattr(seeker, 'file_infos', None) if seeker is not None else None
+        if not isinstance(infos, dict) or not infos:
+            return None
+        windows = full_path.replace('/', '\\')
+        bare = windows.removeprefix('\\\\?\\')
+        for spelling in dict.fromkeys((full_path, windows, bare, '\\\\?\\' + bare)):
+            info = infos.get(spelling)
+            if info is not None:
+                return info
+        return None
+
+    @staticmethod
+    def _evidence_name(full_path, relative):
+        """
+        The evidence name of a staged file, spelled with relative's separators, when
+        relative is that name with only the seeker's replacements made; otherwise None.
+        """
+        if not isinstance(full_path, str) or not isinstance(relative, str):
+            return None
+        info = Context._staged_file_info(full_path)
+        source = getattr(info, 'source_path', None)
+        if not isinstance(source, str):
+            return None
+        source = source.lstrip('/\\')
+        if source == relative:
+            return None
+        # A report separates several source files with a line break, so a name
+        # holding one would read as two files.
+        if '\n' in source or '\r' in source:
+            return None
+        relative_parts = re.split(r'([\\/])', relative)
+        source_parts = source.split('/')
+        names = relative_parts[0::2]
+        if len(names) != len(source_parts):
+            return None
+        for staged, evidence in zip(names, source_parts):
+            if sanitize_file_path(evidence) != staged:
+                return None
+        relative_parts[0::2] = source_parts
+        return ''.join(relative_parts)
+
+    @staticmethod
+    def _strip_run_folders(full_path):
+        """full_path without the data folder or report folder in it, in any spelling a run uses."""
         for base in (Context._data_folder, Context._output_folder_base):
             if not base:
                 continue

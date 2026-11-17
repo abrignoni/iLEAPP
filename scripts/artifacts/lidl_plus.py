@@ -15,6 +15,7 @@ from datetime import timezone, datetime
 from scripts.artifacts.keychain import parse_keychain
 from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
 from scripts.html_safe import esc, safe_join
+from leapp_functions.app.platform import sanitize_file_path
 from scripts.ilapfuncs import (
     open_sqlite_db_readonly, does_column_exist_in_db, convert_unix_ts_to_utc,
     convert_cocoa_core_data_ts_to_utc, get_plist_file_content, get_plist_content,
@@ -847,8 +848,10 @@ def _decrypt_database(encrypted_path, context, db_config=None):
             )
             return None
 
-    # Build decrypted output path.
-    relative_path = context.get_relative_path(encrypted_path)
+    # Build decrypted output path. The report names a file by its evidence name,
+    # which can hold characters Windows cannot write, so the copy is named the way
+    # the seeker staged it.
+    relative_path = sanitize_file_path(context.get_relative_path(encrypted_path))
 
     if not relative_path or relative_path == encrypted_path:
         relative_path = os.path.basename(encrypted_path)
