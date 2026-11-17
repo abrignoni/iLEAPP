@@ -191,6 +191,11 @@ Units that cannot gate yet are listed with a reason per unit in
 fail CI. When one of them passes again, the run says so; remove its entry in
 the same PR that fixed it.
 
+A unit that fails on one platform only is listed as
+`"unit": {"reason": "...", "platforms": ["win32"]}`, with `sys.platform`
+values. It is excluded only there and keeps gating everywhere else. A plain
+reason applies on every platform.
+
 ## Requirements
 
 ### __artifacts_v2__ Block

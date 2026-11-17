@@ -31,7 +31,9 @@ Comparison notes:
 
 Units listed in admin/test/cases/known_failures.json (unit -> reason) run and
 report but do not gate, so a unit can be excluded deliberately, with a stated
-reason, instead of blocking every PR while it is being repaired. A known
+reason, instead of blocking every PR while it is being repaired. An entry can
+also be {"reason": ..., "platforms": ["win32"]}, which excludes the unit only
+on those sys.platform values and keeps it gating everywhere else. A known
 failure that passes again is flagged so the entry gets removed.
 
 Exit status is 1 if any non-excluded unit failed, errored, or has no
@@ -87,6 +89,29 @@ def latest_baseline(module, artifact, case):
     pattern = f"{module}.{artifact}.{case}.*.json"
     candidates = sorted((RESULTS_DIR / module).glob(pattern))
     return candidates[-1] if candidates else None
+
+
+def applicable_known_failures(entries, platform=sys.platform):
+    """{unit: reason} for the known_failures.json entries that apply on platform.
+
+    A value is either the reason, which applies everywhere, or an object with a
+    "reason" and a "platforms" list of sys.platform values ("win32", "darwin",
+    "linux"), which applies only there. A Windows-only failure listed with
+    "platforms": ["win32"] keeps gating on macOS and Linux.
+    """
+    applicable = {}
+    for unit, value in entries.items():
+        if isinstance(value, str):
+            applicable[unit] = value
+            continue
+        if not (isinstance(value, dict) and isinstance(value.get("reason"), str)
+                and isinstance(value.get("platforms"), list) and value["platforms"]
+                and all(isinstance(name, str) for name in value["platforms"])):
+            raise ValueError(f"known_failures.json: {unit} must map to a reason, or to "
+                             f'{{"reason": ..., "platforms": [...]}}')
+        if platform in value["platforms"]:
+            applicable[unit] = value["reason"]
+    return applicable
 
 
 def normalize_rows(rows, backslash_paths=NATIVE_BACKSLASH_PATHS):
@@ -168,7 +193,7 @@ def main(argv=None):
     known = {}
     if KNOWN_FAILURES_PATH.exists() and not args.strict:
         with open(KNOWN_FAILURES_PATH, encoding="utf-8") as f:
-            known = json.load(f)
+            known = applicable_known_failures(json.load(f))
 
     os.chdir(REPO_ROOT)
     import test_module  # noqa: E402  imported late so sys.path is set
