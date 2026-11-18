@@ -4,34 +4,43 @@ __artifacts_v2__ = {
         "description": "Parses visited places from the Location.Visit biome stream: coordinates "
                        "with horizontal accuracy, arrival and departure times, and a place "
                        "name, address and category where the record carries them. "
-                       "TIMESTAMP CAUTION: in tested samples the coordinates, accuracy and "
-                       "point of interest details decoded consistently; the timestamps require "
-                       "caution. In the tested samples records were written in batches long "
-                       "after the visit, so there the SEGB record time is a write time, not a "
-                       "visit "
-                       "time, and the Field 1 Timestamp column does not consistently line up with "
-                       "the arrival and departure pair. Treat every time in this artifact as "
-                       "an indication that needs corroborating from another source before it "
-                       "is relied on.",
+                       "TIMESTAMP CAUTION: on the tested images coordinates and both accuracy "
+                       "values were present on each of the 156 written rows; the timestamps "
+                       "require caution. On the tested images the SEGB record time ran from "
+                       "minutes to weeks after the recorded departure. It is a write time, not "
+                       "a visit time. On the tested images the Detection Date column ran from "
+                       "minutes to 24 days after the recorded departure. Treat every time in "
+                       "this artifact as an indication that needs corroborating from another "
+                       "source before it is relied on.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani), @AlexisBrignoni, Codex",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Timestamp reliability, observed in the sample data: every record in a stream "
-                 "file shared one identical SEGB write time while the visits themselves spanned "
-                 "weeks. Arrival, departure and field 1 are stored as doubles and read here as "
-                 "Unix epoch seconds. Field 1, labelled Field 1 Timestamp here although what it "
-                 "marks is not established, ran from hours to more than a day after the recorded "
-                 "departure and "
-                 "up to 28 days before the SEGB write. Arrival and departure are internally "
-                 "consistent (arrival precedes departure, spans from about half an hour "
-                 "to just over a day) and are the most usable pair, but they are still not "
-                 "independently verified. In tested samples the coordinates, accuracy and "
-                 "point of interest details decoded consistently. Latitude, longitude, "
-                 "horizontal accuracy in metres and confidence are stored as doubles. Vertical "
-                 "accuracy is reported rounded to two decimal places; what a value of -1 means in "
-                 "this stream is not established. Reference: Mattia Epifani, '84 Streams "
+        "notes": "On the tested images the records of a stream file did not share a SEGB write "
+                 "time. Arrival, departure and detection date are stored as doubles and read "
+                 "here as Unix epoch seconds. Detection Date (field 1, reported before as Field "
+                 "1 Timestamp) carries the framework field name detectionDate; what it marks in "
+                 "this stream is not established. On the tested images it ran from minutes to "
+                 "24 days after the recorded departure, and from under a second to 20 days "
+                 "before the SEGB write. It was within a minute of the SEGB time on 62 of 156 "
+                 "written rows. On the tested images arrival preceded departure on all 156 "
+                 "written rows, with spans from 2 minutes to 7 days. Neither was compared with "
+                 "an independent record. On the tested images coordinates and both accuracy "
+                 "values were present on all 156 written rows. Latitude, longitude, horizontal "
+                 "accuracy and confidence are stored as doubles and reported rounded (6, 6, 2 "
+                 "and 3 decimal places). The unit of the accuracy values was not read from a "
+                 "source. Vertical accuracy is reported rounded to two decimal places; what a "
+                 "value of -1 means in this stream is not established. Field names and the User "
+                 "Specific Place Type names are those of the BMLocationVisit class and its "
+                 "BMPlaceInference class, read from BiomeLibrary.framework on macOS 27.2.1 "
+                 "(26B131); no iOS copy of the class was read. Arrival and departure are the "
+                 "fields the framework names entryDate and exitDate, and Horizontal Accuracy "
+                 "and Vertical Accuracy are horizontalUncertainty and verticalUncertainty. Place "
+                 "Inference Identifier, reported before as Visit ID, is the identifier of the "
+                 "place inference, not of the visit. User Specific Place Type is new, with its "
+                 "integer in the (raw) column; on the tested images it was Home on 38 and "
+                 "Unknown on 118 of the 156 written rows. Reference: Mattia Epifani, '84 Streams "
                  "Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Location.Visit/local/*',),
@@ -59,6 +68,10 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+
+
+# userSpecificPlaceType names, read from BiomeLibrary.framework BMPlaceInference on macOS 27.2.1 (26B131).
+USER_SPECIFIC_PLACE_TYPE = {0: 'Unknown', 1: 'Home', 2: 'Work', 3: 'School', 4: 'Gym'}
 
 
 def _to_str(value):
@@ -146,19 +159,24 @@ def get_biomeLocationVisit(context):
                     _rounded(altitude, 2), _rounded(vertical, 2),
                     _rounded(_double(protostuff.get('6')), 3),
                     _to_str(detail.get('2', b'')), _to_str(detail.get('3', b'')),
-                    _to_str(detail.get('4', b'')), _to_str(detail.get('1', b'')),
+                    _to_str(detail.get('4', b'')),
+                    USER_SPECIFIC_PLACE_TYPE.get(place.get('3'), '')
+                    if isinstance(place.get('3'), int) else '',
+                    place.get('3', ''), _to_str(detail.get('1', b'')),
                     _to_str(place.get('1', b'')), filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
                 data_list.append((None, None, None, ts, record.state.name, None, None, None,
-                                  None, None, None, None, None, None, None, None, filename,
+                                  None, None, None, None, None, None, None, None, None, None,
+                                  filename,
                                   record.data_start_offset))
 
     data_headers = (
         ('Arrival Timestamp', 'datetime'), ('Departure Timestamp', 'datetime'),
-        ('Field 1 Timestamp', 'datetime'), ('SEGB Write Timestamp', 'datetime'),
-        'SEGB State', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Horizontal Accuracy (m)', 'Altitude',
+        ('Detection Date', 'datetime'), ('SEGB Write Timestamp', 'datetime'),
+        'SEGB State', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Horizontal Accuracy', 'Altitude',
         'Vertical Accuracy', 'Confidence', 'Place Name', 'Place Address', 'Place Category',
-        'Place ID', 'Visit ID', 'Filename', 'Offset')
+        'User Specific Place Type', 'User Specific Place Type (raw)', 'Place ID',
+        'Place Inference Identifier', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
