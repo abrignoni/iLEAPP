@@ -1,19 +1,22 @@
 __artifacts_v2__ = {
     "get_biomeDKKeybag": {
         "name": "Biome - Keybag",
-        "description": "Parses records from the _DKEvent.Keybag.IsLocked biome stream. Field 4.4 is "
-                       "reported as decoded, without a Locked or Unlocked label. Only records in the "
-                       "Written state are reported.",
+        "description": "Parses records from the _DKEvent.Keybag.IsLocked biome stream: start and end "
+                       "dates and the integer value stored with the record, without a Locked or "
+                       "Unlocked label. Only records in the Written state are reported.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-04-29",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field 4.4 (as stored) retains the decoded protobuf value without Boolean conversion. "
-                 "Its meaning is not established by this change. Missing required fields retain the "
-                 "existing skipped-record behavior, and Deleted-state records remain omitted. Start Time"
-                 " and End Time retain the existing timestamp conversion. Original parser contribution: "
-                 "@JohnHyla.",
+        "notes": "Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on "
+                 "macOS 27.2.1 (26B131); no iOS copy of the class was read. Integer Value is field 4.4 "
+                 "(the value's integerValue) and was reported before as Field 4.4 (as stored); it is "
+                 "reported as decoded, without Boolean conversion, and its meaning is not established. "
+                 "Start Date and End Date are fields 2 and 3 (startDate and endDate) and were reported "
+                 "before as Start Time and End Time. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, Integer Value held 1 on 1,657 "
+                 "and 0 on 1,532 of the 3,189 rows. Missing required fields retain the existing "
+                 "skipped-record behavior, and Deleted-state records remain omitted. Original parser contribution: @JohnHyla. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 3,189 rows, with 8 distinct values, each a whole number of quarter hours within 14 hours of GMT.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Keybag.IsLocked/local/*'),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -110,13 +113,15 @@ def get_biomeDKKeybag(context):
                     time2 = (webkit_timestampsconv(protostuff['2']))
                     time3 = (webkit_timestampsconv(protostuff['3']))
 
-                    data_list.append((ts, time2, time3, protostuff['4']['4'], filename))
+                    tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
+                    data_list.append((ts, time2, time3, tz_offset, protostuff['4']['4'], filename))
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeDKKeybag record due to protobuf decode error: {ex} | "
                             f"File: {context.get_relative_path(file_found)} | "
                             f"Offset: {record.data_start_offset}")
                     continue
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Field 4.4 (as stored)', 'Filename')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Time Zone Offset (seconds)',
+                    'Integer Value', 'Filename')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

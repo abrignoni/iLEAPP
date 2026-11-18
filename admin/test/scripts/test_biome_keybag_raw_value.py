@@ -63,7 +63,7 @@ class KeybagRawValueTest(unittest.TestCase):
         epoch = datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc)
         expected = [(epoch + datetime.timedelta(seconds=1000),
                      epoch + datetime.timedelta(seconds=900),
-                     epoch + datetime.timedelta(seconds=1100), value, 'record') for value in VALUES]
+                     epoch + datetime.timedelta(seconds=1100), '', value, 'record') for value in VALUES]
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for version in [1, 2]:
@@ -72,9 +72,9 @@ class KeybagRawValueTest(unittest.TestCase):
                     main.parent.mkdir(parents=True)
                     main.write_bytes(segb_fixture(version))
                     headers, rows, source = parser.get_biomeDKKeybag.__wrapped__(context(root, [main]))
-                    self.assertEqual(len(headers), 5)
+                    self.assertEqual(len(headers), 6)
                     self.assertEqual(rows, expected)
-                    self.assertEqual([type(row[3]) for row in rows], [type(v) for v in VALUES])
+                    self.assertEqual([type(row[4]) for row in rows], [type(v) for v in VALUES])
                     self.assertEqual(source, str(main.parent))
                     repeated = parser.get_biomeDKKeybag.__wrapped__(context(root, [main, main]))
                     self.assertEqual(repeated[1], expected + expected)
@@ -87,7 +87,8 @@ class KeybagRawValueTest(unittest.TestCase):
                     self.assertEqual(parser.get_biomeDKKeybag.__wrapped__(context(root, [hidden, tombstone]))[1:], ([], ''))
 
     def test_missing_and_wrong_type_keep_existing_skip(self):
-        good = wire(2)
+        # Field 10 (timeZone) is a signed varint of seconds from GMT; -18000 is written as int64.
+        good = wire(2) + b'\x50' + varint(-18000 & (2 ** 64 - 1))
         missing = b'\x11' + struct.pack('<d', 900) + b'\x19' + struct.pack('<d', 1100) + b'\x22\x00'
         wrong = missing[:-2] + b'\x22\x03\x22\x01x'
         with tempfile.TemporaryDirectory() as directory:
@@ -98,7 +99,8 @@ class KeybagRawValueTest(unittest.TestCase):
             with patch.object(parser, 'logfunc') as log:
                 rows = parser.get_biomeDKKeybag.__wrapped__(context(root, [path]))[1]
             self.assertEqual(len(rows), 1)
-            self.assertEqual(rows[0][3], 2)
+            self.assertEqual(rows[0][3], -18000)
+            self.assertEqual(rows[0][4], 2)
             self.assertEqual(log.call_count, 2)
             self.assertTrue(all('Skipping biomeDKKeybag record' in str(call) for call in log.call_args_list))
 

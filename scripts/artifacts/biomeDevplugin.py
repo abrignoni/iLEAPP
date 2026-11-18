@@ -4,14 +4,19 @@ __artifacts_v2__ = {
         "description": "Parses device plugged in entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "A record is written whenever the device is charging, which includes wireless "
-                 "charging as well as a physical cable connection, so isCharging describes this "
-                 "state more accurately than plugged in (observation by Ian Whiffin). Reference: "
+        "notes": "Mattia Epifani quotes Ian Whiffin's article 'KnowledgeC Complete(ish)' under this stream: a record of this type is made whenever the device is charging, by cable or on a wireless charger, and isCharging may be a better name than plugged in. This module did not test it and does not label the value. Rows with SEGB State Deleted carry only the SEGB Timestamp, Filename and Offset; on the tested images there were 8,344 of them beside the 5,377 written rows, and the sample_data counts include both. Reference: "
                  "Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html. "
+                 "Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on "
+                 "macOS 27.2.1 (26B131); no iOS copy of the class was read. Start Date, End Date and "
+                 "Creation Date are fields 2, 3 and 8 (startDate, endDate and creationDate) and were "
+                 "reported before as Time Start, Time End and Time Write. Stream Name is field 1.1 and "
+                 "was reported before as Activity. Integer Value is field 4.4 (the value's integerValue) "
+                 "and was reported before as Status; it is shown as stored. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it held "
+                 "1 on 4,809 and 0 on 568 of the 5,377 written rows. Identifier is field 5 and was reported before as Action GUID. Adapter Is Wireless is the integer value of the metadata entry with index 38001, which CoreDuet's own conversion of synthetic records names adapterIsWireless; it is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it held 0 on 3,547 and 1 on 11 of the 5,377 written rows and was empty on the 1,819 that held no such entry. Adapter Type (raw) is the integer value of the metadata entry with index 38000, which CoreDuet's own conversion of synthetic records names adapterType; it is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on the same 3,558 written rows as Adapter Is Wireless, with 12 distinct values, and each value equals one of the kIOPSFamilyCode constants in IOPM.h (IOKit, macOS 27.2 SDK), for example kIOPSFamilyCodeUSBHost (-536854528) and kIOPSFamilyCodeUSBCPD (-536854518). That the writer stores this family code was not read from its code, so no name is given. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 5,377 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT.",
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
@@ -43,6 +48,25 @@ from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+
+# _DKEvent metadata indexes that CoreDuet names _DKDeviceIsPluggedInMetadataKey-adapterIsWireless
+# (read from _DKEvent fromPBCodable: on synthetic records, macOS 27.2.1, 26B131).
+_ADAPTER_IS_WIRELESS_INDEX = 38001
+# ... and _DKDeviceIsPluggedInMetadataKey-adapterType.
+_ADAPTER_TYPE_INDEX = 38000
+
+
+def _metadata_int(entries, index):
+    """Integer value (field 7.N.2.4) of the metadata entry whose index (7.N.3) is index, or ''."""
+    if isinstance(entries, dict):
+        entries = [entries]
+    for entry in entries or []:
+        if isinstance(entry, dict) and entry.get('3') == index:
+            value = entry.get('2')
+            if isinstance(value, dict) and type(value.get('4')) is int:
+                return value['4']
+    return ''
+
 
 @artifact_processor
 def get_biomeDevplugin(context):
@@ -84,7 +108,7 @@ def get_biomeDevplugin(context):
         '7': {
             'type': 'message',
             'message_typedef': {
-                '1': {'type': 'message', 'message_typedef': {}, 'name': ''},
+                '1': {'type': 'bytes', 'name': ''},
                 '2': {
                     'type': 'message',
                     'message_typedef': {
@@ -140,16 +164,21 @@ def get_biomeDevplugin(context):
                 timewrite = (webkit_timestampsconv(protostuff['8']))
                 
                 con = (protostuff['4']['4'])
+                wireless = _metadata_int(protostuff.get('7'), _ADAPTER_IS_WIRELESS_INDEX)
+                adapter_type = _metadata_int(protostuff.get('7'), _ADAPTER_TYPE_INDEX)
                 actionguid = (protostuff['5'])
                 
-                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, con, actionguid,
+                tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
+                data_list.append((ts, timestart, timeend, timewrite, tz_offset, record.state.name, activity, con, wireless, adapter_type, actionguid,
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, None, record.state.name, None, None, None, filename,
+                data_list.append((ts, None, None, None, None, record.state.name, None, None, None, None, None, filename,
                                   record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
+                    ('Creation Date', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Integer Value', 'Adapter Is Wireless',
+                    'Adapter Type (raw)', 'Identifier', 'Filename',
+                    'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
