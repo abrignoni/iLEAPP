@@ -1,13 +1,15 @@
-"""Edge cases in three shared conversion helpers in scripts/ilapfuncs.py.
+"""Edge cases in shared conversion helpers in scripts/ilapfuncs.py and three local converters.
 
-* convert_cocoa_core_data_ts_to_utc added the epoch offset in seconds before the
-  value was scaled from milliseconds, microseconds or nanoseconds, so those
-  values came out about 31 years early.
-* get_birthdate_from_unix_ts called .year on the empty value that
-  convert_unix_ts_to_utc passes back, raising AttributeError.
-* convert_bytes_to_unit stopped at GB and returned a bare number, without a
-  unit, for anything from 1 TiB up.
+* convert_cocoa_core_data_ts_to_utc added the epoch offset in seconds before the value was
+  scaled from ms, us or ns, so those came out about 31 years early. It and webkit_timestampsconv
+  report the exact NSDate.distantPast and distantFuture values blank.
+* webkit_timestampsconv now adds to the epoch before 1970 instead of relying on
+  datetime.fromtimestamp, which is platform dependent there.
+* get_birthdate and get_birthdate_from_unix_ts raised on an empty value or a sentinel.
+* convert_bytes_to_unit stopped at GB and returned a bare number from 1 TiB up.
+* homeKit, textReplacements and widgetEngagements each added the offset themselves.
 """
+# pylint: disable=protected-access
 import pathlib
 import sys
 import unittest
@@ -20,7 +22,9 @@ from scripts.ilapfuncs import (  # pylint: disable=wrong-import-position
     convert_bytes_to_unit,
     convert_cocoa_core_data_ts_to_utc,
     convert_unix_ts_to_utc,
+    get_birthdate,
     get_birthdate_from_unix_ts,
+    webkit_timestampsconv,
 )
 
 COCOA_SECONDS = 700000000
@@ -78,6 +82,94 @@ class SentinelInReportOutputs(unittest.TestCase):
     def test_lava_stores_the_blank_as_blank(self):
         from scripts.lavafuncs import _prepare_datetime_value  # pylint: disable=import-outside-toplevel
         self.assertEqual(_prepare_datetime_value(convert_cocoa_core_data_ts_to_utc(-63114076800)), '')
+
+
+class WebkitTimestampsconv(unittest.TestCase):
+    def test_sentinels_are_blank_like_the_cocoa_converter(self):
+        for value in (-63114076800, -63114076800.0, 63113904000, 63113904000.0):
+            with self.subTest(value=value):
+                self.assertEqual(webkit_timestampsconv(value), '')
+                self.assertEqual(webkit_timestampsconv(value),
+                                 convert_cocoa_core_data_ts_to_utc(value))
+
+    def test_year_4001_that_is_not_the_sentinel_converts(self):
+        self.assertEqual(webkit_timestampsconv(63113904001),
+                         datetime(4001, 1, 1, 0, 0, 1, tzinfo=timezone.utc))
+
+    def test_epoch_fraction_and_modern_values(self):
+        self.assertEqual(webkit_timestampsconv(0), datetime(2001, 1, 1, tzinfo=timezone.utc))
+        self.assertEqual(webkit_timestampsconv(700000000), EXPECTED)
+        self.assertEqual(webkit_timestampsconv(700000000.5),
+                         EXPECTED.replace(microsecond=500000))
+
+    def test_pre_1970_and_unix_epoch(self):
+        self.assertEqual(webkit_timestampsconv(-978307200), datetime(1970, 1, 1, tzinfo=timezone.utc))
+        self.assertEqual(webkit_timestampsconv(-978307201), datetime(1969, 12, 31, 23, 59, 59, tzinfo=timezone.utc))
+        self.assertEqual(webkit_timestampsconv(-1009843200), datetime(1969, 1, 1, tzinfo=timezone.utc))
+        self.assertEqual(webkit_timestampsconv(-63113904000), datetime(1, 1, 1, tzinfo=timezone.utc))
+
+    def test_out_of_range_stays_a_value_error(self):
+        for value in (-63114076799, -63113904001, -1e30, 1e12):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    webkit_timestampsconv(value)
+
+
+class LocalCocoaConverters(unittest.TestCase):
+    """homeKit, textReplacements and widgetEngagements each had their own converter."""
+
+    def converters(self):
+        from scripts.artifacts import homeKit, textReplacements, widgetEngagements  # pylint: disable=import-outside-toplevel
+        return (('homeKit', homeKit._cocoa), ('textReplacements', textReplacements._cocoa),
+                ('widgetEngagements', widgetEngagements._cocoa))
+
+    def test_sentinels_are_blank(self):
+        for name, convert in self.converters():
+            for value in (-63114076800, 63113904000):
+                with self.subTest(module=name, value=value):
+                    self.assertEqual(convert(value), '')
+
+    def test_seconds_zero_units_and_truncated_fractions(self):
+        for name, convert in self.converters():
+            with self.subTest(module=name):
+                self.assertEqual(convert(COCOA_SECONDS), EXPECTED)
+                # the shared converter drops sub-second parts, as these converters always did
+                self.assertEqual(convert(COCOA_SECONDS + 0.5), EXPECTED)
+                self.assertEqual(convert(0), datetime(2001, 1, 1, tzinfo=timezone.utc))
+                self.assertEqual(convert(COCOA_SECONDS * 1000), EXPECTED)
+                self.assertEqual(convert(-1009843200 - 978307200), convert_unix_ts_to_utc(-1009843200))
+
+    def test_empty_inputs(self):
+        for name, convert in self.converters():
+            for value in (None, ''):
+                with self.subTest(module=name, value=value):
+                    self.assertEqual(convert(value), '')
+
+
+class TwitterCocoa(unittest.TestCase):
+    def test_guard_and_helper_together(self):
+        from scripts.artifacts.twitterX import _cocoa  # pylint: disable=import-outside-toplevel
+        for value in (-63114076800, -63114076800.0, None, True, 'x'):
+            with self.subTest(value=value):
+                self.assertEqual(_cocoa(value), '')
+        self.assertEqual(_cocoa(700000000), EXPECTED)
+
+
+class Birthdate(unittest.TestCase):
+    def test_absent_and_sentinels_are_blank(self):
+        for value in (None, -63114076800, 63113904000):
+            with self.subTest(value=value):
+                self.assertEqual(get_birthdate(value), '')
+
+    def test_valid_dates_and_the_no_year_convention(self):
+        self.assertEqual(get_birthdate(0), '01 January 2001')
+        self.assertEqual(get_birthdate(-978307200), '01 January 1970')
+        # Apple stores a birthday without a year in 1604; the year is left out
+        self.assertEqual(get_birthdate((datetime(1604, 7, 9) - datetime(2001, 1, 1)).total_seconds()), '09 July')
+
+    def test_other_malformed_values_still_raise(self):
+        with self.assertRaises(TypeError):
+            get_birthdate('x')
 
 
 class BirthdateFromUnix(unittest.TestCase):

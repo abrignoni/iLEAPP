@@ -80,7 +80,7 @@ def deviceDatam(context):
                     else:
                         # Convert from Apple epoch timestamp
                         converted_time = webkit_timestampsconv(float(val))
-                        val = f"{converted_time} (original: {val})"
+                        val = f"{converted_time} (original: {val})" if converted_time != '' else str(val)
                 except Exception:  # pylint: disable=broad-exception-caught
                     val = str(val)
                     

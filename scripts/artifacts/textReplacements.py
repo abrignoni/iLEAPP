@@ -76,7 +76,7 @@ __artifacts_v2__ = {
 
 import plistlib
 
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, \
+from scripts.ilapfuncs import artifact_processor, convert_cocoa_core_data_ts_to_utc, convert_unix_ts_to_utc, \
     does_table_exist_in_db, get_file_path, get_sqlite_db_records
 
 _QUERY = '''
@@ -89,10 +89,12 @@ ORDER BY ZTIMESTAMP, Z_PK
 def _cocoa(value):
     """Seconds since 2001-01-01 UTC as a UTC datetime; '' when absent.
 
-    convert_cocoa_core_data_ts_to_utc passes 0 through unchanged, so the offset is added here."""
+    convert_cocoa_core_data_ts_to_utc passes 0 through unchanged, so 0 is handled here."""
     if value is None or value == '':
         return ''
-    return convert_unix_ts_to_utc(value + 978307200)
+    if value == 0:
+        return convert_unix_ts_to_utc(978307200)
+    return convert_cocoa_core_data_ts_to_utc(value)
 
 
 def _record_fields(blob):

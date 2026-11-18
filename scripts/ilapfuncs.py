@@ -1933,9 +1933,21 @@ def convert_ts_int_to_timezone(time, time_offset):
     return timezone_time
 
 def webkit_timestampsconv(webkittime):
+    # Same sentinel contract as convert_cocoa_core_data_ts_to_utc: the exact values
+    # NSDate.distantPast and distantFuture are reported blank. distantPast is year one, which
+    # datetime.fromtimestamp cannot return, so it raised ValueError. Any other value, year 4001
+    # included, converts.
+    if webkittime in (COCOA_DISTANT_PAST, COCOA_DISTANT_FUTURE):
+        return ''
     unix_timestamp = webkittime + 978307200
-    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return finaltime
+    if unix_timestamp >= 0:
+        return datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+    # datetime.fromtimestamp is platform dependent before 1970 (it fails on Windows), so add to
+    # the epoch. Out of range stays a ValueError, as fromtimestamp raised it.
+    try:
+        return _UNIX_EPOCH_UTC + timedelta(seconds=unix_timestamp)
+    except OverflowError as exc:
+        raise ValueError(str(exc)) from exc
 
 def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     if '.' in ts:
@@ -1982,6 +1994,8 @@ def convert_plist_date_to_utc(plist_date):
         return plist_date
 
 def get_birthdate(date):
+    if date is None or date in (COCOA_DISTANT_PAST, COCOA_DISTANT_FUTURE):
+        return ''  # absent or NSDate sentinel, reported blank as in convert_cocoa_core_data_ts_to_utc
     cocoa_epoch = datetime(2001, 1, 1, tzinfo=timezone.utc) # Create our own epoch to avoid gmtime() errors in fromtimestamp().
     utc_date = cocoa_epoch + timedelta(seconds=date)
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')

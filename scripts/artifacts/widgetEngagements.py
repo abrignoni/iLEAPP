@@ -93,7 +93,7 @@ __artifacts_v2__ = {
 import os
 import sqlite3
 
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_file_path, \
+from scripts.ilapfuncs import artifact_processor, convert_cocoa_core_data_ts_to_utc, convert_unix_ts_to_utc, get_file_path, \
     logfunc, open_sqlite_db_readonly
 from scripts.sqlite_wal import KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED, rows_not_in_current
 
@@ -120,7 +120,9 @@ _ORIGIN_RECOVERED = 'Recovered'
 def _cocoa(value):
     """Seconds since 2001-01-01 UTC as a UTC datetime; '' when absent or not a number."""
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return convert_unix_ts_to_utc(value + 978307200)
+        if value == 0:
+            return convert_unix_ts_to_utc(978307200)  # Cocoa zero is 2001-01-01, not absent
+        return convert_cocoa_core_data_ts_to_utc(value)
     return ''
 
 

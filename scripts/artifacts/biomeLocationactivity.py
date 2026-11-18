@@ -92,7 +92,8 @@ def _value(payload):
             seconds = struct.unpack('<d', struct.pack('<Q', payload[field]))[0]
             if field == '7':
                 try:
-                    return webkit_timestampsconv(seconds).isoformat()
+                    converted = webkit_timestampsconv(seconds)
+                    return converted.isoformat() if converted != '' else str(seconds)
                 except (OverflowError, OSError, ValueError):
                     return str(seconds)
             return str(seconds)

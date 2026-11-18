@@ -466,14 +466,12 @@ def _every_cached_model(source_paths, model_type):
             yield source_path, uid, model
 
 
-# -63114076800 is 0001-01-01 00:00:00 UTC in Cocoa seconds. Some cached users store it as
-# their updatedTimestamp; read as a date, the shared converter turns it into a 1968 value.
-_COCOA_YEAR_ONE = -63114076800
-
-
 def _cocoa(value):
-    """A cached model's Cocoa seconds as UTC, or '' for a missing value or the year-one value."""
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or value == _COCOA_YEAR_ONE:
+    """A cached model's Cocoa seconds as UTC, or '' for a missing or non-numeric value.
+
+    Some cached users store -63114076800 (NSDate.distantPast) as their updatedTimestamp;
+    the shared converter returns '' for it."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
         return ''
     return convert_cocoa_core_data_ts_to_utc(value)
 

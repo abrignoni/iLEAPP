@@ -258,7 +258,7 @@ from datetime import datetime, timezone
 
 import nska_deserialize as nd
 
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, does_table_exist_in_db, \
+from scripts.ilapfuncs import artifact_processor, convert_cocoa_core_data_ts_to_utc, convert_unix_ts_to_utc, does_table_exist_in_db, \
     get_file_path, get_sqlite_db_records, logfunc
 
 _QUERY = 'SELECT type, uuid, parent_uuid, encoding, record, data FROM record ORDER BY rowid'
@@ -268,7 +268,9 @@ _DECODE_ERRORS = (nd.DeserializeError, plistlib.InvalidFileException, ValueError
 
 def _cocoa(value):
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return convert_unix_ts_to_utc(value + 978307200)
+        if value == 0:
+            return convert_unix_ts_to_utc(978307200)  # Cocoa zero is 2001-01-01, not absent
+        return convert_cocoa_core_data_ts_to_utc(value)
     return ''
 
 
