@@ -21,17 +21,21 @@ __artifacts_v2__ = {
                  "on 570 rows of hill_iphone15pro_ios26, 5,264 of wilkerson_iphone16_ios26 and "
                  "8,106 of iphone11_ios17, and none was Yes on 4,780, 3,826 and 4,607. Running "
                  "held No on every row of hill_iphone15pro_ios26 and Unknown held No on every row "
-                 "of all three tested images. Start Date is startDate, a double read as Unix "
-                 "seconds in UTC; no source for that epoch was found, and read this way it is "
-                 "within one second of the SEGB Timestamp on 12,035 of 12,509, 20,132 of 21,032 "
-                 "and 32,371 of 32,933 rows, never more than 4 seconds after it and at most 47 "
-                 "minutes before it. Rows span 28 days on each of the three tested images. Records "
-                 "the SEGB file marks deleted are not listed, and their payloads are not decoded: "
-                 "16,380, 16,308 and 1,655 on the three images. Files under the stream's tombstone folder are not read; on the "
-                 "two iOS 26 images their written records carry the six flags but no startDate and "
-                 "no confidence, and what they record is not established. The locationd Motion "
-                 "State History artifact covers the last 4 to 9 days on the same images; this "
-                 "stream reaches back about 28 days. The two were not compared row by row.",
+                 "of all three tested images. Start Date is startDate, a double. BMMotionActivity "
+                 "in the same macOS framework reads it as seconds since 1970 UTC (checked with a "
+                 "synthetic record); that the iOS writer does the same was not checked beyond the "
+                 "data: read this way it is within one second of the SEGB Timestamp on 12,035 of "
+                 "12,509, 20,132 of 21,032 and 32,371 of 32,933 rows, never more than 4 seconds "
+                 "after it and at most 47 minutes before it. Rows span 28 days on each of the "
+                 "three tested images. Records the SEGB file marks deleted are not listed, and "
+                 "their payloads are not decoded: 16,380, 16,308 and 1,655 on the three images. "
+                 "Files under the stream's tombstone folder are not read. Their written records do "
+                 "not have the Motion.Activity layout: on the two iOS 26 images they hold six "
+                 "fields numbered 1 to 6, on iphone11_ios17 five fields numbered 1 to 5, and "
+                 "fields 1 and 5 are length-delimited. What they record is not established. The "
+                 "Locationd Cache - Motion State History artifact covers the last 4 to 9 days on "
+                 "the same images; this stream reaches back about 28 days. The two were not "
+                 "compared row by row.",
         "paths": ('*/streams/*/Motion.Activity/local/*',),
         "output_types": "standard",
         "artifact_icon": "activity",
