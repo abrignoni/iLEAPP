@@ -3,8 +3,9 @@ __artifacts_v2__ = {
         "name": "Biome - Local Authentication Evaluations",
         "description": "Authentication evaluation records from the "
                        "LocalAuthentication.Interactive.Evaluations biome stream: the policy and "
-                       "result, whether biometry and passcode were available, started and "
-                       "succeeded, and the ratchet state each record stores.",
+                       "result, the available, started, success and lockout flags stored for "
+                       "biometry and for passcode, and the ratchet state and ratchet arming "
+                       "state each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
@@ -24,9 +25,10 @@ __artifacts_v2__ = {
                  "those fields. Policy and Result are reported as stored, as the framework exports "
                  "no names for them: Policy held 0, 1, 2, 1007 and 1028 on hill_iphone15pro_ios26 "
                  "and 0, 2, 1004, 1026 and 1028 on wilkerson_iphone16_ios26, and Result held 0 or "
-                 "-9 on every row. The record holds no name of the app that asked for the "
-                 "evaluation. SEGB Timestamp is the SEGB record time; what it marks was not "
-                 "checked against another record. On the tested images Biometry Available, "
+                 "-9 on every row. The schema read from the framework has no field for the app "
+                 "that asked for the evaluation, and no written record on the two iOS 26 images "
+                 "held a text field. SEGB Timestamp is the SEGB record time; what it marks was not "
+                 "checked against another record. On the two iOS 26 images Biometry Available, "
                  "Passcode Available, Biometry Lockout and Passcode Lockout held one value on "
                  "every row (Yes, Yes, No and No), Biometry Generation and Passcode Generation "
                  "held one value on every row of each image, and Passcode Started and Passcode "
@@ -34,12 +36,13 @@ __artifacts_v2__ = {
                  "(7) on all 19 rows of hill_iphone15pro_ios26 and Enabled (1) on all 9 rows of "
                  "wilkerson_iphone16_ios26, and Ratchet Arming State held NotStarted (1) on every "
                  "row of hill_iphone15pro_ios26. What a ratchet state means for the device is not "
-                 "established here. Each tested image has one file in the stream's local folder, "
-                 "so SEGB File held one value on every row. Records the SEGB file marks deleted "
-                 "are not listed and their payloads are not decoded: 39 on hill_iphone15pro_ios26 "
-                 "and 152 on wilkerson_iphone16_ios26. The LocalAuthentication.Interactive.Dialogs "
-                 "stream, which the framework defines with a bundle ID field, was not present on "
-                 "the tested images and is not read.",
+                 "established here. Each of the two iOS 26 images has one file in the stream's "
+                 "local folder, so SEGB File held one value on every row. Records the SEGB file "
+                 "marks deleted are not listed and their payloads are not decoded: 39 on "
+                 "hill_iphone15pro_ios26 and 152 on wilkerson_iphone16_ios26. The "
+                 "LocalAuthentication.UI.Dialogs stream, which the framework defines with a "
+                 "bundleID field, has no folder on hill_iphone15pro_ios26 or "
+                 "wilkerson_iphone16_ios26 and is not read.",
         "paths": ('*/streams/*/LocalAuthentication.Interactive.Evaluations/local/*',),
         "output_types": "standard",
         "artifact_icon": "shield-lock",
