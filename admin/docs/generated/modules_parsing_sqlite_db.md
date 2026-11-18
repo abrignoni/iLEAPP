@@ -65,6 +65,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | applePodcasts |
 | appleWalletCards |
 | appleWalletTransactions |
+| appleWeather |
 | atxDatastore |
 | august |
 | biomeApplePaySecurity |
