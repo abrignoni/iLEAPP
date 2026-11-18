@@ -162,7 +162,8 @@ def get_biomeNowplaying(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
                 
-                timestart = (webkit_timestampsconv(protostuff['2']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['2']) or None)
                 bundleid = (protostuff['15'])
                 info = (protostuff.get('10',''))
                 info2 = (protostuff.get('8',''))

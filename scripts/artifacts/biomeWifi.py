@@ -112,7 +112,8 @@ def get_biomeWifi(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
-                timestart = (webkit_timestampsconv(protostuff['2']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['2']) or None)
 
                 event = protostuff['1']['1']
                 guid = protostuff['5'].decode()

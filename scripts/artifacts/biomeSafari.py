@@ -179,7 +179,8 @@ def get_biomeSafari(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
                 activity = (protostuff['1']['1'])
-                timestart = (webkit_timestampsconv(protostuff['2']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['2']) or None)
                 url = (protostuff['4']['3'])
                 guid = (protostuff['5'])
                 detail1 = (protostuff['6']['1'])

@@ -9,7 +9,10 @@
 * webkit_timestampsconv used datetime.fromtimestamp, which fails on Windows before 1970 and after the
   year 3000; it now adds every value to the epoch. FailingFromtimestamp makes fromtimestamp always
   fail, so the test fails on any platform if the helper still calls it.
-* Callers that report an absent time as None keep None for a sentinel's blank.
+* biomeDKEventStreams, biomeNotificationsPub and biomeNotificationUsage report an absent time as
+  None and keep None for a sentinel's blank (tested here). Four other callers with the same mapping
+  (biomeAppWebUsage, biomeTextinputses, notificationsDuet, biomeDKInfocus) are tested in
+  test_webkit_sentinel_callers.py; the remaining biome callers changed the same way have no test.
 * convert_bytes_to_unit stopped at GB and returned a bare number from 1 TiB up.
 * homeKit, textReplacements and widgetEngagements each added the offset themselves.
 """

@@ -105,9 +105,13 @@ __artifacts_v2__ = {
                   'wilkerson_iphone16_ios26) each have one account cache with keys, so Account '
                   'Cache held one value on every row there. A device with two signed-in '
                   'accounts was not available.'
-                  ' Cache Updated is blank where updatedTimestamp holds -63114076800, which is '
-                  '0001-01-01 read as Cocoa seconds: 23 of 5,318 rows on the iOS 26.5.2 image and '
-                  'none on iphone11_ios17. What the app means by it is not established.'),
+                  ' Cache Updated is blank where updatedTimestamp holds -63114076800, the value '
+                  'of NSDate.distantPast: 23 of 5,318 rows on the iOS 26.5.2 image and none on '
+                  'iphone11_ios17. Foundation shows that value as 0001-01-01 00:00:00 UTC; in '
+                  'Python\'s calendar it is 0000-12-30, two days before the earliest date Python '
+                  'can hold. What the app means by it is not established. 63113904000 '
+                  '(NSDate.distantFuture) is blank too, and so would be a real date of exactly '
+                  '4001-01-01 00:00:00 UTC, which is stored as the same number.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'users',
@@ -470,7 +474,7 @@ def _cocoa(value):
     """A cached model's Cocoa seconds as UTC, or '' for a missing or non-numeric value.
 
     Some cached users store -63114076800 (NSDate.distantPast) as their updatedTimestamp;
-    the shared converter returns '' for it."""
+    the shared converter returns '' for it and for 63113904000 (NSDate.distantFuture)."""
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return ''
     return convert_cocoa_core_data_ts_to_utc(value)

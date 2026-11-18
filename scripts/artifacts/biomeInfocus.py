@@ -104,7 +104,8 @@ def get_biomeInfocus(context):
                     continue
 
                 bundleid = (protostuff['6'])
-                timestart = (webkit_timestampsconv(protostuff['4']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['4']) or None)
                 state = protostuff['3']
                 starting = {1: 'True', 0: 'False'}.get(state, '')
 

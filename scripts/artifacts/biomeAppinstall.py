@@ -196,8 +196,9 @@ def get_biomeAppinstall(context):
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
                     activity = protostuff['1']['1']
-                    timestart = webkit_timestampsconv(protostuff['2'])
-                    timeend = webkit_timestampsconv(protostuff['3'])
+                    # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                    timestart = webkit_timestampsconv(protostuff['2']) or None
+                    timeend = webkit_timestampsconv(protostuff['3']) or None
 
                     bundleid = protostuff['4']['3']
                     actionguid = protostuff['5']
@@ -206,7 +207,7 @@ def get_biomeAppinstall(context):
                     is_install = {1: 'True', 0: 'False'}.get(is_install, '') \
                         if isinstance(is_install, int) else ''
 
-                    timewrite = webkit_timestampsconv(protostuff['8'])
+                    timewrite = webkit_timestampsconv(protostuff['8']) or None
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex} |"
                     f"File: {context.get_relative_path(file_found)} | "
