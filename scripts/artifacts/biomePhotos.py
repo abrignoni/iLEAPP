@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "get_biomePhotosDelete": {
         "name": "Biome - Photos Delete",
-        "description": "Photo deletion records from the Photos.Delete biome stream, with the asset "
-                       "identifier each names and whether Photos.sqlite still holds that asset.",
+        "description": "Deletion records from the Photos.Delete biome stream, with the asset "
+                       "identifier each names and the state of that asset in Photos.sqlite.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
@@ -13,23 +13,26 @@ __artifacts_v2__ = {
                  "27.2.1 (26B131): 1 identifier, 2 subset and 3 type. Type names come from the "
                  "matching TypeAsString function in the same framework, and the stored number is "
                  "kept beside the name. That the iOS writer uses the same schema was not checked "
-                 "beyond the data: every written record decoded to those fields. Asset Identifier "
-                 "is the identifier as stored; Photos Library State compares it with ZASSET.ZUUID "
-                 "in Photos.sqlite and says In library, Trashed (ZTRASHEDSTATE not 0) or Not in "
-                 "Photos.sqlite, and Filename and Trashed Date are that asset's ZFILENAME and "
-                 "ZTRASHEDDATE (seconds since 2001, UTC). Photos Library State is empty when the "
-                 "record has no identifier or no Photos.sqlite was found. Records the SEGB file "
-                 "marks deleted, and the stream's tombstone folder, are not read. SEGB File held "
-                 "one value on every row of each tested image, which has one stream file each. "
-                 "SEGB Timestamp is the SEGB record time. On the 7 records whose asset is still in "
-                 "the trash it falls within 68 seconds of ZTRASHEDDATE (6 rows of "
-                 "hill_iphone15pro_ios26) and 5 minutes before it (1 row of "
-                 "wilkerson_iphone16_ios26), so on these images it tracks the deletion. On "
-                 "hill_iphone15pro_ios26 6 of 7 records name a trashed asset and 1 names an asset "
-                 "not in Photos.sqlite. On wilkerson_iphone16_ios26 13 of 14 name an asset not in "
-                 "Photos.sqlite, so the stream is the only record of those assets here; Filename "
-                 "and Trashed Date are empty on those rows. Type held Other (3) on all 7 rows of "
-                 "hill_iphone15pro_ios26; what the type names mean is not documented.",
+                 "beyond the data: every written record decoded to those fields. No record of this "
+                 "stream held a subset on the tested images, and the artifact does not report one. "
+                 "Asset Identifier is the identifier as stored; Photos Library State compares it "
+                 "with ZASSET.ZUUID in Photos.sqlite and says In library, Trashed (ZTRASHEDSTATE "
+                 "not 0) or Not in Photos.sqlite, and Filename and Trashed Date are that asset's "
+                 "ZFILENAME and ZTRASHEDDATE (seconds since 2001, UTC). Photos Library State is "
+                 "empty when the record has no identifier or no Photos.sqlite was found. Records "
+                 "the SEGB file marks deleted, and the stream's tombstone folder, are not read. "
+                 "Each tested image has one file in the stream's local folder outside tombstone, "
+                 "so SEGB File held one value on every row. SEGB Timestamp is the SEGB record "
+                 "time. On the 7 rows whose state is Trashed it is between 68 seconds before and 1 "
+                 "second after ZTRASHEDDATE on 6 rows (hill_iphone15pro_ios26) and 309 seconds "
+                 "before it on 1 row (wilkerson_iphone16_ios26). What event the SEGB time marks "
+                 "was not established beyond that. On hill_iphone15pro_ios26 6 of 7 records name a "
+                 "trashed asset and 1 names an asset not in Photos.sqlite. On "
+                 "wilkerson_iphone16_ios26 13 of 14 name an asset not in Photos.sqlite. Those "
+                 "identifiers were not found elsewhere in Photos.sqlite or in the Photos.Share and "
+                 "Photos.Engagement streams; the rest of the image was not searched. Filename and "
+                 "Trashed Date are empty on those rows. Type held Other (3) on all 7 rows of "
+                 "hill_iphone15pro_ios26; what the type names mean was not established.",
         "paths": ('*/streams/*/Photos.Delete/local/*',
                   '*/mobile/Media/PhotoData/Photos.sqlite*'),
         "output_types": "standard",
@@ -42,9 +45,9 @@ __artifacts_v2__ = {
     },
     "get_biomePhotosShare": {
         "name": "Biome - Photos Share",
-        "description": "Photo share records from the Photos.Share biome stream, with the asset "
-                       "identifier, the subset and share type each stores and whether "
-                       "Photos.sqlite still holds that asset.",
+        "description": "Share records from the Photos.Share biome stream, with the asset "
+                       "identifier, the subset and share type each stores and the state of "
+                       "that asset in Photos.sqlite.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
@@ -61,14 +64,17 @@ __artifacts_v2__ = {
                  "Photos.sqlite, and Filename and Trashed Date are that asset's ZFILENAME and "
                  "ZTRASHEDDATE (seconds since 2001, UTC). Photos Library State is empty when the "
                  "record has no identifier or no Photos.sqlite was found. Records the SEGB file "
-                 "marks deleted, and the stream's tombstone folder, are not read. SEGB File held "
-                 "one value on every row of each tested image, which has one stream file each. "
-                 "Subset is the subset as stored, an activity identifier on the tested images, and "
-                 "on wilkerson_iphone16_ios26 Type held Extension (1) and Subset held one activity "
-                 "identifier on all 3 rows. One of those rows has no identifier, so Photos Library "
-                 "State is empty there. SEGB Timestamp is the SEGB record time; what it marks for "
-                 "a share was not checked against another record. Trashed Date is empty on every "
-                 "row of both tested images, whose shared assets are in the library.",
+                 "marks deleted, and the stream's tombstone folder, are not read. Each tested "
+                 "image has one file in the stream's local folder outside tombstone, so SEGB File "
+                 "held one value on every row. Subset is the subset as stored. It held a "
+                 "reverse-DNS style identifier on wilkerson_iphone16_ios26 and a camel-case name "
+                 "on hill_iphone15pro_ios26; what it identifies was not established. On "
+                 "wilkerson_iphone16_ios26 Type held Extension (1) and Subset held one value on "
+                 "all 3 rows. One of those rows has no identifier, so Photos Library State is "
+                 "empty there. SEGB Timestamp is the SEGB record time; what it marks for a share "
+                 "was not checked against another record. Trashed Date is empty on every row of "
+                 "both tested images: 3 of the 4 rows name an asset in the library and 1 has no "
+                 "identifier.",
         "paths": ('*/streams/*/Photos.Share/local/*',
                   '*/mobile/Media/PhotoData/Photos.sqlite*'),
         "output_types": "standard",
@@ -81,9 +87,9 @@ __artifacts_v2__ = {
     },
     "get_biomePhotosEngagement": {
         "name": "Biome - Photos Engagement",
-        "description": "Photo engagement records from the Photos.Engagement biome stream, with "
-                       "the asset identifier and engagement type each stores and whether "
-                       "Photos.sqlite still holds that asset.",
+        "description": "Engagement records from the Photos.Engagement biome stream, with the "
+                       "asset identifier and engagement type each stores and the state of that "
+                       "asset in Photos.sqlite.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
@@ -94,20 +100,24 @@ __artifacts_v2__ = {
                  "27.2.1 (26B131): 1 identifier, 2 subset and 3 type. Type names come from the "
                  "matching TypeAsString function in the same framework, and the stored number is "
                  "kept beside the name. That the iOS writer uses the same schema was not checked "
-                 "beyond the data: every written record decoded to those fields. Asset Identifier "
-                 "is the identifier as stored; Photos Library State compares it with ZASSET.ZUUID "
-                 "in Photos.sqlite and says In library, Trashed (ZTRASHEDSTATE not 0) or Not in "
-                 "Photos.sqlite, and Filename and Trashed Date are that asset's ZFILENAME and "
-                 "ZTRASHEDDATE (seconds since 2001, UTC). Photos Library State is empty when the "
-                 "record has no identifier or no Photos.sqlite was found. Records the SEGB file "
-                 "marks deleted, and the stream's tombstone folder, are not read. SEGB File held "
-                 "one value on every row of each tested image, which has one stream file each. "
-                 "SEGB Timestamp is the SEGB record time; what it marks for an engagement was not "
-                 "checked against another record. Every record on the tested images (108 on "
+                 "beyond the data: every written record decoded to those fields. No record of this "
+                 "stream held a subset on the tested images, and the artifact does not report one. "
+                 "Asset Identifier is the identifier as stored; Photos Library State compares it "
+                 "with ZASSET.ZUUID in Photos.sqlite and says In library, Trashed (ZTRASHEDSTATE "
+                 "not 0) or Not in Photos.sqlite, and Filename and Trashed Date are that asset's "
+                 "ZFILENAME and ZTRASHEDDATE (seconds since 2001, UTC). Photos Library State is "
+                 "empty when the record has no identifier or no Photos.sqlite was found. Records "
+                 "the SEGB file marks deleted, and the stream's tombstone folder, are not read. "
+                 "Each tested image has one file in the stream's local folder outside tombstone, "
+                 "so SEGB File held one value on every row; the 6 written records in the tombstone "
+                 "file of hill_iphone15pro_ios26 use a different record layout. SEGB Timestamp is "
+                 "the SEGB record time; what it marks for an engagement was not checked against "
+                 "another record. Every record on the tested images (108 on "
                  "hill_iphone15pro_ios26, 378 on wilkerson_iphone16_ios26) names an asset that is "
                  "in the library, so Photos Library State held In library on every row and Trashed "
-                 "Date is empty on every row. What the engagement type names mean is not "
-                 "documented.",
+                 "Date is empty on every row. Type held Unknown (0), the framework's own name for "
+                 "0, on 30 of 108 and 58 of 378 rows. What the engagement type names mean was not "
+                 "established.",
         "paths": ('*/streams/*/Photos.Engagement/local/*',
                   '*/mobile/Media/PhotoData/Photos.sqlite*'),
         "output_types": "standard",
@@ -208,23 +218,23 @@ def _rows(context, stream):
                 state = 'Not in Photos.sqlite'
             else:
                 state = 'Trashed' if asset[1] else 'In library'
-            row = (record.timestamp1.replace(tzinfo=timezone.utc), identifier,
+            trashed_date = convert_cocoa_core_data_ts_to_utc(asset[2]) if asset and asset[2] else ''
+            row = (record.timestamp1.replace(tzinfo=timezone.utc), trashed_date, identifier,
                    _type(stream, message.get('3')))
             if stream == 'Photos.Share':
                 row += (_text(message.get('2')),)
             data_list.append(row + (
                 state,
                 _text(asset[0]) if asset else '',
-                convert_cocoa_core_data_ts_to_utc(asset[2]) if asset and asset[2] else '',
                 os.path.basename(found),
                 record.data_start_offset,
             ))
     if library_path and data_list:
         sources.add(library_path)
-    headers = ((('SEGB Timestamp', 'datetime'), 'Asset Identifier', 'Type') +
+    headers = ((('SEGB Timestamp', 'datetime'), ('Trashed Date', 'datetime'), 'Asset Identifier',
+                'Type') +
                (('Subset',) if stream == 'Photos.Share' else ()) +
-               ('Photos Library State', 'Filename', ('Trashed Date', 'datetime'), 'SEGB File',
-                'Offset'))
+               ('Photos Library State', 'Filename', 'SEGB File', 'Offset'))
     return headers, data_list, '\n'.join(sorted(sources))
 
 
