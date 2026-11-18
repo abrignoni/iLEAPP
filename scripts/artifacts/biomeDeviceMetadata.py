@@ -1,15 +1,30 @@
 __artifacts_v2__ = {
     "get_biomeDeviceMetadata": {
         "name": "Biome - Device Metadata",
-        "description": "Parses OS build records from the Device.Metadata biome stream. Each record "
-                       "carries an OS build string and a SEGB timestamp.",
+        "description": "Parses OS build records from the Device.Metadata biome stream. The 36 "
+                       "written records on the tested images each carried an OS build string.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Observed builds spanning iOS 16 through 18 in test extractions (e.g. 20B110, "
-                 "21D50, 22H31).",
+        "notes": "Builds with prefixes 19 through 23 were on the tested images (e.g. 20B110, "
+                 "21D50, 22H31). The Supplemental Build and Platform field names and the Platform "
+                 "value names are those of the BMDeviceMetadata class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of "
+                 "the class was read. Supplemental Build was reported before as OS Build (Field 4) "
+                 "and Platform as Type (raw). "
+                 "Platform names depend on the integer shown in Data Version. The SEGB reader returns "
+                 "it unnamed with each entry: it is the second integer of the entry header in SEGB "
+                 "version 2 files and the last field of the record header in SEGB version 1 files. "
+                 "It is read here as the Biome data version. BMDeviceMetadata reads "
+                 "data version 0 with 0 = iPad, 1 = iPhone, 2 = MacDesktop, 3 = MacPortable, 4 = TV, "
+                 "5 = Watch, 6 = HomePod, 8 = Vision, and data version 1 with 0 = Unknown, "
+                 "1 = iPad, 2 = iPhone, 3 = MacDesktop, 4 = MacPortable, 5 = TV, 6 = Watch, "
+                 "7 = HomePod, 8 = Vision, 9 = HomeAccessory. A value or version outside those "
+                 "lists keeps its integer in Platform (raw) with the name blank. On the 36 written "
+                 "records on the tested images, the 8 data version 0 records hold 1 and the 28 "
+                 "data version 1 records hold 2, so all 36 read iPhone. Supplemental Build was the "
+                 "same as OS Build on 33 of the 36, different on 2 and empty on 1.",
         "paths": ('*/streams/*/Device.Metadata/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
@@ -39,6 +54,17 @@ TYPESS = {
     '2': {'type': 'str', 'name': ''},
     '3': {'type': 'int', 'name': ''},
     '4': {'type': 'str', 'name': ''},
+}
+
+# platform names by record data version (the unnamed int the SEGB reader returns per entry), read
+# from BiomeLibrary.framework BMDeviceMetadata on macOS 27.2.1 (26B131). Data version 1
+# adds 0 = Unknown and 9 = HomeAccessory. Values the class renders only as its fallback
+# (version 0: 7, 9 and up; version 1: 10 and up) get no name.
+PLATFORM_BY_VERSION = {
+    0: {0: 'iPad', 1: 'iPhone', 2: 'MacDesktop', 3: 'MacPortable', 4: 'TV', 5: 'Watch',
+        6: 'HomePod', 8: 'Vision'},
+    1: dict(enumerate(('Unknown', 'iPad', 'iPhone', 'MacDesktop', 'MacPortable', 'TV',
+                       'Watch', 'HomePod', 'Vision', 'HomeAccessory'))),
 }
 
 
@@ -83,17 +109,21 @@ def get_biomeDeviceMetadata(context):
                     continue
 
                 os_build = _to_str(protostuff.get('2', b''))
-                os_build_alt = _to_str(protostuff.get('4', b''))
-                record_type = protostuff.get('3', '')
+                supplemental_build = _to_str(protostuff.get('4', b''))
+                platform = protostuff.get('3', '')
+                version = getattr(record, '_unknown_value', None)
 
-                data_list.append((ts, record.state.name, os_build, os_build_alt, record_type,
-                                  filename, record.data_start_offset))
-
-            elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, None, filename,
+                data_list.append((ts, record.state.name, os_build, supplemental_build,
+                                  PLATFORM_BY_VERSION.get(version, {}).get(platform, ''),
+                                  platform, _to_str(version), filename,
                                   record.data_start_offset))
 
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, record.state.name, None, None, None, None, None,
+                                  filename, record.data_start_offset))
+
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'OS Build',
-                    'OS Build (Field 4)', 'Type (raw)', 'Filename', 'Offset')
+                    'Supplemental Build', 'Platform', 'Platform (raw)', 'Data Version',
+                    'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
