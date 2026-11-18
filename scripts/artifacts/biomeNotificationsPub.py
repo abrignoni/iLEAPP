@@ -98,7 +98,8 @@ def _text(value):
 
 def _row(ts, record, protostuff, filename):
     raw_ts = protostuff.get('2')
-    timestart = webkit_timestampsconv(raw_ts) if isinstance(raw_ts, (int, float)) and raw_ts else None
+    # an NSDate sentinel converts to '', kept as None like the other absent values
+    timestart = (webkit_timestampsconv(raw_ts) or None) if isinstance(raw_ts, (int, float)) and raw_ts else None
     usage = protostuff.get('3')
     contacts = protostuff.get('15')
     if isinstance(contacts, list):

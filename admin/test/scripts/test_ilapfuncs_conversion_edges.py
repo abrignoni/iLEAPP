@@ -3,13 +3,13 @@
 * convert_cocoa_core_data_ts_to_utc added the epoch offset in seconds before the value was
   scaled from ms, us or ns, so those came out about 31 years early. It and webkit_timestampsconv
   report the exact NSDate.distantPast and distantFuture values blank.
-* webkit_timestampsconv now adds to the epoch before 1970 instead of relying on
-  datetime.fromtimestamp, which is platform dependent there.
 * get_birthdate raised on None (TypeError) and on distantPast (OverflowError); distantFuture gave
   "01 January 4001" and is now blank, to match the sentinel contract. get_birthdate_from_unix_ts
   raised on an empty value.
 * webkit_timestampsconv used datetime.fromtimestamp, which fails on Windows before 1970 and after the
-  year 3000. FailingFromtimestamp simulates that here so the test can fail on any platform.
+  year 3000; it now adds every value to the epoch. FailingFromtimestamp makes fromtimestamp always
+  fail, so the test fails on any platform if the helper still calls it.
+* Callers that report an absent time as None keep None for a sentinel's blank.
 * convert_bytes_to_unit stopped at GB and returned a bare number from 1 TiB up.
 * homeKit, textReplacements and widgetEngagements each added the offset themselves.
 """
@@ -126,7 +126,8 @@ class WebkitTimestampsconv(unittest.TestCase):
 
 
 class FailingFromtimestamp(datetime):
-    """datetime whose fromtimestamp fails the way Windows' gmtime does outside 1970 to 3000."""
+    """datetime whose fromtimestamp always fails (OSError 22, as Windows' gmtime gives outside 1970
+    to 3000). A helper that still calls it fails for every value; one that does not is unaffected."""
 
     @classmethod
     def fromtimestamp(cls, *args, **kwargs):
@@ -159,6 +160,16 @@ class WebkitCallers(unittest.TestCase):
             return struct.unpack('<Q', struct.pack('<d', seconds))[0]
         self.assertEqual(_value({'7': bits(-63114076800.0)}), '-63114076800.0')
         self.assertEqual(_value({'7': bits(700000000.0)}), EXPECTED.isoformat())
+        self.assertEqual(_value({'7': bits(63113904000.0)}), '63113904000.0')
+
+    def test_biome_notification_rows_keep_none_for_a_sentinel(self):
+        from types import SimpleNamespace  # pylint: disable=import-outside-toplevel
+        from scripts.artifacts import biomeNotificationsPub, biomeNotificationUsage  # pylint: disable=import-outside-toplevel
+        record = SimpleNamespace(state=SimpleNamespace(name='Written'), data_start_offset=0)
+        for module in (biomeNotificationsPub, biomeNotificationUsage):
+            for value, expected in ((-63114076800, None), (63113904000, None), (0, None), (700000000, EXPECTED)):
+                with self.subTest(module=module.__name__, value=value):
+                    self.assertEqual(module._row('ts', record, {'2': value}, 'f')[1], expected)
 
 
 class LocalCocoaConverters(unittest.TestCase):
@@ -210,7 +221,7 @@ class Birthdate(unittest.TestCase):
     def test_valid_dates_and_the_no_year_convention(self):
         self.assertEqual(get_birthdate(0), '01 January 2001')
         self.assertEqual(get_birthdate(-978307200), '01 January 1970')
-        # Apple stores a birthday without a year in 1604; the year is left out
+        # get_birthdate treats year 1604 as its no-year marker and leaves the year out
         self.assertEqual(get_birthdate((datetime(1604, 7, 9) - datetime(2001, 1, 1)).total_seconds()), '09 July')
 
     def test_other_malformed_values_still_raise(self):
