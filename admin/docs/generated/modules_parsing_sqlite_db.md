@@ -228,6 +228,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | wickr |
 | wifiAnalytics |
 | wire |
+| zillow |
 | zoomChat |
 <!-- GET_RECORDS_END -->
 
