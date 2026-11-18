@@ -18,13 +18,16 @@ __artifacts_v2__ = {
                  "Fields: 1 idsHandle, 2 stateChange, 3 activityState and 6 name, with State "
                  "Change named by BMFindMyLocationChangeStateChangeAsString and Activity State by "
                  "BMFindMyLocationChangeActivityStateAsString in the same framework, the stored "
-                 "number kept beside each name. IDS Handle is a telephone number or an email "
-                 "address on the tested images; whose location a record describes is not "
-                 "established here. IDS Handle held one value on every row of "
+                 "number kept beside each name. Names are shown only when the extraction's iOS "
+                 "version is 26 or later: on iphone11_ios17 (iOS 17.3) the UserFocus.InferredMode "
+                 "stream's enums are numbered one lower than on iOS 26, so on an earlier or "
+                 "unknown version only the stored number is shown. IDS Handle is a telephone "
+                 "number or an email address on the tested images; whose location a record "
+                 "describes is not established here. IDS Handle held one value on every row of "
                  "hill_iphone15pro_ios26 (53) and iphone11_ios17 (3), and two values on "
                  "wilkerson_iphone16_ios26 (39). State Change held Update (1) on every row of the "
-                 "two iOS 26 images. Activity State held Unknown (0) on all 3 rows of "
-                 "iphone11_ios17. Name is empty on every row of the three tested images.",
+                 "two iOS 26 images. Activity State held 0 on all 3 rows of iphone11_ios17. Name "
+                 "is empty on every row of the three tested images.",
         "paths": ('*/streams/*/FindMy.LocationChange/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -45,7 +48,7 @@ from google.protobuf.message import DecodeError
 from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, iOS, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
 # Field names and numbers from BMFindMyLocationChange protoFields (1 idsHandle, 2 stateChange,
@@ -58,9 +61,23 @@ _ACTIVITY = {0: 'Unknown', 1: 'Stationary', 2: 'Walking', 3: 'Running', 4: 'Cycl
              5: 'Automotive'}
 
 
+def _names_checked():
+    '''Whether the extraction's iOS version is one on which framework names fitted the data.
+
+    The names were read from the macOS 27 framework. Another stream's enums were numbered
+    differently on an iOS 17.3 image, so before iOS 26 only the stored number is shown.
+    '''
+    try:
+        return int(str(iOS.get_version()).split('.', maxsplit=1)[0]) >= 26
+    except (TypeError, ValueError):
+        return False
+
+
 def _named(names, value):
     if not isinstance(value, int):
         return ''
+    if not _names_checked():
+        return str(value)
     return f'{names[value]} ({value})' if value in names else f'Unknown value ({value})'
 
 
