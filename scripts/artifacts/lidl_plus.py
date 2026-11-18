@@ -22,7 +22,7 @@ from scripts.ilapfuncs import (
     check_in_media, artifact_processor, logfunc
 )
 
-SOURCE_FILE_NAME = 'Source File Name'
+SOURCE_FILE_NAME = 'Source File Path'
 
 __artifacts_v2__ = {
     "lidl_shopping_list": {
@@ -33,12 +33,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "Is Checked reports ListItemEntity.isChecked through the existing SQL CASE: NULL is shown as "
-                 "N/A, empty text as N/D, 1 as Yes, 0 as No, and other stored values as Unknown (value). A "
-                 "checked list item does not by itself establish a purchase. Item Last Updated is followed by "
-                 "List Last Updated; both retain the existing SQLite unixepoch projection and UTC conversion. "
-                 "Original contribution and research credited to @djangofaiola (Django Faiola). Reference: Django "
-                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
+        "notes": "Is Checked reports ListItemEntity.isChecked: NULL is shown as N/A, empty text as N/D, 1 "
+                 "as Yes, 0 as No, and other stored values as Unknown (value). A list with no items also "
+                 "shows N/A. A checked list item does not by itself establish a purchase. Item Last "
+                 "Updated and List Last Updated are ListItemEntity.lastUpdate and ListEntity.lastUpdate, "
+                 "read with SQLite's unixepoch() and shown to the whole second. The cited research shows "
+                 "them stored as ISO 8601 text with no time zone. SQLite reads such text as UTC, so the "
+                 "zone of the times shown is not established. A value stored as a number is not converted "
+                 "and leaves the column empty. Original contribution and research credited to "
+                 "@djangofaiola (Django Faiola). Reference: Django Faiola, 'What's in Your Lidl Plus App? "
+                 "An iOS Forensic Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Application Support/databases/ShoppingListDatabase.db*",
@@ -185,16 +189,14 @@ __artifacts_v2__ = {
         "last_update_date": '2026-11-17',
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "Latitude and Longitude are the values sent in the request URL, reported as transmitted. "
-                 "The research cited below describes them as the centre of the search area or map sent to "
-                 "the server, so they are not reported as the device's location. distance (as stored) "
-                 "reports the decoded response's distance field through the existing projection, without "
-                 "unit conversion. The parser does not establish its unit or reference point. A missing "
-                 "distance key and explicit JSON null both yield None through the existing dictionary "
-                 "lookup; other supported decoded values retain the existing native values and rendering. "
-                 "This header correction does not revalidate the cited research's interpretation. Original"
-                 " contribution and research credited to @djangofaiola (Django Faiola). Reference: Django "
-                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
+        "notes": "Latitude and Longitude are the latitude and longitude parameters of the request URL, "
+                 "URL-decoded. The research cited below describes them as the centre of the search area or "
+                 "map sent to the server, so they are not reported as the device's location. distance (as "
+                 "stored) is the distance field of the decoded response, with no unit conversion. The "
+                 "parser does not establish its unit or reference point. A missing distance key and a JSON "
+                 "null both leave it empty. Original contribution and research credited to @djangofaiola "
+                 "(Django Faiola). Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS "
+                 "Forensic Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
@@ -583,46 +585,17 @@ def convert_iso8601_to_utc(str_date: str | bytes | None) -> str | None:
 
 def get_device_file_path(file_path: str, context) -> str:
     """
-    Converts a local report file path back to the original iOS device path.
+    The path of a staged file inside the extraction, as get_relative_path reports
+    it, for the Source File Name column. No device path is rebuilt from it, so the
+    column shows what the extraction holds. Records the file as one the running
+    artifact read.
     """
 
     if not file_path:
         return ''
 
     _note_row_source(file_path, context)
-
-    seeker = context.get_seeker()
-    base_folder = getattr(seeker, 'data_folder', '')
-
-    norm_file_path = str(file_path).replace('\\', '/')
-    norm_base_folder = str(base_folder).replace('\\', '/').rstrip('/')
-
-    base_prefix = norm_base_folder + '/' if norm_base_folder else ''
-
-    if norm_base_folder and (
-        norm_file_path == norm_base_folder
-        or norm_file_path.startswith(base_prefix)
-    ):
-        relative_path = norm_file_path[len(norm_base_folder):].lstrip('/')
-
-        # Canonical iOS physical path
-        if relative_path.startswith('var/'):
-            return '/private/' + relative_path
-
-        # Known iOS filesystem roots
-        ios_system_roots = (
-            'private/', 'Library/', 'System/',
-            'Developer/', 'usr/'
-        )
-
-        if relative_path.startswith(ios_system_roots):
-            return '/' + relative_path
-
-        # Backup-domain or extraction-relative path
-        return relative_path
-
-    # Preserve unresolved external paths as observed
-    return norm_file_path
+    return context.get_relative_path(str(file_path))
 
 
 def convert_bool_to_str(value, true_value='Yes', false_value='No', none_value='N/A'):

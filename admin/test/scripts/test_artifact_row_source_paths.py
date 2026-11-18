@@ -18,7 +18,8 @@ MODULES = [name for name in ('lidl_plus', 'waze')
 
 def context(data_folder, artifact):
     seeker = SimpleNamespace(data_folder=data_folder)
-    return SimpleNamespace(get_seeker=lambda: seeker, get_artifact_name=lambda: artifact)
+    return SimpleNamespace(get_seeker=lambda: seeker, get_artifact_name=lambda: artifact,
+                           get_relative_path=lambda p: p.removeprefix(data_folder + '/'))
 
 
 class RowSourcePaths(unittest.TestCase):
@@ -47,6 +48,18 @@ class RowSourcePaths(unittest.TestCase):
                 self.assertEqual(module._row_source_paths(first), '/case/data/x.db')  # pylint: disable=protected-access
                 self.assertEqual(module._row_source_paths(other), '/case/data/y.db')  # pylint: disable=protected-access
                 self.assertEqual(module._row_source_paths(later), '/case2/data/z.db')  # pylint: disable=protected-access
+
+    def test_the_column_shows_the_path_inside_the_extraction(self):
+        """No device path is rebuilt: no /private/ or /sdcard/ prefix, no leading slash."""
+        for name in MODULES:
+            with self.subTest(module=name):
+                module = importlib.import_module(f'scripts.artifacts.{name}')
+                ctx = context('/case/data', 'column')
+                for staged, shown in (('/case/data/var/mobile/a.db', 'var/mobile/a.db'),
+                                      ('/case/data/Dump/data/data/com.waze/user', 'Dump/data/data/com.waze/user'),
+                                      ('/case/data/storage/emulated/0/x.jpg', 'storage/emulated/0/x.jpg')):
+                    self.assertEqual(module.get_device_file_path(staged, ctx), shown)
+                module._row_source_paths(ctx)  # pylint: disable=protected-access
 
     def test_no_file_no_source(self):
         for name in MODULES:
