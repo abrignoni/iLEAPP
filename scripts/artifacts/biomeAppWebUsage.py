@@ -117,7 +117,8 @@ def get_biomeAppWebUsage(context):
 
                 guid               = protostuff.get('guid', '')
                 raw_timestamp      = protostuff.get('timestamp')
-                timestamp          = (webkit_timestampsconv(raw_timestamp)
+                # an NSDate sentinel converts to '', kept as None like the other absent values
+                timestamp          = ((webkit_timestampsconv(raw_timestamp) or None)
                                       if isinstance(raw_timestamp, (int, float)) else None)
                 usage_state        = protostuff.get('usage_state', None)
                 url                = protostuff.get('url', '')
