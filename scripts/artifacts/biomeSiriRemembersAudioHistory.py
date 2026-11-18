@@ -3,21 +3,28 @@ __artifacts_v2__ = {
         "name": "Biome - Siri Remembers Audio History",
         "description": "Parses media playback intents from the Siri.Remembers.AudioHistory "
                        "biome stream: the app that played the media, the title, artist and "
-                       "media type of what was played, and a media identifier. "
-                       "Audiobook and music playback were both observed in test data.",
+                       "media type of what was played, and the item entity's identifier. "
+                       "Music and podcast playback were both observed on the tested images.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Shares the intent record shape of the other Siri.Remembers streams. The "
-                 "media details come from a JSON attribute on the item entity; title, artist "
-                 "and media type were present on every record in the sample, with mediaName "
-                 "appearing on some. What the Media ID and Item ID columns identify is not "
-                 "established; both are reported as stored. Records are "
-                 "read from both the local and remote subfolders; the Sync Origin column "
-                 "reports which one a record came from. The local/remote naming is the "
-                 "stream's own folder layout; cross-device sync semantics are not documented.",
+        "notes": ("Field names are those of the BMSiriAudioHistory class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
+                 "Shares the interaction and entities record shape of the MessageHistory, "
+                 "CallHistory, InteractionHistory and AssistantSuggestions streams. The media "
+                 "details come from a JSON attribute on the item entity. Title and media type were "
+                 "present on every tested written record; Artist was present on 74 of 111. Item ID "
+                 "is the identifier of the items entity (type MediaItem). Group Identifier is field "
+                 "1.12 (groupIdentifier), reported before as Media ID; what it identifies is not "
+                 "established. Both are shown as decoded text. Playback Timestamp is field 1.8, "
+                 "which the class names startDate, and Intent UUID is field 1.1, which the class "
+                 "names identifier. Intent Class is field 1.2, which the class names type. Records "
+                 "are read from both the local and remote subfolders; the Sync Origin column "
+                 "reports which one a record came from. The local and remote names are the "
+                 "stream's own folder layout; what they mean for cross-device sync is not "
+                 "established here. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
         "paths": (
             '*/streams/*/Siri.Remembers.AudioHistory/local/*',
             '*/streams/*/Siri.Remembers.AudioHistory/remote/*',
@@ -129,7 +136,7 @@ def get_biomeSiriRemembersAudioHistory(context):
                 continue
         else:
             continue
-        origin = _sync_origin(file_found)
+        origin = _sync_origin(context.get_relative_path(file_found))
 
         source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
@@ -161,7 +168,7 @@ def get_biomeSiriRemembersAudioHistory(context):
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Playback Timestamp', 'datetime'),
-                    'SEGB State', 'Title', 'Artist', 'Media Type', 'Bundle ID', 'Media ID',
+                    'SEGB State', 'Title', 'Artist', 'Media Type', 'Bundle ID', 'Group Identifier',
                     'Item ID', 'Intent Class', 'Intent UUID', 'Sync Origin', 'Filename',
                     'Offset')
 
