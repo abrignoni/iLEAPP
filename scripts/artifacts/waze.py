@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts account information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
         "notes": "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts track GPS quality information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
         "notes": "Read from GPS_QUALITY entries in the spdlog.*logdata files under the Waze "
@@ -133,7 +133,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts favorite locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
         "notes": "Type shows a label this module assigns to the stored type integer, which is "
@@ -247,8 +247,25 @@ from scripts.ilapfuncs import open_sqlite_db_readonly, get_sqlite_db_records, \
 COMMA_SEP = ', '
 WAZE_PREFERENCES_PLIST = 'com.waze.iphone.plist'
 SOURCE_FILE_NAME = 'Source File Name'
-SOURCE_PATH_NOTE = f"Refer to the '{SOURCE_FILE_NAME}' column to identify the exact " \
-                   "device location of the origin file."
+# The staged files each artifact read, by run and artifact, in first-seen order.
+# get_device_file_path records every file it converts, including a file that
+# then gave no row, and the artifact returns them as its source paths.
+_ROW_SOURCES = {}
+
+
+def _row_sources_key(context):
+    seeker = context.get_seeker()
+    return (str(getattr(seeker, 'data_folder', '')), context.get_artifact_name())
+
+
+def _note_row_source(file_path, context):
+    """Record a staged file the running artifact read."""
+    _ROW_SOURCES.setdefault(_row_sources_key(context), {})[str(file_path)] = None
+
+
+def _row_source_paths(context):
+    """The staged files the running artifact read, newline joined."""
+    return '\n'.join(_ROW_SOURCES.pop(_row_sources_key(context), {}))
 MAX_URL_LENGTH = 4096
 ALLOWED_URL_SCHEMES = (
     'http',
@@ -405,6 +422,8 @@ def get_device_file_path(file_path: str, context) -> str:
 
     if not file_path:
         return ''
+
+    _note_row_source(file_path, context)
 
     # Retrieve the seeker from the context to access the local data_folder
     seeker = context.get_seeker()
@@ -1138,7 +1157,7 @@ def waze_account(context):
     if source_path:
         _parse_account_cached(source_path, context, data_list, data_list_html)
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
 
 @artifact_processor
@@ -1555,7 +1574,7 @@ def waze_track_gps_quality(context):
                 pending_legacy[F_LOCATION]
             ))
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2221,7 +2240,7 @@ def waze_favorite_locations(context):
     if source_path:
         _parse_favorite_cached(source_path, context, data_list)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
