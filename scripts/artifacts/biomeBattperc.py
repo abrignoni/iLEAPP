@@ -4,10 +4,16 @@ __artifacts_v2__ = {
         "description": "Parses battery percentage entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS "
+                  "27.2.1 (26B131); no iOS copy of the class was read. Start Date, End Date and Creation "
+                  "Date are fields 2, 3 and 8 (startDate, endDate and creationDate) and were reported "
+                  "before as Time Start, Time End and Time Write. Stream Name is field 1.1 and was reported "
+                  "before as Activity. Double Value is field 4.5 (the value's doubleValue) and was reported "
+                  "before as Battery Percentage; on the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, 14,187 of the 14,191 written values "
+                  "were above 1 and at most 100, and 4 were at most 1. Identifier is field 5 and was reported before as Action GUID. The metadata entry with index 37000, which CoreDuet's own conversion of synthetic records names fullyCharged, was on 153 of the 14,191 written records and is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 14,191 written rows, with 10 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -116,16 +122,17 @@ def get_biomeBattperc(context):
                 percent = (protostuff['4']['5'])
                 actionguid = (protostuff['5'])
                 
-                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, percent, actionguid,
+                tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
+                data_list.append((ts, timestart, timeend, timewrite, tz_offset, record.state.name, activity, percent, actionguid,
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, None, record.state.name, None, None, None, filename,
+                data_list.append((ts, None, None, None, None, record.state.name, None, None, None, filename,
                                   record.data_start_offset))
 
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Battery Percentage', 'Action GUID',
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
+                    ('Creation Date', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Double Value', 'Identifier',
                     'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
