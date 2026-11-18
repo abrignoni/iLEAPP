@@ -462,7 +462,7 @@ __artifacts_v2__ = {
                        "recorded a user profile id for.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-11",
-        "last_update_date": "2026-09-11",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Health & Fitness",
         "notes": "One row per account directory under Documents/users/ in the app's container. "
@@ -509,7 +509,14 @@ __artifacts_v2__ = {
                  "Domain, App Version and Profile Image come from "
                  "Library/Preferences/group.com.garmin.connect.plist in the shared app group "
                  "container, which holds a cached profile as JSON and the profile picture as "
-                 "base64 inside it. Those six are attached only where the profile id that file "
+                 "base64 inside it. An app group container whose metadata plist is missing or "
+                 "unreadable is taken as the app's when it holds that file, on its name alone, which "
+                 "is weaker than the recorded identifier; a readable plist that names another "
+                 "identifier is not overridden, which was exercised with a synthetic container only. "
+                 "On composites of three tested images holding the app's containers and the "
+                 "container metadata plists, removing every AppGroup metadata plist left the six "
+                 "columns unchanged. "
+                 "Those six are attached only where the profile id that file "
                  "carries equals the user profile id the account directory records. The two "
                  "agreed on every tested image that carries the app, so the branch that refuses a "
                  "mismatch is present and was not exercised here. App Version is that file's "
@@ -517,10 +524,11 @@ __artifacts_v2__ = {
                  "app bundle on all 4 tested images that carry the app. Profile Image is decoded "
                  "from the file's own imageData field and is the picture the app cached for the "
                  "account, not a file a person saved. The app container is identified from its "
-                 "own .com.apple.mobile_container_manager.metadata.plist, and a file is read only "
-                 "when it sits inside a container whose plist names com.garmin.connect.mobile or "
-                 "group.com.garmin.connect, so a file matched in another app's container is not "
-                 "read. That guard was exercised on the tested images by the Cached Images "
+                 "own .com.apple.mobile_container_manager.metadata.plist. A file is read when it "
+                 "sits inside a container whose plist names com.garmin.connect.mobile or "
+                 "group.com.garmin.connect, or inside the app group container identified by file "
+                 "name as described above, so a file matched in a container that names another app "
+                 "is not read. That guard was exercised on the tested images by the Cached Images "
                  "artifact, whose image cache directory belongs to a third party "
                  "library that other apps embed, and on the iOS 14.3 image 194 of its files were "
                  "staged while the 5 inside the Garmin container were the only ones reported. On "
@@ -610,6 +618,7 @@ import json
 import os
 import plistlib
 import re
+from xml.parsers.expat import ExpatError
 from datetime import datetime, timedelta, timezone
 from urllib.parse import unquote
 
@@ -645,9 +654,21 @@ _BADGE_URL = re.compile(r'/images/badges/', re.I)
 _PRODUCT_IMAGE_URL = re.compile(r'/device-images/|/products/', re.I)
 
 
+def _group_prefs_container(path):
+    '''The AppGroup container directory when path is that container's own
+    Library/Preferences/group.com.garmin.connect.plist, else None. The seeker's * crosses /,
+    so the shape is checked again here.'''
+    match = re.match(r'^(.*/Containers/Shared/AppGroup/[^/]+)/Library/Preferences/'
+                     + re.escape(_GROUP_PREFS) + '$', str(path).replace('\\', '/'))
+    return match.group(1) if match else None
+
+
 def _containers(files_found):
-    '''{container directory: bundle or group id} read from each container's own metadata plist.'''
+    '''{container directory: bundle or group id} read from each container's own metadata plist.
+    An AppGroup container with no readable metadata plist, holding Library/Preferences/<group
+    id>.plist, is taken as the app's group container on that file name alone.'''
     containers = {}
+    read = set()
     for found in files_found:
         path = str(found)
         if os.path.basename(path) != _METADATA_NAME or os.path.isdir(path):
@@ -655,12 +676,17 @@ def _containers(files_found):
         try:
             with open(path, 'rb') as handle:
                 plist = plistlib.load(handle)
-        except (plistlib.InvalidFileException, OSError, ValueError) as error:
+        except (plistlib.InvalidFileException, OSError, ValueError, ExpatError) as error:
             logfunc(f'Garmin Connect: could not read a container metadata plist: {error}')
             continue
+        read.add(os.path.dirname(path).replace('\\', '/'))
         identifier = plist.get('MCMMetadataIdentifier')
         if identifier in (_APP_ID, _GROUP_ID):
             containers[os.path.dirname(path).replace('\\', '/')] = identifier
+    for found in files_found:
+        container = _group_prefs_container(found)
+        if container and container not in read and not os.path.isdir(str(found)):
+            containers[container] = _GROUP_ID
     return containers
 
 
