@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records are read with a fixed layout. The labels Activity, Bundle Info, App Info, App Info2, Timestamp, Time End and Time Write are not sourced here. App.Install records carry a bundle id and field 5, which the BMAppInstall class names isInstall, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. Is Install reads True for 1 and False for 0, is blank for _DKEvent.App.Install rows, and was reported before as Event Value (as stored). On the tested images (343 written App.Install rows) Is Install held True on 330 rows and False on 13. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their SEGB timestamp, state, stream, filename and offset only. Paths containing 'tombstone' are not parsed. On the tested images (25 tombstone files, 263 written records) each record held a 15-digit string, three or four integers and a six-letter word. None held a bundle identifier. The meaning of the fields is not established.",
+        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records are read with the field layout of CoreDuet's _DKPREvent class, read on macOS 27.2.1 (26B131); no iOS copy of the class was read. On the 20 images tested all 424 written records held only fields that class declares. Their metadata entries are picked by integer index, named from CoreDuet's own conversion of synthetic records: Title 2000 (title), Is Install 2001 (isInstall), Primary Category 2002 (primaryCategory) and Sub Categories 2003 (subCategories, stored as a keyed archive of an array; the items are shown joined by commas). Before, App Info, Bundle Info and App Info2 took the first three metadata entries by position; on the tested images the title was under App Info on all 177 rows that held one, and the primary category was under Bundle Info on all 176 rows that held one; and the isInstall entry, held by all 424 written _DKEvent.App.Install records, was not reported. The labels Activity, Timestamp, Time End and Time Write are not sourced here. App.Install records carry a bundle id and field 5, which the BMAppInstall class names isInstall, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. Is Install reads True for 1 and False for 0 on both streams; on App.Install it was reported before as Event Value (as stored). On the tested images it held True on 411 and False on 13 of the 424 written _DKEvent.App.Install rows. On the tested images (343 written App.Install rows) Is Install held True on 330 rows and False on 13. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their SEGB timestamp, state, stream, filename and offset only. Paths containing 'tombstone' are not parsed. On the tested images (25 tombstone files, 263 written records) each record held a 15-digit string, three or four integers and a six-letter word. None held a bundle identifier. The meaning of the fields is not established.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*', '*/Biome/streams/restricted/App.Install/local/*'),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -35,7 +35,46 @@ from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, get_plist_content, logfunc
+
+def _text(value):
+    if isinstance(value, bytes):
+        return value.decode('utf-8', errors='replace')
+    if value is None or isinstance(value, (dict, list)):
+        return ''
+    return str(value)
+
+
+def _metadata_by_index(entries):
+    """_DKEvent metadata entries keyed by integer index (field 7.N.3), with their value.
+
+    Index names, read from CoreDuet.framework on macOS 27.2.1 (26B131) through _DKEvent
+    fromPBCodable: on synthetic records: 2000 title, 2001 isInstall, 2002 primaryCategory,
+    2003 subCategories (_DKAppInstallMetadataKey).
+    """
+    if isinstance(entries, dict):
+        entries = [entries]
+    found = {}
+    for entry in entries or []:
+        if not isinstance(entry, dict) or not isinstance(entry.get('3'), int):
+            continue
+        value = entry.get('2') if isinstance(entry.get('2'), dict) else {}
+        for field in ('3', '4', '6'):
+            if field in value:
+                found[entry['3']] = value[field]
+                break
+    return found
+
+
+def _subcategories(value):
+    """subCategories is stored as a blob holding a keyed archive of an array; show its items, or the blob size."""
+    if not isinstance(value, bytes):
+        return _text(value)
+    plist = get_plist_content(value)
+    if isinstance(plist, list):
+        return ', '.join(_text(item) for item in plist)
+    return f'<{len(value)} bytes>'
+
 
 @artifact_processor
 def get_biomeAppinstall(context):
@@ -77,11 +116,7 @@ def get_biomeAppinstall(context):
         '7': {
             'type': 'message',
             'message_typedef': {
-                '1': {
-                    'type': 'message',
-                    'message_typedef': {},
-                    'name': ''
-                },
+                '1': {'type': 'bytes', 'name': ''},
                 '2': {
                     'type': 'message',
                     'message_typedef': {
@@ -94,7 +129,8 @@ def get_biomeAppinstall(context):
                             'name': ''
                         },
                         '4': {'type': 'int', 'name': ''},
-                        '3': {'type': 'str', 'name': ''}
+                        '3': {'type': 'str', 'name': ''},
+                        '6': {'type': 'bytes', 'name': ''}
                     },
                     'name': ''
                 },
@@ -165,16 +201,10 @@ def get_biomeAppinstall(context):
 
                     bundleid = protostuff['4']['3']
                     actionguid = protostuff['5']
-                    appinfo1 = appinfo2 = bundleinfo = ''
-
-                    if protostuff.get('7', '') != '':
-                        if isinstance(protostuff['7'], list):
-                            if len(protostuff['7']) < 3:
-                                appinfo1 = protostuff['7'][0]['2'].get('3', '')
-                            else:
-                                appinfo1 = protostuff['7'][0]['2'].get('3', '')
-                                bundleinfo = protostuff['7'][1]['2'].get('3', '')
-                                appinfo2 = protostuff['7'][2]['2'].get('3', '')
+                    meta = _metadata_by_index(protostuff.get('7'))
+                    is_install = meta.get(2001)
+                    is_install = {1: 'True', 0: 'False'}.get(is_install, '') \
+                        if isinstance(is_install, int) else ''
 
                     timewrite = webkit_timestampsconv(protostuff['8'])
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
@@ -193,11 +223,11 @@ def get_biomeAppinstall(context):
                     stream,
                     activity,
                     bundleid,
-                    bundleinfo,
-                    appinfo1,
-                    appinfo2,
+                    _text(meta.get(2000)),
+                    _text(meta.get(2002)),
+                    _subcategories(meta.get(2003)),
                     actionguid,
-                    '',
+                    is_install,
                     filename,
                     record.data_start_offset
                 ))
@@ -230,9 +260,9 @@ def get_biomeAppinstall(context):
         'Stream',
         'Activity',
         'Bundle ID',
-        'Bundle Info',
-        'App Info',
-        'App Info2',
+        'Title',
+        'Primary Category',
+        'Sub Categories',
         'Action GUID',
         'Is Install',
         'Filename',
