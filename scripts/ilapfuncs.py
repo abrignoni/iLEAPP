@@ -1865,8 +1865,14 @@ def convert_human_ts_to_utc(ts):  #This is for timestamp in human form
 
 def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
     if cocoa_core_data_ts:
-        unix_timestamp = cocoa_core_data_ts + 978307200
-        return convert_unix_ts_to_utc(unix_timestamp)
+        # Scale to seconds before adding the epoch offset. Added first, the offset was in
+        # seconds while the value was not, and a millisecond, microsecond or nanosecond
+        # value then came out about 31 years early, read as Unix time. Only positive values
+        # from 10**11 (milliseconds from March 2004) are scaled, so NSDate.distantPast and
+        # distantFuture, stored in seconds at about 6.3 * 10**10, keep their earlier path.
+        if cocoa_core_data_ts >= 10**11:
+            cocoa_core_data_ts = convert_unix_ts_in_seconds(cocoa_core_data_ts)
+        return convert_unix_ts_to_utc(cocoa_core_data_ts + 978307200)
     else:
         return cocoa_core_data_ts
 
@@ -1973,11 +1979,13 @@ def get_birthdate(date):
 
 def get_birthdate_from_unix_ts(date):
     utc_date = convert_unix_ts_to_utc(date)
+    if not isinstance(utc_date, datetime):
+        return utc_date
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 def convert_bytes_to_unit(size):
     if size:
-        for unit in ['bytes', 'KB', 'MB', 'GB']:
+        for unit in ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']:
             if size < 1024.0:
                 return f"{size:3.1f} {unit}"
             size /= 1024.0
