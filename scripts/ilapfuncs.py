@@ -1863,7 +1863,16 @@ def convert_human_ts_to_utc(ts):  #This is for timestamp in human form
     else:
         return ts
 
+# NSDate.distantPast and NSDate.distantFuture as Cocoa seconds, read from Foundation on
+# macOS. Notes attachments and cached X users hold distantPast; what each app means by it is
+# not established. Converted, they read as dates in 1968 and 1972, so they are reported blank
+# like an absent date. The source file in data/ keeps the stored value.
+COCOA_DISTANT_PAST = -63114076800
+COCOA_DISTANT_FUTURE = 63113904000
+
 def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
+    if cocoa_core_data_ts in (COCOA_DISTANT_PAST, COCOA_DISTANT_FUTURE):
+        return ''
     if cocoa_core_data_ts:
         # Scale to seconds before adding the epoch offset. Added first, the offset was in
         # seconds while the value was not, and a millisecond, microsecond or nanosecond

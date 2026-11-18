@@ -46,13 +46,38 @@ class CocoaUnitScaling(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertEqual(convert_cocoa_core_data_ts_to_utc(value), value)
 
-    def test_sentinels_keep_the_earlier_path(self):
-        # NSDate.distantPast and distantFuture in Cocoa seconds. A Notes attachment on a
-        # registered iOS 17 corpus stores distantPast; these must not be rescaled here.
-        for value in (-63114076800, 63113904000):
+    def test_distant_past_and_future_are_blank(self):
+        # Values read from Foundation: NSDate.distantPast and distantFuture.
+        for value in (-63114076800, -63114076800.0, 63113904000):
             with self.subTest(value=value):
-                self.assertEqual(convert_cocoa_core_data_ts_to_utc(value),
-                                 convert_unix_ts_to_utc(value + 978307200))
+                self.assertEqual(convert_cocoa_core_data_ts_to_utc(value), '')
+
+    def test_distant_past_no_longer_reads_as_1968(self):
+        result = convert_cocoa_core_data_ts_to_utc(-63114076800)
+        self.assertNotIsInstance(result, datetime)
+
+    def test_genuine_pre_1970_dates_still_convert(self):
+        self.assertEqual(convert_cocoa_core_data_ts_to_utc(-1009843200),
+                         datetime(1969, 1, 1, tzinfo=timezone.utc))
+        self.assertEqual(convert_cocoa_core_data_ts_to_utc(-63114076799),
+                         convert_unix_ts_to_utc(-63114076799 + 978307200))
+
+    def test_unit_boundary(self):
+        # 10**11 is the first value scaled from milliseconds; one below stays seconds.
+        self.assertEqual(convert_cocoa_core_data_ts_to_utc(10**11),
+                         datetime(2004, 3, 3, 9, 46, 40, tzinfo=timezone.utc))
+        self.assertEqual(convert_cocoa_core_data_ts_to_utc(10**11 - 1),
+                         convert_unix_ts_to_utc(10**11 - 1 + 978307200))
+
+    def test_malformed_values_still_raise(self):
+        with self.assertRaises(TypeError):
+            convert_cocoa_core_data_ts_to_utc('not a number')
+
+
+class SentinelInReportOutputs(unittest.TestCase):
+    def test_lava_stores_the_blank_as_blank(self):
+        from scripts.lavafuncs import _prepare_datetime_value  # pylint: disable=import-outside-toplevel
+        self.assertEqual(_prepare_datetime_value(convert_cocoa_core_data_ts_to_utc(-63114076800)), '')
 
 
 class BirthdateFromUnix(unittest.TestCase):
