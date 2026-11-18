@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses app intent entries from biomes",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record is parsed independently: a record that cannot be decoded is logged with"
@@ -16,9 +16,19 @@ __artifacts_v2__ = {
                  "and Maps records; for other apps it is empty, and the HTML report shows the text "
                  "'Unsupported intent' there. Records whose plist cannot be read, or whose intent "
                  "holds no payload, are logged and skipped, and records in the Deleted SEGB state are"
-                 " not reported. direction (as stored) reports the decoded plist direction value "
-                 "without assigning enum names. A missing direction key remains None in the native "
-                 "row; this does not establish communication direction or participant ownership. "
+                 " not reported. direction (as stored) reports the direction key of the record's "
+                 "INInteraction plist as decoded, without assigning names. INInteraction.h in "
+                 "Intents.framework (macOS 27.2 SDK) defines INInteractionDirection as "
+                 "0 = Unspecified, 1 = Outgoing, 2 = Incoming, and a synthetic INInteraction "
+                 "archived on macOS 27.2.1 stored that value under the direction key. The "
+                 "BMAppIntent class (BiomeLibrary.framework, macOS 27.2.1, 26B131) names its own "
+                 "field 11, interactionDirection, with 1 = Incoming, 2 = Outgoing, "
+                 "3 = Bidirectional, in data versions 11 and 12 alike. Those names are not applied: "
+                 "on every written record on the tested images field 11 was the plist value plus "
+                 "one, so its 3 sits on records whose plist says 2 (Incoming), and its 1 on records "
+                 "whose plist says 0 (Unspecified). A missing direction key remains None in the "
+                 "native row. direction is a settable property of INInteraction (INInteraction.h). "
+                 "The value does not establish communication direction or participant ownership. "
                  "Donated by Siri reads True or False from the truth value of the _donatedBySiri key "
                  "and is blank when the record has no such key. Labels "
                  "inside the Data column (thread, sender, number) are inferred from observed record "
