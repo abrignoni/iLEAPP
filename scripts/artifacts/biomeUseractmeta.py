@@ -4,10 +4,19 @@ __artifacts_v2__ = {
         "description": "Parses user activity metadata entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Timestamp, Activity Type (User Activity Data), Title, Bplist Data and "
+                 "Payload Data are read from the property list stored in the userActivityData "
+                 "field. Container Data is read from a second property list nested in it. Activity Type and Bundle ID are the activityType and "
+                 "associatedBundleID fields of the BMUniversalRecentsMetadata class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Activity Type was reported before as Description; the property-list value "
+                 "reported before as Activity type is now Activity Type (User Activity Data). "
+                 "On the tested images Activity Type and Activity Type (User Activity Data) were "
+                 "identical on each of the 1,125 written rows; both are kept because they "
+                 "come from different places in the record.",
         "paths": (
             '*/Biome/streams/restricted/UserActivityMetadata/local*',
             '*/streams/*/UniversalRecents.UserActivity.Metadata/local/*',
@@ -132,8 +141,8 @@ def get_biomeUseractmeta(context):
                 data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, filename,
                                   record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity type',
-                    'Description', 'Bundle ID', 'Title', 'Bplist Data', 'Payload Data','Container Data', 'Filename',
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State',
+                    'Activity Type (User Activity Data)', 'Activity Type', 'Bundle ID', 'Title', 'Bplist Data', 'Payload Data','Container Data', 'Filename',
                     'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

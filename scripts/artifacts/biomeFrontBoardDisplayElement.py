@@ -1,21 +1,34 @@
 __artifacts_v2__ = {
     "get_biomeFrontBoardDisplayElement": {
         "name": "Biome - FrontBoard Display Element",
-        "description": "Parses app scene display events from the FrontBoard.DisplayElement "
-                       "biome stream: which app scene was recorded against which display, "
+        "description": "Parses display element records from the FrontBoard.DisplayElement "
+                       "biome stream: which element (bundle id and identifier) was recorded "
+                       "against which display, "
                        "with the time stored in the record read as Unix epoch seconds. This "
                        "is a high volume stream that may assist in reconstructing "
                        "app display activity; whether a record corresponds to on-screen "
                        "presentation is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
         "notes": "Records with an empty Bundle ID are reported with their Scene ID as stored; "
-                 "what those scenes are is not established. Numeric state fields are reported "
-                 "raw as their semantics "
-                 "are not confirmed.",
+                 "what those scenes are is not established. Field names and the Element Type, "
+                 "Change Type and Display Backlight Status names are those of the "
+                 "BMFrontBoardDisplayElement class and its BMFrontBoardDisplayElementDisplay "
+                 "class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy "
+                 "of the class was read. Scene ID is the field the framework names identifier. "
+                 "Columns reported before as Display Type, Display Role "
+                 "and Field 4, 5, 6, 7, 8 and 10 (raw) are now Display Name, Display Device Name, "
+                 "Element Type, Layout Role, Level, Has Keyboard Focus, Is UI Application "
+                 "Element and Change Type. Display Backlight Status is new. The integers for "
+                 "the named fields stay in the (raw) columns; Layout Role and Level have no "
+                 "names in the framework and are reported as stored. Has Keyboard Focus and Is "
+                 "UI Application Element show True for 1 and False for 0. On the tested images "
+                 "Element Type was SpringBoard (2) on all 42,978 written rows that carried it, "
+                 "and 129 written rows carried none of these fields. 136 written records on "
+                 "the tested images did not decode and are not reported.",
         "paths": ('*/streams/*/FrontBoard.DisplayElement/local/*',),
         "output_types": "standard",
         "artifact_icon": "layers",
@@ -40,6 +53,13 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
+# elementType names, read from BiomeLibrary.framework BMFrontBoardDisplayElement on macOS 27.2.1 (26B131).
+ELEMENT_TYPE = {0: 'Unknown', 1: 'FrontBoard', 2: 'SpringBoard', 3: 'PineBoard', 4: 'Carousel'}
+# changeType names, read from BiomeLibrary.framework BMFrontBoardDisplayElement on macOS 27.2.1 (26B131).
+CHANGE_TYPE = {0: 'Unknown', 1: 'Added', 2: 'Modified', 3: 'Removed'}
+# backlightStatus names, read from BiomeLibrary.framework BMFrontBoardDisplayElementDisplay on macOS 27.2.1 (26B131).
+BACKLIGHT_STATUS = {0: 'Unknown', 1: 'Off', 2: 'On'}
+
 TYPESS = {
     '2': {'type': 'str', 'name': ''},
     '3': {'type': 'str', 'name': ''},
@@ -63,6 +83,18 @@ def _to_str(value):
     return str(value)
 
 
+def _bool(value):
+    if value == 1:
+        return 'True'
+    if value == 0:
+        return 'False'
+    return ''
+
+
+def _name(names, value):
+    return names.get(value, '') if isinstance(value, int) else ''
+
+
 def _unix_double(value):
     if not isinstance(value, int) or value == 0:
         return None
@@ -77,9 +109,11 @@ def _unix_double(value):
 def get_biomeFrontBoardDisplayElement(context):
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
-                    'SEGB State', 'Bundle ID', 'Scene ID', 'Display Type', 'Display Role',
-                    'Field 4 (raw)', 'Field 5 (raw)', 'Field 6 (raw)', 'Field 7 (raw)',
-                    'Field 8 (raw)', 'Field 10 (raw)', 'Filename', 'Offset')
+                    'SEGB State', 'Bundle ID', 'Scene ID', 'Display Name', 'Display Device Name',
+                    'Display Backlight Status', 'Display Backlight Status (raw)',
+                    'Element Type', 'Element Type (raw)', 'Layout Role', 'Level',
+                    'Has Keyboard Focus', 'Is UI Application Element', 'Change Type',
+                    'Change Type (raw)', 'Filename', 'Offset')
 
     source_dirs = set()
     results = context.create_artifact_result(headers=data_headers)
@@ -116,14 +150,19 @@ def get_biomeFrontBoardDisplayElement(context):
                                   _to_str(protostuff.get('2', b'')),
                                   _to_str(display.get('2', b'')),
                                   _to_str(display.get('3', b'')),
+                                  _name(BACKLIGHT_STATUS, display.get('6')),
+                                  display.get('6', ''),
+                                  _name(ELEMENT_TYPE, protostuff.get('4')),
                                   protostuff.get('4', ''), protostuff.get('5', ''),
-                                  protostuff.get('6', ''), protostuff.get('7', ''),
-                                  protostuff.get('8', ''), protostuff.get('10', ''),
+                                  protostuff.get('6', ''), _bool(protostuff.get('7')),
+                                  _bool(protostuff.get('8')),
+                                  _name(CHANGE_TYPE, protostuff.get('10')),
+                                  protostuff.get('10', ''),
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
                 results.add_row((ts, None, record.state.name, None, None, None, None, None,
-                                  None, None, None, None, None, filename,
+                                  None, None, None, None, None, None, None, None, None, filename,
                                   record.data_start_offset))
 
     results.set_source_path('\n'.join(sorted(source_dirs)))
