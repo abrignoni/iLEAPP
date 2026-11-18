@@ -19,20 +19,23 @@ __artifacts_v2__ = {
                  "author device, time, parents and message. Commit messages are JSON whose keys "
                  "and type values are those jami-daemon defines in src/jamidht/commit_message.h "
                  "(25fadf1a, 2026). The source says merge commits are not JSON; for a commit that "
-                 "is not JSON, Type is empty and Message holds the commit message as stored. The "
-                 "tested images hold no merge commits. The iOS app version (Jami 4.20 on both "
-                 "tested images) is not mapped to a daemon commit. Type is the type key as stored. "
-                 "Message is the body of text/plain commits; the body of any other type is in "
-                 "Other Fields. An edit carries Edit Of, and the source says an edit with an empty "
-                 "body is a deleted message or a removed reaction; a reaction carries React To. "
-                 "Other Fields holds, as JSON, every key that has no column here: on the tested "
-                 "images that was the tid and sha3sum of the 11 file transfers. Timestamp is the "
-                 "commit time, which the daemon reads as the message time (git_commit_time, "
-                 "src/jamidht/conversationrepository.cpp line 2969); the author time equals it on "
-                 "all 46 commits. Author Device is the commit's author email, which the daemon "
-                 "uses as the device ID (conversationrepository.cpp line 2985). Author Account is "
-                 "the userId of the issuer of that device's certificate file in the repository's "
-                 "devices/ folder. The daemon takes the same issuer UID from the certificate in "
+                 "is not JSON, Type is empty and Message holds the commit message text (decoded as "
+                 "UTF-8); no such commit was on the tested images. The tested images hold no merge "
+                 "commits. The iOS app version (Jami 4.20 on both tested images) is not mapped to "
+                 "a daemon commit. Type is the type key as stored. Message is the body of "
+                 "text/plain commits; the body of any other type is in Other Fields. An edit "
+                 "carries Edit Of, and the source says an edit with an empty body is a deleted "
+                 "message or a removed reaction, and a file transfer commit with an edit key and "
+                 "an empty tid is a deleted file, of which none was on the tested images; a "
+                 "reaction carries React To. Other Fields holds, as JSON, every key that has no "
+                 "column here: on the tested images that was the tid and sha3sum of the 11 file "
+                 "transfers. Timestamp is the commit time, which the daemon reads as the message "
+                 "time (git_commit_time, src/jamidht/conversationrepository.cpp line 2969); the "
+                 "author time equals it on all 46 commits. Author Device is the commit's author "
+                 "email, which the daemon uses as the device ID (conversationrepository.cpp line "
+                 "2985). Author Account is the userId of the issuer of that device's certificate "
+                 "file in the repository's devices/ folder. When its certificate store does not "
+                 "resolve the device, the daemon takes the same issuer UID from the certificate in "
                  "the commit's tree, after verifying it (uriFromDeviceAtCommit, "
                  "conversationrepository.cpp line 553; getIssuerUID, line 598); the certificate "
                  "chain and the commit signatures are not verified here. When the device's "
@@ -45,29 +48,30 @@ __artifacts_v2__ = {
                  "4 characters on the 12 incoming ones, and what it holds is not established. "
                  "Attachment is the file the daemon keeps at "
                  "conversation_data/<conversation>/<commit id>_<tid> plus the display name's "
-                 "extension (getFileId, src/data_transfer.cpp line 94), so the link follows the "
-                 "daemon's own naming rule from the commit ID and the recorded tid. All 11 file "
-                 "transfers on the tested images resolved; all 11 were outgoing, and no incoming "
-                 "transfer was on the tested images. File Hash Matches compares the file's "
-                 "SHA3-512 with the stored sha3sum, which matched on all 11. Files under "
-                 "conversation_data that no commit names are reported by Jami - Conversation Files "
-                 "Not Named By A Commit. URI is the uri key as stored; its meaning depends on Type "
-                 "(the member a member commit names, by the source). Reachable From A Branch says "
-                 "whether the commit can be reached from a local branch head or HEAD; "
-                 "remote-tracking refs are not counted. Reachable From A Branch held Yes on every "
-                 "row of both tested images, and Account held one value on every row of each "
-                 "image. Reply To, Call Duration (ms), Call Peer and Call Reason (as stored) are "
-                 "empty on every row of both tested images, which hold no replies and no call "
-                 "history commits; Edit Of is empty on hill_iphone15pro_ios26 and React To on "
-                 "wilkerson_iphone16_ios26. Conversation Mode names the stored mode by the "
-                 "daemon's ConversationMode values. Not read here: the account's legacy "
-                 "<account>.db, whose conversations and interactions tables are empty on both "
-                 "images; the msgpack files contacts, convInfo and convRequests and the "
+                 "extension when the daemon accepts it (getFileId, src/data_transfer.cpp line 94), "
+                 "so the link follows the daemon's own naming rule from the commit ID and the "
+                 "recorded tid. All 11 file transfers on the tested images resolved; all 11 were "
+                 "outgoing, and no incoming transfer was on the tested images. File Hash Matches "
+                 "compares the file's SHA3-512 with the stored sha3sum, which matched on all 11. "
+                 "Files under conversation_data that no commit names are reported by Jami - "
+                 "Conversation Files Not Named By A Commit. URI is the uri key as stored; its "
+                 "meaning depends on Type (the member a member commit names, by the source). "
+                 "Reachable From A Branch says whether the commit can be reached from a local "
+                 "branch head or HEAD; remote-tracking refs are not counted. Reachable From A "
+                 "Branch held Yes on every row of both tested images, and Account held one value "
+                 "on every row of each image. Reply To, Call Duration (ms), Call Peer and Call "
+                 "Reason (as stored) are empty on every row of both tested images, which hold no "
+                 "replies and no call history commits; Edit Of is empty on hill_iphone15pro_ios26 "
+                 "and React To on wilkerson_iphone16_ios26. Conversation Mode names the stored "
+                 "mode by the daemon's ConversationMode values. Not read here: the account's "
+                 "legacy <account>.db, whose conversations and interactions tables are empty on "
+                 "both images; the msgpack files contacts, convInfo and convRequests and the "
                  "Library/Caches message stores; profiles/*.vcf and each conversation's "
                  "profile.vcf; config.yml, dring.yml and the account archive archive.gz; "
                  "knownDevices, syncingMetadatas and incomingTrustRequests; the state files under "
-                 "conversation_data (status, members, preferences, activeCalls, hostedCalls); and "
-                 "the certificate and key files.",
+                 "conversation_data (status, members, preferences, activeCalls and hostedCalls on "
+                 "the tested images); dring.bak and local_device_id; each repository's admins, "
+                 "members and invited folders; and the certificate and key files.",
         "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
                   '*/Containers/Shared/AppGroup/*/Documents/*/ring_device.crt',
                   '*/Containers/Shared/AppGroup/*/Documents/*/conversations/*',
@@ -102,22 +106,26 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Jami",
         "notes": "One row per file under Documents/<account>/conversation_data/ in the Jami app "
-                 "group container whose name is not the file id (<commit id>_<tid>) of a transfer "
-                 "commit in the same account, which Jami - Conversation History already shows as "
-                 "Attachment. The daemon's state files beside each conversation's files (status, "
-                 "members, preferences, activeCalls, hostedCalls) are left out. Matches A Transfer "
-                 "Commit (SHA3-512) compares the file's SHA3-512 with the sha3sum every transfer "
-                 "commit of the account records, and Matching Commit ID and Matching Conversation "
-                 "ID name the commits it matches. Folder is the conversation folder the file sits "
-                 "in, and is empty for a file directly under conversation_data. On "
-                 "hill_iphone15pro_ios26 1 file in a conversation folder matched a transfer. On "
-                 "wilkerson_iphone16_ios26 the 10 files in a conversation folder all matched a "
-                 "transfer, and of the 8 files directly under conversation_data 2 matched a "
-                 "transfer and 6 matched none. Why a file sits there without a commit naming it is "
-                 "not established here: the commits on the device do not record it. A file is "
-                 "shown when it starts with a JPEG, PNG or GIF signature or has a common photo, "
-                 "video or audio extension. Account is the issuer of the account's own "
-                 "ring_device.crt, and Account held one value on every row of each tested image.",
+                 "group container whose name, before its extension, is not the file id (<commit "
+                 "id>_<tid>) of a transfer commit of the conversation whose folder it sits in, "
+                 "which Jami - Conversation History already shows as Attachment. The daemon's "
+                 "state files beside each conversation's files are left out: status, members, "
+                 "preferences, activeCalls and hostedCalls, the only ones on the tested images, "
+                 "and sending, fetched, cached, mobileNodes and waiting, which the daemon source "
+                 "also names, as well as its .jami-index- staging files. Matches A Transfer Commit "
+                 "(SHA3-512) compares the file's SHA3-512 with the sha3sum every transfer commit "
+                 "of the account records, and Matching Commit ID and Matching Conversation ID name "
+                 "the commits it matches. Folder is the conversation folder the file sits in, and "
+                 "is empty for a file directly under conversation_data. On hill_iphone15pro_ios26 "
+                 "1 file in a conversation folder matched a transfer. On wilkerson_iphone16_ios26 "
+                 "the 10 files in a conversation folder all matched a transfer, and of the 8 files "
+                 "directly under conversation_data 2 matched a transfer and 6 matched none. Why a "
+                 "file sits there without a commit naming it is not established here: the commits "
+                 "on the device do not record it. The File column holds the file when it starts "
+                 "with a JPEG, PNG or GIF signature or its extension is one of .jpeg, .jpg, .png, "
+                 ".gif, .heic, .mov, .mp4, .m4a, .ogg or .wav; all 19 rows on the tested images "
+                 "had it. Account is the issuer of the account's own ring_device.crt, and Account "
+                 "held one value on every row of each tested image.",
         "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
                   '*/Containers/Shared/AppGroup/*/Documents/*/ring_device.crt',
                   '*/Containers/Shared/AppGroup/*/Documents/*/conversations/*',
@@ -156,8 +164,11 @@ _DATA = re.compile(
 _ANY_DATA = re.compile(
     r'^(?P<group>.*/Containers/Shared/AppGroup/[^/]+)/Documents/(?P<account>[^/]+)/'
     r'conversation_data/(?P<rest>.+)$')
-# Files the daemon keeps beside a conversation's transferred files; they are not transfers.
-_STATE_FILES = ('status', 'members', 'preferences', 'activeCalls', 'hostedCalls')
+# Files the daemon keeps beside a conversation's transferred files; they are not transfers
+# (jami-daemon 25fadf1a: src/jamidht/conversation.h lines 73-82 and the five seen on the tested
+# images; src/data_transfer.cpp line 377 for waiting).
+_STATE_FILES = ('status', 'members', 'preferences', 'activeCalls', 'hostedCalls', 'sending',
+                'fetched', 'cached', 'mobileNodes', 'waiting')
 _DEVICE_CERT = re.compile(
     r'^(?P<group>.*/Containers/Shared/AppGroup/[^/]+)/Documents/(?P<account>[^/]+)/ring_device\.crt$')
 _LOOSE = re.compile(r'^\.git/objects/([0-9a-f]{2})/([0-9a-f]{38})$')
@@ -626,7 +637,7 @@ def jami_unlinked_files(context):
             continue
         group, account, rest = match.group('group'), match.group('account'), match.group('rest')
         folder, _, file_name = rest.rpartition('/')
-        if file_name in _STATE_FILES and folder:
+        if (file_name in _STATE_FILES and folder) or file_name.startswith('.jami-index-'):
             continue
         if (group, account, folder, file_name.split('.', 1)[0]) in named:
             continue
