@@ -69,6 +69,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | august |
 | biomeApplePaySecurity |
 | biomeIntelligenceEntity |
+| biomePhotos |
 | biomeSync |
 | booking |
 | botim |
