@@ -2,8 +2,8 @@ __artifacts_v2__ = {
     "get_biomeWidgetsViewed": {
         "name": "Biome - Widgets Viewed",
         "description": "Records from the Widgets.Viewed biome stream: the start and end dates, "
-                       "the widget extension and bundle identifiers, and the page, stack, view and "
-                       "budget values each record stores.",
+                       "the widget extension bundle identifier, and the page, stack, view, budget "
+                       "and expiration values each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
@@ -13,32 +13,39 @@ __artifacts_v2__ = {
                  "come from BMWidgetsViewed protoFields in BiomeLibrary.framework, read on macOS "
                  "27.2.1 (26B131): 1 budgetID, 2 bundleID, 3 endDate, 4 extensionBundleID, 5 "
                  "inStack, 6 pageID, 7 startDate, 8 timeUntilExpiration and 9 viewID. That the iOS "
-                 "writer uses the same schema was checked only against the data: every written "
-                 "record decoded to those fields. Start Date and End Date are startDate and "
-                 "endDate read as seconds since 1970 UTC; no source for that epoch was found. Read "
-                 "that way End Date is never before Start Date, Duration (seconds) is End Date "
-                 "minus Start Date and ran from under a second to 92 seconds on "
-                 "hill_iphone15pro_ios26 and to 300 seconds on wilkerson_iphone16_ios26, and the "
-                 "SEGB Timestamp falls after End Date on every row, by up to 12 hours on "
-                 "hill_iphone15pro_ios26 and 24 hours on wilkerson_iphone16_ios26, so the SEGB "
-                 "time is not the viewing time. What a start and end mark on screen is not "
-                 "established. The widget is named by Extension Bundle ID (6 values on "
-                 "hill_iphone15pro_ios26, 7 on wilkerson_iphone16_ios26); Bundle ID is empty on "
-                 "every row of both images, which store no bundleID. In Stack held No on every row "
-                 "of wilkerson_iphone16_ios26. Page ID, View ID, Budget ID and Time Until "
-                 "Expiration are reported as stored; Time Until Expiration held a value below "
-                 "minus one billion on 11 rows of hill_iphone15pro_ios26 and 68 of "
-                 "wilkerson_iphone16_ios26, and what it means is not established. Only records in "
-                 "the written state are reported, and the stream's tombstone folder is not read. "
+                 "writer uses the same schema was checked only against the data: all 199 written "
+                 "records on hill_iphone15pro_ios26 and all 2,300 on wilkerson_iphone16_ios26 "
+                 "decoded to fields 1 and 3 to 9 with no other field number. Start Date and End "
+                 "Date are startDate and endDate read as seconds since 1970 UTC. The "
+                 "BMWidgetsViewed writer in BiomeLibrary.framework on macOS 27.2.1 (26B131) "
+                 "serializes a date into those fields as seconds since 1970 (checked with a "
+                 "synthetic record); the iOS writer was not read. Read that way End Date is not "
+                 "before Start Date on any row of either image. Duration (seconds) is End Date "
+                 "minus Start Date, rounded to the millisecond, and ran from under a second to "
+                 "about 92 seconds on hill_iphone15pro_ios26 and to just over 300 seconds on "
+                 "wilkerson_iphone16_ios26, and the SEGB Timestamp falls after End Date on every "
+                 "row, by up to 12 hours on hill_iphone15pro_ios26 and 24 hours on "
+                 "wilkerson_iphone16_ios26, so the SEGB Timestamp is not either stored date. What "
+                 "a start and end mark on screen is not established. Extension Bundle ID "
+                 "identifies the widget extension (6 values on hill_iphone15pro_ios26, 7 on "
+                 "wilkerson_iphone16_ios26), and some extensions appear with two View ID values; "
+                 "Bundle ID is empty on every row of both images, which store no bundleID. In "
+                 "Stack held No on every row of wilkerson_iphone16_ios26. Page ID, View ID, Budget "
+                 "ID and Time Until Expiration are reported as stored; Time Until Expiration held "
+                 "a value below minus one billion on 11 rows of hill_iphone15pro_ios26 and 68 of "
+                 "wilkerson_iphone16_ios26, and 61 and 423 further rows hold smaller negative "
+                 "values, and what it means is not established. Only records in the written state "
+                 "are reported, and the stream's tombstone folder is not read. "
                  "hill_iphone15pro_ios26 has one stream file, so SEGB File held one value on every "
-                 "row there. iphone11_ios17 holds no stream file.",
+                 "row there. iphone11_ios17 (iOS 17.3) has no Widgets.Viewed folder; it has an "
+                 "empty _DKEvent.Widgets.Viewed folder, which this artifact does not match.",
         "paths": ('*/streams/*/Widgets.Viewed/local/*',),
         "output_types": "standard",
         "artifact_icon": "layout-dashboard",
         "sample_data": {
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 199 rows",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 2300 rows",
-            "iphone11_ios17": "iOS 17.3 | 0 rows, no stream file",
+            "iphone11_ios17": "iOS 17.3 | 0 rows, no Widgets.Viewed folder",
         },
     }
 }
