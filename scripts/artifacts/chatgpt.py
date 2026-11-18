@@ -2,18 +2,21 @@ __artifacts_v2__ = {
     "chatgptConversationsMetadata": {
         "name": "ChatGPT - Conversations Metadata",
         "description": "Metadata from ChatGPT conversation files. Returned rows on ChatGPT "
-                       "1.2023.159, 1.2023.347, 1.2024.219, 1.2024.233 and 1.2026.013 on the "
+                       "1.2023.159, 1.2023.347, 1.2024.219, 1.2024.233, 1.2026.013 and 1.2026.267 on the "
                        "tested images. 1.2025.261 (dexter_ios18) was run and held no "
                        "conversation files; other versions were not tested.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "Conversation files are read from three folders under Library/Application "
                  "Support in the app container: conversations-<id> (ChatGPT 1.2023.347 to "
-                 "1.2024.233 on the tested images), conversations-v3-<id> (1.2026.013) and "
-                 "conversations (1.2023.159). Any app could use a folder named conversations, so "
+                 "1.2024.233 on the tested images), conversations-v3-<id> (1.2026.013), "
+                 "workspace-data/<user folder>/conversations-v3 (1.2026.267) and "
+                 "conversations (1.2023.159). In workspace-data the conversations-v3 folder holds "
+                 "a history/ folder of small sync-state files, which are not conversations and are "
+                 "not read. Any app could use a folder named conversations, so "
                  "that folder is read only from a container that also holds "
                  "Library/Preferences/com.openai.chat.plist or com.openai.chat.StatsigService.plist. "
                  "Model, Default Model and Last Model are the configuration keys model, "
@@ -22,20 +25,27 @@ __artifacts_v2__ = {
                  "not store it, and what "
                  "distinguishes them is not documented here. Custom Instructions (Model) and "
                  "Custom Instructions (User) are blank on every row of every tested image: the "
-                 "file stores an empty string on 12 files (adams_iphone12mini 10, "
-                 "hexordia_ios1651 1, otto_ios17 1) and does not carry the key on the other 44. "
+                 "file stores an empty string on 17 files (adams_iphone12mini 10, "
+                 "hexordia_ios1651 1, otto_ios17 1, hill_iphone15pro_ios26 5) and does not carry "
+                 "the key on the other 44. "
                  "Custom Instructions (Enabled) and Is Temporary are blank where the file "
                  "does not store the key, and Is Temporary held False on every row that stored it. "
                  "Other configuration keys, such as gizmo_id and customizations on 1.2024.219, "
-                 "are not reported. dexter_ios18 and falken_ios26 hold the ChatGPT app container "
-                 "but no conversation files.",
+                 "are not reported. On hill_iphone15pro_ios26 (1.2026.267) the custom instructions "
+                 "object also carries name_user_message, other_user_message, role_user_message, "
+                 "traits_model_message and, on 4 of 5 files, personality_type_selection; all held "
+                 "empty strings there and none is reported. There Default Model held auto on all 5 "
+                 "rows, Last Model is filled on 1 and Model on none. dexter_ios18 and falken_ios26 "
+                 "hold the ChatGPT app container but no conversation files.",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
+                  '**/Containers/Data/Application/*/Library/Application Support/workspace-data/*/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
         "output_types": "standard",
         "artifact_icon": "message",
         "sample_data": {
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | ChatGPT 1.2026.267 | 5 rows",
             "abe_ios16": "iOS 16.5 | ChatGPT 1.2023.159 | 5 rows",
             "adams_iphone12mini": "iOS 17.1.1 | ChatGPT 1.2026.013 | 10 rows",
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
@@ -50,12 +60,12 @@ __artifacts_v2__ = {
         "description": "Messages stored in ChatGPT conversation files, one row per "
                        "entry of the file's message tree, with the author role as "
                        "stored. Returned rows on ChatGPT "
-                       "1.2023.159, 1.2023.347, 1.2024.219, 1.2024.233 and 1.2026.013 on the "
+                       "1.2023.159, 1.2023.347, 1.2024.219, 1.2024.233, 1.2026.013 and 1.2026.267 on the "
                        "tested images. 1.2025.261 (dexter_ios18) was run and held no "
                        "conversation files; other versions were not tested.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-11-11",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "One row per node of the conversation's message tree, read from the same "
@@ -74,9 +84,10 @@ __artifacts_v2__ = {
                  "created_at, read as seconds since 2001-01-01 UTC and shown to the whole second; "
                  "the stored fraction is dropped. That reading is not sourced from app "
                  "documentation. It is used because it puts created_at within one second of "
-                 "create_time on 456 of the 463 rows that store both. created_at was present on "
-                 "every row of the five images with rows, including the 76 with no create_time. "
-                 "On the 463 rows that have both, the two shown values are equal on 449 and differ "
+                 "create_time on 456 of the 463 rows that store both on the five older images with rows. "
+                 "created_at was present on "
+                 "every row of those five images, including the 76 with no create_time. "
+                 "On those 463 rows that have both, the two shown values are equal on 449 and differ "
                  "by 1 to 9 seconds on 12; on 7 of those 12 the stored values are less than one "
                  "second apart, and on one otto_ios17 row Node Created At is the earlier of the "
                  "two. On 2 rows Node Created At is later by about 20 minutes (otto_ios17) and by "
@@ -102,7 +113,7 @@ __artifacts_v2__ = {
                  "Voice Mode "
                  "Message is the metadata key voice_mode_message as stored. It was stored only on "
                  "otto_ios17, True on 12 of 172 rows, and is blank where the key is absent: "
-                 "Voice Mode Message has no value on any row of the other four images. "
+                 "Voice Mode Message has no value on any row of the other five images. "
                  "Metadata is the message's metadata object written as JSON, and blank where the "
                  "message stores no metadata key (6 rows on abe_ios16, 18 on felix_ios17, 4 on "
                  "hexordia_ios1651, 34 on otto_ios17). Media: "
@@ -110,14 +121,27 @@ __artifacts_v2__ = {
                  "felix_ios17) carry an asset pointer, reported in Content as the stored part "
                  "written as JSON. The pointer is an app scheme and an id, and the parts hold no "
                  "file path. A search of the file names in the ChatGPT app container on both "
-                 "images for those asset ids returned no match, so no image is shown.",
+                 "images for those asset ids returned no match, so no image is shown."
+                 " On hill_iphone15pro_ios26 (1.2026.267): 4 of 83 rows, all system, have no "
+                 "create_time, and created_at is present on all 83. Of the 79 rows that store both, "
+                 "the stored values are less than one second apart on 69, the shown values are "
+                 "equal on 54, and the largest difference is 24 seconds on one row. Content is "
+                 "blank on 50 rows: 38 text rows (30 system, 4 assistant, 4 tool) whose parts are "
+                 "empty strings, 7 model_editable_context rows whose model_set_context is an empty "
+                 "string, 1 developer_content row that stores only its content_type, and 2 thoughts "
+                 "and 2 reasoning_recap rows, which keep their text under thoughts and content keys "
+                 "that are not read. 8 multimodal_text rows carry asset pointers; a search of the "
+                 "file names in the ChatGPT app container and its app group container for those 8 "
+                 "asset ids returned no match. Metadata is blank on 3 rows.",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
+                  '**/Containers/Data/Application/*/Library/Application Support/workspace-data/*/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | ChatGPT 1.2026.267 | 83 rows",
             "abe_ios16": "iOS 16.5 | ChatGPT 1.2023.159 | 21 rows",
             "adams_iphone12mini": "iOS 17.1.1 | ChatGPT 1.2026.013 | 179 rows",
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
@@ -146,7 +170,7 @@ __artifacts_v2__ = {
         "description": "ChatGPT preferences (account information).",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "",
@@ -155,6 +179,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "settings",
         "sample_data": {
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | ChatGPT 1.2026.267 | 2 rows",
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 2 rows",
             "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 2 rows",
@@ -167,7 +192,7 @@ __artifacts_v2__ = {
                        "identifies that container",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-10-10",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "The tmp patterns match every app container. A container is taken as ChatGPT's "
@@ -186,6 +211,7 @@ __artifacts_v2__ = {
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "photo",
         "sample_data": {
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | ChatGPT 1.2026.267 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | no ChatGPT preference file | 0 rows",
@@ -204,7 +230,7 @@ __artifacts_v2__ = {
                        "identifies that container",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-10-10",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "The tmp patterns match every app container. A container is taken as ChatGPT's "
@@ -223,6 +249,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "microphone",
         "sample_data": {
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | ChatGPT 1.2026.267 | 0 rows",
             "abe_ios16": "iOS 16.5 | ChatGPT 1.2023.159 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 0 rows",
@@ -250,10 +277,13 @@ _CONTAINER = re.compile(r'(?:^|[\\/])Containers[\\/]Data[\\/]Application[\\/]([^
 # Preference files named for ChatGPT's bundle id. Only its own container holds them.
 _MARKERS = ('Library/Preferences/com.openai.chat.plist',
             'Library/Preferences/com.openai.chat.StatsigService.plist')
-# conversations-<id>/ and conversations-v3-<id>/ name the folder after ChatGPT's own ids. The
-# 2023 app kept a plain conversations/ folder, a name any app could use, so that one is read
-# only from a container a marker identifies.
-_CONVERSATION_FILE = re.compile(r'^Library/Application Support/conversations-[^/]+/[^/]+\.json$')
+# conversations-<id>/ and conversations-v3-<id>/ name the folder after ChatGPT's own ids.
+# ChatGPT 1.2026.267 keeps conversations-v3/ inside workspace-data/<user folder>/, beside a
+# history/ folder of sync state that is not a conversation. The 2023 app kept a plain
+# conversations/ folder, a name any app could use, so that one is read only from a container a
+# marker identifies.
+_CONVERSATION_FILE = re.compile(
+    r'^Library/Application Support/(?:workspace-data/[^/]+/)?conversations-[^/]+/[^/]+\.json$')
 _LEGACY_CONVERSATION_FILE = re.compile(r'^Library/Application Support/conversations/[^/]+\.json$')
 
 

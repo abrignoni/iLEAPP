@@ -78,6 +78,16 @@ class ChatGPTConversationLayoutsTest(unittest.TestCase):
         rows = self.rows(module.chatgptConversations, [self.v3])
         self.assertEqual([(r[2], r[4]) for r in rows], [('m1', 'c2'), ('m2', 'c2')])
 
+    def test_workspace_data_folder_is_read_and_its_history_is_not(self):
+        base = self.chatgpt + '/Library/Application Support/workspace-data/user-x__u1/conversations-v3/'
+        conversation = self.write(base + 'c3.json',
+                                  {'id': 'c3', 'tree': {'storage': ['m1', NODE]}})
+        history = self.write(base + 'history/c3.json', {'id': 'c3', 'state': {'server': {'_0': 1.0}}})
+        files = [conversation, history]
+        self.assertEqual([r[3] for r in self.rows(module.chatgptConversationsMetadata, files)], ['c3'])
+        self.assertEqual([(r[2], r[4]) for r in self.rows(module.chatgptConversations, files)],
+                         [('m1', 'c3')])
+
     def test_a_file_matched_by_two_patterns_is_read_once(self):
         rows = self.rows(module.chatgptConversationsMetadata, [self.v3, self.v3])
         self.assertEqual(len(rows), 1)
