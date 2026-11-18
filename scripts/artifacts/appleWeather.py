@@ -1,26 +1,35 @@
 __artifacts_v2__ = {
     "weatherFetchHistory": {
-        "name": "Weather - Fetch History",
-        "description": "Rows of the lastFetch table in the Weather app's weather-data.db: the "
-                       "time, the latitude and longitude and the data products of each fetch.",
+        "name": "Weather - Last Fetch by Coordinate",
+        "description": "Rows of the lastFetch table in the Weather app's weather-data.db: one row "
+                       "per stored coordinate key with its timestamp and products.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Weather",
         "notes": "No Apple documentation of the Weather app's stores was found, so the table and "
-                 "key names are the only labels used here and values are reported as stored. One "
-                 "row per row of lastFetch. Fetch Time is timestamp read as seconds since 1970 "
-                 "UTC; read that way it falls between March or April and October 2026 on the two "
-                 "iOS 26 images, and no source for the epoch was found. Latitude and Longitude are "
-                 "stored with three decimal places (about 110 metres). Every row on "
-                 "hill_iphone15pro_ios26 (156) and wilkerson_iphone16_ios26 (817) holds a "
-                 "different coordinate pair, so the table is not a list of a few saved places; "
-                 "whether each pair is the device's position when the fetch was made is not "
-                 "established. Products lists the data sets fetched, as stored. iphone11_ios17 "
-                 "(iOS 17.3) has weather-data.db without a lastFetch table. The other tables of "
-                 "weather-data.db (forecasts, air quality, alerts, news and metadata, with their "
-                 "own coordinates) are not read here.",
+                 "key names are the only labels used here. Text and coordinate values are reported "
+                 "as stored; time columns are converted as described below, and a missing or "
+                 "non-positive time shows as blank. One row per row of lastFetch. The table is "
+                 "keyed on latitude, longitude and id, so it holds one row per coordinate key, and "
+                 "a later fetch for a key replaces its timestamp: between the database file and "
+                 "its write-ahead log, 3 keys on hill_iphone15pro_ios26 and 2 on "
+                 "wilkerson_iphone16_ios26 keep their key and take a later timestamp. The id "
+                 "repeats the coordinate pair and is not shown. Timestamp is timestamp read as "
+                 "seconds since 1970 UTC; read that way it falls between March or April and "
+                 "October 2026 on the two iOS 26 images, the latest on the extraction date or the "
+                 "day before, and no source for the epoch was found. Latitude and Longitude hold "
+                 "at most three decimal places on the tested images; 0.001 degree of latitude is "
+                 "about 111 metres. hill_iphone15pro_ios26 holds 156 keys and "
+                 "wilkerson_iphone16_ios26 holds 817 (96 and 406 distinct pairs at two decimal "
+                 "places), so the table is not a list of a few saved places; whether each pair is "
+                 "the device's position when a fetch was made is not established. Products is the "
+                 "products column as stored, a comma-separated list of names. iphone11_ios17 (iOS "
+                 "17.3) has weather-data.db without a lastFetch table. The other tables of "
+                 "weather-data.db (forecasts, air quality, alerts, news, metadata and others) are "
+                 "not read here; on the iOS 26 images most of them carry latitude and longitude "
+                 "columns.",
         "paths": ('*/mobile/Library/Weather/weather-data.db*',),
         "output_types": "all",
         "artifact_icon": "cloud",
@@ -41,13 +50,20 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Weather",
         "notes": "No Apple documentation of the Weather app's stores was found, so the table and "
-                 "key names are the only labels used here and values are reported as stored. One "
-                 "row per row of currentLocationRaw and of currentLocationGeocoded, named in "
-                 "Table. Date is the date column read as seconds since 1970 UTC. Last Refresh Date "
-                 "is the geocoded record's lastRefreshDate read as seconds since 2001 UTC: on "
-                 "wilkerson_iphone16_ios26 that reading equals the row's Date to the second, and "
-                 "read as seconds since 1970 it would fall in 1995. Each tested image holds one "
-                 "row in each table.",
+                 "key names are the only labels used here. Text and coordinate values are reported "
+                 "as stored; time columns are converted as described below, and a missing or "
+                 "non-positive time shows as blank. One row per row of currentLocationRaw and of "
+                 "currentLocationGeocoded, named in Table. Date is the date column read as seconds "
+                 "since 1970 UTC; read that way it falls on the extraction date or the day before "
+                 "on the three tested images, and no source for the epoch was found. Last Refresh "
+                 "Date is the geocoded record's lastRefreshDate read as seconds since 2001 UTC. "
+                 "That reading equals the row's Date to the second on wilkerson_iphone16_ios26 and "
+                 "falls 2.7 and 4.4 days before it on hill_iphone15pro_ios26 and iphone11_ios17; "
+                 "read as seconds since 1970 it would fall in 1995 or 1993, and no source for the "
+                 "epoch was found. Each tested image holds one row in each table, and ID held one "
+                 "fixed value on every row of the tested images. On all three images the database "
+                 "file without its write-ahead log holds an older version of the row, which is not "
+                 "reported.",
         "paths": ('*/mobile/Library/Weather/current-location.db*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -68,16 +84,24 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Weather",
         "notes": "No Apple documentation of the Weather app's stores was found, so the table and "
-                 "key names are the only labels used here and values are reported as stored. One "
-                 "row per row of reverseGeocodeResult. Key is the id column as stored, which holds "
-                 "rounded coordinates and a locale on the tested images. Expires is expires read "
-                 "as seconds since 1970 UTC; what expires is not established. Name, Country Code "
-                 "and Time Zone come from the reverseGeocodeResult JSON. hill_iphone15pro_ios26 "
-                 "holds 38 rows (9 names), wilkerson_iphone16_ios26 21 (7 names) and "
-                 "iphone11_ios17 4. Country Code and Configured Country Code held US on every row "
-                 "of wilkerson_iphone16_ios26 and iphone11_ios17, and Time Zone held one value on "
-                 "every row of iphone11_ios17. geocode.db, which holds geocoded locations with a "
-                 "time zone, and notifications.db are not read here.",
+                 "key names are the only labels used here. Text and coordinate values are reported "
+                 "as stored; time columns are converted as described below, and a missing or "
+                 "non-positive time shows as blank. One row per row of reverseGeocodeResult. Key "
+                 "is the id column as stored. On the tested images it holds two numbers with three "
+                 "decimal places, a locale-shaped token and a two-letter code equal to Configured "
+                 "Country Code; the numbers read as a coordinate pair, but no source says so. "
+                 "Expires is expires read as seconds since 1970 UTC; read that way it falls within "
+                 "about two months of the extraction date on the tested images, no source for the "
+                 "epoch was found, and what expires is not established. Name, Country Code and "
+                 "Time Zone come from the reverseGeocodeResult JSON. hill_iphone15pro_ios26 holds "
+                 "38 rows (9 names), wilkerson_iphone16_ios26 21 (7 names) and iphone11_ios17 4. "
+                 "Country Code and Configured Country Code held one value on every row of "
+                 "wilkerson_iphone16_ios26 and iphone11_ios17, and Time Zone held one value on "
+                 "every row of iphone11_ios17. On wilkerson_iphone16_ios26 the database file "
+                 "without its write-ahead log holds 45 older rows with no key in common with the "
+                 "21 reported; they are not reported. geocode.db, notifications.db, "
+                 "weather-available-data-sets.db, aqiscales.db and countrycodes.db are not read "
+                 "here.",
         "paths": ('*/mobile/Library/Weather/geocode_wk.db*',),
         "output_types": "standard",
         "artifact_icon": "map",
@@ -148,9 +172,9 @@ def weatherFetchHistory(context):
         for row in get_sqlite_db_records(
                 found, 'SELECT timestamp, latitude, longitude, products, id FROM lastFetch '
                        'ORDER BY timestamp'):
-            data_list.append((_unix(row[0]), row[1], row[2], _text(row[3]), _text(row[4])))
-    headers = (('Fetch Time', 'datetime'), ('Latitude', 'latitude'), ('Longitude', 'longitude'),
-               'Products', 'ID')
+            data_list.append((_unix(row[0]), row[1], row[2], _text(row[3])))
+    headers = (('Timestamp', 'datetime'), ('Latitude', 'latitude'), ('Longitude', 'longitude'),
+               'Products')
     return headers, data_list, '\n'.join(sources)
 
 
