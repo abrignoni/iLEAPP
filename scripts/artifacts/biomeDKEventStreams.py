@@ -359,9 +359,10 @@ def _cocoa(value):
     if not isinstance(value, (int, float)) or not value:
         return None
     try:
-        return webkit_timestampsconv(value)
+        converted = webkit_timestampsconv(value)
     except (OverflowError, OSError, ValueError):
         return None
+    return converted if converted != '' else None  # NSDate sentinel: absent, like the rest here
 
 
 def _metadata(protostuff):

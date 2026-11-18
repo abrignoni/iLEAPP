@@ -5,15 +5,21 @@
   report the exact NSDate.distantPast and distantFuture values blank.
 * webkit_timestampsconv now adds to the epoch before 1970 instead of relying on
   datetime.fromtimestamp, which is platform dependent there.
-* get_birthdate and get_birthdate_from_unix_ts raised on an empty value or a sentinel.
+* get_birthdate raised on None (TypeError) and on distantPast (OverflowError); distantFuture gave
+  "01 January 4001" and is now blank, to match the sentinel contract. get_birthdate_from_unix_ts
+  raised on an empty value.
+* webkit_timestampsconv used datetime.fromtimestamp, which fails on Windows before 1970 and after the
+  year 3000. FailingFromtimestamp simulates that here so the test can fail on any platform.
 * convert_bytes_to_unit stopped at GB and returned a bare number from 1 TiB up.
 * homeKit, textReplacements and widgetEngagements each added the offset themselves.
 """
 # pylint: disable=protected-access
 import pathlib
 import sys
+import struct
 import unittest
 from datetime import datetime, timezone
+from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -108,11 +114,51 @@ class WebkitTimestampsconv(unittest.TestCase):
         self.assertEqual(webkit_timestampsconv(-1009843200), datetime(1969, 1, 1, tzinfo=timezone.utc))
         self.assertEqual(webkit_timestampsconv(-63113904000), datetime(1, 1, 1, tzinfo=timezone.utc))
 
-    def test_out_of_range_stays_a_value_error(self):
-        for value in (-63114076799, -63113904001, -1e30, 1e12):
+    def test_fractional_pre_1970(self):
+        self.assertEqual(webkit_timestampsconv(-978307200.5),
+                         datetime(1969, 12, 31, 23, 59, 59, 500000, tzinfo=timezone.utc))
+
+    def test_out_of_range_and_non_finite_raise_value_error(self):
+        for value in (-63114076799, -63113904001, -1e30, 1e12, 1e30, float('inf'), float('-inf'), float('nan')):
             with self.subTest(value=value):
                 with self.assertRaises(ValueError):
                     webkit_timestampsconv(value)
+
+
+class FailingFromtimestamp(datetime):
+    """datetime whose fromtimestamp fails the way Windows' gmtime does outside 1970 to 3000."""
+
+    @classmethod
+    def fromtimestamp(cls, *args, **kwargs):
+        raise OSError(22, 'Invalid argument')
+
+
+class WebkitWithoutPlatformGmtime(unittest.TestCase):
+    def test_converts_without_fromtimestamp(self):
+        cases = ((-1009843200, datetime(1969, 1, 1, tzinfo=timezone.utc)),
+                 (-978307200.5, datetime(1969, 12, 31, 23, 59, 59, 500000, tzinfo=timezone.utc)),
+                 (700000000, EXPECTED),
+                 (63113904001, datetime(4001, 1, 1, 0, 0, 1, tzinfo=timezone.utc)))
+        with mock.patch('scripts.ilapfuncs.datetime', FailingFromtimestamp):
+            for value, expected in cases:
+                with self.subTest(value=value):
+                    self.assertEqual(webkit_timestampsconv(value), expected)
+
+
+class WebkitCallers(unittest.TestCase):
+    def test_biome_dk_event_streams_keeps_none_for_absent(self):
+        from scripts.artifacts.biomeDKEventStreams import _cocoa  # pylint: disable=import-outside-toplevel
+        for value in (-63114076800, 63113904000, 0, None):
+            with self.subTest(value=value):
+                self.assertIsNone(_cocoa(value))
+        self.assertEqual(_cocoa(700000000), EXPECTED)
+
+    def test_biome_location_activity_reports_raw_seconds_for_a_sentinel(self):
+        from scripts.artifacts.biomeLocationactivity import _value  # pylint: disable=import-outside-toplevel
+        def bits(seconds):
+            return struct.unpack('<Q', struct.pack('<d', seconds))[0]
+        self.assertEqual(_value({'7': bits(-63114076800.0)}), '-63114076800.0')
+        self.assertEqual(_value({'7': bits(700000000.0)}), EXPECTED.isoformat())
 
 
 class LocalCocoaConverters(unittest.TestCase):
@@ -137,7 +183,7 @@ class LocalCocoaConverters(unittest.TestCase):
                 self.assertEqual(convert(COCOA_SECONDS + 0.5), EXPECTED)
                 self.assertEqual(convert(0), datetime(2001, 1, 1, tzinfo=timezone.utc))
                 self.assertEqual(convert(COCOA_SECONDS * 1000), EXPECTED)
-                self.assertEqual(convert(-1009843200 - 978307200), convert_unix_ts_to_utc(-1009843200))
+                self.assertEqual(convert(-1009843200 - 978307200), datetime(1938, 1, 1, tzinfo=timezone.utc))
 
     def test_empty_inputs(self):
         for name, convert in self.converters():

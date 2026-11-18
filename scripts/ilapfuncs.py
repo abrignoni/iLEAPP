@@ -1934,18 +1934,17 @@ def convert_ts_int_to_timezone(time, time_offset):
 
 def webkit_timestampsconv(webkittime):
     # Same sentinel contract as convert_cocoa_core_data_ts_to_utc: the exact values
-    # NSDate.distantPast and distantFuture are reported blank. distantPast is year one, which
-    # datetime.fromtimestamp cannot return, so it raised ValueError. Any other value, year 4001
-    # included, converts.
+    # NSDate.distantPast and distantFuture are reported blank. A real date stored as exactly
+    # 4001-01-01 00:00:00 UTC is the same value as distantFuture and is blanked too. distantPast
+    # is 0000-12-30 in Python's proleptic Gregorian calendar (Foundation calls it 0001-01-01),
+    # two days before datetime.min, so it used to raise ValueError.
     if webkittime in (COCOA_DISTANT_PAST, COCOA_DISTANT_FUTURE):
         return ''
-    unix_timestamp = webkittime + 978307200
-    if unix_timestamp >= 0:
-        return datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    # datetime.fromtimestamp is platform dependent before 1970 (it fails on Windows), so add to
-    # the epoch. Out of range stays a ValueError, as fromtimestamp raised it.
+    # Added to the epoch rather than passed to datetime.fromtimestamp, which depends on the
+    # platform's gmtime (on Windows it fails before 1970 and after the year 3000). Every other
+    # value Python can hold converts; one outside that range, or not finite, raises ValueError.
     try:
-        return _UNIX_EPOCH_UTC + timedelta(seconds=unix_timestamp)
+        return _UNIX_EPOCH_UTC + timedelta(seconds=webkittime + 978307200)
     except OverflowError as exc:
         raise ValueError(str(exc)) from exc
 
