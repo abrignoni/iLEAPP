@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "get_biomeAppinstall": {
         "name": "Biome - App Install",
-        "description": "App install entries from the App.Install and _DKEvent.App.Install Biome streams",
+        "description": "Records from the App.Install and _DKEvent.App.Install Biome streams.",
        "author": "@JohnHyla, @Gear-I",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records carry the activity, the bundle id, the event and write timestamps and the app display strings. App.Install records carry only a bundle id and one integer, which is reported as stored because no source documenting its meaning was identified. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their timestamp and offset only. Paths containing 'tombstone' are not parsed. Across the tested images, the records in those files named a stream file, a byte size and a record count, and none carried a bundle identifier or an application event. What writes them is not established here.",
+        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records are read with a fixed layout. The labels Activity, Bundle Info, App Info, App Info2, Timestamp, Time End and Time Write are not sourced here. App.Install records carry a bundle id and field 5, which the BMAppInstall class names isInstall, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. Is Install reads True for 1 and False for 0, is blank for _DKEvent.App.Install rows, and was reported before as Event Value (as stored). On the tested images (343 written App.Install rows) Is Install held True on 330 rows and False on 13. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their SEGB timestamp, state, stream, filename and offset only. Paths containing 'tombstone' are not parsed. On the tested images (25 tombstone files, 263 written records) each record held a 15-digit string, three or four integers and a six-letter word. None held a bundle identifier. The meaning of the fields is not established.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*', '*/Biome/streams/restricted/App.Install/local/*'),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -152,7 +152,8 @@ def get_biomeAppinstall(context):
                     data_list.append((
                         ts, None, None, None, record.state.name, stream, None,
                         minimal.get('1', ''), None, None, None, None,
-                        minimal.get('5', ''), filename, record.data_start_offset
+                        {1: 'True', 0: 'False'}.get(minimal.get('5'), ''), filename,
+                        record.data_start_offset
                     ))
                     continue
                 try:
@@ -233,7 +234,7 @@ def get_biomeAppinstall(context):
         'App Info',
         'App Info2',
         'Action GUID',
-        'Event Value (as stored)',
+        'Is Install',
         'Filename',
         'Offset'
     )

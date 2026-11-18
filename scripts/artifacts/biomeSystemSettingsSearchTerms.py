@@ -1,15 +1,23 @@
 __artifacts_v2__ = {
     "get_biomeSystemSettingsSearchTerms": {
         "name": "Biome - System Settings Search Terms",
-        "description": "Parses search terms from the SystemSettings.SearchTerms biome stream in "
-                       "the Settings app, including result URIs and "
-                       "labels recorded with the search.",
+        "description": "Parses search terms from the SystemSettings.SearchTerms biome stream, "
+                       "including the bundle ID with anchor and the title of "
+                       "the results recorded as clicked on.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Field names are those of the BMSystemSettingsSearchTerms class and its "
+                 "searchResultsClickedOn entries, read from BiomeLibrary.framework on macOS 27.2.1 "
+                 "(26B131); no iOS copy of the class was read. Bundle ID With Anchor(s) was "
+                 "reported before as Result URI(s). The fields are read with a fixed layout. On "
+                 "the tested images (7 images with written records, 17 written rows) that "
+                 "changed 2 rows of falken_ios26, whose Result Label(s) the schema-less decoder "
+                 "had shown as a decoded submessage instead of the stored text. Deleted rows are not "
+                 "decoded, so Search Term, Bundle ID With Anchor(s) and Result Label(s) are empty "
+                 "on them. All 12 rows of wilkerson_iphone16_ios26 are deleted.",
         "paths": ('*/streams/*/SystemSettings.SearchTerms/local/*',),
         "output_types": "standard",
         "artifact_icon": "search",
@@ -46,6 +54,19 @@ def _to_str(value):
     return str(value)
 
 
+# BMSystemSettingsSearchTerms fields, read from BiomeLibrary.framework on macOS 27.2.1 (26B131):
+# 1 searchTerm; 2 searchResultsClickedOn (repeated: 1 bundleIDwithAnchor, 2 searchResultTitle,
+# 3 index). Pinned so short strings are never guessed to be submessages.
+TYPESS = {
+    '1': {'type': 'bytes', 'name': ''},
+    '2': {'type': 'message', 'name': '', 'message_typedef': {
+        '1': {'type': 'bytes', 'name': ''},
+        '2': {'type': 'bytes', 'name': ''},
+        '3': {'type': 'int', 'name': ''},
+    }},
+}
+
+
 @artifact_processor
 def get_biomeSystemSettingsSearchTerms(context):
 
@@ -69,7 +90,7 @@ def get_biomeSystemSettingsSearchTerms(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, TYPESS)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'System Settings Search Terms: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
@@ -80,19 +101,19 @@ def get_biomeSystemSettingsSearchTerms(context):
                 results = protostuff.get('2', [])
                 if isinstance(results, dict):
                     results = [results]
-                result_uris = []
+                result_anchors = []
                 result_labels = []
                 for result in results:
                     if not isinstance(result, dict):
                         continue
-                    uri = _to_str(result.get('1', b''))
+                    anchor = _to_str(result.get('1', b''))
                     label = _to_str(result.get('2', b''))
-                    if uri:
-                        result_uris.append(uri)
+                    if anchor:
+                        result_anchors.append(anchor)
                     if label:
                         result_labels.append(label)
 
-                data_list.append((ts, record.state.name, search_term, '; '.join(result_uris),
+                data_list.append((ts, record.state.name, search_term, '; '.join(result_anchors),
                                   '; '.join(result_labels), filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
@@ -100,6 +121,6 @@ def get_biomeSystemSettingsSearchTerms(context):
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Search Term',
-                    'Result URI(s)', 'Result Label(s)', 'Filename', 'Offset')
+                    'Bundle ID With Anchor(s)', 'Result Label(s)', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
