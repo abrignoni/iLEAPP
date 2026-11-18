@@ -11,14 +11,22 @@ __artifacts_v2__ = {
     "get_biomeDKAudioInputRoute": {
         "name": "Biome - Audio Input Route DKEvent",
         "description": "Parses audio input route events from the "
-                       "_DKEvent.Audio.InputRoute biome stream. Route details are "
-                       "reported as stored in the Metadata column.",
+                       "_DKEvent.Audio.InputRoute biome stream. Metadata entries are "
+                       "listed in the Metadata column as key=value.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": ("Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read."),
         "paths": ('*/streams/*/_DKEvent.Audio.InputRoute/local/*',),
         "output_types": "standard",
         "artifact_icon": "mic",
@@ -31,13 +39,21 @@ __artifacts_v2__ = {
         "name": "Biome - Audio Output Route DKEvent",
         "description": "Parses audio output route events from the "
                        "_DKEvent.Audio.OutputRoute biome stream. "
-                       "Route details are reported as stored in the Metadata column.",
+                       "Metadata entries are listed in the Metadata column as key=value.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": ("Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read."),
         "paths": ('*/streams/*/_DKEvent.Audio.OutputRoute/local/*',),
         "output_types": "standard",
         "artifact_icon": "volume-2",
@@ -48,19 +64,29 @@ __artifacts_v2__ = {
     },
     "get_biomeDKClockAlarm": {
         "name": "Biome - Clock Alarm DKEvent",
-        "description": "Parses alarm state changes from the _DKEvent.Clock.Alarm biome stream. "
-                       "Metadata is reported as stored.",
+        "description": "Parses records from the _DKEvent.Clock.Alarm biome stream. "
+                       "Metadata entries are listed as key=value.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The cited research lists the values 0, 1 and 2 for this stream. Published "
+        "notes": ("The cited research lists the values 0, 1 and 2 for this stream. Published "
                  "research states this "
                  "stream captures alarm states such as firing and snoozed; exact value "
                  "semantics are not confirmed, so the raw value is reported. Reference: Mattia "
                  "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
+                 " "
+                 "Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read. Metadata string values are read as text."),
         "paths": ('*/streams/*/_DKEvent.Clock.Alarm/local/*',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -76,13 +102,24 @@ __artifacts_v2__ = {
                        "Locked or Unlocked label.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "What \"imputed\" means for this stream is not documented, and no source "
+        "notes": ("What \"imputed\" means for this stream is not documented, and no source "
                  "was found for what the stored values mean on it. The Value column is "
                  "left empty for that reason; the stored value is reported in Value "
-                 "(raw).",
+                 "(raw)."
+                 " "
+                 "Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read. On dexter_ios18 12 written records held only zero bytes; they "
+                 "do not decode and give no row."),
         "paths": ('*/streams/*/_DKEvent.Device.IsLockedImputed/local/*',),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -100,10 +137,18 @@ __artifacts_v2__ = {
                        "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": ("Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read."),
         "paths": ('*/streams/*/_DKEvent.Device.LowPowerMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
@@ -119,10 +164,10 @@ __artifacts_v2__ = {
                        "label.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The meaning of the stored value is not established for this stream, so the "
+        "notes": ("The meaning of the stored value is not established for this stream, so the "
                  "Value column is left empty and the stored value is reported in Value (raw). "
                  "On the nine "
                  "tested images (abe_ios16, dexter_ios18, felix_ios17, hc_ios18_7, hc_ios26, "
@@ -142,7 +187,17 @@ __artifacts_v2__ = {
                  "uSav-Mac/usavMac/UIKit.framework/Headers/UIDevice.h "
                  "Stream reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
                  "Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
+                 " "
+                 "Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read."),
         "paths": ('*/streams/*/_DKEvent.Display.Orientation/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
@@ -153,15 +208,25 @@ __artifacts_v2__ = {
     },
     "get_biomeDKSiriUi": {
         "name": "Biome - Siri UI DKEvent",
-        "description": "Parses Siri interface events from the _DKEvent.Siri.Ui biome stream. "
+        "description": "Parses records from the _DKEvent.Siri.Ui biome stream. "
                        "Start and end timestamps are reported where the record stores them.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The event detail is carried in the metadata entries rather than the value "
-                 "field, which was absent throughout the sample.",
+        "notes": ("Each written record on the tested images carries two metadata entries and "
+                 "stores a string in the value field (Value (string))."
+                 " "
+                 "Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read."),
         "paths": ('*/streams/*/_DKEvent.Siri.Ui/local/*',),
         "output_types": "standard",
         "artifact_icon": "mic",
@@ -183,10 +248,18 @@ __artifacts_v2__ = {
                        "value is reported in Value (raw).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": ("Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed; none occurred on the "
+                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
+                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
+                 "where no name is known. Value (string) is the value field's string (4.3) and "
+                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
+                 "string value. Stream Name is field 1.1. The layout and key names "
+                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
+                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read."),
         "paths": ('*/streams/*/_DKEvent.Settings.DoNotDisturb/local/*',),
         "output_types": "standard",
         "artifact_icon": "moon",
@@ -229,11 +302,46 @@ TYPESS = {
     },
     '2': {'type': 'double', 'name': ''},
     '3': {'type': 'double', 'name': ''},
+    '4': {
+        'type': 'message',
+        'message_typedef': {
+            '3': {'type': 'bytes', 'name': ''},
+            '4': {'type': 'int', 'name': ''},
+        },
+        'name': '',
+    },
     '5': {'type': 'bytes', 'name': ''},
+    # metadata entries (_DKPRMetadataEntry): 1 key, 2 value (_DKPRValue), 3 index
+    '7': {
+        'type': 'message',
+        'message_typedef': {
+            '1': {'type': 'bytes', 'name': ''},
+            '2': {
+                'type': 'message',
+                'message_typedef': {
+                    '3': {'type': 'bytes', 'name': ''},
+                    '4': {'type': 'int', 'name': ''},
+                },
+                'name': '',
+            },
+            '3': {'type': 'int', 'name': ''},
+        },
+        'name': '',
+    },
     '10': {'type': 'int', 'name': ''},
 }
 
 ON_OFF = {0: 'Off', 1: 'On'}
+
+# Metadata index to key name, for the indexes these streams use. Read from CoreDuet.framework
+# on macOS 27.2.1 (26B131) by converting synthetic _DKPREvent records with
+# _DKEvent fromPBCodable: and reading the resulting metadata keys.
+METADATA_KEYS = {
+    8000: 'portType', 8001: 'portName', 8002: 'identifier', 8003: 'channels',
+    8004: 'dataSources', 8005: 'selectedDataSource', 8006: 'preferredDataSource',
+    8007: 'routeChangeReason',              # _DKAudioMetadataKey
+    14000: 'alarmID', 14001: 'isSleep',     # _DKAlarmMetadataKey
+}
 
 
 def _to_str(value):
@@ -257,7 +365,9 @@ def _cocoa(value):
 
 
 def _metadata(protostuff):
-    # Field 7 entries pair a numeric key (7.N.3) with a string (7.N.2.3) or int (7.N.2.4) value.
+    # Field 7 entries (_DKPRMetadataEntry in CoreDuet) carry a key string (7.N.1) or, when
+    # that is empty, an integer index (7.N.3), and a value whose string is 7.N.2.3 and
+    # integer is 7.N.2.4.
     entries = protostuff.get('7', [])
     if isinstance(entries, dict):
         entries = [entries]
@@ -265,7 +375,8 @@ def _metadata(protostuff):
     for entry in entries:
         if not isinstance(entry, dict):
             continue
-        key = entry.get('3', '')
+        index = entry.get('3')
+        key = _to_str(entry.get('1', b'')) or METADATA_KEYS.get(index, _to_str(index))
         payload = entry.get('2', {})
         if not isinstance(payload, dict):
             continue
@@ -293,7 +404,7 @@ def _utc_offset(value):
 def _parse(context, label, value_map):
     data_headers = (('SEGB Timestamp', 'datetime'), ('Start Timestamp', 'datetime'),
                     ('End Timestamp', 'datetime'), 'SEGB State', 'Value', 'Value (raw)',
-                    'Metadata', 'Event', 'GUID', 'Device UTC Offset', 'Filename', 'Offset')
+                    'Value (string)', 'Metadata', 'Stream Name', 'GUID', 'Device UTC Offset', 'Filename', 'Offset')
     data_list = []
     source_dirs = set()
     for file_found in sorted(context.get_files_found()):
@@ -325,15 +436,17 @@ def _parse(context, label, value_map):
                 raw_value = protostuff.get('4', {}).get('4', '') \
                     if isinstance(protostuff.get('4'), dict) else ''
                 value = value_map.get(raw_value, '') if value_map else ''
+                string_value = _to_str(protostuff.get('4', {}).get('3', b'')) \
+                    if isinstance(protostuff.get('4'), dict) else ''
 
                 data_list.append((ts, _cocoa(protostuff.get('2')), _cocoa(protostuff.get('3')),
-                                  record.state.name, value, raw_value, _metadata(protostuff),
+                                  record.state.name, value, raw_value, string_value, _metadata(protostuff),
                                   event, _to_str(protostuff.get('5', b'')),
                                   _utc_offset(protostuff.get('10')), filename,
                                   record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, record.state.name, None, None, None, None,
+                data_list.append((ts, None, None, record.state.name, None, None, None, None, None,
                                   None, None, filename, record.data_start_offset))
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
