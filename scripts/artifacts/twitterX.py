@@ -15,7 +15,7 @@ __artifacts_v2__ = {
                  'with no sender id. On the iOS 26.5.2 image (X 12.32.1) the archive holds no '
                  'conversations, and the app group also holds a SQLite store at '
                  'com.atebits.tweetie.databases/v1/<id>/<id>-dmv2.db, which is not read here. Its '
-                 'conversation, entry and user tables held no rows in any of the 6 states read '
+                 'dm_conversation, dm_entry and dm_user tables held no rows in any of the 6 states read '
                  'from it and its write-ahead log there.',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.atebits.tweetie.direct-message.cache/*',),
         'output_types': 'standard',
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         'description': 'Twitter X accounts cached alongside the direct message inbox',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-11-01',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -66,14 +66,17 @@ __artifacts_v2__ = {
         'notes': ('Cached objects are gzip compressed JSON stored in the Items table. A key with '
                   'no stored object, or one that does not decode, gives no row and is counted in '
                   'the run log, which names the cache. '
-                  'Every modelCache.sqlite3 is read. The app keeps one per folder under '
-                  'TFSModelCache.<n>/: one named <username>-<user id> for each signed-in '
-                  'account, and on the iOS 26.5.2 image (X 12.32.1) two more, named - app - and '
-                  '- guest -, which held no keys there. Only the first match used to be read, '
-                  'and on that image it was an empty one, so the artifact reported no rows. '
-                  'Account Cache names the folder a row came from. Each tested image has one '
-                  'account cache with keys, so Account Cache held one value on every row of '
-                  'each image.'),
+                  'Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
+                  'folder under TFSModelCache.1/. On both images that hold the store one folder '
+                  'is named <username>-<number>, where the username is the signed-in account\'s; '
+                  'what the number means is not established. On the iOS 26.5.2 image (X 12.32.1) '
+                  'two more are named - app - and - guest -, and they held no keys there. Only '
+                  'the first match used to be read, and on that image it was an empty one, so '
+                  'the artifact reported no rows. Account Cache names the folder a row came '
+                  'from. The two sample images that hold the store (iphone11_ios17, '
+                  'wilkerson_iphone16_ios26) each have one account cache with keys, so Account '
+                  'Cache held one value on every row there. A device with two signed-in '
+                  'accounts was not available.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'brand-twitter',
@@ -91,14 +94,20 @@ __artifacts_v2__ = {
         'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': ('Every modelCache.sqlite3 is read. The app keeps one per folder under '
-                  'TFSModelCache.<n>/: one named <username>-<user id> for each signed-in '
-                  'account, and on the iOS 26.5.2 image (X 12.32.1) two more, named - app - and '
-                  '- guest -, which held no keys there. Only the first match used to be read, '
-                  'and on that image it was an empty one, so the artifact reported no rows. '
-                  'Account Cache names the folder a row came from. Each tested image has one '
-                  'account cache with keys, so Account Cache held one value on every row of '
-                  'each image.'),
+        'notes': ('Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
+                  'folder under TFSModelCache.1/. On both images that hold the store one folder '
+                  'is named <username>-<number>, where the username is the signed-in account\'s; '
+                  'what the number means is not established. On the iOS 26.5.2 image (X 12.32.1) '
+                  'two more are named - app - and - guest -, and they held no keys there. Only '
+                  'the first match used to be read, and on that image it was an empty one, so '
+                  'the artifact reported no rows. Account Cache names the folder a row came '
+                  'from. The two sample images that hold the store (iphone11_ios17, '
+                  'wilkerson_iphone16_ios26) each have one account cache with keys, so Account '
+                  'Cache held one value on every row there. A device with two signed-in '
+                  'accounts was not available.'
+                  ' Cache Updated is blank where updatedTimestamp holds -63114076800, which is '
+                  '0001-01-01 read as Cocoa seconds: 23 of 5,318 rows on the iOS 26.5.2 image and '
+                  'none on iphone11_ios17. What the app means by it is not established.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'users',
@@ -117,14 +126,17 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': ('From Users holds the user IDs a notification names, as stored in its fromUsers list; usernames are not looked up. On the josh_ios17_ffs test case 116 of 119 notifications name one user and 3 name none. '
-                  'Every modelCache.sqlite3 is read. The app keeps one per folder under '
-                  'TFSModelCache.<n>/: one named <username>-<user id> for each signed-in '
-                  'account, and on the iOS 26.5.2 image (X 12.32.1) two more, named - app - and '
-                  '- guest -, which held no keys there. Only the first match used to be read, '
-                  'and on that image it was an empty one, so the artifact reported no rows. '
-                  'Account Cache names the folder a row came from. Each tested image has one '
-                  'account cache with keys, so Account Cache held one value on every row of '
-                  'each image.'),
+                  'Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
+                  'folder under TFSModelCache.1/. On both images that hold the store one folder '
+                  'is named <username>-<number>, where the username is the signed-in account\'s; '
+                  'what the number means is not established. On the iOS 26.5.2 image (X 12.32.1) '
+                  'two more are named - app - and - guest -, and they held no keys there. Only '
+                  'the first match used to be read, and on that image it was an empty one, so '
+                  'the artifact reported no rows. Account Cache names the folder a row came '
+                  'from. The two sample images that hold the store (iphone11_ios17, '
+                  'wilkerson_iphone16_ios26) each have one account cache with keys, so Account '
+                  'Cache held one value on every row there. A device with two signed-in '
+                  'accounts was not available.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'bell',
@@ -392,10 +404,10 @@ def _notification_user(entry):
 def _model_caches(context):
     """Every modelCache.sqlite3 collected, one per cache folder, in path order.
 
-    The app keeps one model cache per folder under TFSModelCache.<n>/: one for each signed-in
-    account, named <username>-<user id>, and two more named "- app -" and "- guest -". Only
-    the first match used to be read, and in zip order that can be an empty one, so every
-    cache is read.
+    On the sample images each model cache sits in its own folder under TFSModelCache.1/: one
+    named <username>-<number> for the signed-in account and, on one image, two more named
+    "- app -" and "- guest -". Only the first match used to be read, and in zip order that
+    can be an empty one, so every cache is read.
     """
     return sorted(str(found) for found in context.get_files_found()
                   if os.path.basename(str(found)) == 'modelCache.sqlite3'
@@ -454,6 +466,18 @@ def _every_cached_model(source_paths, model_type):
             yield source_path, uid, model
 
 
+# -63114076800 is 0001-01-01 00:00:00 UTC in Cocoa seconds. Some cached users store it as
+# their updatedTimestamp; read as a date, the shared converter turns it into a 1968 value.
+_COCOA_YEAR_ONE = -63114076800
+
+
+def _cocoa(value):
+    """A cached model's Cocoa seconds as UTC, or '' for a missing value or the year-one value."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or value == _COCOA_YEAR_ONE:
+        return ''
+    return convert_cocoa_core_data_ts_to_utc(value)
+
+
 def _projected(value):
     """Unwrap the {'projectedValue': x, 'defaultValue': y} shape used by users."""
     if isinstance(value, dict) and ('projectedValue' in value or 'defaultValue' in value):
@@ -485,8 +509,8 @@ def twitterTweets(context):
         updated = model.get('updatedTimestamp')
 
         results.add_row((
-            convert_cocoa_core_data_ts_to_utc(posted) if isinstance(posted, (int, float)) else '',
-            convert_cocoa_core_data_ts_to_utc(updated) if isinstance(updated, (int, float)) else '',
+            _cocoa(posted),
+            _cocoa(updated),
             model.get('originalText'),
             model.get('fromUserID'),
             model.get('language'),
@@ -521,7 +545,7 @@ def twitterCachedUsers(context):
         profile_image = model.get('profileImageMediaEntity')
 
         data_list.append((
-            convert_cocoa_core_data_ts_to_utc(updated) if isinstance(updated, (int, float)) else '',
+            _cocoa(updated),
             model.get('username'),
             uid,
             _projected(model.get('bio')),
