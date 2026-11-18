@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Accounts the app held credentials for, from its credentials database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-11",
-        "last_update_date": "2026-09-11",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Email",
         "notes": "One row per row of the credentials table in credentials.sqlite, which the app "
@@ -40,15 +40,22 @@ __artifacts_v2__ = {
                  "iOS 17.3 image held a credentials database. The iOS 15.3.1, 14.3 and 13.3.1 "
                  "images, running Tutanota 3.112.6, 3.80.5 and 3.69.2, hold no such file, so they "
                  "report nothing here while still reporting a push registration. A file is read "
-                 "only when it sits inside a container whose own "
+                 "when it sits inside a container whose own "
                  ".com.apple.mobile_container_manager.metadata.plist names de.tutao.tutanota or "
-                 "group.de.tutao.tutanota, so a credentials.sqlite belonging to another app is "
-                 "not read. On the two tested images that do not carry the app every artifact in "
+                 "group.de.tutao.tutanota, so a credentials.sqlite in a container that names another app "
+                 "is not read. A shared app group container whose metadata plist is missing or unreadable is taken as the "
+                 "app's when it holds Library/Preferences/group.de.tutao.tutanota.plist, on that file "
+                 "name alone, which is weaker than the recorded identifier; a readable plist that "
+                 "names another identifier is not overridden, which was exercised with a synthetic "
+                 "container only. On a composite of the iOS 17.3 image holding the app's containers "
+                 "and the container metadata plists, removing every AppGroup metadata plist left the "
+                 "Accounts and Offline Stores artifacts each reporting the same single row. On the two tested images that do not carry the app every artifact in "
                  "this module reported nothing.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/credentials.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/offline_*.sqlite*',
                   '*/mobile/Containers/Data/Application/*/Documents/offline_*.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
+                  '*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.de.tutao.tutanota.plist',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
@@ -113,7 +120,7 @@ __artifacts_v2__ = {
                        "could be read.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-11",
-        "last_update_date": "2026-09-11",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Email",
         "notes": "One row per offline database the app kept, matched by the name shape "
@@ -137,13 +144,20 @@ __artifacts_v2__ = {
                  "iOS 15.3.1 image (Tutanota 3.112.6) and in the shared app group container on "
                  "the iOS 17.3 image (Tuta Mail 232.240621.0), and both locations are read. A "
                  "file is "
-                 "read only when it sits inside a container whose own "
+                 "read when it sits inside a container whose own "
                  ".com.apple.mobile_container_manager.metadata.plist names de.tutao.tutanota or "
-                 "group.de.tutao.tutanota. On the two tested images that do not carry the app "
+                 "group.de.tutao.tutanota. A shared app group container whose metadata plist is missing or unreadable is taken as the "
+                 "app's when it holds Library/Preferences/group.de.tutao.tutanota.plist, on that file "
+                 "name alone, which is weaker than the recorded identifier; a readable plist that "
+                 "names another identifier is not overridden, which was exercised with a synthetic "
+                 "container only. On a composite of the iOS 17.3 image holding the app's containers "
+                 "and the container metadata plists, removing every AppGroup metadata plist left the "
+                 "Offline Stores artifact reporting the same single row. On the two tested images that do not carry the app "
                  "every artifact in this module reported nothing.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/offline_*.sqlite*',
                   '*/mobile/Containers/Data/Application/*/Documents/offline_*.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
+                  '*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.de.tutao.tutanota.plist',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "database",
@@ -163,6 +177,7 @@ import os
 import plistlib
 import re
 import sqlite3
+from xml.parsers.expat import ExpatError
 
 from scripts.ilapfuncs import (artifact_processor, get_plist_file_content, get_sqlite_db_records,
                                logfunc)
@@ -176,9 +191,21 @@ _SQLITE_MAGIC = b'SQLite format 3\x00'
 _OFFLINE_NAME = re.compile(r'^offline_(.+)\.sqlite$')
 
 
+def _group_prefs_container(path):
+    '''The AppGroup container directory when path is that container's own
+    Library/Preferences/group.de.tutao.tutanota.plist, else None. The seeker's * crosses /,
+    so the shape is checked again here.'''
+    match = re.match(r'^(.*/Containers/Shared/AppGroup/[^/]+)/Library/Preferences/'
+                     + re.escape(f'{_GROUP_ID}.plist') + '$', str(path).replace('\\', '/'))
+    return match.group(1) if match else None
+
+
 def _containers(files_found):
-    '''{container directory: identifier} from each container's own metadata plist.'''
+    '''{container directory: identifier} from each container's own metadata plist. An AppGroup
+    container with no readable metadata plist, holding Library/Preferences/<group id>.plist, is
+    taken as the app's group container on that file name alone.'''
     containers = {}
+    read = set()
     for found in files_found:
         path = str(found)
         if os.path.basename(path) != _METADATA_NAME or os.path.isdir(path):
@@ -186,12 +213,17 @@ def _containers(files_found):
         try:
             with open(path, 'rb') as handle:
                 plist = plistlib.load(handle)
-        except (plistlib.InvalidFileException, OSError, ValueError) as error:
+        except (plistlib.InvalidFileException, OSError, ValueError, ExpatError) as error:
             logfunc(f'Tutanota: could not read a container metadata plist: {error}')
             continue
+        read.add(os.path.dirname(path).replace('\\', '/'))
         identifier = plist.get('MCMMetadataIdentifier')
         if identifier in (_APP_ID, _GROUP_ID):
             containers[os.path.dirname(path).replace('\\', '/')] = identifier
+    for found in files_found:
+        container = _group_prefs_container(found)
+        if container and container not in read and not os.path.isdir(str(found)):
+            containers[container] = _GROUP_ID
     return containers
 
 
