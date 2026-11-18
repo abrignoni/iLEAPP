@@ -34,6 +34,8 @@ RUN_OVER = {
                 "See the results"),
 }
 
+BUTTON_DROP = 4
+
 
 class BarTexts(tk.Frame):
     """ On the left of the buttons: a title, and under it a subtitle or the progress of the run. """
@@ -78,13 +80,13 @@ class StatusBar(tk.Frame):
         self.texts.grid(row=1, column=0, sticky="ew", pady=(8, 0))
 
         self.back_button = OutlineButton(self, app, text="Back", command=app.go_back)
-        self.back_button.grid(row=1, column=1, padx=(16, 0), pady=(8, 0))
+        self.back_button.grid(row=1, column=1, padx=(16, 0), pady=(8 + BUTTON_DROP, 0))
         self.next_button = OutlineButton(self, app, command=app.go_next, style="filled")
-        self.next_button.grid(row=1, column=2, padx=(10, 0), pady=(8, 0))
+        self.next_button.grid(row=1, column=2, padx=(10, 0), pady=(8 + BUTTON_DROP, 0))
         self.stop_button = OutlineButton(self, app, command=app.go_next)
-        self.stop_button.grid(row=1, column=2, padx=(10, 0), pady=(8, 0))
+        self.stop_button.grid(row=1, column=2, padx=(10, 0), pady=(8 + BUTTON_DROP, 0))
         self.close_button = OutlineButton(self, app, text="Close", command=app.close, style="filled")
-        self.close_button.grid(row=1, column=3, padx=(10, 0), pady=(8, 0))
+        self.close_button.grid(row=1, column=3, padx=(10, 0), pady=(8 + BUTTON_DROP, 0))
 
         self.refresh()
 
