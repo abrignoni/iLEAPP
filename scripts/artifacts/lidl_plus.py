@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "description": "Extracts shopping lists and item details.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Is Checked reports ListItemEntity.isChecked through the existing SQL CASE: NULL is shown as "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached ticket and transaction metadata.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "description": "Extracts purchased items from cached receipt details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached payment methods and Lidl Pay profile status.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -101,7 +101,7 @@ __artifacts_v2__ = {
                        "reported as Card Number (Derived).",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Card Number (Derived) is the first 17 characters of the cached paymentQR value, "
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached coupon and promotion details.",
         "author": "@djangofaiola, @AlexisBrignoni, Codex",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Cache Time is when the response was cached. Valid From and Valid To are "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached product details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
                        "derives.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Sequence ID, Sequence Position and Sequence Final are computed by this parser "
@@ -182,7 +182,7 @@ __artifacts_v2__ = {
                        "returned store fields including distance as stored without a verified unit.",  # pylint: disable=line-too-long
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-07-03",
-        "last_update_date": '2026-10-07',
+        "last_update_date": '2026-11-17',
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Latitude and Longitude are the values sent in the request URL, reported as transmitted. "
@@ -206,7 +206,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached promotional offer data.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -223,7 +223,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached loyalty-points marketplace rewards and account points metadata.",   # pylint: disable=line-too-long
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -351,8 +351,25 @@ __artifacts_v2__ = {
 # Constants
 COMMA_SEP = ', '
 LIST_SEP = '|'
-SOURCE_PATH_NOTE = f"Refer to the '{SOURCE_FILE_NAME}' column to identify the exact " \
-                   "device location of the origin file."
+# The staged files each artifact read, by run and artifact, in first-seen order.
+# get_device_file_path records every file it converts, including a file that
+# then gave no row, and the artifact returns them as its source paths.
+_ROW_SOURCES = {}
+
+
+def _row_sources_key(context):
+    seeker = context.get_seeker()
+    return (str(getattr(seeker, 'data_folder', '')), context.get_artifact_name())
+
+
+def _note_row_source(file_path, context):
+    """Record a staged file the running artifact read."""
+    _ROW_SOURCES.setdefault(_row_sources_key(context), {})[str(file_path)] = None
+
+
+def _row_source_paths(context):
+    """The staged files the running artifact read, newline joined."""
+    return '\n'.join(_ROW_SOURCES.pop(_row_sources_key(context), {}))
 
 # Lidl Bundle ID
 LIDL_BUNDLE_ID = 'com.lidl.eci.lidl.plus'
@@ -571,6 +588,8 @@ def get_device_file_path(file_path: str, context) -> str:
 
     if not file_path:
         return ''
+
+    _note_row_source(file_path, context)
 
     seeker = context.get_seeker()
     base_folder = getattr(seeker, 'data_folder', '')
@@ -1550,7 +1569,7 @@ def lidl_shopping_list(context):
         # Ensure the database connection is closed safely
         db.close()
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 def _get_cache_record(record, context, cache_id):
@@ -1769,7 +1788,7 @@ def lidl_tickets(context):
     # Sort by Timestamp (index 0) in descending order (newest first)
     # We check if index 0 is valid (not None) to prevent errors
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -1973,7 +1992,7 @@ def lidl_receipt_items(context):
         reverse=True
     )
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
 
 def _extract_last4(number_field):
@@ -2178,7 +2197,7 @@ def lidl_payment_methods(context):
             logfunc(f"[{context.get_artifact_name()}] Error parsing record: {ex}")
             continue
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2250,7 +2269,7 @@ def lidl_loyalty_card(context):
             )
             continue
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2455,7 +2474,7 @@ def lidl_promotion_details(context):
     order = (0, 10, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
     data_headers = tuple(data_headers[i] for i in order)
     data_list = [tuple(row[i] for i in order) for row in data_list]
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2600,7 +2619,7 @@ def lidl_product_details(context):
     # Sort by Cache Time descending
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2728,7 +2747,7 @@ def lidl_searched_terms(context):
             )
 
     if not search_records:
-        return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+        return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
     # Chronological order for derived sequence grouping.
     search_records.sort(
@@ -2827,7 +2846,7 @@ def lidl_searched_terms(context):
     data_list.sort(key=lambda row: row[0] or '', reverse=True)
     data_list_html.sort(key=lambda row: row[0] or '', reverse=True)
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
 
 @artifact_processor
@@ -3007,7 +3026,7 @@ def lidl_store_searches(context):
 
     data_list.sort(key=lambda row: (row[0] or '', -(row[7] or 0)), reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -3179,7 +3198,7 @@ def lidl_offers(context):
     # Sort final timeline by Cache Time descending (newest updates first)
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -3362,7 +3381,7 @@ def lidl_mypoints(context):
     # Sort final timeline by Cache Time descending (newest updates first)
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
