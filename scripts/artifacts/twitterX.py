@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct message conversations cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-10-31',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it '
@@ -12,12 +12,18 @@ __artifacts_v2__ = {
                  'names which of those three archive keys a conversation came from. From Me is '
                  'computed by this module: 1 when the entry\'s sender user id equals the user id '
                  'in the archive\'s inbox context, and 0 in every other case, including an entry '
-                 'with no sender id.',
+                 'with no sender id. On the iOS 26.5.2 image (X 12.32.1) the archive holds no '
+                 'conversations, and the app group also holds a SQLite store at '
+                 'com.atebits.tweetie.databases/v1/<id>/<id>-dmv2.db, which is not read here. Its '
+                 'dm_conversation, dm_entry and dm_user tables held no rows in any of the 6 states read '
+                 'from it and its write-ahead log there.',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.atebits.tweetie.direct-message.cache/*',),
         'output_types': 'standard',
         'artifact_icon': 'message',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 72 rows across 4 conversations',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | X 12.32.1 | 0 rows, the archive holds no conversations',
+            'hill_iphone15pro_ios26': 'iOS 26.3.1 | 0 rows, store absent',
         },
         'data_views': {
             'conversation': {
@@ -36,7 +42,7 @@ __artifacts_v2__ = {
         'description': 'Twitter X accounts cached alongside the direct message inbox',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-11-01',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -45,6 +51,8 @@ __artifacts_v2__ = {
         'artifact_icon': 'users',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 5 rows',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | X 12.32.1 | 0 rows, the archive holds no users',
+            'hill_iphone15pro_ios26': 'iOS 26.3.1 | 0 rows, store absent',
         },
     },
     'twitterTweets': {
@@ -52,17 +60,30 @@ __artifacts_v2__ = {
         'description': 'Posts (tweets) cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': 'Cached objects are gzip compressed JSON stored in the Items table. A key with '
-                 'no stored object, or one that does not decode, gives no row and is counted in '
-                 'the run log. One modelCache.sqlite3 is read.',
+        'notes': ('Cached objects are gzip compressed JSON stored in the Items table. A key with '
+                  'no stored object, or one that does not decode, gives no row and is counted in '
+                  'the run log, which names the cache. '
+                  'Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
+                  'folder under TFSModelCache.1/. On both images that hold the store one folder '
+                  'is named <username>-<number>, where the username is the signed-in account\'s; '
+                  'what the number means is not established. On the iOS 26.5.2 image (X 12.32.1) '
+                  'two more are named - app - and - guest -, and they held no keys there. Only '
+                  'the first match used to be read, and on that image it was an empty one, so '
+                  'the artifact reported no rows. Account Cache names the folder a row came '
+                  'from. The two sample images that hold the store (iphone11_ios17, '
+                  'wilkerson_iphone16_ios26) each have one account cache with keys, so Account '
+                  'Cache held one value on every row there. A device with two signed-in '
+                  'accounts was not available.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'brand-twitter',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 520 rows',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | X 12.32.1 | 17795 rows',
+            'hill_iphone15pro_ios26': 'iOS 26.3.1 | 0 rows, store absent',
         },
     },
     'twitterCachedUsers': {
@@ -70,15 +91,30 @@ __artifacts_v2__ = {
         'description': 'User profiles cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-11-01',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': '',
+        'notes': ('Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
+                  'folder under TFSModelCache.1/. On both images that hold the store one folder '
+                  'is named <username>-<number>, where the username is the signed-in account\'s; '
+                  'what the number means is not established. On the iOS 26.5.2 image (X 12.32.1) '
+                  'two more are named - app - and - guest -, and they held no keys there. Only '
+                  'the first match used to be read, and on that image it was an empty one, so '
+                  'the artifact reported no rows. Account Cache names the folder a row came '
+                  'from. The two sample images that hold the store (iphone11_ios17, '
+                  'wilkerson_iphone16_ios26) each have one account cache with keys, so Account '
+                  'Cache held one value on every row there. A device with two signed-in '
+                  'accounts was not available.'
+                  ' Cache Updated is blank where updatedTimestamp holds -63114076800, which is '
+                  '0001-01-01 read as Cocoa seconds: 23 of 5,318 rows on the iOS 26.5.2 image and '
+                  'none on iphone11_ios17. What the app means by it is not established.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 306 rows',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | X 12.32.1 | 5318 rows',
+            'hill_iphone15pro_ios26': 'iOS 26.3.1 | 0 rows, store absent',
         },
     },
     'twitterNotifications': {
@@ -86,15 +122,28 @@ __artifacts_v2__ = {
         'description': 'In-app notifications cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-11-01',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'Twitter X',
-        'notes': ('From Users holds the user IDs a notification names, as stored in its fromUsers list; usernames are not looked up. On the josh_ios17_ffs test case 116 of 119 notifications name one user and 3 name none.'),
+        'notes': ('From Users holds the user IDs a notification names, as stored in its fromUsers list; usernames are not looked up. On the josh_ios17_ffs test case 116 of 119 notifications name one user and 3 name none. '
+                  'Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
+                  'folder under TFSModelCache.1/. On both images that hold the store one folder '
+                  'is named <username>-<number>, where the username is the signed-in account\'s; '
+                  'what the number means is not established. On the iOS 26.5.2 image (X 12.32.1) '
+                  'two more are named - app - and - guest -, and they held no keys there. Only '
+                  'the first match used to be read, and on that image it was an empty one, so '
+                  'the artifact reported no rows. Account Cache names the folder a row came '
+                  'from. The two sample images that hold the store (iphone11_ios17, '
+                  'wilkerson_iphone16_ios26) each have one account cache with keys, so Account '
+                  'Cache held one value on every row there. A device with two signed-in '
+                  'accounts was not available.'),
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/TFSModelCache.*/*/database/modelCache.sqlite3*',),
         'output_types': 'standard',
         'artifact_icon': 'bell',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 119 rows',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | X 12.32.1 | 1064 rows',
+            'hill_iphone15pro_ios26': 'iOS 26.3.1 | 0 rows, store absent',
         },
     },
 }
@@ -107,7 +156,7 @@ from datetime import datetime, timezone
 import nska_deserialize as nd
 
 from scripts.ilapfuncs import artifact_processor, logfunc, \
-    get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc, \
+    get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc, \
     convert_unix_ts_to_utc
 
 # The three inbox timelines the app keeps. Per X's message-request behavior as
@@ -352,6 +401,24 @@ def _notification_user(entry):
     return str(found) if found else ''
 
 
+def _model_caches(context):
+    """Every modelCache.sqlite3 collected, one per cache folder, in path order.
+
+    On the sample images each model cache sits in its own folder under TFSModelCache.1/: one
+    named <username>-<number> for the signed-in account and, on one image, two more named
+    "- app -" and "- guest -". Only the first match used to be read, and in zip order that
+    can be an empty one, so every cache is read.
+    """
+    return sorted(str(found) for found in context.get_files_found()
+                  if os.path.basename(str(found)) == 'modelCache.sqlite3'
+                  and not os.path.isdir(str(found)))
+
+
+def _cache_folder(source_path):
+    """The name of the folder a model cache belongs to, which names its account."""
+    return os.path.basename(os.path.dirname(os.path.dirname(source_path)))
+
+
 def _iter_cached_models(source_path, model_type):
     """Yield (itemKey uid, decoded model dict) for one model type.
 
@@ -385,11 +452,30 @@ def _iter_cached_models(source_path, model_type):
             undecodable += 1
 
     if evicted:
-        logfunc(f'Twitter X {model_type}: {evicted} cache key(s) had no stored '
-                f'object (possibly evicted) and are not reported.')
+        logfunc(f'Twitter X {model_type} in {_cache_folder(source_path)}: {evicted} cache '
+                f'key(s) had no stored object (possibly evicted) and are not reported.')
     if undecodable:
-        logfunc(f'Twitter X {model_type}: {undecodable} cached object(s) could '
-                f'not be decoded.')
+        logfunc(f'Twitter X {model_type} in {_cache_folder(source_path)}: {undecodable} '
+                f'cached object(s) could not be decoded.')
+
+
+def _every_cached_model(source_paths, model_type):
+    """Yield (source path, itemKey uid, decoded model dict) across every model cache."""
+    for source_path in source_paths:
+        for uid, model in _iter_cached_models(source_path, model_type):
+            yield source_path, uid, model
+
+
+# -63114076800 is 0001-01-01 00:00:00 UTC in Cocoa seconds. Some cached users store it as
+# their updatedTimestamp; read as a date, the shared converter turns it into a 1968 value.
+_COCOA_YEAR_ONE = -63114076800
+
+
+def _cocoa(value):
+    """A cached model's Cocoa seconds as UTC, or '' for a missing value or the year-one value."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or value == _COCOA_YEAR_ONE:
+        return ''
+    return convert_cocoa_core_data_ts_to_utc(value)
 
 
 def _projected(value):
@@ -402,29 +488,29 @@ def _projected(value):
 
 @artifact_processor
 def twitterTweets(context):
-    source_path = get_file_path(context.get_files_found(), 'modelCache.sqlite3')
+    source_paths = _model_caches(context)
     data_headers = (
         ('Posted', 'datetime'), ('Cache Updated', 'datetime'), 'Text',
         'Author User ID', 'Language', 'Replies', 'Retweets', 'Quotes',
         'Bookmarks', 'Views', 'Possibly Sensitive', 'Quoted Post URL',
-        'Conversation ID', 'Post ID')
-    if not source_path:
+        'Conversation ID', 'Post ID', 'Account Cache')
+    if not source_paths:
         return data_headers, [], ''
 
     results = context.create_artifact_result(
         headers=data_headers,
-        source_path=source_path,
+        source_path='\n'.join(source_paths),
     )
 
-    for uid, model in _iter_cached_models(source_path, MODEL_TYPE_STATUS):
+    for source_path, uid, model in _every_cached_model(source_paths, MODEL_TYPE_STATUS):
         view_count = model.get('viewCountInfo')
         quoted = model.get('quotedStatusPermalinkEntity')
         posted = model.get('date')
         updated = model.get('updatedTimestamp')
 
         results.add_row((
-            convert_cocoa_core_data_ts_to_utc(posted) if isinstance(posted, (int, float)) else '',
-            convert_cocoa_core_data_ts_to_utc(updated) if isinstance(updated, (int, float)) else '',
+            _cocoa(posted),
+            _cocoa(updated),
             model.get('originalText'),
             model.get('fromUserID'),
             model.get('language'),
@@ -437,6 +523,7 @@ def twitterTweets(context):
             quoted.get('expandedURL') if isinstance(quoted, dict) else '',
             model.get('conversationID'),
             uid,
+            _cache_folder(source_path),
         ))
 
     return results
@@ -444,21 +531,21 @@ def twitterTweets(context):
 
 @artifact_processor
 def twitterCachedUsers(context):
-    source_path = get_file_path(context.get_files_found(), 'modelCache.sqlite3')
+    source_paths = _model_caches(context)
     data_list = []
     data_headers = (
         ('Cache Updated', 'datetime'), 'Username', 'User ID', 'Bio',
         'Followers', 'Following', 'Favourites', 'Blue Verified', 'Protected',
-        'Profile Image URL')
-    if not source_path:
+        'Profile Image URL', 'Account Cache')
+    if not source_paths:
         return data_headers, data_list, ''
 
-    for uid, model in _iter_cached_models(source_path, MODEL_TYPE_USER):
+    for source_path, uid, model in _every_cached_model(source_paths, MODEL_TYPE_USER):
         updated = model.get('updatedTimestamp')
         profile_image = model.get('profileImageMediaEntity')
 
         data_list.append((
-            convert_cocoa_core_data_ts_to_utc(updated) if isinstance(updated, (int, float)) else '',
+            _cocoa(updated),
             model.get('username'),
             uid,
             _projected(model.get('bio')),
@@ -468,22 +555,23 @@ def twitterCachedUsers(context):
             'Yes' if model.get('isBlueVerified') else '',
             'Yes' if model.get('protectedUser') else '',
             profile_image.get('mediaURL') if isinstance(profile_image, dict) else '',
+            _cache_folder(source_path),
         ))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor
 def twitterNotifications(context):
-    source_path = get_file_path(context.get_files_found(), 'modelCache.sqlite3')
+    source_paths = _model_caches(context)
     data_list = []
     data_headers = (
         ('Timestamp', 'datetime'), 'Text', 'Icon', 'From Users',
-        'Notification ID')
-    if not source_path:
+        'Notification ID', 'Account Cache')
+    if not source_paths:
         return data_headers, data_list, ''
 
-    for uid, model in _iter_cached_models(source_path, MODEL_TYPE_NOTIFICATION):
+    for source_path, uid, model in _every_cached_model(source_paths, MODEL_TYPE_NOTIFICATION):
         rich_text = model.get('richText')
         icon = model.get('icon')
         milliseconds = model.get('timestampMilliseconds')
@@ -500,6 +588,7 @@ def twitterNotifications(context):
             icon.get('iconID') if isinstance(icon, dict) else '',
             from_users,
             model.get('notificationID') or uid,
+            _cache_folder(source_path),
         ))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
