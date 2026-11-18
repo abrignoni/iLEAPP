@@ -9,14 +9,29 @@ __artifacts_v2__ = {
     "get_biomeAppleIntelligenceAvailability": {
         "name": "Biome - Apple Intelligence Availability",
         "description": "Parses records from the AppleIntelligence.Availability biome "
-                       "stream: three state values reported raw and a language string.",
+                       "stream: the isDeviceEligible value of the Apple Intelligence and "
+                       "diffusion use cases, the isAppleIntelligenceToggleEnabled value, and "
+                       "the languages list. What sets these values is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The three state fields are reported raw; the sample does not establish which "
-                 "availability condition each denotes.",
+        "notes": "Field names are those of the BMAppleIntelligenceAvailability class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Apple Intelligence Is Device Eligible (field 1.1), Diffusion Is Device "
+                 "Eligible (field 2.1) and Apple Intelligence Toggle Enabled (field 3) are true or "
+                 "false values; they were reported before as State 1 (raw), State 2 (raw) and "
+                 "State 3 (raw). Languages is a list, joined with semicolons; it was reported "
+                 "before as Language, which was empty when a record held more than one. On the "
+                 "tested images (6 images, 319 written rows) both Is Device Eligible columns held "
+                 "True on 104 rows and False on 215, Apple Intelligence Toggle Enabled held True "
+                 "on every written row, and 2 rows of iphone12_ios18 held two languages. The two Is Device "
+                 "Eligible columns held the same value on every written row, and each image held "
+                 "one value in them: True on hill_iphone15pro_ios26 (38 rows) and "
+                 "wilkerson_iphone16_ios26 (66 rows), where all three columns are identical, and "
+                 "False on the other four. Deleted rows are not decoded, so these columns are "
+                 "empty on them.",
         "paths": ('*/streams/*/AppleIntelligence.Availability/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
@@ -157,6 +172,11 @@ def _to_str(value):
     return str(value)
 
 
+def _bool(value):
+    """BMAppleIntelligenceAvailability bool fields: 1 True, 0 False, anything else blank."""
+    return {1: 'True', 0: 'False'}.get(value, '') if isinstance(value, int) else ''
+
+
 def _unix_double(value):
     if not isinstance(value, int) or value == 0:
         return None
@@ -235,8 +255,9 @@ def _delivery_log(context, label):
 
 @artifact_processor
 def get_biomeAppleIntelligenceAvailability(context):
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Language',
-                    'State 1 (raw)', 'State 2 (raw)', 'State 3 (raw)', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Languages',
+                    'Apple Intelligence Is Device Eligible', 'Diffusion Is Device Eligible',
+                    'Apple Intelligence Toggle Enabled', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _iter_records(context,
                                                           'Apple Intelligence Availability'):
@@ -246,10 +267,14 @@ def get_biomeAppleIntelligenceAvailability(context):
             continue
         first = protostuff.get('1', {})
         second = protostuff.get('2', {})
-        data_list.append((ts, record.state.name, _to_str(protostuff.get('6')),
-                          first.get('1', '') if isinstance(first, dict) else first,
-                          second.get('1', '') if isinstance(second, dict) else second,
-                          protostuff.get('3', ''), filename, record.data_start_offset))
+        languages = protostuff.get('6')
+        if not isinstance(languages, list):
+            languages = [languages]
+        data_list.append((ts, record.state.name,
+                          '; '.join(t for t in (_to_str(v) for v in languages) if t),
+                          _bool(first.get('1') if isinstance(first, dict) else first),
+                          _bool(second.get('1') if isinstance(second, dict) else second),
+                          _bool(protostuff.get('3')), filename, record.data_start_offset))
     return data_headers, data_list, _source_path(context)
 
 

@@ -4,16 +4,18 @@ __artifacts_v2__ = {
         "description": "Parses InFocus Events from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-09-03",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The Foreground/Background labels for values 1 and 0 are an interpretation of "
-                 "the App.InFocus stream name; other values are reported as stored. Records are "
-                 "read from both the local and remote subfolders; the Sync Origin column reports "
-                 "which one a record came from, with the remote folder's device identifier. The "
-                 "local and remote naming is the stream's own folder layout. That a remote record "
-                 "is a copy synced from another device is not sourced here, so a Remote row is "
-                 "not shown to be an event of this device. Files under a tombstone folder are "
+        "notes": "Field names are those of the BMAppInFocus class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Starting is field 3, a true or false value. It was reported before as "
+                 "Action, with Foreground for 1 and Background for 0; the framework names the "
+                 "field starting and gives no names to its values. On the tested images (16 images, 26,312 written "
+                 "rows) Starting held True on 13,207 rows and False on 13,105. Records are "
+                 "read from both the local and remote subfolders. The Sync Origin column reports "
+                 "which one a record came from, with the name of the folder under remote. That "
+                 "this name identifies a device is not sourced here. Files under a tombstone folder are "
                  "skipped.",
         "paths": ('*/[Bb]iome/streams/restricted/App.InFocus/local/*',
                   '*/[Bb]iome/streams/restricted/App.InFocus/remote/*'),
@@ -54,8 +56,8 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
 
 
 def _sync_origin(file_found):
-    """Local for the device's own stream, Remote (<device id>) for a copy synced from another
-    device on the same account; the id is the folder name Biome keeps under remote/."""
+    """Local for a file under local/, Remote (<folder>) for a file under remote/, where <folder>
+    is the name of the folder under remote/. What that name identifies is not sourced here."""
     normalized = file_found.replace('\\', '/')
     if '/remote/' in normalized:
         trailer = normalized.split('/remote/', 1)[1]
@@ -101,14 +103,14 @@ def get_biomeInfocus(context):
                 bundleid = (protostuff['6'])
                 timestart = (webkit_timestampsconv(protostuff['4']))
                 state = protostuff['3']
-                foreground = {1: 'Foreground', 0: 'Background'}.get(state, str(state))
+                starting = {1: 'True', 0: 'False'}.get(state, '')
 
-                data_list.append((ts, timestart, record.state.name, bundleid, foreground, origin, filename, record.data_start_offset))
+                data_list.append((ts, timestart, record.state.name, bundleid, starting, origin, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, None, record.state.name, None, None, origin, filename, record.data_start_offset))
 
-    data_headers = (('Timestamp', 'datetime'), ('Start Time', 'datetime'), 'SEGB State', 'Bundle ID', 'Action', 'Sync Origin', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Absolute Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Starting', 'Sync Origin', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
