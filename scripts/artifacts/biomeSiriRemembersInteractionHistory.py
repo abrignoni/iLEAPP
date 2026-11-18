@@ -4,16 +4,24 @@ __artifacts_v2__ = {
         "description": "Parses app interaction intents from the "
                        "Siri.Remembers.InteractionHistory biome stream: note creation, calendar "
                        "event creation, alarm create and update, media playback and similar "
-                       "donated intents, with the app that donated them.",
+                       "intents, with the app bundle ID recorded on each.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Shares the intent record schema of the Siri.Remembers.MessageHistory and "
+        "notes": ("Field names are those of the BMSiriInteractionHistory class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
+                 "Shares the intent record schema of the Siri.Remembers.MessageHistory and "
                  "Siri.Remembers.CallHistory streams. Intent classes observed include "
                  "INCreateNoteIntent, EKUICreateEventIntent, MTCreateAlarmIntent, "
-                 "MTUpdateAlarmIntent and INPlayMediaIntent.",
+                 "MTUpdateAlarmIntent and INPlayMediaIntent. App Intent Interaction ID is field "
+                 "1.13 (appIntentInteractionIdentifier), reported before as Item GUID; it held a "
+                 "UUID-format string on 47 of 51 tested written records. Intent UUID is field 1.1, "
+                 "which the class names identifier. Each parameter (field 2) holds a repeated list "
+                 "of entities, and Parameters now lists every entity; before, a parameter with "
+                 "more than one entity was left out. That case was checked with a synthetic record "
+                 "only: the 3 parameters on the tested images each held one entity. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
         "paths": (
             '*/streams/*/Siri.Remembers.InteractionHistory/local/*',
             '*/streams/*/Siri.Remembers.InteractionHistory/remote/*',
@@ -88,12 +96,14 @@ def _parameters(protostuff):
         if not isinstance(item, dict):
             continue
         param = _to_str(item.get('1', b''))
-        entity = item.get('2', {})
-        if not isinstance(entity, dict):
-            continue
-        display = _entity_display(entity)
-        if display:
-            parts.append(f'{param}: {display}' if param else display)
+        inner = item.get('2', [])
+        # entities[].entities[] is repeated in BMSiriRemembersEntities; keep every entry.
+        for entity in inner if isinstance(inner, list) else [inner]:
+            if not isinstance(entity, dict):
+                continue
+            display = _entity_display(entity)
+            if display:
+                parts.append(f'{param}: {display}' if param else display)
     return '; '.join(parts)
 
 
@@ -122,7 +132,7 @@ def get_biomeSiriRemembersInteractionHistory(context):
                 continue
         else:
             continue
-        origin = _sync_origin(file_found)
+        origin = _sync_origin(context.get_relative_path(file_found))
 
         source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
@@ -155,6 +165,6 @@ def get_biomeSiriRemembersInteractionHistory(context):
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Intent Timestamp', 'datetime'),
                     'SEGB State', 'Bundle ID', 'Intent Class', 'Domain', 'Parameters',
-                    'Intent UUID', 'Item GUID', 'Sync Origin', 'Filename', 'Offset')
+                    'Intent UUID', 'App Intent Interaction ID', 'Sync Origin', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
