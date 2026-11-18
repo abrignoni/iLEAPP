@@ -4,17 +4,31 @@ __artifacts_v2__ = {
         "description": "Parses Now Playing entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-09-03",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
         "notes": "Records are read from both the local and remote subfolders; the Sync Origin "
-                 "column reports which one a record came from, with the remote folder's device "
-                 "identifier. The local and remote naming is the stream's own folder layout. That "
+                 "column reports which one a record came from, with the name of the folder under "
+                 "remote. That this name identifies a device is not sourced here. The local and remote naming is the stream's own folder layout. That "
                  "a remote record is a copy synced from another device is not sourced here, so a "
                  "Remote row is not shown to be an event of this device. Files under a tombstone "
-                 "folder are skipped. On the tested images, Output, Media Type, Title and Artist "
-                 "were blank on rows with a Remote Sync Origin; those rows carried the bundle id "
-                 "and timestamps only.",
+                 "folder are skipped. "
+                 "The output device columns are the outputDevices field (field 14) of the "
+                 "BMMediaNowPlaying class, a repeated BMMediaNowPlayingOutputDevice, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Output Device ID is outputDeviceID (field 14.3), reported before as Output. "
+                 "Output Device Type is type (field 14.1: 0 Unknown, 1 AirPlay, 2 Bluetooth, "
+                 "3 CarPlay, 4 BuiltIn, 5 Wired) and Output Device Sub Type is subType (field "
+                 "14.2, 23 names from 0 Unknown to 22 HomeAccessory), each with its integer in a "
+                 "(raw) column; both were not reported before. Several devices are joined with "
+                 "' <-> '; on the tested images no written record held more than one. Output "
+                 "Device ID held the same text as Output Device Sub Type on 527 of the 1,045 "
+                 "written rows with a device, among them all 159 written rows of the legacy NowPlaying stream. That stream is read from its local folder only, so Sync Origin reads Local on its rows. Timestamp is absoluteTimestamp (field 2), which the class reads as seconds since 2001-01-01 UTC. Deleted rows carry no stored fields, so Output Device ID, "
+                 "Output Device Type, Output Device Type (raw), Output Device Sub Type and Output "
+                 "Device Sub Type (raw) are empty on them (all 31 rows on hc_ios17_2 were Deleted). "
+                 "On the tested images 146 written rows had a Remote Sync Origin: the 96 on "
+                 "falken_ios26 carried no output device, title or artist, and 50 on "
+                 "wilkerson_iphone16_ios26 held an output device, 33 of them with a title.",
         "paths": (
             '*/Biome/streams/public/NowPlaying/local/*',
             '*/streams/*/Media.NowPlaying/local/*',
@@ -57,9 +71,37 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
 
+# BMMediaNowPlayingOutputDevice type and subType names, read from BiomeLibrary.framework on
+# macOS 27.2.1 (26B131), data version 1.
+OUTPUT_DEVICE_TYPE = dict(enumerate(('Unknown', 'AirPlay', 'Bluetooth', 'CarPlay', 'BuiltIn',
+                                     'Wired')))
+OUTPUT_DEVICE_SUBTYPE = dict(enumerate((
+    'Unknown', 'Standard', 'Speaker', 'Headphones', 'Headset', 'Receiver', 'LineOut', 'USB',
+    'DisplayPort', 'HDMI', 'LowEnergy', 'SPDIF', 'TV', 'HomePod', 'AppleTV', 'Vehicle',
+    'AirPlayCluster', 'SetTopBox', 'TVStick', 'Mac', 'IOS', 'Vision', 'HomeAccessory')))
+
+
+def _output_devices(value):
+    """outputDevices (field 14), a repeated BMMediaNowPlayingOutputDevice: returns the
+    outputDeviceID, type and subType columns, each device joined with ' <-> '."""
+    devices = value if isinstance(value, list) else [value] if isinstance(value, dict) else []
+    ids, types, types_raw, subtypes, subtypes_raw = [], [], [], [], []
+    for device in devices:
+        if not isinstance(device, dict):
+            continue
+        device_type, subtype = device.get('1'), device.get('2')
+        ids.append(str(device.get('3', '')))
+        types.append(OUTPUT_DEVICE_TYPE.get(device_type, '') if type(device_type) is int else '')
+        types_raw.append('' if device_type is None else str(device_type))
+        subtypes.append(OUTPUT_DEVICE_SUBTYPE.get(subtype, '') if type(subtype) is int else '')
+        subtypes_raw.append('' if subtype is None else str(subtype))
+    return tuple(' <-> '.join(column) for column in
+                 (ids, types, types_raw, subtypes, subtypes_raw))
+
+
 def _sync_origin(file_found):
-    """Local for the device's own stream, Remote (<device id>) for a copy synced from another
-    device on the same account; the id is the folder name Biome keeps under remote/."""
+    """Local for a file under local/, Remote (<folder>) for a file under remote/, where <folder>
+    is the name of the folder under remote/. What that name identifies is not sourced here."""
     normalized = file_found.replace('\\', '/')
     if '/remote/' in normalized:
         trailer = normalized.split('/remote/', 1)[1]
@@ -106,7 +148,7 @@ def get_biomeNowplaying(context):
         else:
             continue
 
-        origin = _sync_origin(file_found)
+        origin = _sync_origin(context.get_relative_path(file_found))
         source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
@@ -125,21 +167,17 @@ def get_biomeNowplaying(context):
                 info = (protostuff.get('10',''))
                 info2 = (protostuff.get('8',''))
                 info3 = (protostuff.get('5',''))
-                if (protostuff.get('14','')) != '':
-                    if isinstance(protostuff['14'], dict):
-                        output = protostuff['14']['3']
-                    else:
-                        output = (f"{protostuff['14'][0]['3']} <-> {protostuff['14'][1]['3']}")
-                else:
-                    output = ''
-                data_list.append((ts, timestart, record.state.name, bundleid, output, info, info2, info3, origin,
-                                  filename, record.data_start_offset))
+                outputs = _output_devices(protostuff.get('14'))
+                data_list.append((ts, timestart, record.state.name, bundleid, *outputs, info, info2,
+                                  info3, origin, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None, None, origin,
-                                  filename, record.data_start_offset))
+                data_list.append((ts, None, record.state.name, None, None, None, None, None,
+                                  None, None, None, None, origin, filename,
+                                  record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Output',
-                    'Media Type', 'Title', 'Artist', 'Sync Origin', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID',
+                    'Output Device ID', 'Output Device Type', 'Output Device Type (raw)',
+                    'Output Device Sub Type', 'Output Device Sub Type (raw)', 'Media Type', 'Title', 'Artist', 'Sync Origin', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

@@ -18,12 +18,10 @@ __artifacts_v2__ = {
                  "equal on 73, within 60 seconds on 633 and more than 60 seconds apart on 32 of the "
                  "738 written records that held both. Sender and Recipient are the From and To "
                  "headers of field 10 (headers). Domain ID is field 2 (domainID), reported before "
-                 "as Message ID, and Message Identifier is field 5 (messageIdentifier). Message Identifier held a string of digits on each of the 1,216 written records that decoded; what store it indexes was not established. 28 written records on "
-                 "dexter_ios18 did not decode and are reported with their SEGB fields only. "
-                 "The SEGB Record Timestamp column is the SEGB record's creation timestamp as read by "
-                 "ccl_segb. Deleted rows carry no stored fields."
+                 "as Message ID, and Message Identifier is field 5 (messageIdentifier). Message Identifier held a string of digits on each of the 1,216 written records that decoded; what store it indexes was not established. 28 written records on dexter_ios18 are not readable as this class (17 raised a decode error and 11 decoded to no reported field) and show their SEGB fields only. "
+                 "The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2). Deleted rows carry no stored fields."
                  " "
-                 "On 4 tested iOS 16 images the stream is stored under MailContent, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 513 written records decoded with field numbers that fit the class; none held field 30, so Date Received is blank on them."),
+                 "On 4 further staged iOS 16 images (3 of them outside the sample_data keys) the stream is stored under MailContent, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. 3 of the 4 held written records, 513 in all, which decoded with field numbers that fit the class; none held field 30, so Date Received is blank on them. The tested iOS 15 image held no such folder."),
         "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',
                   '*/[Bb]iome/streams/*/MailContent/local/*'),
         "output_types": "standard",
@@ -64,8 +62,7 @@ __artifacts_v2__ = {
                  "separate column. Is From Me is field 22 (isFromMe); it is blank where the record "
                  "does not store it (27 of the 38). Unique ID is field 1 (uniqueID), reported "
                  "before as GUID. Deleted rows and the 5 written records on dexter_ios18 that did "
-                 "not decode carry no Message Date. The SEGB Record Timestamp column is the SEGB "
-                 "record's creation timestamp as read by ccl_segb."),
+                 "not decode carry no Message Date. The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2)."),
         "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Messages/local/*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -100,8 +97,7 @@ __artifacts_v2__ = {
                  "reported before as Message ID. On the tested images it held a plus sign and digits on 491 written rows, digits only on 127, an email-shaped string on 15 and other short text on 5, and was blank on 112. Marked Unread is field 2 "
                  "(markedUnread): True on 440, False on 202 and blank on 108 of the 750 written rows; the blank rows are on dexter_ios18, where the records did not decode or did "
                  "not store the field. What Marked Unread means for these records was not "
-                 "established. Written records with no payload give no row. The SEGB Record "
-                 "Timestamp column is the SEGB record's creation timestamp as read by ccl_segb. "
+                 "established. Written records with no payload give no row. The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2). "
                  "Reference: Mattia "
                  "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
@@ -324,18 +320,18 @@ SCREENTIME_TYPEDEF = {'1': _INT, '2': _DBL, '3': _STR}
 
 @artifact_processor
 def biomeProactiveMail(context):
-    data_headers = (('SEGB Record Timestamp', 'datetime'), ('Message Date', 'datetime'), 'SEGB State', 'Subject',
-                    'Sender', 'Recipient', ('Date Received', 'datetime'), 'Domain ID', 'Message Identifier',
-                    'Filename', 'Offset')
+    data_headers = (('SEGB Record Timestamp', 'datetime'), ('Message Date', 'datetime'),
+                    ('Date Received', 'datetime'), 'SEGB State', 'Subject', 'Sender', 'Recipient',
+                    'Domain ID', 'Message Identifier', 'Filename', 'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context, MAIL_TYPEDEF):
         if message is None:
-            data_list.append((ts, '', state, '', '', '', '', '', '', filename, offset))
+            data_list.append((ts, '', '', state, '', '', '', '', '', filename, offset))
             continue
-        data_list.append((ts, _cf_double_to_utc(message.get('3')), state, _txt(message.get('11')),
+        data_list.append((ts, _cf_double_to_utc(message.get('3')),
+                          _cf_double_to_utc(message.get('30')), state, _txt(message.get('11')),
                           _header(message, 'from'), _header(message, 'to'),
-                          _cf_double_to_utc(message.get('30')), _txt(message.get('2')),
-                          _txt(message.get('5')), filename, offset))
+                          _txt(message.get('2')), _txt(message.get('5')), filename, offset))
     return data_headers, data_list, _source_path(context)
 
 

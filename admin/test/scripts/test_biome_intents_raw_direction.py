@@ -86,12 +86,21 @@ class RawDirectionTest(unittest.TestCase):
                                           get_relative_path=lambda p: Path(p).name)
                     headers, (rows, html), source = biomeIntents.get_biomeIntents.__wrapped__(ctx)
                     expected = values + [None, values[0]]
-                    self.assertEqual(headers[7], 'direction (as stored)')
-                    self.assertEqual(len(headers), 12)
-                    self.assertEqual([(type(r[7]), r[7]) for r in rows],
+                    self.assertEqual(headers[7], 'Direction')
+                    self.assertEqual(headers[8], 'direction (as stored)')
+                    self.assertEqual(len(headers), 13)
+                    self.assertEqual([(type(r[8]), r[8]) for r in rows],
                                      [(type(v), v) for v in expected])
-                    self.assertEqual([r[7] for r in html], expected)
-                    self.assertEqual([r[11] for r in rows], offsets[:-2] + offsets[-1:])
+                    self.assertEqual([r[8] for r in html], expected)
+                    # Names only for a plist integer 0, 1 or 2 (INInteractionDirection).
+                    names = {0: 'Unspecified', 1: 'Outgoing', 2: 'Incoming'}
+                    expected_names = [names.get(v, '') if type(v) is int else ''
+                                      for v in expected]
+                    self.assertEqual(expected_names[:3], ['Unspecified', 'Outgoing', 'Incoming'])
+                    self.assertEqual(expected_names.count(''), len(expected) - 4)
+                    self.assertEqual([r[7] for r in rows], expected_names)
+                    self.assertEqual([r[7] for r in html], expected_names)
+                    self.assertEqual([r[12] for r in rows], offsets[:-2] + offsets[-1:])
                     self.assertEqual(source, str(root))
                     stamp = datetime.datetime(2024, 1, 2, 3, 4, 5,
                                               tzinfo=datetime.timezone.utc)
@@ -99,9 +108,9 @@ class RawDirectionTest(unittest.TestCase):
                                      [(stamp, stamp + datetime.timedelta(seconds=60),
                                        60.0, 'False', 'fixture.unknown', 'FixtureClass', 7)]
                                      * len(rows))
-                    self.assertEqual([r[8:11] for r in rows],
+                    self.assertEqual([r[9:12] for r in rows],
                                      [('fixture-group', '', 'record')] * len(rows))
-                    self.assertEqual([r[9] for r in html], ['Unsupported intent.'] * len(rows))
+                    self.assertEqual([r[10] for r in html], ['Unsupported intent.'] * len(rows))
 
     def test_existing_admission_and_repeated_context(self):
         content, _ = stream(1, [(1, wire(False, getattr(plistlib, 'FMT_XML')))])
@@ -115,8 +124,9 @@ class RawDirectionTest(unittest.TestCase):
                                   [str(p) for p in paths[1:]] + [str(root)],
                                   get_relative_path=lambda p: str(Path(p).relative_to(root)))
             _, (rows, html), source = biomeIntents.get_biomeIntents.__wrapped__(ctx)
-            self.assertEqual([r[7] for r in rows], [False, False])
-            self.assertEqual([r[7] for r in html], [False, False])
+            self.assertEqual([r[8] for r in rows], [False, False])
+            self.assertEqual([r[8] for r in html], [False, False])
+            self.assertEqual([r[7] for r in rows], ['', ''])
             self.assertEqual(source, str(root))
 
 
