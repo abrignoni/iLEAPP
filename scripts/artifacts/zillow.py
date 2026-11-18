@@ -2,8 +2,7 @@ __artifacts_v2__ = {
     "zillowRecentSearches": {
         "name": "Zillow - Recent Searches",
         "description": "Searches the Zillow app keeps in its ZRECENTSEARCH table, with the access "
-                       "date, the search text and subtitle, and the region and search identifiers "
-                       "each row stores.",
+                       "date, the search text and the other columns of each row.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
@@ -11,17 +10,20 @@ __artifacts_v2__ = {
         "category": "Zillow",
         "notes": "One row per row of ZRECENTSEARCH in the Zillow app's Core Data store, "
                  "Zillow.sqlite, in an app group container; a file of that name is read only when "
-                 "it holds that table. No Zillow documentation of the table was found, so the "
-                 "column names are the only labels used here and every value is reported as "
-                 "stored. Access Date is ZACCESSDATE read as Core Data seconds since 2001 and "
-                 "shown in UTC; what access it marks is not established. Only "
+                 "it holds that table. The column meanings are not sourced from Zillow "
+                 "documentation, so the column names are the only labels used here. Apart from "
+                 "Access Date, values are reported as stored; a NULL, or a column this version of "
+                 "the store lacks, shows as blank. Access Date is ZACCESSDATE read as Core Data "
+                 "seconds since 2001 and shown in UTC, and a missing or non-positive value shows "
+                 "as blank; what access it marks is not established. Of the three images run, only "
                  "wilkerson_iphone16_ios26 holds the store, and its 3 rows are the same with and "
                  "without the write-ahead log. There Subtitle and Surface ID are empty on every "
                  "row, Reverted Spellcheck held 0 on every row, and Search History String and "
-                 "Search Key are identical on every row. Type held 1 or 3; what the values mean is "
-                 "not established. The same store holds ZLASTSEARCH (1 row), ZZFILTERMODEL (3 "
-                 "rows) and ZZSCHOOLFILTERS (1 row), the saved search filters, which are not read "
-                 "here. hill_iphone15pro_ios26 and iphone11_ios17 do not hold the store.",
+                 "Search Key are equal on the 2 rows that hold them and both NULL on the third. "
+                 "Type held 1 or 3; what the values mean is not established. The same store holds "
+                 "ZLASTSEARCH (1 row), ZZFILTERMODEL (3 rows) and ZZSCHOOLFILTERS (1 row), which "
+                 "are not read here; ZZSAVEDSEARCH is empty. hill_iphone15pro_ios26 and "
+                 "iphone11_ios17 do not hold the store.",
         "paths": ('*/Containers/Shared/AppGroup/*/Zillow.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "search",
