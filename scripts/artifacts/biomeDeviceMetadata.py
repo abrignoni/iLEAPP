@@ -1,14 +1,13 @@
 __artifacts_v2__ = {
     "get_biomeDeviceMetadata": {
         "name": "Biome - Device Metadata",
-        "description": "Parses OS build records from the Device.Metadata biome stream. The 36 "
-                       "written records on the tested images each carried an OS build string.",
+        "description": "Parses OS build records from the Device.Metadata biome stream. The 46 written records on the tested images each carried an OS build string.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Builds with prefixes 19 through 23 were on the tested images (e.g. 20B110, "
+        "notes": ("Builds with prefixes 19 through 23 were on the tested images (e.g. 20B110, "
                  "21D50, 22H31). The Supplemental Build and Platform field names and the Platform "
                  "value names are those of the BMDeviceMetadata class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of "
                  "the class was read. Supplemental Build was reported before as OS Build (Field 4) "
@@ -21,14 +20,14 @@ __artifacts_v2__ = {
                  "5 = Watch, 6 = HomePod, 8 = Vision, and data version 1 with 0 = Unknown, "
                  "1 = iPad, 2 = iPhone, 3 = MacDesktop, 4 = MacPortable, 5 = TV, 6 = Watch, "
                  "7 = HomePod, 8 = Vision, 9 = HomeAccessory. A value or version outside those "
-                 "lists keeps its integer in Platform (raw) with the name blank. On the 36 written "
-                 "records on the tested images, the 8 data version 0 records hold 1 and the 28 "
-                 "data version 1 records hold 2, so all 36 read iPhone. Supplemental Build was the "
-                 "same as OS Build on 33 of the 36, different on 2 and empty on 1.",
-        "paths": ('*/streams/*/Device.Metadata/local/*',),
+                 "lists keeps its integer in Platform (raw) with the name blank. On the 46 written records on the tested images, the 18 data version 0 records hold 1 and the 28 data version 1 records hold 2, so all 46 read iPhone. Supplemental Build was the same as OS Build on 41 of the 46, different on 3 and empty on 2."
+                 " "
+                 "On 5 tested images (jess_ios15 on iOS 15; abe_ios16, felix23_ios16, hexordia_ios1651 and magnet_ios16 on iOS 16) the stream is stored under DeviceMetadata, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. Its 10 written records are data version 0. Fields 2 and 3 were on all 10 and field 4 on 9; the iOS 15 record held no field 4. Its remote folders are not read."),
+        "paths": ('*/streams/*/Device.Metadata/local/*', '*/streams/*/DeviceMetadata/local/*'),
         "output_types": "standard",
         "artifact_icon": "smartphone",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 5 rows",
             "hc_ios18_7": "iOS 18.7.8 | 3 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
         },

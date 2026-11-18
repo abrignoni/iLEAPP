@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field names and Event Type and Last Event Type names are those of the "
+        "notes": ("Field names and Event Type and Last Event Type names are those of the "
                  "BMClockAlarm class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); "
                  "no iOS copy of the class was read. Event Type was reported before as State (raw), "
                  "Is Sleep Alarm as Field 1 (raw) and Last Event Type as Field 4 (raw). "
@@ -19,17 +19,17 @@ __artifacts_v2__ = {
                  "1 = Stopped, 2 = Snoozed, 3 = Created, 4 = Updated, 5 = Deleted and Last Event "
                  "Type 0 = Idle through 10 = TimedOut, and data version 2 with 0 = Unknown added "
                  "first, so every version 1 value moves up by one. "
-                 "A value or version outside those lists keeps its integer with the name blank. All "
-                 "44 written records on the tested images are data version 1. On those records Event "
-                 "Type was 0 (Firing) on 19, 1 (Stopped) on 16, 4 (Updated) on 7 and 2 (Snoozed) on "
-                 "2, Last Event Type was 0 (Idle) on all 44 and Is Sleep Alarm was False on all 44. "
+                 "A value or version outside those lists keeps its integer with the name blank. All 48 written records on the tested images are data version 1. On those records Event Type was 0 (Firing) on 20, 1 (Stopped) on 17, 4 (Updated) on 7, 2 (Snoozed) on 2, 3 (Created) on 1 and 5 (Deleted) on 1, Last Event Type was 0 (Idle) on all 48, and Is Sleep Alarm was False on 44 and True on the 4 records of abe_ios16. "
                  "Deleted rows carry no fields. Published research on this stream: Mattia "
                  "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
-        "paths": ('*/streams/*/Clock.Alarm/local/*',),
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
+                 " "
+                 "On one tested iOS 16 image (abe_ios16) the stream is stored under Alarm, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 4 written records held fields 1 to 4 and are data version 1."),
+        "paths": ('*/streams/*/Clock.Alarm/local/*', '*/streams/*/Alarm/local/*'),
         "output_types": "standard",
         "artifact_icon": "clock",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 63 rows",
             "hc_ios18_7": "iOS 18.7.8 | 27 rows",
             "iphone11_ios17": "iOS 17.3 | 12 rows",
         },
