@@ -2,24 +2,29 @@ __artifacts_v2__ = {
     "get_biomeShareSheetConversation": {
         "name": "Biome - Share Sheet Conversation",
         "description": "Parses share sheet conversation records from the "
-                       "MLSE.ShareSheet.ConversationUserInteraction biome stream: the app "
-                       "associated with the share and the conversation identifier, which "
-                       "on the tested image had the service;-;handle form on Messages "
-                       "records.",
+                       "MLSE.ShareSheet.ConversationUserInteraction biome stream: the bundle id, "
+                       "the conversation identifier, which had the service;-;handle form on all 16 "
+                       "written records of the tested images (all Messages records), and the event "
+                       "type.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The conversation identifier follows the service;-;handle form used elsewhere "
-                 "in Messages data, so the handle is split out into its own column while the "
-                 "full identifier is retained. Field 10 varied across the sample and is "
-                 "reported raw.",
+        "notes": "On the tested images the conversation identifier had the service;-;handle "
+                 "form on all 16 written records, so the handle is split out into its own column while the "
+                 "full identifier is retained. Event Type is field 10 (eventType) of the "
+                 "BMMLSEConversationUserInteraction class, read from BiomeLibrary.framework on "
+                 "macOS 27.2.1 (26B131): 0 Unknown, 1 UserEnteredConversation, 2 "
+                 "UserExitedConversation; it was reported raw as Field 10 before. Interaction "
+                 "Timestamp is field 11 (timestamp), which the framework decodes as Unix seconds.",
         "paths": ('*/streams/*/MLSE.ShareSheet.ConversationUserInteraction/local/*',),
         "output_types": "standard",
         "artifact_icon": "share-2",
         "sample_data": {
-            "hc_ios26": "26.5.2 | 12 rows",
+            "hc_ios26": "26.5.2 | 12 rows (deleted only)",
+            "hill_iphone15pro_ios26": "iOS 26 | 227 rows (4 written)",
+            "wilkerson_iphone16_ios26": "iOS 26 | 394 rows (12 written)",
         },
     }
 }
@@ -40,6 +45,11 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
 
 TYPESS = {'1': {'type': 'str', 'name': ''}, '2': {'type': 'str', 'name': ''},
           '10': {'type': 'int', 'name': ''}}
+
+
+# eventType names, read from BiomeLibrary.framework BMMLSEConversationUserInteraction on
+# macOS 27.2.1 (26B131).
+EVENT_TYPES = {0: 'Unknown', 1: 'UserEnteredConversation', 2: 'UserExitedConversation'}
 
 
 def _to_str(value):
@@ -100,15 +110,16 @@ def get_biomeShareSheetConversation(context):
 
                 data_list.append((ts, _unix_double(protostuff.get('11')), record.state.name,
                                   _to_str(protostuff.get('1', b'')), _handle(conversation),
-                                  conversation, protostuff.get('10', ''), filename,
+                                  conversation, EVENT_TYPES.get(protostuff.get('10'), ''),
+                                  protostuff.get('10', ''), filename,
                                   record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None,
+                data_list.append((ts, None, record.state.name, None, None, None, None, None,
                                   filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Interaction Timestamp', 'datetime'),
                     'SEGB State', 'Bundle ID', 'Contact Handle', 'Conversation ID',
-                    'Field 10 (raw)', 'Filename', 'Offset')
+                    'Event Type', 'Event Type (raw)', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
