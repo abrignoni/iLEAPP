@@ -8,19 +8,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field names and numbers come from the class's protoFields in "
+        "notes": "Field names and numbers come from the protoFields of BMDeviceNFCTag in "
                  "BiomeLibrary.framework, read on macOS 27.2.1 (26B131). That the iOS writer uses "
                  "the same schema was checked only against the data: every written record decoded "
                  "to those fields. SEGB Timestamp is the SEGB record time; what it marks was not "
                  "checked against another record. Records the SEGB file marks deleted, and the "
                  "stream's tombstone folder, are not read. Each tested image that holds the stream "
                  "has one file in its local folder, so SEGB File held one value on every row. "
-                 "Field: 1 tagID, shown as hex with its length. On hill_iphone15pro_ios26 the 126 "
-                 "rows hold 109 tag IDs of 16 bytes (2 distinct), 16 of 8 bytes (16 distinct) and "
-                 "1 of 24 bytes; on iphone11_ios17 the 209 rows hold 190 of 8 bytes (190 "
-                 "distinct), 11 of 24, 6 of 16 and 2 of 14. An 8-byte value differed on every row, "
-                 "so whether it identifies a tag or a single read is not established. "
-                 "wilkerson_iphone16_ios26 holds no written record.",
+                 "Field: 1 tagID, a text field. Every tested value is a string of hex digits, "
+                 "shown as stored with its length in characters. On hill_iphone15pro_ios26 the 126 "
+                 "rows hold 109 tag IDs of 16 hex characters (2 distinct), 16 of 8 characters (16 "
+                 "distinct) and 1 of 24 characters; on iphone11_ios17 the 209 rows hold 190 of 8 "
+                 "characters (190 distinct), 11 of 24 (11 distinct), 6 of 16 (1 distinct) and 2 of "
+                 "14 (1 distinct). An 8-character value differed on every row, so whether it "
+                 "identifies a tag or a single read is not established. wilkerson_iphone16_ios26 "
+                 "holds no written record.",
         "paths": ('*/streams/*/Device.Wireless.NFCTag/local/*',),
         "output_types": "standard",
         "artifact_icon": "nfc",
@@ -31,7 +33,7 @@ __artifacts_v2__ = {
         },
     },
     "get_biomeDeviceDefaultPairedNearby": {
-        "name": "Biome - Default Paired Device Nearby",
+        "name": "Biome - Default Paired Nearby",
         "description": "Records from the Device.Wireless.DefaultPairedNearby biome stream, with "
                        "the starting flag each stores.",
         "author": "@AlexisBrignoni, Claude",
@@ -39,23 +41,24 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field names and numbers come from the class's protoFields in "
-                 "BiomeLibrary.framework, read on macOS 27.2.1 (26B131). That the iOS writer uses "
-                 "the same schema was checked only against the data: every written record decoded "
-                 "to those fields. SEGB Timestamp is the SEGB record time; what it marks was not "
-                 "checked against another record. Records the SEGB file marks deleted, and the "
-                 "stream's tombstone folder, are not read. Each tested image that holds the stream "
-                 "has one file in its local folder, so SEGB File held one value on every row. "
-                 "Field: 1 starting. Which device is the default paired device is not stored. "
-                 "Starting held No on all 8 rows of hill_iphone15pro_ios26 and was Yes on 506 of "
-                 "1,264 rows of wilkerson_iphone16_ios26. iphone11_ios17 holds no stream file.",
+        "notes": "Field names and numbers come from the protoFields of BMDeviceDefaultPairedNearby "
+                 "in BiomeLibrary.framework, read on macOS 27.2.1 (26B131). That the iOS writer "
+                 "uses the same schema was checked only against the data: every written record "
+                 "decoded to those fields. SEGB Timestamp is the SEGB record time; what it marks "
+                 "was not checked against another record. Records the SEGB file marks deleted, and "
+                 "the stream's tombstone folder, are not read. Each tested image that holds the "
+                 "stream has one file in its local folder, so SEGB File held one value on every "
+                 "row. Field: 1 starting. The records hold only the starting flag; what default "
+                 "paired refers to is not established here. Starting held No on all 8 rows of "
+                 "hill_iphone15pro_ios26 and was Yes on 506 of 1,264 rows of "
+                 "wilkerson_iphone16_ios26. iphone11_ios17 holds no folder for this stream.",
         "paths": ('*/streams/*/Device.Wireless.DefaultPairedNearby/local/*',),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
         "sample_data": {
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 8 rows",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 1264 rows",
-            "iphone11_ios17": "iOS 17.3 | 0 rows, no stream file",
+            "iphone11_ios17": "iOS 17.3 | 0 rows, no folder for this stream",
         },
     },
     "get_biomeDeviceBluetoothNearbyDevice": {
@@ -68,20 +71,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field names and numbers come from the class's protoFields in "
-                 "BiomeLibrary.framework, read on macOS 27.2.1 (26B131). That the iOS writer uses "
-                 "the same schema was checked only against the data: every written record decoded "
-                 "to those fields. SEGB Timestamp is the SEGB record time; what it marks was not "
-                 "checked against another record. Records the SEGB file marks deleted, and the "
-                 "stream's tombstone folder, are not read. Each tested image that holds the stream "
-                 "has one file in its local folder, so SEGB File held one value on every row. "
-                 "Fields: 1 initiator, 2 localIdentifier, 3 starting and 4 useCase. No names for "
-                 "useCase were found in the framework, so Use Case is reported as stored. "
-                 "Initiator held Yes on every row of the tested images. On "
-                 "wilkerson_iphone16_ios26 the 660 rows carry one Local Identifier and Use Case "
-                 "held 11 on every row, half with Starting Yes. On iphone11_ios17 Use Case held 11 "
-                 "on 301 of 307 rows. Local Identifier is reported as stored, and which device it "
-                 "names is not resolved here. hill_iphone15pro_ios26 holds no written record.",
+        "notes": "Field names and numbers come from the protoFields of "
+                 "BMDeviceBluetoothNearbyDevice in BiomeLibrary.framework, read on macOS 27.2.1 "
+                 "(26B131). That the iOS writer uses the same schema was checked only against the "
+                 "data: every written record decoded to those fields. SEGB Timestamp is the SEGB "
+                 "record time; what it marks was not checked against another record. Records the "
+                 "SEGB file marks deleted, and the stream's tombstone folder, are not read. Each "
+                 "tested image that holds the stream has one file in its local folder, so SEGB "
+                 "File held one value on every row. Fields: 1 initiator, 2 localIdentifier, 3 "
+                 "starting and 4 useCase. No name function for useCase was found in the macOS "
+                 "27.2.1 framework, so Use Case is reported as stored. Initiator held Yes on every "
+                 "row of the tested images. On wilkerson_iphone16_ios26 the 660 rows carry one "
+                 "Local Identifier and Use Case held 11 on every row, half with Starting Yes. On "
+                 "iphone11_ios17 Use Case held 11 on 301 of 307 rows. Local Identifier is reported "
+                 "as stored, and which device it names is not resolved here. "
+                 "hill_iphone15pro_ios26 holds no written record.",
         "paths": ('*/streams/*/Device.Wireless.BluetoothNearbyDevice/local/*',),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
@@ -152,12 +156,10 @@ def get_biomeDeviceNFCTag(context):
     rows, sources = _records(context, 'NFC Tag', {'1': {'type': 'bytes'}})
     data_list = []
     for record, message, name in rows:
-        tag = message.get('1')
-        data_list.append((record.timestamp1.replace(tzinfo=timezone.utc),
-                          tag.hex() if isinstance(tag, bytes) else _text(tag),
-                          len(tag) if isinstance(tag, bytes) else '', name,
+        tag = _text(message.get('1'))
+        data_list.append((record.timestamp1.replace(tzinfo=timezone.utc), tag, len(tag), name,
                           record.data_start_offset))
-    headers = (('SEGB Timestamp', 'datetime'), 'Tag ID (hex)', 'Tag ID Length (bytes)',
+    headers = (('SEGB Timestamp', 'datetime'), 'Tag ID', 'Tag ID Length (characters)',
                'SEGB File', 'Offset')
     return headers, data_list, sources
 

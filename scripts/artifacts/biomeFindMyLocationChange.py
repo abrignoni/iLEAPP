@@ -8,26 +8,30 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field names and numbers come from the class's protoFields in "
+        "notes": "Field names and numbers come from the protoFields of BMFindMyLocationChange in "
                  "BiomeLibrary.framework, read on macOS 27.2.1 (26B131). That the iOS writer uses "
-                 "the same schema was checked only against the data: every written record decoded "
-                 "to those fields. SEGB Timestamp is the SEGB record time; what it marks was not "
-                 "checked against another record. Records the SEGB file marks deleted, and the "
-                 "stream's tombstone folder, are not read. Each tested image that holds the stream "
-                 "has one file in its local folder, so SEGB File held one value on every row. "
-                 "Fields: 1 idsHandle, 2 stateChange, 3 activityState and 6 name, with State "
-                 "Change named by BMFindMyLocationChangeStateChangeAsString and Activity State by "
+                 "the same schema was checked only against the data: on the two iOS 26 images "
+                 "every written record held fields 1, 2, 3 and 6. On iphone11_ios17 (iOS 17.3) all "
+                 "3 records also held fields 4 and 5, fixed 64-bit values that were zero; the "
+                 "macOS 27.2.1 class does not name them and they are not shown. SEGB Timestamp is "
+                 "the SEGB record time; what it marks was not checked against another record. "
+                 "Records the SEGB file marks deleted, and the stream's tombstone folder, are not "
+                 "read. Each tested image that holds the stream has one file in its local folder, "
+                 "so SEGB File held one value on every row. Fields: 1 idsHandle, 2 stateChange, 3 "
+                 "activityState and 6 name, with State Change named by "
+                 "BMFindMyLocationChangeStateChangeAsString and Activity State by "
                  "BMFindMyLocationChangeActivityStateAsString in the same framework, the stored "
-                 "number kept beside each name. Names are shown only when the extraction's iOS "
-                 "version is 26 or later: on iphone11_ios17 (iOS 17.3) the UserFocus.InferredMode "
-                 "stream's enums are numbered one lower than on iOS 26, so on an earlier or "
-                 "unknown version only the stored number is shown. IDS Handle is a telephone "
-                 "number or an email address on the tested images; whose location a record "
-                 "describes is not established here. IDS Handle held one value on every row of "
-                 "hill_iphone15pro_ios26 (53) and iphone11_ios17 (3), and two values on "
+                 "number kept beside each name. The names were read on macOS 27.2.1 and were not "
+                 "checked against an iOS framework. Names are shown only when the extraction's iOS "
+                 "version is 26 or later; on an earlier or unknown version only the stored number "
+                 "is shown, because the names were not checked there. IDS Handle has the shape of "
+                 "a telephone number or of an email address on the tested images; whose location a "
+                 "record describes is not established here. IDS Handle held one value on every row "
+                 "of hill_iphone15pro_ios26 (53) and iphone11_ios17 (3), and two values on "
                  "wilkerson_iphone16_ios26 (39). State Change held Update (1) on every row of the "
-                 "two iOS 26 images. Activity State held 0 on all 3 rows of iphone11_ios17. Name "
-                 "is empty on every row of the three tested images.",
+                 "two iOS 26 images and 0, 1 and 2 on one row each of iphone11_ios17. Activity "
+                 "State held 0 on all 3 rows of iphone11_ios17. Name is empty on every row of the "
+                 "three tested images.",
         "paths": ('*/streams/*/FindMy.LocationChange/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -62,10 +66,10 @@ _ACTIVITY = {0: 'Unknown', 1: 'Stationary', 2: 'Walking', 3: 'Running', 4: 'Cycl
 
 
 def _names_checked():
-    '''Whether the extraction's iOS version is one on which framework names fitted the data.
+    '''Whether the extraction's iOS version is 26 or later.
 
-    The names were read from the macOS 27 framework. Another stream's enums were numbered
-    differently on an iOS 17.3 image, so before iOS 26 only the stored number is shown.
+    The names were read from the macOS 27 framework and were not checked on earlier iOS
+    versions, so there only the stored number is shown.
     '''
     try:
         return int(str(iOS.get_version()).split('.', maxsplit=1)[0]) >= 26
