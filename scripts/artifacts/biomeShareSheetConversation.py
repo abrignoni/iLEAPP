@@ -3,9 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Share Sheet Conversation",
         "description": "Parses share sheet conversation records from the "
                        "MLSE.ShareSheet.ConversationUserInteraction biome stream: the bundle id, "
-                       "the conversation identifier, which had the service;-;handle form on all 16 "
-                       "written records of the tested images (all Messages records), and the event "
-                       "type.",
+                       "the conversation identifier (service;-;handle form on the tested Messages "
+                       "records, see notes) and the event type.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-11-18",
