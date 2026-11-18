@@ -11,30 +11,29 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field names are those of the BMSiriUI class, read from "
+        "notes": ("Field names are those of the BMSiriUI class, read from "
                  "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
                  "read. Columns reported before as Session ID, Related ID and Presentation "
                  "(raw) are now UUID, Turn ID and View Mode. The two records of a pair share a "
-                 "UUID, so records can be grouped on it: on the tested images the 80 written "
-                 "records formed 40 UUID pairs, each with one record at field 5 = 1 and one at "
+                 "UUID, so records can be grouped on it: on the tested images the 154 written records formed 77 UUID pairs, each with one record at field 5 = 1 and one at "
                  "0. The time between the two records of a pair is the time between their SEGB "
                  "record timestamps, and that it equals the time the interface was shown was "
                  "not tested. The framework names field 5 starting, a boolean. On the tested "
                  "images it was 1 on the record with no dismissal reason and 0 on the record "
                  "that carries one; the Interface State labels Presented and Dismissed follow "
-                 "that observation. On the tested images all 40 Dismissed records carried a "
-                 "dismissal reason, with seven distinct values, among them HardwareButton, "
+                 "that observation. On the tested images all 77 Dismissed records carried a dismissal reason, with eight distinct values, among them HardwareButton, "
                  "Timeout and TapOutsideOfContent. View Mode is a string in the framework and is reported "
-                 "as stored; on the tested images it was set on the 40 Presented records and "
-                 "empty on the 40 Dismissed records. On the tested images Turn ID was set on 55 "
-                 "of the 80 written records. The framework sessionID field was not present on any written record "
+                 "as stored; on the tested images it was set on the 77 Presented records and empty on the 77 Dismissed records. On the tested images Turn ID was set on 55 of the 154 written records. The framework sessionID field was not present on any written record "
                  "on the tested images and is not reported. The framework absoluteTimestamp "
-                 "field (field 6, present on all 80 written records on the tested images) and "
-                 "carplayPPID field (field 8, present on 6) are also not reported.",
-        "paths": ('*/streams/*/Siri.UI/local/*',),
+                 "field (field 6, present on all 154 written records on the tested images) and "
+                 "carplayPPID field (field 8, present on 6) are also not reported."
+                 " "
+                 "On 2 tested iOS 16 images (abe_ios16, felix23_ios16) the stream is stored under SiriUI, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 74 written records held fields 2 to 6; none held Turn ID."),
+        "paths": ('*/streams/*/Siri.UI/local/*', '*/streams/*/SiriUI/local/*'),
         "output_types": "standard",
         "artifact_icon": "mic",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 294 rows",
             "dexter_ios18": "11 rows",
             "felix_ios17": "6 rows",
             "hc_ios26": "26.5.2 | 2 rows",

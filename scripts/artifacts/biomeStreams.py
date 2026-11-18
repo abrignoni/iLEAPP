@@ -18,16 +18,18 @@ __artifacts_v2__ = {
                  "equal on 73, within 60 seconds on 633 and more than 60 seconds apart on 32 of the "
                  "738 written records that held both. Sender and Recipient are the From and To "
                  "headers of field 10 (headers). Domain ID is field 2 (domainID), reported before "
-                 "as Message ID, and Message Identifier is field 5 (messageIdentifier). Message "
-                 "Identifier held a string of digits on each of the 766 written records that "
-                 "decoded; what store it indexes was not established. 28 written records on "
+                 "as Message ID, and Message Identifier is field 5 (messageIdentifier). Message Identifier held a string of digits on each of the 1,216 written records that decoded; what store it indexes was not established. 28 written records on "
                  "dexter_ios18 did not decode and are reported with their SEGB fields only. "
                  "The SEGB Record Timestamp column is the SEGB record's creation timestamp as read by "
-                 "ccl_segb. Deleted rows carry no stored fields."),
-        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',),
+                 "ccl_segb. Deleted rows carry no stored fields."
+                 " "
+                 "On 4 tested iOS 16 images the stream is stored under MailContent, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 513 written records decoded with field numbers that fit the class; none held field 30, so Date Received is blank on them."),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',
+                  '*/[Bb]iome/streams/*/MailContent/local/*'),
         "output_types": "standard",
         "artifact_icon": "mail",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 478 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 82 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 38 rows",
             "dexter_ios18": "iOS 18.3.2 | 295 rows",
@@ -95,21 +97,22 @@ __artifacts_v2__ = {
                  "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
                  "On the tested images (the sample_data keys) the field numbers and wire types of "
                  "the written records that decoded fit this class. IDS Handle is field 1 (idsHandle), "
-                 "reported before as Message ID. On the tested images it held a plus sign and "
-                 "digits on 439 written rows, digits only on 123, an email-shaped string on 15 and "
-                 "other short text on 5, and was blank on 112. Marked Unread is field 2 "
-                 "(markedUnread): True on 440, False on 146 and blank on 108 of the 694 written "
-                 "rows; the blank rows are on dexter_ios18, where the records did not decode or did "
+                 "reported before as Message ID. On the tested images it held a plus sign and digits on 491 written rows, digits only on 127, an email-shaped string on 15 and other short text on 5, and was blank on 112. Marked Unread is field 2 "
+                 "(markedUnread): True on 440, False on 202 and blank on 108 of the 750 written rows; the blank rows are on dexter_ios18, where the records did not decode or did "
                  "not store the field. What Marked Unread means for these records was not "
                  "established. Written records with no payload give no row. The SEGB Record "
                  "Timestamp column is the SEGB record's creation timestamp as read by ccl_segb. "
                  "Reference: Mattia "
                  "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"),
-        "paths": ('*/[Bb]iome/streams/restricted/Messages.Read/local/*',),
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
+                 " "
+                 "On 3 tested iOS 16 images the stream is stored under ReadMessage, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 78 written records held field 1, and 73 held field 2; Marked Unread was False on all 73."),
+        "paths": ('*/[Bb]iome/streams/restricted/Messages.Read/local/*',
+                  '*/[Bb]iome/streams/*/ReadMessage/local/*'),
         "output_types": "standard",
         "artifact_icon": "check",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 86 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 171 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 36 rows",
             "dexter_ios18": "iOS 18.3.2 | 280 rows",

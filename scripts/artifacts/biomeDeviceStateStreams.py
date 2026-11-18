@@ -113,16 +113,18 @@ __artifacts_v2__ = {
                  "Connected and 1 as Connected; the BMCarPlayConnected class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131), "
                  "names field 1 starting. Reason is field 2 (reason), named from the "
                  "same class: 0 Unknown, 1 USB, 2 WiFi; the iOS writer's schema was checked only "
-                 "against the data. On hc_ios18_7 Reason held USB on all 24 rows; WiFi appeared on "
-                 "one other tested image (wilkerson_iphone16_ios26, 7 rows). The raw values are reported alongside the labels. See "
+                 "against the data. On hc_ios18_7 Reason held USB on all 24 rows; WiFi appeared on three tested images: abe_ios16 (4 rows), dexter_ios18 (4) and wilkerson_iphone16_ios26 (7). The raw values are reported alongside the labels. See "
                  "also the _DKEvent.Carplay.IsConnected stream parsed by Biome "
                  "- Carplay. Reference: Mattia Epifani, '84 Streams Later, "
                  "Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"),
-        "paths": ('*/streams/*/CarPlay.Connected/local/*',),
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
+                 " "
+                 "On one tested iOS 16 image (abe_ios16) the stream is stored under CarPlay, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 56 written records held fields 1 and 2."),
+        "paths": ('*/streams/*/CarPlay.Connected/local/*', '*/streams/*/CarPlay/local/*'),
         "output_types": "standard",
         "artifact_icon": "truck",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 122 rows",
             "hc_ios18_7": "iOS 18.7.8 | 24 rows",
             "iphone11_ios17": "iOS 17.3 | 36 rows",
         },

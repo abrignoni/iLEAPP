@@ -7,18 +7,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field names are those of the BMAppInFocus class, read from "
+        "notes": ("Field names are those of the BMAppInFocus class, read from "
                  "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
                  "read. Starting is field 3, a true or false value. It was reported before as "
                  "Action, with Foreground for 1 and Background for 0; the framework names the "
-                 "field starting and gives no names to its values. On the tested images (16 images, 26,312 written "
-                 "rows) Starting held True on 13,207 rows and False on 13,105. Records are "
+                 "field starting and gives no names to its values. On the tested images (21 images, 30,365 written rows) Starting held True on 15,241 rows and False on 15,124. Records are "
                  "read from both the local and remote subfolders. The Sync Origin column reports "
                  "which one a record came from, with the name of the folder under remote. That "
                  "this name identifies a device is not sourced here. Files under a tombstone folder are "
-                 "skipped.",
+                 "skipped."
+                 " "
+                 "On 5 tested images (jess_ios15 on iOS 15; abe_ios16, felix23_ios16, hexordia_ios1651 and magnet_ios16 on iOS 16) the stream is stored under AppLaunch, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. Fields 3, 4 and 6, which this artifact reports, were present on all 4,053 written records there. Those records also carry field 5 (duration), which is not reported."),
         "paths": ('*/[Bb]iome/streams/restricted/App.InFocus/local/*',
-                  '*/[Bb]iome/streams/restricted/App.InFocus/remote/*'),
+                  '*/[Bb]iome/streams/restricted/App.InFocus/remote/*',
+                  '*/[Bb]iome/streams/*/AppLaunch/local/*',
+                  '*/[Bb]iome/streams/*/AppLaunch/remote/*'),
         "output_types": "standard",
         "artifact_icon": "focus-2",
         "sample_data": {
@@ -30,9 +33,9 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 2073 rows (205 remote)",
             "iphone14plus_ios18": "iOS 18.0 | 909 rows (647 remote)",
             "otto_ios17": "iOS 17.5.1 | 1139 rows (314 remote)",
-            "abe_ios16": "iOS 16.5 | 0 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
-            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 5967 rows (115 remote)",
+            "felix23_ios16": "iOS 16.5 | 1446 rows",
+            "magnet_ios16": "iOS 16.1.1 | 660 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 2357 rows (1490 remote)",
             "cookbook_ios1751": "iOS 17.5.1 | 947 rows (240 remote)",
             "falken_ios26": "iOS 26.2.1 | 2374 rows (730 remote)",
