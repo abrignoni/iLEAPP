@@ -165,6 +165,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | photosMetadata |
 | photosMigration |
 | pingertextfree |
+| playbackEventStreams |
 | potatoChat |
 | powerlog |
 | privatePhotoVault |
