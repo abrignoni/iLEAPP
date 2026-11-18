@@ -1,21 +1,32 @@
 __artifacts_v2__ = {
     "get_biomeEmojiEngagement": {
         "name": "Biome - Emoji Engagement",
-        "description": "Parses emoji records from the Emoji.Engagement biome stream. Each "
-                       "written record holds an emoji as stored, along with the Unicode code "
-                       "points so that skin tone modifiers, variation selectors and zero width "
-                       "joiner sequences stay visible in the report.",
+        "description": "Parses emoji records from the Emoji.Engagement biome stream: the emoji as "
+                       "stored with its Unicode code points (so skin tone modifiers, variation "
+                       "selectors and zero width joiner sequences stay visible), the input mode, "
+                       "the locale and, for searches, the final search query.",
         "author": "@abrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The context field decodes to a four character ASCII string that resembles a "
-                 "trailing locale fragment (values seen: n_US and n-US, consistent with en_US and "
-                 "en-US); it is reported both raw and decoded because that reading is not "
-                 "confirmed. Field 2 was 1 on every written record of the tested images and field "
-                 "4 varied from 1 to 4; records in the deleted SEGB state carry neither, and both "
-                 "are reported raw.",
+        "notes": ("Field names and Input Mode names are those of the BMEmojiEngagement class, "
+                 "read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the "
+                 "class was read. Locale is field 3 (localeIdentifier), a string. Before, this "
+                 "artifact decoded those bytes as a nested message; on the tested images the "
+                 "Context (decoded) column showed the last four characters of the locale in reverse "
+                 "order. Positive Engagement is field 2 "
+                 "(wasPositiveEngagement), Input Mode field 4 (inputMode: 0 Unknown, 1 "
+                 "EmojiKeyboardPalette, 2 EmojiKeyboardPaletteRecents, 3 EmojiSearch, 4 "
+                 "CandidateBar, 5 Handwriting, 6 Dictation, 7 CharacterPickerLightweight, 8 "
+                 "CharacterPickerPopover, 9 CharacterPickerExtended, 10 DigitalFirstRow), "
+                 "Replacement Context field 5, Result Position field 6, Search Queries Run field 7 "
+                 "and Final Search Query field 8. Result Position is a signed 32-bit integer; it was "
+                 "-1 on 11 of the 17 search records, and the meaning of -1 is not established. On the tested images Result Position and Final Search Query were "
+                 "set on the 17 written records with Input Mode EmojiSearch and on no others, "
+                 "Replacement Context on 2 and Search Queries Run on none. On the tested images every "
+                 "record in the deleted SEGB state had an all-zero payload; deleted records are listed "
+                 "with timestamp, filename and offset only."),
         "paths": ('*/streams/*/Emoji.Engagement/local/*',),
         "output_types": "standard",
         "artifact_icon": "smile",
@@ -44,7 +55,15 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
 TYPESS = {'1': {'type': 'bytes', 'name': ''}, '2': {'type': 'int', 'name': ''},
-          '4': {'type': 'int', 'name': ''}}
+          '3': {'type': 'bytes', 'name': ''}, '4': {'type': 'int', 'name': ''},
+          '5': {'type': 'bytes', 'name': ''}, '6': {'type': 'int', 'name': ''},
+          '7': {'type': 'int', 'name': ''}, '8': {'type': 'bytes', 'name': ''}}
+
+# inputMode names, read from BiomeLibrary.framework BMEmojiEngagement on macOS 27.2.1 (26B131).
+INPUT_MODES = {0: 'Unknown', 1: 'EmojiKeyboardPalette', 2: 'EmojiKeyboardPaletteRecents',
+               3: 'EmojiSearch', 4: 'CandidateBar', 5: 'Handwriting', 6: 'Dictation',
+               7: 'CharacterPickerLightweight', 8: 'CharacterPickerPopover',
+               9: 'CharacterPickerExtended', 10: 'DigitalFirstRow'}
 
 
 def _emoji(value):
@@ -60,15 +79,15 @@ def _code_points(text):
     return ' '.join(f'U+{ord(ch):04X}' for ch in text)
 
 
-def _context_ascii(value):
-    """The context integer spells four ASCII characters when read big endian."""
+def _int32(value):
+    """resultPosition is an int32; a negative value arrives as a 64-bit varint."""
     if not isinstance(value, int):
         return ''
-    try:
-        decoded = struct.pack('>I', value & 0xFFFFFFFF).decode('ascii')
-    except (struct.error, UnicodeDecodeError):
-        return ''
-    return decoded if decoded.isprintable() else ''
+    return value - (1 << 64) if value >= 1 << 63 else value
+
+
+def _bool(value):
+    return {1: 'True', 0: 'False'}.get(value, '') if isinstance(value, int) else ''
 
 
 @artifact_processor
@@ -100,23 +119,24 @@ def get_biomeEmojiEngagement(context):
                     continue
 
                 emoji = _emoji(protostuff.get('1'))
-
-                sub = protostuff.get('3', {})
-                if not isinstance(sub, dict):
-                    sub = {}
-                context_raw = sub.get('12', '')
-
+                mode = protostuff.get('4')
                 data_list.append((ts, record.state.name, emoji, _code_points(emoji),
-                                  _context_ascii(context_raw), context_raw,
-                                  protostuff.get('2', ''), protostuff.get('4', ''),
+                                  _bool(protostuff.get('2')),
+                                  INPUT_MODES.get(mode, '') if isinstance(mode, int) else '',
+                                  '' if mode is None else mode,
+                                  _emoji(protostuff.get('3')), _emoji(protostuff.get('5')),
+                                  _int32(protostuff.get('6')),
+                                  '' if protostuff.get('7') is None else protostuff.get('7'),
+                                  _emoji(protostuff.get('8')),
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, None, None, None, None,
-                                  filename, record.data_start_offset))
+                data_list.append((ts, record.state.name) + (None,) * 10 +
+                                 (filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Emoji', 'Code Points',
-                    'Context (decoded)', 'Context (raw)', 'Field 2 (raw)', 'Field 4 (raw)',
-                    'Filename', 'Offset')
+                    'Positive Engagement', 'Input Mode', 'Input Mode (raw)', 'Locale',
+                    'Replacement Context', 'Result Position', 'Search Queries Run',
+                    'Final Search Query', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
