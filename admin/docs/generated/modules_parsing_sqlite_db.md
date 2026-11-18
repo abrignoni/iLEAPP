@@ -131,6 +131,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | line |
 | linePrivateStore |
 | locationdCacheEncryptedB |
+| locationdCacheEncryptedC |
 | logarchive |
 | mailprotect |
 | mastodon |
