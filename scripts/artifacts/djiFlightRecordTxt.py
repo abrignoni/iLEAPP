@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     'djiFlightRecordTxtRecords': {
         'name': 'DJI Drone - TXT Flight Records',
-        'description': 'Reads DJI TXT flight records (DJIFlightRecord*.txt) offline. Versions 1 to 12 '
+        'description': 'Reads DJI TXT flight records (DJIFlightRecord*.txt and FlightRecord_*.txt) offline. Versions 1 to 12 '
                        'give one row per record of a defined type and one per embedded JPEG; '
                        'versions 13 and 14 give no record rows (see the Summary artifact).',
         'author': 'Neal (@Blackwater1224), @AlexisBrignoni, Claude',
         'creation_date': '2026-10-23',
-        'last_update_date': '2026-10-23',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'DJI Drone',
         'notes': 'Versions 1-6 are read as stored and 7-12 use local XOR decoding. Version 13+ '
@@ -53,15 +53,23 @@ __artifacts_v2__ = {
                  'each reads a different stored value. '
                  'Real logs: version 8 in df020_mavic_pro_ios; versions 9 and 11 in the DF020 Android '
                  'logs with ALEAPP\'s copy of this decoder; the public pydjirecord version 14 example '
-                 'yields no records. Versions 1, 5 to 7, 10 and 12 to 14 are covered by synthetic tests '
-                 'only; versions 2 to 4 are not tested. On iOS only '
-                 'DJI GO 4 has been run; DJI GO and DJI Fly have not.',
-        'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',),
+                 'yields no records, and neither do the three DJI Fly version 14 logs in '
+                 'wilkerson_iphone16_ios26. Versions 1, 5 to 7, 10, 12 and 13 are covered by synthetic '
+                 'tests only; versions 2 to 4 are not tested. In df020_mavic_pro_ios the DJI GO 4 log '
+                 'is named DJIFlightRecord_<date>_[<time>].txt. In wilkerson_iphone16_ios26 the three '
+                 'DJI Fly logs (bundle com.dji.golite) are named FlightRecord_<date>_[<time>].txt in '
+                 'the same folder; the logs record app version 1.20.0 and the installed app is '
+                 '1.21.12. Both names are read. '
+                 'On iOS DJI GO 4 and DJI Fly have been run; DJI GO has not.',
+        'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',
+                  '*/Documents/FlightRecords/FlightRecord_*.txt'),
         'output_types': 'all',
         'artifact_icon': 'map-pin',
         'sample_data': {
             'df020_mavic_pro_ios': 'iOS 10.3.2 | DJI GO 4 (com.dji.go build 2952), TXT v8 | '
                 '16441 rows: 16433 records and 8 Embedded JPEG rows; 4515 OSD positions',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | DJI Fly (com.dji.golite, 1.21.12 installed; logs record app 1.20.0), TXT v14 | '
+                '0 rows: telemetry encrypted, not decoded',
         },
     },
     'djiFlightRecordTxtSummary': {
@@ -70,7 +78,7 @@ __artifacts_v2__ = {
                        'encryption and parsing status.',
         'author': 'Neal (@Blackwater1224), @AlexisBrignoni, Claude',
         'creation_date': '2026-10-23',
-        'last_update_date': '2026-10-23',
+        'last_update_date': '2026-11-17',
         'requirements': 'none',
         'category': 'DJI Drone',
         'notes': 'Metadata is from Details, locally XOR-decoded from Auxiliary Info on version 13+. '
@@ -80,7 +88,7 @@ __artifacts_v2__ = {
                  'Platform show its enum name with the stored number, or Unknown with the number. '
                  'Version 5 and earlier use different identifier offsets, covered by synthetic '
                  'tests only. Takeoff Altitude has no documented unit and is shown as stored. '
-                 'Latitude and Longitude are the Details position; the reference does not say '
+                 'Latitude and Longitude are the Details position, blank when not plottable; the reference does not say '
                  'when in the flight it is taken. In df020_mavic_pro_ios it matched the first OSD '
                  'position with a fix. Video Time is documented in seconds by dji-log-parser; '
                  'pydjirecord reports no consistent unit. In df020_mavic_pro_ios it held 429 while '
@@ -91,14 +99,38 @@ __artifacts_v2__ = {
                  'left unread and Warnings says why. In df020_mavic_pro_ios the log parsed to the '
                  'end of the record area and Warnings is empty. RC Serial Number is empty in that '
                  'log, Street and Area are empty, and Sub Street and City held the same string. '
-                 'Location columns retain the source Details strings when present. On iOS only '
-                 'DJI GO 4 has been run; DJI GO and DJI Fly have not.',
-        'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',),
+                 'Location columns retain the source Details strings when present. '
+                 'In df020_mavic_pro_ios the DJI GO 4 log is named DJIFlightRecord_<date>_[<time>].txt. '
+                 'In wilkerson_iphone16_ios26 the three DJI Fly logs (bundle com.dji.golite) are named '
+                 'FlightRecord_<date>_[<time>].txt in the same folder; the logs record app version '
+                 '1.20.0 and the installed app is 1.21.12. Both names are read. In '
+                 'wilkerson_iphone16_ios26 (three version 14 logs): Log Version held 14 and Status held the encrypted-records text on all 3 rows, '
+                 'and Record Count and Timestamped Records held 0 and Records Not Reported was empty '
+                 'on all 3 rows, because version 14 telemetry is not decoded. Aircraft Name, Product '
+                 'Type, Aircraft Serial Number, Camera Serial Number, RC Serial Number, Battery Serial '
+                 'Number, App Platform and App Version held one value on all 3 rows. Product Type held '
+                 'Unknown (112), a number dji-log-parser v0.5.7 does not name. App Version is the '
+                 'version the log records, which is not the installed app\'s version on that image. '
+                 'Photos Taken held 0 on all 3 rows. Sub Street and City held the same placeholder '
+                 'text on all 3 rows, not a place name, and Street and Area are empty. Each log\'s '
+                 'file name time is 4 hours earlier than its Timestamp, to the second, on all 3 rows, '
+                 'which is consistent with file names written in local time at UTC-4; the file '
+                 'name\'s zone is not documented. Latitude and Longitude are blank when the stored '
+                 'pair is 0.0 and 0.0 or out of range, as on the record rows; one of the 3 rows '
+                 'stored 0.0 and 0.0. Video Time was 15.6 to 77.1 times Total Time on all 3 rows, '
+                 'and Total Distance was under 0.07 on all 3 while Total Time was 88.6 to 390.1 s '
+                 'and Maximum Horizontal Speed 1.7 to 3.3 m/s, so the documented units of those two '
+                 'fields are not supported for these logs. On iOS DJI GO 4 and DJI Fly have been '
+                 'run; DJI GO has not.',
+        'paths': ('*/Documents/FlightRecords/DJIFlightRecord*.txt',
+                  '*/Documents/FlightRecords/FlightRecord_*.txt'),
         'output_types': ['html', 'tsv', 'lava', 'timeline'],
         'artifact_icon': 'file-text',
         'sample_data': {
             'df020_mavic_pro_ios': 'iOS 10.3.2 | DJI GO 4 (com.dji.go build 2952), TXT v8 | '
                 '1 row; 2718 records of undefined types counted; no warnings',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | DJI Fly (com.dji.golite, 1.21.12 installed; logs record app 1.20.0), TXT v14 | '
+                '3 rows; no warnings',
         },
     },
 }
@@ -308,8 +340,8 @@ def parse_txt(data):
     for name, offset in (('sub_street', 0), ('street', 20), ('city', 40), ('area', 60)):
         summary[name] = _text(detail_data, offset, 20)
     lon, lat, distance, duration, height, hs, vs, photos = struct.unpack_from('<ddfifffi', detail_data, 99)
-    summary.update(latitude=_number(lat) if abs(lat) <= 90 else None,
-                   longitude=_number(lon) if abs(lon) <= 180 else None,
+    position = _position(lat, lon)
+    summary.update(latitude=position[0], longitude=position[1],
                    distance_m=_number(distance), duration_s=duration / 1000,
                    max_height_m=_number(height), max_horizontal_speed_ms=_number(hs),
                    max_vertical_speed_ms=_number(vs), photo_count=photos,
@@ -475,9 +507,15 @@ def parse_txt(data):
     return summary, rows
 
 
+# The DJI GO 4 log in df020_mavic_pro_ios is named DJIFlightRecord_<date>_[<time>].txt. The
+# DJI Fly logs (bundle com.dji.golite) in wilkerson_iphone16_ios26 are named
+# FlightRecord_<date>_[<time>].txt in the same folder.
+_TXT_PREFIXES = ('DJIFlightRecord', 'FlightRecord_')
+
+
 def _files(context):
     for path in dict.fromkeys(str(p) for p in context.get_files_found()):
-        if not os.path.basename(path).startswith('DJIFlightRecord') or not path.lower().endswith('.txt'):
+        if not os.path.basename(path).startswith(_TXT_PREFIXES) or not path.lower().endswith('.txt'):
             continue
         if os.path.isdir(path):
             continue

@@ -27,6 +27,26 @@ class IOSDiscoveryTests(unittest.TestCase):
                      'root/Documents/Logs/DJIFlightRecord_test.txt'):
             self.assertFalse(fnmatch.fnmatchcase(path, pattern))
 
+    def test_dji_fly_file_names(self):
+        patterns = module.__artifacts_v2__['djiFlightRecordTxtSummary']['paths']
+        root = 'root/private/var/mobile/Containers/Data/Application/UUID/Documents/FlightRecords'
+        self.assertTrue(any(fnmatch.fnmatchcase(f'{root}/FlightRecord_2026-01-01_[10-00-00].txt', p)
+                            for p in patterns))
+        for path in (f'{root}/si_cache/FlightRecord_2026-01-01_[10-00-00].txt_1000',
+                     f'{root}/MCDatFlightRecords/2026-01-01_10-00-00_FLY001.DAT'):
+            self.assertFalse(any(fnmatch.fnmatchcase(path, p) for p in patterns))
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            found = base / 'Documents/FlightRecords/FlightRecord_2026-01-01_[10-00-00].txt'
+            found.parent.mkdir(parents=True)
+            found.write_bytes(log(6, record(1, osd(), 6)))
+            context = SimpleNamespace(get_files_found=lambda: [str(found)],
+                                      get_relative_path=lambda p: Path(p).relative_to(base).as_posix())
+            with patch.object(module, 'logfunc'):
+                _, rows, sources = module.djiFlightRecordTxtSummary.__wrapped__(context)
+            self.assertEqual(sources, str(found))
+            self.assertEqual(len(rows), 1)
+
     def test_multiple_sources_relative_rows_and_no_evidence_writes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
