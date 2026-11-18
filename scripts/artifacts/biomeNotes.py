@@ -78,7 +78,8 @@ def get_biomeNotes(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
                 record_counter += 1
-                time = (webkit_timestampsconv(protostuff['3']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                time = (webkit_timestampsconv(protostuff['3']) or None)
                 identifier1 = protostuff['1']
                 identifier2 = protostuff['2']
                 message = protostuff['5']

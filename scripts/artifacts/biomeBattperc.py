@@ -115,9 +115,10 @@ def get_biomeBattperc(context):
                     continue
                 
                 activity = (protostuff['1']['1'])
-                timestart = (webkit_timestampsconv(protostuff['2']))
-                timeend = (webkit_timestampsconv(protostuff['3']))
-                timewrite = (webkit_timestampsconv(protostuff['8']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['2']) or None)
+                timeend = (webkit_timestampsconv(protostuff['3']) or None)
+                timewrite = (webkit_timestampsconv(protostuff['8']) or None)
                 
                 percent = (protostuff['4']['5'])
                 actionguid = (protostuff['5'])

@@ -99,8 +99,9 @@ def get_notificationsDuet(context):
                 person_info = p1.get('20')
                 if isinstance(person_info, list):
                     person_info = ', '.join(person_info)
-                data_list.append((segb_time, webkit_timestampsconv(p1.get('1')),
-                                  webkit_timestampsconv(protostuff.get('3')), record.state.name,
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                data_list.append((segb_time, webkit_timestampsconv(p1.get('1')) or None,
+                                  webkit_timestampsconv(protostuff.get('3')) or None, record.state.name,
                                   p1.get('2'), p1.get('3'), p1.get('4'), p1.get('5'), p1.get('8'),
                                   p1.get('12'), p1.get('10'), p1.get('13'), person_info,
                                   protostuff.get('4'), filename, record.data_start_offset))

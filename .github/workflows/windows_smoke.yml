@@ -56,6 +56,11 @@ jobs:
       - name: Convert Cocoa timestamps outside 1970 to 3000
         run: python admin/test/scripts/test_ilapfuncs_conversion_edges.py
 
+      # Artifacts that keep None for an NSDate sentinel, through constructed SEGB, protobuf and plist
+      # input parsed by the artifacts' own readers.
+      - name: Keep sentinel times blank in webkit timestamp callers
+        run: python admin/test/scripts/test_webkit_sentinel_callers.py
+
 
       - name: Open SQLite on a path longer than 260 characters
         run: python admin/test/scripts/test_sqlite_longpath_uri.py

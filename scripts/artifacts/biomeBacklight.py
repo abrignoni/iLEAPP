@@ -75,7 +75,8 @@ def get_biomeBacklight(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
-                timestart = (webkit_timestampsconv(protostuff['1']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['1']) or None)
                 backlight_level = protostuff['2']
 
                 data_list.append((ts, timestart, record.state.name, backlight_level, filename, record.data_start_offset))

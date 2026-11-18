@@ -1940,9 +1940,12 @@ def webkit_timestampsconv(webkittime):
     # two days before datetime.min, so it used to raise ValueError.
     if webkittime in (COCOA_DISTANT_PAST, COCOA_DISTANT_FUTURE):
         return ''
-    # Added to the epoch rather than passed to datetime.fromtimestamp, which depends on the
-    # platform's gmtime (on Windows it fails before 1970 and after the year 3000). Every other
-    # value Python can hold converts; one outside that range, or not finite, raises ValueError.
+    # Accepts Cocoa seconds (since 2001-01-01 UTC) as an int or float; bool counts as an int.
+    # The value is added to the epoch rather than passed to datetime.fromtimestamp, which
+    # depends on the platform's gmtime (on Windows it fails before 1970 and after the year
+    # 3000), so every platform returns the same UTC-aware datetime. A finite number whose
+    # result datetime cannot hold, inf, -inf and nan raise ValueError. Other types, such as
+    # None, str and bytes, raise TypeError, as before.
     try:
         return _UNIX_EPOCH_UTC + timedelta(seconds=webkittime + 978307200)
     except OverflowError as exc:

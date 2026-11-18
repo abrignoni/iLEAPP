@@ -110,8 +110,9 @@ def get_biomeAirpMode(context):
                     logfunc(f'Biome Airplane Mode DKEvent: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
-                timestart = (webkit_timestampsconv(protostuff['2']))
-                timeend = (webkit_timestampsconv(protostuff['3']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['2']) or None)
+                timeend = (webkit_timestampsconv(protostuff['3']) or None)
                 event = protostuff['1']['1']
                 guid = protostuff['5'].decode()
                 value = protostuff['4'].get('4', '') if isinstance(protostuff.get('4'), dict) else ''

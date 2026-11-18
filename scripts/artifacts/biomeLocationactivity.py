@@ -223,8 +223,9 @@ def get_biomeLocationactivity(context):
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
                     activity = (protostuff['1']['1'])
-                    timestart = (webkit_timestampsconv(protostuff['2']))
-                    timeend = (webkit_timestampsconv(protostuff['3']))
+                    # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                    timestart = (webkit_timestampsconv(protostuff['2']) or None)
+                    timeend = (webkit_timestampsconv(protostuff['3']) or None)
 
                     bundle = (protostuff['4']['3'])
                     actionguid = (protostuff['5'])
@@ -233,7 +234,7 @@ def get_biomeLocationactivity(context):
                     source_bundle = _text(source.get('2'))
                     metadata = _metadata(protostuff.get('7'))
 
-                    timewrite = (webkit_timestampsconv(protostuff['8']))
+                    timewrite = (webkit_timestampsconv(protostuff['8']) or None)
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeLocationactivity record due to protobuf decode error: {ex} | "
                             f"File: {context.get_relative_path(file_found)} | "
