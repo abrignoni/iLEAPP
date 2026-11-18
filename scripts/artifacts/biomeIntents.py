@@ -17,10 +17,14 @@ __artifacts_v2__ = {
                  "'Unsupported intent' there. Records whose plist cannot be read, or whose intent "
                  "holds no payload, are logged and skipped, and records in the Deleted SEGB state are"
                  " not reported. direction (as stored) reports the direction key of the record's "
-                 "INInteraction plist as decoded, without assigning names. INInteraction.h in "
+                 "INInteraction plist as decoded. INInteraction.h in "
                  "Intents.framework (macOS 27.2 SDK) defines INInteractionDirection as "
                  "0 = Unspecified, 1 = Outgoing, 2 = Incoming, and a synthetic INInteraction "
-                 "archived on macOS 27.2.1 stored that value under the direction key. The "
+                 "archived on macOS 27.2.1 stored that value under the direction key. Direction "
+                 "is that name, given only when the stored value is the integer 0, 1 or 2, and "
+                 "blank otherwise; it was not reported before. On the tested images the 3,257 "
+                 "rows held 2 (Incoming) on 2,283, 1 (Outgoing) on 697 and 0 (Unspecified) on "
+                 "277. The "
                  "BMAppIntent class (BiomeLibrary.framework, macOS 27.2.1, 26B131) names its own "
                  "field 11, interactionDirection, with 1 = Incoming, 2 = Outgoing, "
                  "3 = Bidirectional, in data versions 11 and 12 alike. Those names are not applied: "
@@ -67,6 +71,9 @@ from datetime import datetime as _dt
 _RECORD_ERRORS = (DecodeError, struct.error, AttributeError, KeyError, ValueError,
                   TypeError, IndexError, UnicodeDecodeError)
 
+
+# INInteractionDirection, INInteraction.h in Intents.framework (macOS 27.2 SDK).
+DIRECTIONS = {0: 'Unspecified', 1: 'Outgoing', 2: 'Incoming'}
 
 _CONTROL_MAP = str.maketrans({'\t': '\\t', '\r': '\\r', '\n': '\\n', '\x00': ''})
 
@@ -148,6 +155,9 @@ def _parse_record(protostuff, filename, offset):
     groupid = deserialized_plist.get('groupIdentifier', '')
 
     direction = deserialized_plist.get('direction')
+    # Named only for a plist integer; a bool, real or string is equal to 0, 1 or 2 in Python
+    # but is not an INInteractionDirection value, so it gets no name.
+    direction_name = DIRECTIONS.get(direction, '') if type(direction) is int else ''
 
     raw_intent = _intent_payload(deserialized_plist)
     if raw_intent is None:
@@ -263,16 +273,16 @@ def _parse_record(protostuff, filename, offset):
         datoshtml = 'Intent data could not be parsed.'
 
     row = (startdate, enddate, durationinterval, donatedbysiri, appid, classname, action,
-           direction, groupid, _delimited_safe(datos), filename, offset)
+           direction_name, direction, groupid, _delimited_safe(datos), filename, offset)
     row_html = (startdate, enddate, durationinterval, donatedbysiri, appid, classname, action,
-                direction, groupid, datoshtml, filename, offset)
+                direction_name, direction, groupid, datoshtml, filename, offset)
     return row, row_html
 
 
 @artifact_processor
 def get_biomeIntents(context):
     data_headers = (('Timestamp', 'datetime'), ('End Date', 'datetime'), 'Duration Interval', 'Donated by Siri',
-                         'App ID', 'Classname', 'Action', 'direction (as stored)', 'Group ID', 'Data', 'Filename',
+                         'App ID', 'Classname', 'Action', 'Direction', 'direction (as stored)', 'Group ID', 'Data', 'Filename',
                          'Protobuf data Offset')
     files_found = context.get_files_found()
     files_found = sorted(files_found)

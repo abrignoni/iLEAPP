@@ -2,18 +2,23 @@ __artifacts_v2__ = {
     "get_biomeSiriRemembersAssistantSuggestions": {
         "name": "Biome - Siri Remembers Assistant Suggestions",
         "description": "Parses suggestion events recorded in the "
-                       "Siri.Remembers.AssistantSuggestions biome stream, with the suggestion "
-                       "names carried in each record, reported as stored.",
+                       "Siri.Remembers.AssistantSuggestions biome stream, with the suggestion names carried in each record, joined with '; '.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Shares the intent record shape of the other Siri.Remembers streams, with the "
-                 "suggestion names carried as a list of entities rather than a single value. "
+        "notes": ("The record has the interaction and entities fields that the Siri.Remembers AudioHistory, CallHistory, InteractionHistory and MessageHistory classes also have. "
+                 "Field types are those of the BMSiriAssistantSuggestions class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Suggestions and Suggestion Types are the identifier and type of each "
+                 "entity in entities[].entities[], a repeated list. Each non-empty identifier is reported, and each distinct type is reported once per record. The string fields are now pinned as strings so they are not decoded as nested messages. Before, the record "
+                 "was decoded without a schema, and on the tested images 3 entities on 3 written "
+                 "records of hill_iphone15pro_ios26 were left out of Suggestions (25 names "
+                 "reported before, 28 now, over 13 written records). "
                  "Records are read from both the local and remote subfolders; the Sync Origin "
-                 "column reports which one a record came from. The local/remote naming is the "
-                 "stream's own folder layout; cross-device sync semantics are not documented.",
+                 "column reports which one a record came from. On the tested images Sync Origin read Local on 12 of the 13 written records and Remote on 1 (felix_ios17). The local/remote naming is the "
+                 "stream's own folder layout; cross-device sync semantics are not documented."),
         "paths": (
             '*/streams/*/Siri.Remembers.AssistantSuggestions/local/*',
             '*/streams/*/Siri.Remembers.AssistantSuggestions/remote/*',
@@ -40,6 +45,21 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+
+
+# Field types pinned from BMSiriAssistantSuggestions in BiomeLibrary.framework (macOS 27.2.1,
+# 26B131) so that a string whose bytes happen to parse as protobuf stays a string.
+# Unlisted fields decode schema-less.
+_STR = {'type': 'bytes', 'name': ''}
+TYPESS = {
+    '1': {'type': 'message', 'name': '', 'message_typedef': {   # interaction
+        '1': _STR, '2': _STR, '3': _STR, '4': _STR, '8': {'type': 'fixed64', 'name': ''},
+        '11': _STR, '12': _STR, '13': _STR}},
+    '2': {'type': 'message', 'name': '', 'message_typedef': {   # entities[]
+        '1': _STR,
+        '2': {'type': 'message', 'name': '', 'message_typedef': {   # entities[].entities[]
+            '1': _STR, '2': _STR, '4': _STR, '5': _STR}}}},
+}
 
 
 def _to_str(value):
@@ -72,7 +92,8 @@ def _as_list(value):
 
 
 def _suggestions(protostuff):
-    """Suggestion names sit in the entity list hung off the parameter slot."""
+    """Suggestion names sit in entities[].entities[] (identifier and type); every inner
+    entity of every parameter is kept."""
     names, kinds = [], []
     for slot in _as_list(protostuff.get('2')):
         if not isinstance(slot, dict):
@@ -114,7 +135,7 @@ def get_biomeSiriRemembersAssistantSuggestions(context):
                 continue
         else:
             continue
-        origin = _sync_origin(file_found)
+        origin = _sync_origin(context.get_relative_path(file_found))
 
         source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
@@ -122,7 +143,7 @@ def get_biomeSiriRemembersAssistantSuggestions(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, TYPESS)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'Siri Remembers Assistant Suggestions: could not decode record '
                             f'at offset {record.data_start_offset} in {filename}: {ex}')

@@ -2,16 +2,25 @@ __artifacts_v2__ = {
     "get_biomeAppIntentsTranscript": {
         "name": "Biome - App Intents Transcript",
         "description": "Parses records from the App.Intents.Transcript biome stream: a "
-                       "bundle identifier, an intent class name, parameter names and entity "
-                       "titles. The record is decoded without a schema and the field names "
-                       "are working labels.",
+                       "bundle identifier, the action identifier, its parameter identifiers "
+                       "and the display titles of the parameter values and of the predictions.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Each record also embeds an NSKeyedArchiver plist that this artifact does "
-                 "not read.",
+        "notes": ("Field names are those of the BMAppIntentInvocation class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Intent Class is the identifier of action (field 5), or of resolvedAction "
+                 "(field 6) when the record holds no action. Before, a record with no field 5 was reported with Intent Class, Parameters, Entity Types, the titles and the URL blank: on the tested images 72 of the 479 "
+                 "written records held field 6 only, and they now carry it. "
+                 "A display title is a StaticDeferredLocalizedString with a key (field 1) and a "
+                 "defaultValue (field 2). Parameter Display Titles is the defaultValue of "
+                 "parameters[].value.displayRepresentation.title and Prediction Display Titles "
+                 "is the defaultValue of predictions[].displayRepresentation.title. They were "
+                 "reported before as Entity Titles and Phrase Template, read from the key. On "
+                 "the tested images the key and defaultValue held the same text on each of the 312 parameter titles reported (572 counting action and resolvedAction together) and on 264 of 264 prediction titles, so the key is not reported. "
+                 "Title Bundle URL is the bundleURL of the parameter title (field 4), reported before as App URL; on the tested images it was set on 288 of the 479 written rows, and each held a file URL. On the tested images 302 of the 479 written records embed an NSKeyedArchiver plist, which this artifact does not read. Intent Timestamp is executionDate (field 4), which the class reads as seconds since 1970-01-01 UTC."),
         "paths": ('*/streams/*/App.Intents.Transcript/local/*',),
         "output_types": "standard",
         "artifact_icon": "bolt",
@@ -35,6 +44,32 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+
+
+# Field types pinned from BMAppIntentInvocation in BiomeLibrary.framework (macOS 27.2.1, 26B131)
+# along the paths read below, so that a string whose bytes happen to parse as protobuf stays a
+# string. Unlisted fields decode schema-less.
+_STR = {'type': 'bytes', 'name': ''}
+_LOCALIZED = {'type': 'message', 'name': '', 'message_typedef': {   # StaticDeferredLocalizedString
+    '1': _STR, '2': _STR, '3': _STR, '4': _STR}}                   # key, defaultValue, table, bundleURL
+_DISPLAY = {'type': 'message', 'name': '', 'message_typedef': {     # DisplayRepresentation
+    '1': _LOCALIZED, '2': _LOCALIZED}}                               # title, subtitle
+_VALUE = {'type': 'message', 'name': '', 'message_typedef': {       # BMAppIntentInvocationValue
+    '1': {'type': 'message', 'name': '', 'message_typedef': {       # valueType
+        '3': {'type': 'message', 'name': '', 'message_typedef': {'1': _STR}}}},   # entity.identifier
+    '2': _STR,                                                       # value (NSData)
+    '3': _DISPLAY}}                                                  # displayRepresentation
+_ACTION = {'type': 'message', 'name': '', 'message_typedef': {      # BMAppIntentInvocationAction
+    '1': _STR,                                                       # identifier
+    '7': {'type': 'message', 'name': '', 'message_typedef': {       # parameters[]
+        '1': _STR, '2': _VALUE}}}}
+TYPESS = {
+    '1': _STR,                                                       # bundleID
+    '5': _ACTION,                                                    # action
+    '6': _ACTION,                                                    # resolvedAction
+    '8': {'type': 'message', 'name': '', 'message_typedef': {       # predictions[]
+        '1': _STR, '2': _DISPLAY}},
+}
 
 
 def _to_str(value):
@@ -67,7 +102,8 @@ def _as_list(value):
 
 
 def _intent_details(intent):
-    """Pull parameter names, entity types and display titles out of an intent message."""
+    """Pull parameter identifiers, entity type identifiers, and the defaultValue and
+    bundleURL of each parameter value's displayRepresentation.title out of an action."""
     params, entity_types, titles, urls = [], [], [], []
     for slot in _as_list(intent.get('7')):
         if not isinstance(slot, dict):
@@ -89,10 +125,10 @@ def _intent_details(intent):
         if isinstance(display, dict):
             inner = display.get('1', {})
             if isinstance(inner, dict):
-                title = _to_str(inner.get('1', b''))
+                title = _to_str(inner.get('2', b''))   # defaultValue
                 if title:
                     titles.append(title)
-                url = _to_str(inner.get('4', b''))
+                url = _to_str(inner.get('4', b''))     # bundleURL
                 if url:
                     urls.append(url)
     return params, entity_types, titles, urls
@@ -120,13 +156,14 @@ def get_biomeAppIntentsTranscript(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, TYPESS)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'App Intents Transcript: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
-                intent = protostuff.get('5', {})
+                # action (field 5), or resolvedAction (field 6) when the record holds no action.
+                intent = protostuff.get('5')
                 if not isinstance(intent, dict):
                     intent = protostuff.get('6', {})
                 if not isinstance(intent, dict):
@@ -134,21 +171,25 @@ def get_biomeAppIntentsTranscript(context):
 
                 params, entity_types, titles, urls = _intent_details(intent)
 
-                # Field 8 carries the phrase template shown for the intent.
-                template = ''
-                phrase = protostuff.get('8', {})
-                if isinstance(phrase, dict):
-                    display = phrase.get('2', {})
+                # predictions[].displayRepresentation.title.defaultValue (field 8.2.1.2).
+                prediction_titles = []
+                for prediction in _as_list(protostuff.get('8')):
+                    if not isinstance(prediction, dict):
+                        continue
+                    display = prediction.get('2', {})
                     if isinstance(display, dict):
                         inner = display.get('1', {})
                         if isinstance(inner, dict):
-                            template = _to_str(inner.get('1', b''))
+                            title = _to_str(inner.get('2', b''))
+                            if title:
+                                prediction_titles.append(title)
 
                 data_list.append((ts, _unix_double(protostuff.get('4')), record.state.name,
                                   _to_str(protostuff.get('1', b'')),
                                   _to_str(intent.get('1', b'')),
                                   '; '.join(params), '; '.join(entity_types),
-                                  '; '.join(titles), template, '; '.join(sorted(set(urls))),
+                                  '; '.join(titles), '; '.join(prediction_titles),
+                                  '; '.join(sorted(set(urls))),
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
@@ -157,6 +198,7 @@ def get_biomeAppIntentsTranscript(context):
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Intent Timestamp', 'datetime'),
                     'SEGB State', 'Bundle ID', 'Intent Class', 'Parameters', 'Entity Types',
-                    'Entity Titles', 'Phrase Template', 'App URL', 'Filename', 'Offset')
+                    'Parameter Display Titles', 'Prediction Display Titles',
+                    'Title Bundle URL', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
