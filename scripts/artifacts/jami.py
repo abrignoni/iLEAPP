@@ -17,43 +17,57 @@ __artifacts_v2__ = {
                  "content) and leaves out any that fail; on the tested images all 89 objects "
                  "passed and the same 46 commits came out as git itself lists, with the same "
                  "author device, time, parents and message. Commit messages are JSON whose keys "
-                 "and types are those jami-daemon defines in src/jamidht/commit_message.h "
-                 "(25fadf1a, 2026); the iOS app version (Jami 4.20 on both tested images) is not "
-                 "mapped to a daemon commit. Type is the type key as stored. Message is the body "
-                 "of text/plain commits: an edit carries Edit Of, and the source says an edit with "
-                 "an empty body is a deletion; a reaction carries React To. Other Fields holds any "
-                 "key this artifact does not show in its own column, and held nothing on the "
-                 "tested images. Timestamp is the commit time, which the daemon reads as the "
-                 "message time (git_commit_time, src/jamidht/conversationrepository.cpp line "
-                 "2969); the author time equals it on all 46 commits. Author Device is the "
-                 "commit's author email, which the daemon uses as the device ID. Author Account is "
-                 "the userId of the issuer of that device's certificate in the repository's "
-                 "devices/ folder, which is how the daemon resolves a device to an account "
-                 "(uriFromDevice, conversationrepository.cpp line 517); the certificate chain and "
-                 "the commit signatures are not verified here. On all 7 device certificates of the "
-                 "tested images that issuer is a member or admin of the same conversation. Account "
-                 "is the issuer of the account's own ring_device.crt, and Direction compares it "
-                 "with Author Account. Author Name (as stored) is the commit's author name: it "
-                 "equals Author Device on the 34 outgoing commits and is 4 characters on the 12 "
-                 "incoming ones, and what it holds is not established. Attachment is the file the "
-                 "daemon keeps at conversation_data/<conversation>/<commit id>_<tid> plus the "
-                 "display name's extension (getFileId, src/data_transfer.cpp line 94), so the link "
-                 "is recorded, not inferred; all 11 file transfers on the tested images resolved, "
-                 "and File Hash Matches compares the file's SHA3-512 with the stored sha3sum, "
-                 "which matched on all 11. The same folders hold 11 more files under plain names; "
-                 "each is byte-identical, by SHA3-512, to a file a transfer commit records, and "
-                 "they are not reported separately. Reachable From A Branch says whether the "
-                 "commit can be reached from a branch head or HEAD, and held Yes on every row of "
-                 "both tested images; Account held one value on every row of each image. Reply To "
-                 "and Call Duration (ms), Call Peer and Call End Reason are empty on every row of "
-                 "both tested images, which hold no replies and no call history commits; Edit Of "
-                 "is empty on hill_iphone15pro_ios26 and React To on wilkerson_iphone16_ios26. "
-                 "Conversation Mode names the stored mode by the daemon's ConversationMode values. "
-                 "Not read here: the account's legacy <account>.db, whose conversations and "
-                 "interactions tables are empty on both images; the msgpack files contacts, "
-                 "convInfo and convRequests and the Library/Caches message stores; profiles/*.vcf "
-                 "and each conversation's profile.vcf; config.yml, dring.yml and the account "
-                 "archive archive.gz; and the certificate and key files.",
+                 "and type values are those jami-daemon defines in src/jamidht/commit_message.h "
+                 "(25fadf1a, 2026). The source says merge commits are not JSON; for a commit that "
+                 "is not JSON, Type is empty and Message holds the commit message as stored. The "
+                 "tested images hold no merge commits. The iOS app version (Jami 4.20 on both "
+                 "tested images) is not mapped to a daemon commit. Type is the type key as stored. "
+                 "Message is the body of text/plain commits; the body of any other type is in "
+                 "Other Fields. An edit carries Edit Of, and the source says an edit with an empty "
+                 "body is a deleted message or a removed reaction; a reaction carries React To. "
+                 "Other Fields holds, as JSON, every key that has no column here: on the tested "
+                 "images that was the tid and sha3sum of the 11 file transfers. Timestamp is the "
+                 "commit time, which the daemon reads as the message time (git_commit_time, "
+                 "src/jamidht/conversationrepository.cpp line 2969); the author time equals it on "
+                 "all 46 commits. Author Device is the commit's author email, which the daemon "
+                 "uses as the device ID (conversationrepository.cpp line 2985). Author Account is "
+                 "the userId of the issuer of that device's certificate file in the repository's "
+                 "devices/ folder. The daemon takes the same issuer UID from the certificate in "
+                 "the commit's tree, after verifying it (uriFromDeviceAtCommit, "
+                 "conversationrepository.cpp line 553; getIssuerUID, line 598); the certificate "
+                 "chain and the commit signatures are not verified here. When the device's "
+                 "certificate file is not in the folder, Author Account and Direction are empty. "
+                 "On all 7 device certificates of the tested images that issuer is a member or "
+                 "admin of the same conversation. Account is the issuer of the account's own "
+                 "ring_device.crt, and Direction compares it with Author Account, so Outgoing "
+                 "means the same account on any of its devices. Author Name (as stored) is the "
+                 "commit's author name: it equals Author Device on the 34 outgoing commits and is "
+                 "4 characters on the 12 incoming ones, and what it holds is not established. "
+                 "Attachment is the file the daemon keeps at "
+                 "conversation_data/<conversation>/<commit id>_<tid> plus the display name's "
+                 "extension (getFileId, src/data_transfer.cpp line 94), so the link follows the "
+                 "daemon's own naming rule from the commit ID and the recorded tid. All 11 file "
+                 "transfers on the tested images resolved; all 11 were outgoing, and no incoming "
+                 "transfer was on the tested images. File Hash Matches compares the file's "
+                 "SHA3-512 with the stored sha3sum, which matched on all 11. Files under "
+                 "conversation_data that no commit names are reported by Jami - Conversation Files "
+                 "Not Named By A Commit. URI is the uri key as stored; its meaning depends on Type "
+                 "(the member a member commit names, by the source). Reachable From A Branch says "
+                 "whether the commit can be reached from a local branch head or HEAD; "
+                 "remote-tracking refs are not counted. Reachable From A Branch held Yes on every "
+                 "row of both tested images, and Account held one value on every row of each "
+                 "image. Reply To, Call Duration (ms), Call Peer and Call Reason (as stored) are "
+                 "empty on every row of both tested images, which hold no replies and no call "
+                 "history commits; Edit Of is empty on hill_iphone15pro_ios26 and React To on "
+                 "wilkerson_iphone16_ios26. Conversation Mode names the stored mode by the "
+                 "daemon's ConversationMode values. Not read here: the account's legacy "
+                 "<account>.db, whose conversations and interactions tables are empty on both "
+                 "images; the msgpack files contacts, convInfo and convRequests and the "
+                 "Library/Caches message stores; profiles/*.vcf and each conversation's "
+                 "profile.vcf; config.yml, dring.yml and the account archive archive.gz; "
+                 "knownDevices, syncingMetadatas and incomingTrustRequests; the state files under "
+                 "conversation_data (status, members, preferences, activeCalls, hostedCalls); and "
+                 "the certificate and key files.",
         "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
                   '*/Containers/Shared/AppGroup/*/Documents/*/ring_device.crt',
                   '*/Containers/Shared/AppGroup/*/Documents/*/conversations/*',
@@ -63,7 +77,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "hill_iphone15pro_ios26": "iOS 26.3.1 | Jami 4.20 | 21 rows, 3 conversations, 1 file",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | Jami 4.20 | 25 rows, 2 conversations, 10 files",
-            "iphone11_ios17": "iOS 17.3 | 0 rows, no Jami container",
+            "iphone11_ios17": "iOS 17.3 | 0 rows, no Jami app group container",
         },
         "data_views": {
             "conversation": {
@@ -75,6 +89,45 @@ __artifacts_v2__ = {
                 "senderColumn": "Author Account",
                 "mediaColumn": "Attachment",
             }
+        },
+    },
+    "jami_unlinked_files": {
+        "name": "Jami - Conversation Files Not Named By A Commit",
+        "description": "Files in the Jami account's conversation_data folders whose names are "
+                       "not the file id of any transfer commit, with any transfer commit whose "
+                       "recorded SHA3-512 they match.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-17",
+        "last_update_date": "2026-11-17",
+        "requirements": "none",
+        "category": "Jami",
+        "notes": "One row per file under Documents/<account>/conversation_data/ in the Jami app "
+                 "group container whose name is not the file id (<commit id>_<tid>) of a transfer "
+                 "commit in the same account, which Jami - Conversation History already shows as "
+                 "Attachment. The daemon's state files beside each conversation's files (status, "
+                 "members, preferences, activeCalls, hostedCalls) are left out. Matches A Transfer "
+                 "Commit (SHA3-512) compares the file's SHA3-512 with the sha3sum every transfer "
+                 "commit of the account records, and Matching Commit ID and Matching Conversation "
+                 "ID name the commits it matches. Folder is the conversation folder the file sits "
+                 "in, and is empty for a file directly under conversation_data. On "
+                 "hill_iphone15pro_ios26 1 file in a conversation folder matched a transfer. On "
+                 "wilkerson_iphone16_ios26 the 10 files in a conversation folder all matched a "
+                 "transfer, and of the 8 files directly under conversation_data 2 matched a "
+                 "transfer and 6 matched none. Why a file sits there without a commit naming it is "
+                 "not established here: the commits on the device do not record it. A file is "
+                 "shown when it starts with a JPEG, PNG or GIF signature or has a common photo, "
+                 "video or audio extension. Account is the issuer of the account's own "
+                 "ring_device.crt, and Account held one value on every row of each tested image.",
+        "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
+                  '*/Containers/Shared/AppGroup/*/Documents/*/ring_device.crt',
+                  '*/Containers/Shared/AppGroup/*/Documents/*/conversations/*',
+                  '*/Containers/Shared/AppGroup/*/Documents/*/conversation_data/*'),
+        "output_types": "standard",
+        "artifact_icon": "file",
+        "sample_data": {
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | Jami 4.20 | 1 row, matched a transfer",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | Jami 4.20 | 18 rows, 6 matched no transfer",
+            "iphone11_ios17": "iOS 17.3 | 0 rows, no Jami app group container",
         },
     },
 }
@@ -100,6 +153,11 @@ _CONVERSATION = re.compile(
 _DATA = re.compile(
     r'^(?P<group>.*/Containers/Shared/AppGroup/[^/]+)/Documents/(?P<account>[^/]+)/'
     r'conversation_data/(?P<conversation>[0-9a-f]{40})/(?P<name>[^/]+)$')
+_ANY_DATA = re.compile(
+    r'^(?P<group>.*/Containers/Shared/AppGroup/[^/]+)/Documents/(?P<account>[^/]+)/'
+    r'conversation_data/(?P<rest>.+)$')
+# Files the daemon keeps beside a conversation's transferred files; they are not transfers.
+_STATE_FILES = ('status', 'members', 'preferences', 'activeCalls', 'hostedCalls')
 _DEVICE_CERT = re.compile(
     r'^(?P<group>.*/Containers/Shared/AppGroup/[^/]+)/Documents/(?P<account>[^/]+)/ring_device\.crt$')
 _LOOSE = re.compile(r'^\.git/objects/([0-9a-f]{2})/([0-9a-f]{38})$')
@@ -114,9 +172,10 @@ _REF_DELTA = 7
 # the source says are persisted in initial commits.
 _MODES = {0: 'One to one', 1: 'Admin invites only', 2: 'Invites only', 3: 'Public',
           4: 'Document', 5: 'Feed'}
-_SHOWN_KEYS = ('type', 'body', 'reply-to', 'react-to', 'edit', 'action', 'uri', 'displayName',
-               'totalSize', 'sha3sum', 'tid', 'duration', 'to', 'reason', 'mode', 'invited')
+_SHOWN_KEYS = ('type', 'reply-to', 'react-to', 'edit', 'action', 'uri', 'displayName',
+               'totalSize', 'duration', 'to', 'reason', 'mode', 'invited')
 _IMAGE_SIGNATURES = (b'\xff\xd8\xff', b'\x89PNG\r\n\x1a\n', b'GIF87a', b'GIF89a')
+_MEDIA_EXTENSIONS = ('.jpeg', '.jpg', '.png', '.gif', '.heic', '.mov', '.mp4', '.m4a', '.ogg', '.wav')
 
 
 class _GitObjects:
@@ -421,10 +480,10 @@ def _attachment(data_files, key, commit_name, body):
     return check_in_media(path, os.path.basename(path)), check
 
 
-@artifact_processor
-def jami_conversations(context):
-    '''One row per commit object of every Jami conversation repository.'''
-    files_found = sorted(dict.fromkeys(str(found).replace('\\', '/') for found in context.get_files_found()))
+def _collect(context):
+    '''(files found, Jami group containers, repositories, transfer files, own accounts).'''
+    files_found = sorted(dict.fromkeys(str(found).replace('\\', '/')
+                                       for found in context.get_files_found()))
     groups = _jami_groups(files_found)
     repositories, data_files, own = {}, {}, {}
     for path in files_found:
@@ -443,52 +502,68 @@ def jami_conversations(context):
         match = _DEVICE_CERT.match(path)
         if match and match.group('group') in groups:
             own[(match.group('group'), match.group('account'))] = _certificate_issuer(path)
+    return files_found, groups, repositories, data_files, own
 
+
+def _repository_commits(files):
+    '''({commit name: (headers, message)}, reachable names, objects) for one repository.'''
+    objects = _GitObjects(files)
+    commits = {}
+    for name in sorted(objects.names()):
+        found = objects.get(name)
+        if found and found[0] == b'commit':
+            commits[name] = _commit(found[1])
+    reachable, stack = set(), [name for name in _refs(files) if name in commits]
+    while stack:
+        name = stack.pop()
+        if name in reachable:
+            continue
+        reachable.add(name)
+        stack.extend(parent for parent in commits[name][0].get('parent', []) if parent in commits)
+    return commits, reachable, objects
+
+
+def _body(message):
+    try:
+        body = json.loads(message)
+    except ValueError:
+        body = None
+    return body if isinstance(body, dict) else {'type': '', 'body': message}
+
+
+@artifact_processor
+def jami_conversations(context):
+    '''One row per commit object of every Jami conversation repository.'''
+    _, _, repositories, data_files, own = _collect(context)
     data_list, sources = [], []
     for key in sorted(repositories):
         group, account, conversation = key
         files = repositories[key]
-        objects = _GitObjects(files)
-        heads = _refs(files)
+        commits, reachable, objects = _repository_commits(files)
         devices = {}
         for rest, path in files.items():
             if rest.startswith('devices/') and rest.endswith('.crt'):
                 devices[rest[len('devices/'):-len('.crt')]] = _certificate_issuer(path)
-        commits = {}
-        for name in sorted(objects.names()):
-            found = objects.get(name)
-            if found and found[0] == b'commit':
-                commits[name] = _commit(found[1])
-        reachable, stack = set(), [name for name in heads if name in commits]
-        while stack:
-            name = stack.pop()
-            if name in reachable:
-                continue
-            reachable.add(name)
-            stack.extend(parent for parent in commits[name][0].get('parent', []) if parent in commits)
         if commits:
             sources.append(files.get('.git/HEAD') or next(iter(files.values())))
         own_uri = own.get((group, account), '')
         for name, (headers, message) in commits.items():
             author_name, device, _ = _signature((headers.get('author') or [''])[0])
             _, _, seconds = _signature((headers.get('committer') or [''])[0])
-            try:
-                body = json.loads(message)
-            except ValueError:
-                body = None
-            if not isinstance(body, dict):
-                body = {'type': '', 'body': message}
+            body = _body(message)
             author = devices.get(device, '')
             direction = ''
             if author and own_uri:
                 direction = 'Outgoing' if author == own_uri else 'Incoming'
             media, hash_check = _attachment(data_files, key, name, body)
-            other = {k: v for k, v in body.items() if k not in _SHOWN_KEYS}
+            text = body.get('type') in ('text/plain', '')
+            other = {k: v for k, v in body.items()
+                     if k not in _SHOWN_KEYS and not (k == 'body' and text)}
             data_list.append((
                 datetime.fromtimestamp(seconds, timezone.utc) if seconds is not None else '',
                 direction,
                 author,
-                _as_text(body.get('body')) if body.get('type') in ('text/plain', '') else '',
+                _as_text(body.get('body')) if text else '',
                 media,
                 conversation,
                 device,
@@ -520,8 +595,62 @@ def jami_conversations(context):
     data_headers = (
         ('Timestamp', 'datetime'), 'Direction', 'Author Account', 'Message', ('Attachment', 'media'),
         'Conversation ID', 'Author Device', 'Type', 'File Name', 'File Size (bytes)',
-        'File Hash Matches', 'Reply To', 'React To', 'Edit Of', 'Member Action', 'Member URI',
-        'Call Duration (ms)', 'Call Peer', 'Call End Reason', 'Conversation Mode', 'Invited',
+        'File Hash Matches', 'Reply To', 'React To', 'Edit Of', 'Member Action', 'URI',
+        'Call Duration (ms)', 'Call Peer', 'Call Reason (as stored)', 'Conversation Mode', 'Invited',
         'Other Fields', 'Reachable From A Branch', 'Commit ID', 'Parent Commits',
         'Author Name (as stored)', 'Account')
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def jami_unlinked_files(context):
+    '''Files in conversation_data that no transfer commit names by its file id.'''
+    files_found, groups, repositories, _, own = _collect(context)
+    named, hashes = set(), {}
+    for (group, account, conversation), files in repositories.items():
+        commits, _, _ = _repository_commits(files)
+        for name, (_, message) in commits.items():
+            body = _body(message)
+            if body.get('type') != 'application/data-transfer+json':
+                continue
+            tid = body.get('tid')
+            if isinstance(tid, str) and tid:
+                named.add((group, account, conversation, f'{name}_{tid}'))
+            stored = body.get('sha3sum')
+            if isinstance(stored, str) and stored:
+                hashes.setdefault((group, account, stored.lower()), []).append((conversation, name))
+    data_list, sources = [], []
+    for path in files_found:
+        match = _ANY_DATA.match(path)
+        if not match or match.group('group') not in groups or os.path.isdir(path):
+            continue
+        group, account, rest = match.group('group'), match.group('account'), match.group('rest')
+        folder, _, file_name = rest.rpartition('/')
+        if file_name in _STATE_FILES and folder:
+            continue
+        if (group, account, folder, file_name.split('.', 1)[0]) in named:
+            continue
+        try:
+            with open(path, 'rb') as handle:
+                content = handle.read()
+        except OSError as error:
+            logfunc(f'Jami: could not read {path}: {error}')
+            continue
+        matches = hashes.get((group, account, hashlib.sha3_512(content).hexdigest()), [])
+        sources.append(path)
+        data_list.append((
+            check_in_media(path, file_name) if content.startswith(_IMAGE_SIGNATURES) or
+            os.path.splitext(file_name)[1].lower() in _MEDIA_EXTENSIONS else '',
+            file_name,
+            folder,
+            len(content),
+            'Yes' if matches else 'No',
+            ', '.join(commit for _, commit in matches),
+            ', '.join(dict.fromkeys(conversation for conversation, _ in matches)),
+            own.get((group, account), ''),
+        ))
+    data_headers = (
+        ('File', 'media'), 'File Name', 'Folder', 'File Size (bytes)',
+        'Matches A Transfer Commit (SHA3-512)', 'Matching Commit ID', 'Matching Conversation ID',
+        'Account')
     return data_headers, data_list, '\n'.join(sources)
