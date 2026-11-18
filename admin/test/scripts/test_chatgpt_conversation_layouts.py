@@ -63,7 +63,7 @@ class ChatGPTConversationLayoutsTest(unittest.TestCase):
     def test_legacy_folder_is_read_from_the_marked_container(self):
         files = [self.marker, self.legacy]
         self.assertEqual([r[3] for r in self.rows(module.chatgptConversationsMetadata, files)], ['c1'])
-        self.assertEqual([(r[2], r[7]) for r in self.rows(module.chatgptConversations, files)],
+        self.assertEqual([(r[2], r[8]) for r in self.rows(module.chatgptConversations, files)],
                          [('m1', 'text')])
 
     def test_legacy_folder_without_a_marker_is_not_read(self):
