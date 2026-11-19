@@ -3,13 +3,21 @@ __artifacts_v2__ = {
     "tiktok_messages": {
         "name": "TikTok - Messages",
         "description": "Extracts TikTok message data from the ChatFiles databases",
-        "author": "James Habben, John Hyla",
+        "author": "James Habben, John Hyla, @AlexisBrignoni, Codex",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-10-10",
+        "last_update_date": "2026-11-19",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
-            "Messages are extracted from TIMMessageORM. Contact details are joined from "
+            "Messages are extracted from TIMMessageORM. Message is the content JSON's text "
+            "field when content is valid JSON; non-JSON content is reported verbatim. "
+            "Valid JSON without a text field leaves Message blank. Message Type and "
+            "Deleted are the raw stored type and deleted values, blank when the column "
+            "is absent or NULL; their meanings are not inferred. On iphone11_ios17 one "
+            "row stores the non-JSON content placeholder, type 15 and deleted=1; four "
+            "other rows retain text with deleted=1. These flags do not establish how "
+            "or by whom a message was deleted, or what a placeholder originally held. "
+            "Contact details are joined from "
             "the AwemeContacts tables of the AwemeIM.db in the chat database's own app "
             "container. A chat database with no TikTok-owned AwemeIM.db in its own container "
             "is reported without contact details and is not joined to another container's "
@@ -77,7 +85,7 @@ __artifacts_v2__ = {
             "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 63 rows",
             "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 15 rows",
-            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 50 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 50 rows, including one non-JSON placeholder and five deleted=1 flags",
             "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 5 rows",
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 44 rows",
             "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 6 rows",
@@ -589,6 +597,9 @@ def tiktok_messages(context):
                             TIMMessageORM.belongingConversationIdentifier
                         AND CAST(TIMParticipantORM.userID AS TEXT) = {_quote_literal(account_id)}
                 )"""
+        message_columns = _table_columns(chat_db, "TIMMessageORM")
+        message_type = "TIMMessageORM.type" if "type" in message_columns else "NULL"
+        deleted = "TIMMessageORM.deleted" if "deleted" in message_columns else "NULL"
         query = f"""
             {contacts_cte}
             SELECT
@@ -598,6 +609,7 @@ def tiktok_messages(context):
                 nickname,
                 CASE
                     WHEN json_valid(content) THEN json_extract(content, '$.text')
+                    ELSE content
                 END AS message,
                 CASE
                     WHEN json_valid(content) THEN json_extract(content, '$.tips')
@@ -612,7 +624,9 @@ def tiktok_messages(context):
                 url1,
                 source_table,
                 belongingConversationIdentifier,
-                {account_is_participant} AS account_is_participant
+                {account_is_participant} AS account_is_participant,
+                {message_type} AS message_type,
+                {deleted} AS deleted
             FROM TIMMessageORM
             LEFT JOIN DeduplicatedContacts ON DeduplicatedContacts.uid = sender
             ORDER BY localcreatedat
@@ -633,6 +647,8 @@ def tiktok_messages(context):
                 direction,
                 record[3],
                 record[4],
+                record[13],
+                record[14],
                 record[1],
                 record[2],
                 record[5],
@@ -655,6 +671,8 @@ def tiktok_messages(context):
         "Direction",
         "Nickname",
         "Message",
+        "Message Type",
+        "Deleted",
         "Sender",
         "Custom ID",
         "Local Response",
