@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         'description': 'User profiles cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-11-17',
+        'last_update_date': '2026-11-18',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': ('Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
