@@ -72,6 +72,10 @@ class CocoaUnitScaling(unittest.TestCase):
     def test_genuine_pre_1970_dates_still_convert(self):
         self.assertEqual(convert_cocoa_core_data_ts_to_utc(-1009843200),
                          datetime(1969, 1, 1, tzinfo=timezone.utc))
+
+    def test_year_one_window_value_unchanged_pending_units_decision(self):
+        # -63114076799 lies between distantPast and datetime.min. This converter still reads the
+        # sum as milliseconds (a 1968 date); this pins that behavior until the units are decided.
         self.assertEqual(convert_cocoa_core_data_ts_to_utc(-63114076799),
                          convert_unix_ts_to_utc(-63114076799 + 978307200))
 

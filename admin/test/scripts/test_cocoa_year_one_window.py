@@ -7,7 +7,9 @@ change webkit_timestampsconv raised ValueError and get_birthdate OverflowError f
 ended an artifact that does not catch it (notificationsDuet, calendarBirthdays) and dropped the
 record in one that does (biomeDKInfocus). Every other input keeps its earlier behavior.
 
-All inputs are constructed; no registered corpus was found to hold such a value.
+All inputs are constructed. A by-name scan of the SQLite stores in three images (otto_ios17,
+iphone11_ios17, wilkerson_iphone16_ios26) found no value in this range; SEGB and protobuf streams
+and plists, where most webkit_timestampsconv callers read their times, were not scanned.
 """
 import math
 import pathlib

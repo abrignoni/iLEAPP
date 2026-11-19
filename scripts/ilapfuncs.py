@@ -1870,12 +1870,14 @@ def convert_human_ts_to_utc(ts):  #This is for timestamp in human form
 COCOA_DISTANT_PAST = -63114076800
 COCOA_DISTANT_FUTURE = 63113904000
 
-# Python's earliest datetime, 0001-01-01 00:00:00 UTC, as Cocoa seconds. Foundation's calendar
-# runs two days behind Python's there: it shows distantPast as 0001-01-01 and this value as
-# 0001-01-03 (read with NSDateFormatter, Gregorian calendar, UTC, on macOS). The values strictly
-# between the two are dates Foundation shows as 0001-01-01 and 0001-01-02 and datetime cannot
-# hold. The converters below report those blank, like distantPast, and log the stored value
-# instead of failing the record; the source file in data/ keeps it.
+# Python's earliest datetime, 0001-01-01 00:00:00 UTC, as Cocoa seconds. Foundation and Python
+# date the same instant two days apart there: Foundation shows distantPast as 0001-01-01 and
+# this value as 0001-01-03 (read with NSDateFormatter, Gregorian calendar, UTC, on macOS). The
+# values strictly between the two are dates Foundation shows as 0001-01-01 and 0001-01-02 and
+# datetime cannot hold. webkit_timestampsconv and get_birthdate report those blank, like
+# distantPast, instead of raising; the first five distinct values in a process are logged, and
+# the source file in data/ keeps every one. convert_cocoa_core_data_ts_to_utc is unchanged: it
+# still returns 1968-01-12 for them, because it reads the sum as milliseconds.
 COCOA_DATETIME_MIN = -63113904000
 _UNREPRESENTABLE_COCOA_LOG_LIMIT = 5
 _unrepresentable_cocoa_logged = set()
