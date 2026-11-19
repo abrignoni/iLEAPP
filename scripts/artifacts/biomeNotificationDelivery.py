@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Notifications delivered to the device, from the Biome Notification.Delivery stream, "
                        "with the delivering app and the app's own identifier for the notified item. Messages "
                        "notifications are matched to sms.db on message.guid.",
-        "author": "@charpy",
+        "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-19",
         "requirements": "none",
@@ -14,12 +14,13 @@ __artifacts_v2__ = {
                   "Bundle ID field 2. Delivery Date is field 3, a double read as Unix seconds: on 51 of the 52 "
                   "written rows it is within seconds of the SEGB timestamp; on one Life360 row it is about a day "
                   "earlier. For com.apple.MobileSMS rows field 1 held a message GUID, and both such rows matched "
-                  "sms.db message.guid; the matched message's date, sender handle, direction and text are shown. "
+                  "sms.db message.guid. Matches use the SMS database beside the same Biome library. The handle, "
+                  "direction, date and available text (including attributedBody) refer to the matched message. "
                   "On one of them the message date is six days before the delivery date, so the delivery date is "
                   "not the time the message was sent. For com.apple.mobilemail rows field 1 held small "
                   "integers; that they are Envelope Index row ids is not verified and they are not matched. "
                   "Deleted records keep only their SEGB timestamp. On the tested image the stream held one "
-                  "SEGB file, so Filename held one value on all 216 rows."),
+                  "SEGB file, so Source File held one value on all 216 rows."),
         "paths": ('*/Biome/streams/restricted/Notification.Delivery/local/*',
                   '*/mobile/Library/SMS/sms.db*'),
         "output_types": "standard",
@@ -30,97 +31,108 @@ __artifacts_v2__ = {
     }
 }
 
-import os
+import sqlite3
 import struct
-from datetime import timezone
+from collections import defaultdict
+from contextlib import closing
+from datetime import datetime, timedelta, timezone
+from pathlib import PurePosixPath
+
 from google.protobuf.message import DecodeError
 from scripts import blackboxprotobuf
-from scripts.ccl_segb.ccl_segb import read_segb_file
+from scripts.biome_stream_records import local_records
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import (artifact_processor, convert_unix_ts_to_utc, logfunc,
-                               open_sqlite_db_readonly, convert_ts_int_to_utc)
+from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
+from scripts.sms_deep import message_columns, message_text, query_chunks
 
-_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
 
 _TYPEDEF = {
     '1': {'type': 'bytes', 'name': ''},
     '2': {'type': 'bytes', 'name': ''},
     '3': {'type': 'double', 'name': ''},
 }
-
+_UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+_COCOA_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
 _SMS_BUNDLE = 'com.apple.MobileSMS'
+
+
+def _date(epoch, seconds):
+    if seconds is None:
+        return None
+    try:
+        return epoch + timedelta(seconds=seconds)
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def _sms_lookup(path, guids):
+    """Look up only notification GUIDs in this device's database."""
+    matches = {}
+    try:
+        db = open_sqlite_db_readonly(path)
+        if db is None:
+            return matches
+        with closing(db):
+            body = 'm.attributedBody' if 'attributedBody' in message_columns(db) else 'NULL'
+            sql = (f'SELECT m.guid, m.date, h.id, m.is_from_me, m.text, {body} FROM message m '
+                   'LEFT JOIN handle h ON m.handle_id = h.ROWID WHERE m.guid IN ({marks})')
+            for guid, date, handle, from_me, text, attributed in query_chunks(db, sql, guids):
+                seconds = date
+                if isinstance(date, (int, float)) and abs(date) > 1e11:
+                    seconds = date / 1e9
+                when = _date(_COCOA_EPOCH, seconds) if seconds else None
+                direction = {0: 'Incoming', 1: 'Outgoing'}.get(from_me, '')
+                matches[guid] = (when, handle, direction, message_text(text, attributed))
+    except sqlite3.Error as error:
+        logfunc(f'Biome Notification Delivery: could not read SMS database: {error}')
+    return matches
 
 
 def _text(value):
     if isinstance(value, bytes):
-        return value.decode('utf-8', 'replace')
+        return value.decode('utf-8', 'backslashreplace')
     return '' if value is None else str(value)
-
-
-def _sms_lookup(sms_db):
-    """guid -> (date, handle, direction, text) for every message in sms.db."""
-    if not sms_db:
-        return {}
-    messages = {}
-    try:
-        db = open_sqlite_db_readonly(sms_db)
-        rows = db.execute('''
-            SELECT message.guid, message.date, handle.id, message.is_from_me, message.text
-            FROM message LEFT JOIN handle ON message.handle_id = handle.ROWID''').fetchall()
-        db.close()
-    except Exception as ex:  # pylint: disable=broad-except
-        logfunc(f'Biome Notification Delivery: could not read {sms_db}: {ex}')
-        return {}
-    for guid, date, handle, from_me, text in rows:
-        if not guid:
-            continue
-        # sms.db dates are nanoseconds since 2001-01-01 from iOS 11 on, seconds before that
-        seconds = date / 1e9 if date and date > 1e11 else date
-        when = convert_ts_int_to_utc(int(seconds) + 978307200) if seconds else ''
-        messages[guid] = (when, handle or '', 'Outgoing' if from_me else 'Incoming', text or '')
-    return messages
 
 
 @artifact_processor
 def get_biomeNotificationDelivery(context):
-    files = [str(f) for f in context.get_files_found()]
-    sms_db = next((f for f in files if f.endswith('sms.db')), '')
-    sms = _sms_lookup(sms_db)
+    databases = defaultdict(set)
+    for found in map(str, context.get_files_found()):
+        path = PurePosixPath(context.get_relative_path(found).replace('\\', '/'))
+        if path.parts[-2:] == ('SMS', 'sms.db'):
+            databases[path].add(found)
 
-    data_list = []
-    source_dirs = set()
-    for file_found in files:
-        filename = os.path.basename(file_found)
-        if (filename.startswith('.') or not os.path.isfile(file_found)
-                or 'Notification.Delivery' not in file_found
-                or 'tombstone' in context.get_relative_path(file_found)):
+    rows = []
+    pending = defaultdict(lambda: defaultdict(list))
+    sources = set()
+    for source, record in local_records(context, 'Notification.Delivery'):
+        sources.add(str(source))
+        proto = {}
+        if record.state == EntryState.Written:
+            try:
+                proto, _ = blackboxprotobuf.decode_message(record.data, _TYPEDEF)
+            except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as error:
+                logfunc(f'Biome Notification Delivery: could not decode offset {record.data_start_offset} '
+                        f'in {source}: {error}')
+        bundle = _text(proto.get('2'))
+        item = _text(proto.get('1'))
+        if bundle == _SMS_BUNDLE and item:
+            # The stream lives at <Library>/Biome/streams/restricted/<stream>/local/<file>.
+            database = source.parents[5] / 'SMS' / 'sms.db'
+            pending[database][item].append(len(rows))
+        rows.append([record.timestamp1.replace(tzinfo=timezone.utc), _date(_UNIX_EPOCH, proto.get('3')),
+                     None, record.state.name, bundle, item, None, None, None, str(source), record.data_start_offset])
+
+    for database, guids in pending.items():
+        candidates = databases.get(database, set())
+        if len(candidates) != 1:
             continue
-        source_dirs.add(os.path.dirname(file_found))
-        for record in read_segb_file(file_found):
-            ts = record.timestamp1.replace(tzinfo=timezone.utc)
-            offset = record.data_start_offset
-            if record.state == EntryState.Written:
-                try:
-                    proto, _ = blackboxprotobuf.decode_message(record.data, _TYPEDEF)
-                except _DECODE_ERRORS as ex:
-                    logfunc(f'Biome Notification Delivery: could not decode record at offset '
-                            f'{offset} in {filename}: {ex}')
-                    continue
-                item_id = _text(proto.get('1'))
-                bundle = _text(proto.get('2'))
-                delivered = proto.get('3')
-                delivered = convert_unix_ts_to_utc(delivered) if isinstance(delivered, float) else None
-                match = sms.get(item_id) if bundle == _SMS_BUNDLE else None
-                msg_date, handle, direction, text = match if match else ('', '', '', '')
-                data_list.append((ts, delivered, record.state.name, bundle, item_id,
-                                  msg_date or None, handle, direction, text, filename, offset))
-            elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None,
-                                  None, None, None, None, filename, offset))
-
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Delivery Date', 'datetime'), 'SEGB State',
-                    'Bundle ID', 'Item Identifier', ('Matched Message Date', 'datetime'),
-                    'Matched Message Handle', 'Matched Message Direction', 'Matched Message Text',
-                    'Filename', 'Offset')
-    sources = sorted(source_dirs) + ([sms_db] if sms_db else [])
-    return data_headers, data_list, '\n'.join(sources)
+        sources.add(str(database))
+        for guid, (when, handle, direction, text) in _sms_lookup(next(iter(candidates)), guids).items():
+            for index in guids[guid]:
+                rows[index][2] = when
+                rows[index][6:9] = (handle, direction, text)
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Delivery Date', 'datetime'), ('Matched Message Date', 'datetime'),
+                    'SEGB State', 'Bundle ID', 'Item Identifier', 'Matched Message Handle', 'Matched Message Direction',
+                    'Matched Message Text', 'Source File', 'Offset')
+    return data_headers, rows, '\n'.join(sorted(sources))
