@@ -71,7 +71,8 @@ class Boundaries(QuietLog):
         for value in (DATETIME_MIN, float(DATETIME_MIN)):
             with self.subTest(value=value):
                 self.assertEqual(webkit_timestampsconv(value), YEAR_ONE)
-                self.assertEqual(get_birthdate(value), '01 January 0001')
+                # converted, not blank; strftime renders year 1 as '0001' or '1' by platform and Python version
+                self.assertEqual(get_birthdate(value), YEAR_ONE.strftime('%d %B %Y'))
         self.assertEqual(webkit_timestampsconv(DATETIME_MIN + 0.5),
                          YEAR_ONE.replace(microsecond=500000))
         self.log.assert_not_called()
