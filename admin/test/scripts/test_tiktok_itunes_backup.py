@@ -15,6 +15,7 @@ registered Hickman iTunes backups it is under 2 KB and begins with the magic WCD
 deprecated repair module defines for the file it saves sqlite_master information to
 (SQLITERK_SM_MAGIC), so the stand-in built here is that header and nothing else.
 """
+from contextlib import closing
 import hashlib
 import json
 import os
@@ -32,6 +33,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.context import Context  # pylint: disable=wrong-import-position
+from scripts.artifact_report import ArtifactHtmlReport  # pylint: disable=wrong-import-position
 from scripts.search_files import FileSeekerItunes  # pylint: disable=wrong-import-position
 from scripts.artifacts import tikTok, tikTokReplied  # pylint: disable=wrong-import-position
 
@@ -148,6 +150,9 @@ class TikTokITunesBackupTests(unittest.TestCase):
                                   f'{CONTAINER}/{CHAT_STORE}-backup'])
 
         self.assertEqual(len(rows), 2)
+        self.assertEqual(names[:2], ['Timestamp', 'Server Created Timestamp'])
+        self.assertTrue(all(row[names.index('Message Type')] is None for row in rows))
+        self.assertTrue(all(row[names.index('Deleted')] == 0 for row in rows))
         by_message = {row[names.index('Message')]: row for row in rows}
         self.assertEqual(by_message['sent'][names.index('Direction')], 'Outgoing')
         self.assertEqual(by_message['sent'][names.index('Nickname')], 'The Account')
@@ -160,6 +165,106 @@ class TikTokITunesBackupTests(unittest.TestCase):
 
         read = sorted(Context.get_relative_path(path) for path in source.splitlines())
         self.assertEqual(read, [f'{CONTAINER}/Documents/AwemeIM.db', f'{CONTAINER}/{CHAT_STORE}'])
+
+    def chat_store_path(self):
+        file_id = hashlib.sha1(f'{DOMAIN}-{CHAT_STORE}'.encode()).hexdigest()
+        return self.backup / file_id[:2] / file_id
+
+    def set_first_message(self, content, message_type=7, deleted=0):
+        with closing(sqlite3.connect(self.chat_store_path())) as db:
+            db.execute('ALTER TABLE TIMMessageORM ADD COLUMN type INTEGER')
+            db.execute('UPDATE TIMMessageORM SET content=?, type=?, deleted=? WHERE identifier=?',
+                       (content, message_type, deleted, 'm1'))
+            db.commit()
+
+    def test_placeholder_and_raw_flags_are_reported(self):
+        self.set_first_message('placeholder', message_type=15, deleted=1)
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        self.assertEqual(len(rows), 2)
+        row = dict(zip(names, rows[0]))
+        self.assertEqual(row['Message'], 'placeholder')
+        self.assertEqual(row['Message Type'], 15)
+        self.assertEqual(row['Deleted'], 1)
+        self.assertEqual(row['Direction'], 'Outgoing')
+        self.assertEqual(row['Nickname'], 'The Account')
+        self.assertEqual(row['Conversation ID'], 'conv1')
+
+    def test_non_json_content_is_preserved_verbatim(self):
+        contents = ['plain text', '{broken JSON', '<script>alert("test")</script>', '', '  ']
+        with closing(sqlite3.connect(self.chat_store_path())) as db:
+            for index, content in enumerate(contents):
+                db.execute('INSERT INTO TIMMessageORM VALUES (?,?,?,?,?,?,?)',
+                           (f'literal{index}', 1700010000 + index, 1700010001 + index,
+                            int(CONTACT), content, 'conv1', 0))
+            db.commit()
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        self.assertEqual(len(rows), 2 + len(contents))
+        self.assertEqual([row[names.index('Message')] for row in rows[2:]], contents)
+
+        page = ArtifactHtmlReport('TikTok literal content')
+        page.start_artifact_report(self.tmpdir, 'literal-message')
+        page.write_artifact_data_table(names, rows, 'constructed chat database')
+        page.end_artifact_report()
+        rendered = pathlib.Path(self.tmpdir, 'literal-message.temphtml').read_text(encoding='utf8')
+        self.assertIn('&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;', rendered)
+        self.assertNotIn('<td><script>', rendered)
+
+    def test_json_without_text_does_not_become_a_literal_message(self):
+        contents = ['{"display_name":"sticker","url":{"url_list":["https://example.invalid/s"]}}',
+                    '{"text":null}', 'null', '[]', '"a JSON string"']
+        with closing(sqlite3.connect(self.chat_store_path())) as db:
+            for index, content in enumerate(contents):
+                db.execute('INSERT INTO TIMMessageORM VALUES (?,?,?,?,?,?,?)',
+                           (f'json{index}', 1700010000 + index, 1700010001 + index,
+                            int(CONTACT), content, 'conv1', 0))
+            db.commit()
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        self.assertEqual(len(rows), 2 + len(contents))
+        self.assertTrue(all(row[names.index('Message')] is None for row in rows[2:]))
+        row = dict(zip(names, rows[2]))
+        self.assertEqual(row['Content Display Name'], 'sticker')
+        self.assertEqual(row['Content URL'], 'https://example.invalid/s')
+
+    def test_readable_text_can_be_flagged_deleted_without_losing_text(self):
+        self.set_first_message('{"text":"still stored"}', message_type=7, deleted=1)
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        row = dict(zip(names, rows[0]))
+        self.assertEqual(row['Message'], 'still stored')
+        self.assertEqual(row['Message Type'], 7)
+        self.assertEqual(row['Deleted'], 1)
+
+    def test_unfamiliar_flags_are_preserved_without_guessing(self):
+        self.set_first_message('{"text":"sent"}', message_type=12345, deleted=9)
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        self.assertEqual(rows[0][names.index('Message Type')], 12345)
+        self.assertEqual(rows[0][names.index('Deleted')], 9)
+
+    def test_null_flags_remain_unknown(self):
+        self.set_first_message('{"text":"sent"}', message_type=None, deleted=None)
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        self.assertIsNone(rows[0][names.index('Message Type')])
+        self.assertIsNone(rows[0][names.index('Deleted')])
+
+    def test_both_optional_columns_can_be_absent(self):
+        with closing(sqlite3.connect(self.chat_store_path())) as db:
+            db.execute('ALTER TABLE TIMMessageORM DROP COLUMN deleted')
+            db.commit()
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        self.assertEqual(len(rows), 2)
+        self.assertEqual([row[names.index('Message')] for row in rows], ['sent', 'received'])
+        self.assertTrue(all(row[names.index('Message Type')] is None for row in rows))
+        self.assertTrue(all(row[names.index('Deleted')] is None for row in rows))
+
+    def test_type_present_when_deleted_column_is_absent(self):
+        self.set_first_message('placeholder', message_type=15)
+        with closing(sqlite3.connect(self.chat_store_path())) as db:
+            db.execute('ALTER TABLE TIMMessageORM DROP COLUMN deleted')
+            db.commit()
+        names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_messages')
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0][names.index('Message')], 'placeholder')
+        self.assertEqual(rows[0][names.index('Message Type')], 15)
+        self.assertIsNone(rows[0][names.index('Deleted')])
 
     def test_contacts_are_read_from_the_backup(self):
         names, rows, _, _ = self.run_artifact(tikTok, 'tiktok_contacts')
