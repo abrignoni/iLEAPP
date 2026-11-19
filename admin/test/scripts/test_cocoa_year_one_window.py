@@ -135,7 +135,9 @@ class RecordsAreKept(QuietLog):
                                                        (EXPECTED, EXPECTED, None)])
 
     def test_calendar_birthdays_keeps_every_row(self):
-        with tempfile.TemporaryDirectory() as folder:
+        # calendarBirthdays leaves its read-only connection open, and Windows will not delete an
+        # open file, so the temporary folder may outlive the test there.
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as folder:
             path = pathlib.Path(folder) / 'Calendar.sqlitedb'
             db = sqlite3.connect(path)
             db.executescript('''
