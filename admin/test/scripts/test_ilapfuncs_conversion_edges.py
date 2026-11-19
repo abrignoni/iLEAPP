@@ -122,7 +122,8 @@ class WebkitTimestampsconv(unittest.TestCase):
                          datetime(1969, 12, 31, 23, 59, 59, 500000, tzinfo=timezone.utc))
 
     def test_out_of_range_and_non_finite_raise_value_error(self):
-        for value in (-63114076799, -63113904001, -1e30, 1e12, 1e30, float('inf'), float('-inf'), float('nan')):
+        # Values between distantPast and datetime.min are blank instead (test_cocoa_year_one_window.py).
+        for value in (-63114076801, -1e30, 1e12, 1e30, float('inf'), float('-inf'), float('nan')):
             with self.subTest(value=value):
                 with self.assertRaises(ValueError):
                     webkit_timestampsconv(value)

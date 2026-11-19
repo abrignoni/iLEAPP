@@ -61,6 +61,10 @@ jobs:
       - name: Keep sentinel times blank in webkit timestamp callers
         run: python admin/test/scripts/test_webkit_sentinel_callers.py
 
+      # Cocoa times between NSDate.distantPast and 0001-01-01 UTC: blank, and the record kept.
+      - name: Keep records with Cocoa times Python cannot hold
+        run: python admin/test/scripts/test_cocoa_year_one_window.py
+
 
       - name: Open SQLite on a path longer than 260 characters
         run: python admin/test/scripts/test_sqlite_longpath_uri.py

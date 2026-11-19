@@ -1870,6 +1870,36 @@ def convert_human_ts_to_utc(ts):  #This is for timestamp in human form
 COCOA_DISTANT_PAST = -63114076800
 COCOA_DISTANT_FUTURE = 63113904000
 
+# Python's earliest datetime, 0001-01-01 00:00:00 UTC, as Cocoa seconds. Foundation's calendar
+# runs two days behind Python's there: it shows distantPast as 0001-01-01 and this value as
+# 0001-01-03 (read with NSDateFormatter, Gregorian calendar, UTC, on macOS). The values strictly
+# between the two are dates Foundation shows as 0001-01-01 and 0001-01-02 and datetime cannot
+# hold. The converters below report those blank, like distantPast, and log the stored value
+# instead of failing the record; the source file in data/ keeps it.
+COCOA_DATETIME_MIN = -63113904000
+_UNREPRESENTABLE_COCOA_LOG_LIMIT = 5
+_unrepresentable_cocoa_logged = set()
+
+
+def _is_unrepresentable_cocoa_year_one(seconds, helper):
+    """True, after logging it, for Cocoa seconds strictly between distantPast and datetime.min."""
+    try:
+        inside = COCOA_DISTANT_PAST < seconds < COCOA_DATETIME_MIN
+    except TypeError:
+        return False
+    if not inside:
+        return False
+    shown = repr(seconds)
+    if shown not in _unrepresentable_cocoa_logged and \
+            len(_unrepresentable_cocoa_logged) <= _UNREPRESENTABLE_COCOA_LOG_LIMIT:
+        _unrepresentable_cocoa_logged.add(shown)
+        if len(_unrepresentable_cocoa_logged) > _UNREPRESENTABLE_COCOA_LOG_LIMIT:
+            logfunc(f'{helper}: more Cocoa times fall before 0001-01-01 UTC; not logging the rest')
+        else:
+            logfunc(f'{helper}: Cocoa time {shown} is 0001-01-01 or 0001-01-02 in Foundation\'s '
+                    'calendar, before the earliest date Python can hold; reported blank')
+    return True
+
 def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
     if cocoa_core_data_ts in (COCOA_DISTANT_PAST, COCOA_DISTANT_FUTURE):
         return ''
@@ -1944,11 +1974,14 @@ def webkit_timestampsconv(webkittime):
     # The value is added to the epoch rather than passed to datetime.fromtimestamp, which
     # depends on the platform's gmtime (on Windows it fails before 1970 and after the year
     # 3000), so every platform returns the same UTC-aware datetime. A finite number whose
-    # result datetime cannot hold, inf, -inf and nan raise ValueError. Other types, such as
-    # None, str and bytes, raise TypeError, as before.
+    # result a datetime cannot hold, inf, -inf and nan raise ValueError, except a value between
+    # distantPast and datetime.min (see COCOA_DATETIME_MIN), which is reported blank and logged.
+    # Other types, such as None, str and bytes, raise TypeError, as before.
     try:
         return _UNIX_EPOCH_UTC + timedelta(seconds=webkittime + 978307200)
     except OverflowError as exc:
+        if _is_unrepresentable_cocoa_year_one(webkittime, 'webkit_timestampsconv'):
+            return ''
         raise ValueError(str(exc)) from exc
 
 def convert_ts_human_to_utc(ts): #This is for timestamp in human form
@@ -1999,7 +2032,13 @@ def get_birthdate(date):
     if date is None or date in (COCOA_DISTANT_PAST, COCOA_DISTANT_FUTURE):
         return ''  # absent or NSDate sentinel, reported blank as in convert_cocoa_core_data_ts_to_utc
     cocoa_epoch = datetime(2001, 1, 1, tzinfo=timezone.utc) # Create our own epoch to avoid gmtime() errors in fromtimestamp().
-    utc_date = cocoa_epoch + timedelta(seconds=date)
+    try:
+        utc_date = cocoa_epoch + timedelta(seconds=date)
+    except OverflowError:
+        # between distantPast and datetime.min: blank and logged (see COCOA_DATETIME_MIN)
+        if _is_unrepresentable_cocoa_year_one(date, 'get_birthdate'):
+            return ''
+        raise
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 def get_birthdate_from_unix_ts(date):
