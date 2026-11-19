@@ -72,6 +72,10 @@ class CocoaUnitScaling(unittest.TestCase):
     def test_genuine_pre_1970_dates_still_convert(self):
         self.assertEqual(convert_cocoa_core_data_ts_to_utc(-1009843200),
                          datetime(1969, 1, 1, tzinfo=timezone.utc))
+
+    def test_year_one_window_value_unchanged_pending_units_decision(self):
+        # -63114076799 lies between distantPast and datetime.min. This converter still reads the
+        # sum as milliseconds (a 1968 date); this pins that behavior until the units are decided.
         self.assertEqual(convert_cocoa_core_data_ts_to_utc(-63114076799),
                          convert_unix_ts_to_utc(-63114076799 + 978307200))
 
@@ -122,7 +126,8 @@ class WebkitTimestampsconv(unittest.TestCase):
                          datetime(1969, 12, 31, 23, 59, 59, 500000, tzinfo=timezone.utc))
 
     def test_out_of_range_and_non_finite_raise_value_error(self):
-        for value in (-63114076799, -63113904001, -1e30, 1e12, 1e30, float('inf'), float('-inf'), float('nan')):
+        # Values between distantPast and datetime.min are blank instead (test_cocoa_year_one_window.py).
+        for value in (-63114076801, -1e30, 1e12, 1e30, float('inf'), float('-inf'), float('nan')):
             with self.subTest(value=value):
                 with self.assertRaises(ValueError):
                     webkit_timestampsconv(value)
