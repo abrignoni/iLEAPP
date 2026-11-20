@@ -30,7 +30,7 @@ counsel is its own kind of incident.
 
 The failure mode this check exists to stop is a partial fix. When html_safe.py landed,
 iLEAPP's `walStrings` anchor was escaped and ALEAPP's identical `walStrings` anchor was
-not; it stayed unescaped for weeks because nothing was watching. Cross-core drift is
+not (that module has since been removed from both); it stayed unescaped for weeks because nothing was watching. Cross-core drift is
 the normal outcome here, not the exception.
 
 THREE RULES

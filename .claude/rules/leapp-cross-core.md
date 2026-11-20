@@ -17,7 +17,7 @@ too: a defect found in one core may exist unfixed in the one you consider canoni
 Apps known to exist in more than one core: swissmeteo, waze, sbbmobile, tikTok, chatgpt,
 c2paProvenance, dmss, hikvision, discord\*, cashApp, googleDuo, googleChat, gmail, chrome\*,
 firefox\*, torrent\*, teams, viber, whatsApp, signal\*, mastodon, groupMe, bumble, burner\*,
-walStrings, kijiji, kleinanzeigen, protonmail, meWe/mewe, line, imo, life360/L360\*.
+kijiji, kleinanzeigen, protonmail, meWe/mewe, line, imo, life360/L360\*.
 
 The **"Needs Cross Core Leveling"** label exists for this. Apply it when a change should
 propagate, but do the grep yourself rather than relying on the label being actioned later.
