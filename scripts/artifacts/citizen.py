@@ -9,17 +9,13 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Citizen",
         "notes": ("The key holds a JSON list in Library/Preferences/com.sp0n.vigilante.plist. Stored At is storedAt "
-                  "and Location Timestamp is location.timestamp, both read as seconds since 2001-01-01 UTC: on the "
-                  "tested image that reading put the latest storedAt at the same second as the newest request in "
-                  "the app's Cache.db. The other columns are the location's coordinate.latitude, "
+                  "and Location Timestamp is location.timestamp, both read as seconds since 2001-01-01 UTC: on one tested image that reading put a storedAt value within a second of a cached request time in the app's Cache.db. The other columns are the location's coordinate.latitude, "
                   "coordinate.longitude, horizontalAccuracy, altitude, verticalAccuracy, speed, speedAccuracy, "
-                  "course and courseAccuracy as stored. On the tested image speed, speedAccuracy, course and "
-                  "courseAccuracy held one value on both rows. Speed Accuracy and Course Accuracy each held one value across all six locations in the three acquisitions."),
+                  "course and courseAccuracy as stored. On one tested image speed, speedAccuracy, course and courseAccuracy held one value on every row. Speed Accuracy and Course Accuracy each held one value across every location in the acquisitions tested."),
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.sp0n.vigilante.plist',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Citizen 0.1315.0 | 2 rows",
             "hc_ios18_7": "iOS 18.7.8 | Citizen 0.1296.0 | 2 rows",
             "hc_ios26": "iOS 26.5.2 | Citizen 0.1301.0 | 2 rows",
         }
@@ -45,7 +41,6 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "eye",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Citizen 0.1315.0 | 8 rows",
             "hc_ios18_7": "iOS 18.7.8 | Citizen 0.1296.0 | 6 rows",
             "hc_ios26": "iOS 26.5.2 | Citizen 0.1301.0 | 8 rows",
         }
@@ -70,7 +65,6 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "globe",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Citizen 0.1315.0 | 133 rows",
             "hc_ios18_7": "iOS 18.7.8 | Citizen 0.1296.0 | 210 rows",
             "hc_ios26": "iOS 26.5.2 | Citizen 0.1301.0 | 24 rows",
         }
@@ -86,19 +80,15 @@ __artifacts_v2__ = {
         "notes": ("One row per cached profile with an id from data.sp0n.io/v1/user/<id>. Column names are the response's keys "
                   "as stored. A cached profile alone does not identify the signed-in user. Requested User ID is the "
                   "ID in the URL and matched id on each tested profile. plus.active, protect.active and protect.status are taken from the nested objects. "
-                  "Cached At is the cache row's time_stamp (UTC). No meaning is assigned to the keys. On the "
-                  "tested image firstName and lastName had no value on the 1 row. Across the three acquisitions the "
-                  "same profile was cached: id, username, Requested User ID, email, phone, createdAt, languageCode, "
+                  "Cached At is the cache row's time_stamp (UTC). No meaning is assigned to the keys. On one tested image firstName and lastName had no value. Across the acquisitions tested the same profile was cached: id, username, Requested User ID, email, phone, createdAt, languageCode, "
                   "private, avatarURL, avatarThumbURL, eligibleForReferralRewards, plus.active, protect.active "
-                  "and protect.status each held one value. Other Profile Fields also held one value across the three "
-                  "profiles and preserves additional response "
+                  "and protect.status each held one value. Other Profile Fields also held one value across those profiles and preserves additional response "
                   "properties as JSON. Cache Entry ID identifies the response within its Cache.db."),
         "paths": ('*/Containers/Data/Application/*/Library/Caches/com.sp0n.vigilante/Cache.db*',
                   '*/Containers/Data/Application/*/Library/Caches/com.sp0n.vigilante/fsCachedData/*'),
         "output_types": "standard",
         "artifact_icon": "user",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Citizen 0.1315.0 | 1 row",
             "hc_ios18_7": "iOS 18.7.8 | Citizen 0.1296.0 | 1 row",
             "hc_ios26": "iOS 26.5.2 | Citizen 0.1301.0 | 1 row",
         }
@@ -116,13 +106,12 @@ __artifacts_v2__ = {
                   "incident's keys as stored; createdAt and updatedAt are shown as stored text. Cached At is the "
                   "cache row's time_stamp (UTC). An incident listed in several cached responses appears once per "
                   "response. Cache Entry ID identifies that response within its Cache.db. Other Incident Fields "
-                  "preserves additional properties as JSON. On the tested image isAreaAlert and isGoodNews held one value on all 699 rows."),
+                  "preserves additional properties as JSON. On one tested image isAreaAlert and isGoodNews held one value on every row."),
         "paths": ('*/Containers/Data/Application/*/Library/Caches/com.sp0n.vigilante/Cache.db*',
                   '*/Containers/Data/Application/*/Library/Caches/com.sp0n.vigilante/fsCachedData/*'),
         "output_types": "standard",
         "artifact_icon": "alert-triangle",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Citizen 0.1315.0 | 699 rows",
             "hc_ios18_7": "iOS 18.7.8 | Citizen 0.1296.0 | 159 rows",
             "hc_ios26": "iOS 26.5.2 | Citizen 0.1301.0 | 179 rows",
         }
@@ -146,7 +135,6 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "image",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Citizen 0.1315.0 | 32 rows",
             "hc_ios18_7": "iOS 18.7.8 | Citizen 0.1296.0 | 8 rows",
             "hc_ios26": "iOS 26.5.2 | Citizen 0.1301.0 | 8 rows",
         }
