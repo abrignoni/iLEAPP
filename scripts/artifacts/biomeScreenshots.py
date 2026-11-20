@@ -4,24 +4,16 @@ __artifacts_v2__ = {
         "description": "Screenshot events from the Biome Screenshots.Screenshot stream.",
         "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
-        "last_update_date": "2026-11-19",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": ("The record layout is not known: on the one image tested (iOS 27.2, 24B119) all 6 records "
-                  "were deleted and their data zeroed, so only the SEGB timestamp and state survive. That a "
-                  "record marks a screenshot is inferred from the stream name. On this image each SEGB time "
-                  "was within 4 to 11 seconds of a Photos.sqlite asset flagged ZISDETECTEDSCREENSHOT. The six "
-                  "nearest matches involved four assets, so an individual image cannot be identified from this "
+        "notes": ("The record layout is not known: on the one image tested every record was deleted and its data zeroed, so only the SEGB timestamp and state survive. That a "
+                  "record marks a screenshot is inferred from the stream name. On this image each SEGB time was within seconds of a Photos.sqlite asset flagged ZISDETECTEDSCREENSHOT. The nearest matches involved fewer assets than records, so an individual image cannot be identified from this "
                   "comparison. Written records, if any, are decoded without a type definition and shown as JSON in "
-                  "Record Data. Binary values and undecodable payloads are preserved as labeled hex. On the tested image SEGB State held Deleted "
-                  "on all 6 rows, Record Data was empty on all 6 rows because no record was written, and "
-                  "Source File held one value on all 6 rows because the stream held one SEGB file."),
+                  "Record Data. Binary values and undecodable payloads are preserved as labeled hex. On the tested image SEGB State held Deleted on every row, Record Data was empty on every row because no record was written, and Source File held one value on every row because the stream held one SEGB file."),
         "paths": ('*/Biome/streams/restricted/Screenshots.Screenshot/local/*',),
         "output_types": "standard",
         "artifact_icon": "camera",
-        "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | 6 rows",
-        }
     }
 }
 

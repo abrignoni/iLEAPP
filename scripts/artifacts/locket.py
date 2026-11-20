@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "The Locket user's own account, from the user document in the app's Firestore cache.",
         "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
-        "last_update_date": "2026-11-19",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Locket",
         "notes": ("Read from the Firestore cache (LevelDB, read with Alex Caithness's ccl_leveldb) under "
@@ -17,9 +17,6 @@ __artifacts_v2__ = {
                   '*/Containers/Data/Application/*/Library/Preferences/com.locket.Locket.plist'),
         "output_types": "standard",
         "artifact_icon": "user",
-        "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Locket 2.71.2 | 1 row",
-        }
     },
     "locketFriends": {
         "name": "Locket - Friends",
@@ -27,14 +24,13 @@ __artifacts_v2__ = {
                        "app group container, with the friend documents of the Firestore cache.",
         "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
-        "last_update_date": "2026-11-19",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Locket",
         "notes": ("One row per uid in light_friends_cache (a JSON list in the group.com.locket.Locket-Shared "
                   "container). Friend is the file's friend key as stored; Temp is its temp key as stored. "
                   "In Friends Collection is Yes when the Firestore cache holds a users/<uid>/friends/<friend uid> "
-                  "document for that uid. Unknown means the owner could not be established. On the tested image Friend and In Friends Collection were identical "
-                  "on both rows. Only a group container that also holds "
+                  "document for that uid. Unknown means the owner could not be established. On the tested image Friend and In Friends Collection were identical on every row. Only a group container that also holds "
                   "Library/Preferences/group.com.locket.Locket-Shared.plist, and an app container that also "
                   "holds Library/Preferences/com.locket.Locket.plist, are read."),
         "paths": ('*/Containers/Shared/AppGroup/*/light_friends_cache',
@@ -43,16 +39,13 @@ __artifacts_v2__ = {
                   '*/Containers/Data/Application/*/Library/Preferences/com.locket.Locket.plist'),
         "output_types": "standard",
         "artifact_icon": "users",
-        "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Locket 2.71.2 | 2 rows",
-        }
     },
     "locketFriendRequests": {
         "name": "Locket - Friend Requests",
         "description": "Incoming and outgoing Locket friend requests from the app's Firestore cache.",
         "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
-        "last_update_date": "2026-11-19",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Locket",
         "notes": ("Documents under users/<uid>/incoming_friend_requests and outgoing_friend_requests. A Firestore no-document entry records "
@@ -68,24 +61,20 @@ __artifacts_v2__ = {
                   '*/Containers/Shared/AppGroup/*/Library/Preferences/group.com.locket.Locket-Shared.plist'),
         "output_types": "standard",
         "artifact_icon": "user-plus",
-        "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Locket 2.71.2 | 3 rows",
-        }
     },
     "locketMessages": {
         "name": "Locket - Messages",
         "description": "Locket chat messages from the app's Firestore cache.",
         "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
-        "last_update_date": "2026-11-19",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Locket",
         "notes": ("Documents under conversations/<conversation id>/messages. Members are taken from the "
                   "matching users/<uid>/conversations/<conversation id> document. Sender is the sender uid, "
                   "with the name resolved from light_friends_cache and the account document. Reply Moment and "
                   "Thumbnail URL were null on every tested message and are shown blank where null. The cache "
-                  "holds only messages the app fetched. On the tested image all 3 messages were in one "
-                  "conversation, so Conversation ID and Members held one value on all 3 rows. Only containers "
+                  "holds only messages the app fetched. On the tested image every message was in one conversation, so Conversation ID and Members held one value on every row. Only containers "
                   "that hold the Locket preference files are read."),
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/firestore/*/*/main/*',
                   '*/Containers/Data/Application/*/Library/Preferences/com.locket.Locket.plist',
@@ -93,9 +82,6 @@ __artifacts_v2__ = {
                   '*/Containers/Shared/AppGroup/*/Library/Preferences/group.com.locket.Locket-Shared.plist'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
-        "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Locket 2.71.2 | 3 rows",
-        }
     },
     "locketMoments": {
         "name": "Locket - Moments",
@@ -103,18 +89,15 @@ __artifacts_v2__ = {
                        "with the cached thumbnail where the app's image cache holds it.",
         "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
-        "last_update_date": "2026-11-19",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Locket",
         "notes": ("Documents under history/<uid>/entries. Direction is Sent when the entry's user is the account "
-                  "uid, Received when both uids are known and differ, and Unknown when either is unresolved. This reading was verified against known activity on the tested "
-                  "image, not sourced from app documentation. Sent To All "
+                  "uid, Received when both uids are known and differ, and Unknown when either is unresolved. This reading matched known activity on one tested image and is not sourced from app documentation. Sent To All "
                   "and Sent To Self Only are stored only on some entries and are blank where absent. On the "
-                  "tested image Sent To All and Sent To Self Only were identical on both rows. Thumbnail is "
+                  "tested image Sent To All and Sent To Self Only were identical on every row. Thumbnail is "
                   "the file in com.locket.imgcache of the shared app group container named with the MD5 of the "
-                  "entry's thumbnail_url; that naming was measured, not sourced: on the tested image both entries "
-                  "had such a file. On the tested image the cached thumbnail's MD5 equalled the stored md5 on 1 "
-                  "of the 2 entries. What md5 is computed over is not established. "
+                  "entry's thumbnail_url; that naming was measured, not sourced: on the tested image every entry had such a file. On the tested image the cached thumbnail's MD5 equalled the stored md5 on some entries and not on others. What md5 is computed over is not established. "
                   "Only a file starting with a WebP, JPEG or PNG signature is attached. Only containers that "
                   "hold the Locket preference files are read."),
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/firestore/*/*/main/*',
@@ -124,9 +107,6 @@ __artifacts_v2__ = {
                   '*/Containers/Shared/AppGroup/*/Library/Preferences/group.com.locket.Locket-Shared.plist'),
         "output_types": "standard",
         "artifact_icon": "image",
-        "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Locket 2.71.2 | 2 rows",
-        }
     },
 }
 

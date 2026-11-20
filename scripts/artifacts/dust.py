@@ -10,11 +10,10 @@ __artifacts_v2__ = {
         "category": "Dust",
         "notes": ("Read from dust/messages-<store id>.sqlite3 in the group.com.mentionmobile.cyberdust "
                   "container, table messages (conversation_id, message_id, sent_at, sealed). App Group comes from "
-                  "the container metadata or a named iTunes backup domain. App Group held one value on all 6 tested "
-                  "rows. An unidentified container is labeled Unverified, and a known unrelated group is skipped. "
+                  "the container metadata or a named iTunes backup domain. App Group held one value on every tested row. An unidentified container is labeled Unverified, and a known unrelated group is skipped. "
                   "The sealed column "
                   "is opened as Dust's own unseal function does, read from the app's JavaScript bundle "
-                  "(main.jsbundle, Dust 8.0.3): AES-GCM with the 32-byte key stored base64 in the keychain item "
+                  "(main.jsbundle): AES-GCM with the 32-byte key stored base64 in the keychain item "
                   "with account dust and service dust:history:key:<store id> (access group "
                   "com.mentionmobile.cyberdust), a 12-byte IV at the start of the blob, the ciphertext and "
                   "16-byte tag after it, and additional data 'dust:messages:v1:<conversation_id>:<message_id>'. "
@@ -25,17 +24,12 @@ __artifacts_v2__ = {
                   "Direction is its outgoing key as stored (true Outgoing, false Incoming), Type, Body, "
                   "Referenced Message IDs (message_ids) and Sender Sent At (sent_at) come from its payload, and "
                   "Sender Account ID and Sender Device ID are senderAccountId and senderDeviceId. Sent At is the "
-                  "table's sent_at, read as Unix seconds; on the tested image it equalled the record's "
-                  "insertedAt on all 6 rows and Sender Sent At on 4, the other 2 being 1 second later. On the "
-                  "tested image Type was text on 3 rows and receipt on 3, and every receipt's Referenced "
-                  "Message IDs named a message in the same table. On the tested image all 6 rows were in one "
-                  "conversation, so Conversation ID held one value on all 6 rows, and Decryption State held "
-                  "Decrypted on all 6 rows."),
+                  "table's sent_at, read as Unix seconds; on one tested image it equalled the record's insertedAt on every row. It equalled Sender Sent At on most rows. On the rest Sender Sent At was 1 second later. On one tested image Type was text or receipt, and every receipt's Referenced "
+                  "Message IDs named a message in the same table. On one tested image every row was in one conversation, so Conversation ID held one value, and Decryption State held Decrypted on every row."),
         "paths": ('*/Containers/Shared/AppGroup/*/dust/messages-*.sqlite3*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Dust 8.0.3 | 6 rows",
             "hc_ios17_2": "iOS 17.2.1 | Dust 7.3.0 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | Dust 7.4.3 | 0 rows",
             "hc_ios26": "iOS 26.5.2 | Dust 7.4.3 | 0 rows",
@@ -51,16 +45,14 @@ __artifacts_v2__ = {
         "category": "Dust",
         "notes": ("One row per object of the Realm class Account in Documents/default.realm of the Dust app "
                   "container, read with iLEAPP's Realm parser (live objects only). Column names are the stored "
-                  "property names and values are shown as stored; no meaning is assigned to them. On the tested "
-                  "iOS 27.2 image firstName, lastName, email, bio and website had no value on the 1 row. Across "
-                  "the three older acquisitions phone and overThirteen each held one value. Only a "
+                  "property names and values are shown as stored; no meaning is assigned to them. On one tested image firstName, lastName, email, bio and website had no value. Across "
+                  "the three other acquisitions phone and overThirteen each held one value. Only a "
                   "container that also holds Library/Preferences/com.mentionmobile.cyberdust.plist is read."),
         "paths": ('*/Containers/Data/Application/*/Documents/default.realm',
                   '*/Containers/Data/Application/*/Library/Preferences/com.mentionmobile.cyberdust.plist'),
         "output_types": "standard",
         "artifact_icon": "user",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Dust 8.0.3 | 1 row",
             "hc_ios17_2": "iOS 17.2.1 | Dust 7.3.0 | 1 row",
             "hc_ios18_7": "iOS 18.7.8 | Dust 7.4.3 | 1 row",
             "hc_ios26": "iOS 26.5.2 | Dust 7.4.3 | 1 row",
@@ -78,9 +70,7 @@ __artifacts_v2__ = {
                   "container, read with iLEAPP's Realm parser (live objects only). Column names are the stored "
                   "property names and values are shown as stored; createdDate and updatedDate are stored as "
                   "strings and are not converted, and no meaning is assigned to any property. "
-                  "thumbnailImageData is reported as its size in bytes. On the tested image username, photoURL "
-                  "and thumbnailImageData had no value on any of 2 rows. Across the seven contacts in the three "
-                  "older acquisitions rawEntityType, batchNumber, hasProfileId, mutual, rawMuteFlag, invited, "
+                  "thumbnailImageData is reported as its size in bytes. On one tested image username, photoURL and thumbnailImageData had no value on any row. Across the seven contacts in the three other acquisitions rawEntityType, batchNumber, hasProfileId, mutual, rawMuteFlag, invited, "
                   "favorite and engagementFactor each held one value. On those rows contactName and displayName "
                   "were identical, as were createdDate and updatedDate. Only a container that also holds "
                   "Library/Preferences/com.mentionmobile.cyberdust.plist is read."),
@@ -89,7 +79,6 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "users",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Dust 8.0.3 | 2 rows",
             "hc_ios17_2": "iOS 17.2.1 | Dust 7.3.0 | 3 rows",
             "hc_ios18_7": "iOS 18.7.8 | Dust 7.4.3 | 2 rows",
             "hc_ios26": "iOS 26.5.2 | Dust 7.4.3 | 2 rows",
@@ -107,7 +96,7 @@ __artifacts_v2__ = {
                   "Dust app container, read with iLEAPP's Realm parser (live objects only). Column names are the "
                   "stored property names and values are shown as stored: updated and syncTimeStamp are stored "
                   "as doubles and are not converted to dates, because what they count from is not established. "
-                  "On the tested image updated held one value on all 3 rows. "
+                  "On one tested image updated held one value on every row. "
                   "Only a container that also holds Library/Preferences/com.mentionmobile.cyberdust.plist is "
                   "read."),
         "paths": ('*/Containers/Data/Application/*/Documents/default.realm',
@@ -115,7 +104,6 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "image",
         "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | Dust 8.0.3 | 3 rows",
             "hc_ios17_2": "iOS 17.2.1 | Dust 7.3.0 | 1 row",
             "hc_ios18_7": "iOS 18.7.8 | Dust 7.4.3 | 3 rows",
             "hc_ios26": "iOS 26.5.2 | Dust 7.4.3 | 3 rows",

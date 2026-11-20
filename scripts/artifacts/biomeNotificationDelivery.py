@@ -6,28 +6,21 @@ __artifacts_v2__ = {
                        "notifications are matched to sms.db on message.guid.",
         "author": "@charpy, @AlexisBrignoni, Codex",
         "creation_date": "2026-11-19",
-        "last_update_date": "2026-11-19",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": ("Field names are not sourced from Apple code; they are inferred from one image (iOS 27.2, "
-                  "24B119), whose stream held 52 written and 164 deleted records. Item Identifier is field 1 and "
-                  "Bundle ID field 2. Delivery Date is field 3, a double read as Unix seconds: on 51 of the 52 "
-                  "written rows it is within seconds of the SEGB timestamp; on one Life360 row it is about a day "
-                  "earlier. For com.apple.MobileSMS rows field 1 held a message GUID, and both such rows matched "
-                  "sms.db message.guid. Matches use the SMS database beside the same Biome library. The handle, "
+        "notes": ("Field names are not sourced from Apple code; they are inferred from one image, whose stream held both written and deleted records. Item Identifier is field 1 and "
+                  "Bundle ID field 2. Delivery Date is field 3, a double read as Unix seconds. On the tested image it was within seconds of the SEGB timestamp on most written rows and as much as a day earlier on others. On the tested image field 1 of the com.apple.MobileSMS rows held a message GUID, and every such row matched sms.db message.guid. Matches use the SMS database beside the same Biome library. The handle, "
                   "direction, date and available text (including attributedBody) refer to the matched message. "
-                  "On one of them the message date is six days before the delivery date, so the delivery date is "
+                  "A matched message's date can be days before the delivery date, so the delivery date is "
                   "not the time the message was sent. For com.apple.mobilemail rows field 1 held small "
                   "integers; that they are Envelope Index row ids is not verified and they are not matched. "
                   "Deleted records keep only their SEGB timestamp. On the tested image the stream held one "
-                  "SEGB file, so Source File held one value on all 216 rows."),
+                  "SEGB file, so Source File held one value on every row."),
         "paths": ('*/Biome/streams/restricted/Notification.Delivery/local/*',
                   '*/mobile/Library/SMS/sms.db*'),
         "output_types": "standard",
         "artifact_icon": "bell",
-        "sample_data": {
-            "gk_ios27_2": "iOS 27.2 | 216 rows",
-        }
     }
 }
 
