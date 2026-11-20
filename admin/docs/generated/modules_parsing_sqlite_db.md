@@ -249,6 +249,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | appleWatchMailRegistry |
 | appleWatchPhotoCollections |
 | applicationStateDB |
+| biomeNotificationDelivery |
 | biomeSetsStores |
 | bluetoothOther |
 | bluetoothPairedLE |
