@@ -2,7 +2,7 @@ __artifacts_v2__ = {
 'Ph051PossibleOptimizedAssetsIntResouPhDaPsql': {
 'name': 'Ph051-Possible_Optimized_Assets_IntResou-PhDaPsql',
 'description': 'Parses asset records from PhotoData-Photos.sqlite ZINTERNALRESOURCE and other tables'
-' on iOS 14 through iOS 26. The iOS 26 query was run on hc_ios26 and falken_ios26 and'
+' on iOS 14 through iOS 27. The iOS 26 query was run on hc_ios26 and falken_ios26 and'
 ' returned no rows on either, so its output on iOS 26 has not been seen. Rows are limited to ZINTERNALRESOURCE records where'
 ' ZDATASTORESUBTYPE is 1, ZLOCALAVAILABILITY is -1 and ZFINGERPRINT is not null. The'
 ' module labels those two values as the original-size main asset resource and as not'
@@ -15,14 +15,14 @@ __artifacts_v2__ = {
 ' has 234 to 303 columns, depending on the iOS version. The TSV export is easier to'
 ' search and filter than the HTML page.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "cloud-upload",
@@ -69,7 +69,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     # Devices upgraded to iOS 16+ can carry an unmigrated database missing
@@ -5711,7 +5711,7 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

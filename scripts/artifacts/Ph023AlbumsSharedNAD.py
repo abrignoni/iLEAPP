@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
 'Ph023SharedAlbumRecordsInviteswithNADPhDaPsql': {
 'name': 'Ph023-Shared Album Records & Invites NAD-PhDaPsql',
-'description': 'Album records with stored ZKIND 1505 in PhotoData/Photos.sqlite, including linked invitation records. Queries cover iOS 11 through 26; an album with several invitations can appear on several rows. No asset records are parsed. Enum fields report raw stored values. The iOS 26 join-table path has returned no rows in the two registered images with no kind 1505 album.',
-'author': '@AlexisBrignoni, Codex',
+'description': 'Album records with stored ZKIND 1505 in PhotoData/Photos.sqlite, including linked invitation records. Queries cover iOS 11 through 27; an album with several invitations can appear on several rows. No asset records are parsed. Enum fields report raw stored values. The iOS 26 join-table path has returned no rows in the two registered images with no kind 1505 album.',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.',
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen. On iOS 27 the album list join table and its column (Z_32ALBUMLISTS and Z_32ALBUMS on iOS 26) take the GenericAlbum entity number from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers GenericAlbum higher than iOS 26.5.2 does. This happens after the query has the iOS 26 table names swapped in.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "cloud-upload",
@@ -36,6 +36,7 @@ __artifacts_v2__ = {
 import os
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.artifacts.Ph126iOS26REFforAssetAnalysis import renumber_photos_entities
 
 @artifact_processor
 def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
@@ -54,7 +55,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
@@ -1217,7 +1218,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -1313,7 +1314,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
             # On iOS 26 the album to album list join table is Z_32ALBUMLISTS (Z_32ALBUMS).
             query = query.replace('Z_29ALBUMLISTS', 'Z_32ALBUMLISTS').replace('Z_29ALBUMS', 'Z_32ALBUMS')
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],

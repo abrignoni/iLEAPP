@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
 'Ph033iCldSPLAssetsfromothercontribPhDaPsql': {
 'name': 'Ph033-Shared Photo Library Asset Records-PhDaPsql',
-'description': 'Reports ZASSET rows selected by version-specific Shared Photo Library predicates in PhotoData/Photos.sqlite, with joined share and participant fields. On iOS 16 and 17, rows require the joined participant ZISCURRENTUSER value to equal 0. On iOS 18 through 26, rows require ZASSET.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE to equal 1 and no participant-current-user predicate is applied. Joined rows may repeat assets. These predicates and stored identifiers do not by themselves establish ownership or who created, added, or contributed an asset. Other versions return no rows. Original query research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.',
-'author': '@AlexisBrignoni, Codex',
+'description': 'Reports ZASSET rows selected by version-specific Shared Photo Library predicates in PhotoData/Photos.sqlite, with joined share and participant fields. On iOS 16 and 17, rows require the joined participant ZISCURRENTUSER value to equal 0. On iOS 18 through 27, rows require ZASSET.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE to equal 1 and no participant-current-user predicate is applied. Joined rows may repeat assets. These predicates and stored identifiers do not by themselves establish ownership or who created, added, or contributed an asset. Other versions return no rows. Original query research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original contribution and Photos query research credited to Scott Koenig. Artifact naming was neutralized to cover both existing version-specific selections; no query, native value, timestamp, source selection, or row multiplicity was changed. Historical sample_data entries are retained and are not a claim of fresh validation. Existing enum interpretations and contributor/ownership meanings are not independently established by this metadata change. Existing first-main selection, scattered date columns, unsupported-version behavior, and unrelated repetitive Photos SQL semantics remain outside this scope.',
+'notes': 'Original contribution and Photos query research credited to Scott Koenig. Artifact naming was neutralized to cover both existing version-specific selections; no query, native value, timestamp, source selection, or row multiplicity was changed. Historical sample_data entries are retained and are not a claim of fresh validation. Existing enum interpretations and contributor/ownership meanings are not independently established by this metadata change. Existing first-main selection, scattered date columns, unsupported-version behavior, and unrelated repetitive Photos SQL semantics remain outside this scope.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen. The iOS 27.2 store has no ZSHAREPARTICIPANT.ZROLE; that column is reported empty. The store has ZCPLROLE, ZCPLPERMISSION and ZPARTICIPANTROLE, which this artifact does not read; whether they hold the same values is not established.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "cloud-download",
@@ -54,7 +54,7 @@ def Ph033iCldSPLAssetsfromothercontribPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("18")):
@@ -274,7 +274,7 @@ def Ph033iCldSPLAssetsfromothercontribPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

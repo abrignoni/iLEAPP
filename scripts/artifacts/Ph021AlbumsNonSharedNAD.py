@@ -5,20 +5,20 @@ __artifacts_v2__ = {
 ' cited post reads kind 2 as a non-shared album. The labels shown for this and the other coded'
 ' columns were assigned by the module author, the source for each mapping is not established here,'
 ' and the stored integer is kept in each label. Values labelled StillTesting have no established'
-' meaning. Query branches exist for iOS 11 through 26. Parses Non-Shared Album records only, no'
+' meaning. The code handles iOS 11 through 27; iOS 27 runs the newest branch. Parses Non-Shared Album records only, no'
 ' asset data being parsed. The query reads ZGENERICALBUM only, joined to itself for the parent'
 ' record, so each kind 2 record gives one row. The record that the ZPARENTFOLDER value of a row'
 ' points to is shown'
 ' in the ParentzGenAlbum columns. Records of other kinds, including parent folders, get no row of'
 ' their own. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. The zGenAlbum-zENT- Entity labels were written for earlier versions and do not match the iOS 26.5.2 or 27.2 entity numbers (35 is DuplicateAlbum on 26.5.2 and CloudSharedAlbum on 27.2), so the label shown for 35 does not apply there. Rely on the stored number.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "book",
@@ -63,7 +63,7 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
@@ -1920,7 +1920,7 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

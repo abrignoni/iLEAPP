@@ -2,13 +2,13 @@ __artifacts_v2__ = {
 'Ph050_1AssetIntResouPhDaPsql': {
 'name': 'Ph050.1-Asset_IntResou-PhDaPsql',
 'description': "Reads ZASSET joined to ZINTERNALRESOURCE and other tables in PhotoData/Photos.sqlite,"
-" for iOS 14 through 26. Each row is one asset paired with one of its internal resource"
+" for iOS 14 through 27. Each row is one asset paired with one of its internal resource"
 " rows, so an asset with several resources appears on several rows and an asset with none"
-" appears once. On iOS 13.7 and earlier, and on iOS 27 and later, the artifact does not"
+" appears once. On iOS 13.7 and earlier, and on iOS 28 and later, the artifact does not"
 " run and reports no rows.",
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
 " columns. The TSV export can be opened in a spreadsheet or CSV viewer such as Timeline"
 " Explorer (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
 " Koenig, 'iLEAPP Parsers & Photos.sqlite Queries',"
-" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/" ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",
@@ -56,15 +56,15 @@ __artifacts_v2__ = {
 'Ph050_2AssetIntResouSyndPL': {
 'name': 'Ph050.2-Asset_IntResou-SyndPL',
 'description': "Reads ZASSET joined to ZINTERNALRESOURCE and other tables in the Syndication photo"
-" library Photos.sqlite, for iOS 14 through 26. Each row is one asset paired with one of"
+" library Photos.sqlite, for iOS 14 through 27. Each row is one asset paired with one of"
 " its internal resource rows, so an asset with several resources appears on several rows"
-" and an asset with none appears once. On iOS 13.7 and earlier, and on iOS 27 and later,"
+" and an asset with none appears once. On iOS 13.7 and earlier, and on iOS 28 and later,"
 " the artifact does not run and reports no rows.",
-'author': '@AlexisBrignoni, Codex',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': "Original parser and Photos.sqlite research credited to Scott Koenig. Unsupported-version"
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
 " columns. The TSV export can be opened in a spreadsheet or CSV viewer such as Timeline"
 " Explorer (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
 " Koenig, 'iLEAPP Parsers & Photos.sqlite Queries',"
-" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/" ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",
@@ -111,14 +111,14 @@ __artifacts_v2__ = {
 'Ph050_3AssetIntResouGenPlayPsql': {
 'name': 'Ph050.3-Asset_IntResou-GenPlayPsql',
 'description': "Reads ZASSET joined to ZINTERNALRESOURCE and other tables in the Photos.sqlite of the"
-" com.apple.GenerativePlayground photo library, for iOS 18 through 26. Each row is one"
+" com.apple.GenerativePlayground photo library, for iOS 18 through 27. Each row is one"
 " asset paired with one of its internal resource rows, so an asset with several resources"
 " appears on several rows and an asset with none appears once. On iOS 13.7 and earlier,"
-" and on iOS 27 and later, the artifact does not run and reports no rows. The code has no"
+" and on iOS 28 and later, the artifact does not run and reports no rows. The code has no"
 " query for iOS 14 through 17.",
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -139,7 +139,7 @@ __artifacts_v2__ = {
 " applied to it here. Reference for the query and the column labels as written for"
 " PhotoData/Photos.sqlite and the Syndication library: Scott Koenig, 'iLEAPP Parsers &"
 " Photos.sqlite Queries',"
-" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/" ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",
@@ -170,7 +170,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
@@ -5866,7 +5866,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -7132,7 +7132,7 @@ def Ph050_2AssetIntResouSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
@@ -12828,7 +12828,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -14094,7 +14094,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("26")):
@@ -15358,7 +15358,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

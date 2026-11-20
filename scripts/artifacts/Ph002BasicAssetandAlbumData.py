@@ -2,16 +2,16 @@ __artifacts_v2__ = {
 'Ph002_1AssetBasicGenAlbumDataPhDaPsql': {
 'name': 'Ph002.1-Asset Basic Data & GenAlbum Data-PhDaPsql',
 'description': 'Parses asset rows and their album membership from PhotoData/Photos.sqlite (ZASSET, or'
-' ZGENERICASSET on iOS 11 to 13). The code has branches for iOS 11 through 26; the iOS 26 branch'
+' ZGENERICASSET on iOS 11 to 13). The code handles iOS 11 through 27 (iOS 27 runs the iOS 26 branch); the iOS 26 branch'
 ' has no recorded sample. An asset in more than one album appears on more than one row. Use'
 ' 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets. Use'
 ' 1505-Shared-Album-1505 in the search box to view Shared Albums Assets. Use'
 ' 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You Conversation'
 ' Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
 ' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
 ' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
 ' 10 are interpretations with no cited source. The store records the state value. It does not'
-' record who changed it.',
+' record who changed it.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. On iOS 27 the album join table and its columns (Z_33ASSETS and Z_33ALBUMS on iOS 26) take the Album entity number from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers Album higher than iOS 26.5.2 does.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -46,15 +46,15 @@ __artifacts_v2__ = {
 'Ph002_2AssetBasicConversationDataSyndPL': {
 'name': 'Ph002.2-Asset Basic Data & Convers Data-SyndPL',
 'description': 'Parses asset rows and their album and conversation data from'
-' Syndication.photoslibrary/database/Photos.sqlite. The code has branches for iOS 11 through 26.'
+' Syndication.photoslibrary/database/Photos.sqlite. The code handles iOS 11 through 27; iOS 27 runs the iOS 26 branch.'
 ' An asset can appear on more than one row. Use 2-Non-Shared-Album-2 in the search box to view'
 ' Non-Shared Albums Assets. Use 1505-Shared-Album-1505 in the search box to view Shared Albums'
 ' Assets. Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You'
 ' Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
 ' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
 ' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
 ' 10 are interpretations with no cited source. The store records the state value. It does not'
-' record who changed it.',
+' record who changed it.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. On iOS 27 the album join table and its columns (Z_33ASSETS and Z_33ALBUMS on iOS 26) take the Album entity number from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers Album higher than iOS 26.5.2 does.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -86,15 +86,15 @@ __artifacts_v2__ = {
 'Ph002_3AssetBasicGenAlbumGenPlayPsql': {
 'name': 'Ph002.3-Asset Basic Data & GenAlbum Data-GenPlayPsql',
 'description': 'Parses asset rows and their album membership from the Photos.sqlite of the'
-' com.apple.GenerativePlayground photo library on iOS 18 through 26. An asset in more than one'
+' com.apple.GenerativePlayground photo library on iOS 18 through 27. An asset in more than one'
 ' album appears on more than one row. Use 2-Non-Shared-Album-2 in the search box to view'
 ' Non-Shared Albums Assets. Use 1505-Shared-Album-1505 in the search box to view Shared Albums'
 ' Assets. Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You'
 ' Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
 ' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
 ' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
 ' 10 are interpretations with no cited source. The store records the state value. It does not'
-' record who changed it.',
+' record who changed it.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run. On iOS 27 the album join table and its columns (Z_33ASSETS and Z_33ALBUMS on iOS 26) take the Album entity number from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers Album higher than iOS 26.5.2 does.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "player-play",
@@ -117,6 +117,7 @@ __artifacts_v2__ = {
 import os
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.artifacts.Ph126iOS26REFforAssetAnalysis import renumber_photos_entities
 
 @artifact_processor
 def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
@@ -135,7 +136,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
@@ -2917,7 +2918,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -3178,7 +3179,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3275,7 +3276,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 
@@ -3296,7 +3297,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
@@ -6083,7 +6084,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -6344,7 +6345,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -6441,7 +6442,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-UUID-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 
@@ -6462,7 +6463,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("26")):
@@ -6827,7 +6828,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -7088,7 +7089,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
