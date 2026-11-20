@@ -114,7 +114,7 @@ class TestPhotosSharedLinkRawValues(unittest.TestCase):
             path.touch()
             for module in MODULES:
                 with patch.object(module, 'get_sqlite_db_records') as reader:
-                    for version in ('13.3.1', '26.0'):
+                    for version in ('13.3.1', '28.0'):
                         self.assertEqual(parse(module, path, version), [])
                     reader.assert_not_called()
 
