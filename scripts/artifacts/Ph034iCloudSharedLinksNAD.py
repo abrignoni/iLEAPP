@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
 'Ph034iCloudSharedLinkRecordswithNADPhDaPsql': {
 'name': 'Ph034-iCloud Shared Link Records with NAD-PhDaPsql',
-'description': 'Share and participant records from PhotoData/Photos.sqlite with stored ZSHARE.ZSCOPETYPE 2. A share with multiple participants appears on multiple rows; no asset data is parsed. Queries support iOS 14 through 25, with unsupported versions returning no rows. Enum fields report raw stored values. Registered real samples have returned no qualifying rows.',
-'author': '@AlexisBrignoni, Codex',
+'description': 'Share and participant records from PhotoData/Photos.sqlite with stored ZSHARE.ZSCOPETYPE 2. A share with multiple participants appears on multiple rows; no asset data is parsed. Queries run on iOS 14 through 27. Other versions return no rows. Enum fields report raw stored values. Registered real samples have returned no qualifying rows.',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.',
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.' ' On iOS 26 and 27 the iOS 18 query is run with the participant share entity column Z66_SHARE in place of Z61_SHARE, as Ph031 does, and its header is renamed to Z66_SHARE; on iOS 27 that column is renumbered by entity name from the Z_PRIMARYKEY table of the store before the query runs, and the header keeps the iOS 26 number while the value is read from the renumbered column. Columns the store does not have are reported empty: ZSHARE.ZUPLOADEDPHOTOSCOUNT and ZUPLOADEDVIDEOSCOUNT on the iOS 26.5.2 and 27.2 stores, and ZSHAREPARTICIPANT.ZROLE and ZPERMISSION on the iOS 27.2 store. That store has ZCPLROLE, ZCPLPERMISSION and ZPARTICIPANTROLE, which this artifact does not read; whether they hold the same values is not established. On an iOS 26.5.2 image and a private iOS 27.2 sample the query ran without error. No share link record was available on either, so the iOS 26 and 27 output has not been seen. A share link record and participant planted in a copy of an iOS 27.2 store came back as one row, with the participant share column read from the renumbered column.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "link",
@@ -36,6 +36,7 @@ __artifacts_v2__ = {
 import os
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.artifacts.Ph126iOS26REFforAssetAnalysis import renumber_photos_entities
 
 @artifact_processor
 def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
@@ -54,7 +55,7 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) < version.parse("14")) or (version.parse(iosversion) >= version.parse("26")):
+    if (version.parse(iosversion) < version.parse("14")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
@@ -395,7 +396,7 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("26")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -459,7 +460,12 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
         ORDER BY zShare.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        if version.parse(iosversion) >= version.parse("26"):
+            # On an iOS 26.5.2 store the participant share entity column is Z66_SHARE (as in Ph031).
+            # iOS 27 is renumbered below.
+            query = query.replace('Z61_SHARE', 'Z66_SHARE')
+
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
             row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
@@ -517,4 +523,7 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
         'zShare-Z_ENT Raw Value-46')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
+        if version.parse(iosversion) >= version.parse("26"):
+            data_headers = tuple('zSharePartic-Z66_SHARE Raw Value-6' if header == 'zSharePartic-Z61_SHARE Raw Value-6'
+                                 else header for header in data_headers)
         return data_headers, data_list, source_path
