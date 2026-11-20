@@ -146,12 +146,6 @@ biomeIntents,Intents,*/mobile/Library/Biome/streams/public/AppIntent/local/*,bel
 biomeIntents,Intents,*/AppIntent/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1399
 biomeIntents,Intents,*/mobile/Library/Biome/streams/public/AppIntent/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6721
 biomeIntents,Intents,*/AppIntent/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6586
-walStrings,walStrings,**/*-wal,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1129,0.3487
-walStrings,walStrings,**/*-journal,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,35,0.3378
-walStrings,walStrings,**/*-wal,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,555,0.0572
-walStrings,walStrings,**/*-journal,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.0487
-walStrings,walStrings,**/*-wal,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,720,0.2150
-walStrings,walStrings,**/*-journal,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,9,0.2019
 Ph97iOS17REFforAssetAnalysis,Ph97-1-iOS17_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9108
 Ph97iOS17REFforAssetAnalysis,Ph97-1-iOS17_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1542
 Ph97iOS17REFforAssetAnalysis,Ph97-1-iOS17_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6998

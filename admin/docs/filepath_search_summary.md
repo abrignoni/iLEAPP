@@ -431,7 +431,6 @@ This script reads in all of the artifact modules to extract the provided search 
 | voiceRecordings | voiceRecordings | 0 | 0 | 0 | 0 |
 | voiceTriggers | voiceTriggers | 0 | 10 | 10 | 0 |
 | voicemail | voicemail | 1 | 1 | 1 | 1 |
-| walStrings | walStrings | 557 | 1164 | 1439 | 729 |
 | waze | waze | 164 | 180 | 264 | 185 |
 | weatherAppLocations | weatherAppLocations | 1 | 1 | 1 | 1 |
 | webClips | webClips | 0 | 0 | 0 | 0 |
