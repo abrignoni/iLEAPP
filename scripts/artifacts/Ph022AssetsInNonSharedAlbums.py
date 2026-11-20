@@ -5,16 +5,16 @@ __artifacts_v2__ = {
 "Parses selected asset columns with the album, parent album and album list columns "
 "listed in the report, for albums of kind 2. An asset appears on one row for each "
 "combination of such an album and album list record joined to it. Queries exist for "
-"iOS 11 through 26; other versions return no rows. "
+"iOS 11 through 27; other versions return no rows. "
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. On iOS 27 the join table and column names of the AlbumList, Asset, GenericAlbum and Album entities (Z_<n>ASSETS, Z_<n>ALBUMS, Z_<n>ALBUMLISTS) are renumbered by entity name from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers GenericAlbum and Album higher than iOS 26.5.2 does. The zGenAlbum-zENT- Entity labels were written for earlier versions and do not match the iOS 26.5.2 or 27.2 entity numbers (35 is DuplicateAlbum on 26.5.2 and CloudSharedAlbum on 27.2), so the label shown for 35 does not apply there. Rely on the stored number.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "book-2",
@@ -41,6 +41,7 @@ __artifacts_v2__ = {
 import os
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.artifacts.Ph126iOS26REFforAssetAnalysis import renumber_photos_entities
 
 @artifact_processor
 def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
@@ -59,7 +60,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
@@ -2591,7 +2592,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -2864,7 +2865,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2953,7 +2954,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Search Index Rebuild State-74',
         'zGenAlbum-Duplicate Type-75',
         'zGenAlbum-Privacy State-76')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 

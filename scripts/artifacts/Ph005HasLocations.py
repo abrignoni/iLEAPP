@@ -3,13 +3,13 @@ __artifacts_v2__ = {
 'name': 'Ph005.1-Assets have valid locations-PhDaPsql',
 'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZASSET latitude or'
 ' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0 (iOS 11 to 13: ZGENERICASSET'
-' latitude only), on iOS 11 through 26. The results contain one row per asset (ZASSET table, or'
+' latitude only), on iOS 11 through 27. The results contain one row per asset (ZASSET table, or'
 " ZGENERICASSET on iOS 11 to 13). Each row's shifted and reverse location plists are exported to"
 ' the report folder and shown decoded.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig, @AlexisBrignoni, Codex',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
 " value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
 " ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
-' values do not establish an AirDrop provenance link or equality with another database.',
+' values do not establish an AirDrop provenance link or equality with another database.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -58,12 +58,12 @@ __artifacts_v2__ = {
 'name': 'Ph005.2-Assets have valid locations-SyndPL',
 'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets'
 ' whose ZASSET latitude or ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0 (iOS 11'
-' to 13: ZGENERICASSET latitude only), on iOS 11 through 26. The results for this'
+' to 13: ZGENERICASSET latitude only), on iOS 11 through 27. The results for this'
 ' script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig, @AlexisBrignoni, Codex',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
 " value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
 " ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
-' values do not establish an AirDrop provenance link or equality with another database.',
+' values do not establish an AirDrop provenance link or equality with another database.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -109,12 +109,12 @@ __artifacts_v2__ = {
 'Ph005_3AssetshavevalidlocationsGenPlayPsql': {
 'name': 'Ph005.3-Assets have valid locations-GenPlayPsql',
 'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose ZASSET latitude or'
-' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0, on iOS 18 through 26. The'
+' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0, on iOS 18 through 27. The'
 ' results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig, @AlexisBrignoni, Codex',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
 " value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
 " ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
-' values do not establish an AirDrop provenance link or equality with another database.',
+' values do not establish an AirDrop provenance link or equality with another database.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -179,7 +179,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):
@@ -801,7 +801,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -994,7 +994,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):
@@ -1616,7 +1616,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -1809,10 +1809,10 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

@@ -16,7 +16,7 @@ class TestSyndicationDiagnostics(unittest.TestCase):
             with sqlite3.connect(main) as db:
                 db.execute('CREATE TABLE unrelated(value)')
             sidecar = str(main) + '-wal'
-            for version in ['12.4', '13.7', '13.8', '27.0']:
+            for version in ['12.4', '13.7', '13.8', '28.0']:
                 with self.subTest(version=version):
                     context = SimpleNamespace(
                         get_files_found=lambda: [sidecar, str(main)],

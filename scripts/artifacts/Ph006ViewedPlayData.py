@@ -3,23 +3,23 @@ __artifacts_v2__ = {
 'name': 'Ph006.1-View and Play Data-PhDaPsql',
 'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZPENDINGVIEWCOUNT,'
 ' ZVIEWCOUNT, ZPENDINGPLAYCOUNT or ZPLAYCOUNT is above 0, or (iOS 16 and later) whose'
-' ZLASTVIEWEDDATE is above 0, on iOS 11 through 26. Counts are reported as stored; what increments'
+' ZLASTVIEWEDDATE is above 0, on iOS 11 through 27. Counts are reported as stored; what increments'
 ' them is not established here. On iOS 16 and later a database without the ZLASTVIEWEDDATE column'
 ' is skipped and yields no rows. From iOS 16.6 the Last Viewed Date column'
 ' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE) is shown. On iOS 16.0 and later versions below 16.6'
 ' that field is used to select rows but is not shown. The results contain one row per asset'
 ' (ZASSET table, or ZGENERICASSET on iOS 11 to 13).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': "Value labels in this report are the module author's working interpretations from testing. The"
 ' module cites no source for them. Each label carries the stored value. Labels marked still'
-' testing are unconfirmed.',
+' testing are unconfirmed.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "eye",
@@ -51,14 +51,14 @@ __artifacts_v2__ = {
 ' that field is used to select rows but is not shown. The results for this script will contain one'
 ' row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '1.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "eye",
@@ -71,18 +71,18 @@ __artifacts_v2__ = {
 'Ph006_3ViewandPlayDataGenPlayPsql': {
 'name': 'Ph006.3-View and Play Data-GenPlayPsql',
 'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets with view and played data in'
-' iOS. Runs on iOS 18 through 26 and shows the Last Viewed Date'
+' iOS. Runs on iOS 18 through 27 and shows the Last Viewed Date'
 ' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE). The only corpus in sample_data is at 0 rows. The'
 ' results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "eye",
@@ -113,7 +113,7 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     # Devices upgraded to iOS 16+ can carry an unmigrated database missing
@@ -469,7 +469,7 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -555,7 +555,7 @@ def Ph006_2ViewandPlayDataSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     # Devices upgraded to iOS 16+ can carry an unmigrated database missing
@@ -911,7 +911,7 @@ def Ph006_2ViewandPlayDataSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -997,7 +997,7 @@ def Ph006_3ViewandPlayDataGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     # Devices upgraded to iOS 16+ can carry an unmigrated database missing
@@ -1006,7 +1006,7 @@ def Ph006_3ViewandPlayDataGenPlayPsql(context):
         if not does_column_exist_in_db(source_path, 'ZADDITIONALASSETATTRIBUTES', 'ZLASTVIEWEDDATE'):
             logfunc('Ph006: ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE not found - unmigrated database, skipping')
             return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

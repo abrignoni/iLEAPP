@@ -3,18 +3,18 @@ __artifacts_v2__ = {
 'name': 'Ph001.1-Asset Basic Data-PhDaPsql',
 'description': 'Parses basic asset row data from PhotoData-Photos.sqlite. One '
 'row per asset row (ZGENERICASSET on iOS 11 to 13, ZASSET from iOS 14). iOS 11 '
-'to 26 are handled; other versions return no rows. '
+'to 27 are handled; other versions return no rows. '
 'https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': 'The coded columns show the stored number inside a label the module\'s author assigned; '
          'no source for the value lists is cited. Labels marked StillTesting are not established, '
-         'and the stored number is the value to rely on.',
+         'and the stored number is the value to rely on.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -40,18 +40,18 @@ __artifacts_v2__ = {
 'name': 'Ph001.2-Asset Basic Data-SyndPL',
 'description': 'Parses basic asset row data from '
 'Syndication.photoslibrary-database-Photos.sqlite. One row per asset row (ZGENERICASSET on iOS '
-'11 to 13, ZASSET from iOS 14). iOS 11 to 26 are handled; other versions return no rows. Coded '
+'11 to 13, ZASSET from iOS 14). iOS 11 to 27 are handled; other versions return no rows. Coded '
 'columns show the stored number inside a label the module\'s author assigned; the stored number '
 'is the value to rely on. '
 'https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -73,15 +73,15 @@ __artifacts_v2__ = {
 'Ph001_3AssetBasicDataGenPlayPsql': {
 'name': 'Ph001.3-Asset Basic Data-GenPlayPsql',
 'description': 'Parses basic asset row data from GenPlay-database-Photos.sqlite. '
-'One row per ZASSET row. iOS 18 to 26 are handled; other versions return no rows.',
-'author': 'Scott Koenig',
+'One row per ZASSET row. iOS 18 to 27 are handled; other versions return no rows.',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "player-play",
@@ -112,7 +112,7 @@ def Ph001_1AssetBasicDataPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
@@ -519,7 +519,7 @@ def Ph001_1AssetBasicDataPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -665,7 +665,7 @@ def Ph001_2AssetBasicDataSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
@@ -1070,7 +1070,7 @@ def Ph001_2AssetBasicDataSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -1215,10 +1215,10 @@ def Ph001_3AssetBasicDataGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

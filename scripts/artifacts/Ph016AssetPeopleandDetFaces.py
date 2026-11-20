@@ -9,7 +9,7 @@ __artifacts_v2__ = {
 ' labelled StillTesting have no established meaning. The results may contain multiple records per'
 ' ZASSET table Z_PK value. Rows are limited to assets that have a detected face record. The asset'
 ' is joined to the detected face on ZDETECTEDFACE.ZASSET on iOS 14 through 16 and on'
-' ZDETECTEDFACE.ZASSETFORFACE on iOS 17 through 26, and the zDetFace-AssetForFace column holds'
+' ZDETECTEDFACE.ZASSETFORFACE on iOS 17 through 27, and the zDetFace-AssetForFace column holds'
 ' that stored value. A row count is not a count of assets. The face crop columns are joined'
 ' through the face crop key stored on the detected face record (ZDETECTEDFACE.ZFACECROP ='
 ' ZFACECROP.Z_PK) and are blank on a row whose detected face stores no face crop key. On the'
@@ -17,18 +17,18 @@ __artifacts_v2__ = {
 ' stored a face crop key and each of those face crop records named the same detected face in its'
 ' ZFACE column. A face crop record that no detected face points to is not reported. None of those'
 ' 13 detected faces stored an asset key, so this artifact reported no face crop on those images;'
-' the Ph015 People & Faces NAD artifact reports them. The artifact runs on iOS 14 through 26. On'
+' the Ph015 People & Faces NAD artifact reports them. The artifact runs on iOS 14 through 27. On'
 ' other iOS versions it returns no rows without reading the database, so an empty result there is'
 ' not evidence that the database holds no face records.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "mood-smile",
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
 ' each label. Values labelled StillTesting have no established meaning. The results may contain'
 ' multiple records per ZASSET table Z_PK value. Rows are limited to assets that have a detected'
 ' face record. The asset is joined to the detected face on ZDETECTEDFACE.ZASSET on iOS 14 through'
-' 16 and on ZDETECTEDFACE.ZASSETFORFACE on iOS 17 through 26, and the zDetFace-AssetForFace column'
+' 16 and on ZDETECTEDFACE.ZASSETFORFACE on iOS 17 through 27, and the zDetFace-AssetForFace column'
 ' holds that stored value. A row count is not a count of assets. The face crop columns are joined'
 ' through the face crop key stored on the detected face record (ZDETECTEDFACE.ZFACECROP ='
 ' ZFACECROP.Z_PK) and are blank on a row whose detected face stores no face crop key. On the'
@@ -68,18 +68,18 @@ __artifacts_v2__ = {
 ' stored a face crop key and each of those face crop records named the same detected face in its'
 ' ZFACE column. A face crop record that no detected face points to is not reported. None of those'
 ' 13 detected faces stored an asset key, so this artifact reported no face crop on those images;'
-' the Ph015 People & Faces NAD artifact reports them. The artifact runs on iOS 14 through 26. On'
+' the Ph015 People & Faces NAD artifact reports them. The artifact runs on iOS 14 through 27. On'
 ' other iOS versions it returns no rows without reading the database, so an empty result there is'
 ' not evidence that the database holds no face records.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "mood-smile",
@@ -122,7 +122,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):   
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):   
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
@@ -2459,7 +2459,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -3106,7 +3106,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):   
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):   
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
@@ -5443,7 +5443,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

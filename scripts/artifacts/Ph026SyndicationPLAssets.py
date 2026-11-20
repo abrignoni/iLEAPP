@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
 'Ph026_1SyndicationIDAssetsPhDaPsql': {
 'name': 'Ph026.1-Syndication ID Assets-PhDaPsql',
-'description': 'Assets with a stored Syndication Identifier in PhotoData/Photos.sqlite, with linked conversation album data when present. Queries cover iOS 15 through 26. Enum fields report their raw stored values without assigning user-action meanings.',
-'author': '@AlexisBrignoni, Codex',
+'description': 'Assets with a stored Syndication Identifier in PhotoData/Photos.sqlite, with linked conversation album data when present. Queries cover iOS 15 through 27. Enum fields report their raw stored values without assigning user-action meanings.',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.',
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen. On iOS 27 the album list join table and its column (Z_32ALBUMLISTS and Z_32ALBUMS on iOS 26) take the GenericAlbum entity number from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers GenericAlbum higher than iOS 26.5.2 does.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "refresh",
@@ -33,15 +33,15 @@ __artifacts_v2__ = {
 },
 'Ph026_2SyndicationPLAssetsSyndPL': {
 'name': 'Ph026.2-Syndication PL Assets-SyndPL',
-'description': 'Assets with a stored Syndication Identifier in Syndication.photoslibrary/database/Photos.sqlite, with linked conversation album data when present. Queries cover iOS 15 through 26. Enum fields report their raw stored values without assigning user-action meanings.',
-'author': '@AlexisBrignoni, Codex',
+'description': 'Assets with a stored Syndication Identifier in Syndication.photoslibrary/database/Photos.sqlite, with linked conversation album data when present. Queries cover iOS 15 through 27. Enum fields report their raw stored values without assigning user-action meanings.',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.',
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. On iOS 27 the album list join table and its column (Z_32ALBUMLISTS and Z_32ALBUMS on iOS 26) take the GenericAlbum entity number from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers GenericAlbum higher than iOS 26.5.2 does.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "message",
@@ -65,6 +65,7 @@ __artifacts_v2__ = {
 import os
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.artifacts.Ph126iOS26REFforAssetAnalysis import renumber_photos_entities
 
 @artifact_processor
 def Ph026_1SyndicationIDAssetsPhDaPsql(context):
@@ -83,7 +84,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version from PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
@@ -589,7 +590,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -657,7 +658,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -714,7 +715,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
         'SWYConverszGenAlbum-ZCLOUDDELETESTATE Raw Value-46',
         'SWYConverszGenAlbum-ZPRIVACYSTATE Raw Value-47')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 
@@ -735,7 +736,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version from Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
@@ -1241,7 +1242,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -1309,7 +1310,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1366,6 +1367,6 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
         'SWYConverszGenAlbum-ZCLOUDDELETESTATE Raw Value-46',
         'SWYConverszGenAlbum-ZPRIVACYSTATE Raw Value-47')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path

@@ -2,12 +2,12 @@ __artifacts_v2__ = {
 'Ph008_1HasAdjustmentPhDaPsql': {
 'name': 'Ph008.1-Has Adjustment-PhDaPsql',
 'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZHASADJUSTMENTS value'
-' is 1 (iOS 11 to 17) or whose ZADJUSTMENTSSTATE is above 0 (iOS 18 to 26). The results contain'
+' is 1 (iOS 11 to 17) or whose ZADJUSTMENTSSTATE is above 0 (iOS 18 to 27). The results contain'
 ' one row per asset (ZASSET table, or ZGENERICASSET on iOS 11 to 13).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -16,7 +16,7 @@ __artifacts_v2__ = {
 ' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
 ' are unconfirmed. The labels for adjustment state, adjustment format version, adjustment render'
 ' types and generative AI type name a kind of edit or the tool that made it. The store records the'
-' value. The module cites no source tying a value to a tool.',
+' value. The module cites no source tying a value to a tool.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "edit",
@@ -40,12 +40,12 @@ __artifacts_v2__ = {
 },
 'Ph008_3HasAdjustmentGenPlayPsql': {
 'name': 'Ph008.3-Has Adjustment-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for adjusted assets on iOS 18 through 26.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for adjusted assets on iOS 18 through 27.'
 ' The results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
 ' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
 ' are unconfirmed. The labels for adjustment state, adjustment format version, adjustment render'
 ' types and generative AI type name a kind of edit or the tool that made it. The store records the'
-' value. The module cites no source tying a value to a tool.',
+' value. The module cites no source tying a value to a tool.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "edit",
@@ -85,7 +85,7 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
@@ -254,7 +254,7 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -408,10 +408,10 @@ def Ph008_3HasAdjustmentGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

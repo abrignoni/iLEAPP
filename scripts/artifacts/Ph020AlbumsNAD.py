@@ -2,7 +2,7 @@ __artifacts_v2__ = {
 'Ph020_1AlbumRecordswithNADPhDaPsql': {
 'name': 'Ph020.1-Album Records NAD-PhDaPsql',
 'description': 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM'
-' Table. Query branches exist for iOS 11 through 26. Parses Album records only no asset data being'
+' Table. The code handles iOS 11 through 27; iOS 27 runs the newest branch. Parses Album records only no asset data being'
 ' parsed. Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums. Use'
 ' 1505-Shared-Album-1505 in the search to view Shared Albums. Search the Album Kind column for'
 ' 1509-SWY_Synced_Conversation_Media-1509 to list the rows whose ZKIND is 1509. The album kind'
@@ -10,14 +10,14 @@ __artifacts_v2__ = {
 ' decoded. The stored integer is kept in each label. Please see the album type specific scripts to'
 ' view more data for each album type.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': '@AlexisBrignoni, Codex',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research credited to Scott Koenig. Album Kind uses the same report header across supported version branches; the existing author-assigned ZKIND display labels are unchanged.',
+'notes': 'Original parser and Photos.sqlite research credited to Scott Koenig. Album Kind uses the same report header across supported version branches; the existing author-assigned ZKIND display labels are unchanged.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "book",
@@ -42,22 +42,22 @@ __artifacts_v2__ = {
 'Ph020_2AlbumRecordswithNADSyndPL': {
 'name': 'Ph020.2-Album Records NAD-SyndPL',
 'description': 'Parses Basic Album records found in the'
-' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table. Query branches exist for'
-' iOS 11 through 26. Parses Album records only no asset data being parsed. Use 2-Non-Shared-Album-2'
+' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table. The code handles'
+' iOS 11 through 27; iOS 27 runs the newest branch. Parses Album records only no asset data being parsed. Use 2-Non-Shared-Album-2'
 ' in the search to view Non-Shared Albums. Use 1505-Shared-Album-1505 in the search to view Shared'
 ' Albums. Search the Album Kind column for 1509-SWY_Synced_Conversation_Media-1509 to list the rows'
 ' whose ZKIND is 1509. The album kind labels were assigned by the module author. The cited post'
 ' says several kind values are not decoded. The stored integer is kept in each label. Please see'
 ' the album type specific scripts to view more data for each album type.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': '@AlexisBrignoni, Codex',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research credited to Scott Koenig. Album Kind uses the same report header across supported version branches; the existing author-assigned ZKIND display labels are unchanged.',
+'notes': 'Original parser and Photos.sqlite research credited to Scott Koenig. Album Kind uses the same report header across supported version branches; the existing author-assigned ZKIND display labels are unchanged.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "book",
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
 'Ph020_3AlbumRecordswithNADGenPlayPsql': {
 'name': 'Ph020.3-Album Records NAD-GenPlayPsql',
 'description': 'Parses Basic Album records found in the GenPlay-Photos.sqlite ZGENERICALBUM Table'
-' and runs on iOS 18 through 26 only. On earlier iOS versions the artifact produces no rows and'
+' and runs on iOS 18 through 27 only. On earlier iOS versions the artifact produces no rows and'
 ' does not read the database. Parses Album records only no asset data being parsed. Use'
 ' 2-Non-Shared-Album-2 in the search to view Non-Shared Albums. Use 1505-Shared-Album-1505 in the'
 ' search to view Shared Albums. Search the Album Kind column for'
@@ -89,15 +89,15 @@ __artifacts_v2__ = {
 ' view more data for each album type.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/ (the post'
 ' describes the Ph20AlbumsNAD parser for the PhotoData and Syndication libraries; it does not cover'
-' the GenerativePlayground library, which this artifact reads on iOS 18 through 26 only)',
-'author': '@AlexisBrignoni, Codex',
+' the GenerativePlayground library, which this artifact reads on iOS 18 through 27 only)',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research credited to Scott Koenig. Album Kind uses the same report header across supported version branches; the existing author-assigned ZKIND display labels are unchanged.',
+'notes': 'Original parser and Photos.sqlite research credited to Scott Koenig. Album Kind uses the same report header across supported version branches; the existing author-assigned ZKIND display labels are unchanged.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "book",
@@ -128,7 +128,7 @@ def Ph020_1AlbumRecordswithNADPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
@@ -331,7 +331,7 @@ def Ph020_1AlbumRecordswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -419,7 +419,7 @@ def Ph020_2AlbumRecordswithNADSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
@@ -622,7 +622,7 @@ def Ph020_2AlbumRecordswithNADSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -710,10 +710,10 @@ def Ph020_3AlbumRecordswithNADGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

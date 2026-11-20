@@ -2,12 +2,12 @@ __artifacts_v2__ = {
 'Ph003_1TrashedRecentlyDeletedPhDaPsql': {
 'name': 'Ph003.1-Trashed Recently Deleted-PhDaPsql',
 'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for trashed-recently deleted assets.'
-' The results list assets whose ZTRASHEDSTATE is 1, on iOS 11 through 26. The results contain one'
+' The results list assets whose ZTRASHEDSTATE is 1, on iOS 11 through 27. The results contain one'
 ' row per asset.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -22,7 +22,7 @@ __artifacts_v2__ = {
 " Value labels in this report are the module author's working interpretations from testing. The"
 ' module cites no source for them. Each label carries the stored value. Labels marked STILLTESTING'
 ' are unconfirmed. The Syndication State labels for values 2, 8 and 10 are interpretations with no'
-' cited source. The store records the state value. It does not record who changed it.',
+' cited source. The store records the state value. It does not record who changed it.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -47,13 +47,13 @@ __artifacts_v2__ = {
 'Ph003_2RemovedfromCameraRollSyndPL': {
 'name': 'Ph003.2-Removed from Camera Roll-SyndPL',
 'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for'
-' Syndication library assets whose ZSYNDICATIONSTATE is 8 or 10, on iOS 15 through 26. No corpus'
+' Syndication library assets whose ZSYNDICATIONSTATE is 8 or 10, on iOS 15 through 27. No corpus'
 " in sample_data produced a row, so this artifact's output is unexercised. The results contain one"
 ' row per asset.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
 ' Core Data model stored in the tested databases (Z_MODELCACHE on abe_ios16, otto_ios17,'
 ' dexter_ios18 and falken_ios26) defines trashedByParticipant as a to-one relationship from Asset'
 ' to ShareParticipant. The value names a share participant record. Who operated the device is not'
-' recorded.',
+' recorded.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -89,12 +89,12 @@ __artifacts_v2__ = {
 'Ph003_3TrashedRecentlyDeletedGenPlayPsql': {
 'name': 'Ph003.3-Trashed Recently Deleted-GenPlayPsql',
 'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for trashed-recently deleted assets on'
-' iOS 18 through 26. Lists assets whose ZTRASHEDSTATE is 1. The results contain one row per asset.'
+' iOS 18 through 27. Lists assets whose ZTRASHEDSTATE is 1. The results contain one row per asset.'
 ' The only corpus in sample_data is at 0 rows.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
 " are the module author's working interpretations from testing. The module cites no source for"
 ' them. Each label carries the stored value. Labels marked STILLTESTING are unconfirmed. The'
 ' Syndication State labels for values 2, 8 and 10 are interpretations with no cited source. The'
-' store records the state value. It does not record who changed it.',
+' store records the state value. It does not record who changed it.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -138,7 +138,7 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
@@ -381,7 +381,7 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -474,7 +474,7 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
@@ -621,7 +621,7 @@ def Ph003_2RemovedfromCameraRollSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -714,10 +714,10 @@ def Ph003_3TrashedRecentlyDeletedGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

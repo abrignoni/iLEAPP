@@ -5,17 +5,17 @@ __artifacts_v2__ = {
 ' ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
 ' values record is not established here. This field is reported as stored, without assigning'
 ' meanings to its values.'
-' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it returns no rows'
+' The artifact runs on iOS 18 through 27 only. On earlier iOS versions it returns no rows'
 ' without reading the database. The results for this script will contain one row per ZASSET'
 ' table Z_PK value.',
-'author': 'Scott Koenig, @AlexisBrignoni, Codex',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "sparkles",
@@ -43,17 +43,17 @@ __artifacts_v2__ = {
 ' whose ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
 ' values record is not established here. This field is reported as stored, without assigning'
 ' meanings to its values.'
-' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it returns no rows'
+' The artifact runs on iOS 18 through 27 only. On earlier iOS versions it returns no rows'
 ' without reading the database. The results for this script will contain one row per ZASSET'
 ' table Z_PK value.',
-'author': 'Scott Koenig, @AlexisBrignoni, Codex',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "sparkles",
@@ -78,17 +78,17 @@ __artifacts_v2__ = {
 ' ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
 ' values record is not established here. This field is reported as stored, without assigning'
 ' meanings to its values.'
-' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it produces no rows and'
+' The artifact runs on iOS 18 through 27 only. On earlier iOS versions it produces no rows and'
 ' does not read the database. The results for this script will contain one row per ZASSET'
 ' table Z_PK value.',
-'author': 'Scott Koenig, @AlexisBrignoni, Codex',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "sparkles",
@@ -119,10 +119,10 @@ def Ph017_1GenAIDetectedPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
-    if  (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if  (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -277,10 +277,10 @@ def Ph017_2GenAIDetectedSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
-    if  (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if  (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -434,10 +434,10 @@ def Ph017_3GenAIDetectedGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
-    if  (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    if  (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
