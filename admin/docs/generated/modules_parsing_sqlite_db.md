@@ -267,6 +267,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | coreAccessoriesUserEvent |
 | discord_cache |
 | dmss |
+| dust |
 | easy4ip |
 | familyHub |
 | foursquareSwarm |
