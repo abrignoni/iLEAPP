@@ -1,0 +1,23 @@
+name: Open disposable inline review test
+on:
+  push:
+    branches: [codex/live-inline-fixture-test-20261121]
+    paths: [.github/workflows/temporary_inline_delivery_test.yml]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  open-test-draft:
+    if: github.actor_id == '28718987' && github.repository == 'abrignoni/iLEAPP'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open one draft for the maintainer's delivery test
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST repos/abrignoni/iLEAPP/pulls \
+            -f base=main -f head=codex/live-inline-fixture-test-20261121 \
+            -f title='Test public inline review delivery (do not merge)' \
+            -f body='Disposable iLEAPP automation test. The maintainer will close this PR after verifying the review delivery.' \
+            -F draft=true --jq .html_url
