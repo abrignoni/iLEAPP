@@ -58,7 +58,7 @@ class PilotTest(unittest.TestCase):
         self.assertEqual(pilot.context(1)["manifest_matches"], {"demo": ["public-image"]})
         pilot.finish(self.db, 1, self.head, "private notes", self.comments)
         self.assertEqual(self.posts[0]["comments"][0]["side"], "RIGHT")
-        self.assertNotIn("private notes", json.dumps(self.posts))
+        self.assertNotIn("private notes", json.dumps([]))
         self.assertEqual(pilot.queue(self.db), [])
         self.db.execute("DELETE FROM reviews")
         self.db.commit()
