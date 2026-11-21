@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "presentation is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Records with an empty Bundle ID are reported with their Scene ID as stored; "
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
                  "UI Application Element show True for 1 and False for 0. On the tested images "
                  "Element Type was SpringBoard (2) on all 42,978 written rows that carried it, "
                  "and 129 written rows carried none of these fields. 136 written records on "
-                 "the tested images did not decode and are not reported.",
+                 "the tested images did not decode and are not reported. Transition Reasons is field 9.7 (transitionReasons) of the BMFrontBoardDisplayElementDisplay class in BiomeLibrary.framework, macOS 27.2.1 (26B131); no iOS copy was read. It was not reported before. The field repeats; its values are joined with a semicolon and a space, in stored order and shown as stored; their meaning is not decoded here. On the 21 iOS images tested (16 held written records of this stream) it was set on 39,060 of 43,107 written rows, with 80,689 values. By shape: 33,821 values start with com.apple.SpringBoard or com.apple.springboard, 30,115 start with a name prefixed SB, CS, BLS or _SB and hold no UUID, 16,368 hold a UUID, 371 start with SBSourceApplication and 14 are other. Each of those rows held at least one value without a UUID.",
         "paths": ('*/streams/*/FrontBoard.DisplayElement/local/*',),
         "output_types": "standard",
         "artifact_icon": "layers",
@@ -68,6 +68,8 @@ TYPESS = {
     '6': {'type': 'int', 'name': ''},
     '7': {'type': 'int', 'name': ''},
     '8': {'type': 'int', 'name': ''},
+    # only transitionReasons (9.7) is pinned; the other display fields keep their decoding
+    '9': {'type': 'message', 'name': '', 'message_typedef': {'7': {'type': 'bytes', 'name': ''}}},
     '10': {'type': 'int', 'name': ''},
 }
 
@@ -95,6 +97,12 @@ def _name(names, value):
     return names.get(value, '') if isinstance(value, int) else ''
 
 
+def _transition_reasons(value):
+    """transitionReasons (9.7) is repeated: one bytes value or a list, shown as stored."""
+    values = value if isinstance(value, list) else [value]
+    return '; '.join(item.decode('utf-8', errors='replace') for item in values if isinstance(item, bytes))
+
+
 def _unix_double(value):
     if not isinstance(value, int) or value == 0:
         return None
@@ -111,6 +119,7 @@ def get_biomeFrontBoardDisplayElement(context):
     data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
                     'SEGB State', 'Bundle ID', 'Scene ID', 'Display Name', 'Display Device Name',
                     'Display Backlight Status', 'Display Backlight Status (raw)',
+                    'Transition Reasons',
                     'Element Type', 'Element Type (raw)', 'Layout Role', 'Level',
                     'Has Keyboard Focus', 'Is UI Application Element', 'Change Type',
                     'Change Type (raw)', 'Filename', 'Offset')
@@ -152,6 +161,7 @@ def get_biomeFrontBoardDisplayElement(context):
                                   _to_str(display.get('3', b'')),
                                   _name(BACKLIGHT_STATUS, display.get('6')),
                                   display.get('6', ''),
+                                  _transition_reasons(display.get('7')),
                                   _name(ELEMENT_TYPE, protostuff.get('4')),
                                   protostuff.get('4', ''), protostuff.get('5', ''),
                                   protostuff.get('6', ''), _bool(protostuff.get('7')),
@@ -161,7 +171,7 @@ def get_biomeFrontBoardDisplayElement(context):
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                results.add_row((ts, None, record.state.name, None, None, None, None, None,
+                results.add_row((ts, None, record.state.name, None, None, None, None, None, None,
                                   None, None, None, None, None, None, None, None, None, filename,
                                   record.data_start_offset))
 

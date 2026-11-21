@@ -164,7 +164,7 @@ class BiomeDKInfocusRetention(unittest.TestCase):
             self.assertEqual([r[1:4] for r in rows], [(EXPECTED, EXPECTED, EXPECTED),
                                                        (None, EXPECTED, EXPECTED),
                                                        (EXPECTED, None, EXPECTED)])
-            self.assertEqual([(r[5], r[6], r[12]) for r in rows],
+            self.assertEqual([(r[6], r[7], r[13]) for r in rows],
                              [('/app/inFocus', 'com.example.app', 'action-guid')] * 3)
 
 

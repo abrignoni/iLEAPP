@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "metadata stored with the record.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class on macOS 27.2.1 (26B131); no "
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                  "5,195 written rows, a version string or extension id on 744, and was empty on 544. "
                  "Time Write is field 8, which the class names creationDate. Written records that "
                  "do not decode are skipped and logged (21, all on dexter_ios18, of 6,504 written "
-                 "records on 20 corpus images)."),
+                 "records on 20 corpus images). Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), it was set on each of the 6,483 written rows, with 9 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.App.InFocus/local/*',),
         "output_types": "standard",
         "artifact_icon": "focus-2",
@@ -138,23 +138,24 @@ def get_biomeDKInfocus(context):
                     actionguid = (protostuff['5'])
                     bundleid = (protostuff['4']['3'])
                     meta = _metadata_by_index(protostuff.get('7'))
+                    tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeDKInfocus record due to protobuf decode error: {ex} | "
                             f"File: {context.get_relative_path(file_found)} | "
                             f"Offset: {record.data_start_offset}")
                     continue
 
-                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, bundleid,
+                data_list.append((ts, timestart, timeend, timewrite, tz_offset, record.state.name, activity, bundleid,
                                   meta.get(6002, ''), meta.get(6007, ''), meta.get(6008, ''),
                                   meta.get(6003, ''), meta.get(6004, ''),
                                   actionguid, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, None, record.state.name) + (None,) * 8 +
+                data_list.append((ts, None, None, None, None, record.state.name) + (None,) * 8 +
                                  (filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID', 'Launch Reason', 'Short Version',
+                    ('Time Write', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Activity', 'Bundle ID', 'Launch Reason', 'Short Version',
                     'Exact Bundle Version', 'Extension Host ID', 'Extension Containing Bundle ID', 'Action GUID',
                     'Filename', 'Offset')
 

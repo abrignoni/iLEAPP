@@ -8,11 +8,11 @@ __artifacts_v2__ = {
                        "_DKEvent.Safari.History.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The rounded timestamp is the record timestamp rounded up to the next 30 minute "
-                 "boundary (observed on the iOS 17.3 and iOS 18.7.8 images tested).",
+                 "boundary (observed on the iOS 17.3 and iOS 18.7.8 images tested). Privacy Proxy is field 6 (privacyProxy), a true or false value of the BMSafariNavigations class in BiomeLibrary.framework, macOS 27.2.1 (26B131); no iOS copy was read. It was not reported before, and what sets it is not established here. On the 21 iOS images tested (14 held written records of this stream) it was True on 6 and False on 198 of the 204 written rows. Field 9 (privateRelayVendorName) is not reported: it was empty on the 106 rows that held it.",
         "paths": ('*/streams/*/Safari.Navigations/local/*',),
         "output_types": "standard",
         "artifact_icon": "compass",
@@ -44,6 +44,7 @@ TYPESS = {
     '3': {'type': 'int', 'name': ''},
     '4': {'type': 'int', 'name': ''},
     '5': {'type': 'str', 'name': ''},
+    '6': {'type': 'int', 'name': ''},
     '8': {'type': 'str', 'name': ''},
 }
 
@@ -104,15 +105,16 @@ def get_biomeSafariNavigations(context):
                 host = _to_str(protostuff.get('1', b''))
                 url = _to_str(protostuff.get('8', b''))
                 country = _to_str(protostuff.get('5', b''))
+                privacy_proxy = {1: 'True', 0: 'False'}.get(protostuff.get('6'), '')
 
-                data_list.append((ts, rounded_ts, record.state.name, host, url, country,
+                data_list.append((ts, rounded_ts, record.state.name, host, url, country, privacy_proxy,
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, filename,
+                data_list.append((ts, None, record.state.name, None, None, None, None, filename,
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Rounded Timestamp (30 min)', 'datetime'),
-                    'SEGB State', 'Host', 'URL', 'Country', 'Filename', 'Offset')
+                    'SEGB State', 'Host', 'URL', 'Country', 'Privacy Proxy', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

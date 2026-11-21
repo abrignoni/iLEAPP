@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "activity payload string whose content depends on the app.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "On the tested images the expiration timestamp was 30 days after the SEGB "
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                  "of the 1,844 written rows, and Item Related Content URL was set on 711 of "
                  "them. Reference: Mattia "
                  "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html . Content Description is field 4 (contentDescription) of the BMAppActivity class in BiomeLibrary.framework, macOS 27.2.1 (26B131); no iOS copy was read. It was not reported before. On the 21 iOS images tested (9 held written records of this stream) it was non-empty on 183 of 1,844 written rows, on 8 images, with 69 distinct values.",
         "paths": ('*/streams/*/App.Activity/local/*',),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -55,6 +55,7 @@ TYPESS = {
     '1': {'type': 'str', 'name': ''},
     '2': {'type': 'str', 'name': ''},
     '3': {'type': 'int', 'name': ''},
+    '4': {'type': 'bytes', 'name': ''},
     '8': {'type': 'str', 'name': ''},
     '9': {'type': 'str', 'name': ''},
     '10': {'type': 'str', 'name': ''},
@@ -129,6 +130,7 @@ def get_biomeAppActivity(context):
                 bundle_id = _to_str(protostuff.get('1', b''))
                 activity_type = _to_str(protostuff.get('2', b''))
                 beginning = _bool(protostuff.get('3'))
+                content_description = _to_str(protostuff.get('4', b''))
                 item_identifier = _to_str(protostuff.get('8', b''))
                 content_url = _to_str(protostuff.get('9', b''))
                 related_unique_id = _to_str(protostuff.get('10', b''))
@@ -137,16 +139,17 @@ def get_biomeAppActivity(context):
                 source = _to_str(protostuff.get('16', b''))
 
                 data_list.append((ts, expiration, record.state.name, bundle_id, activity_type,
+                                  content_description,
                                   payload, content_url, related_unique_id, item_identifier,
                                   activity_uuid, source, beginning, filename,
                                   record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None, None, None,
+                data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None,
                                   None, None, None, filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Expiration Timestamp', 'datetime'),
-                    'SEGB State', 'Bundle ID', 'Activity Type', 'Payload',
+                    'SEGB State', 'Bundle ID', 'Activity Type', 'Content Description', 'Payload',
                     'Item Related Content URL', 'Item Related Unique Identifier',
                     'Item Identifier', 'User Activity UUID', 'Source', 'Beginning Of Activity',
                     'Filename', 'Offset')
