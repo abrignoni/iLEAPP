@@ -1,29 +1,38 @@
+"""Report three event streams from the CoreDuet knowledge store (knowledgeC.db)."""
+
 __artifacts_v2__ = {
     "knowledgeC_NotificationUsage": {
         "name": "knowledgeC - Notification Usage",
-        "description": "Notification events from the /notification/usage stream of knowledgeC.db: the usage "
-                       "type, the app bundle ID and the notification identifier.",
+        "description": "Rows of the /notification/usage stream in knowledgeC.db, with the event "
+                       "name, notification identifier and bundle ID as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "Developed independently, working from the store's schema, its data and the metadata key "
-                 "names in Apple's CoreDuet framework. Those key names were read from CoreDuet on macOS 27.2.1 "
-                 "(26B131); no iOS copy of the framework was read. The Biome artifact for this stream reads a "
-                 "separate store. Whether the two stores hold the same events was not compared field by field. "
-                 "Tested images means the 25 images in sample_data (iOS 12.4 to 26.5.2). Device ID is "
-                 "ZSOURCE.ZDEVICEID as stored, filled on 807 rows across 3 tested images; whether a filled "
-                 "value means the row came from another device is not established. Timestamp is ZSTARTDATE; "
-                 "ZENDDATE held the same value on every tested row, so it is not a column. Record Created is "
-                 "ZCREATIONDATE, and what the gap between it and Timestamp means is not established. Usage "
-                 "Type is the stored text; every value seen is a usage type name of the BMNotificationUsage "
-                 "class in BiomeLibrary on macOS 27.2.1 (26B131). On the tested images only Receive rows "
-                 "stored a bundle ID: 12,092 of 23,004 rows (Bundle ID Origin Recorded). On 8,496 other rows "
-                 "Bundle ID comes from a Receive row in the same store with the same Notification ID (Bundle "
-                 "ID Origin Same Notification ID); no tested identifier named two apps, but an identifier can "
-                 "recur over time. The remaining 2,416 rows have no such Receive row and leave Bundle ID and "
-                 "Bundle ID Origin blank.",
+        "notes": "Developed independently, working from the store's schema, its data and Apple's frameworks "
+                 "(CoreDuet key names read on macOS 27.2.1, 26B131; no iOS copy of the framework was read). "
+                 "Tested images means the 25 images in sample_data (iOS 12.4 to 26.5.2). The Biome artifact "
+                 "for this stream reads a separate store, and whether the two hold the same events was not "
+                 "compared field by field. Times are Core Data TIMESTAMP columns converted from Cocoa seconds "
+                 "to UTC and cut to the whole second. Creation Time is ZCREATIONDATE and Local Creation Time "
+                 "is ZLOCALCREATIONDATE, both shown in UTC. What sets either is not established. Seconds From "
+                 "GMT is ZSECONDSFROMGMT as stored. Whether it is the offset in force at the event is not "
+                 "established. End Time equals Start Time on all 23,004 rows of the tested images. Event is "
+                 "ZVALUESTRING as stored. All 13 names stored on the tested images are among those returned by "
+                 "BMNotificationUsageTypeAsString in Apple's BiomeLibrary (macOS 27.2.1, 26B131). The function "
+                 "gives names and no definitions, so what each name means is not established. On the tested "
+                 "images Bundle ID is stored only on Receive rows (12,092 rows). Bundle ID (Same Identifier) "
+                 "is derived. For a row with no stored bundle ID, it is the bundle ID stored on rows of the "
+                 "same store with the same identifier and the same device ID, or no device ID on both. It is "
+                 "left blank when those rows hold more than one bundle ID, which did not occur on the tested "
+                 "images, where all such rows are Receive rows. It fills 8,496 rows, and 2,416 rows have no "
+                 "such Receive row and leave both columns blank. Source Device ID is ZSOURCE.ZDEVICEID. It is "
+                 "filled on 807 rows in 3 tested images, and every such ID matches a ZSYNCPEER row. Whether a "
+                 "row with one describes an event on this device is not established. Peer Model is "
+                 "ZSYNCPEER.ZMODEL for that ID. When a -wal is beside the store it is applied, so rows the "
+                 "-wal has superseded are not reported. One tested image had no -wal and was read from the "
+                 "database file alone.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "bell",
@@ -57,30 +66,33 @@ __artifacts_v2__ = {
     },
     "knowledgeC_AppActivity": {
         "name": "knowledgeC - App Activity",
-        "description": "App activity records from the /app/activity stream of knowledgeC.db: the app, the "
-                       "activity type, its description and any related content URL.",
+        "description": "Rows of the /app/activity stream in knowledgeC.db, with the activity metadata stored on each "
+                       "row.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "Developed independently, working from the store's schema, its data and the metadata key "
-                 "names in Apple's CoreDuet framework. Those key names were read from CoreDuet on macOS 27.2.1 "
-                 "(26B131); no iOS copy of the framework was read. The Biome artifact for this stream reads a "
-                 "separate store. Whether the two stores hold the same events was not compared field by field. "
-                 "Tested images means the 25 images in sample_data (iOS 12.4 to 26.5.2). Device ID is "
-                 "ZSOURCE.ZDEVICEID and held no value on the tested images. Timestamp is ZSTARTDATE; ZENDDATE "
-                 "held the same value on every tested row, so it is not a column. Record Created is "
-                 "ZCREATIONDATE. Bundle ID is ZVALUESTRING as stored. On 84 of the 4,124 tested rows, in 4 "
-                 "images, the value is a single word with no dot, and whether that value is a bundle ID is not "
-                 "established. Expiration is a Cocoa date. Each other column is the metadata key its header "
-                 "names, reported as stored. Related Content URL is itemRelatedContentURL and Related Unique "
-                 "Identifier is itemRelatedUniqueIdentifier. What the 0 and 1 flags mean on a given row is not "
-                 "established. A key the store lacks leaves its column blank. Not reported: "
-                 "userActivityRequiredString, a text value that is not decoded here; shortcutAvailability, "
-                 "which held only 0 or no value on the tested images; and the Calendar date and external ID "
-                 "columns (19 rows on the tested images), whose date epoch is not established. The title key "
-                 "held no value on any tested row.",
+        "notes": "Developed independently, working from the store's schema, its data and Apple's frameworks "
+                 "(CoreDuet key names read on macOS 27.2.1, 26B131; no iOS copy of the framework was read). "
+                 "Tested images means the 25 images in sample_data (iOS 12.4 to 26.5.2). The Biome artifact "
+                 "for this stream reads a separate store, and whether the two hold the same events was not "
+                 "compared field by field. Times are Core Data TIMESTAMP columns converted from Cocoa seconds "
+                 "to UTC and cut to the whole second. Creation Time is ZCREATIONDATE and Local Creation Time "
+                 "is ZLOCALCREATIONDATE, both shown in UTC. What sets either is not established. Seconds From "
+                 "GMT is ZSECONDSFROMGMT as stored. Whether it is the offset in force at the event is not "
+                 "established. End Time equals Start Time on all 4,124 rows of the tested images. Expiration "
+                 "Time is the expirationDate metadata key. On 3,760 of its 3,764 filled rows it falls 29 to 31 "
+                 "days after Start Time. What it marks is not established. Bundle ID is ZVALUESTRING as "
+                 "stored; on 84 rows, in 4 images, it is a single word with no dot, and whether that value is "
+                 "a bundle ID is not established. Calendar Date Value and Calendar End Date Value are declared "
+                 "INTEGER, not TIMESTAMP. They are reported as stored and their epoch is not established. "
+                 "Required String and Beginning Of Activity are as stored and their meaning is not "
+                 "established. Beginning Of Activity is absent from 2 tested stores. Title, Source Device ID "
+                 "and Peer Model held no value on all 4,124 rows of the tested images and are kept for stores "
+                 "that fill them. When a -wal is beside the store it is applied, so rows the -wal has "
+                 "superseded are not reported. One tested image had no -wal and was read from the database "
+                 "file alone.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -114,28 +126,35 @@ __artifacts_v2__ = {
     },
     "knowledgeC_AppWebUsage": {
         "name": "knowledgeC - App Web Usage",
-        "description": "Web usage periods from the /app/webUsage stream of knowledgeC.db: the app, the web "
-                       "domain and the page URL.",
+        "description": "Rows of the /app/webUsage stream in knowledgeC.db, with the bundle ID, web domain and page "
+                       "URL as stored, and the start and end times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "Developed independently, working from the store's schema, its data and the metadata key "
-                 "names in Apple's CoreDuet framework. Those key names were read from CoreDuet on macOS 27.2.1 "
-                 "(26B131); no iOS copy of the framework was read. The Biome artifact for this stream reads a "
-                 "separate store. Whether the two stores hold the same events was not compared field by field. "
-                 "Tested images means the 25 images in sample_data (iOS 12.4 to 26.5.2). Device ID is "
-                 "ZSOURCE.ZDEVICEID as stored, filled on 22 rows across 2 tested images; whether a filled "
-                 "value means the row came from another device is not established. Start Time is ZSTARTDATE, "
-                 "End Time ZENDDATE and Record Created ZCREATIONDATE. Bundle ID is ZVALUESTRING. Usage Type is "
-                 "stored as an integer and its meaning is not established: it held 1 on 843 and 0 on 5 of the "
-                 "848 rows on the tested images. Is Usage Trusted held 1 on all 611 rows of the stores that "
-                 "have the column. The iOS 12.4 and 13.3.1 stores lack the column and their 237 rows leave it "
-                 "blank. The safariProfileID key held no value on any tested row and is not reported.",
+        "notes": "Developed independently, working from the store's schema, its data and Apple's frameworks "
+                 "(CoreDuet key names read on macOS 27.2.1, 26B131; no iOS copy of the framework was read). "
+                 "Tested images means the 25 images in sample_data (iOS 12.4 to 26.5.2). The Biome artifact "
+                 "for this stream reads a separate store, and whether the two hold the same events was not "
+                 "compared field by field. Times are Core Data TIMESTAMP columns converted from Cocoa seconds "
+                 "to UTC and cut to the whole second. Creation Time is ZCREATIONDATE and Local Creation Time "
+                 "is ZLOCALCREATIONDATE, both shown in UTC. What sets either is not established. Seconds From "
+                 "GMT is ZSECONDSFROMGMT as stored. Whether it is the offset in force at the event is not "
+                 "established. Bundle ID is ZVALUESTRING as stored. Duration is End Time minus Start Time. "
+                 "Usage Type and Is Usage Trusted are integers as stored and their meaning is not established. "
+                 "Usage Type held 1 on 843 and 0 on 5 of the 848 rows of the tested images. Is Usage Trusted "
+                 "held 1 on all 611 rows of the stores that have the column. The iOS 12.4 and 13.3.1 stores "
+                 "lack the column and their 237 rows are blank. Safari Profile ID is absent from 10 of the 25 "
+                 "tested stores and held no value on the 349 rows of the others. It is kept for stores that "
+                 "fill it. Source Device ID is ZSOURCE.ZDEVICEID. It is filled on 22 rows in 2 tested images, "
+                 "and every such ID matches a ZSYNCPEER row. Whether a row with one describes an event on this "
+                 "device is not established. Peer Model is ZSYNCPEER.ZMODEL for that ID. When a -wal is beside "
+                 "the store it is applied, so rows the -wal has superseded are not reported. One tested image "
+                 "had no -wal and was read from the database file alone.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "world",
+        "artifact_icon": "world-www",
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 71 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 36 rows",
@@ -166,106 +185,162 @@ __artifacts_v2__ = {
     },
 }
 
-from scripts.ilapfuncs import artifact_processor, convert_cocoa_core_data_ts_to_utc, logfunc, \
-    open_sqlite_db_readonly
+import os
 
-NOTIFICATION_KEY = 'Z_DKNOTIFICATIONUSAGEMETADATAKEY__'
-ACTIVITY_KEY = 'Z_DKAPPLICATIONACTIVITYMETADATAKEY__'
-WEB_KEY = 'Z_DKDIGITALHEALTHMETADATAKEY__'
+from scripts.ilapfuncs import (
+    artifact_processor,
+    convert_cocoa_core_data_ts_to_utc,
+    convert_unix_ts_to_utc,
+    does_table_exist_in_db,
+    get_sqlite_db_records,
+    null_absent_columns,
+    sqlite_databases,
+)
+
+COCOA_EPOCH_UNIX = 978307200
+ACTIVITY = 'm.Z_DKAPPLICATIONACTIVITYMETADATAKEY__'
+CALENDAR = 'm.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_'
+NOTIFICATION = 'm.Z_DKNOTIFICATIONUSAGEMETADATAKEY__'
+WEB = 'm.Z_DKDIGITALHEALTHMETADATAKEY__'
+
+COMMON_SELECT = """
+    o.Z_PK AS object_pk, o.ZUUID AS object_uuid,
+    o.ZSTARTDATE AS start_time, o.ZENDDATE AS end_time,
+    o.ZCREATIONDATE AS creation_time, o.ZLOCALCREATIONDATE AS local_creation_time,
+    o.ZSECONDSFROMGMT AS seconds_from_gmt, o.ZVALUESTRING AS value_string,
+    s.ZDEVICEID AS source_device_id"""
+
+
+def _cocoa(value):
+    """Convert stored Cocoa seconds to UTC, keeping NULL blank and 0 as a real time."""
+    if value is None:
+        return ''
+    if value == 0:
+        return convert_unix_ts_to_utc(COCOA_EPOCH_UNIX)
+    return convert_cocoa_core_data_ts_to_utc(value)
 
 
 def _stores(context):
-    """Every staged knowledgeC.db, leaving out its -wal and -shm."""
-    return [str(path) for path in context.get_files_found() if str(path).endswith('knowledgeC.db')]
+    """The distinct knowledgeC.db files found, without their sidecars."""
+    found = sqlite_databases(context.get_files_found())
+    return list(dict.fromkeys(f for f in found if os.path.basename(f) == 'knowledgeC.db'))
 
 
-def _stream_rows(store, stream, metadata_columns):
-    """Rows of one stream as (start, end, created, value, *metadata, device). A missing column reads None."""
-    with open_sqlite_db_readonly(store) as db:
-        cursor = db.cursor()
-        tables = {row[0] for row in cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
-        if not {'ZOBJECT', 'ZSTRUCTUREDMETADATA'} <= tables:
-            logfunc(f'knowledgeC tables not found in {store}')
-            return []
-        present = {row[1] for row in cursor.execute('PRAGMA table_info(ZSTRUCTUREDMETADATA)')}
-        selected = ', '.join(f'm."{column}"' if column in present else 'NULL' for column in metadata_columns)
-        source_columns = {row[1] for row in cursor.execute('PRAGMA table_info(ZSOURCE)')}
-        device = 's.ZDEVICEID' if 'ZDEVICEID' in source_columns else 'NULL'
-        source_join = 'LEFT JOIN ZSOURCE s ON o.ZSOURCE = s.Z_PK ' if device != 'NULL' else ''
-        cursor.execute(
-            f'SELECT o.ZSTARTDATE, o.ZENDDATE, o.ZCREATIONDATE, o.ZVALUESTRING, {selected}, {device} '
-            'FROM ZOBJECT o LEFT JOIN ZSTRUCTUREDMETADATA m ON o.ZSTRUCTUREDMETADATA = m.Z_PK '
-            f'{source_join}'
-            'WHERE o.ZSTREAMNAME = ? ORDER BY o.ZSTARTDATE, o.Z_PK', (stream,))
-        return cursor.fetchall()
-
-
-def _time(value):
-    return convert_cocoa_core_data_ts_to_utc(value) if value else ''
-
-
-def _notification_rows(rows):
-    """Add the app to rows without one, from the Receive row holding the same notification identifier."""
-    apps = {}
-    for row in rows:
-        bundle_id, identifier = row[4], row[5]
-        if bundle_id and identifier:
-            apps.setdefault(identifier, set()).add(bundle_id)
-    data = []
-    for start, _end, created, usage_type, bundle_id, identifier, device in rows:
-        origin = 'Recorded' if bundle_id else ''
-        if not bundle_id and len(apps.get(identifier, ())) == 1:
-            bundle_id = next(iter(apps[identifier]))
-            origin = 'Same Notification ID'
-        data.append((_time(start), _time(created), usage_type, bundle_id or '', origin, identifier or '',
-                     device or ''))
-    return data
+def _query(db_path, stream, select):
+    """Rows of one stream. Every join is a LEFT JOIN so no stream row can be dropped."""
+    if does_table_exist_in_db(db_path, 'ZSYNCPEER'):
+        peer = '(SELECT MAX(p.ZMODEL) FROM ZSYNCPEER p WHERE p.ZDEVICEID = s.ZDEVICEID)'
+    else:
+        peer = 'NULL'
+    query = f"""
+        SELECT {COMMON_SELECT}, {peer} AS peer_model, {select}
+        FROM ZOBJECT o
+        LEFT JOIN ZSOURCE s ON s.Z_PK = o.ZSOURCE
+        LEFT JOIN ZSTRUCTUREDMETADATA m ON m.Z_PK = o.ZSTRUCTUREDMETADATA
+        WHERE o.ZSTREAMNAME = '{stream}'
+        ORDER BY o.ZSTARTDATE, o.Z_PK
+    """
+    return list(get_sqlite_db_records(db_path, null_absent_columns(db_path, query)))
 
 
 @artifact_processor
 def knowledgeC_NotificationUsage(context):
-    """Parse /notification/usage from knowledgeC.db."""
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Creation Time', 'datetime'),
+        ('Local Creation Time', 'datetime'), 'Event', 'Seconds From GMT', 'Bundle ID',
+        'Bundle ID (Same Identifier)', 'Notification Identifier', 'Source Device ID',
+        'Peer Model', 'Object UUID', 'Object Z_PK',
+    )
+    select = f"{NOTIFICATION}BUNDLEID AS bundle_id, {NOTIFICATION}IDENTIFIER AS identifier"
     stores = _stores(context)
-    columns = (NOTIFICATION_KEY + 'BUNDLEID', NOTIFICATION_KEY + 'IDENTIFIER')
     data_list = []
-    for store in stores:
-        data_list.extend(_notification_rows(_stream_rows(store, '/notification/usage', columns)))
-    data_headers = (('Timestamp', 'datetime'), ('Record Created', 'datetime'), 'Usage Type', 'Bundle ID',
-                    'Bundle ID Origin', 'Notification ID', 'Device ID')
+    for db_path in stores:
+        records = _query(db_path, '/notification/usage', select)
+        linked = {}
+        for rec in records:
+            if rec['bundle_id']:
+                linked.setdefault((rec['identifier'], rec['source_device_id']), set()).add(
+                    rec['bundle_id'])
+        rows = []
+        for rec in records:
+            same_identifier = ''
+            if not rec['bundle_id']:
+                matches = linked.get((rec['identifier'], rec['source_device_id']), ())
+                if len(matches) == 1:
+                    same_identifier = next(iter(matches))
+            rows.append((
+                _cocoa(rec['start_time']), _cocoa(rec['end_time']), _cocoa(rec['creation_time']),
+                _cocoa(rec['local_creation_time']), rec['value_string'], rec['seconds_from_gmt'],
+                rec['bundle_id'], same_identifier, rec['identifier'], rec['source_device_id'],
+                rec['peer_model'], rec['object_uuid'], rec['object_pk'],
+            ))
+        data_list.extend(rows)
     return data_headers, data_list, '\n'.join(stores)
 
 
 @artifact_processor
 def knowledgeC_AppActivity(context):
-    """Parse /app/activity from knowledgeC.db."""
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Creation Time', 'datetime'),
+        ('Local Creation Time', 'datetime'), ('Expiration Time', 'datetime'),
+        'Seconds From GMT', 'Bundle ID', 'Activity Type', 'Item Identifier',
+        'Item Related Unique Identifier', 'User Activity UUID', 'Source Device ID', 'Peer Model',
+        'Object UUID', 'Object Z_PK', 'Title', 'Content Description', 'Item Related Content URL',
+        'Suggested Invocation Phrase', 'Required String', 'Beginning Of Activity',
+        'Calendar Date Value', 'Calendar End Date Value', 'Calendar External ID',
+    )
+    select = f"""{ACTIVITY}EXPIRATIONDATE AS expiration, {ACTIVITY}ACTIVITYTYPE AS activity_type,
+        {ACTIVITY}ITEMIDENTIFIER AS item_identifier,
+        {ACTIVITY}ITEMRELATEDUNIQUEIDENTIFIER AS related_unique,
+        {ACTIVITY}USERACTIVITYUUID AS activity_uuid, {ACTIVITY}TITLE AS title,
+        {ACTIVITY}CONTENTDESCRIPTION AS content_description,
+        {ACTIVITY}ITEMRELATEDCONTENTURL AS related_url,
+        {ACTIVITY}SUGGESTEDINVOCATIONPHRASE AS invocation_phrase,
+        {ACTIVITY}USERACTIVITYREQUIREDSTRING AS required_string,
+        {ACTIVITY}BEGINNINGOFACTIVITY AS beginning,
+        {CALENDAR}DATE AS calendar_date, {CALENDAR}ENDDATE AS calendar_end,
+        {CALENDAR}EXTERNALID AS calendar_external_id"""
     stores = _stores(context)
-    columns = tuple(ACTIVITY_KEY + name for name in (
-        'EXPIRATIONDATE', 'ACTIVITYTYPE', 'CONTENTDESCRIPTION', 'ITEMRELATEDCONTENTURL', 'SUGGESTEDINVOCATIONPHRASE',
-        'ITEMIDENTIFIER', 'ITEMRELATEDUNIQUEIDENTIFIER', 'USERACTIVITYUUID', 'ISELIGIBLEFORPREDICTION',
-        'ISPUBLICLYINDEXABLE', 'BEGINNINGOFACTIVITY'))
     data_list = []
-    for store in stores:
-        for start, _end, created, bundle_id, expiration, *rest in _stream_rows(store, '/app/activity', columns):
-            data_list.append((_time(start), _time(created), _time(expiration), bundle_id,
-                              *('' if value is None else value for value in rest)))
-    data_headers = (('Timestamp', 'datetime'), ('Record Created', 'datetime'), ('Expiration', 'datetime'),
-                    'Bundle ID', 'Activity Type', 'Content Description', 'Related Content URL',
-                    'Suggested Invocation Phrase', 'Item Identifier', 'Related Unique Identifier',
-                    'User Activity UUID', 'Is Eligible For Prediction', 'Is Publicly Indexable',
-                    'Beginning Of Activity', 'Device ID')
+    for db_path in stores:
+        rows = [(
+            _cocoa(rec['start_time']), _cocoa(rec['end_time']), _cocoa(rec['creation_time']),
+            _cocoa(rec['local_creation_time']), _cocoa(rec['expiration']),
+            rec['seconds_from_gmt'], rec['value_string'], rec['activity_type'],
+            rec['item_identifier'], rec['related_unique'], rec['activity_uuid'],
+            rec['source_device_id'], rec['peer_model'], rec['object_uuid'], rec['object_pk'],
+            rec['title'], rec['content_description'], rec['related_url'],
+            rec['invocation_phrase'], rec['required_string'], rec['beginning'],
+            rec['calendar_date'], rec['calendar_end'], rec['calendar_external_id'],
+        ) for rec in _query(db_path, '/app/activity', select)]
+        data_list.extend(rows)
     return data_headers, data_list, '\n'.join(stores)
 
 
 @artifact_processor
 def knowledgeC_AppWebUsage(context):
-    """Parse /app/webUsage from knowledgeC.db."""
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Creation Time', 'datetime'),
+        ('Local Creation Time', 'datetime'), 'Duration (Seconds)', 'Seconds From GMT',
+        'Bundle ID', 'Web Domain', 'Web Page URL', 'Safari Profile ID', 'Source Device ID',
+        'Peer Model', 'Object UUID', 'Object Z_PK', 'Usage Type', 'Is Usage Trusted',
+    )
+    select = f"""{WEB}WEBDOMAIN AS web_domain, {WEB}WEBPAGEURL AS web_url,
+        {WEB}SAFARIPROFILEID AS safari_profile, {WEB}USAGETYPE AS usage_type,
+        {WEB}ISUSAGETRUSTED AS usage_trusted"""
     stores = _stores(context)
-    columns = tuple(WEB_KEY + name for name in ('WEBDOMAIN', 'WEBPAGEURL', 'USAGETYPE', 'ISUSAGETRUSTED'))
     data_list = []
-    for store in stores:
-        for start, end, created, bundle_id, *rest in _stream_rows(store, '/app/webUsage', columns):
-            data_list.append((_time(start), _time(end), _time(created), bundle_id,
-                              *('' if value is None else value for value in rest)))
-    data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'), ('Record Created', 'datetime'),
-                    'Bundle ID', 'Web Domain', 'Web Page URL', 'Usage Type', 'Is Usage Trusted', 'Device ID')
+    for db_path in stores:
+        rows = []
+        for rec in _query(db_path, '/app/webUsage', select):
+            start, end = rec['start_time'], rec['end_time']
+            duration = end - start if start is not None and end is not None else ''
+            rows.append((
+                _cocoa(start), _cocoa(end), _cocoa(rec['creation_time']),
+                _cocoa(rec['local_creation_time']), duration, rec['seconds_from_gmt'],
+                rec['value_string'], rec['web_domain'], rec['web_url'], rec['safari_profile'],
+                rec['source_device_id'], rec['peer_model'], rec['object_uuid'], rec['object_pk'],
+                rec['usage_type'], rec['usage_trusted'],
+            ))
+        data_list.extend(rows)
     return data_headers, data_list, '\n'.join(stores)
