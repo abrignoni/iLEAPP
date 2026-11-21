@@ -125,10 +125,10 @@ def deliver_report(db, thread, number, head):
         with db:
             warn = db.execute("UPDATE inbox_sending SET warned=1 WHERE pr=? AND head=? "
                               "AND warned=0", key).rowcount
-        if warn:
-            message = f"Inbox delivery needs confirmation for PR #{number} at {head}."
-            print(message, flush=True)
-            notify(message)
+            if warn:
+                message = f"Inbox delivery needs confirmation for PR #{number} at {head}."
+                print(message, flush=True)
+                notify(message)
 
 
 def resolve_inbox(db, number, head, outcome):
@@ -154,7 +154,7 @@ def resolve_inbox(db, number, head, outcome):
                     thread, = db.execute("SELECT thread FROM inbox_target").fetchone()
                     if outcome == "retry" and queue_acknowledged(saved, thread):
                         raise ValueError("Codex acknowledged this delivery")
-                    receipt.unlink()
+        receipt.unlink(missing_ok=True)
 
 
 def deliver_inbox(db):

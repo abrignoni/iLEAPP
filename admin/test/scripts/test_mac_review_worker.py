@@ -1,5 +1,6 @@
 """Check pickup across updates, offline periods and retries without a model or GitHub."""
 import os
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -166,10 +167,37 @@ with w.pilot.database() as db, (w.pilot.STATE / "pickup.lock").open("a") as lock
                 child_output.write(f"Queued message {thread} for thread {thread}.\n".encode())
             with self.assertRaisesRegex(ValueError, "acknowledged"):
                 worker.resolve_inbox(db, 11, head, "retry")
+            def deny_commit(action, operation, *_):
+                if action == sqlite3.SQLITE_TRANSACTION and operation == "COMMIT":
+                    return sqlite3.SQLITE_DENY
+                return sqlite3.SQLITE_OK
+
+            db.set_authorizer(deny_commit)
+            try:
+                with self.assertRaises(sqlite3.DatabaseError):
+                    worker.resolve_inbox(db, 11, head, "received")
+            finally:
+                db.set_authorizer(None)
+            self.assertTrue(receipt.is_file())
             with patch.object(worker, "queue_report") as send:
                 worker.run()
                 send.assert_not_called()
             self.assertEqual(db.execute("SELECT pr FROM inbox_recorded").fetchall(), [(11,)])
+
+    def test_interrupted_warning_resumes_without_resending(self):
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            worker.configure_inbox(db, "11111111-1111-4111-8111-111111111111")
+            with db:
+                db.execute("INSERT INTO reviews VALUES(11,?,?)", ("a"*40, "report"))
+        self.alert.side_effect = SystemExit
+        with patch.object(worker, "queue_report", return_value=False) as send:
+            with self.assertRaises(SystemExit):
+                worker.run()
+            self.alert.side_effect = None
+            worker.run()
+            worker.run()
+            send.assert_called_once()
+        self.assertEqual(self.alert.call_count, 2)
 
     def test_workflow_filters_and_missing_late_checks(self):
         self.assertTrue(worker.path_match("scripts/artifacts/demo.py", ["**.py"]))
