@@ -339,7 +339,7 @@ def run():
             deliver_inbox(db)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inbox-thread", type=UUID,
                         help="Send future completed reviews to this local Codex chat")
@@ -348,9 +348,13 @@ if __name__ == "__main__":
         os.umask(0o077)
         with contextlib.closing(pilot.database()) as db:
             configure_inbox(db, args.inbox_thread)
-        raise SystemExit(0)
+        return
     try:
         run()
     except subprocess.CalledProcessError as error:
         # An offline poll leaves the GitHub flag intact for the next launch.
         raise SystemExit(f"Pickup deferred ({Path(error.cmd[0]).name} exit {error.returncode})") from None
+
+
+if __name__ == "__main__":
+    main()
