@@ -25,7 +25,7 @@ class PickupTest(unittest.TestCase):
         self.enterContext(patch.object(worker.pilot, "get_pr", return_value=self.pr))
         self.expected = self.enterContext(patch.object(worker, "expected_workflows", return_value=set()))
         self.alert = self.enterContext(patch.object(worker, "notify"))
-        self.checks = self.enterContext(patch.object(worker, "checks", return_value=[("flag", "SUCCESS", "Flag PR for Mac review")]))
+        self.checks = self.enterContext(patch.object(worker, "checks", return_value=[("flag", "SUCCESS", "Flag PR for Mac review", "")]))
         self.enterContext(patch.object(worker, "review_packet",
                                        return_value={"context": {"delivery": "private"}}))
         self.model = self.enterContext(patch.object(worker, "analyze", return_value={
@@ -38,10 +38,10 @@ class PickupTest(unittest.TestCase):
         self.checks.return_value = []
         worker.run()
         self.model.assert_not_called()
-        self.checks.return_value = [("checks", "IN_PROGRESS", "Tests")]
+        self.checks.return_value = [("checks", "IN_PROGRESS", "Tests", "")]
         worker.run()
         self.model.assert_not_called()
-        self.checks.return_value = [("checks", "SUCCESS", "Tests")]
+        self.checks.return_value = [("checks", "SUCCESS", "Tests", "")]
         worker.run()
         worker.run()
         self.model.assert_called_once()
@@ -66,8 +66,21 @@ class PickupTest(unittest.TestCase):
         self.assertTrue(worker.path_match(".github/workflows/review.yml", [".github/workflows/review.yml"]))
         self.issues.return_value = [{"number": 11, "pull_request": {}}]
         self.expected.return_value = {"Tests", "PR review pilot tests"}
-        self.checks.return_value = [("flag", "SUCCESS", "Flag PR for Mac review"),
-                                    ("tests", "SUCCESS", "Tests")]
+        self.checks.return_value = [("flag", "SUCCESS", "Flag PR for Mac review", ""),
+                                    ("tests", "SUCCESS", "Tests", "")]
+        worker.run()
+        self.model.assert_not_called()
+
+    def test_skip_directives_and_visible_run_identity(self):
+        with patch.object(worker.pilot, "api", return_value={"message": "docs [skip ci]"}):
+            self.assertTrue(worker.ci_skipped("a"*40))
+        with patch.object(worker.pilot, "api", return_value={"message": "skip ci tests"}):
+            self.assertFalse(worker.ci_skipped("a"*40))
+        with self.assertRaises(ValueError):
+            worker.path_match("file1", ["file[0-9]"])
+        self.issues.return_value = [{"number": 11, "pull_request": {}}]
+        self.expected.return_value = {"Tests"}
+        self.checks.return_value = [("suite", "SUCCESS", "Tests", "")]
         worker.run()
         self.model.assert_not_called()
 
@@ -96,6 +109,8 @@ class WorkflowFilterTest(unittest.TestCase):
         pr = {"number": 11, "head": {"sha": "a"*40}, "base": {"ref": "main"}}
 
         def contents(url, **_kwargs):
+            if "/git/commits/" in url:
+                return {"message": "update workflow"}
             if "/pulls/11/files?" in url:
                 return [{"filename": ".github/workflows/review_pilot_tests.yml"}]
             if "/contents/.github/workflows?" in url:

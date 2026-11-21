@@ -55,7 +55,7 @@ def checks(number, head):
     if view["headRefOid"] != head:
         raise ValueError("PR changed before CI inspection")
     return [(c.get("name") or c.get("context"), c.get("conclusion") or
-             c.get("status") or c.get("state"), c.get("workflowName"))
+             c.get("status") or c.get("state"), c.get("workflowName"), c.get("detailsUrl", ""))
             for c in view["statusCheckRollup"]]
 
 
@@ -64,15 +64,28 @@ def path_match(path, patterns):
     selected = False
     for item in patterns:
         pattern = item.removeprefix("!")
+        # iLEAPP uses literals, * and **. Fail visibly if a new pattern needs
+        # additional GitHub syntax instead of silently guessing its meaning.
+        if any(token in pattern for token in ("?", "+", "[", "]", chr(92))):
+            raise ValueError("Unsupported workflow filter")
         expr = (re.escape(pattern).replace(r"\*\*/", "(?:.*/)?")
-                .replace(r"\*\*", ".*").replace(r"\*", "[^/]*").replace(r"\?", "[^/]"))
+                .replace(r"\*\*", ".*").replace(r"\*", "[^/]*"))
         if re.fullmatch(expr, path):
             selected = not item.startswith("!")
     return selected
 
 
+def ci_skipped(head):
+    message = pilot.api(f"{pilot.REPO}/git/commits/{head}")["message"]
+    tokens = ("[skip ci]", "[ci skip]", "[no ci]", "[skip actions]", "[actions skip]")
+    return any(token in message for token in tokens) or bool(
+        re.search(r"\n\n\n(?:[\w-]+:[^\n]+\n)*skip-checks: ?true\s*\Z", message))
+
+
 def expected_workflows(pr):
     """Read immutable workflow definitions as YAML data, never as executable code."""
+    if ci_skipped(pilot.revision(pr)):
+        return set()
     number = pr["number"]
     ref = pr.get("merge_commit_sha") or pilot.revision(pr)
     files = pilot.api(f"{pilot.REPO}/pulls/{number}/files?per_page=100", pages=True)
@@ -125,27 +138,28 @@ def workflows_complete(db, pr, runs):
         with db:
             db.execute("INSERT INTO ci_plan VALUES(?,?,?,?,?)", (number, head, *row))
     expected = set(json.loads(row[0]))
-    observed = {workflow for _, _, workflow in runs}
+    observed = {workflow for _, _, workflow, _ in runs}
     ready = bool(runs) and expected <= observed
     if not ready and not row[2] and time.time() - row[1] > 900:
         notify(f"PR #{number} is waiting for GitHub to register its CI workflows.")
         with db:
             db.execute("UPDATE ci_plan SET warned=1 WHERE pr=? AND head=?", (number, head))
-    if not ready or any(state in PENDING for _, state, _ in runs):
+    if not ready or any(state in PENDING for _, state, _, _ in runs):
         return False
     if not expected:
         return True
-    # A completed first matrix job can precede the remaining jobs in the rollup.
-    # Check the workflow run itself and pick the newest run for each workflow.
-    url = f"{pilot.REPO}/actions/runs?event=pull_request&head_sha={head}&per_page=100"
-    run_pages = json.loads(gh("api", url, "--paginate", "--slurp"))
-    states = {}
-    for page in run_pages:
-        for item in page["workflow_runs"]:
-            if item["pull_requests"] and not any(p["number"] == number for p in item["pull_requests"]):
-                continue
-            states.setdefault(item["name"], item["status"])
-    return all(states.get(name) == "completed" for name in expected)
+    # Resolve runs from this PR's own check links. Fork runs can have an empty
+    # pull_requests array, and a shared head SHA does not identify one PR.
+    ids = {}
+    for _, _, name, url in runs:
+        if name in expected:
+            match = re.match(r"https://github\.com/abrignoni/ileapp/actions/runs/(\d+)(?:/|$)",
+                             url or "", re.IGNORECASE)
+            if match:
+                ids[name] = max(ids.get(name, 0), int(match[1]))
+    return expected <= ids.keys() and all(
+        pilot.api(f"{pilot.REPO}/actions/runs/{run_id}")["status"] == "completed"
+        for run_id in ids.values())
 
 
 def review_packet(number, head, runs):
@@ -173,7 +187,7 @@ def review_packet(number, head, runs):
             guides[path] = pilot.api(f"{pilot.REPO}/contents/{quote(path)}?ref={pr['base']['sha']}",
                                      raw=True)
     pilot.checked_pr(number, head)
-    return {"context": info, "ci": runs, "fixture_bot": fixtures,
+    return {"context": info, "ci": runs, "head_requested_ci_skip": ci_skipped(head), "fixture_bot": fixtures,
             "prior_inline_comments": [{"path": r["path"], "body": r["body"]} for r in existing],
             "trusted_base_guidance": guides, "diff": diff}
 
