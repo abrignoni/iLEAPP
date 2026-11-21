@@ -1,37 +1,56 @@
 __artifacts_v2__ = {
     "powerlogApplicationRuntime": {
         "name": "PowerLog - Application Runtime",
-        "description": "Per-application ScreenOnTime and BackgroundTime values recorded "
-                       "by PowerLog (PLAppTimeService_Aggregate_AppRunTime table)",
-        "author": '@AlexisBrignoni, Codex',
+        "description": (
+            "Per-Bundle ID time values for each PowerLog aggregation window "
+            "(PLAppTimeService_Aggregate_AppRunTime table), with the window start and end"
+        ),
+        "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-07-28",
-        "last_update_date": '2026-10-04',
+        "last_update_date": '2026-11-21',
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "Raw PowerLog 'timestamp' values run on the log's internal clock, which can "
-            "diverge from wall-clock time. The PLStorageOperator_EventForward_TimeOffset "
-            "table records the correction in effect across the span of the log ('system' "
-            "column, in seconds). Each row here is adjusted by the offset entry at or "
-            "before its raw timestamp (rows older than the oldest retained entry use that "
-            "oldest entry) and the applied offset is reported in its own column. Where a "
-            "database holds no offset entries the raw value is reported unchanged and the "
-            "offset column is empty, so that timestamp is on the log's uncorrected clock. "
-            "ScreenOnTime/BackgroundTime values are reported as stored without a unit assertion. Gzipped rotated "
-            "logs (*.PLSQL.gz) are decompressed to a temporary location and parsed; the "
-            "Source File column carries the archive path. The databases under "
-            "logs/powerlogs in a packed sysdiagnose (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz, such as those "
-            "under DiagnosticLogs/sysdiagnose in a full file system extraction) are copied "
-            "out to a temporary location and parsed; the Source File column carries the "
-            "archive path and the database's path inside it, joined by ' >> '. Rows are "
-            "not deduplicated across files: an event held in more than one copy of a "
-            "database appears once per copy, and because each copy applies its own "
-            "time-offset entries, the copies can display it at different times. "
-            "Where a packed sysdiagnose falls within the period the "
-            "live log covers, rows read from it can repeat rows already reported from the "
-            "live log. InCallScreenOnTime and InCallBackgroundTime are not present in "
-            "every schema; where absent the columns are reported empty. PowerLog holds "
-            "many additional version-specific tables that require separate validation."
+            "The field meanings and method below were derived independently from the table's "
+            "schema, measured data and Apple's code. Code statements were read in PowerlogCore "
+            "and PowerlogHelperdOperators on iOS 18.7. Other builds were not read. On every other"
+            " version the statements rest on the schema and measurements. Each row is one Bundle "
+            "ID in one aggregation window. Window Start is the stored timestamp, which the writer"
+            " sets to the start of the window, plus the clock offset. Window End adds Window "
+            "Seconds, the stored timeInterval. Window is Hour for 3600 seconds and Day for 86400."
+            " Any other length reads Other. None was seen in the images tested. Day rows appeared"
+            " only on the iOS 17 and later images tested. Day rows repeat seconds already in Hour"
+            " rows, so the two must not be totalled together. Values are seconds. A value can be "
+            "a proportional share, because the writer splits a span across the windows it "
+            "overlaps. The time columns must not be added to each other. A PluggedIn column holds"
+            " time the writer also files in its base column. On a few rows (19 of 90,071 "
+            "measured) the PluggedIn value is larger than its base, and the cause is not "
+            "established. Whether the other columns overlap one another is not established. The "
+            "writer files BackgroundLocation time from a status bar state, and that this state is"
+            " location use in every case is not established. PowerOutAccessories in Bundle ID is "
+            "a literal written by Apple's code and is not an app; what its time value means is "
+            "not established. A column absent from an older schema is empty. The table stores "
+            "PowerLog's monotonic clock, and the code converts it to system time by adding the "
+            "system value of PLStorageOperator_EventForward_TimeOffset. Those offset rows are "
+            "samples, so this artifact pools them from all databases and applies the row nearest "
+            "in stored time. That choice is this artifact's and not Apple's. Time Offset and "
+            "Offset Row Distance are reported on each row. The distance can be days or weeks (up "
+            "to about 58 days in the images tested), so Window Start is not exact to the second. "
+            "Where no database holds an offset row, the stored value is shown uncorrected, on "
+            "PowerLog's own clock, and Time Offset is empty. No image tested was in that state. "
+            "Gzipped rotated logs and the databases under logs/powerlogs in a packed sysdiagnose "
+            "are read from temporary copies. Rows equal on every column this artifact reads, all "
+            "but the row id, are collapsed across databases: Copies counts them and Source File "
+            "lists them, with a sysdiagnose member shown as archive >> member. Row State is empty"
+            " unless one row id, with the same window and Bundle ID, holds different values in "
+            "different databases. That was seen on one image tested (12 row ids), where every "
+            "changed value was larger in the later file, which fits one row captured at different"
+            " times. It then reads Earlier capture, Latest capture or Order not determined. The "
+            "order comes from the file name and the table's row sequence. Leave Earlier capture "
+            "rows out of a total. Order not determined did not occur in the images tested. "
+            "Separate row ids for one window and Bundle ID are kept, and whether they add "
+            "together is not established. PowerLog holds many additional version-specific tables "
+            "that require separate validation."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -42,25 +61,25 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 13524 rows",
-            "hickman_ios13": "iOS 13.3.1 | 13701 rows",
-            "hickman_ios14": "iOS 14.3 | 22668 rows",
-            "jess_ios15": "iOS 15.0.2 | 3558 rows",
-            "hickman_ios15": "iOS 15 | 16221 rows",
+            "ctf2020_ios12": "iOS 12.4 | 2546 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3057 rows",
+            "hickman_ios14": "iOS 14.3 | 5014 rows",
+            "jess_ios15": "iOS 15.0.2 | 852 rows",
+            "hickman_ios15": "iOS 15.3.1 | 4086 rows",
             "magnet_ios16": "iOS 16.1.1 | 933 rows",
-            "abe_ios16": "iOS 16.5 | 84531 rows",
-            "felix23_ios16": "iOS 16.5 | 15134 rows",
-            "fsfull002_ios17": "iOS 17.1 | 8059 rows",
-            "iphone11_ios17": "iOS 17.3 | 55157 rows",
+            "abe_ios16": "iOS 16.5 | 19216 rows",
+            "felix23_ios16": "iOS 16.5 | 8048 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1717 rows",
+            "iphone11_ios17": "iOS 17.3 | 14672 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 6266 rows",
-            "otto_ios17": "iOS 17.5.1 | 2364 rows",
-            "felix_ios17": "iOS 17.6.1 | 37932 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 10541 rows",
+            "otto_ios17": "iOS 17.5.1 | 1923 rows",
+            "felix_ios17": "iOS 17.6.1 | 7810 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 4127 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | 4884 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 23095 rows",
-            "hc_ios26": "iOS 26 | 17659 rows",
-            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 5650 rows",
+            "iphone12_ios18": "iOS 18.7 | 2716 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5684 rows",
+            "hc_ios26": "iOS 26.5.2 | 3550 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 sysdiagnose | 5650 rows",
             "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 18883 rows",
         },
     },
@@ -1393,7 +1412,8 @@ import tarfile
 import tempfile
 import time
 import zlib
-from bisect import bisect_right
+from bisect import bisect_left, bisect_right
+from collections import Counter
 from datetime import timedelta
 
 from scripts.ilapfuncs import (
@@ -1697,22 +1717,137 @@ def _yes_no(value):
     return {0: "No", 1: "Yes"}.get(value, value)
 
 
+_APP_RUN_TIME_TABLE = "PLAppTimeService_Aggregate_AppRunTime"
+_APP_RUN_TIME_STATES = (
+    "ScreenOnTime", "ScreenOnPluggedInTime", "BackgroundTime", "BackgroundPluggedInTime",
+    "BackgroundAudioPlayingTime", "BackgroundAudioPlayingTimePluggedIn",
+    "BackgroundAudioNowPlayingTime", "BackgroundAudioNowPlayingPluggedInTime",
+    "BackgroundLocationTime", "BackgroundLocationPluggedInTime",
+    "BackgroundLocationAudioTime", "BackgroundLocationAudioPluggedInTime",
+    "InCallScreenOnTime", "InCallBackgroundTime",
+)
+_APP_RUN_TIME_WINDOWS = {3600: "Hour", 86400: "Day"}
+
+
+def _nearest_offset(stamps, offsets, raw_ts):
+    """(offset, distance in seconds) of the pooled offset row nearest in stored time."""
+    if not stamps or not isinstance(raw_ts, (int, float)):
+        return None, None
+    after = bisect_left(stamps, raw_ts)
+    before = after - 1
+    if before < 0:
+        chosen = after
+    elif after >= len(stamps):
+        chosen = before
+    else:
+        chosen = before if raw_ts - stamps[before] <= stamps[after] - raw_ts else after
+    return offsets[chosen], abs(raw_ts - stamps[chosen])
+
+
+def _file_recency(db_path, evidence_path):
+    """Sort key for a database: current log, then the date in its name, then row sequence."""
+    name = os.path.basename(evidence_path.split(" >> ")[-1])
+    dated = re.search(r"\d{4}-\d{2}-\d{2}", name)
+    sequence = -1
+    if does_table_exist_in_db(db_path, "sqlite_sequence"):
+        for row in get_sqlite_db_records(db_path, f"""
+                SELECT seq FROM sqlite_sequence WHERE name = '{_APP_RUN_TIME_TABLE}'
+                """):
+            sequence = row[0]
+    return name.startswith("CurrentPowerlog"), dated.group(0) if dated else "", sequence
+
+
+def _app_run_time_groups(context):
+    """Rows of every database, equal rows collapsed, with the pooled offset rows."""
+    groups = {}
+    recency = {}
+    pooled = set()
+    for db_path, evidence_path in _powerlog_sources(context):
+        stamps, offsets = _load_time_offsets(db_path)
+        pooled.update(zip(stamps, offsets))
+        table = _resolve_table(db_path, _APP_RUN_TIME_TABLE)
+        if not table:
+            continue
+        recency[evidence_path] = _file_recency(db_path, evidence_path)
+        wanted = ("timestamp", "timeInterval", "BundleID") + _APP_RUN_TIME_STATES
+        select = ", ".join(f'"{col}"' if does_column_exist_in_db(db_path, table, col)
+                           else f'NULL AS "{col}"' for col in wanted)
+        seen = Counter()
+        for row in get_sqlite_db_records(db_path, f'''
+                SELECT rowid, {select} FROM "{table}" ORDER BY rowid
+                '''):
+            content = (row[1], row[2], row[3], tuple(row[4:]))
+            # Equal rows in one file stay separate: the nth copy in one file can
+            # only collapse onto the nth copy in another.
+            occurrence = seen[content]
+            seen[content] += 1
+            groups.setdefault((content, occurrence), []).append((evidence_path, row[0]))
+    return groups, recency, sorted(pooled)
+
+
+def _app_run_time_states(groups, recency):
+    """Whether each group is one capture of a row that changed between files."""
+    lineage = {}
+    for (content, _occurrence), sources in groups.items():
+        for evidence_path, row_id in sources:
+            versions = lineage.setdefault((row_id,) + content[:3], {})
+            rank = recency[evidence_path]
+            if content[3] not in versions or rank > versions[content[3]]:
+                versions[content[3]] = rank
+
+    def state(content, sources):
+        found = set()
+        for _evidence_path, row_id in sources:
+            versions = lineage[(row_id,) + content[:3]]
+            if len(versions) < 2:
+                continue
+            newest = max(versions.values())
+            if versions[content[3]] < newest:
+                found.add("Earlier capture")
+            elif sum(rank == newest for rank in versions.values()) > 1:
+                found.add("Order not determined")
+            else:
+                found.add("Latest capture")
+        return ", ".join(sorted(found))
+    return state
+
+
 @artifact_processor
 def powerlogApplicationRuntime(context):
     data_headers = (
-        ("Timestamp", "datetime"), "Bundle ID", "BackgroundTime (as stored)",
-        "ScreenOnTime (as stored)", "InCallBackgroundTime (as stored)",
-        "InCallScreenOnTime (as stored)", "Time Offset (seconds)", "Source File",
+        ("Window Start", "datetime"), ("Window End", "datetime"), "Window Seconds", "Window",
+        "Bundle ID",
+    ) + tuple(f"{column} (seconds)" for column in _APP_RUN_TIME_STATES) + (
+        "Time Offset (seconds)", "Offset Row Distance (seconds)", "Row State", "Copies",
+        "Source File",
     )
-    results, source = _parse_powerlog_table(
-        context, data_headers, "PLAppTimeService_Aggregate_AppRunTime",
-        ("timestamp", "BundleID", "BackgroundTime", "ScreenOnTime",
-         "InCallBackgroundTime", "InCallScreenOnTime"),
-        lambda ts, offset, row, rel: (
-            ts, row[1], row[2], row[3], row[4], row[5], offset, rel),
-        optional=("InCallBackgroundTime", "InCallScreenOnTime"),
-    )
-    return data_headers, results, source
+    results = context.create_artifact_result(headers=data_headers)
+    groups, recency, pooled = _app_run_time_groups(context)
+    stamps = [stamp for stamp, _offset in pooled]
+    offsets = [offset for _stamp, offset in pooled]
+    state_of = _app_run_time_states(groups, recency)
+    relative = {path: context.get_relative_path(path) for path in recency}
+
+    def order(item):
+        (raw_ts, interval, bundle, stored), occurrence = item[0]
+        return (raw_ts if isinstance(raw_ts, (int, float)) else float("inf"),
+                interval if isinstance(interval, (int, float)) else float("inf"),
+                bundle or "", repr(stored), occurrence)
+
+    for (content, _occurrence), sources in sorted(groups.items(), key=order):
+        raw_ts, interval, bundle, stored = content
+        offset, distance = _nearest_offset(stamps, offsets, raw_ts)
+        start = None
+        if isinstance(raw_ts, (int, float)):
+            start = convert_unix_ts_to_utc(raw_ts + (offset or 0))
+        end = None
+        if start is not None and isinstance(interval, (int, float)):
+            end = start + timedelta(seconds=interval)
+        window = _APP_RUN_TIME_WINDOWS.get(interval, "" if interval is None else "Other")
+        files = "\n".join(sorted({relative[path] for path, _row_id in sources}))
+        results.add_row((start, end, interval, window, bundle) + stored + (
+            offset, distance, state_of(content, sources), len(sources), files))
+    return data_headers, results, "\n".join(sorted(recency))
 
 
 @artifact_processor
