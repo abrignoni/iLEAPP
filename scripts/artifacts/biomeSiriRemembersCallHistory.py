@@ -8,7 +8,7 @@ __artifacts_v2__ = {
                        "imo.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names are those of the BMSiriCallHistory class, read from "
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                  "{} on 55 of 61 written rows because the field was empty; it is now blank there. "
                  "Group Name was empty on every tested record. Intent Class is field 1.2, which the "
                  "class names type. Each parameter holds a repeated list of entities and every "
-                 "entity is reported; no tested Call record held more than one. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
+                 "entity is reported; no tested Call record held more than one. Status and Status (raw) are field 1.5 (status) of BMSiriRemembersInteraction, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read, and were not reported before. Of the 61 written records, on the 9 of 21 tested images that held written records of this stream, 21 read 1 (Unspecified) and 40 read 4 (Success). On the 23 written records (15 distinct identifiers) whose App Intent Interaction ID equalled the identifier key of an App.Intent record's INInteraction plist on the same image, status 1 sat with intentHandlingStatus 0 (Unspecified) on 3 and status 4 with 3 (Success) on 20. Duration (Seconds) is field 1.9 (durationInSeconds), a double, and was not reported before. It was non-zero on 35 of the 61 written records, from 2 to 155. On the 23 joined records it equalled the App.Intent duration interval with the fraction dropped. 4 of them (2 distinct intervals, each recorded twice) had an interval above 0 and under one second and read 0, and 3 had an interval of 0. A 0 does not establish that a call did not connect. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
         "paths": (
             '*/streams/*/Siri.Remembers.CallHistory/local/*',
             '*/streams/*/Siri.Remembers.CallHistory/remote/*',
@@ -56,6 +56,9 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
 
 # interaction.direction names, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
 DIRECTIONS = {0: 'Unknown', 1: 'Incoming', 2: 'Outgoing', 3: 'Bidirectional'}
+# interaction.status names, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
+STATUSES = {0: 'Unknown', 1: 'Unspecified', 2: 'Ready', 3: 'InProgress', 4: 'Success',
+            5: 'Failure', 6: 'DeferredToApplication', 7: 'UserConfirmationRequired'}
 
 
 # Field types pinned from BiomeLibrary.framework (macOS 27.2.1, 26B131) so that a string
@@ -81,6 +84,21 @@ def _to_str(value):
     if value is None or isinstance(value, (dict, list)):
         return ''
     return str(value)
+
+
+def _status(value):
+    # Read schema-less: a pinned field with an unexpected wire type would discard the record.
+    if type(value) is not int:
+        return '', None
+    return STATUSES.get(value, ''), value
+
+
+def _duration(value):
+    # durationInSeconds (field 9) is a double; schema-less decoding returns its 8 bytes as an int.
+    if type(value) is not int:
+        return None
+    seconds = struct.unpack('<d', struct.pack('<Q', value & 0xFFFFFFFFFFFFFFFF))[0]
+    return seconds if seconds == seconds and abs(seconds) != float('inf') else None
 
 
 def _call_timestamp(value):
@@ -178,6 +196,8 @@ def get_biomeSiriRemembersCallHistory(context):
                 call_ts = _call_timestamp(metadata.get('8'))
                 direction = metadata.get('6')
                 direction = DIRECTIONS.get(direction, str(direction) if direction is not None else '')
+                status_name, status_raw = _status(metadata.get('5'))
+                duration = _duration(metadata.get('9'))
                 bundle_id = _to_str(metadata.get('4', b''))
                 intent_class = _to_str(metadata.get('2', b''))
                 conversation_id = _to_str(metadata.get('12', b''))
@@ -193,18 +213,19 @@ def get_biomeSiriRemembersCallHistory(context):
 
                 params = _participants(protostuff)
 
-                data_list.append((ts, call_ts, record.state.name, direction, bundle_id,
+                data_list.append((ts, call_ts, duration, record.state.name, direction, status_name,
+                                  status_raw, bundle_id,
                                   params.get('contacts', ''), params.get('contactHandles', ''),
                                   params.get('speakableGroupName', ''), is_group, conversation_id,
                                   call_guid, intent_class, origin, filename,
                                   record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None, None, None,
-                                  None, None, None, origin, filename, record.data_start_offset))
+                data_list.append((ts, None, None, record.state.name, None, None, None, None, None,
+                                  None, None, None, None, None, None, origin, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Call Timestamp', 'datetime'), 'SEGB State',
-                    'Direction', 'Bundle ID', 'Contacts', 'Contact Handles', 'Group Name',
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Call Timestamp', 'datetime'), 'Duration (Seconds)',
+                    'SEGB State', 'Direction', 'Status', 'Status (raw)', 'Bundle ID', 'Contacts', 'Contact Handles', 'Group Name',
                     'Is Group', 'Group Identifier', ('App Intent Interaction ID', 'hash'), 'Intent Class', 'Sync Origin',
                     'Filename', 'Offset')
 

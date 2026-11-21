@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses app intent entries from biomes",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record is parsed independently: a record that cannot be decoded is logged with"
@@ -33,6 +33,10 @@ __artifacts_v2__ = {
                  "whose plist says 0 (Unspecified). A missing direction key remains None in the "
                  "native row. direction is a settable property of INInteraction (INInteraction.h). "
                  "The value does not establish communication direction or participant ownership. "
+                 "Handling Status and Handling Status (raw) are field 7 (handlingStatus) of BMAppIntent, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read, and were not reported before. "
+                 "The numbering of the stored value differs between SEGB record data versions 11 and 12. On macOS 27.2.1 (26B131), eventWithData:dataVersion: on synthetic records read stored 0 to 6 as the stored value plus one and stored 7 as 0 for version 11, and read stored 0 to 7 as stored for version 12. It returned no event for versions 10 and 13. The name follows that reading for stored 0 to 7. Raw is the number as stored. A stored value above 7, a missing field 7, or any other version gets a blank name. On the 21 tested images, each holding written records, the 3,257 rows "
+                 "read Unspecified on 2,403 (raw 0 on 1,393 at version 11, raw 1 on 1,010 at version 12) and Success on 854 (raw 3 on 507 at version 11, "
+                 "raw 4 on 347 at version 12). On each of the 3,257 rows the name agreed with the intentHandlingStatus key of the same record's INInteraction plist (INInteraction.h: 0 Unspecified, 3 Success). The other six names were not seen on the tested images. The hickman_ios14 sample_data key was not part of this measurement. "
                  "Donated by Siri reads True or False from the truth value of the _donatedBySiri key "
                  "and is blank when the record has no such key. Labels "
                  "inside the Data column (thread, sender, number) are inferred from observed record "
@@ -75,6 +79,10 @@ _RECORD_ERRORS = (DecodeError, struct.error, AttributeError, KeyError, ValueErro
 # INInteractionDirection, INInteraction.h in Intents.framework (macOS 27.2 SDK).
 DIRECTIONS = {0: 'Unspecified', 1: 'Outgoing', 2: 'Incoming'}
 
+# BMAppIntent.handlingStatus names, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
+HANDLING_STATUSES = {0: 'Unknown', 1: 'Unspecified', 2: 'Ready', 3: 'InProgress', 4: 'Success',
+                     5: 'Failure', 6: 'DeferredToApplication', 7: 'UserConfirmationRequired'}
+
 _CONTROL_MAP = str.maketrans({'\t': '\\t', '\r': '\\r', '\n': '\\n', '\x00': ''})
 
 
@@ -92,6 +100,22 @@ def _delimited_safe(value):
     Tabs and line breaks become their printable escapes so no content is lost.
     """
     return value.translate(_CONTROL_MAP) if isinstance(value, str) else value
+
+
+def _handling_status(value, data_version):
+    """Name field 7 the way BMAppIntent reads it for the record's data version.
+
+    eventWithData:dataVersion: returns stored + 1 for version 11 (stored 7 reads as 0) and the
+    stored value for version 12. It returns no event for versions 10 and 13, so any version
+    other than 11 or 12 keeps the raw value with a blank name.
+    """
+    if type(value) is not int:
+        return '', None
+    if data_version == 11:
+        return HANDLING_STATUSES.get(value + 1 if value != 7 else 0, ''), value
+    if data_version == 12:
+        return HANDLING_STATUSES.get(value, ''), value
+    return '', value
 
 
 def _intent_payload(deserialized_plist):
@@ -116,7 +140,7 @@ def _notes_data(protostuffinner):
     return f'Action: {action}, Data Field 1: {field_one}, Data Field 2: {field_two}'
 
 
-def _parse_record(protostuff, filename, offset):
+def _parse_record(protostuff, filename, offset, data_version=None):
     """Build the plain and HTML rows for one intent record, or None to skip it."""
     typeofintent = protostuff.get('2', '')
     try:
@@ -158,6 +182,8 @@ def _parse_record(protostuff, filename, offset):
     # Named only for a plist integer; a bool, real or string is equal to 0, 1 or 2 in Python
     # but is not an INInteractionDirection value, so it gets no name.
     direction_name = DIRECTIONS.get(direction, '') if type(direction) is int else ''
+
+    handling_name, handling_raw = _handling_status(protostuff.get('7'), data_version)
 
     raw_intent = _intent_payload(deserialized_plist)
     if raw_intent is None:
@@ -273,16 +299,17 @@ def _parse_record(protostuff, filename, offset):
         datoshtml = 'Intent data could not be parsed.'
 
     row = (startdate, enddate, durationinterval, donatedbysiri, appid, classname, action,
-           direction_name, direction, groupid, _delimited_safe(datos), filename, offset)
+           direction_name, direction, handling_name, handling_raw, groupid, _delimited_safe(datos), filename, offset)
     row_html = (startdate, enddate, durationinterval, donatedbysiri, appid, classname, action,
-                direction_name, direction, groupid, datoshtml, filename, offset)
+                direction_name, direction, handling_name, handling_raw, groupid, datoshtml, filename, offset)
     return row, row_html
 
 
 @artifact_processor
 def get_biomeIntents(context):
     data_headers = (('Timestamp', 'datetime'), ('End Date', 'datetime'), 'Duration Interval', 'Donated by Siri',
-                         'App ID', 'Classname', 'Action', 'Direction', 'direction (as stored)', 'Group ID', 'Data', 'Filename',
+                         'App ID', 'Classname', 'Action', 'Direction', 'direction (as stored)',
+                         'Handling Status', 'Handling Status (raw)', 'Group ID', 'Data', 'Filename',
                          'Protobuf data Offset')
     files_found = context.get_files_found()
     files_found = sorted(files_found)
@@ -308,7 +335,8 @@ def get_biomeIntents(context):
             offset = record.data_start_offset
             try:
                 protostuff, _ = blackboxprotobuf.decode_message(record.data)
-                parsed = _parse_record(protostuff, filename, offset)
+                parsed = _parse_record(protostuff, filename, offset,
+                                       getattr(record, '_unknown_value', None))
             except _RECORD_ERRORS as ex:
                 logfunc(f'Biome Intents: record at offset {offset} in {filename} skipped, '
                         f'{type(ex).__name__}: {ex}')
