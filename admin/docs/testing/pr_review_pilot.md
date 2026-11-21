@@ -1,6 +1,6 @@
 # iLEAPP PR review on a Mac
 
-GitHub Actions adds the `mac-review` label when a PR opens ready, reopens, becomes
+GitHub Actions adds the `mac-review` label when a contributor PR opens ready, reopens, becomes
 ready, or receives commits while ready. The label means the PR is enrolled. It
 stays on the PR after review so a push during delivery cannot lose a signal.
 The label contains no findings. The workflow uses base-branch code, never checks
@@ -12,8 +12,8 @@ at login. While the Mac is asleep or offline GitHub retains enrollment. Pickup
 reviews the latest ready revision. The worker reads the revision’s workflow path filters
 and waits for each applicable PR workflow run to finish, including its matrix jobs.
 If an expected workflow is still missing after 15 minutes of polling, the Mac
-requests a notification. Local revision tracking skips duplicates. The flag workflow
-runs for every ready PR, including a documentation change with no other checks. Idle checks use the GitHub CLI and Python. Codex starts
+requests a notification. Local revision tracking skips duplicates. The flag job
+runs for every ready contributor PR, including a documentation change with no other checks. Idle checks use the GitHub CLI and Python. Codex starts
 only for a revision that needs a review. An interrupted delivery reuses the
 saved result. The worker retries failures with backoff.
 
@@ -34,7 +34,8 @@ if its definition changes. Its output goes to the local `pickup.log`.
 ## Delivery
 
 The Mac requests a notification when it discovers a revision and when the report
-is ready. Findings on owner-authored PRs stay in private Markdown files under
+is ready. PRs authored by abrignoni skip automated review, including previously
+labeled PRs. Contributor review summaries are saved under
 `~/Library/Application Support/iLEAPP/PR Review/reports/`. For contributor PRs,
 the helper can post verified, new inline findings on the reviewed commit. A
 closed, draft, or superseded PR cannot receive a new delivery.

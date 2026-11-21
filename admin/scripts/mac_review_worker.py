@@ -27,8 +27,7 @@ no coverage. Leave requests for test data to the fixture bot. For artifact chang
 decorators, metadata, time, source attribution, containers, evidence handling and report output.
 Describe any check needing a private corpus in the private summary. Never claim a corpus or
 fixture test ran without evidence. Use only independently supportable, shareable new findings
-in public_comments. For private delivery return an empty public_comments array and put all
-findings in the private summary. Record material coverage limitations. Never invoke tools."""
+in public_comments. Record material coverage limitations. Never invoke tools."""
 FINDING = {"type": "object", "properties": {
     "path": {"type": "string"}, "line": {"type": "integer"}, "body": {"type": "string"}},
     "required": ["path", "line", "body"], "additionalProperties": False}
@@ -296,6 +295,8 @@ def workflows_complete(db, pr, runs):
 def review_packet(number, head, runs):
     pr = pilot.checked_pr(number, head)
     info = pilot.context(number)
+    if info["delivery"] != "contributor":
+        raise ValueError("PR author is excluded from automated review")
     if info["head"] != head:
         raise ValueError("PR changed while reading review context")
     root = f"{pilot.REPO}/pulls/{number}"
@@ -345,6 +346,8 @@ def analyze(packet):
 
 
 def process(db, pr):
+    if pilot.route(pr) == "skip":
+        return
     number, head = int(pr["number"]), pilot.revision(pr)
     if not re.fullmatch(r"[0-9a-f]{40}", head):
         raise ValueError("Invalid PR revision")
@@ -366,8 +369,6 @@ def process(db, pr):
         result = analyze(packet)
         if not result["summary"].strip() or not isinstance(result["public_comments"], list):
             raise ValueError("Incomplete review result")
-        if packet["context"]["delivery"] == "private":
-            result["public_comments"] = []
         with db:
             db.execute("UPDATE pickup SET result=? WHERE pr=? AND head=?",
                        (json.dumps(result), number, head))
