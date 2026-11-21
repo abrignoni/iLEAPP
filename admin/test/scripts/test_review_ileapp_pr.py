@@ -57,6 +57,9 @@ class PilotTest(unittest.TestCase):
         self.assertEqual(pilot.queue(self.db)[0]["delivery"], "contributor")
         self.assertEqual(pilot.context(1)["manifest_matches"], {"demo": ["public-image"]})
         pilot.finish(self.db, 1, self.head, "private notes", self.comments)
+        report = pilot.STATE / "reports" / f"PR-1-{self.head}.md"
+        self.assertEqual(report.read_text(), "private notes")
+        self.assertEqual(report.stat().st_mode & 0o077, 0)
         self.assertEqual(self.posts[0]["comments"][0]["side"], "RIGHT")
         self.assertNotIn("private notes", json.dumps(self.posts))
         self.assertEqual(pilot.queue(self.db), [])
@@ -68,16 +71,17 @@ class PilotTest(unittest.TestCase):
         self.assertEqual(len(pilot.queue(self.db)), 1)
 
     def test_owner_end_to_end(self):
-        self.pr["user"]["id"] = pilot.OWNER
-        self.assertEqual(pilot.context(1)["delivery"], "private")
-        with self.assertRaises(ValueError):
-            pilot.finish(self.db, 1, self.head, "private notes", self.comments)
-        pilot.finish(self.db, 1, self.head, "private notes", [])
-        report = pilot.STATE / "reports" / f"PR-1-{self.head}.md"
-        self.assertEqual(report.read_text(), "private notes")
-        self.assertEqual(report.stat().st_mode & 0o077, 0)
+        for author in ({"id": pilot.OWNER, "login": "renamed"}, {"id": 99, "login": "ABrignoni"}):
+            with self.subTest(author=author):
+                self.pr["user"] = author
+                self.assertEqual(pilot.queue(self.db), [])
+                self.assertEqual(pilot.context(1), {"number": 1, "head": self.head, "delivery": "skip"})
+                for comments in ([], self.comments):
+                    self.assertEqual(pilot.finish(self.db, 1, self.head, "notes", comments),
+                                     "Skipped owner PR")
+        self.assertFalse((pilot.STATE / "reports").exists())
         self.assertEqual(self.posts, [])
-        self.assertEqual(self.db.execute("SELECT result FROM reviews").fetchone(), ("private notes",))
+        self.assertIsNone(self.db.execute("SELECT result FROM reviews").fetchone())
 
     def test_stale_draft_and_closed(self):
         self.pr["draft"] = True

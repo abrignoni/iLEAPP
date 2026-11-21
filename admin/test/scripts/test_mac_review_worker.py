@@ -24,15 +24,15 @@ class PickupTest(unittest.TestCase):
         self.enterContext(patch.object(worker.pilot, "STATE", self.root))
         self.issues = self.enterContext(patch.object(worker.pilot, "api", return_value=[]))
         self.pr = {"state": "open", "draft": False, "number": 11, "head": {"sha": "a"*40},
-                   "user": {"login": "abrignoni", "id": worker.pilot.OWNER}}
+                   "user": {"login": "contributor", "id": 42}}
         self.enterContext(patch.object(worker.pilot, "get_pr", return_value=self.pr))
         self.expected = self.enterContext(patch.object(worker, "expected_workflows", return_value=set()))
         self.alert = self.enterContext(patch.object(worker, "notify"))
         self.checks = self.enterContext(patch.object(worker, "checks", return_value=[("flag", "SUCCESS", "Flag PR for Mac review", "")]))
         self.enterContext(patch.object(worker, "review_packet",
-                                       return_value={"context": {"delivery": "private"}}))
+                                       return_value={"context": {"delivery": "contributor"}}))
         self.model = self.enterContext(patch.object(worker, "analyze", return_value={
-            "summary": "private review", "public_comments": [{"body": "private"}]}))
+            "summary": "private review", "public_comments": []}))
 
     def test_offline_pickup_update_and_idle(self):
         worker.run()
@@ -56,6 +56,23 @@ class PickupTest(unittest.TestCase):
         worker.run()
         self.assertEqual(self.model.call_count, 2)
         self.assertEqual(len(list((self.root / "reports").glob("*.md"))), 2)
+
+    def test_labeled_owner_pr_is_skipped_even_with_a_cached_result(self):
+        self.pr["user"] = {"login": "renamed-maintainer", "id": worker.pilot.OWNER}
+        self.issues.return_value = [{"number": 11, "pull_request": {}}]
+        worker.run()
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM pickup").fetchone(), (0,))
+            self.pr["head"]["sha"] = "b"*40
+            with db:
+                db.execute("INSERT INTO pickup VALUES(?,?,?)", (11, "b"*40, "stale result"))
+        with patch.object(worker.pilot, "finish") as finish:
+            worker.run()
+            finish.assert_not_called()
+        self.model.assert_not_called()
+        self.checks.assert_not_called()
+        self.alert.assert_not_called()
+        self.assertFalse((self.root / "reports").exists())
 
     def test_flag_alone_cannot_finish_a_python_change(self):
         self.issues.return_value = [{"number": 11, "pull_request": {}}]

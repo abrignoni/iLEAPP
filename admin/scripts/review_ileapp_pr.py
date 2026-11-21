@@ -42,7 +42,7 @@ def route(pr):
     if not isinstance(author.get("id"), int) or not author.get("login"):
         raise ValueError("PR author could not be verified")
     if author["id"] == OWNER or author["login"].casefold() == "abrignoni":
-        return "private"
+        return "skip"
     return "contributor"
 
 
@@ -55,6 +55,9 @@ def get_pr(number):
 
 def context(number):
     pr = get_pr(number)
+    info = {"number": number, "head": revision(pr), "delivery": route(pr)}
+    if info["delivery"] == "skip":
+        return info
     files = api(f"{REPO}/pulls/{number}/files?per_page=100", pages=True)
     if len(files) != pr["changed_files"]:
         raise ValueError("Incomplete changed-file list")
@@ -73,7 +76,7 @@ def context(number):
     maintainer, contributor = fixtures.classify(modules, touched, refs, manifest)
     if revision(get_pr(number)) != revision(pr):
         raise ValueError("PR changed while reading fixture context")
-    return {"number": number, "head": revision(pr), "delivery": route(pr),
+    return {**info,
             "test_files_touched": sorted(touched), "manifest_matches": maintainer,
             "fixture_bot_would_ask": contributor,
             "changed_paths": [f["filename"] for f in files]}
@@ -89,8 +92,8 @@ def database():
 
 def queue(db):
     prs = api(f"{REPO}/pulls?state=open&per_page=100", pages=True)
-    return [{"number": p["number"], "head": revision(p), "delivery": route(p)}
-            for p in prs if not p["draft"] and not db.execute(
+    return [{"number": p["number"], "head": revision(p), "delivery": "contributor"}
+            for p in prs if not p["draft"] and route(p) == "contributor" and not db.execute(
                 "SELECT 1 FROM reviews WHERE pr=? AND head=?", (p["number"], revision(p))).fetchone()]
 
 
@@ -109,9 +112,9 @@ def finish(db, number, head, summary, comments):
         if db.execute("SELECT 1 FROM reviews WHERE pr=? AND head=?", (number, head)).fetchone():
             return "Already delivered"
         audience = route(checked_pr(number, head))
-        if audience == "private" and comments:
-            raise ValueError("Owner PR accepts only a private summary")
-        if audience == "contributor" and comments:
+        if audience == "skip":
+            return "Skipped owner PR"
+        if comments:
             endpoint = f"{REPO}/pulls/{number}/reviews"
             marker = f"<!-- ileapp-fixture-review:{head} -->"
             reviewer = api("user")["id"]
