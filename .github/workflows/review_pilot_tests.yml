@@ -6,6 +6,9 @@ on:
       - '.github/workflows/review_pilot_tests.yml'
       - 'admin/scripts/check_pr_test_data.py'
       - 'admin/scripts/review_ileapp_pr.py'
+      - 'admin/scripts/mac_review_worker.py'
+      - 'admin/scripts/install_mac_review.py'
+      - 'admin/test/scripts/test_mac_review_worker.py'
       - 'admin/test/scripts/test_check_pr_test_data.py'
       - 'admin/test/scripts/test_review_ileapp_pr.py'
 
@@ -24,3 +27,4 @@ jobs:
         run: |
           python admin/test/scripts/test_check_pr_test_data.py
           python admin/test/scripts/test_review_ileapp_pr.py
+          python admin/test/scripts/test_mac_review_worker.py
