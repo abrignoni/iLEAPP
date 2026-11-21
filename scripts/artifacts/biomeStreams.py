@@ -3,10 +3,11 @@ __artifacts_v2__ = {
         "name": "Biome - Proactive Harvesting Mail",
         "description": ("Email records from the ProactiveHarvesting.Mail biome stream: the SEGB "
                        "record timestamp, the stored message date and date received, subject, and the "
-                       "From and To headers."),
+                       "From and To headers. The HTML body is in the Proactive Harvesting Mail Body "
+                       "artifact."),
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names are those of the BMProactiveHarvestingMail class, read from "
@@ -41,13 +42,51 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 193 rows",
         },
     },
+    "biomeProactiveMailBody": {
+        "name": "Biome - Proactive Harvesting Mail Body",
+        "description": ("The HTML body of email records from the ProactiveHarvesting.Mail biome "
+                       "stream, shown as text, with the message date, subject and sender. It has "
+                       "its own page because the bodies can be large, and it is left out of the "
+                       "timeline."),
+        "author": "@AlexisBrignoni, Claude, Codex",
+        "creation_date": "2026-11-20",
+        "last_update_date": "2026-11-20",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": ("Body (HTML) is field 14 (htmlContent) of the BMProactiveHarvestingMail class, "
+                 "read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the "
+                 "class was read. It was not reported before. This artifact holds one row per "
+                 "written record that has a body, decoded by the same code as the Proactive Harvesting Mail artifact. Subject is field 11 (subject). The other columns are defined there. Across the 21 "
+                 "staged iOS images, 14 held written records of this stream and field 14 was set on "
+                 "1,313 of their 1,341 written records, on 13 images; after leading whitespace, 1,301 of the 1,313 began with a doctype declaration or an html or div tag, 6 with another tag or declaration and 6 with text. Its size ran from 32 to 206,706 bytes (median 64,253), and two images "
+                 "held about 41 MB and 53 MB of it, so this page can be large. On the tested images each of the 1,313 bodies was valid UTF-8 and is kept whole. Bytes that are not UTF-8 would show as the replacement character. The HTML report escapes the markup and does not render it, so the report page loads nothing from the body."),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',
+                  '*/[Bb]iome/streams/*/MailContent/local/*'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "mail",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 450 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 10 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 658 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 76 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 16 rows",
+        },
+    },
     "biomeProactiveMessages": {
         "name": "Biome - Proactive Harvesting Messages",
         "description": ("Message records from the ProactiveHarvesting.Messages biome stream "
-                       "(message date, domain id, message text, sender and the isFromMe flag)."),
+                       "(message date, domain id, message text, sender and recipient names and handles, "
+                       "messages service, attachment path and the isFromMe flag)."),
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names are those of the BMProactiveHarvestingMessages class, read from "
@@ -57,12 +96,11 @@ __artifacts_v2__ = {
                  "(absoluteTimestamp), which the framework decodes as seconds since 2001-01-01 "
                  "UTC; each of the 38 written records that decoded held a value in that range. "
                  "Domain ID is field 2 (domainID), reported before as Service and Handle. Sender "
-                 "is the name of field 11 (fromHandle); the handle of field 11 held the same text "
-                 "as the name on each of the 38 written records that decoded, so it is not a "
-                 "separate column. Is From Me is field 22 (isFromMe); it is blank where the record "
+                 "is the name (11.1) and Sender Handle the handle (11.2) of field 11 (fromHandle). "
+                 "Is From Me is field 22 (isFromMe); it is blank where the record "
                  "does not store it (27 of the 38). Unique ID is field 1 (uniqueID), reported "
-                 "before as GUID. Deleted rows and the 5 written records on dexter_ios18 that did "
-                 "not decode carry no Message Date. The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2)."),
+                 "before as GUID. Deleted rows and the 5 written records on dexter_ios18 that are not readable as this class carry no Message Date. The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2). "
+                 "These fields were not reported before: Sender Handle (11.2, handle), Recipient and Recipient Handle (field 12, toHandles: 12.1 name, 12.2 handle), Messages Service (field 31, messagesService) and Attachment and Attachment Path (field 16, attachment: 16.3 path). Across the 21 staged iOS images, 6 held written records of this stream, 47 in all. 42 of the 47, on 5 images, decoded to fields of this class. Of the 5 on dexter_ios18, 1 raised a decode error and 4 decoded to no reported field. Sender Handle and Recipient Handle were set on the 42; the sender name and handle differed on 1 and the recipient name and handle on 14. Domain ID contained the sender handle on 19 and the recipient handle on 17 of the 42. Messages Service was set on 15, on 3 images, with 2 distinct values; Domain ID contained that value on 12 of the 15. Attachment Path was set on 6, on 2 images, and is the stored file URL. Attachment shows the file that URL names when the extraction holds it, found by its own path under SMS/Attachments, and is empty otherwise; the 5 distinct files those 6 records name were present in the 2 full extractions. The attachment's type field held one value on those 6 and its filename is part of the path, so neither is a separate column."),
         "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Messages/local/*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -203,15 +241,18 @@ __artifacts_v2__ = {
 }
 
 import os
+import re
 import struct
 from datetime import datetime, timezone
+from urllib.parse import unquote, urlparse
 
 from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, convert_cocoa_core_data_ts_to_utc, logfunc
+from scripts.ilapfuncs import (artifact_processor, check_in_media,
+                              convert_cocoa_core_data_ts_to_utc, logfunc)
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
 
@@ -252,6 +293,18 @@ def _header(message, name):
     return ''
 
 
+def _messages(value):
+    """A sub-message field as a list: one arrives as a dict, a repeated one as a list."""
+    if isinstance(value, dict):
+        return [value]
+    return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
+
+
+def _joined(value, field):
+    """One string field across a sub-message field's entries, joined with a comma."""
+    return ', '.join(filter(None, (_txt(item.get(field)) for item in _messages(value))))
+
+
 def _seconds(value):
     """A double field: a float under a pinned typedef, raw fixed64 bits otherwise."""
     if isinstance(value, float):
@@ -270,6 +323,11 @@ def _cf_double_to_utc(value):
     if not seconds:
         return ''
     return convert_cocoa_core_data_ts_to_utc(seconds)
+
+
+def _mail_records(context):
+    """The Mail stream's records, decoded once here for both Mail artifacts."""
+    return _records(context, MAIL_TYPEDEF)
 
 
 def _stream_files(context):
@@ -311,9 +369,11 @@ _STR = {'type': 'bytes', 'name': ''}
 _INT = {'type': 'int', 'name': ''}
 _DBL = {'type': 'double', 'name': ''}
 _HANDLE = {'type': 'message', 'name': '', 'message_typedef': {'1': _STR, '2': _STR}}
+_ATTACHMENT = {'type': 'message', 'name': '', 'message_typedef': {'3': _STR}}
 MAIL_TYPEDEF = {'1': _STR, '2': _STR, '3': _DBL, '4': _STR, '5': _STR, '10': _HANDLE,
-                '11': _STR, '30': _DBL}
-MESSAGES_TYPEDEF = {'1': _STR, '2': _STR, '3': _DBL, '10': _STR, '11': _HANDLE, '22': _INT}
+                '11': _STR, '14': _STR, '30': _DBL}
+MESSAGES_TYPEDEF = {'1': _STR, '2': _STR, '3': _DBL, '10': _STR, '11': _HANDLE, '12': _HANDLE,
+                    '16': _ATTACHMENT, '22': _INT, '31': _STR}
 READ_TYPEDEF = {'1': _STR, '2': _INT}
 SCREENTIME_TYPEDEF = {'1': _INT, '2': _DBL, '3': _STR}
 
@@ -324,7 +384,7 @@ def biomeProactiveMail(context):
                     ('Date Received', 'datetime'), 'SEGB State', 'Subject', 'Sender', 'Recipient',
                     'Domain ID', 'Message Identifier', 'Filename', 'Offset')
     data_list = []
-    for ts, state, message, filename, offset in _records(context, MAIL_TYPEDEF):
+    for ts, state, message, filename, offset in _mail_records(context):
         if message is None:
             data_list.append((ts, '', '', state, '', '', '', '', '', filename, offset))
             continue
@@ -336,20 +396,56 @@ def biomeProactiveMail(context):
 
 
 @artifact_processor
+def biomeProactiveMailBody(context):
+    data_headers = (('SEGB Record Timestamp', 'datetime'), ('Message Date', 'datetime'), 'Subject',
+                    'Sender', 'Message Identifier', 'Body (HTML)', 'Filename', 'Offset')
+    data_list = []
+    for ts, _state, message, filename, offset in _mail_records(context):
+        body = _txt(message.get('14')) if message else ''
+        if body:
+            data_list.append((ts, _cf_double_to_utc(message.get('3')), _txt(message.get('11')),
+                              _header(message, 'from'), _txt(message.get('5')), body, filename,
+                              offset))
+    return data_headers, data_list, _source_path(context)
+
+
+def _attachment_media(context, attachment):
+    """Checks in the file a recorded attachment URL names. Only that file is staged, by a
+    search on its own path under SMS/Attachments. None when it is not in the extraction."""
+    path = unquote(urlparse(_txt(attachment)).path)
+    marker = '/Library/SMS/Attachments/'
+    if marker not in path:
+        return None
+    tail = path.split(marker, 1)[1]
+    if not tail or '..' in tail.split('/'):
+        return None
+    pattern = '*' + marker + re.sub(r'([*?[])', r'[\1]', tail)
+    found = context.get_seeker().search(pattern, return_on_first_hit=True)
+    if not found or os.path.isdir(found):
+        return None
+    return check_in_media(found, name=os.path.basename(tail))
+
+
+@artifact_processor
 def biomeProactiveMessages(context):
     data_headers = (('SEGB Record Timestamp', 'datetime'), ('Message Date', 'datetime'), 'SEGB State',
-                    'Domain ID', 'Content', 'Sender', 'Is From Me', 'Unique ID', 'Filename', 'Offset')
+                    'Domain ID', 'Content', 'Sender', 'Sender Handle', 'Recipient', 'Recipient Handle',
+                    'Messages Service', ('Attachment', 'media'), 'Attachment Path', 'Is From Me', 'Unique ID', 'Filename',
+                    'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context, MESSAGES_TYPEDEF):
         if message is None:
-            data_list.append((ts, '', state, '', '', '', '', '', filename, offset))
+            data_list.append((ts, '', state, '', '', '', '', '', '', '', None, '', '', '', filename, offset))
             continue
         from_handle = message.get('11', {})
         if not isinstance(from_handle, dict):
             from_handle = {}
         data_list.append((ts, _cf_double_to_utc(message.get('3')), state, _txt(message.get('2')),
                           _txt(message.get('10')), _txt(from_handle.get('1')),
-                          _bool(message.get('22')), _txt(message.get('1')), filename, offset))
+                          _txt(from_handle.get('2')), _joined(message.get('12'), '1'),
+                          _joined(message.get('12'), '2'), _txt(message.get('31')),
+                          _attachment_media(context, _joined(message.get('16'), '3')),
+                          _joined(message.get('16'), '3'), _bool(message.get('22')), _txt(message.get('1')), filename, offset))
     return data_headers, data_list, _source_path(context)
 
 
