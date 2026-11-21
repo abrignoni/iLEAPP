@@ -6,15 +6,14 @@ __artifacts_v2__ = {
                        "Unlocked label. Only records in the Written state are reported.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-04-29",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on "
-                 "macOS 27.2.1 (26B131); no iOS copy of the class was read. Integer Value is field 4.4 "
-                 "(the value's integerValue) and was reported before as Field 4.4 (as stored); it is "
+                 "macOS 27.2.1 (26B131); no iOS copy of the class was read. Is Locked (as stored) is field 4.4 (the value's integerValue) of the _DKEvent.Keybag.IsLocked stream, and the header repeats that stream name. It does not say that 1 means locked. It was reported as Field 4.4 (as stored) in v2026.4.6; it is "
                  "reported as decoded, without Boolean conversion, and its meaning is not established. "
                  "Start Date and End Date are fields 2 and 3 (startDate and endDate) and were reported "
-                 "before as Start Time and End Time. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, Integer Value held 1 on 1,657 "
+                 "before as Start Time and End Time. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, Is Locked (as stored) held 1 on 1,657 "
                  "and 0 on 1,532 of the 3,189 rows. Missing required fields retain the existing "
                  "skipped-record behavior, and Deleted-state records remain omitted. Original parser contribution: @JohnHyla. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 3,189 rows, with 8 distinct values, each a whole number of quarter hours within 14 hours of GMT.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Keybag.IsLocked/local/*'),
@@ -122,6 +121,6 @@ def get_biomeDKKeybag(context):
                     continue
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Time Zone Offset (seconds)',
-                    'Integer Value', 'Filename')
+                    'Is Locked (as stored)', 'Filename')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

@@ -4,14 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses airplane mode entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2020-04-30",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS "
                   "27.2.1 (26B131); no iOS copy of the class was read. Start Date and End Date are fields 2 "
                   "and 3 (startDate and endDate) and were reported before as Timestamp and Timestamp2. "
                   "Stream Name is field 1.1 (the name of the record's stream) and was reported before as "
-                  "Event. Identifier is field 5 (identifier) and was reported before as GUID. Integer Value is field 4.4 (the value's integerValue); it is shown as stored, its meaning is not established, and it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it held 0 on 72 and 1 on 49 of the 121 written rows. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it was set on each of the 121 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
+                  "Event. Identifier is field 5 (identifier) and was reported before as GUID. Airplane Mode (as stored) is field 4.4 (the value's integerValue) of the _DKEvent.System.AirplaneMode stream, and the header repeats that stream name. It does not say that 1 means on. It is shown as stored, its meaning is not established, and it was not reported in v2026.4.6. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it held 0 on 72 and 1 on 49 of the 121 written rows. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it was set on each of the 121 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
         "paths": ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
         "output_types": "standard",
         "artifact_icon": "plane",
@@ -124,7 +124,7 @@ def get_biomeAirpMode(context):
                 data_list.append((ts, None, None, None, record.state.name, None, None, None, filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
-                    'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Integer Value', 'Identifier', 'Filename', 'Offset')
+                    'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Airplane Mode (as stored)', 'Identifier', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
 

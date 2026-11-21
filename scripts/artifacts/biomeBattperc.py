@@ -11,9 +11,8 @@ __artifacts_v2__ = {
                   "27.2.1 (26B131); no iOS copy of the class was read. Start Date, End Date and Creation "
                   "Date are fields 2, 3 and 8 (startDate, endDate and creationDate) and were reported "
                   "before as Time Start, Time End and Time Write. Stream Name is field 1.1 and was reported "
-                  "before as Activity. Double Value is field 4.5 (the value's doubleValue) and was reported "
-                  "before as Battery Percentage; on the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, 14,187 of the 14,191 written values "
-                  "were above 1 and at most 100, and 4 were at most 1. Identifier is field 5 and was reported before as Action GUID. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 14,191 written rows, with 10 distinct values, each a whole number of quarter hours within 14 hours of GMT. Fully Charged is the integer value of the metadata entry with index 37000, which CoreDuet's own conversion of synthetic records names _DKDeviceBatteryPercentageMetadataKey-fullyCharged (macOS 27.2.1 (26B131); no iOS copy was read). It is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream) it was set on 153 of 14,191 written rows, on 19 images, with the value 1 on each. Double Value on those rows was 100 on 102 and from 89 to 99 on 51, and 167 of the 269 written rows with a Double Value of 100 did not carry the entry, so the two columns do not say the same thing."),
+                  "before as Activity. Battery Percentage is field 4.5 (the value's doubleValue) of the _DKEvent.Device.BatteryPercentage stream, and the header follows that stream name; on the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, 14,187 of the 14,191 written values "
+                  "were above 1 and at most 100, and 4 were at most 1. Identifier is field 5 and was reported before as Action GUID. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 14,191 written rows, with 10 distinct values, each a whole number of quarter hours within 14 hours of GMT. Fully Charged is the integer value of the metadata entry with index 37000, which CoreDuet's own conversion of synthetic records names _DKDeviceBatteryPercentageMetadataKey-fullyCharged (macOS 27.2.1 (26B131); no iOS copy was read). It is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream) it was set on 153 of 14,191 written rows, on 19 images, with the value 1 on each. Battery Percentage on those rows was 100 on 102 and from 89 to 99 on 51, and 167 of the 269 written rows with a Battery Percentage of 100 did not carry the entry, so the two columns do not say the same thing."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -173,7 +172,7 @@ def get_biomeBattperc(context):
 
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
-                    ('Creation Date', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Double Value', 'Fully Charged', 'Identifier',
+                    ('Creation Date', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Battery Percentage', 'Fully Charged', 'Identifier',
                     'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class on macOS 27.2.1 (26B131); no "
-                 "iOS copy of the class was read. Activity is the stream name (field 1.1) and Bundle "
+                 "iOS copy of the class was read. Start Date, End Date and Identifier are fields 2, 3 and 5 (startDate, endDate and identifier) and were reported before as Time Start, Time End and Action GUID. Stream Name is field 1.1 (the name of the record's stream), reported before as Activity, and Bundle "
                  "ID is the event's value string (field 4.3). The metadata columns are picked by each "
                  "entry's integer index, named from CoreDuet's own conversion of synthetic "
                  "records: Launch Reason 6002 (launchReason), Short Version 6007 "
@@ -19,7 +19,7 @@ __artifacts_v2__ = {
                  "(extensionContainingBundleIdentifier). Before, a Transition column took the first "
                  "metadata entry whatever its key. On 20 corpus images it held the launch reason on "
                  "5,195 written rows, a version string or extension id on 744, and was empty on 544. "
-                 "Time Write is field 8, which the class names creationDate. Written records that "
+                 "Creation Date is field 8 (creationDate), reported before as Time Write. Written records that "
                  "do not decode are skipped and logged (21, all on dexter_ios18, of 6,504 written "
                  "records on 20 corpus images). Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), it was set on each of the 6,483 written rows, with 9 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.App.InFocus/local/*',),
@@ -154,9 +154,9 @@ def get_biomeDKInfocus(context):
                 data_list.append((ts, None, None, None, None, record.state.name) + (None,) * 8 +
                                  (filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Activity', 'Bundle ID', 'Launch Reason', 'Short Version',
-                    'Exact Bundle Version', 'Extension Host ID', 'Extension Containing Bundle ID', 'Action GUID',
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
+                    ('Creation Date', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Bundle ID', 'Launch Reason', 'Short Version',
+                    'Exact Bundle Version', 'Extension Host ID', 'Extension Containing Bundle ID', 'Identifier',
                     'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
