@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "and the display titles of the parameter values and of the predictions.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names are those of the BMAppIntentInvocation class, read from "
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
                  "is the defaultValue of predictions[].displayRepresentation.title. They were "
                  "reported before as Entity Titles and Phrase Template, read from the key. On "
                  "the tested images the key and defaultValue held the same text on each of the 312 parameter titles reported (572 counting action and resolvedAction together) and on 264 of 264 prediction titles, so the key is not reported. "
-                 "Title Bundle URL is the bundleURL of the parameter title (field 4), reported before as App URL; on the tested images it was set on 288 of the 479 written rows, and each held a file URL. On the tested images 302 of the 479 written records embed an NSKeyedArchiver plist, which this artifact does not read. Intent Timestamp is executionDate (field 4), which the class reads as seconds since 1970-01-01 UTC."),
+                 "Title Bundle URL is the bundleURL of the parameter title (field 4), reported before as App URL; on the tested images it was set on 288 of the 479 written rows, and each held a file URL. Source and Source (raw) are field 2 (source), not reported before: of the 479 written records, on the 12 of 21 tested images that held written records of this stream, 267 read 1 (App), 209 read 0 (Unknown) and 3 read 4 (Shortcuts). Parameter Values is parameters[].value.value (field 5.7.2.2, or 6.7.2.2 when the row reads resolvedAction, NSData), not reported before. It is decoded as a keyed archive and shows a scalar value, or the scalar and URL properties of an entity. List and nested properties and empty values are left out. settingsHostApplicationBundleIdentifier is left out too: it held one value on the 264 tested entities. On the tested images it was filled on 302 of the 479 written rows: 264 with a SettingsNavigationLocationEntity and 38 with scalar values. Across those 264 entities navigationLink held 45 distinct values, while Parameter Display Titles held one and the same text. A value that is not a binary plist is left out (14 of the 349 parameter values on the reported action). A parameter value is what the record holds and does not establish that the action completed. Intent Timestamp is executionDate (field 4), which the class reads as seconds since 1970-01-01 UTC."),
         "paths": ('*/streams/*/App.Intents.Transcript/local/*',),
         "output_types": "standard",
         "artifact_icon": "bolt",
@@ -34,16 +34,25 @@ __artifacts_v2__ = {
 
 import os
 import struct
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, get_plist_content, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+
+# BMAppIntentInvocation.source names, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
+SOURCES = {0: 'Unknown', 1: 'App', 2: 'CLI', 3: 'Siri', 4: 'Shortcuts', 5: 'Testing',
+           6: 'ActionButton', 7: 'Spotlight', 8: 'ControlCenter'}
+
+# A property holding the same value on each tested entity, left out of Parameter Values.
+_SKIPPED_ENTITY_PROPERTIES = {'settingsHostApplicationBundleIdentifier'}
+
+_CONTROL_MAP = str.maketrans({'\t': '\\t', '\r': '\\r', '\n': '\\n', '\x00': ''})
 
 
 # Field types pinned from BMAppIntentInvocation in BiomeLibrary.framework (macOS 27.2.1, 26B131)
@@ -101,10 +110,43 @@ def _as_list(value):
     return []
 
 
+def _readable(value):
+    """Text for a scalar or an NSURL; empty for anything else."""
+    if isinstance(value, dict):
+        value = value.get('NS.relative')
+        return value.translate(_CONTROL_MAP) if isinstance(value, str) else ''
+    if isinstance(value, (bool, int, float, datetime, date)):
+        return str(value)
+    return value.translate(_CONTROL_MAP) if isinstance(value, str) else ''
+
+
+def _parameter_value(raw):
+    """Decode parameters[].value.value (NSData): a keyed archive of a scalar or an LNEntity."""
+    if not isinstance(raw, bytes) or not raw.startswith(b'bplist'):
+        return ''
+    decoded = get_plist_content(raw)
+    if not isinstance(decoded, dict):
+        return ''
+    if 'root' in decoded:
+        return _readable(decoded['root'])
+    parts = []
+    for prop in _as_list(decoded.get('properties')):
+        if not isinstance(prop, dict):
+            continue
+        name = prop.get('identifier')
+        holder = prop.get('value')
+        if not isinstance(name, str) or name in _SKIPPED_ENTITY_PROPERTIES:
+            continue
+        text = _readable(holder.get('value')) if isinstance(holder, dict) else ''
+        if text:
+            parts.append(f'{name}={text}')
+    return ', '.join(parts)
+
+
 def _intent_details(intent):
     """Pull parameter identifiers, entity type identifiers, and the defaultValue and
     bundleURL of each parameter value's displayRepresentation.title out of an action."""
-    params, entity_types, titles, urls = [], [], [], []
+    params, entity_types, titles, urls, values = [], [], [], [], []
     for slot in _as_list(intent.get('7')):
         if not isinstance(slot, dict):
             continue
@@ -114,6 +156,9 @@ def _intent_details(intent):
         payload = slot.get('2', {})
         if not isinstance(payload, dict):
             continue
+        text = _parameter_value(payload.get('2'))
+        if text:
+            values.append(f'{name}: {text}' if name else text)
         descriptor = payload.get('1', {})
         if isinstance(descriptor, dict):
             type_info = descriptor.get('3', {})
@@ -131,7 +176,7 @@ def _intent_details(intent):
                 url = _to_str(inner.get('4', b''))     # bundleURL
                 if url:
                     urls.append(url)
-    return params, entity_types, titles, urls
+    return params, entity_types, titles, urls, values
 
 
 @artifact_processor
@@ -169,7 +214,10 @@ def get_biomeAppIntentsTranscript(context):
                 if not isinstance(intent, dict):
                     intent = {}
 
-                params, entity_types, titles, urls = _intent_details(intent)
+                params, entity_types, titles, urls, values = _intent_details(intent)
+                source = protostuff.get('2')
+                source_raw = source if type(source) is int else None
+                source_name = SOURCES.get(source_raw, '') if source_raw is not None else ''
 
                 # predictions[].displayRepresentation.title.defaultValue (field 8.2.1.2).
                 prediction_titles = []
@@ -185,19 +233,21 @@ def get_biomeAppIntentsTranscript(context):
                                 prediction_titles.append(title)
 
                 data_list.append((ts, _unix_double(protostuff.get('4')), record.state.name,
+                                  source_name, source_raw,
                                   _to_str(protostuff.get('1', b'')),
                                   _to_str(intent.get('1', b'')),
-                                  '; '.join(params), '; '.join(entity_types),
+                                  '; '.join(params), '; '.join(values), '; '.join(entity_types),
                                   '; '.join(titles), '; '.join(prediction_titles),
                                   '; '.join(sorted(set(urls))),
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, None, record.state.name, None, None, None, None, None,
-                                  None, None, filename, record.data_start_offset))
+                                  None, None, None, None, None, filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Intent Timestamp', 'datetime'),
-                    'SEGB State', 'Bundle ID', 'Intent Class', 'Parameters', 'Entity Types',
+                    'SEGB State', 'Source', 'Source (raw)', 'Bundle ID', 'Intent Class',
+                    'Parameters', 'Parameter Values', 'Entity Types',
                     'Parameter Display Titles', 'Prediction Display Titles',
                     'Title Bundle URL', 'Filename', 'Offset')
 

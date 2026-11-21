@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "for 17 third party apps. The parser reads no message body field.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names are those of the BMSiriMessageHistory class, read from "
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                  "now pinned from the class, so a string is never printed as a decoded message: "
                  "Group Identifier showed the text {} on 4,530 written rows and decoded-message "
                  "text on 132 before. On the tested images no parameter or field key named a "
-                 "message body. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
+                 "message body. Status and Status (raw) are field 1.5 (status) of BMSiriRemembersInteraction, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read, and were not reported before. Of the 6,906 written records, on the 10 of 21 tested images that held written records of this stream, 5,767 read 1 (Unspecified) and 1,139 read 4 (Success). On the 1,653 written records (1,631 distinct identifiers) whose App Intent Interaction ID equalled the identifier key of at least one App.Intent record's INInteraction plist on the same image, status 1 sat with intentHandlingStatus 0 (Unspecified) on 1,348 and status 4 with 3 (Success) on 305. 24 of them matched more than one App.Intent record, and those held the same intentHandlingStatus. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
         "paths": (
             '*/streams/*/Siri.Remembers.MessageHistory/local/*',
             '*/streams/*/Siri.Remembers.MessageHistory/remote/*',
@@ -56,6 +56,9 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
 
 # interaction.direction names, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
 DIRECTIONS = {0: 'Unknown', 1: 'Incoming', 2: 'Outgoing', 3: 'Bidirectional'}
+# interaction.status names, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
+STATUSES = {0: 'Unknown', 1: 'Unspecified', 2: 'Ready', 3: 'InProgress', 4: 'Success',
+            5: 'Failure', 6: 'DeferredToApplication', 7: 'UserConfirmationRequired'}
 
 
 # Field types pinned from BiomeLibrary.framework (macOS 27.2.1, 26B131) so that a string
@@ -81,6 +84,13 @@ def _to_str(value):
     if value is None or isinstance(value, (dict, list)):
         return ''
     return str(value)
+
+
+def _status(value):
+    # Read schema-less: a pinned field with an unexpected wire type would discard the record.
+    if type(value) is not int:
+        return '', None
+    return STATUSES.get(value, ''), value
 
 
 def _message_timestamp(value):
@@ -178,6 +188,7 @@ def get_biomeSiriRemembersMessageHistory(context):
                 message_ts = _message_timestamp(metadata.get('8'))
                 direction = metadata.get('6')
                 direction = DIRECTIONS.get(direction, str(direction) if direction is not None else '')
+                status_name, status_raw = _status(metadata.get('5'))
                 bundle_id = _to_str(metadata.get('4', b''))
                 intent_class = _to_str(metadata.get('2', b''))
                 chat_id = _to_str(metadata.get('12', b''))
@@ -193,7 +204,8 @@ def get_biomeSiriRemembersMessageHistory(context):
 
                 params = _participants(protostuff)
 
-                data_list.append((ts, message_ts, record.state.name, direction, bundle_id,
+                data_list.append((ts, message_ts, record.state.name, direction, status_name,
+                                  status_raw, bundle_id,
                                   params.get('sender', ''), params.get('senderHandle', ''),
                                   params.get('recipients', ''), params.get('recipientHandles', ''),
                                   params.get('speakableGroupName', ''), is_group, chat_id,
@@ -202,11 +214,11 @@ def get_biomeSiriRemembersMessageHistory(context):
 
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, None, record.state.name, None, None, None, None, None, None,
-                                  None, None, None, None, None, origin, filename,
+                                  None, None, None, None, None, None, None, origin, filename,
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Message Timestamp', 'datetime'), 'SEGB State',
-                    'Direction', 'Bundle ID', 'Sender', 'Sender Handle', 'Recipients',
+                    'Direction', 'Status', 'Status (raw)', 'Bundle ID', 'Sender', 'Sender Handle', 'Recipients',
                     'Recipient Handles', 'Group Name', 'Is Group', 'Group Identifier', 'App Intent Interaction ID',
                     'Intent Class', 'Sync Origin', 'Filename', 'Offset')
 

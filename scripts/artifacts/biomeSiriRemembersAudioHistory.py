@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "Music and podcast playback were both observed on the tested images.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names are those of the BMSiriAudioHistory class, read from "
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                  "are read from both the local and remote subfolders; the Sync Origin column "
                  "reports which one a record came from. The local and remote names are the "
                  "stream's own folder layout; what they mean for cross-device sync is not "
-                 "established here. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
+                 "established here. Status and Status (raw) are field 1.5 (status) of BMSiriRemembersInteraction, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read, and were not reported before. Of the 111 written records, on the 3 of 21 tested images that held written records of this stream, 92 read 1 (Unspecified) and 19 read 4 (Success). On the 15 written records whose field 1.13 (appIntentInteractionIdentifier, not shown by this artifact) equalled the identifier key of an App.Intent record's INInteraction plist on the same image, status 1 sat with intentHandlingStatus 0 (Unspecified) on 12 and status 4 with 3 (Success) on 3. Donated by Siri is field 1.7 (isDonatedBySiri), not reported before; it read True on 10 of the 111 written records and False on 101. SEGB Timestamp is the record time in the SEGB file; the event time is the second column."),
         "paths": (
             '*/streams/*/Siri.Remembers.AudioHistory/local/*',
             '*/streams/*/Siri.Remembers.AudioHistory/remote/*',
@@ -53,6 +53,10 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
+# interaction.status names, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
+STATUSES = {0: 'Unknown', 1: 'Unspecified', 2: 'Ready', 3: 'InProgress', 4: 'Success',
+            5: 'Failure', 6: 'DeferredToApplication', 7: 'UserConfirmationRequired'}
+
 
 def _to_str(value):
     if isinstance(value, bytes):
@@ -63,6 +67,20 @@ def _to_str(value):
     if value is None or isinstance(value, (dict, list)):
         return ''
     return str(value)
+
+
+def _status(value):
+    # Read schema-less: a pinned field with an unexpected wire type would discard the record.
+    if type(value) is not int:
+        return '', None
+    return STATUSES.get(value, ''), value
+
+
+def _donated_by_siri(value):
+    # isDonatedBySiri (field 1.7), a Boolean stored as a varint.
+    if type(value) is not int:
+        return ''
+    return {0: 'False', 1: 'True'}.get(value, str(value))
 
 
 def _intent_timestamp(value):
@@ -154,9 +172,11 @@ def get_biomeSiriRemembersAudioHistory(context):
                 if not isinstance(metadata, dict):
                     continue
                 title, artist, media_type, item_ids = _media_details(protostuff)
+                status_name, status_raw = _status(metadata.get('5'))
 
                 data_list.append((ts, _intent_timestamp(metadata.get('8')), record.state.name,
-                                  title, artist, media_type,
+                                  status_name, status_raw,
+                                  _donated_by_siri(metadata.get('7')), title, artist, media_type,
                                   _to_str(metadata.get('4')), _to_str(metadata.get('12')),
                                   item_ids, _to_str(metadata.get('2')),
                                   _to_str(metadata.get('1')), origin, filename,
@@ -164,11 +184,11 @@ def get_biomeSiriRemembersAudioHistory(context):
 
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, None, record.state.name, None, None, None, None, None,
-                                  None, None, None, origin, filename,
+                                  None, None, None, None, None, None, origin, filename,
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Playback Timestamp', 'datetime'),
-                    'SEGB State', 'Title', 'Artist', 'Media Type', 'Bundle ID', 'Group Identifier',
+                    'SEGB State', 'Status', 'Status (raw)', 'Donated by Siri', 'Title', 'Artist', 'Media Type', 'Bundle ID', 'Group Identifier',
                     'Item ID', 'Intent Class', 'Intent UUID', 'Sync Origin', 'Filename',
                     'Offset')
 
