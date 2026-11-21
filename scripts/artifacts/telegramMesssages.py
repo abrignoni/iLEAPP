@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         ),
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
-        "last_update_date": "2026-10-24",
+        "last_update_date": "2026-11-20",
         "requirements": "Python packages: mmh3",
         "category": "Telegram",
         "notes": "Original Gist: "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
                  "remain unknown; nonempty short IDs are logged with media type and byte length. "
                  "Message text and independently decoded media metadata are retained. This "
                  "handling was exercised on constructed test data; no tested image produced "
-                 "a short ID.",
+                 "a short ID. A database with no message table (t7) gives no rows and is noted in the run log by account id.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
@@ -1115,6 +1115,11 @@ def telegramMessages(context):
             try:
                 db_connection = open_sqlite_db_readonly(report_file_path)
                 source_paths.append(report_file_path)
+
+                if not db_connection.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' "
+                                             "AND name = 't7'").fetchone():
+                    logfunc(f'Telegram messages: account {account_id} has no message table (t7)')
+                    continue
 
                 # Iterate over all messages using the helper
                 for idx, msg_content in get_all_messages(db_connection):
