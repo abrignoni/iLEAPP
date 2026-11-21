@@ -60,6 +60,30 @@ class PickupTest(unittest.TestCase):
         worker.run()
         self.model.assert_not_called()
 
+    def test_private_inbox_delivers_only_new_revisions_and_retries(self):
+        thread = "11111111-1111-4111-8111-111111111111"
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            db.execute("INSERT INTO reviews VALUES(11,?,?)", ("a"*40, "old report"))
+            db.commit()
+            worker.configure_inbox(db, thread)
+        self.pr["head"]["sha"] = "b"*40
+        self.issues.return_value = [{"number": 11, "pull_request": {}}]
+        with patch.object(worker.subprocess, "run", side_effect=OSError) as send:
+            worker.run()
+            send.assert_called_once()
+            args = send.call_args.args[0]
+            self.assertEqual(args[:5], ["codex", "queue", "--thread", thread, "--message"])
+            self.assertIn(str(self.root / "reports" / ("PR-11-" + "b"*40 + ".md")), args[5])
+            self.assertNotIn("private review", args[5])
+        self.issues.return_value = []
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            worker.configure_inbox(db, thread)
+        with patch.object(worker.subprocess, "run") as send:
+            worker.run()
+            worker.run()
+            send.assert_called_once()
+        self.model.assert_called_once()
+
     def test_workflow_filters_and_missing_late_checks(self):
         self.assertTrue(worker.path_match("scripts/artifacts/demo.py", ["**.py"]))
         self.assertFalse(worker.path_match("scripts/artifacts/demo.py", ["scripts/*.py"]))
