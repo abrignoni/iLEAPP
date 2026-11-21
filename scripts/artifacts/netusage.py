@@ -4,12 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses app data from netusage.sqlite",
         "author": "@stark4n6, @snoop168",
         "creation_date": "2023-02-13",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Network Usage",
         "notes": "ZKIND is reported as stored; its values are not documented. The three timestamps "
                  "are ZLIVEUSAGE.ZTIMESTAMP, ZPROCESS.ZFIRSTTIMESTAMP and ZPROCESS.ZTIMESTAMP read "
-                 "as seconds from 2001-01-01 UTC; what each marks is not sourced. Only the first "
+                 "as seconds from 2001-01-01 UTC; what each marks is not sourced. On iOS 18.7 (22H20) "
+                 "the writer in SymptomEvaluator stores AWDL traffic in the Wired columns, so they are "
+                 "not cabled traffic on that build; other builds were not read. Only the first "
                  "netusage.sqlite that holds both tables is read.",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
@@ -35,32 +37,46 @@ __artifacts_v2__ = {
     "netusage_connections": {
         "name": "Connections",
         "description": "Network attachments and their route performance counters from netusage.sqlite",
-        "author": "@stark4n6, @snoop168",
+        "author": "@stark4n6, @snoop168, @AlexisBrignoni, Claude",
         "creation_date": "2023-02-13",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Network Usage",
-        "notes": "One row per ZLIVEROUTEPERF row linked to a network. The byte, packet and connection "
-                 "columns are joined to their network through ZLIVEROUTEPERF.ZHASNETWORKATTACHMENT = "
-                 "ZNETWORKATTACHMENT.Z_PK, the join the reference below uses. The Core Data model "
-                 "cached in the dexter_ios18 store (Z_MODELCACHE) defines hasNetworkAttachment as a "
-                 "to-one relationship from LiveRoutePerf to NetworkAttachment. A network with more "
-                 "than one linked ZLIVEROUTEPERF row is listed once per linked row, with the network "
-                 "columns repeated; a network with none would be listed once with those columns empty. "
-                 "Measured on the 14 listed images that hold the tables: all 9,266 ZLIVEROUTEPERF "
-                 "rows carried a link, each link named an existing network, and each of the 8,722 "
-                 "networks had one to three linked rows (531 had more than one). Before 2026-10-04 "
-                 "this artifact paired the two tables by their own row numbers (Z_PK of both), which "
-                 "filled the counters on 3,234 of 8,722 rows on those images, 152 of them from a "
-                 "linked row. Route Performance Timestamp is ZLIVEROUTEPERF.ZTIMESTAMP read as seconds "
-                 "from 2001-01-01 UTC; what it marks is not sourced. Network Type is mapped from "
-                 "ZNETWORKATTACHMENT.ZKIND (1 Wifi, 2 Cellular); the reference maps "
-                 "ZLIVEROUTEPERF.ZKIND, and the two held the same value on all 9,266 linked pairs. "
-                 "The first two timestamp columns are ZNETWORKATTACHMENT.ZFIRSTTIMESTAMP and "
-                 "ZTIMESTAMP; the reference labels them first network attachment and network "
-                 "attachment timestamp. Only the first netusage.sqlite that holds both tables is "
-                 "read. Reference: Sarah Edwards, APOLLO netusage_zliverouteperf module, "
-                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/netusage_zliverouteperf.txt",
+        "notes": "The field meanings and joins below were derived independently from each store's Core"
+                 " Data model, measured data and Apple's code. Code statements were read in "
+                 "SymptomEvaluator on iOS 18.7 (22H20); other builds were not read. Measured on 12 iOS"
+                 " images from 12.4 to 26.5.2 (ctf2020_ios12, hickman_ios13, hickman_ios14, "
+                 "jess_ios15, magnet_ios16, hexordia_ios1651, cookbook_ios1751, felix_ios17, "
+                 "iphone12_ios18, hc_ios18_7, hill_iphone15pro_ios26, wilkerson_iphone16_ios26). One "
+                 "row per ZLIVEROUTEPERF row, joined through the hasNetworkAttachment relationship "
+                 "defined in the cached model of each measured store "
+                 "(ZLIVEROUTEPERF.ZHASNETWORKATTACHMENT = ZNETWORKATTACHMENT.Z_PK). A network with "
+                 "more than one linked row is listed once per linked row, and a network with none is "
+                 "listed once with the route columns empty. On the 12 images all 5,220 route rows "
+                 "carried a link to one of the 5,123 networks, and one network had no route row. "
+                 "Versions of this artifact from before the 2026-10-04 change paired the two tables by"
+                 " their own row numbers, so reports made with them can show counters on the wrong "
+                 "network. Attachment First Timestamp and Attachment Timestamp are "
+                 "ZNETWORKATTACHMENT.ZFIRSTTIMESTAMP and ZTIMESTAMP, seconds from 2001-01-01 UTC. On "
+                 "iOS 18.7 the writer sets both from the current date rounded to the day in the "
+                 "device's calendar. Both fall on a whole hour on all 5,123 networks and none on UTC "
+                 "midnight. Read them as dates, not as the time of a connection. The UTC date shown "
+                 "can be the day before or after the day the device recorded. Attachment First "
+                 "Timestamp was later than Attachment Timestamp on 2 networks. Route Performance "
+                 "Timestamp is ZLIVEROUTEPERF.ZTIMESTAMP, also on a whole hour on all 5,220 rows; what"
+                 " it marks is not sourced. Network Type maps ZKIND: the writer stores 2 for a "
+                 "cellular attachment and 1 on its only other path, a Wi-Fi network change. On the "
+                 "other builds the label rests on the identifier form: all 237 kind 1 identifiers end "
+                 "in a BSSID and all 4,886 kind 2 identifiers fit a cellular form. Identifier (as "
+                 "stored) is ZIDENTIFIER. The writer composes it as network name, a hyphen and BSSID "
+                 "for Wi-Fi, and carrier name, a hyphen and decimal cell identifier for cellular, or "
+                 "the literal CollapsedNR. For CollapsedNR both Network Name and BSSID or Cell ID are "
+                 "left blank. All 5,123 identifiers fit one of these forms. The value is split at the "
+                 "last hyphen because a name can hold a hyphen. The stored BSSID is zero-padded on "
+                 "some images and not on others, and is lower case. BSSID or Cell ID shows a BSSID as "
+                 "six upper-case two-digit bytes so one BSSID reads the same on every image. Byte, "
+                 "packet and connection columns are reported as stored and their units were not "
+                 "traced. Only the first netusage.sqlite that holds both tables is read.",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "network",
@@ -75,6 +91,10 @@ __artifacts_v2__ = {
             "iphone14plus_ios18": "iOS 18.0 | 20 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 3429 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 4 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 475 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 662 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 1502 rows",
             "felix23_ios16": "iOS 16.5 | 366 rows",
             "hickman_ios13": "iOS 13.3.1 | 52 rows",
             "hickman_ios14": "iOS 14.3 | 49 rows",
@@ -84,11 +104,24 @@ __artifacts_v2__ = {
     }
 }
 
+import re
+
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, does_table_exist_in_db,
                                convert_cocoa_core_data_ts_to_utc, logfunc)
 
-def pad_mac_adr(adr):
-    return ':'.join([i.zfill(2) for i in adr.split(':')]).upper()
+_BSSID = re.compile(r'[0-9A-Fa-f]{1,2}(?::[0-9A-Fa-f]{1,2}){5}')
+
+
+def _split_identifier(identifier, kind):
+    '''(network name, BSSID or cell id) from ZIDENTIFIER, both blank when it fits no known form.'''
+    if not isinstance(identifier, str) or '-' not in identifier:
+        return '', ''
+    name, tail = identifier.rsplit('-', 1)
+    if kind == 1 and _BSSID.fullmatch(tail):
+        return name, ':'.join(octet.zfill(2) for octet in tail.split(':')).upper()
+    if kind == 2 and tail.isascii() and tail.isdigit():
+        return name, tail
+    return '', ''
 
 def _find_netusage_db(context, required_tables):
     '''Returns the first netusage.sqlite that contains all required tables.
@@ -147,12 +180,12 @@ def netusage_appdata(context):
 
 @artifact_processor
 def netusage_connections(context):
-    data_headers = (('First Connection Timestamp', 'datetime'), ('Last Connection Timestamp', 'datetime'),
-                    ('Route Performance Timestamp', 'datetime'), 'Network Name', 'Network Identifier',
-                    'Network Type', 'Bytes In', 'Bytes Out', 'Connection Attempts', 'Connection Successes',
-                    'Packets In',
-                    'Packets Out')
+    data_headers = (('Attachment First Timestamp', 'datetime'), ('Attachment Timestamp', 'datetime'),
+                    ('Route Performance Timestamp', 'datetime'), 'Network Name', 'BSSID or Cell ID',
+                    'Network Type', 'Identifier (as stored)', 'Bytes In', 'Bytes Out', 'Connection Attempts',
+                    'Connection Successes', 'Packets In', 'Packets Out')
     data_list = []
+    network_types = {1: 'Wi-Fi', 2: 'Cellular'}
 
     data_source = _find_netusage_db(context, ('ZNETWORKATTACHMENT', 'ZLIVEROUTEPERF'))
     if data_source:
@@ -160,41 +193,26 @@ def netusage_connections(context):
                 select
                 ZNETWORKATTACHMENT.ZFIRSTTIMESTAMP,
                 ZNETWORKATTACHMENT.ZTIMESTAMP,
+                ZLIVEROUTEPERF.ZTIMESTAMP,
                 ZNETWORKATTACHMENT.ZIDENTIFIER,
-                case ZNETWORKATTACHMENT.ZKIND
-                    when 1 then 'Wifi'
-                    when 2 then 'Cellular'
-                    else ZNETWORKATTACHMENT.ZKIND
-                end,
+                ZNETWORKATTACHMENT.ZKIND,
                 ZLIVEROUTEPERF.ZBYTESIN,
                 ZLIVEROUTEPERF.ZBYTESOUT,
                 ZLIVEROUTEPERF.ZCONNATTEMPTS,
                 ZLIVEROUTEPERF.ZCONNSUCCESSES,
                 ZLIVEROUTEPERF.ZPACKETSIN,
-                ZLIVEROUTEPERF.ZPACKETSOUT,
-                ZLIVEROUTEPERF.ZTIMESTAMP
+                ZLIVEROUTEPERF.ZPACKETSOUT
                 from ZNETWORKATTACHMENT
                 left join ZLIVEROUTEPERF on ZLIVEROUTEPERF.ZHASNETWORKATTACHMENT = ZNETWORKATTACHMENT.Z_PK
                 ''')
 
         for row in all_rows:
-            first_connected = convert_cocoa_core_data_ts_to_utc(row[0])
-            last_connected = convert_cocoa_core_data_ts_to_utc(row[1])
-            perf_timestamp = convert_cocoa_core_data_ts_to_utc(row[10])
-
-            if row[2] is None:
-                data_list.append((first_connected, last_connected, perf_timestamp, '', '', row[3], row[4], row[5], row[6], row[7],
-                                  row[8], row[9]))
-            else:
-                if '-' not in row[2]:
-                    data_list.append((first_connected, last_connected, perf_timestamp, row[2], '', row[3], row[4], row[5], row[6],
-                                      row[7],row[8],row[9]))
-                else:
-                    id_split = row[2].rsplit('-',1)
-                    netname = id_split[0]
-                    id_mac = pad_mac_adr(id_split[1])
-
-                    data_list.append((first_connected, last_connected, perf_timestamp, netname, id_mac, row[3], row[4], row[5], row[6],
-                                      row[7], row[8], row[9]))
+            name, address = _split_identifier(row[3], row[4])
+            data_list.append((convert_cocoa_core_data_ts_to_utc(row[0]),
+                              convert_cocoa_core_data_ts_to_utc(row[1]),
+                              convert_cocoa_core_data_ts_to_utc(row[2]),
+                              name, address, network_types.get(row[4], row[4]),
+                              row[3] if row[3] is not None else '',
+                              row[5], row[6], row[7], row[8], row[9], row[10]))
 
     return data_headers, data_list, data_source
