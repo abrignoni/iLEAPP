@@ -58,7 +58,7 @@ __artifacts_v2__ = {
         },
     },
     "biomeSetsFindMyDevices": {
-        "name": "Biome Sets - FindMy Devices",
+        "name": "Biome Sets - Find My Devices",
         "description": "FindMy device records (a device name and two strings stored with it in "
                        "field 2, reported as stored) from the FindMy.Device Biome "
                        "Set.db store.",
@@ -68,15 +68,19 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: "
-                 "https://northloopconsulting.com/blog/f/ready-sets-go. Fields 2.1 and 2.2 are two "
-                 "strings nested in field 2 of each record; no source was found that names them, so they "
-                 "are reported under their field numbers and no owner name label is applied. The Modified "
-                 "column comes from the store's instance table, or metacontent_provenance.written_date on "
-                 "stores without one (observed on the hc_ios26 image). The store is read at "
-                 "FindMy.Device/Database/Set.db and at FindMy.Device/Set.db: on iphone14plus_ios18 and "
-                 "iphone14plus_ios18_mvs2025 (iOS 18.0, two acquisitions of one iPhone 14 Plus) it sat "
-                 "directly in the set folder with no Database folder, and on the other tested images in "
-                 "Database." ' A record the schema-less protobuf decoder raises an error on is decoded again with its top-level fields typed by their own wire types and its row is kept, and the log says so.',
+                 "https://northloopconsulting.com/blog/f/ready-sets-go. Field 1 is reported as Device Name from "
+                 "the store name and the cited description of the set. No source names the field. Fields 2.1 and "
+                 "2.2 are two strings nested in field 2 of each record; no source was found that names them, so "
+                 "they are reported under their field numbers and no owner name label is applied. The Modified "
+                 "column comes from the store's instance table, or metacontent_provenance.written_date on stores "
+                 "without one (observed on the hc_ios26 image). The store is read at FindMy.Device/Database/Set.db"
+                 " and at FindMy.Device/Set.db: on iphone14plus_ios18 and iphone14plus_ios18_mvs2025 (iOS 18.0, "
+                 "two acquisitions of one iPhone 14 Plus) it sat directly in the set folder with no Database "
+                 "folder, and on the other tested images in Database. A record the schema-less protobuf decoder "
+                 "raises an error on is decoded again with its top-level fields typed by their own wire types. "
+                 "When that succeeds the row is kept and the log says so. When it fails the record is skipped and "
+                 "logged. Other Fields lists top-level fields other than 1 and 2. A subfield of field 2 beyond 2.1"
+                 " and 2.2 is not reported.",
         "paths": ('*/Biome/sets/Default/FindMy.Device/*Set.db*',),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
