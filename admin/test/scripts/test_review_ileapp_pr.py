@@ -73,6 +73,9 @@ class PilotTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             pilot.finish(self.db, 1, self.head, "private notes", self.comments)
         pilot.finish(self.db, 1, self.head, "private notes", [])
+        report = pilot.STATE / "reports" / f"PR-1-{self.head}.md"
+        self.assertEqual(report.read_text(), "private notes")
+        self.assertEqual(report.stat().st_mode & 0o077, 0)
         self.assertEqual(self.posts, [])
         self.assertEqual(self.db.execute("SELECT result FROM reviews").fetchone(), ("private notes",))
 

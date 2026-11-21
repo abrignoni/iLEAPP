@@ -5,6 +5,7 @@ import os
 import re
 import sqlite3
 import subprocess
+import tempfile
 from pathlib import Path
 from urllib.parse import quote
 
@@ -129,6 +130,17 @@ def finish(db, number, head, summary, comments):
                     raise ValueError("Unexpected delivery route")
                 api(endpoint, body={"commit_id": head, "event": "COMMENT", "comments": lines,
                                     "body": f"{marker}\nAutomated iLEAPP review."})
+        reports = STATE / "reports"
+        reports.mkdir(mode=0o700, exist_ok=True)
+        report = reports / f"PR-{number}-{head}.md"
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=reports,
+                                         delete=False) as draft:
+            try:
+                draft.write(summary)
+                draft.flush()
+                os.replace(draft.name, report)
+            finally:
+                Path(draft.name).unlink(missing_ok=True)
         db.execute("INSERT INTO reviews VALUES (?, ?, ?)", (number, head, summary))
     return f"Recorded {audience} review"
 

@@ -18,7 +18,8 @@ For a contributor PR with verified findings, supply an additional
 `path`, `line` (current diff, right side), and `body`. Each entry becomes an inline
 comment in a single non-blocking review. Omit the file for a clean review or owner
 PR. Private summaries are retained under the user's Library/Application Support/iLEAPP/PR Review
-directory. The local reviewer delivers owner findings to the private chat.
+directory. The helper writes an owner-readable Markdown file per revision under
+`reports/` there. The local reviewer delivers owner findings and the file link to the private chat.
 Keep temporary inputs in a user-private directory outside the checkout.
 
 A draft, closed PR, or changed head cannot receive a new delivery. The publisher
