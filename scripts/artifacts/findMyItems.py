@@ -1,32 +1,39 @@
 __artifacts_v2__ = {
     "findMyItemsInfo": {
         "name": "Find My Items Info",
-        "description": "Item records from the Find My Items.data cache file, where that file is "
-                       "plain JSON",
+        "description": "Item records from the Find My Items.data cache file, in its plain JSON or encrypted form",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-18",
-        "last_update_date": "2026-07-13",
+        "last_update_date": "2026-11-20",
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
-        "notes": "Where Items.data is not JSON the file is not read and no rows are reported; that "
-                 "is not evidence that no items were recorded. sample_data lists rows on "
-                 "iphone11_ios17 (iOS 17.3) and abe_ios16 (iOS 16.5) and 0 rows on the other "
-                 "listed images; whether Items.data was present and not JSON on those images was "
-                 "not recorded here.",
+        "notes": "Items.data is read in its JSON form or, on dexter_ios18, felix_ios17, otto_ios17, "
+                 "falken_ios26, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, decrypted with the "
+                 "FMIPDataManager key from the keychain carried by the extraction or supplied with --keychain "
+                 "(falken_ios26 was run with --keychain), and only when the ChaCha20-Poly1305 tag verifies; "
+                 "the signature is not checked. The text $null in a decrypted file is read as no value. Layout"
+                 " published in PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is "
+                 "not evidence that no items were recorded. Not reported: isAppleItem, rangeDistanceInMeters, "
+                 "isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the top-level "
+                 "productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17 and "
+                 "wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "info-circle",
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
     "findMyItemsLocations": {
@@ -34,24 +41,36 @@ __artifacts_v2__ = {
         "description": "Extract items locations from Find My",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-18",
-        "last_update_date": "2026-07-13",
+        "last_update_date": "2026-11-20",
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
-        "notes": "",
+        "notes": "Items.data is read in its JSON form or, on dexter_ios18, felix_ios17, otto_ios17, "
+                 "falken_ios26, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, decrypted with the "
+                 "FMIPDataManager key from the keychain carried by the extraction or supplied with --keychain "
+                 "(falken_ios26 was run with --keychain), and only when the ChaCha20-Poly1305 tag verifies; "
+                 "the signature is not checked. The text $null in a decrypted file is read as no value. Layout"
+                 " published in PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is "
+                 "not evidence that no items were recorded. Not reported: isAppleItem, rangeDistanceInMeters, "
+                 "isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the top-level "
+                 "productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17 and "
+                 "wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "map-pin",
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         }
     },
     "findMyItemsSafeLocations": {
@@ -60,29 +79,39 @@ __artifacts_v2__ = {
                        "file",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-18",
-        "last_update_date": "2026-07-13",
+        "last_update_date": "2026-11-20",
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
-        "notes": "Timestamp is the timeStamp value stored with the safe location, converted from "
-                 "Unix time to UTC; what it marks is not established. Street Address is read from "
-                 "a key spelled streetAddres and is blank where the file does not use that "
-                 "spelling; use Formatted Address Line or Map Item Full Address. Where Items.data "
-                 "is not JSON no rows are reported, which is not evidence that no safe locations "
-                 "were recorded.",
+        "notes": "Timestamp is the timeStamp value stored with the safe location, converted from Unix time to "
+                 "UTC; what it marks is not established. Street Address is read from the streetAddress key, or"
+                 " from a key spelled streetAddres where that is the one present. Items.data is read in its "
+                 "JSON form or, on dexter_ios18, felix_ios17, otto_ios17, falken_ios26, hill_iphone15pro_ios26"
+                 " and wilkerson_iphone16_ios26, decrypted with the FMIPDataManager key from the keychain "
+                 "carried by the extraction or supplied with --keychain (falken_ios26 was run with "
+                 "--keychain), and only when the ChaCha20-Poly1305 tag verifies; the signature is not checked."
+                 " The text $null in a decrypted file is read as no value. Layout published in "
+                 "PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is not evidence "
+                 "that no items were recorded. Not reported: isAppleItem, rangeDistanceInMeters, "
+                 "isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the top-level "
+                 "productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17 and "
+                 "wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "shield-check",
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 1 row",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         }
     },
     "findMyItemsCrowdsourcedLocations": {
@@ -91,51 +120,67 @@ __artifacts_v2__ = {
                        "Items.data cache file",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-18",
-        "last_update_date": "2026-07-13",
+        "last_update_date": "2026-11-20",
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
-        "notes": "The position is the one stored for the item under the crowdSourcedLocation key; "
-                 "how it was obtained is not established here, and a row does not show that the "
-                 "examined device was at that position. Where Items.data is not JSON no rows are "
-                 "reported.",
+        "notes": "The position is the one stored for the item under the crowdSourcedLocation key; how it was "
+                 "obtained is not established here, and a row does not show that the examined device was at "
+                 "that position. Items.data is read in its JSON form or, on dexter_ios18, felix_ios17, "
+                 "otto_ios17, falken_ios26, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, decrypted "
+                 "with the FMIPDataManager key from the keychain carried by the extraction or supplied with "
+                 "--keychain (falken_ios26 was run with --keychain), and only when the ChaCha20-Poly1305 tag "
+                 "verifies; the signature is not checked. The text $null in a decrypted file is read as no "
+                 "value. Layout published in PnutCN/findmy-cache-decryptor. Without the key no rows are "
+                 "reported, which is not evidence that no items were recorded. Not reported: isAppleItem, "
+                 "rangeDistanceInMeters, isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the "
+                 "top-level productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17"
+                 " and wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "users",
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         }
     }
 }
 
 
-import json
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.findmy_cache import read_find_my_cache
+from scripts.ilapfuncs import artifact_processor
 from scripts.ilapfuncs import convert_unix_ts_to_utc
 
 
 def _read_items_json(source_path):
-    """Deserializes Items.data, returning a list of items.
+    """Return the item records of Items.data, in its JSON or encrypted form.
 
-    On recent iOS versions (~17.5+) Items.data is no longer plain JSON: it is
-    a binary plist wrapping an 'encryptedData' blob that cannot be decoded
-    without the device keys. Those files are reported and skipped instead of
-    crashing the artifact.
+    A file that cannot be read is logged by read_find_my_cache and gives no records. Sections an
+    item holds as null become empty so that one item without a location keeps its other rows.
     """
-    try:
-        with open(source_path, mode='r', encoding="UTF-8") as f:
-            return json.load(f)
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        logfunc(f'Items.data is not JSON (encrypted on recent iOS versions), unable to parse: {source_path}')
+    items = read_find_my_cache(source_path)
+    if not isinstance(items, list):
         return []
+    records = [item for item in items if isinstance(item, dict)]
+    for item in records:
+        for section in ('role', 'productType', 'location', 'crowdSourcedLocation', 'address'):
+            item[section] = item.get(section) or {}
+        item['productType']['productInformation'] = item['productType'].get('productInformation') or {}
+        item['safeLocations'] = [loc for loc in item.get('safeLocations') or [] if isinstance(loc, dict)]
+        for safe_location in item['safeLocations']:
+            for section in ('location', 'address'):
+                safe_location[section] = safe_location.get(section) or {}
+    return records
 
 
 @artifact_processor
@@ -146,9 +191,9 @@ def findMyItemsInfo(context):
     deserialized = _read_items_json(source_path)
     if deserialized:
         for x in deserialized:
-            name = (x['name'])
-            serial = (x['serialNumber'])
-            item_id = (x['identifier'])
+            name = (x.get('name'))
+            serial = (x.get('serialNumber'))
+            item_id = (x.get('identifier'))
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -157,12 +202,12 @@ def findMyItemsInfo(context):
             pid = (x['productType']['productInformation'].get('productIdentifier'))
             vid = (x['productType']['productInformation'].get('vendorIdentifier'))
             ap = (x['productType']['productInformation'].get('antennaPower'))
-            gid = (x['groupIdentifier'])
+            gid = (x.get('groupIdentifier'))
             owner = (x.get('owner'))
-            batstat = (x['batteryStatus'])
-            lostmode = (x['lostModeMetadata'])
-            cap = (x['capabilities'])
-            sysver = (x['systemVersion'])
+            batstat = (x.get('batteryStatus'))
+            lostmode = (x.get('lostModeMetadata'))
+            cap = (x.get('capabilities'))
+            sysver = (x.get('systemVersion'))
 
             data_list.append(
                 (name, serial, item_id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, owner, 
@@ -183,9 +228,9 @@ def findMyItemsLocations(context):
         for x in deserialized:
             ltimestamp = (x['location'].get('timeStamp'))
             ltimestamp = convert_unix_ts_to_utc(ltimestamp)
-            name = (x['name'])
-            serial = (x['serialNumber'])
-            item_id = (x['identifier'])
+            name = (x.get('name'))
+            serial = (x.get('serialNumber'))
+            item_id = (x.get('identifier'))
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -194,12 +239,12 @@ def findMyItemsLocations(context):
             pid = (x['productType']['productInformation'].get('productIdentifier'))
             vid = (x['productType']['productInformation'].get('vendorIdentifier'))
             ap = (x['productType']['productInformation'].get('antennaPower'))
-            gid = (x['groupIdentifier'])
+            gid = (x.get('groupIdentifier'))
             owner = (x.get('owner'))
-            batstat = (x['batteryStatus'])
-            lostmode = (x['lostModeMetadata'])
-            cap = (x['capabilities'])
-            sysver = (x['systemVersion'])
+            batstat = (x.get('batteryStatus'))
+            lostmode = (x.get('lostModeMetadata'))
+            cap = (x.get('capabilities'))
+            sysver = (x.get('systemVersion'))
             asubAdministrativeArea =  (x['address'].get('subAdministrativeArea'))
             aslabel =  (x['address'].get('label'))
             astreetAddress =  (x['address'].get('streetAddress'))
@@ -246,9 +291,9 @@ def findMyItemsSafeLocations(context):
     deserialized = _read_items_json(source_path)
     if deserialized:
         for x in deserialized:
-            name = (x['name'])
-            serial = (x['serialNumber'])
-            item_id = (x['identifier'])
+            name = (x.get('name'))
+            serial = (x.get('serialNumber'))
+            item_id = (x.get('identifier'))
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -268,7 +313,7 @@ def findMyItemsSafeLocations(context):
                 salt = (safeloc['location'].get('altitude'))
                 ssub = (safeloc['address'].get('subAdministrativeArea'))
                 slabel = (safeloc['address'].get('label'))
-                sstreet = (safeloc['address'].get('streetAddres'))
+                sstreet = safeloc['address'].get('streetAddress') or safeloc['address'].get('streetAddres')
                 scountry = (safeloc['address'].get('countryCode'))
                 sstate = (safeloc['address'].get('stateCode'))
                 sadmin = (safeloc['address'].get('administrativeArea'))
@@ -302,9 +347,9 @@ def findMyItemsCrowdsourcedLocations(context):
         for x in deserialized:
             crowdtimestamp= (x['crowdSourcedLocation'].get('timeStamp'))
             crowdtimestamp = convert_unix_ts_to_utc(crowdtimestamp)
-            name = (x['name'])
-            serial = (x['serialNumber'])
-            item_id = (x['identifier'])
+            name = (x.get('name'))
+            serial = (x.get('serialNumber'))
+            item_id = (x.get('identifier'))
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -313,12 +358,12 @@ def findMyItemsCrowdsourcedLocations(context):
             pid = (x['productType']['productInformation'].get('productIdentifier'))
             vid = (x['productType']['productInformation'].get('vendorIdentifier'))
             ap = (x['productType']['productInformation'].get('antennaPower'))
-            gid = (x['groupIdentifier'])
+            gid = (x.get('groupIdentifier'))
             owner = (x.get('owner'))
-            batstat = (x['batteryStatus'])
-            lostmode = (x['lostModeMetadata'])
-            cap = (x['capabilities'])
-            sysver = (x['systemVersion'])
+            batstat = (x.get('batteryStatus'))
+            lostmode = (x.get('lostModeMetadata'))
+            cap = (x.get('capabilities'))
+            sysver = (x.get('systemVersion'))
             crowdpostype = (x['crowdSourcedLocation'].get('positionType'))
             crowdvert = (x['crowdSourcedLocation'].get('verticalAccuracy'))
             crowdlong = (x['crowdSourcedLocation'].get('longitude'))
