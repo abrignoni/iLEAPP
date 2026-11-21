@@ -1,36 +1,40 @@
 __artifacts_v2__ = {
     "findMyDevicesCache": {
         "name": "Find My Devices Cache",
-        "description": "Device records from the Find My Devices.data cache file, where that file is "
-                       "plain JSON",
+        "description": "Device records from the Find My Devices.data cache file, in its plain JSON or encrypted form",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
-        "notes": "One row per record in the Devices.data JSON list. The list held 3 records on abe_ios16, "
-                 "1 on hc_ios17_2 and hexordia_ios1651, 3 on hickman_ios13 and hickman_ios14, 23 on "
-                 "hickman_ios15 and 28 on iphone11_ios17, and it is not limited to the examined device: "
-                 "thisDevice was True on exactly one record per image. A 13-digit timeStamp value is read "
-                 "as Unix milliseconds and a 10-digit one as Unix seconds (convert_unix_ts_to_utc chooses "
-                 "the unit by magnitude); what each time marks is not established. Location Timestamp, "
-                 "Latitude, Longitude, Horizontal Accuracy, positionType, isOld and isInaccurate come from "
-                 "the record's location dictionary, which was present on 6 of the 28 iphone11_ios17 "
-                 "records and 1 of the 3 abe_ios16 records; the others leave those columns blank. The "
-                 "Crowdsourced columns come from the crowdSourcedLocation dictionary and were blank on "
-                 "every hickman_ios13 row. Address joins formattedAddressLines, or uses "
-                 "mapItemFullAddress. lostModeEnabled held False on every row of every image run. Columns "
-                 "marked (as stored) are the file's own values under the key named in the header; no "
-                 "public source defining them was found, so what each means is not established. On "
-                 "dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1) and otto_ios17 (iOS 17.5.1) the "
-                 "Devices, Owner, SafeLocations and FriendCacheData files are binary plists whose top "
-                 "level holds an encryptedData and a signature key. They are logged and not read, and the "
-                 "0 rows recorded for those images are not evidence that nothing was recorded. Not "
-                 "reported: features, audioChannels, lowPowerMode (False on every row run), the capability "
-                 "and state flags, deviceModel, deviceColor, prsId, deviceDiscoveryId, trackingInfo (null "
-                 "on every row run), itemGroup, the per-record safeLocations list, and on iphone11_ios17 "
-                 "pendingRemove and pendingRemoveUntilTS. Items.data is read by the Find My Items "
-                 "artifacts in findMyItems.py.",
+        "notes": "One row per record in the Devices.data list. The list held 3 records on abe_ios16, 1 on"
+                 " hc_ios17_2 and hexordia_ios1651, 3 on hickman_ios13 and hickman_ios14, 23 on hickman_ios15 "
+                 "and 28 on iphone11_ios17, and it is not limited to the examined device: thisDevice was True "
+                 "on exactly one record per image. A 13-digit timeStamp value is read as Unix milliseconds and"
+                 " a 10-digit one as Unix seconds (convert_unix_ts_to_utc chooses the unit by magnitude); what"
+                 " each time marks is not established. Location Timestamp, Latitude, Longitude, Horizontal "
+                 "Accuracy, positionType, isOld and isInaccurate come from the record's location dictionary, "
+                 "which was present on 6 of the 28 iphone11_ios17 records and 1 of the 3 abe_ios16 records; "
+                 "the others leave those columns blank. The Crowdsourced columns come from the "
+                 "crowdSourcedLocation dictionary and were blank on every hickman_ios13 row. Address joins "
+                 "formattedAddressLines, or uses mapItemFullAddress. lostModeEnabled held False on every row "
+                 "of every image run. Columns marked (as stored) are the file's own values under the key named"
+                 " in the header; no public source defining them was found, so what each means is not "
+                 "established. On dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS "
+                 "17.5.1), falken_ios26 (iOS 26.2.1), hill_iphone15pro_ios26 (iOS 26.3.1) and "
+                 "wilkerson_iphone16_ios26 (iOS 26.5.2) these cache files are binary plists holding "
+                 "encryptedData and signature. They are decrypted with ChaCha20-Poly1305 using the "
+                 "FMIPDataManager or FMFDataManager key from the keychain carried by the extraction or "
+                 "supplied with --keychain (falken_ios26 needed --keychain), and read only when the "
+                 "authentication tag verifies; the signature is not checked. The text $null in a decrypted "
+                 "file is read as no value. The layout was published in PnutCN/findmy-cache-decryptor. Without"
+                 " the key a file is logged and gives no rows, which is not evidence that nothing was "
+                 "recorded. Not reported: features, audioChannels, lowPowerMode (False on every row run), the "
+                 "capability and state flags, deviceModel, deviceColor, prsId, deviceDiscoveryId, trackingInfo"
+                 " (null on every row run), itemGroup, the per-record safeLocations list, pendingRemove, "
+                 "pendingRemoveUntilTS, beaconType, brassStatus, commandLookupId, deviceConnectedState, "
+                 "deviceConnectedWithBeacon, repairReady and the address keys ending in AddressModern. "
+                 "Items.data is read by the Find My Items artifacts in findMyItems.py.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Devices.data',),
         "output_types": "all",
         "artifact_icon": "smartphone",
@@ -42,30 +46,37 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 3 rows",
             "hickman_ios15": "iOS 15.3.1 | 23 rows",
             "iphone11_ios17": "iOS 17.3 | 28 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
-            "felix_ios17": "iOS 17.6.1 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 7 rows",
+            "otto_ios17": "iOS 17.5.1 | 2 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 1 row",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 4 rows",
         },
     },
     "findMyOwnerCache": {
         "name": "Find My Owner Cache",
-        "description": "The account record in the Find My Owner.data cache file, where that file is "
-                       "plain JSON",
+        "description": "The account record in the Find My Owner.data cache file, in its plain JSON or encrypted form",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
-        "notes": "One row per Owner.data file; 1 row on each image whose file is JSON. The hickman_ios13 "
-                 "(iOS 13.3.1) file holds neither a phoneNumber nor an identifier key, so Phone Number and "
-                 "Identifier are empty there. The hickman_ios14 (iOS 14.3) file holds no phoneNumber key, "
-                 "so Phone Number is empty there too. Columns marked (as stored) are the file's own values "
-                 "under the key named in the header; no public source defining them was found, so what "
-                 "each means is not established. On dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1) "
-                 "and otto_ios17 (iOS 17.5.1) the Devices, Owner, SafeLocations and FriendCacheData files "
-                 "are binary plists whose top level holds an encryptedData and a signature key. They are "
-                 "logged and not read, and the 0 rows recorded for those images are not evidence that "
-                 "nothing was recorded.",
+        "notes": "One row per Owner.data file; 1 row on each image whose file was read. The hickman_ios13 (iOS"
+                 " 13.3.1) file holds neither a phoneNumber nor an identifier key, so Phone Number and "
+                 "Identifier are empty there. The hickman_ios14 (iOS 14.3) file holds no phoneNumber key, so "
+                 "Phone Number is empty there too. Columns marked (as stored) are the file's own values under "
+                 "the key named in the header; no public source defining them was found, so what each means is"
+                 " not established. On dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS "
+                 "17.5.1), falken_ios26 (iOS 26.2.1), hill_iphone15pro_ios26 (iOS 26.3.1) and "
+                 "wilkerson_iphone16_ios26 (iOS 26.5.2) these cache files are binary plists holding "
+                 "encryptedData and signature. They are decrypted with ChaCha20-Poly1305 using the "
+                 "FMIPDataManager or FMFDataManager key from the keychain carried by the extraction or "
+                 "supplied with --keychain (falken_ios26 needed --keychain), and read only when the "
+                 "authentication tag verifies; the signature is not checked. The text $null in a decrypted "
+                 "file is read as no value. The layout was published in PnutCN/findmy-cache-decryptor. Without"
+                 " the key a file is logged and gives no rows, which is not evidence that nothing was "
+                 "recorded.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Owner.data',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -77,27 +88,30 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 1 row",
             "hickman_ios15": "iOS 15.3.1 | 1 row",
             "iphone11_ios17": "iOS 17.3 | 1 row",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
-            "felix_ios17": "iOS 17.6.1 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 1 row",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 1 row",
         },
     },
     "findMyFamilyMembersCache": {
         "name": "Find My Family Members Cache",
-        "description": "Member records in the Find My FamilyMembers.data cache file, where that file "
-                       "is plain JSON",
+        "description": "Member records in the Find My FamilyMembers.data cache file, in its plain JSON or encrypted "
+                       "form",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
-        "notes": "One row per record in the FamilyMembers.data JSON list, with the same keys as "
+        "notes": "One row per record in the FamilyMembers.data list, with the same keys as "
                  "Owner.data. Of the images run, the file was found only on hickman_ios15 and "
                  "iphone11_ios17, with 5 records each; Phone Number held no value, isHSA held True and "
                  "hasMembers held False on all 5 rows of both. A missing file is not evidence that no "
                  "family group existed. Columns marked (as stored) are the file's own values under the key "
                  "named in the header; no public source defining them was found, so what each means is not "
-                 "established.",
+                 "established. No encrypted FamilyMembers.data file was found on the images run, so reading "
+                 "that form of this file is code-present and not exercised on real data.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/FamilyMembers.data',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -110,31 +124,36 @@ __artifacts_v2__ = {
     },
     "findMySafeLocationsCache": {
         "name": "Find My Safe Locations Cache",
-        "description": "Safe location records in the Find My SafeLocations.data cache file, where "
-                       "that file is plain JSON",
+        "description": "Safe location records in the Find My SafeLocations.data cache file, in its plain JSON or "
+                       "encrypted form",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
-        "notes": "One row per record in the safeLocations list of SafeLocations.data. Mapped To IDs lists "
-                 "the ids that safeLocationsMapping pairs with the record's identifier, and Mapped To the "
-                 "name of the Devices.data record whose baUUID, or the Items.data record whose identifier, "
-                 "equals that id; Devices.data and Items.data are read for those names but are not listed "
-                 "as this artifact's source. Of the ids in safeLocationsMapping, 3 of 4 on abe_ios16, 9 of "
-                 "12 on hickman_ios15 and 13 of 14 on iphone11_ios17 matched one of the two; an id that "
-                 "matches neither is listed without a name. Location Timestamp held one value on all rows "
-                 "of each image run, so it does not tell one location's time from another's. approvalState "
-                 "held 1 on every iphone11_ios17 row. A 13-digit timeStamp value is read as Unix "
-                 "milliseconds and a 10-digit one as Unix seconds (convert_unix_ts_to_utc chooses the unit "
-                 "by magnitude); what each time marks is not established. Columns marked (as stored) are "
-                 "the file's own values under the key named in the header; no public source defining them "
-                 "was found, so what each means is not established. Not reported: the separationStates, "
-                 "canBeLeashedByHost and separationSupported keys. On dexter_ios18 (iOS 18.3.2), "
-                 "felix_ios17 (iOS 17.6.1) and otto_ios17 (iOS 17.5.1) the Devices, Owner, SafeLocations "
-                 "and FriendCacheData files are binary plists whose top level holds an encryptedData and a "
-                 "signature key. They are logged and not read, and the 0 rows recorded for those images "
-                 "are not evidence that nothing was recorded.",
+        "notes": "One row per record in the safeLocations list of SafeLocations.data. Mapped To IDs lists the "
+                 "ids that safeLocationsMapping pairs with the record's identifier, and Mapped To the name of "
+                 "the Devices.data record whose baUUID, or the Items.data record whose identifier, equals that"
+                 " id; Devices.data and Items.data are read for those names but are not listed as this "
+                 "artifact's source. Of the ids in safeLocationsMapping, 3 of 4 on abe_ios16, 9 of 12 on "
+                 "hickman_ios15 and 13 of 14 on iphone11_ios17 matched one of the two; an id that matches "
+                 "neither is listed without a name. Location Timestamp held one value on all rows of each "
+                 "image run, so it does not tell one location's time from another's. approvalState held 1 on "
+                 "every iphone11_ios17 row. A 13-digit timeStamp value is read as Unix milliseconds and a "
+                 "10-digit one as Unix seconds (convert_unix_ts_to_utc chooses the unit by magnitude); what "
+                 "each time marks is not established. Columns marked (as stored) are the file's own values "
+                 "under the key named in the header; no public source defining them was found, so what each "
+                 "means is not established. Not reported: the separationStates, canBeLeashedByHost and "
+                 "separationSupported keys and the address keys ending in AddressModern. On dexter_ios18 (iOS "
+                 "18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), falken_ios26 (iOS 26.2.1), "
+                 "hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) these cache "
+                 "files are binary plists holding encryptedData and signature. They are decrypted with "
+                 "ChaCha20-Poly1305 using the FMIPDataManager or FMFDataManager key from the keychain carried "
+                 "by the extraction or supplied with --keychain (falken_ios26 needed --keychain), and read "
+                 "only when the authentication tag verifies; the signature is not checked. The text $null in a"
+                 " decrypted file is read as no value. The layout was published in "
+                 "PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives no rows, which is "
+                 "not evidence that nothing was recorded.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/SafeLocations.data',
                   '*/Caches/com.apple.findmy.fmipcore/Devices.data',
                   '*/Caches/com.apple.findmy.fmipcore/Items.data'),
@@ -146,36 +165,49 @@ __artifacts_v2__ = {
             "hexordia_ios1651": "iOS 16.5.1 | 2 rows",
             "hickman_ios15": "iOS 15.3.1 | 3 rows",
             "iphone11_ios17": "iOS 17.3 | 3 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 6 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 8 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 2 rows",
         },
     },
     "findMyFriendsCache": {
         "name": "Find My Friends Cache",
-        "description": "Records from the following and followers lists of the Find My fmfcore "
-                       "FriendCacheData.data cache file, where that file is plain JSON",
+        "description": "Records from the following and followers lists of the Find My fmfcore FriendCacheData.data "
+                       "cache file, in its plain JSON or encrypted form",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
         "notes": "One row per record in the following, followers, pendingFollowers, futureFollowing and "
                  "futureFollowers lists of FriendCacheData.data; List names the list. Only following and "
-                 "followers held records on the images run (2 rows on abe_ios16, hickman_ios15 and "
-                 "iphone11_ios17). A create or update timestamp of 0 is left blank. A 13-digit "
-                 "createTimestamp or updateTimestamp value is read as Unix milliseconds and a 10-digit one "
-                 "as Unix seconds (convert_unix_ts_to_utc chooses the unit by magnitude); what each time "
-                 "marks is not established. Not reported: the expires and invitationSentToHandle keys, "
-                 "empty on every record run; myInfo, whose emails included the Owner.data Apple ID on "
-                 "every image run; devices (an id, a name and autoMeCapable per entry); the config, "
-                 "features and preferences dictionaries; the labels list (1 entry on abe_ios16, empty on "
-                 "the others run) and the contacts dictionary (1 entry on abe_ios16, empty on the others "
-                 "run). The locationAlerts lists were empty on every image run. Columns marked (as stored) "
-                 "are the file's own values under the key named in the header; no public source defining "
-                 "them was found, so what each means is not established. On dexter_ios18 (iOS 18.3.2), "
-                 "felix_ios17 (iOS 17.6.1) and otto_ios17 (iOS 17.5.1) the Devices, Owner, SafeLocations "
-                 "and FriendCacheData files are binary plists whose top level holds an encryptedData and a "
-                 "signature key. They are logged and not read, and the 0 rows recorded for those images "
-                 "are not evidence that nothing was recorded.",
+                 "followers held records on the images run (2 rows on abe_ios16, hickman_ios15, "
+                 "iphone11_ios17, otto_ios17 and hill_iphone15pro_ios26, 1 on wilkerson_iphone16_ios26). A "
+                 "create or update timestamp of 0 is left blank. A 13-digit createTimestamp or updateTimestamp"
+                 " value is read as Unix milliseconds and a 10-digit one as Unix seconds "
+                 "(convert_unix_ts_to_utc chooses the unit by magnitude); what each time marks is not "
+                 "established. Expires is the record's expires value, a plist date read as UTC; it held a "
+                 "value on 1 hill_iphone15pro_ios26 row and none on the other rows run, and what it marks is "
+                 "not established. Not reported: the invitationSentToHandle key, empty on every record run; "
+                 "myInfo, whose emails included the Owner.data Apple ID on every image run; devices (an id, a "
+                 "name and autoMeCapable per entry); the config, features and preferences dictionaries; the "
+                 "labels list (1 entry on abe_ios16, empty on the others run) and the contacts dictionary (1 "
+                 "entry on abe_ios16, otto_ios17, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, empty "
+                 "on the others run). The locationAlerts lists were empty on every image run. Columns marked "
+                 "(as stored) are the file's own values under the key named in the header; no public source "
+                 "defining them was found, so what each means is not established. On dexter_ios18 (iOS "
+                 "18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), falken_ios26 (iOS 26.2.1), "
+                 "hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) these cache "
+                 "files are binary plists holding encryptedData and signature. They are decrypted with "
+                 "ChaCha20-Poly1305 using the FMIPDataManager or FMFDataManager key from the keychain carried "
+                 "by the extraction or supplied with --keychain (falken_ios26 needed --keychain), and read "
+                 "only when the authentication tag verifies; the signature is not checked. The text $null in a"
+                 " decrypted file is read as no value. The layout was published in "
+                 "PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives no rows, which is "
+                 "not evidence that nothing was recorded. On felix_ios17 FriendCacheData.data did not "
+                 "authenticate under either keychain key, so it gives no rows there.",
         "paths": ('*/Caches/com.apple.findmy.fmfcore/FriendCacheData.data',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -188,28 +220,36 @@ __artifacts_v2__ = {
             "hickman_ios13": "iOS 13.3.1 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 2 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 2 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 1 row",
         },
     },
     "findMyFriendsLabelledLocations": {
         "name": "Find My Friends Labelled Locations",
-        "description": "The labelledLocations records in the Find My fmfcore FriendCacheData.data "
-                       "cache file, where that file is plain JSON",
+        "description": "The labelledLocations records in the Find My fmfcore FriendCacheData.data cache file, in its"
+                       " plain JSON or encrypted form",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
-        "notes": "One row per record in the labelledLocations list of FriendCacheData.data; 1 row on "
-                 "abe_ios16 and none on the other images run. User ID held no value on that row. A "
-                 "13-digit updateTs value is read as Unix milliseconds and a 10-digit one as Unix seconds "
+        "notes": "One row per record in the labelledLocations list of FriendCacheData.data; 1 row on abe_ios16"
+                 " and none on the other images run. User ID held no value on that row. A 13-digit updateTs "
+                 "value is read as Unix milliseconds and a 10-digit one as Unix seconds "
                  "(convert_unix_ts_to_utc chooses the unit by magnitude); what each time marks is not "
-                 "established. Columns marked (as stored) are the file's own values under the key named in "
-                 "the header; no public source defining them was found, so what each means is not "
-                 "established. On dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1) and otto_ios17 (iOS "
-                 "17.5.1) the Devices, Owner, SafeLocations and FriendCacheData files are binary plists "
-                 "whose top level holds an encryptedData and a signature key. They are logged and not "
-                 "read, and the 0 rows recorded for those images are not evidence that nothing was "
-                 "recorded.",
+                 "established. Columns marked (as stored) are the file's own values under the key named in the"
+                 " header; no public source defining them was found, so what each means is not established. On"
+                 " dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), falken_ios26 "
+                 "(iOS 26.2.1), hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) "
+                 "these cache files are binary plists holding encryptedData and signature. They are decrypted "
+                 "with ChaCha20-Poly1305 using the FMIPDataManager or FMFDataManager key from the keychain "
+                 "carried by the extraction or supplied with --keychain (falken_ios26 needed --keychain), and "
+                 "read only when the authentication tag verifies; the signature is not checked. The text $null"
+                 " in a decrypted file is read as no value. The layout was published in "
+                 "PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives no rows, which is "
+                 "not evidence that nothing was recorded. On felix_ios17 FriendCacheData.data did not "
+                 "authenticate under either keychain key, so it gives no rows there.",
         "paths": ('*/Caches/com.apple.findmy.fmfcore/FriendCacheData.data',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -218,6 +258,10 @@ __artifacts_v2__ = {
             "hickman_ios15": "iOS 15.3.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 0 rows",
             "hc_ios17_2": "iOS 17.2.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
     "findMySiriSyncDevices": {
@@ -225,19 +269,19 @@ __artifacts_v2__ = {
         "description": "The syncDevices list in com.apple.siri.findmy.syncdevicedata.json",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
         "notes": "One row per entry in value.syncDevices of com.apple.siri.findmy.syncdevicedata.json. "
-                 "Eviction Time is the file's single evictionTime value, so it repeats on every row of a "
-                 "file; it is a file-level value, not a per-device time, and is placed last for that "
-                 "reason. evictionTime was a 10-digit value on every file run and is read as Unix seconds; "
-                 "convert_unix_ts_to_utc chooses the unit by magnitude, so a 13-digit value would be read "
-                 "as milliseconds. What the time marks is not established. On abe_ios16, hickman_ios15 and "
-                 "iphone11_ios17 most names here also appear in Devices.data (3 of 4, 20 of 22 and 21 of "
-                 "23 distinct names). It was the only one of these caches read on cookbook_ios1751, "
-                 "dexter_ios18, felix_ios17, hc_ios18_7, hc_ios26, iphone12_ios18 and otto_ios17. "
-                 "value.pushToken is not reported. Which process writes the file is not established.",
+                 "Eviction Time is the file's single evictionTime value, so it repeats on every row of a file;"
+                 " it is a file-level value, not a per-device time, and is placed last for that reason. "
+                 "evictionTime was a 10-digit value on every file run and is read as Unix seconds; "
+                 "convert_unix_ts_to_utc chooses the unit by magnitude, so a 13-digit value would be read as "
+                 "milliseconds. What the time marks is not established. On abe_ios16, hickman_ios15 and "
+                 "iphone11_ios17 most names here also appear in Devices.data (3 of 4, 20 of 22 and 21 of 23 "
+                 "distinct names). It was the only one of these caches found on cookbook_ios1751, hc_ios18_7, "
+                 "hc_ios26 and iphone12_ios18. value.pushToken is not reported. Which process writes the file "
+                 "is not established.",
         "paths": ('*/Caches/com.apple.siri.findmy.syncdevicedata.json',),
         "output_types": "standard",
         "artifact_icon": "list",
@@ -252,32 +296,19 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 29 rows",
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 2 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 1 row",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 4 rows",
         },
     },
 }
 
-import json
+from datetime import datetime, timezone
 
-from scripts.ilapfuncs import artifact_processor, logfunc, convert_unix_ts_to_utc
+from scripts.findmy_cache import read_find_my_cache
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc
 
 
 FRIEND_LISTS = ('following', 'followers', 'pendingFollowers', 'futureFollowing', 'futureFollowers')
-
-
-def _load_json(file_found):
-    """Return the parsed JSON of a cache file, or None where the file is not JSON.
-
-    On three corpus images (iOS 17.5.1, 17.6.1 and 18.3.2) these cache files are binary plists holding
-    an encryptedData and a signature key, which this module does not read; each is logged and skipped.
-    """
-    with open(file_found, 'rb') as f:
-        raw = f.read()
-    try:
-        return json.loads(raw)
-    except (UnicodeDecodeError, ValueError):
-        kind = 'a binary plist' if raw[:8] == b'bplist00' else 'not JSON'
-        logfunc(f'{file_found} is {kind}; not read')
-        return None
 
 
 def _files(context, name):
@@ -289,6 +320,11 @@ def _ts(value):
     if not value:
         return ''
     return convert_unix_ts_to_utc(value)
+
+
+def _expires(value):
+    """A plist date is UTC with no zone attached. Anything else is not a date and stays blank."""
+    return value.replace(tzinfo=timezone.utc) if isinstance(value, datetime) else ''
 
 
 def _join(value):
@@ -332,7 +368,7 @@ def findMyDevicesCache(context):
     data_list = []
     sources = []
     for file_found in _files(context, 'Devices.data'):
-        devices = _load_json(file_found)
+        devices = read_find_my_cache(file_found)
         if not isinstance(devices, list):
             continue
         sources.append(file_found)
@@ -359,7 +395,7 @@ def findMyOwnerCache(context):
     data_list = []
     sources = []
     for file_found in _files(context, 'Owner.data'):
-        owner = _load_json(file_found)
+        owner = read_find_my_cache(file_found)
         if not isinstance(owner, dict):
             continue
         sources.append(file_found)
@@ -374,7 +410,7 @@ def findMyFamilyMembersCache(context):
     data_list = []
     sources = []
     for file_found in _files(context, 'FamilyMembers.data'):
-        members = _load_json(file_found)
+        members = read_find_my_cache(file_found)
         if not isinstance(members, list):
             continue
         sources.append(file_found)
@@ -388,11 +424,11 @@ def _names_by_id(context):
     """Name of each device (Devices.data baUUID) and item (Items.data identifier) in the files found."""
     names = {}
     for file_found in _files(context, 'Devices.data'):
-        for dev in _load_json(file_found) or []:
+        for dev in read_find_my_cache(file_found) or []:
             if isinstance(dev, dict) and dev.get('baUUID'):
                 names[dev['baUUID']] = dev.get('name', '')
     for file_found in _files(context, 'Items.data'):
-        for item in _load_json(file_found) or []:
+        for item in read_find_my_cache(file_found) or []:
             if isinstance(item, dict) and item.get('identifier'):
                 names[item['identifier']] = item.get('name', '')
     return names
@@ -407,7 +443,7 @@ def findMySafeLocationsCache(context):
     sources = []
     names = None
     for file_found in _files(context, 'SafeLocations.data'):
-        safe = _load_json(file_found)
+        safe = read_find_my_cache(file_found)
         if not isinstance(safe, dict):
             continue
         sources.append(file_found)
@@ -433,12 +469,13 @@ def findMySafeLocationsCache(context):
 
 @artifact_processor
 def findMyFriendsCache(context):
-    data_headers = (('Create Timestamp', 'datetime'), ('Update Timestamp', 'datetime'), 'List',
+    data_headers = (('Create Timestamp', 'datetime'), ('Update Timestamp', 'datetime'),
+                    ('Expires', 'datetime'), 'List',
                     'Invitation From Handles', 'Invitation Accepted Handles', 'optedNotToShare (as stored)', 'ID')
     data_list = []
     sources = []
     for file_found in _files(context, 'FriendCacheData.data'):
-        cache = _load_json(file_found)
+        cache = read_find_my_cache(file_found)
         if not isinstance(cache, dict):
             continue
         sources.append(file_found)
@@ -448,7 +485,7 @@ def findMyFriendsCache(context):
                     continue
                 from_handles = person.get('invitationFromHandles') or person.get('invitationFromHandle')
                 data_list.append((_ts(person.get('createTimestamp')), _ts(person.get('updateTimestamp')),
-                                  list_name, _join(from_handles), _join(person.get('invitationAcceptedHandles')),
+                                  _expires(person.get('expires')), list_name, _join(from_handles), _join(person.get('invitationAcceptedHandles')),
                                   _join(person.get('optedNotToShare')), person.get('id', '')))
     return data_headers, data_list, '\n'.join(sources)
 
@@ -460,7 +497,7 @@ def findMyFriendsLabelledLocations(context):
     data_list = []
     sources = []
     for file_found in _files(context, 'FriendCacheData.data'):
-        cache = _load_json(file_found)
+        cache = read_find_my_cache(file_found)
         if not isinstance(cache, dict):
             continue
         sources.append(file_found)
@@ -478,7 +515,7 @@ def findMySiriSyncDevices(context):
     data_list = []
     sources = []
     for file_found in _files(context, 'com.apple.siri.findmy.syncdevicedata.json'):
-        doc = _load_json(file_found)
+        doc = read_find_my_cache(file_found)
         if not isinstance(doc, dict):
             continue
         sources.append(file_found)
