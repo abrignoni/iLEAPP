@@ -7,8 +7,9 @@ item whose service and account are FMIPDataManager / FMIPDataManagerKey for fmip
 FMFDataManager / FMFDataManagerKey for fmfcore files.
 
 The layout was published in PnutCN/findmy-cache-decryptor (MIT):
-https://github.com/PnutCN/findmy-cache-decryptor/blob/ff01ffda51dafdf1993ddd9ae15ff7e206120266/decrypt_findmy.py#L236-L267
-This is an independent implementation. The signature value is not checked here; a file is accepted
+https://github.com/PnutCN/findmy-cache-decryptor/blob/ff01ffda51dafdf1993ddd9ae15ff7e206120266/decrypt_findmy.py#L149-L267
+That source names the key files; the keychain service, account and access group were matched on
+the corpus keychains. This is an independent implementation. The signature value is not checked here; a file is accepted
 only when its Poly1305 tag verifies.
 """
 import json
@@ -25,8 +26,7 @@ ACCESS_GROUP = 'com.apple.findmy'
 NONCE_LENGTH = 12
 TAG_LENGTH = 16
 KEY_LENGTH = 32
-# A binary plist cannot hold a null, and the decrypted files carry this text where the JSON form of
-# the same key holds null.
+# The decrypted plists carry this text where the JSON form of the same key holds null.
 NULL_TEXT = '$null'
 
 _PLIST_ERRORS = (plistlib.InvalidFileException, ValueError, TypeError, IndexError, KeyError,

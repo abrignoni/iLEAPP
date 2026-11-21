@@ -12,11 +12,13 @@ __artifacts_v2__ = {
         "notes": "Items.data is read in its JSON form or, on dexter_ios18, felix_ios17, otto_ios17, "
                  "falken_ios26, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, decrypted with the "
                  "FMIPDataManager key from the keychain carried by the extraction or supplied with --keychain "
-                 "(falken_ios26 needed --keychain), and only when the ChaCha20-Poly1305 tag verifies; the "
-                 "signature is not checked. The text $null in a decrypted file is read as no value. Layout "
-                 "published in PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is "
-                 "not evidence that no items were recorded. Not reported: isAppleItem and "
-                 "rangeDistanceInMeters.",
+                 "(falken_ios26 was run with --keychain), and only when the ChaCha20-Poly1305 tag verifies; "
+                 "the signature is not checked. The text $null in a decrypted file is read as no value. Layout"
+                 " published in PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is "
+                 "not evidence that no items were recorded. Not reported: isAppleItem, rangeDistanceInMeters, "
+                 "isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the top-level "
+                 "productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17 and "
+                 "wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "info-circle",
@@ -47,11 +49,13 @@ __artifacts_v2__ = {
         "notes": "Items.data is read in its JSON form or, on dexter_ios18, felix_ios17, otto_ios17, "
                  "falken_ios26, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, decrypted with the "
                  "FMIPDataManager key from the keychain carried by the extraction or supplied with --keychain "
-                 "(falken_ios26 needed --keychain), and only when the ChaCha20-Poly1305 tag verifies; the "
-                 "signature is not checked. The text $null in a decrypted file is read as no value. Layout "
-                 "published in PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is "
-                 "not evidence that no items were recorded. Not reported: isAppleItem and "
-                 "rangeDistanceInMeters.",
+                 "(falken_ios26 was run with --keychain), and only when the ChaCha20-Poly1305 tag verifies; "
+                 "the signature is not checked. The text $null in a decrypted file is read as no value. Layout"
+                 " published in PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is "
+                 "not evidence that no items were recorded. Not reported: isAppleItem, rangeDistanceInMeters, "
+                 "isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the top-level "
+                 "productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17 and "
+                 "wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -81,16 +85,18 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Find My",
         "notes": "Timestamp is the timeStamp value stored with the safe location, converted from Unix time to "
-                 "UTC; what it marks is not established. Street Address is read from a key spelled "
-                 "streetAddres and is blank where the file does not use that spelling; use Formatted Address "
-                 "Line or Map Item Full Address. Items.data is read in its JSON form or, on dexter_ios18, "
-                 "felix_ios17, otto_ios17, falken_ios26, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, "
-                 "decrypted with the FMIPDataManager key from the keychain carried by the extraction or "
-                 "supplied with --keychain (falken_ios26 needed --keychain), and only when the "
-                 "ChaCha20-Poly1305 tag verifies; the signature is not checked. The text $null in a decrypted "
-                 "file is read as no value. Layout published in PnutCN/findmy-cache-decryptor. Without the key"
-                 " no rows are reported, which is not evidence that no items were recorded. Not reported: "
-                 "isAppleItem and rangeDistanceInMeters.",
+                 "UTC; what it marks is not established. Street Address is read from the streetAddress key, or"
+                 " from a key spelled streetAddres where that is the one present. Items.data is read in its "
+                 "JSON form or, on dexter_ios18, felix_ios17, otto_ios17, falken_ios26, hill_iphone15pro_ios26"
+                 " and wilkerson_iphone16_ios26, decrypted with the FMIPDataManager key from the keychain "
+                 "carried by the extraction or supplied with --keychain (falken_ios26 was run with "
+                 "--keychain), and only when the ChaCha20-Poly1305 tag verifies; the signature is not checked."
+                 " The text $null in a decrypted file is read as no value. Layout published in "
+                 "PnutCN/findmy-cache-decryptor. Without the key no rows are reported, which is not evidence "
+                 "that no items were recorded. Not reported: isAppleItem, rangeDistanceInMeters, "
+                 "isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the top-level "
+                 "productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17 and "
+                 "wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "shield-check",
@@ -124,11 +130,13 @@ __artifacts_v2__ = {
                  "that position. Items.data is read in its JSON form or, on dexter_ios18, felix_ios17, "
                  "otto_ios17, falken_ios26, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, decrypted "
                  "with the FMIPDataManager key from the keychain carried by the extraction or supplied with "
-                 "--keychain (falken_ios26 needed --keychain), and only when the ChaCha20-Poly1305 tag "
+                 "--keychain (falken_ios26 was run with --keychain), and only when the ChaCha20-Poly1305 tag "
                  "verifies; the signature is not checked. The text $null in a decrypted file is read as no "
                  "value. Layout published in PnutCN/findmy-cache-decryptor. Without the key no rows are "
-                 "reported, which is not evidence that no items were recorded. Not reported: isAppleItem and "
-                 "rangeDistanceInMeters.",
+                 "reported, which is not evidence that no items were recorded. Not reported: isAppleItem, "
+                 "rangeDistanceInMeters, isAppleAudioAccessory, isFirmwareUpdateMandatory, partInfo and the "
+                 "top-level productIdentifier. ItemGroups.data, an empty list on the dexter_ios18, felix_ios17"
+                 " and wilkerson_iphone16_ios26 files, is not read.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
         "artifact_icon": "users",
@@ -305,7 +313,7 @@ def findMyItemsSafeLocations(context):
                 salt = (safeloc['location'].get('altitude'))
                 ssub = (safeloc['address'].get('subAdministrativeArea'))
                 slabel = (safeloc['address'].get('label'))
-                sstreet = (safeloc['address'].get('streetAddres'))
+                sstreet = safeloc['address'].get('streetAddress') or safeloc['address'].get('streetAddres')
                 scountry = (safeloc['address'].get('countryCode'))
                 sstate = (safeloc['address'].get('stateCode'))
                 sadmin = (safeloc['address'].get('administrativeArea'))

@@ -7,8 +7,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
-        "notes": "One row per record in the Devices.data list. The list held 3 records on abe_ios16, 1 on"
-                 " hc_ios17_2 and hexordia_ios1651, 3 on hickman_ios13 and hickman_ios14, 23 on hickman_ios15 "
+        "notes": "One row per record in the Devices.data list. The list held 3 records on abe_ios16, 1 on "
+                 "hc_ios17_2 and hexordia_ios1651, 3 on hickman_ios13 and hickman_ios14, 23 on hickman_ios15 "
                  "and 28 on iphone11_ios17, and it is not limited to the examined device: thisDevice was True "
                  "on exactly one record per image. A 13-digit timeStamp value is read as Unix milliseconds and"
                  " a 10-digit one as Unix seconds (convert_unix_ts_to_utc chooses the unit by magnitude); what"
@@ -22,19 +22,22 @@ __artifacts_v2__ = {
                  " in the header; no public source defining them was found, so what each means is not "
                  "established. On dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS "
                  "17.5.1), falken_ios26 (iOS 26.2.1), hill_iphone15pro_ios26 (iOS 26.3.1) and "
-                 "wilkerson_iphone16_ios26 (iOS 26.5.2) these cache files are binary plists holding "
-                 "encryptedData and signature. They are decrypted with ChaCha20-Poly1305 using the "
-                 "FMIPDataManager or FMFDataManager key from the keychain carried by the extraction or "
-                 "supplied with --keychain (falken_ios26 needed --keychain), and read only when the "
-                 "authentication tag verifies; the signature is not checked. The text $null in a decrypted "
-                 "file is read as no value. The layout was published in PnutCN/findmy-cache-decryptor. Without"
-                 " the key a file is logged and gives no rows, which is not evidence that nothing was "
-                 "recorded. Not reported: features, audioChannels, lowPowerMode (False on every row run), the "
-                 "capability and state flags, deviceModel, deviceColor, prsId, deviceDiscoveryId, trackingInfo"
-                 " (null on every row run), itemGroup, the per-record safeLocations list, pendingRemove, "
-                 "pendingRemoveUntilTS, beaconType, brassStatus, commandLookupId, deviceConnectedState, "
-                 "deviceConnectedWithBeacon, repairReady and the address keys ending in AddressModern. "
-                 "Items.data is read by the Find My Items artifacts in findMyItems.py.",
+                 "wilkerson_iphone16_ios26 (iOS 26.5.2) Devices.data is a binary plist holding encryptedData "
+                 "and signature. It is decrypted with ChaCha20-Poly1305 using the FMIPDataManager key from the"
+                 " keychain carried by the extraction or supplied with --keychain (falken_ios26 was run with "
+                 "--keychain), and read only when the authentication tag verifies; the signature is not "
+                 "checked. The text $null in a decrypted file is read as no value. The layout was published in"
+                 " PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives no rows, which is"
+                 " not evidence that nothing was recorded. Not reported: features, audioChannels, lowPowerMode"
+                 " (False on every row run), the capability and state flags, deviceModel, deviceColor, prsId, "
+                 "deviceDiscoveryId, trackingInfo (null on every row run), itemGroup, the per-record "
+                 "safeLocations list, pendingRemove, pendingRemoveUntilTS, beaconType, brassStatus, "
+                 "commandLookupId, deviceConnectedState, deviceConnectedWithBeacon, repairReady and the "
+                 "address keys ending in AddressModern. Also not reported: baUUID, passcodeLength, maxMsgChar,"
+                 " remoteLock and remoteWipe (null on every record read), lostDevice (a dictionary on 1 of 28 "
+                 "iphone11_ios17 records, null elsewhere) and snd (a dictionary on 7 of 28 iphone11_ios17 "
+                 "records, null elsewhere). Items.data is read by the Find My Items artifacts in "
+                 "findMyItems.py.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Devices.data',),
         "output_types": "all",
         "artifact_icon": "smartphone",
@@ -68,15 +71,13 @@ __artifacts_v2__ = {
                  "Phone Number is empty there too. Columns marked (as stored) are the file's own values under "
                  "the key named in the header; no public source defining them was found, so what each means is"
                  " not established. On dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS "
-                 "17.5.1), falken_ios26 (iOS 26.2.1), hill_iphone15pro_ios26 (iOS 26.3.1) and "
-                 "wilkerson_iphone16_ios26 (iOS 26.5.2) these cache files are binary plists holding "
-                 "encryptedData and signature. They are decrypted with ChaCha20-Poly1305 using the "
-                 "FMIPDataManager or FMFDataManager key from the keychain carried by the extraction or "
-                 "supplied with --keychain (falken_ios26 needed --keychain), and read only when the "
-                 "authentication tag verifies; the signature is not checked. The text $null in a decrypted "
-                 "file is read as no value. The layout was published in PnutCN/findmy-cache-decryptor. Without"
-                 " the key a file is logged and gives no rows, which is not evidence that nothing was "
-                 "recorded.",
+                 "17.5.1), hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) "
+                 "Owner.data is a binary plist holding encryptedData and signature. It is decrypted with "
+                 "ChaCha20-Poly1305 using the FMIPDataManager key from the keychain carried by the extraction "
+                 "or supplied with --keychain, and read only when the authentication tag verifies; the "
+                 "signature is not checked. The text $null in a decrypted file is read as no value. The layout"
+                 " was published in PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives "
+                 "no rows, which is not evidence that nothing was recorded.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Owner.data',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -145,13 +146,12 @@ __artifacts_v2__ = {
                  "under the key named in the header; no public source defining them was found, so what each "
                  "means is not established. Not reported: the separationStates, canBeLeashedByHost and "
                  "separationSupported keys and the address keys ending in AddressModern. On dexter_ios18 (iOS "
-                 "18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), falken_ios26 (iOS 26.2.1), "
-                 "hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) these cache "
-                 "files are binary plists holding encryptedData and signature. They are decrypted with "
-                 "ChaCha20-Poly1305 using the FMIPDataManager or FMFDataManager key from the keychain carried "
-                 "by the extraction or supplied with --keychain (falken_ios26 needed --keychain), and read "
-                 "only when the authentication tag verifies; the signature is not checked. The text $null in a"
-                 " decrypted file is read as no value. The layout was published in "
+                 "18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), hill_iphone15pro_ios26 (iOS "
+                 "26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) SafeLocations.data is a binary plist "
+                 "holding encryptedData and signature. It is decrypted with ChaCha20-Poly1305 using the "
+                 "FMIPDataManager key from the keychain carried by the extraction or supplied with --keychain,"
+                 " and read only when the authentication tag verifies; the signature is not checked. The text "
+                 "$null in a decrypted file is read as no value. The layout was published in "
                  "PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives no rows, which is "
                  "not evidence that nothing was recorded.",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/SafeLocations.data',
@@ -174,8 +174,9 @@ __artifacts_v2__ = {
     },
     "findMyFriendsCache": {
         "name": "Find My Friends Cache",
-        "description": "Records from the following and followers lists of the Find My fmfcore FriendCacheData.data "
-                       "cache file, in its plain JSON or encrypted form",
+        "description": "Records from the following, followers, pendingFollowers, futureFollowing and futureFollowers"
+                       " lists of the Find My fmfcore FriendCacheData.data cache file, in its plain JSON or "
+                       "encrypted form",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
@@ -190,24 +191,27 @@ __artifacts_v2__ = {
                  "(convert_unix_ts_to_utc chooses the unit by magnitude); what each time marks is not "
                  "established. Expires is the record's expires value, a plist date read as UTC; it held a "
                  "value on 1 hill_iphone15pro_ios26 row and none on the other rows run, and what it marks is "
-                 "not established. Not reported: the invitationSentToHandle key, empty on every record run; "
-                 "myInfo, whose emails included the Owner.data Apple ID on every image run; devices (an id, a "
-                 "name and autoMeCapable per entry); the config, features and preferences dictionaries; the "
-                 "labels list (1 entry on abe_ios16, empty on the others run) and the contacts dictionary (1 "
-                 "entry on abe_ios16, otto_ios17, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, empty "
-                 "on the others run). The locationAlerts lists were empty on every image run. Columns marked "
-                 "(as stored) are the file's own values under the key named in the header; no public source "
-                 "defining them was found, so what each means is not established. On dexter_ios18 (iOS "
-                 "18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), falken_ios26 (iOS 26.2.1), "
-                 "hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) these cache "
-                 "files are binary plists holding encryptedData and signature. They are decrypted with "
-                 "ChaCha20-Poly1305 using the FMIPDataManager or FMFDataManager key from the keychain carried "
-                 "by the extraction or supplied with --keychain (falken_ios26 needed --keychain), and read "
-                 "only when the authentication tag verifies; the signature is not checked. The text $null in a"
-                 " decrypted file is read as no value. The layout was published in "
+                 "not established. In the JSON form every record run held null for expires; a value there that"
+                 " is not a plist date is left blank. Not reported: personIdHash, pushIdentifiers, "
+                 "fallbackToLegacyAllowed, secureLocationsCapable, shallowOrLiveSecureLocationsCapable; the "
+                 "invitationSentToHandle key, empty on every record read; myInfo, whose emails included the "
+                 "Owner.data Apple ID on every file read; devices (an id, a name and autoMeCapable per entry);"
+                 " the config, features and preferences dictionaries; the labels list (1 entry on abe_ios16, "
+                 "empty on the others read) and the contacts dictionary (1 entry on abe_ios16, otto_ios17, "
+                 "hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, empty on the others read). The "
+                 "locationAlerts lists were empty on every file read. Columns marked (as stored) are the "
+                 "file's own values under the key named in the header; no public source defining them was "
+                 "found, so what each means is not established. On dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS"
+                 " 17.6.1), otto_ios17 (iOS 17.5.1), hill_iphone15pro_ios26 (iOS 26.3.1) and "
+                 "wilkerson_iphone16_ios26 (iOS 26.5.2) FriendCacheData.data is a binary plist holding "
+                 "encryptedData and signature. It is decrypted with ChaCha20-Poly1305 using the FMFDataManager"
+                 " key from the keychain carried by the extraction or supplied with --keychain, and read only "
+                 "when the authentication tag verifies; the signature is not checked. The text $null in a "
+                 "decrypted file is read as no value. The layout was published in "
                  "PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives no rows, which is "
-                 "not evidence that nothing was recorded. On felix_ios17 FriendCacheData.data did not "
-                 "authenticate under either keychain key, so it gives no rows there.",
+                 "not evidence that nothing was recorded. On felix_ios17 the authentication tag of "
+                 "FriendCacheData.data did not verify with the FMFDataManager key in the extraction's "
+                 "keychain, so it gives no rows there. The reason is not established.",
         "paths": ('*/Caches/com.apple.findmy.fmfcore/FriendCacheData.data',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -240,16 +244,16 @@ __artifacts_v2__ = {
                  "(convert_unix_ts_to_utc chooses the unit by magnitude); what each time marks is not "
                  "established. Columns marked (as stored) are the file's own values under the key named in the"
                  " header; no public source defining them was found, so what each means is not established. On"
-                 " dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), falken_ios26 "
-                 "(iOS 26.2.1), hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) "
-                 "these cache files are binary plists holding encryptedData and signature. They are decrypted "
-                 "with ChaCha20-Poly1305 using the FMIPDataManager or FMFDataManager key from the keychain "
-                 "carried by the extraction or supplied with --keychain (falken_ios26 needed --keychain), and "
-                 "read only when the authentication tag verifies; the signature is not checked. The text $null"
-                 " in a decrypted file is read as no value. The layout was published in "
-                 "PnutCN/findmy-cache-decryptor. Without the key a file is logged and gives no rows, which is "
-                 "not evidence that nothing was recorded. On felix_ios17 FriendCacheData.data did not "
-                 "authenticate under either keychain key, so it gives no rows there.",
+                 " dexter_ios18 (iOS 18.3.2), felix_ios17 (iOS 17.6.1), otto_ios17 (iOS 17.5.1), "
+                 "hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) "
+                 "FriendCacheData.data is a binary plist holding encryptedData and signature. It is decrypted "
+                 "with ChaCha20-Poly1305 using the FMFDataManager key from the keychain carried by the "
+                 "extraction or supplied with --keychain, and read only when the authentication tag verifies; "
+                 "the signature is not checked. The text $null in a decrypted file is read as no value. The "
+                 "layout was published in PnutCN/findmy-cache-decryptor. Without the key a file is logged and "
+                 "gives no rows, which is not evidence that nothing was recorded. On felix_ios17 the "
+                 "authentication tag of FriendCacheData.data did not verify with the FMFDataManager key in the"
+                 " extraction's keychain, so it gives no rows there. The reason is not established.",
         "paths": ('*/Caches/com.apple.findmy.fmfcore/FriendCacheData.data',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -357,11 +361,11 @@ def _account_row(account):
 
 @artifact_processor
 def findMyDevicesCache(context):
-    data_headers = (('Location Timestamp', 'datetime'), 'Name', 'Device Display Name',
+    data_headers = (('Location Timestamp', 'datetime'), ('Crowdsourced Location Timestamp', 'datetime'),
+                    'Name', 'Device Display Name',
                     'Model Display Name', 'Raw Device Model', 'Device Class', 'thisDevice (as stored)',
                     'Latitude', 'Longitude', 'Horizontal Accuracy', 'positionType (as stored)',
-                    'isOld (as stored)', 'isInaccurate (as stored)', 'Address',
-                    ('Crowdsourced Location Timestamp', 'datetime'), 'Crowdsourced Latitude',
+                    'isOld (as stored)', 'isInaccurate (as stored)', 'Address', 'Crowdsourced Latitude',
                     'Crowdsourced Longitude', 'Battery Level', 'batteryStatus (as stored)',
                     'deviceStatus (as stored)',
                     'lostModeEnabled (as stored)', 'fmlyShare (as stored)', 'Device ID')
@@ -378,10 +382,10 @@ def findMyDevicesCache(context):
             ts, lat, lon, acc, ptype, is_old, inacc = _location_cols(dev.get('location'))
             crowd = dev.get('crowdSourcedLocation') if isinstance(dev.get('crowdSourcedLocation'), dict) else {}
             data_list.append((
-                ts, dev.get('name', ''), dev.get('deviceDisplayName', ''), dev.get('modelDisplayName', ''),
+                ts, _ts(crowd.get('timeStamp')), dev.get('name', ''), dev.get('deviceDisplayName', ''), dev.get('modelDisplayName', ''),
                 dev.get('rawDeviceModel', ''), dev.get('deviceClass', ''), dev.get('thisDevice', ''),
                 lat, lon, acc, ptype, is_old, inacc, _address(dev.get('address')),
-                _ts(crowd.get('timeStamp')), crowd.get('latitude', ''), crowd.get('longitude', ''),
+                crowd.get('latitude', ''), crowd.get('longitude', ''),
                 dev.get('batteryLevel', ''), dev.get('batteryStatus', ''),
                 dev.get('deviceStatus', ''), dev.get('lostModeEnabled', ''), dev.get('fmlyShare', ''),
                 dev.get('id', '')))
