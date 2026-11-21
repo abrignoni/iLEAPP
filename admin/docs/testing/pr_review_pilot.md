@@ -4,7 +4,7 @@ GitHub Actions adds the `mac-review` label when a PR opens ready, reopens, becom
 ready, or receives commits while ready. The label means the PR is enrolled. It
 stays on the PR after review so a push during delivery cannot lose a signal.
 The label contains no findings. The workflow uses base-branch code, never checks
-out the PR, and needs only issue-label write access. Create the label once in
+out the PR, and needs only pull-request write access to set the label. Create the label once in
 the repository. The fixture bot continues to own fixture requests and labels.
 
 The signed-in user's LaunchAgent checks enrolled open PRs every five minutes and
