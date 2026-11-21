@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class on macOS 27.2.1 (26B131); no "
-                 "iOS copy of the class was read. Source ID and Source Bundle ID are fields 6.1 "
+                 "iOS copy of the class was read. Start Date, End Date, Creation Date, Stream Name and Identifier are fields 2, 3, 8, 1.1 and 5 (startDate, endDate, creationDate, stream.name and identifier) and were reported before as Time Start, Time End, Time Write, Activity and Action GUID. Source ID and Source Bundle ID are fields 6.1 "
                  "and 6.2 (sourceID and bundleID); on the 4 corpus images with written records, Source "
                  "Bundle ID equalled Bundle ID on all 193; fields 6.3 (itemID) and 6.6 (userID) are not "
                  "reported. Metadata lists every metadata entry as "
@@ -250,8 +250,8 @@ def get_biomeLocationactivity(context):
                 data_list.append((ts, None, None, None, None, record.state.name) + (None,) * 6 +
                                  (filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Activity', 'Bundle ID', 'Source ID', 'Source Bundle ID', 'Metadata',
-                    'Action GUID', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
+                    ('Creation Date', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Bundle ID', 'Source ID', 'Source Bundle ID', 'Metadata',
+                    'Identifier', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

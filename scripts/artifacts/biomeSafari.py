@@ -4,14 +4,13 @@ __artifacts_v2__ = {
         "description": "Parses safari entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS "
                   "27.2.1 (26B131); no iOS copy of the class was read. Start Date is field 2 (startDate) "
                   "and was reported before as Timestamp. Stream Name is field 1.1 and was reported before "
-                  "as Activity. String Value is field 4.3 (the value's stringValue) and was reported before "
-                  "as URL; on the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, 236 of the 236 written values began with http or https. "
+                  "as Activity. URL is field 4.3 (the value's stringValue) of the _DKEvent.Safari.History stream. The header describes the shape of the value, and no CoreDuet name for it was read; on the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, 236 of the 236 written values began with http or https. "
                   "Source ID, Source Bundle ID and Source Group ID are fields 6.1, 6.2 and 6.4 (sourceID, "
                   "bundleID and groupID) and were reported before as Detail, Detail 2 and Detail 3; fields "
                   "6.3 (itemID) and 6.6 (userID) are not reported. Identifier is field 5 and was reported "
@@ -198,7 +197,7 @@ def get_biomeSafari(context):
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State',
                     'Stream Name', 'Title',
-                    'String Value', 'Source ID', 'Source Bundle ID', 'Source Group ID', 'Identifier', 'Filename',
+                    'URL', 'Source ID', 'Source Bundle ID', 'Source Group ID', 'Identifier', 'Filename',
                     'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
