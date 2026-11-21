@@ -5,10 +5,11 @@ __artifacts_v2__ = {
                        "source bundle id, the target and transport bundle ids (on the tested images 28 "
                        "of 59 written records held a UIKit activity identifier there, such as copy to "
                        "pasteboard or save to camera roll), the supported bundle ids, the engagement "
-                       "type, the selected index and the number of visible suggestions value.",
+                       "type, the selected index, the number of visible suggestions value and the "
+                       "type, URL and photo identifier values archived in the attachments field.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names and Engagement Type names are those of the BMShareSheetFeedback "
@@ -32,8 +33,17 @@ __artifacts_v2__ = {
                  "Session ID, and fields 17 and 20 were raw. Whether a listed bundle ID shows that "
                  "the app was installed is not established. On the tested images Target Bundle ID and "
                  "Transport Bundle ID held the same text on 58 of 59 written records, Reason Type and "
-                 "Reason were set on 7 and Location UUIDs on 15. Field 4 (attachments) holds an "
-                 "NSKeyedArchiver plist that is not parsed."),
+                 "Reason were set on 7 and Location UUIDs on 15. Field 4 (attachments), which was "
+                 "not reported before, is an NSKeyedArchiver plist of _PSAttachment objects. It was "
+                 "set on 58 of the 59 written records, on 13 of the 21 staged iOS images, and the "
+                 "58 held 631 objects (1 to 459 per record), counted in Attachment Count. Attachment "
+                 "UTIs, Attachment URLs and Attachment Photo Local Identifiers are the object keys "
+                 "UTI (131 objects), contentURL (13) and photoLocalIdentifier (500, 487 distinct, on "
+                 "22 records), named as stored in the archive; the _PSAttachment class itself was "
+                 "not read. Whether a listed item was sent, and whether a photo identifier matches "
+                 "a row in the Photos database, is not established. The other archive keys were "
+                 "empty on the tested images, apart from photoSceneDescriptors and "
+                 "contentURLSandboxExtension, which are not reported."),
         "paths": ('*/streams/*/ShareSheet.Feedback/local/*',),
         "output_types": "standard",
         "artifact_icon": "share-2",
@@ -53,7 +63,7 @@ from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, get_plist_content, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
@@ -104,6 +114,28 @@ def _to_str(value):
     return str(value)
 
 
+def _attachment_url(value):
+    """An archived NSURL: its relative string, after its base when it has one."""
+    if not isinstance(value, dict):
+        return _to_str(value)
+    return _to_str(value.get('NS.base')) + _to_str(value.get('NS.relative'))
+
+
+def _attachments(blob):
+    """Field 4, an NSKeyedArchiver plist of _PSAttachment objects: the count, then the UTI,
+    contentURL and photoLocalIdentifier values, each joined with a comma."""
+    if not isinstance(blob, bytes) or not blob:
+        return '', '', '', ''
+    items = get_plist_content(blob)
+    if not isinstance(items, list):
+        return '', '', '', ''
+    items = [item for item in items if isinstance(item, dict)]
+    return (len(items),
+            ', '.join(filter(None, (_to_str(item.get('UTI')) for item in items))),
+            ', '.join(filter(None, (_attachment_url(item.get('contentURL')) for item in items))),
+            ', '.join(filter(None, (_to_str(item.get('photoLocalIdentifier')) for item in items))))
+
+
 @artifact_processor
 def get_biomeShareSheetFeedback(context):
 
@@ -150,16 +182,18 @@ def get_biomeShareSheetFeedback(context):
                                   _to_str(protostuff.get('14', b'')),
                                   _list(protostuff.get('5', b'')),
                                   _to_str(protostuff.get('3', b'')),
+                                  *_attachments(protostuff.get('4')),
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name) + (None,) * 12 +
+                data_list.append((ts, record.state.name) + (None,) * 16 +
                                  (filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Source Bundle ID',
                     'Target Bundle ID', 'Transport Bundle ID', 'Supported Bundle IDs',
                     'Engagement Type', 'Engagement Type (raw)', 'Index Selected',
                     'Visible Suggestions', 'Reason Type', 'Reason', 'Location UUIDs',
-                    'Extension Context UUID', 'Filename', 'Offset')
+                    'Extension Context UUID', 'Attachment Count', 'Attachment UTIs',
+                    'Attachment URLs', 'Attachment Photo Local Identifiers', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
