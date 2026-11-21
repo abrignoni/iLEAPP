@@ -24,7 +24,7 @@ class PickupTest(unittest.TestCase):
                    "user": {"login": "abrignoni", "id": worker.pilot.OWNER}}
         self.enterContext(patch.object(worker.pilot, "get_pr", return_value=self.pr))
         self.alert = self.enterContext(patch.object(worker, "notify"))
-        self.checks = self.enterContext(patch.object(worker, "checks", return_value=[]))
+        self.checks = self.enterContext(patch.object(worker, "checks", return_value=[("flag", "SUCCESS")]))
         self.enterContext(patch.object(worker, "review_packet",
                                        return_value={"context": {"delivery": "private"}}))
         self.model = self.enterContext(patch.object(worker, "analyze", return_value={
@@ -34,6 +34,9 @@ class PickupTest(unittest.TestCase):
         worker.run()
         self.model.assert_not_called()
         self.issues.return_value = [{"number": 11, "pull_request": {}}]
+        self.checks.return_value = []
+        worker.run()
+        self.model.assert_not_called()
         self.checks.return_value = [("checks", "IN_PROGRESS")]
         worker.run()
         self.model.assert_not_called()

@@ -10,7 +10,8 @@ the repository. The fixture bot continues to own fixture requests and labels.
 The signed-in user's LaunchAgent checks enrolled open PRs every five minutes and
 at login. While the Mac is asleep or offline GitHub retains enrollment. Pickup
 reviews the latest ready revision. Local revision tracking skips duplicates and
-waits for running CI. Idle checks use the GitHub CLI and Python. Codex starts
+waits for GitHub to register checks and for running CI to finish. The flag workflow
+runs for every ready PR, including a documentation change with no other checks. Idle checks use the GitHub CLI and Python. Codex starts
 only for a revision that needs a review. An interrupted delivery reuses the
 saved result. The worker retries failures with backoff.
 

@@ -72,6 +72,11 @@ def review_packet(number, head, runs):
     if not diff.strip():
         raise ValueError("GitHub returned an empty diff")
     guides = {}
+    if any(p.endswith(("mac_review_worker.py", "install_mac_review.py", "review_ileapp_pr.py"))
+           for p in info["changed_paths"]):
+        guide = "admin/docs/testing/pr_review_pilot.md"
+        guides[guide] = pilot.api(f"{pilot.REPO}/contents/{guide}?ref={pr['base']['sha']}",
+                                  raw=True)
     if any(p.startswith("scripts/artifacts/") for p in info["changed_paths"]):
         for path in GUIDES:
             guides[path] = pilot.api(f"{pilot.REPO}/contents/{quote(path)}?ref={pr['base']['sha']}",
@@ -119,7 +124,9 @@ def process(db, pr):
         result = json.loads(row[0])
     else:
         runs = checks(number, head)
-        if any(state in PENDING for _, state in runs):
+        # The path-unfiltered flag workflow applies to every ready iLEAPP PR.
+        # Its successful check alone suffices for a docs-only revision.
+        if not runs or any(state in PENDING for _, state in runs):
             return
         packet = review_packet(number, head, runs)
         result = analyze(packet)
