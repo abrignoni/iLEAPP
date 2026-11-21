@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "stored with the record.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class on macOS 27.2.1 (26B131); no "
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                  "read metadata list positions 2, 3, 4, 10, 13 and 16 (counting from 0) as Data 1 to Data 6, "
                  "although the key at each position varied between records, and skipped any record "
                  "with fewer than 17 entries: 69 written records on iphone12_ios18 gave no row. "
-                 "Data 0 and Bundle ID 2 are now Source ID and Source Bundle ID."),
+                 "Data 0 and Bundle ID 2 are now Source ID and Source Bundle ID. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (4 held written records of this stream), it was set on each of the 193 written rows, with 3 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.App.LocationActivity/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -235,22 +235,23 @@ def get_biomeLocationactivity(context):
                     metadata = _metadata(protostuff.get('7'))
 
                     timewrite = (webkit_timestampsconv(protostuff['8']) or None)
+                    tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeLocationactivity record due to protobuf decode error: {ex} | "
                             f"File: {context.get_relative_path(file_found)} | "
                             f"Offset: {record.data_start_offset}")
                     continue
 
-                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, bundle,
+                data_list.append((ts, timestart, timeend, timewrite, tz_offset, record.state.name, activity, bundle,
                                   source_id, source_bundle, metadata, actionguid, filename,
                                   record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, None, record.state.name) + (None,) * 6 +
+                data_list.append((ts, None, None, None, None, record.state.name) + (None,) * 6 +
                                  (filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID', 'Source ID', 'Source Bundle ID', 'Metadata',
+                    ('Time Write', 'datetime'), 'Time Zone Offset (seconds)', 'SEGB State', 'Activity', 'Bundle ID', 'Source ID', 'Source Bundle ID', 'Metadata',
                     'Action GUID', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

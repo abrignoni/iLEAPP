@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses user activity metadata entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Timestamp, Activity Type (User Activity Data), Title, Bplist Data and "
@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                  "reported before as Activity type is now Activity Type (User Activity Data). "
                  "On the tested images Activity Type and Activity Type (User Activity Data) were "
                  "identical on each of the 1,125 written rows; both are kept because they "
-                 "come from different places in the record.",
+                 "come from different places in the record. Associated URL is field 6 (associatedURLString) of the BMUniversalRecentsMetadata class in BiomeLibrary.framework, macOS 27.2.1 (26B131); no iOS copy was read. It was not reported before as its own column. On the 21 iOS images tested it was set on 187 of 551 written UniversalRecents.UserActivity.Metadata rows (15 of the 16 images with written records) and 145 of 574 written UserActivityMetadata rows (5 of 5 images). On these 332 rows the same string also appeared inside Bplist Data.",
         "paths": (
             '*/Biome/streams/restricted/UserActivityMetadata/local*',
             '*/streams/*/UniversalRecents.UserActivity.Metadata/local/*',
@@ -79,7 +79,8 @@ def get_biomeUseractmeta(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    # field 6 is pinned so a URL string is never decoded as a nested message
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, {'6': {'type': 'bytes', 'name': ''}})
                 except _DECODE_ERRORS as ex:
                     logfunc(f'Biome User Activity Metadata: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
@@ -88,6 +89,9 @@ def get_biomeUseractmeta(context):
                 bplistdata = (protostuff['2'])
                 desc1 = (protostuff['4'].decode())
                 desc2 = (protostuff['5'].decode())
+                associated_url = protostuff.get('6')
+                associated_url = associated_url.decode('utf-8', errors='replace') \
+                    if isinstance(associated_url, bytes) else ''
                 
                 
                 #deserialized_plist = nd.deserialize_plist_from_string(bplistdata)
@@ -134,15 +138,15 @@ def get_biomeUseractmeta(context):
                             b = 'NULL'
                         agg = agg + f'{a} = {b}<br>'
                 
-                data_list.append((ts, when, record.state.name, actype, desc1, desc2, title, agg.strip(), payload,
+                data_list.append((ts, when, record.state.name, actype, desc1, desc2, title, associated_url, agg.strip(), payload,
                                   container, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, filename,
+                data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, None, filename,
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State',
-                    'Activity Type (User Activity Data)', 'Activity Type', 'Bundle ID', 'Title', 'Bplist Data', 'Payload Data','Container Data', 'Filename',
+                    'Activity Type (User Activity Data)', 'Activity Type', 'Bundle ID', 'Title', 'Associated URL', 'Bplist Data', 'Payload Data','Container Data', 'Filename',
                     'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

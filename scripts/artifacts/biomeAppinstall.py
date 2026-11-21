@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Records from the App.Install and _DKEvent.App.Install Biome streams.",
        "author": "@JohnHyla, @Gear-I",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records are read with the field layout of CoreDuet's _DKPREvent class, read on macOS 27.2.1 (26B131); no iOS copy of the class was read. On the 20 images tested all 424 written records held only fields that class declares. Their metadata entries are picked by integer index, named from CoreDuet's own conversion of synthetic records: Title 2000 (title), Is Install 2001 (isInstall), Primary Category 2002 (primaryCategory) and Sub Categories 2003 (subCategories, stored as a keyed archive of an array; the items are shown joined by commas). Before, App Info, Bundle Info and App Info2 took the first three metadata entries by position; on the tested images the title was under App Info on all 177 rows that held one, and the primary category was under Bundle Info on all 176 rows that held one; and the isInstall entry, held by all 424 written _DKEvent.App.Install records, was not reported. The labels Activity, Timestamp, Time End and Time Write are not sourced here. App.Install records carry a bundle id and field 5, which the BMAppInstall class names isInstall, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. Is Install reads True for 1 and False for 0 on both streams; on App.Install it was reported before as Event Value (as stored). On the tested images it held True on 411 and False on 13 of the 424 written _DKEvent.App.Install rows. On the tested images (343 written App.Install rows) Is Install held True on 330 rows and False on 13. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their SEGB timestamp, state, stream, filename and offset only. Paths containing 'tombstone' are not parsed. On the tested images (25 tombstone files, 263 written records) each record held a 15-digit string, three or four integers and a six-letter word. None held a bundle identifier. The meaning of the fields is not established.",
+        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records are read with the field layout of CoreDuet's _DKPREvent class, read on macOS 27.2.1 (26B131); no iOS copy of the class was read. On the tested images the 424 written records held only fields that class declares. Their metadata entries are picked by integer index, named from CoreDuet's own conversion of synthetic records: Title 2000 (title), Is Install 2001 (isInstall), Primary Category 2002 (primaryCategory) and Sub Categories 2003 (subCategories, stored as a keyed archive of an array; the items are shown joined by commas). Before, App Info, Bundle Info and App Info2 took the first three metadata entries by position; on the tested images the title was under App Info on all 177 rows that held one, and the primary category was under Bundle Info on all 176 rows that held one; and the isInstall entry, held by all 424 written _DKEvent.App.Install records, was not reported. The labels Activity, Timestamp, Time End and Time Write are not sourced here. App.Install records carry a bundle id and field 5, which the BMAppInstall class names isInstall, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. Is Install reads True for 1 and False for 0 on both streams; on App.Install it was reported before as Event Value (as stored). On the tested images it held True on 411 and False on 13 of the 424 written _DKEvent.App.Install rows. On the tested images (343 written App.Install rows) Is Install held True on 330 rows and False on 13. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their SEGB timestamp, state, stream, filename and offset only. Paths containing 'tombstone' are not parsed. On the tested images (25 tombstone files, 263 written records) each record held a 15-digit string, three or four integers and a six-letter word. None held a bundle identifier. The meaning of the fields is not established. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written _DKEvent.App.Install records), it was set on each of the 424 written rows of that stream, with 8 distinct values, each a whole number of quarter hours within 14 hours of GMT. It applies to _DKEvent.App.Install only; the 343 written App.Install rows leave it empty.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*', '*/Biome/streams/restricted/App.Install/local/*'),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -186,7 +186,7 @@ def get_biomeAppinstall(context):
                                 )
                         continue
                     data_list.append((
-                        ts, None, None, None, record.state.name, stream, None,
+                        ts, None, None, None, '', record.state.name, stream, None,
                         minimal.get('1', ''), None, None, None, None,
                         {1: 'True', 0: 'False'}.get(minimal.get('5'), ''), filename,
                         record.data_start_offset
@@ -208,6 +208,7 @@ def get_biomeAppinstall(context):
                         if isinstance(is_install, int) else ''
 
                     timewrite = webkit_timestampsconv(protostuff['8']) or None
+                    tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex} |"
                     f"File: {context.get_relative_path(file_found)} | "
@@ -220,6 +221,7 @@ def get_biomeAppinstall(context):
                     timestart,
                     timeend,
                     timewrite,
+                    tz_offset,
                     record.state.name,
                     stream,
                     activity,
@@ -236,6 +238,7 @@ def get_biomeAppinstall(context):
             elif record.state == EntryState.Deleted:
                 data_list.append((
                     ts,
+                    None,
                     None,
                     None,
                     None,
@@ -257,6 +260,7 @@ def get_biomeAppinstall(context):
         ('Timestamp', 'datetime'),
         ('Time End', 'datetime'),
         ('Time Write', 'datetime'),
+        'Time Zone Offset (seconds)',
         'SEGB State',
         'Stream',
         'Activity',
