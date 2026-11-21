@@ -61,10 +61,11 @@ class TestBluetoothStreamOrigin(unittest.TestCase):
                         path.write_bytes(content)
                         ctx = context([str(path)], lambda _path, value=evidence: value)
                         headers, rows, source = biomeBluetooth.get_biomeBluetooth.__wrapped__(ctx)
-                        self.assertEqual(len(headers), 7)
+                        self.assertEqual(len(headers), 10)
                         self.assertEqual(source, str(path.parent))
                         expected = [(stamp, state, None if state == 'Deleted' else MAC.decode(),
                                      None if state == 'Deleted' else NAME.decode(), origin,
+                                     *((None,) * 3 if state == 'Deleted' else ('',) * 3),
                                      'record', offset)
                                     for state, offset in zip(['Written', 'Deleted', 'Written'], offsets)]
                         self.assertEqual(rows, expected)

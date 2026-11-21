@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Now Playing entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Records are read from both the local and remote subfolders; the Sync Origin "
@@ -28,7 +28,16 @@ __artifacts_v2__ = {
                  "Device Sub Type (raw) are empty on them (all 31 rows on hc_ios17_2 were Deleted). "
                  "On the tested images 146 written rows had a Remote Sync Origin: the 96 on "
                  "falken_ios26 carried no output device, title or artist, and 50 on "
-                 "wilkerson_iphone16_ios26 held an output device, 33 of them with a title.",
+                 "wilkerson_iphone16_ios26 held an output device, 33 of them with a title. "
+                 "Playback State is field 3 (playbackState), with its integer in a (raw) column, "
+                 "Album is field 4 (album) and Duration is field 6 (duration); none was reported "
+                 "before. Names are those of the BMMediaNowPlaying class, same source. On the "
+                 "tested images (13 of 21 images held written records, 1,141 written rows) "
+                 "Playback State was Playing on 596 rows, Stopped on 300, Paused on 206, "
+                 "Interrupted on 20 and Unknown on 19. Album held text on 717 rows on 3 images. "
+                 "Duration is shown as stored. The class declares it an unsigned 32-bit integer. Its unit was not read from a source. It was absent on 235 rows, 0 on 148, from 6 to 6049 on 738, "
+                 "and 4294967295 on 20, the largest value of that type. What that value marks is "
+                 "not established. Deleted rows leave these columns empty.",
         "paths": (
             '*/Biome/streams/public/NowPlaying/local/*',
             '*/streams/*/Media.NowPlaying/local/*',
@@ -37,6 +46,11 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "music",
         "sample_data": {
+            "hc_ios17_2": "iOS 17.2.1 | 31 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 54 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 58 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 74 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 4302 rows (1224 remote)",
             "abe_ios16": "iOS 16.5 | 234 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "jess_ios15": "iOS 15.0.2 | 68 rows",
@@ -81,6 +95,10 @@ OUTPUT_DEVICE_SUBTYPE = dict(enumerate((
     'AirPlayCluster', 'SetTopBox', 'TVStick', 'Mac', 'IOS', 'Vision', 'HomeAccessory')))
 
 
+# BMMediaNowPlaying playbackState names, same source, data version 1.
+PLAYBACK_STATE = {0: 'Unknown', 1: 'Playing', 2: 'Paused', 3: 'Stopped', 4: 'Interrupted', 5: 'Seeking'}
+
+
 def _output_devices(value):
     """outputDevices (field 14), a repeated BMMediaNowPlayingOutputDevice: returns the
     outputDeviceID, type and subType columns, each device joined with ' <-> '."""
@@ -117,6 +135,7 @@ def get_biomeNowplaying(context):
     typess = {
         '2': {'type': 'double', 'name': ''},
         '3': {'type': 'int', 'name': ''},
+        '4': {'type': 'bytes', 'name': ''},
         '5': {'type': 'str', 'name': ''},
         '6': {'type': 'int', 'name': ''},
         '8': {'type': 'str', 'name': ''},
@@ -169,16 +188,24 @@ def get_biomeNowplaying(context):
                 info2 = (protostuff.get('8',''))
                 info3 = (protostuff.get('5',''))
                 outputs = _output_devices(protostuff.get('14'))
-                data_list.append((ts, timestart, record.state.name, bundleid, *outputs, info, info2,
-                                  info3, origin, filename, record.data_start_offset))
+                state = protostuff.get('3')
+                state_name = PLAYBACK_STATE.get(state, '') if type(state) is int else ''
+                state_raw = state if type(state) is int else ''
+                album = protostuff.get('4', b'')
+                album = album.decode('utf-8', 'replace') if isinstance(album, bytes) else ''
+                # duration is an unsigned 32-bit field, kept as stored; absent stays blank, 0 stays 0
+                duration = protostuff.get('6', '')
+                data_list.append((ts, timestart, record.state.name, bundleid, state_name, state_raw,
+                                  *outputs, info, info2, info3, album, duration, origin, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None, None,
-                                  None, None, None, None, origin, filename,
+                data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None,
+                                  None, None, None, None, None, None, origin, filename,
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID',
-                    'Output Device ID', 'Output Device Type', 'Output Device Type (raw)',
-                    'Output Device Sub Type', 'Output Device Sub Type (raw)', 'Media Type', 'Title', 'Artist', 'Sync Origin', 'Filename', 'Offset')
+                    'Playback State', 'Playback State (raw)', 'Output Device ID', 'Output Device Type', 'Output Device Type (raw)',
+                    'Output Device Sub Type', 'Output Device Sub Type (raw)', 'Media Type', 'Title', 'Artist', 'Album', 'Duration',
+                    'Sync Origin', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

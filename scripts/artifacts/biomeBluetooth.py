@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Bluetooth device entries from biomes",
         "author": "@JohnHyla, @AlexisBrignoni, Codex",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Use caution when interpreting this artifact. Lists of Bluetooth devices have been "
@@ -18,12 +18,25 @@ __artifacts_v2__ = {
                  "was not recognized unambiguously. These labels do not establish a device "
                  "writer or account relationship. Records under the remote folder sit in a subfolder named by an "
                  "identifier. What device wrote them is not established here, so they should not "
-                 "be read as events of this device. Files under a tombstone folder are skipped.",
+                 "be read as events of this device. Files under a tombstone folder are skipped.\n"
+                 "Starting is field 4 (starting, a boolean stored as 0 or 1) and Device Type is "
+                 "field 5 (deviceType), with its integer in a (raw) column. Neither was reported "
+                 "before. Field numbers and names are those of the BMDeviceBluetooth class, "
+                 "read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. What Starting marks is not established. On the tested "
+                 "images (6 of 21 images held written records, 118 written rows) Starting held 1 "
+                 "on 46 rows and 0 on 72. Device Type held 7 values: Handsfree 56, Headset 31, "
+                 "Headphones 18, Generic 6, VideoDisplay 4, CarStereo 2 and Keyboard 1. Field 10 "
+                 "(userWearing) is not reported: it held 1 on each of the 118 rows, across the "
+                 "device types, so it does not separate them. Deleted rows leave the new columns "
+                 "empty.",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*',
                   '*/Biome/streams/restricted/Device.Wireless.Bluetooth/remote/*'),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
         "sample_data": {
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 12 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 724 rows (21 remote)",
+            "hc_ios17_2": "iOS 17.2.1 | 20 rows",
             "dexter_ios18": "iOS 18.3.2 | 87 rows (14 remote)",
             "felix_ios17": "iOS 17.6.1 | 420 rows (420 remote)",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
@@ -57,6 +70,21 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
 
+# deviceType names, read from BiomeLibrary.framework BMDeviceBluetooth on macOS 27.2.1 (26B131).
+DEVICE_TYPE = {
+    0: 'Unknown', 1: 'Generic', 2: 'GenericComputer', 3: 'GenericPhone', 4: 'GenericAudioVideo',
+    5: 'GenericPeripheral', 6: 'GenericImaging', 7: 'GenericToy', 8: 'DesktopComputer',
+    9: 'LaptopComputer', 10: 'WearableComputer', 11: 'Server', 12: 'PDA', 13: 'MobilePhone',
+    14: 'CordlessPhone', 15: 'Modem', 16: 'AccessPoint', 17: 'Headset', 18: 'Handsfree',
+    19: 'Microphone', 20: 'Speaker', 21: 'Headphones', 22: 'PortableAudio', 23: 'CarStereo',
+    24: 'HifiStereo', 25: 'Keyboard', 26: 'Mouse', 27: 'Gamepad', 28: 'RemoteControl',
+    29: 'Sensor', 30: 'Tablet', 31: 'CardReader', 32: 'Printer', 33: 'Scanner', 34: 'Camera',
+    35: 'VideoCamera', 36: 'Display', 37: 'VideoDisplay', 38: 'VideoConferencing', 39: 'SetTopBox',
+    40: 'VCR', 41: 'GamingConsole', 42: 'ToyController', 43: 'Watch', 44: 'Pager', 45: 'Jacket',
+    46: 'Helmet', 47: 'Glasses', 48: 'A2dp', 49: 'LePeripheral', 50: 'AppleTrackpad'
+}
+
+
 def _sync_origin(relative_path):
     """Classify the stored Bluetooth stream folder without inferring its writer."""
     if not isinstance(relative_path, str) or not relative_path:
@@ -87,6 +115,9 @@ def _sync_origin(relative_path):
 @artifact_processor
 def get_biomeBluetooth(context):
 
+    # Only the added fields are pinned, so the decoding of the existing columns is unchanged.
+    typess = {'4': {'type': 'int', 'name': ''}, '5': {'type': 'int', 'name': ''}}
+
     data_list = []
     source_dirs = set()
     for file_found in context.get_files_found():
@@ -108,7 +139,7 @@ def get_biomeBluetooth(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'Biome Bluetooth: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
@@ -119,11 +150,18 @@ def get_biomeBluetooth(context):
                     desc = protostuff['2']
                 else:
                     desc = protostuff['2'].decode()
-                data_list.append((ts, record.state.name, mac, desc, origin, filename, record.data_start_offset))
+                device_type = protostuff.get('5')
+                is_int = type(device_type) is int
+                data_list.append((ts, record.state.name, mac, desc, origin, protostuff.get('4', ''),
+                                  DEVICE_TYPE.get(device_type, '') if is_int else '',
+                                  device_type if is_int else '', filename,
+                                  record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, origin, filename, record.data_start_offset))
+                data_list.append((ts, record.state.name, None, None, origin, None, None, None, filename,
+                                  record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'MAC', 'Name', 'Sync Origin', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'MAC', 'Name', 'Sync Origin',
+                    'Starting', 'Device Type', 'Device Type (raw)', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
