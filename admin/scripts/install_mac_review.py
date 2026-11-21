@@ -31,7 +31,10 @@ def main():
         install(target / name, (source / name).read_bytes())
     agents = Path.home() / "Library/LaunchAgents"
     agents.mkdir(exist_ok=True)
-    search = [str(Path(binary).parent) for binary in binaries]
+    node = shutil.which("node")
+    if node:
+        binaries.append(node)
+    search = list(dict.fromkeys(str(Path(binary).parent) for binary in binaries))
     plist = {"Label": LABEL, "RunAtLoad": True, "StartInterval": 300,
              "ProgramArguments": [sys.executable, "-B", str(target / "mac_review_worker.py")],
              "WorkingDirectory": str(ROOT), "ProcessType": "Background", "Umask": 0o077,

@@ -68,7 +68,8 @@ def review_packet(number, head, runs):
     thread = pilot.api(f"{pilot.REPO}/issues/{number}/comments?per_page=100", pages=True)
     fixtures = [c["body"] for c in thread if c["user"]["login"] == "github-actions[bot]"
                 and "<!-- leapp-test-data-check -->" in c["body"]]
-    diff = gh("pr", "diff", str(number), "--repo", "abrignoni/iLEAPP", "--color", "never")
+    comparison = f"{pilot.REPO}/compare/{pr['base']['sha']}...{head}"
+    diff = gh("api", comparison, "-H", "Accept: application/vnd.github.diff")
     if not diff.strip():
         raise ValueError("GitHub returned an empty diff")
     guides = {}
@@ -128,6 +129,15 @@ def process(db, pr):
         # Its successful check alone suffices for a docs-only revision.
         if not runs or any(state in PENDING for _, state in runs):
             return
+        # For changes with known CI, do not let an early enrollment check stand
+        # in for the test suite. Other ready PRs can legitimately have only flag.
+        if all(name == "flag" for name, _ in runs):
+            paths = pilot.context(number)["changed_paths"]
+            if any(p.endswith(".py") or p in ("requirements.txt", "README.md") or
+                   p.startswith(("scripts/", "leapp_functions/", "packaging/", "admin/test/scripts/",
+                                 "admin/test/cases/", "admin/test/results/"))
+                   for p in paths):
+                return
         packet = review_packet(number, head, runs)
         result = analyze(packet)
         if not result["summary"].strip() or not isinstance(result["public_comments"], list):

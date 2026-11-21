@@ -23,6 +23,8 @@ class PickupTest(unittest.TestCase):
         self.pr = {"state": "open", "draft": False, "number": 11, "head": {"sha": "a"*40},
                    "user": {"login": "abrignoni", "id": worker.pilot.OWNER}}
         self.enterContext(patch.object(worker.pilot, "get_pr", return_value=self.pr))
+        self.paths = self.enterContext(patch.object(worker.pilot, "context",
+                                                    return_value={"changed_paths": ["guide.md"]}))
         self.alert = self.enterContext(patch.object(worker, "notify"))
         self.checks = self.enterContext(patch.object(worker, "checks", return_value=[("flag", "SUCCESS")]))
         self.enterContext(patch.object(worker, "review_packet",
@@ -52,6 +54,12 @@ class PickupTest(unittest.TestCase):
         worker.run()
         self.assertEqual(self.model.call_count, 2)
         self.assertEqual(len(list((self.root / "reports").glob("*.md"))), 2)
+
+    def test_flag_alone_cannot_finish_a_python_change(self):
+        self.issues.return_value = [{"number": 11, "pull_request": {}}]
+        self.paths.return_value = {"changed_paths": ["scripts/artifacts/messages.py"]}
+        worker.run()
+        self.model.assert_not_called()
 
     def test_closed_and_draft_never_start_model(self):
         self.issues.return_value = [{"number": 11, "pull_request": {}}]
