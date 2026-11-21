@@ -39,6 +39,23 @@ is ready. Findings on owner-authored PRs stay in private Markdown files under
 the helper can post verified, new inline findings on the reviewed commit. A
 closed, draft, or superseded PR cannot receive a new delivery.
 
+For an optional private Codex inbox, run the installed worker once with
+`--inbox-thread <chat UUID>`. It starts with future completed reviews.
+The worker records each send attempt before launching Codex. If the worker
+restarts after Codex writes its queue receipt, it records the receipt and
+continues. A failure to start Codex is retried on a later pass. Other reports
+can be delivered while one revision is pending.
+
+If Codex might have accepted a report and the receipt is missing, the Mac
+requests a notification and writes the PR number and full SHA to `pickup.log`.
+Check the inbox and its pending messages for that revision. If it is present, run
+
+    python3 "$HOME/Library/Application Support/iLEAPP/PR Review/bin/mac_review_worker.py" --resolve-inbox <PR> <FULL_SHA> received
+
+If you confirm the report is absent from both places, use `retry` in place of
+`received`. The next worker pass sends it. If you cannot verify the outcome,
+leave the revision pending. The local Markdown report remains available.
+
 The reviewer reads the diff, CI outcomes, existing inline feedback, fixture bot
 comment and per-module fixture classification. For artifact PRs it includes the
 base branch's artifact guidance. The model runs in a temporary directory. The

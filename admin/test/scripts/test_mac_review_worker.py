@@ -1,4 +1,7 @@
 """Check pickup across updates, offline periods and retries without a model or GitHub."""
+import os
+import sqlite3
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -68,7 +71,7 @@ class PickupTest(unittest.TestCase):
             worker.configure_inbox(db, thread)
         self.pr["head"]["sha"] = "b"*40
         self.issues.return_value = [{"number": 11, "pull_request": {}}]
-        with patch.object(worker.subprocess, "run", side_effect=OSError) as send:
+        with patch.object(worker.subprocess, "Popen", side_effect=FileNotFoundError) as send:
             worker.run()
             send.assert_called_once()
             args = send.call_args.args[0]
@@ -78,11 +81,123 @@ class PickupTest(unittest.TestCase):
         self.issues.return_value = []
         with worker.contextlib.closing(worker.pilot.database()) as db:
             worker.configure_inbox(db, thread)
-        with patch.object(worker.subprocess, "run") as send:
+        with patch.object(worker.subprocess, "Popen") as send:
+            send.return_value.wait.return_value = 0
             worker.run()
             worker.run()
             send.assert_called_once()
         self.model.assert_called_once()
+
+    def test_worker_restart_after_codex_accepts(self):
+        thread = "11111111-1111-4111-8111-111111111111"
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            worker.configure_inbox(db, thread)
+            db.execute("INSERT INTO reviews VALUES(11,?,?)", ("a"*40, "report"))
+            db.commit()
+        # Use real child processes and SQLite. The sender exits abruptly at the
+        # point between the CLI's acknowledgement and the local SQL commit.
+        fake = self.root / "codex"
+        fake.write_text("#!/bin/sh\necho called >> calls\n"
+                        'echo "Queued message 22222222-2222-4222-8222-222222222222 for thread $3."\n')
+        fake.chmod(0o700)
+        script = """
+import os, sys
+from pathlib import Path
+import mac_review_worker as w
+w.pilot.STATE = Path.cwd()
+if sys.argv[1] == "crash":
+    send = w.queue_report
+    def interrupted(*args):
+        assert send(*args)
+        os._exit(77)
+    w.queue_report = interrupted
+with w.pilot.database() as db, (w.pilot.STATE / "pickup.lock").open("a") as lock:
+    w.fcntl.flock(lock, w.fcntl.LOCK_EX)
+    w.deliver_inbox(db)
+"""
+        env = dict(os.environ, PATH=str(self.root) + os.pathsep + os.environ["PATH"],
+                   PYTHONPATH=str(Path(worker.__file__).parent))
+        for mode, expected in (("crash", 77), ("restart", 0), ("idle", 0)):
+            result = subprocess.run([sys.executable, "-B", "-c", script, mode],
+                                    env=env, cwd=self.root, check=False, timeout=10)
+            self.assertEqual(result.returncode, expected)
+        self.assertEqual((self.root / "calls").read_text().splitlines(), ["called"])
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            self.assertEqual(db.execute("SELECT pr,head FROM inbox_recorded").fetchall(),
+                             [(11, "a"*40)])
+
+    def test_uncertain_and_unstartable_sends_do_not_block_later_reviews(self):
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            worker.configure_inbox(db, "11111111-1111-4111-8111-111111111111")
+            with db:
+                db.executemany("INSERT INTO reviews VALUES(?,?,?)",
+                               [(pr, "a"*40, "report") for pr in (11, 12, 13, 14)])
+            # Two ambiguous results, a failure before launch, then a successful send.
+            with patch.object(worker, "queue_report", side_effect=[False, False, None, True]) as send:
+                worker.run()
+                self.assertEqual([call.args[1] for call in send.call_args_list], [11, 12, 13, 14])
+            with patch.object(worker, "queue_report", return_value=None) as send:
+                worker.run()
+                self.assertEqual([call.args[1] for call in send.call_args_list], [13])
+            self.assertEqual(self.alert.call_count, 2)
+            self.assertEqual(db.execute("SELECT pr FROM inbox_recorded").fetchall(), [(14,)])
+            worker.resolve_inbox(db, 11, "a"*40, "received")
+            worker.resolve_inbox(db, 12, "a"*40, "retry")
+            with patch.object(worker, "queue_report", return_value=True) as send:
+                worker.run()
+                worker.run()
+                self.assertEqual([call.args[1] for call in send.call_args_list], [12, 13])
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM inbox_recorded").fetchone(), (4,))
+        self.model.assert_not_called()
+
+    def test_manual_retry_cannot_race_a_surviving_sender_or_a_late_receipt(self):
+        thread = "11111111-1111-4111-8111-111111111111"
+        head = "a"*40
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            worker.configure_inbox(db, thread)
+            with db:
+                db.execute("INSERT INTO reviews VALUES(11,?,?)", (head, "report"))
+            with patch.object(worker, "queue_report", return_value=False):
+                worker.run()
+            receipt = self.root / f"inbox-11-{head}.receipt"
+            with receipt.open("wb") as child_output:
+                worker.fcntl.flock(child_output, worker.fcntl.LOCK_EX)
+                with self.assertRaisesRegex(ValueError, "still running"):
+                    worker.resolve_inbox(db, 11, head, "retry")
+                child_output.write(f"Queued message {thread} for thread {thread}.\n".encode())
+            with self.assertRaisesRegex(ValueError, "acknowledged"):
+                worker.resolve_inbox(db, 11, head, "retry")
+            def deny_commit(action, operation, *_):
+                if action == sqlite3.SQLITE_TRANSACTION and operation == "COMMIT":
+                    return sqlite3.SQLITE_DENY
+                return sqlite3.SQLITE_OK
+
+            db.set_authorizer(deny_commit)
+            try:
+                with self.assertRaises(sqlite3.DatabaseError):
+                    worker.resolve_inbox(db, 11, head, "received")
+            finally:
+                db.set_authorizer(None)
+            self.assertTrue(receipt.is_file())
+            with patch.object(worker, "queue_report") as send:
+                worker.run()
+                send.assert_not_called()
+            self.assertEqual(db.execute("SELECT pr FROM inbox_recorded").fetchall(), [(11,)])
+
+    def test_interrupted_warning_resumes_without_resending(self):
+        with worker.contextlib.closing(worker.pilot.database()) as db:
+            worker.configure_inbox(db, "11111111-1111-4111-8111-111111111111")
+            with db:
+                db.execute("INSERT INTO reviews VALUES(11,?,?)", ("a"*40, "report"))
+        self.alert.side_effect = SystemExit
+        with patch.object(worker, "queue_report", return_value=False) as send:
+            with self.assertRaises(SystemExit):
+                worker.run()
+            self.alert.side_effect = None
+            worker.run()
+            worker.run()
+            send.assert_called_once()
+        self.assertEqual(self.alert.call_count, 2)
 
     def test_workflow_filters_and_missing_late_checks(self):
         self.assertTrue(worker.path_match("scripts/artifacts/demo.py", ["**.py"]))
