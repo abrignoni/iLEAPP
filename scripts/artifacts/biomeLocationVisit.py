@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                        "source before it is relied on.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani), @AlexisBrignoni, Codex",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "On the tested images the records of a stream file did not share a SEGB write "
@@ -40,13 +40,27 @@ __artifacts_v2__ = {
                  "Inference Identifier, reported before as Visit ID, is the identifier of the "
                  "place inference, not of the visit. User Specific Place Type is new, with its "
                  "integer in the (raw) column; on the tested images it was Home on 38 and "
-                 "Unknown on 118 of the 156 written rows. Reference: Mattia Epifani, '84 Streams "
+                 "Unknown on 118 of the 156 written rows. Visit Type is field 2 (type), Place Type is "
+                 "field 8.2 (placeType) and User Specific Place Type Source is field 8.4 "
+                 "(userSpecificPlaceTypeSource), each with its integer in a (raw) column; they "
+                 "were not reported before and their names come from the same two classes. On "
+                 "the tested images (6 of 21 images held written records, 156 written rows) Visit "
+                 "Type held one value, Exit, so it does not separate rows there. What Exit marks "
+                 "on a record that holds both an arrival and a departure is not established. "
+                 "Place Type was AreaOfInterest on 53 rows, NonClassified on 38, PointOfInterest "
+                 "on 36 and Address on 29. User Specific Place Type Source was Inferred on the 38 "
+                 "Home rows and Unknown on the other 118. Deleted rows leave these columns empty. "
+                 "Reference: Mattia Epifani, '84 Streams "
                  "Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Location.Visit/local/*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "map-pin",
         "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | 12 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 172 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 23 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 483 rows",
             "dexter_ios18": "378 rows",
             "hc_ios18_7": "43 rows",
             "hc_ios26": "26.5.2 | 35 rows",
@@ -72,6 +86,18 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
 
 # userSpecificPlaceType names, read from BiomeLibrary.framework BMPlaceInference on macOS 27.2.1 (26B131).
 USER_SPECIFIC_PLACE_TYPE = {0: 'Unknown', 1: 'Home', 2: 'Work', 3: 'School', 4: 'Gym'}
+# type (BMLocationVisit), placeType and userSpecificPlaceTypeSource (BMPlaceInference), same source.
+VISIT_TYPE = {0: 'Unknown', 1: 'Entry', 2: 'EntryResume', 3: 'Exit'}
+PLACE_TYPE = {0: 'Unknown', 1: 'NonClassified', 2: 'AreaOfInterest', 3: 'PointOfInterest', 4: 'Address'}
+USER_SPECIFIC_PLACE_TYPE_SOURCE = {0: 'Unknown', 1: 'Inferred', 2: 'MeCard', 3: 'User', 4: 'Fallback',
+                                   5: 'Maps'}
+
+
+def _enum_columns(names, value):
+    """Returns (name, raw). An unknown integer keeps its raw value with a blank name."""
+    if type(value) is not int:
+        return '', ''
+    return names.get(value, ''), value
 
 
 def _to_str(value):
@@ -111,6 +137,8 @@ def _rounded(value, digits):
 @artifact_processor
 def get_biomeLocationVisit(context):
 
+    typess = {'2': {'type': 'int', 'name': ''}}
+
     data_list = []
     source_dirs = set()
     for file_found in sorted(context.get_files_found()):
@@ -130,7 +158,7 @@ def get_biomeLocationVisit(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'Location Visit: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
@@ -155,28 +183,34 @@ def get_biomeLocationVisit(context):
                 data_list.append((
                     _timestamp(protostuff.get('4')), _timestamp(protostuff.get('5')),
                     _timestamp(protostuff.get('1')), ts, record.state.name,
+                    *_enum_columns(VISIT_TYPE, protostuff.get('2')),
                     _rounded(latitude, 6), _rounded(longitude, 6), _rounded(horizontal, 2),
                     _rounded(altitude, 2), _rounded(vertical, 2),
                     _rounded(_double(protostuff.get('6')), 3),
                     _to_str(detail.get('2', b'')), _to_str(detail.get('3', b'')),
                     _to_str(detail.get('4', b'')),
+                    *_enum_columns(PLACE_TYPE, place.get('2')),
                     USER_SPECIFIC_PLACE_TYPE.get(place.get('3'), '')
                     if isinstance(place.get('3'), int) else '',
-                    place.get('3', ''), _to_str(detail.get('1', b'')),
+                    place.get('3', ''),
+                    *_enum_columns(USER_SPECIFIC_PLACE_TYPE_SOURCE, place.get('4')),
+                    _to_str(detail.get('1', b'')),
                     _to_str(place.get('1', b'')), filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((None, None, None, ts, record.state.name, None, None, None,
+                data_list.append((None, None, None, ts, record.state.name, None, None, None, None,
                                   None, None, None, None, None, None, None, None, None, None,
-                                  filename,
+                                  None, None, None, None, None, filename,
                                   record.data_start_offset))
 
     data_headers = (
         ('Arrival Timestamp', 'datetime'), ('Departure Timestamp', 'datetime'),
         ('Detection Date', 'datetime'), ('SEGB Write Timestamp', 'datetime'),
-        'SEGB State', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Horizontal Accuracy', 'Altitude',
+        'SEGB State', 'Visit Type', 'Visit Type (raw)', ('Latitude', 'latitude'), ('Longitude', 'longitude'), 'Horizontal Accuracy', 'Altitude',
         'Vertical Accuracy', 'Confidence', 'Place Name', 'Place Address', 'Place Category',
-        'User Specific Place Type', 'User Specific Place Type (raw)', 'Place ID',
+        'Place Type', 'Place Type (raw)', 'User Specific Place Type',
+        'User Specific Place Type (raw)', 'User Specific Place Type Source',
+        'User Specific Place Type Source (raw)', 'Place ID',
         'Place Inference Identifier', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

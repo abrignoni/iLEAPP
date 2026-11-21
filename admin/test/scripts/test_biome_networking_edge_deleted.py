@@ -78,13 +78,13 @@ class NetworkingEdgeDeletedTests(unittest.TestCase):
                     context([p], root))
             expected = [r for r in expected if r[0] in (1, 3)]
             self.assertEqual(len(rows), len(expected))
-            self.assertEqual(len(headers), 12)
+            self.assertEqual(len(headers), 13)
             self.assertEqual(source, str(root))
             self.assertEqual(decode.call_count, sum(r[0] == 1 for r in expected))
             for row, (state, seconds, offset, _) in zip(rows, expected):
                 self.assertEqual(row, (EPOCH + datetime.timedelta(seconds=seconds),
                                       'Written' if state == 1 else 'Deleted',
-                                      *(VALUES if state == 1 else (None,) * 8),
+                                      *(tuple(VALUES) + ('',) if state == 1 else (None,) * 9),
                                       p.name, offset))
 
     def test_v1_interleaved_repeats_unknown(self):
@@ -110,7 +110,7 @@ class NetworkingEdgeDeletedTests(unittest.TestCase):
                 context([p], root))
             self.assertEqual(len(rows), 1)
             self.assertEqual(rows[0][1], 'Written')
-            self.assertEqual(rows[0][11], oracle[0][2])
+            self.assertEqual(rows[0][12], oracle[0][2])
 
     def test_same_physical_file_aliases_are_not_collapsed(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -143,7 +143,7 @@ class NetworkingEdgeDeletedTests(unittest.TestCase):
                                      else [(3, 800000001, b'\xff')])[0])
             h, rows, _ = artifact.get_biomeNetworkingEdgeSelection.__wrapped__(
                 context([paths[0], paths[0], paths[2], paths[3]], root))
-            self.assertEqual(len(h), 12)
+            self.assertEqual(len(h), 13)
             self.assertEqual(len(rows), 3)
             h, rows, _ = artifact.get_biomeNetworkingEdgeSelection.__wrapped__(
                 context([paths[0], paths[1], paths[0], paths[2], paths[3]], root))

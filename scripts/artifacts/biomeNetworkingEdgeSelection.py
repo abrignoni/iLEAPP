@@ -6,11 +6,11 @@ __artifacts_v2__ = {
                        ' or user deletion.',
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": 'Reports successfully yielded Written and Deleted SEGB records. Deleted rows contain only the SEGB '
-                 'timestamp, structural SEGB State, Filename and Offset; all eight payload columns are '
+                 'timestamp, structural SEGB State, Filename and Offset; the nine payload columns are '
                  'empty. Deleted is a structural reader state, not proof of a user deletion or a network '
                  'event. Offset is the shared reader data_start_offset within the source file. Unknown and '
                  'reader-excluded states are not recovered. Files under a tombstone folder and dot files '
@@ -28,13 +28,22 @@ __artifacts_v2__ = {
                  'values. Radio Band is field 6, reported before as Field 6. On the tested images (5 '
                  'images with written records, 64 written rows) IP Version held 4 on 44 rows and 6 '
                  'on 20, Prefix Length held 24 and 56 on the same rows, every address had its host '
-                 'bits zeroed to that prefix, and Radio Band was empty on 25 rows.',
+                 'bits zeroed to that prefix, and Radio Band was empty on 25 rows. Geohash Field (as stored) is field 9, which '
+                 'the framework names geohash. It was not reported before. '
+                 'On the same 64 written rows (5 of 21 images held written '
+                 'records) it held text on 35 rows on 2 images, with 9 distinct values of 10 to 18 '
+                 'characters, and was empty on 29. Those 35 values were not in geohash form: each was three characters, a hyphen and further text. What that text identifies '
+                 'is not established, so no location precision is stated for it.',
         "paths": ('*/streams/*/Device.Networking.EdgeSelection/local/*',),
         "output_types": "standard",
         "artifact_icon": "network",
         "sample_data": {
-            "otto_ios17": "iOS 17.5.1 | 8 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 0 rows (stream present, all slots deleted)",
+            "cookbook_ios1751": "iOS 17.5.1 | 13 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 17 rows",
+            "hc_ios26": "iOS 26.5.2 | 4 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 135 rows",
+            "otto_ios17": "iOS 17.5.1 | 144 rows (8 written)",
+            "hc_ios18_7": "iOS 18.7.8 | 7 rows (0 written)",
             "felix23_ios16": "iOS 16.5 | 0 rows (stream directory present but empty)",
         },
     }
@@ -78,6 +87,7 @@ def get_biomeNetworkingEdgeSelection(context):
         '5': {'type': 'bytes', 'name': ''},
         '7': {'type': 'bytes', 'name': ''},
         '8': {'type': 'bytes', 'name': ''},
+        '9': {'type': 'bytes', 'name': ''},
     }
 
     data_list = []
@@ -97,7 +107,7 @@ def get_biomeNetworkingEdgeSelection(context):
             if record.state == EntryState.Deleted:
                 timestamp = record.timestamp1.replace(tzinfo=timezone.utc)
                 data_list.append((timestamp, record.state.name, None, None, None, None,
-                                  None, None, None, None, filename, record.data_start_offset))
+                                  None, None, None, None, None, filename, record.data_start_offset))
                 row_sources.append(file_found)
                 paths_by_basename.setdefault(filename, set()).add(file_found)
                 continue
@@ -121,18 +131,19 @@ def get_biomeNetworkingEdgeSelection(context):
             radio_band = _text(protostuff.get('6'))
             country = _text(protostuff.get('7'))
             time_zone = _text(protostuff.get('8'))
+            geohash = _text(protostuff.get('9'))
 
             timestamp = record.timestamp1.replace(tzinfo=timezone.utc)
 
             data_list.append((timestamp, record.state.name, ip_address, ip_version, prefix_length,
-                              interface, radio_technology, radio_band, country, time_zone,
+                              interface, radio_technology, radio_band, country, time_zone, geohash,
                               filename, record.data_start_offset))
             row_sources.append(file_found)
             paths_by_basename.setdefault(filename, set()).add(file_found)
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'IP Address (Truncated)', 'IP Version',
                     'Prefix Length', 'Interface', 'Radio Technology', 'Radio Band', 'Country',
-                    'Time Zone', 'Filename', 'Offset')
+                    'Time Zone', 'Geohash Field (as stored)', 'Filename', 'Offset')
 
     if any(len(paths) > 1 for paths in paths_by_basename.values()):
         data_headers += ('Source File',)
