@@ -1,0 +1,21 @@
+name: Flag PR for Mac review
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  issues: write
+
+jobs:
+  flag:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      # Only the PR number is used. Never check out or run the PR here.
+      - name: Enroll the PR in local review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh api --method POST "repos/$REPO/issues/$PR_NUMBER/labels" -f 'labels[]=mac-review' --silent
