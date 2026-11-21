@@ -55,7 +55,97 @@ def checks(number, head):
     if view["headRefOid"] != head:
         raise ValueError("PR changed before CI inspection")
     return [(c.get("name") or c.get("context"), c.get("conclusion") or
-             c.get("status") or c.get("state")) for c in view["statusCheckRollup"]]
+             c.get("status") or c.get("state"), c.get("workflowName"))
+            for c in view["statusCheckRollup"]]
+
+
+def path_match(path, patterns):
+    """Ordered GitHub include/exclude globs used by iLEAPP workflow triggers."""
+    selected = False
+    for item in patterns:
+        pattern = item.removeprefix("!")
+        expr = (re.escape(pattern).replace(r"\*\*/", "(?:.*/)?")
+                .replace(r"\*\*", ".*").replace(r"\*", "[^/]*").replace(r"\?", "[^/]"))
+        if re.fullmatch(expr, path):
+            selected = not item.startswith("!")
+    return selected
+
+
+def expected_workflows(pr):
+    """Read immutable workflow definitions as YAML data, never as executable code."""
+    number = pr["number"]
+    ref = pr.get("merge_commit_sha") or pilot.revision(pr)
+    files = pilot.api(f"{pilot.REPO}/pulls/{number}/files?per_page=100", pages=True)
+    paths = [f["filename"] for f in files[:300]]
+    paths.extend(f["previous_filename"] for f in files[:300] if "previous_filename" in f)
+    directory = pilot.api(f"{pilot.REPO}/contents/.github/workflows?ref={ref}")
+    names = [f["name"] for f in directory if f["name"].endswith((".yml", ".yaml"))]
+    sources = {name: pilot.api(f"{pilot.REPO}/contents/.github/workflows/{quote(name)}?ref={ref}",
+                               raw=True) for name in names}
+    # macOS ships Psych with system Ruby. Only parse data and return the trigger sections.
+    reader = """require 'yaml'; require 'json'
+puts JSON.generate(JSON.parse(STDIN.read).map {|file, text|
+  doc = YAML.safe_load(text)
+  [doc['name'] || file, doc['on'] || doc[true]]
+})"""
+    decoded = subprocess.run(["/usr/bin/ruby", "-e", reader], input=json.dumps(sources),
+                             text=True, check=True, capture_output=True, timeout=30)
+    expected = set()
+    for workflow, events in json.loads(decoded.stdout):
+        if isinstance(events, str):
+            events = [events]
+        if not events or "pull_request" not in events:
+            continue
+        rule = (events.get("pull_request") or {}) if isinstance(events, dict) else {}
+        if rule.get("types") and not set(rule["types"]) & {
+                "opened", "reopened", "ready_for_review", "synchronize"}:
+            continue
+        base = pr["base"]["ref"]
+        if "branches" in rule and not path_match(base, rule["branches"]):
+            continue
+        if "branches-ignore" in rule and path_match(base, rule["branches-ignore"]):
+            continue
+        if pr.get("commits", 0) <= 1000:
+            if "paths" in rule and not any(path_match(p, rule["paths"]) for p in paths):
+                continue
+            if "paths-ignore" in rule and all(path_match(p, rule["paths-ignore"]) for p in paths):
+                continue
+        expected.add(workflow)
+    pilot.checked_pr(number, pilot.revision(pr))
+    return expected
+
+
+def workflows_complete(db, pr, runs):
+    number, head = pr["number"], pilot.revision(pr)
+    row = db.execute("SELECT names, first_seen, warned FROM ci_plan WHERE pr=? AND head=?",
+                     (number, head)).fetchone()
+    if row is None:
+        names = sorted(expected_workflows(pr))
+        row = (json.dumps(names), int(time.time()), 0)
+        with db:
+            db.execute("INSERT INTO ci_plan VALUES(?,?,?,?,?)", (number, head, *row))
+    expected = set(json.loads(row[0]))
+    observed = {workflow for _, _, workflow in runs}
+    ready = bool(runs) and expected <= observed
+    if not ready and not row[2] and time.time() - row[1] > 900:
+        notify(f"PR #{number} is waiting for GitHub to register its CI workflows.")
+        with db:
+            db.execute("UPDATE ci_plan SET warned=1 WHERE pr=? AND head=?", (number, head))
+    if not ready or any(state in PENDING for _, state, _ in runs):
+        return False
+    if not expected:
+        return True
+    # A completed first matrix job can precede the remaining jobs in the rollup.
+    # Check the workflow run itself and pick the newest run for each workflow.
+    url = f"{pilot.REPO}/actions/runs?event=pull_request&head_sha={head}&per_page=100"
+    run_pages = json.loads(gh("api", url, "--paginate", "--slurp"))
+    states = {}
+    for page in run_pages:
+        for item in page["workflow_runs"]:
+            if item["pull_requests"] and not any(p["number"] == number for p in item["pull_requests"]):
+                continue
+            states.setdefault(item["name"], item["status"])
+    return all(states.get(name) == "completed" for name in expected)
 
 
 def review_packet(number, head, runs):
@@ -125,19 +215,8 @@ def process(db, pr):
         result = json.loads(row[0])
     else:
         runs = checks(number, head)
-        # The path-unfiltered flag workflow applies to every ready iLEAPP PR.
-        # Its successful check alone suffices for a docs-only revision.
-        if not runs or any(state in PENDING for _, state in runs):
+        if not workflows_complete(db, pr, runs):
             return
-        # For changes with known CI, do not let an early enrollment check stand
-        # in for the test suite. Other ready PRs can legitimately have only flag.
-        if all(name == "flag" for name, _ in runs):
-            paths = pilot.context(number)["changed_paths"]
-            if any(p.endswith(".py") or p in ("requirements.txt", "README.md") or
-                   p.startswith(("scripts/", "leapp_functions/", "packaging/", "admin/test/scripts/",
-                                 "admin/test/cases/", "admin/test/results/"))
-                   for p in paths):
-                return
         packet = review_packet(number, head, runs)
         result = analyze(packet)
         if not result["summary"].strip() or not isinstance(result["public_comments"], list):
@@ -162,6 +241,8 @@ def run():
             return
         db.execute("CREATE TABLE IF NOT EXISTS pickup "
                    "(pr INTEGER, head TEXT, result TEXT, PRIMARY KEY(pr,head))")
+        db.execute("CREATE TABLE IF NOT EXISTS ci_plan (pr INTEGER, head TEXT, names TEXT,"
+                   " first_seen INTEGER, warned INTEGER, PRIMARY KEY(pr,head))")
         # One GitHub read on an idle poll. The label persists across sleep and login.
         issues = pilot.api(f"{pilot.REPO}/issues?state=open&labels={LABEL}&per_page=100", pages=True)
         db.execute("CREATE TABLE IF NOT EXISTS retry "

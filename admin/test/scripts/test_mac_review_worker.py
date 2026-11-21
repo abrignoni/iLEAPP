@@ -23,10 +23,9 @@ class PickupTest(unittest.TestCase):
         self.pr = {"state": "open", "draft": False, "number": 11, "head": {"sha": "a"*40},
                    "user": {"login": "abrignoni", "id": worker.pilot.OWNER}}
         self.enterContext(patch.object(worker.pilot, "get_pr", return_value=self.pr))
-        self.paths = self.enterContext(patch.object(worker.pilot, "context",
-                                                    return_value={"changed_paths": ["guide.md"]}))
+        self.expected = self.enterContext(patch.object(worker, "expected_workflows", return_value=set()))
         self.alert = self.enterContext(patch.object(worker, "notify"))
-        self.checks = self.enterContext(patch.object(worker, "checks", return_value=[("flag", "SUCCESS")]))
+        self.checks = self.enterContext(patch.object(worker, "checks", return_value=[("flag", "SUCCESS", "Flag PR for Mac review")]))
         self.enterContext(patch.object(worker, "review_packet",
                                        return_value={"context": {"delivery": "private"}}))
         self.model = self.enterContext(patch.object(worker, "analyze", return_value={
@@ -39,10 +38,10 @@ class PickupTest(unittest.TestCase):
         self.checks.return_value = []
         worker.run()
         self.model.assert_not_called()
-        self.checks.return_value = [("checks", "IN_PROGRESS")]
+        self.checks.return_value = [("checks", "IN_PROGRESS", "Tests")]
         worker.run()
         self.model.assert_not_called()
-        self.checks.return_value = [("checks", "SUCCESS")]
+        self.checks.return_value = [("checks", "SUCCESS", "Tests")]
         worker.run()
         worker.run()
         self.model.assert_called_once()
@@ -57,7 +56,18 @@ class PickupTest(unittest.TestCase):
 
     def test_flag_alone_cannot_finish_a_python_change(self):
         self.issues.return_value = [{"number": 11, "pull_request": {}}]
-        self.paths.return_value = {"changed_paths": ["scripts/artifacts/messages.py"]}
+        self.expected.return_value = {"Python Lint Check"}
+        worker.run()
+        self.model.assert_not_called()
+
+    def test_workflow_filters_and_missing_late_checks(self):
+        self.assertTrue(worker.path_match("scripts/artifacts/demo.py", ["**.py"]))
+        self.assertFalse(worker.path_match("scripts/artifacts/demo.py", ["scripts/*.py"]))
+        self.assertTrue(worker.path_match(".github/workflows/review.yml", [".github/workflows/review.yml"]))
+        self.issues.return_value = [{"number": 11, "pull_request": {}}]
+        self.expected.return_value = {"Tests", "PR review pilot tests"}
+        self.checks.return_value = [("flag", "SUCCESS", "Flag PR for Mac review"),
+                                    ("tests", "SUCCESS", "Tests")]
         worker.run()
         self.model.assert_not_called()
 
@@ -77,6 +87,23 @@ class PickupTest(unittest.TestCase):
             worker.run()
         self.model.assert_called_once()
         self.assertEqual(len(list((self.root / "reports").glob("*.md"))), 1)
+
+
+@unittest.skipIf(sys.platform == "win32", "macOS worker uses system Ruby for YAML")
+class WorkflowFilterTest(unittest.TestCase):
+    def test_workflow_only_change_waits_for_its_own_suite(self):
+        folder = Path(__file__).resolve().parents[3] / ".github/workflows"
+        pr = {"number": 11, "head": {"sha": "a"*40}, "base": {"ref": "main"}}
+
+        def contents(url, **_kwargs):
+            if "/pulls/11/files?" in url:
+                return [{"filename": ".github/workflows/review_pilot_tests.yml"}]
+            if "/contents/.github/workflows?" in url:
+                return [{"name": f.name} for f in folder.glob("*.yml")]
+            return (folder / url.split("?")[0].rsplit("/", 1)[1]).read_text()
+
+        with patch.object(worker.pilot, "api", side_effect=contents), patch.object(worker.pilot, "checked_pr"):
+            self.assertEqual(worker.expected_workflows(pr), {"PR review pilot tests"})
 
 
 if __name__ == "__main__":
