@@ -146,7 +146,7 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         headers, result, _ = powerlogApplicationRuntime.__wrapped__(_Context(path))
         rows = list(result)
         self.assertEqual(len(headers), len(rows[0]))
-        self.assertEqual(rows[0][1], "com.apple.mobilesafari")
+        self.assertEqual(rows[0][4], "com.apple.mobilesafari")
 
     def _devicelist_database(self, statements):
         return self._database(
