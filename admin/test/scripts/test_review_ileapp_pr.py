@@ -29,6 +29,10 @@ class PilotTest(unittest.TestCase):
         self.comments = [{"path": self.files[0]["filename"], "line": 1, "body": "A test finding."}]
 
     def api(self, path, *, pages=False, body=None, raw=False):
+        if pages:
+            self.assertIn("per_page=100", path)
+        if raw:
+            self.assertIn("/contents/", path)
         if body is not None:
             self.posts.append(body)
             self.reviews.append(dict(body, user={"id": 27}))
