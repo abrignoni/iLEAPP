@@ -317,17 +317,16 @@ def create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type,
 
     # WRITE INDEX.HTML LAST
     filename = 'index.html'
-    page_title = 'iLEAPP Report'
-    body_heading = 'iOS Logs, Events, And Plists Parser'
-    body_description = 'iLEAPP is an open source project that aims to parse '\
-        'every known iOS artifact for the purpose of forensic analysis.'
+    page_title = f'{leapp.name} Report'
+    body_heading = leapp.description
+    body_description = leapp.report_description
     active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
 
     html_reportfolderbase = Path(reportfolderbase).joinpath('_HTML')
     html_reportfolderbase.mkdir(exist_ok=True)
     with html_reportfolderbase.joinpath(filename).open('w', encoding='utf8') as f:
         f.write(page_header.format(page_title))
-        f.write(body_start.format(f"iLEAPP {leapp.version}"))
+        f.write(body_start.format(f"{leapp.name} {leapp.version}"))
         f.write(body_sidebar_setup + active_nav_list_data + body_sidebar_trailer)
         f.write(body_main_header + body_main_data_title.format(body_heading, body_description))
         f.write(content)
@@ -337,11 +336,11 @@ def create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type,
 
     # Create Index Redirection Page
     redirection = \
-        """
+        f"""
         <html>
             <head>
                 <meta http-equiv="refresh" content="0; url=_HTML/index.html" />
-                <title>iLEAPP Report</title>
+                <title>{leapp.name} Report</title>
             </head>
         </html>
         """

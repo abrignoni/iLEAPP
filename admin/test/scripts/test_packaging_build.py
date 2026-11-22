@@ -584,6 +584,8 @@ class TestAppImage(unittest.TestCase):
         for line in ('Type=Application', 'Name=iLEAPP', 'Exec=ileapp', 'Icon=ileapp',
                      'Terminal=false', 'Categories=Utility;'):
             self.assertIn(line, lines)
+        from leapp_functions import leapp  # pylint: disable=import-outside-toplevel
+        self.assertIn(f'Comment={leapp.description}', lines)
 
     @unittest.skipIf(sys.platform == 'win32', 'an AppDir is made on Linux, with symlinks')
     def test_the_appdir_runs_the_folder_build(self):

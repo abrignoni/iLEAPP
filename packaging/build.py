@@ -146,15 +146,20 @@ APPIMAGE_DIGESTS = {
 }
 
 
-def read_version() -> str:
-    """The version string from data/leapp_config.json, read so that nothing is imported."""
+def read_config(field: str) -> str:
+    """A text field of data/leapp_config.json, read so that nothing is imported."""
     try:
-        version = json.loads((ROOT / "data" / "leapp_config.json").read_text(encoding="utf-8"))["version"]
+        value = json.loads((ROOT / "data" / "leapp_config.json").read_text(encoding="utf-8"))[field]
     except (OSError, ValueError, KeyError, TypeError):
-        version = None
-    if not isinstance(version, str) or not version:
-        sys.exit("build: could not find version in data/leapp_config.json")
-    return version
+        value = None
+    if not isinstance(value, str) or not value:
+        sys.exit(f"build: could not find {field} in data/leapp_config.json")
+    return value
+
+
+def read_version() -> str:
+    """The version string from data/leapp_config.json."""
+    return read_config("version")
 
 
 def numeric_version(version: str) -> str:
@@ -462,7 +467,7 @@ def appimage_desktop_entry() -> str:
         "[Desktop Entry]",
         "Type=Application",
         f"Name={APP}",
-        "Comment=iOS Logs, Events, And Plists Parser",
+        f"Comment={read_config('description')}",
         f"Exec={EXE}",
         f"Icon={EXE}",
         "Terminal=false",
