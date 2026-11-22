@@ -316,6 +316,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | waze |
 | webkitResourceLoadStatistics |
 | whatsAppLID |
+| whatsAppMessageReceipts |
 | widgetEngagements |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->
