@@ -113,7 +113,7 @@ try:
 except ImportError:
     lzma = None
 
-__version__ = "0.17.1"
+__version__ = "0.17.2"
 
 # ---------------------------------------------------------------- constants
 
@@ -1156,7 +1156,7 @@ def _open_content(path, password=None, keys=None, private_key=None):
             # data runs to the end of the file.
             probe = _EncryptedFile(path, key, key.start, key.block, name)
             try:
-                if probe.read(len(ASIF_SIGNATURE)) == ASIF_SIGNATURE:
+                if _is_asif_head(probe.read(8)):
                     key.length = os.path.getsize(path) - key.start
             finally:
                 probe.close()
@@ -1172,6 +1172,15 @@ def _open_content(path, password=None, keys=None, private_key=None):
         return fh, fh.size
     return (_EncryptedFile(path, key, key.start, key.length, os.path.basename(path)),
             key.length)
+
+
+def _is_asif_head(head):
+    """True when the first 8 bytes read as an ASIF or hdiutil shadow header: the four
+    signature bytes, then a big-endian version from 1 to 255. A version past the one
+    this reader handles is still routed here so it is refused by name, while a raw
+    file that merely starts with these four bytes stays a raw file."""
+    return (len(head) >= 8 and head[:4] == ASIF_SIGNATURE
+            and 1 <= int.from_bytes(head[4:8], "big") <= 255)
 
 
 def apple_image_kind(path):
@@ -1200,7 +1209,7 @@ def apple_image_kind(path):
                 return "ENCRYPTED"
             if head[:4] == SPARSEIMAGE_SIGNATURE:
                 return FORMAT_SPARSEIMAGE
-            if head[:4] == ASIF_SIGNATURE:
+            if _is_asif_head(head):
                 return FORMAT_ASIF
             if size >= UDIF_TRAILER_SIZE:
                 fh.seek(size - UDIF_TRAILER_SIZE)
@@ -5049,14 +5058,14 @@ class EwfImage:
         fh, size = self._content(path)
         self._note_encryption(self._keys[path])
         with fh:
-            head = fh.read(4)
+            head = fh.read(8)
             tail = b""
             if size >= UDIF_TRAILER_SIZE:
                 fh.seek(size - UDIF_TRAILER_SIZE)
                 tail = fh.read(4)
-        if head == SPARSEIMAGE_SIGNATURE:
+        if head[:4] == SPARSEIMAGE_SIGNATURE:
             self._index_sparseimage()
-        elif head == ASIF_SIGNATURE:
+        elif _is_asif_head(head):
             self._index_asif()
         elif tail == UDIF_TRAILER_SIGNATURE:
             self._index_udif()

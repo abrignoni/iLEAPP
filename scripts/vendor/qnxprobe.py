@@ -49,7 +49,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.84"
+QNXPROBE_VERSION = "1.85"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -370,6 +370,15 @@ def _aff_header_lost(path):
     return trailer[:4] == b"ATT\x00" and struct.unpack(">I", trailer[4:])[0] == tail + 8
 
 
+def _is_asif_head(head):
+    """True when the first 8 bytes read as an ASIF or hdiutil shadow header: the four
+    signature bytes, then a big-endian version from 1 to 255. A version past the one
+    this reader handles is still routed here so it is refused by name, while a raw
+    file that merely starts with these four bytes stays a raw file."""
+    return (len(head) >= 8 and head[:4] == ASIF_SIGNATURE
+            and 1 <= int.from_bytes(head[4:8], "big") <= 255)
+
+
 def _first_bytes(path, n=8):
     try:
         with open(path, "rb") as fh:
@@ -522,7 +531,7 @@ def acquisition_format(path):
         return "AD_ENCRYPTED"
     if head[:4] == SPARSEIMAGE_SIGNATURE:
         return "SPARSEIMAGE"
-    if head[:4] == ASIF_SIGNATURE:
+    if _is_asif_head(head):
         return "ASIF"
     if head[:4] == ZIP_SIGNATURE and _is_aff4(path):
         return "AFF4"
@@ -22429,9 +22438,10 @@ def _sibling_kind(fh, size, name):
     text = head[3:] if head.startswith(b"\xef\xbb\xbf") else head
     if (head[:8] in (EWF_SIGNATURE, EWF2_SIGNATURE, AFF_SIGNATURE, L01_SIGNATURE, LX01_SIGNATURE,
                      AD1_SIGNATURE[:8], DMG_ENCRYPTED_SIGNATURE, ADCRYPT_SIGNATURE, VHDX_SIGNATURE)
-            or head[:4] in (b"AFF\x00", SPARSEIMAGE_SIGNATURE, ASIF_SIGNATURE, ZIP_SIGNATURE,
+            or head[:4] in (b"AFF\x00", SPARSEIMAGE_SIGNATURE, ZIP_SIGNATURE,
                             VMDK_SPARSE_MAGIC,
                             VMDK_COWD_MAGIC, QCOW_MAGIC)
+            or _is_asif_head(head)
             or text[:len(VMDK_DESCRIPTOR_START)].lower() == VMDK_DESCRIPTOR_START.lower()
             or VHD_COOKIE in (tail[:8], tail[1:9], head[:8])
             or tail[:4] == UDIF_TRAILER):
@@ -30208,9 +30218,17 @@ def _logical_volume_name(path, manifest):
     """The folder of this image's files in the zip: its name without the extension,
     numbered when an earlier image of the run already has that folder."""
     stem = os.path.splitext(os.path.basename(os.path.normpath(path)))[0] or "logical"
-    used = {rec.get("volume") for rec in manifest or []}
+    # compared as the zip will hold them: a:b and a%3Ab escape to one folder, and a
+    # folder must not take the name of another image's entries table
+    def held(volume):
+        return {_zip_safe_component(volume), _zip_safe_component(f"{volume}.entries.tsv")}
+
+    used = set()
+    for rec in manifest or []:
+        if rec.get("volume"):
+            used |= held(rec["volume"])
     name, n = stem, 1
-    while name in used:
+    while held(name) & used:
         n += 1
         name = f"{stem}_{n}"
     return name
@@ -34717,7 +34735,8 @@ def self_test():
         with open(dmg_fake, "wb") as fh:
             fh.write(b"\x00" * 4096 + TRUE_SIGS["UDIF_TRAILER"][1] + b"\x00" * 508)
         sparse_fake = _fake("fake.sparseimage", TRUE_SIGS["SPARSEIMAGE_SIGNATURE"][1])
-        asif_fake = _fake("fake.asif", TRUE_SIGS["ASIF_SIGNATURE"][1])
+        asif_fake = _fake("fake.asif", TRUE_SIGS["ASIF_SIGNATURE"][1] + b"\0\0\0\1")
+        shdw_raw = _fake("shdw.raw", TRUE_SIGS["ASIF_SIGNATURE"][1])
         enc_fake = _fake("enc.dmg", TRUE_SIGS["DMG_ENCRYPTED_SIGNATURE"][1])
         ad_first = _fake("ad_fake.0001", TRUE_SIGS["ADCRYPT_SIGNATURE"][1])
         ad_second = _fake("ad_fake.0002", b"\x5a" * 8)
@@ -34943,6 +34962,12 @@ def self_test():
                 ("an L01, Lx01 or AD1 extracts with unique members, says what read short, "
                  "failed or was left out, and checks the hashes it stores",
                  _logical_self_check()),
+                ("two images whose names escape alike get separate zip folders",
+                 _logical_volume_name("a%3Ab.L01", [{"volume": "a:b"}]) == "a%3Ab_2"
+                 and _logical_volume_name("a.entries.tsv.L01", [{"volume": "a"}])
+                 == "a.entries.tsv_2"),
+                ("a file that starts with the ASIF signature and has no version is raw",
+                 acquisition_format(shdw_raw) is None),
                 ("a sparse bundle is named by its Info.plist, an encrypted one by its "
                  "token, and a folder of another type is not one",
                  [acquisition_format(q) for q in (bundle_fake, bundle_enc, bundle_other)]
