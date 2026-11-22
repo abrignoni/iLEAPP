@@ -292,16 +292,20 @@ __artifacts_v2__ = {
                        "recorded in the sample's provenance and the model it maps to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "Reads samples whose data_type is 12 and that have a row in quantity_samples, an "
-                 "objects row and a data_provenances record. Sarah Edwards (@iamevltwin, "
-                 "mac4n6.com) documented data_type 12 as flights climbed in her APOLLO research "
-                 "(https://github.com/mac4n6/APOLLO/blob/"
-                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/health_flights.txt). The query "
-                 "follows this module's Health - Steps query with data_type 12. On the 13 images in "
-                 "sample_data with a readable database (3,577 rows) the stored quantity ranged from "
+        "notes": "The type code, unit and joins were derived independently from the store's schema, "
+                 "measured data and Apple's HealthKit and HealthDaemon code, and agree with this "
+                 "query, which follows this module's Health - Steps query with data_type 12. Reads "
+                 "samples whose data_type is 12 and that have a row in quantity_samples, an objects "
+                 "row and a data_provenances record. HealthKit names code 12 "
+                 "HKQuantityTypeIdentifierFlightsClimbed. The name was returned by HealthKit on macOS "
+                 "27.2.1 (26B131) and read from the HealthKit type table of one build each of iOS 13, "
+                 "14, 15 and 18. The canonical unit, count, was returned by HealthKit on macOS 27.2.1 "
+                 "only. The table was not read for iOS 16, 17 or 26. On the 23 tested images with a "
+                 "readable database, no type 12 sample stores an original unit (0 of 5,182 rows), so "
+                 "the unit was not checked against stored data. On the 13 images in sample_data with a readable database (3,577 rows) the stored quantity ranged from "
                  "0.79364 to 56 and was never negative; 9 rows, all on iphone11_ios17, hold a "
                  "non-integer value. On the 11 tested images that have the shared_summaries table, "
                  "every summary whose name contains HKQuantityTypeIdentifierFlightsClimbed is linked "
@@ -342,28 +346,29 @@ __artifacts_v2__ = {
                        "kilometers and miles, duration and the writing device's id and model.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "Reads samples whose data_type is 8 and that have a row in quantity_samples "
-                 "and a data_provenances record. "
-                 "The Health database names this type itself: on 17 of the tested images, "
+        "notes": "The type code, unit and joins were derived independently from the store's schema, "
+                 "measured data and Apple's HealthKit and HealthDaemon code, and agree with this "
+                 "query. Reads samples whose data_type is 8 and that have a row in quantity_samples "
+                 "and a data_provenances record. HealthKit names code 8 "
+                 "HKQuantityTypeIdentifierDistanceWalkingRunning. The name was returned by HealthKit "
+                 "on macOS 27.2.1 (26B131) and read from the HealthKit type table of one build each "
+                 "of iOS 13, 14, 15 and 18. The canonical unit, m, was returned by HealthKit on macOS "
+                 "27.2.1 only. The table was not read for iOS 16, 17 or 26. "
+                 "The Health database also names this type itself: on 17 of the tested images, "
                  "the chart records in its shared_summaries table pair "
                  "HKQuantityTypeIdentifierDistanceWalkingRunning with data type 8 and "
-                 "HKQuantityTypeIdentifierStepCount with data type 7. Sarah Edwards "
-                 "(@iamevltwin, mac4n6.com) also documented data_type 8 as a distance in "
-                 "meters in her APOLLO research "
-                 "(https://github.com/mac4n6/APOLLO/blob/"
-                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/health_distance.txt#L78-L91); "
-                 "this query was written independently from "
-                 "the live schema. The stored quantity is in meters: on 205 of the 226 chart "
+                 "HKQuantityTypeIdentifierStepCount with data type 7. The stored quantity is in meters: on 205 of the 226 chart "
                  "buckets those records store in meters, the type 8 samples in the bucket "
                  "add up to its total, and the 10 samples on each of hickman_ios13, "
                  "hickman_ios14 and iphone11_ios17 that recorded an original unit carried km "
                  "and stored exactly 1,000 times the original value. Distance (Kilometers) "
                  "and Distance (Miles) are computed from the meters value. "
                  "Samples with no quantity_samples row are not reported: 3,293 on "
-                 "hickman_ios14 and 12 on hickman_ios13, none on the other tested images. "
+                 "hickman_ios14, 12 on hickman_ios13 and 31 on wilkerson_iphone16_ios26, none on "
+                 "the other 20 tested images with a readable database. "
                  "Health - Steps skips such samples the same way. Device ID is the origin "
                  "product type from data_provenances. Each writing device, such as an "
                  "iPhone and an Apple Watch, stores its own samples, and they can "
