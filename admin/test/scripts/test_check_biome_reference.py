@@ -209,7 +209,30 @@ class TypedefBinding(unittest.TestCase):
         self.assertEqual(len(different(run_on(synthetic(body))[0], 'field')), 1)
 
 
+    def test_typedef_in_a_helper_signature_is_judged(self):
+        body = f"""
+            import blackboxprotobuf
+            T = {self.WRONG}
+            def _records(context, typess=T):
+                for record in context:
+                    yield blackboxprotobuf.decode_message(record.data, typess)
+            def get_biomeSynthetic(context):
+                return list(_records(context))
+            """
+        self.assertEqual(len(different(run_on(synthetic(body))[0], 'field')), 1)
+
+
 class TableBinding(unittest.TestCase):
+    def test_partial_enum_under_other_numbers_is_not_a_swap(self):
+        full = {'full': {0: 'Unknown', 1: 'Alpha', 2: 'Beta', 3: 'Gamma', 4: 'Delta'}}
+        self.assertEqual(cbr.compare_table({0: 'Alpha', 1: 'Beta', 2: 'Gamma'}, full)[0],
+                         cbr.UNCHECKED)
+
+    def test_repeated_name_is_not_a_swap(self):
+        full = {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}}
+        self.assertEqual(cbr.compare_table({0: 'Beta', 1: 'Beta', 2: 'Beta'}, full)[0],
+                         cbr.UNCHECKED)
+
     def test_smaller_tied_enum_cannot_vouch_for_a_wrong_name(self):
         status = cbr.compare_table({0: 'Alpha', 1: 'Beta', 2: 'Delta', 3: 'Wrong'},
                                    {'full': {0: 'Alpha', 1: 'Beta', 2: 'Delta', 3: 'Gamma'},

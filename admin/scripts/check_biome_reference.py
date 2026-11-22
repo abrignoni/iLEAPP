@@ -131,11 +131,16 @@ class Reference:
 
 
 def same_names_reordered(table, reference):
-    """Every number is in the enum and every stated name is one of its names."""
+    """The table holds the enum's full set of numbers and each of its names exactly once."""
+    if len(table) < 3 or set(table) != set(reference):
+        return False
     prefix = common_prefix(list(reference.values()))
-    return len(table) >= 3 and all(k in reference for k in table) and all(
-        any(same_name(name, other, prefix) for other in reference.values())
-        for name in table.values())
+
+    def bare(name):
+        text = norm(name)
+        return text[len(prefix):] if prefix and text.startswith(prefix) else text
+
+    return sorted(bare(n) for n in table.values()) == sorted(bare(n) for n in reference.values())
 
 
 def compare_table(table, candidates, keyed=True):
@@ -363,25 +368,29 @@ class ModuleCheck:
                     collect(value, function, seen)
 
         def passed(call, target):
+            """Yield (expression, scope) for each typedef parameter of this call."""
+            definition = functions[target].args
             names = parameters(functions[target])
+            defaults = dict(zip(names[len(names) - len(definition.defaults):], definition.defaults))
             for param in sinks[target]:
                 index = names.index(param)
-                if index < len(call.args):
-                    yield call.args[index]
-                for keyword in call.keywords:
-                    if keyword.arg == param:
-                        yield keyword.value
+                given = [call.args[index]] if index < len(call.args) else []
+                given += [k.value for k in call.keywords if k.arg == param]
+                if given:
+                    yield given[0], caller
+                elif param in defaults:
+                    yield defaults[param], None
 
         size = -1
         while size != len(bound) + sum(len(v) for v in sinks.values()):
             size = len(bound) + sum(len(v) for v in sinks.values())
-            for name, function in functions.items():
+            for caller, function in functions.items():
                 for call in (n for n in ast.walk(function) if isinstance(n, ast.Call)):
                     if is_record_decode(call):
-                        collect(call.args[1], name, set())
+                        collect(call.args[1], caller, set())
                     elif callee(call) in functions and isinstance(call.func, ast.Name):
-                        for arg in list(passed(call, call.func.id)):
-                            collect(arg, name, set())
+                        for arg, scope in list(passed(call, call.func.id)):
+                            collect(arg, scope, set())
         return bound
 
     def node_owners(self):
