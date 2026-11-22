@@ -40,17 +40,20 @@ __artifacts_v2__ = {
                  " the BindTime source and the stored values both show microseconds. The source describes the time as "
                  "the last time the shortcut was selected and Hits (number_of_hits) as how many times it was selected "
                  "(https://chromium.googlesource.com/chromium/src/+/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.h#88)."
-                 " Hits held 1 on all 46 rows. Match Type is the type column, an AutocompleteMatchType value shown as "
-                 "stored with the name the enum gives it "
+                 " Hits held 1 on all 46 rows. It is kept because the source defines it as a selection count, so a "
+                 "value above 1 on another extraction is shown. Match Type is the type column, an "
+                 "AutocompleteMatchType value shown as stored with the name the enum gives it "
                  "(https://chromium.googlesource.com/chromium/src/+/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/autocomplete_match_type.h#16)."
                  " The names are those of the enum at that commit. The writer's version 1 migration rewrote stored "
                  "types 9 to 12 as 13 to 16 "
                  "(https://chromium.googlesource.com/chromium/src/+/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#390),"
-                 " so in a database with no readable version those values are named by the value they migrate to and "
-                 "marked as pre-migration numbering. All 10 tested databases were at version 2, so that branch is "
-                 "covered by a synthetic test only (admin/test/scripts/test_chrome_shortcuts.py). Transition is the "
-                 "transition column, a ui::PageTransition value: the name is that of its low byte, and any higher "
-                 "qualifier bits are shown in hex "
+                 " so in a database with no meta table, which the source treats as version 0, those values are named "
+                 "by the value they migrate to and marked as pre-migration numbering. Where a meta table exists but "
+                 "its version cannot be read, values 9 to 12 are shown as the number alone because their numbering "
+                 "cannot be established. All 10 tested databases were at version 2, so those branches are covered by "
+                 "synthetic tests only (admin/test/scripts/test_chrome_shortcuts.py). Transition is the transition "
+                 "column, a ui::PageTransition value: the name is that of its low byte, and any higher qualifier bits "
+                 "are shown in hex "
                  "(https://chromium.googlesource.com/chromium/src/+/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/ui/base/page_transition_types.h#113)."
                  " On the 46 rows only two pairs occur: 7 (SEARCH_HISTORY) with 5 (GENERATED) on 45 rows and 1 "
                  "(HISTORY_URL) with 0 (LINK) on 1 row. No qualifier bits were set, so that branch is covered by a "
@@ -148,22 +151,29 @@ def _transition(value):
 
 
 def _match_type(value, version):
-    """A database with no readable version predates the version 1 migration, which rewrote
-    stored types 9 to 12 as 13 to 16; name those by the value they migrate to."""
-    if version == 0 and isinstance(value, int) and 9 <= value <= 12:
-        return f'{value} ({_MATCH_TYPES[value + 4]}, pre-migration numbering)'
+    """Name a stored match type by the numbering its database version establishes.
+
+    Version 0 (no meta table) predates the version 1 migration, which rewrote stored types 9 to
+    12 as 13 to 16, so those are named by the value they migrate to. With an unreadable version
+    the numbering of those four values is unknown, so they stay as the bare number.
+    """
+    if isinstance(value, int) and 9 <= value <= 12:
+        if version == 0:
+            return f'{value} ({_MATCH_TYPES[value + 4]}, pre-migration numbering)'
+        if version is None:
+            return str(value)
     return _named(value, _MATCH_TYPES)
 
 
 def _version(db):
+    """The meta table's version, 0 when there is no meta table, None when it cannot be read."""
     try:
+        if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'meta'").fetchone():
+            return 0
         row = db.execute("SELECT value FROM meta WHERE key = 'version'").fetchone()
-    except sqlite3.Error:
-        return 0
-    try:
-        return int(row[0]) if row else 0
-    except (TypeError, ValueError):
-        return 0
+        return int(row[0]) if row else None
+    except (sqlite3.Error, TypeError, ValueError):
+        return None
 
 
 def _stores(context):

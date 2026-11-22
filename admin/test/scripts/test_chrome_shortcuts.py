@@ -66,6 +66,16 @@ class ShortcutsTest(unittest.TestCase):
         self.assertEqual(run([old])[1][0][6], '9 (SEARCH_OTHER_ENGINE, pre-migration numbering)')
         self.assertEqual(run([new])[1][0][6], '9 (SEARCH_SUGGEST_ENTITY)')
 
+    def test_unreadable_version_keeps_the_bare_number(self):
+        bad = make_store(self.root, 'bad/Chrome/Default/Shortcuts', [(9, 0), (7, 0)], version='not a number')
+        missing = make_store(self.root, 'missing/Chrome/Default/Shortcuts', [(12, 0)])
+        db = sqlite3.connect(missing)
+        db.execute('DELETE FROM meta')
+        db.commit()
+        db.close()
+        self.assertEqual([row[6] for row in run([bad])[1]], ['9', '7 (SEARCH_HISTORY)'])
+        self.assertEqual(run([missing])[1][0][6], '12')
+
     def test_unknown_enum_keeps_the_number(self):
         path = make_store(self.root, self.chrome, [(99, 77)])
         self.assertEqual(run([path])[1][0][6:8], ('99', '77'))
