@@ -11,6 +11,9 @@ read = proton._body_text_and_links  # pylint: disable=protected-access
 
 
 class ProtonBodyTextTest(unittest.TestCase):
+    def test_every_line_ending_shows_one_break(self):
+        self.assertEqual(artifact_report.cell_html('a\r\nb\rc\nd', 'Body', [], ['Body']), 'a<br>b<br>c<br>d')
+
     def test_a_page_reads_as_lines_of_text(self):
         page = ('<html><head><title>Hidden</title><style>p{color:red}</style></head><body>'
                 '<p>Hello&nbsp;<b>wor</b>ld</p><script>var x=1</script>'

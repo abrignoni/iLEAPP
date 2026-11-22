@@ -30,7 +30,9 @@ def cell_html(value, header, html_no_escape, html_multiline):
     if header in html_no_escape:
         return text
     escaped = html.escape(text)
-    return escaped.replace('\n', '<br>') if header in html_multiline else escaped
+    if header not in html_multiline:
+        return escaped
+    return escaped.replace('\r\n', '\n').replace('\r', '\n').replace('\n', '<br>')
 
 
 def tsv_export_location(tsv_name):
