@@ -415,54 +415,62 @@ __artifacts_v2__ = {
     },
     "knowledgeC_LocationActivity": {
         "name": "knowledgeC - Location Activity",
-        "description": "Places recorded in the knowledgeC /app/locationActivity stream, with the other "
-                       "coordinate pairs found in the same record's payload",
+        "description": "Place attributes an app donated with a user activity, from the knowledgeC /app/locationActivity "
+                       "stream, with the dropped pin, search and directions fields of the Maps payload",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-30",
-        "last_update_date": "2026-09-30",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "Reads each ZOBJECT row in the /app/locationActivity stream of knowledgeC.db with the "
-                 "ZSTRUCTUREDMETADATA row it points to. Location Name, Display Name, Address, Place Latitude "
-                 "and Place Longitude are that row's Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__ LOCATIONNAME, "
-                 "DISPLAYNAME, FULLYFORMATTEDADDRESS, LATITUDE and LONGITUDE, as stored. Activity UUID is "
-                 "Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYUUID and Bundle ID is ZOBJECT.ZVALUESTRING. "
-                 "Start Time is ZSTARTDATE, which equalled the row's end date and fell on a whole minute on all "
-                 "48 tested rows; Creation Time is ZCREATIONDATE. "
-                 "The user activity's required string (Z_DKAPPLICATIONACTIVITYMETADATAKEY__"
-                 "USERACTIVITYREQUIREDSTRING) can carry a compressed payload: base64 between the two $ signs after "
-                 "'bs'=, four bytes, then bzip2 holding a protobuf. Reference: Sarah Edwards, 'Providing Context to "
-                 "iOS App Usage with knowledgeC.db and APOLLO', "
-                 "https://www.mac4n6.com/blog/2020/1/13/apollo-into-the-details-with-application-activities. "
-                 "Compressed Payload says whether that payload was present and whether it decoded. Other Coordinate "
-                 "Pairs in Payload lists each nested protobuf message whose fields 1 and 2 are doubles within "
-                 "latitude and longitude range (0, 0 excluded), with its distance from Place Latitude and Place "
-                 "Longitude, the first field path it was found at and how many more held it, leaving out pairs "
-                 "within 1 m of the place coordinates. Farthest "
-                 "Other Pair (m) is the largest of those distances. What each pair represents is not established. "
-                 "They are listed so that a coordinate another tool reads from this record can be checked against "
-                 "the place the record names. Neither the place coordinates nor any other pair is established as "
-                 "the device's location. "
-                 "Tested on 22 registered images from iOS 12.4 to 26.5.2. Of those, only hickman_ios13 (8 rows) and "
-                 "hickman_ios15 (40 rows) hold rows in this stream, so an empty result means only that the database "
-                 "held none. Bundle ID held com.apple.Maps on all 48 rows. Rows repeat: one Activity UUID "
-                 "covered all 8 hickman_ios13 rows, on which Location Name, Address, Place Latitude and Place "
-                 "Longitude each held one value, and on hickman_ios15 one Activity UUID covered 33 rows naming two "
-                 "places (7 rows naming one place, then 26 whose Location Name is Dropped Pin) while another covered "
-                 "the other 7. The payload was present on 28 rows and "
-                 "decoded on all 28. On the 26 Dropped Pin rows the only pair more than 1 m from the pin was at "
-                 "field 1.5: 29 m away on 17 rows and 3,659 m away on 4; on the other 5 no pair was more than 1 m "
-                 "away. On hickman_ios13 the 2 rows with a payload "
-                 "listed pairs up to 1,287 m and 1,240 m from the place. "
-                 "The required string also carries a maps.apple.com link on 21 of the 48 rows; its ll value was "
-                 "within 0.00001 degrees of Place Latitude and Place Longitude on all 21, so it is not reported "
-                 "separately. The title in the required string equalled Display Name on all 48 rows. The city, "
-                 "state, postal code, street, street number and country columns each appeared within Address on all "
-                 "48 rows and are not reported separately; the phone numbers column is not reported. "
-                 "Not parsed here: com.apple.Maps rows in the /app/intents stream (INIntent verbs such as "
-                 "Show and PlaceCardTap, whose parameters name the place; on hickman_ios13 a pin there is titled "
-                 "Marked Location) and the 96 com.apple.Maps rows in /app/activity on hickman_ios13, none of which "
-                 "has these place columns filled.",
+        "notes": "The field meanings, payload decode and time handling below were derived independently, using the"
+                 " store's schema, measured data and Apple's code (iOS 13 and iOS 15 binaries read statically, and"
+                 " generated classes on macOS 27). The artifact's choice of stream and place columns and its "
+                 "generic protobuf wire reader predate that work. Reads the Event rows of the "
+                 "/app/locationActivity stream. A row records that an app donated a searchable user activity "
+                 "carrying place attributes and that CoreDuet logged it. Place Latitude and Place Longitude are a "
+                 "place attribute an app donated. Neither they nor any coordinate in the payload is shown to be a "
+                 "device fix, and nothing in this stream shows the device was at that place. All 48 tested rows "
+                 "are from Maps: Bundle ID held com.apple.Maps on every row. In the iOS 13.3.1 code the writer "
+                 "tests the item's place attributes and not the app, so other apps are not excluded. No tested row"
+                 " is from another app. Address is FULLYFORMATTEDADDRESS, Activity UUID is USERACTIVITYUUID and "
+                 "Bundle ID is ZVALUESTRING. On the MapKit path in iOS 13.3.1, Apple's code fills Location Name, "
+                 "Address, Place Latitude, Place Longitude and Phone Numbers from the map item the activity "
+                 "carries. Display Name is not set there. It equalled the activity title on all 48 rows. Phone "
+                 "Numbers is the stored archive's list of strings, filled on 22 rows. Start Time is ZSTARTDATE. "
+                 "Apple's writer passes one date as both start and end, and the two were equal on all 48 rows, so "
+                 "end is not reported. In the iOS 13.3.1 code, that date is taken from the clock when CoreDuet "
+                 "builds the event. The stored value is rounded (see below). On iOS 15 there is one event per date"
+                 " the user action was sent to the indexer. Start Time fell on a whole minute on all 48 rows (11 "
+                 "distinct values in 48 rows). Where that rounding happens was not traced. Created is "
+                 "ZCREATIONDATE. Which moment it records for this stream is not established. It was 4.9 to 199.7 "
+                 "seconds after Start Time. Payload Status reports the bs value in the user info of the activity's"
+                 " required string. The value is a 4-byte little-endian length, then a bzip2 stream of a protobuf."
+                 " The length matched on all 28 values. Apple's Maps code names the message MapsActivity. It "
+                 "decoded on all 28 rows that hold it and is Not present on the other 20. Field names come from "
+                 "Apple's Maps writers and generated classes, and the classes were read on macOS 27 for payloads "
+                 "written by iOS 13 and iOS 15. Dropped Pin Latitude, Dropped Pin Longitude and Dropped Pin Time "
+                 "are the payload's droppedPin. Dropped Pin Time is read as seconds since 2001-01-01 UTC. On the "
+                 "path traced in Apple's code, it is when Maps created the search result the pin came from. Pins "
+                 "restored through other paths were not traced. Dropped Pin Time held one value per image (2 "
+                 "values on 28 rows). It was at or before Created on all 28 rows. On 20 hickman_ios15 rows it was "
+                 "about 38 seconds after Start Time, which is less than the one-minute step Start Time held. Maps "
+                 "Search String is searchString (1 row). Presented Map Item is the first entity name of "
+                 "presentedMapItem (1 row). Search Places in Payload counts searchPlaces and is blank without a "
+                 "payload. Maps can drop trailing search places when it reduces the payload, so the count can be "
+                 "lower than the app had and a missing place is not evidence it was absent. Directions Waypoints "
+                 "lists the waypoints of the first stored route request: name, coordinate and the "
+                 "is_current_location value where one is stored (1 row, 2 waypoints, 1 with the value). Whether "
+                 "is_current_location marks the device's position is not established. Not reported: the map camera"
+                 " values, whose meaning and units are not established; the mapType and userTrackingMode numbers, "
+                 "whose labels are not established for iOS 13 or iOS 15; the times inside directions and place "
+                 "data, whose epoch is not established; the MapsAction values, the item identifier and the "
+                 "shortcut availability, whose meaning is not established; and the activity title, which equalled "
+                 "Display Name on all 48 rows. Several rows can point to one metadata row: hickman_ios15 has 40 "
+                 "rows on 9 metadata rows. On hickman_ios13, Location Name, Address, Phone Numbers, Place "
+                 "Latitude, Place Longitude and Activity UUID each held one value on all 8 rows. On hickman_ios15,"
+                 " Maps Search String, Presented Map Item and Directions Waypoints held no value on any of the 40 "
+                 "rows. Only hickman_ios13 (8 rows) and hickman_ios15 (40 rows) hold rows in this stream among the"
+                 " images listed in sample_data, so an empty result means only that the database held none.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -561,15 +569,13 @@ __artifacts_v2__ = {
 }
 
 import base64
-import binascii
 import bz2
-import math
 import plistlib
-import re
 import struct
 from datetime import datetime, timedelta, timezone
+from urllib.parse import unquote
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, \
-    convert_ts_human_to_utc, convert_cocoa_core_data_ts_to_utc, logfunc
+    convert_ts_human_to_utc, logfunc
 
 _COCOA_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
 # [[NSDate distantFuture] timeIntervalSinceReferenceDate], the end a monitor gives an open event.
@@ -965,114 +971,223 @@ def _pb_fields(buf):
     return fields
 
 
-def _pb_coordinate_pairs(buf, path='', depth=0, found=None):
-    """Every nested message whose field 1 and field 2 are doubles within latitude and
-    longitude range, with the dotted field path to that message."""
-    if found is None:
-        found = []
-    try:
-        fields = _pb_fields(buf)
-    except _PROTOBUF_ERRORS:
-        return found
-    doubles = {field: value for field, wire, value in fields if wire == 1}
-    lat, lon = doubles.get(1), doubles.get(2)
-    if (path and lat is not None and lon is not None and -90 <= lat <= 90 and -180 <= lon <= 180
-            and (lat, lon) != (0.0, 0.0)):
-        found.append((path, lat, lon))
-    if depth < 16:
-        for field, wire, value in fields:
-            if wire == 2 and value:
-                _pb_coordinate_pairs(value, f'{path}.{field}' if path else str(field), depth + 1, found)
-    return found
+# Field number -> (key, child message, wire type) for the MapsActivity fields this artifact reports.
+_MAPS_FIELDS = {
+    'MapsActivity': {3: ('searchString', None, 2), 4: ('searchPlaces', 'GEOMapItemStorage', 2),
+                     7: ('directionsPlan', 'DirectionsPlan', 2), 8: ('droppedPin', 'MSPDroppedPin', 2),
+                     11: ('presentedMapItem', 'GEOMapItemStorage', 2)},
+    'DirectionsPlan': {1: ('routeRequestStorage', 'GEOStorageRouteRequestStorage', 2)},
+    'GEOStorageRouteRequestStorage': {1: ('waypoints', 'GEOComposedWaypoint', 2)},
+    'GEOComposedWaypoint': {1: ('waypoint', 'GEOWaypointTyped', 2), 2: ('mapItemStorage', 'GEOMapItemStorage', 2),
+                            3: ('latLng', 'GEOLatLng', 2)},
+    'GEOWaypointTyped': {5: ('is_current_location', None, 0)},
+    'MSPDroppedPin': {1: ('latLng', 'GEOLatLng', 2), 3: ('timestamp', None, 1)},
+    'GEOLatLng': {1: ('lat', None, 1), 2: ('lng', None, 1)},
+    'GEOMapItemStorage': {1: ('placeData', 'GEOPDPlace', 2)},
+    'GEOPDPlace': {4: ('component', 'GEOPDComponent', 2)},
+    'GEOPDComponent': {8: ('value', 'GEOPDComponentValue', 2)},
+    'GEOPDComponentValue': {1: ('entity', 'GEOPDEntity', 2)},
+    'GEOPDEntity': {10: ('name', 'GEOLocalizedString', 2)},
+    'GEOLocalizedString': {3: ('string_value', None, 2)},
+}
+
+
+def _maps_message(class_name, buf):
+    """The reported fields of one message, as {key: [values]}. Raises on bytes that are not a message."""
+    table = _MAPS_FIELDS[class_name]
+    out = {}
+    for field, wire, value in _pb_fields(buf):
+        entry = table.get(field)
+        if entry is None or entry[2] != wire:
+            continue
+        key, child, _ = entry
+        if child:
+            value = _maps_message(child, value)
+        elif wire == 2:
+            value = value.decode('utf-8', 'replace')
+        out.setdefault(key, []).append(value)
+    return out
+
+
+def _maps_first(message, *keys):
+    """The first value at a key path, looking through repeated fields in stored order."""
+    if not keys:
+        return message
+    for value in message.get(keys[0], []):
+        found = _maps_first(value, *keys[1:]) if len(keys) > 1 else value
+        if found not in (None, ''):
+            return found
+    return None
+
+
+class _ActivityString:
+    """Value grammar of a user activity's required string: 'text', $base64$, ^url^...%%^,
+    ^d...^, --, (array), {(set)}, {key=value,...} and bare numbers."""
+
+    def __init__(self, text):
+        self.text = text
+        self.pos = 0
+
+    def _at(self, token):
+        return self.text.startswith(token, self.pos)
+
+    def _until(self, token):
+        end = self.text.index(token, self.pos)
+        value = self.text[self.pos:end]
+        self.pos = end + len(token)
+        return value
+
+    def value(self):
+        for token, reader in (("'", lambda: unquote(self._until("'"))),
+                              ('$', lambda: base64.b64decode(self._until('$'), validate=True)),
+                              ('^url^', lambda: unquote(self._until('%%^'))),
+                              ('^d', lambda: self._until('^')),
+                              ('--', lambda: None),
+                              ('{(', lambda: self._items(')}')),
+                              ('(', lambda: self._items(')')),
+                              ('{', self._mapping)):
+            if self._at(token):
+                self.pos += len(token)
+                return reader()
+        end = self.pos
+        while end < len(self.text) and self.text[end] not in ',})&':
+            end += 1
+        value = self.text[self.pos:end]
+        self.pos = end
+        return value
+
+    def _items(self, closer):
+        items = []
+        while not self._at(closer):
+            before = self.pos
+            items.append(self.value())
+            if self._at(','):
+                self.pos += 1
+            if self.pos == before:
+                raise ValueError('array does not advance')
+        self.pos += len(closer)
+        return items
+
+    def _mapping(self):
+        mapping = {}
+        while not self._at('}'):
+            key = self.value()
+            if not self._at('='):
+                raise ValueError('expected =')
+            self.pos += 1
+            mapping[key] = self.value()
+            if self._at(','):
+                self.pos += 1
+        self.pos += 1
+        return mapping
+
+    def fields(self):
+        """The name=value pairs after the version and activity type."""
+        out = {}
+        while self.pos < len(self.text):
+            name = self._until('=')
+            out[name] = self.value()
+            if self._at('&'):
+                self.pos += 1
+            elif self.pos < len(self.text):
+                raise ValueError('expected &')
+        return out
 
 
 def _location_activity_payload(required_string):
-    """The compressed payload in a user activity's required string: base64 between the
-    two $ signs after 'bs'=, four bytes, then a bzip2 stream holding a protobuf (Sarah
-    Edwards, mac4n6.com, 2020-01-14). Returns (payload bytes or None, status)."""
-    match = re.search(r"'bs'=\$([A-Za-z0-9+/=]+)\$", required_string or '')
-    if not match:
+    """The MapsActivity held under the user-info key bs of a user activity's required string
+    (v1.0/<type>/name=value&...). The value is a 4-byte little-endian uncompressed length, then a
+    bzip2 stream of the protobuf. Returns (message as {key: [values]} or None, status)."""
+    if not required_string:
         return None, 'Not present'
     try:
-        raw = base64.b64decode(match.group(1), validate=True)
-    except (binascii.Error, ValueError) as ex:
-        return None, f'Not decoded (base64: {ex})'
-    if raw[4:7] != b'BZh':
-        return None, 'Not decoded (no bzip2 header after the first 4 bytes)'
+        if not required_string.startswith('v1.0/'):
+            raise ValueError('unknown version')
+        _, separator, body = required_string[5:].partition('/')
+        if not separator:
+            raise ValueError('no activity type')
+        user_info = _ActivityString(body).fields().get('u')
+    except (ValueError, IndexError, RecursionError):
+        return None, 'Not decoded (activity string)'
+    if not isinstance(user_info, dict) or 'bs' not in user_info:
+        return None, 'Not present'
+    data = user_info['bs']
+    if not isinstance(data, bytes) or len(data) < 5:
+        return None, 'Not decoded (bs value is not data)'
     try:
-        return bz2.decompress(raw[4:]), 'Decoded'
-    except (OSError, EOFError, ValueError) as ex:
-        return None, f'Not decoded (bzip2: {ex})'
+        expanded = bz2.decompress(data[4:])
+    except (OSError, EOFError, ValueError):
+        return None, 'Not decoded (bzip2)'
+    if len(expanded) != struct.unpack('<I', data[:4])[0]:
+        return None, 'Not decoded (length mismatch)'
+    try:
+        return _maps_message('MapsActivity', expanded), 'Decoded'
+    except _PROTOBUF_ERRORS:
+        return None, 'Not decoded (protobuf)'
 
 
-def _metres_between(lat1, lon1, lat2, lon2):
-    phi1, phi2 = math.radians(lat1), math.radians(lat2)
-    d_phi, d_lambda = math.radians(lat2 - lat1), math.radians(lon2 - lon1)
-    h = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
-    return 2 * 6371008.8 * math.asin(math.sqrt(h))
+def _keyed_archive_strings(blob):
+    """The strings of an NSKeyedArchiver array, joined. Undecoded bytes are shown as hex."""
+    if blob is None:
+        return ''
+    try:
+        archive = plistlib.loads(bytes(blob), fmt=plistlib.FMT_BINARY)
+        objects = archive['$objects']
+        root = objects[archive['$top']['root'].data]
+        return '; '.join(str(objects[item.data]) for item in root['NS.objects'])
+    except (plistlib.InvalidFileException, KeyError, IndexError, TypeError, AttributeError, ValueError):
+        return f'undecoded: {bytes(blob).hex()}'
+
+
+def _waypoint_lines(payload):
+    """One line per stored directions waypoint: name, coordinate and is_current_location as stored."""
+    lines = []
+    for plan in payload.get('directionsPlan', [])[:1]:
+        for storage in plan.get('routeRequestStorage', [])[:1]:
+            for waypoint in storage.get('waypoints', []):
+                parts = []
+                name = _maps_first(waypoint, 'mapItemStorage', 'placeData', 'component', 'value', 'entity',
+                                   'name', 'string_value')
+                if name:
+                    parts.append(name)
+                lat, lng = _maps_first(waypoint, 'latLng', 'lat'), _maps_first(waypoint, 'latLng', 'lng')
+                if lat is not None and lng is not None:
+                    parts.append(f'{lat}, {lng}')
+                current = _maps_first(waypoint, 'waypoint', 'is_current_location')
+                if current is not None:
+                    parts.append(f'is_current_location={current}')
+                lines.append(' | '.join(parts))
+    return '\n'.join(lines)
 
 
 @artifact_processor
 def knowledgeC_LocationActivity(context):
     data_headers = (
-        ('Start Time', 'datetime'), ('Creation Time', 'datetime'), 'Location Name', 'Display Name',
-        'Address', 'Place Latitude', 'Place Longitude', 'Other Coordinate Pairs in Payload',
-        'Farthest Other Pair (m)', 'Compressed Payload', 'Activity UUID', 'Bundle ID')
+        ('Start Time', 'datetime'), ('Created', 'datetime'), ('Dropped Pin Time', 'datetime'), 'Location Name',
+        'Display Name', 'Address', 'Phone Numbers', 'Place Latitude', 'Place Longitude',
+        'Dropped Pin Latitude', 'Dropped Pin Longitude', 'Maps Search String', 'Presented Map Item',
+        'Search Places in Payload', 'Directions Waypoints', 'Payload Status', 'Activity UUID', 'Bundle ID')
+    db_file = _knowledgec_db(context)
+    columns = tuple(f'{_LOCATION_ACTIVITY_KEY}{name}' for name in (
+        'LOCATIONNAME', 'DISPLAYNAME', 'FULLYFORMATTEDADDRESS', 'LATITUDE', 'LONGITUDE', 'PHONENUMBERS')) + (
+        f'{_APP_ACTIVITY_KEY}USERACTIVITYREQUIREDSTRING', f'{_APP_ACTIVITY_KEY}USERACTIVITYUUID')
+    name, display, address, lat, lon, phones, required, activity_uuid = columns
     data_list = []
-    db_file = ''
-
-    for file_found in context.get_files_found():
-        if file_found.endswith('knowledgeC.db'):
-            db_file = file_found
-            break
-    if not db_file:
-        return data_headers, data_list, db_file
-
-    wanted = (f'{_LOCATION_ACTIVITY_KEY}LOCATIONNAME', f'{_LOCATION_ACTIVITY_KEY}DISPLAYNAME',
-              f'{_LOCATION_ACTIVITY_KEY}FULLYFORMATTEDADDRESS', f'{_LOCATION_ACTIVITY_KEY}LATITUDE',
-              f'{_LOCATION_ACTIVITY_KEY}LONGITUDE', f'{_APP_ACTIVITY_KEY}USERACTIVITYREQUIREDSTRING',
-              f'{_APP_ACTIVITY_KEY}USERACTIVITYUUID')
-    with open_sqlite_db_readonly(db_file) as db:
-        cursor = db.cursor()
-        present = {row[1] for row in cursor.execute('PRAGMA table_info(ZSTRUCTUREDMETADATA)')}
-        columns = ', '.join(f'ZSTRUCTUREDMETADATA.{name}' if name in present else 'NULL'
-                            for name in wanted)
-        cursor.execute(f'''
-        SELECT ZOBJECT.ZSTARTDATE, ZOBJECT.ZCREATIONDATE, ZOBJECT.ZVALUESTRING, {columns}
-        FROM ZOBJECT
-        LEFT OUTER JOIN ZSTRUCTUREDMETADATA ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK
-        WHERE ZOBJECT.ZSTREAMNAME = '/app/locationActivity'
-        ORDER BY ZOBJECT.ZSTARTDATE, ZOBJECT.ZCREATIONDATE, ZOBJECT.Z_PK
-        ''')
-        all_rows = cursor.fetchall()
-
-    for (start, created, bundle, location_name, display_name, address, lat, lon,
-         required_string, activity_uuid) in all_rows:
-        payload, status = _location_activity_payload(required_string)
+    for row in _stream_rows(db_file, '/app/locationActivity', columns):
+        payload, status = _location_activity_payload(row[required])
         if status.startswith('Not decoded'):
             logfunc(f'knowledgeC - Location Activity: payload {status}')
-        others = {}
-        for path, p_lat, p_lon in (_pb_coordinate_pairs(payload) if payload else []):
-            key = (round(p_lat, 6), round(p_lon, 6))
-            others.setdefault(key, []).append(path)
-        described, farthest = [], None
-        for (p_lat, p_lon), paths in others.items():
-            paths = list(dict.fromkeys(paths))
-            where = paths[0] + (f' and {len(paths) - 1} more' if len(paths) > 1 else '')
-            if lat is None or lon is None:
-                described.append(f'{p_lat:.6f}, {p_lon:.6f} (field {where})')
-                continue
-            metres = _metres_between(lat, lon, p_lat, p_lon)
-            if metres < 1:
-                continue
-            farthest = max(farthest or 0, round(metres))
-            described.append(f'{p_lat:.6f}, {p_lon:.6f} ({round(metres):,} m from the place coordinates; '
-                             f'field {where})')
+        message = payload or {}
         data_list.append((
-            convert_cocoa_core_data_ts_to_utc(start), convert_cocoa_core_data_ts_to_utc(created),
-            location_name, display_name, address, lat, lon, '\n'.join(described),
-            farthest if farthest is not None else '', status, activity_uuid, bundle))
-
+            _event_time(row['start']), _event_time(row['created']),
+            _event_time(_maps_first(message, 'droppedPin', 'timestamp')),
+            row[name], row[display], row[address], _keyed_archive_strings(row[phones]), row[lat], row[lon],
+            _maps_first(message, 'droppedPin', 'latLng', 'lat'), _maps_first(message, 'droppedPin', 'latLng', 'lng'),
+            _maps_first(message, 'searchString') or '',
+            _maps_first(message, 'presentedMapItem', 'placeData', 'component', 'value', 'entity', 'name',
+                        'string_value') or '',
+            len(message.get('searchPlaces', [])) if payload is not None else '',
+            _waypoint_lines(message), status, row[activity_uuid], row['text']))
     return data_headers, data_list, db_file
 
 

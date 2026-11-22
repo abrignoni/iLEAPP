@@ -1,14 +1,13 @@
-"""knowledgeC - Location Activity reports every coordinate pair in the compressed payload.
+"""knowledgeC - Location Activity decodes the required string and its Maps payload by field.
 
-A /app/locationActivity row names a place in its structured metadata, and the user
-activity's required string can carry a compressed protobuf ('bs'=$<base64>$: four bytes,
-then bzip2) holding further coordinate pairs. A tool that reads coordinates from that
-payload can show a place's name beside coordinates that are not the place's, so the
-artifact lists the other pairs with their distance from the place coordinates.
+A /app/locationActivity row names a place in its structured metadata. The user activity's
+required string (v1.0/<type>/name=value&...) can carry a user-info value bs: a 4-byte
+little-endian length, then bzip2 of a MapsActivity protobuf. All values here are synthetic.
 """
 import base64
 import bz2
 import pathlib
+import plistlib
 import sqlite3
 import struct
 import sys
@@ -24,6 +23,11 @@ from scripts.context import Context  # pylint: disable=wrong-import-position
 
 L = 'Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__'
 A = 'Z_DKAPPLICATIONACTIVITYMETADATAKEY__'
+PLACE = (10.5, 20.25)
+PIN = (10.75, 20.5)
+CAMERA = (11.0, 21.0)
+WAYPOINT = (12.5, 22.5)
+PIN_TIME = 780000030.5
 
 
 def _varint(value):
@@ -42,6 +46,10 @@ def _double(field, value):
     return _varint(field << 3 | 1) + struct.pack('<d', value)
 
 
+def _number(field, value):
+    return _varint(field << 3) + _varint(value)
+
+
 def _message(field, body):
     return _varint(field << 3 | 2) + _varint(len(body)) + body
 
@@ -50,44 +58,80 @@ def _pair(lat, lon):
     return _double(1, lat) + _double(2, lon)
 
 
-PLACE = (41.889727, -87.624258)
-FAR = (48.858370, 2.294481)
+def _map_item(name):
+    localized = _message(3, name.encode())
+    entity = _message(10, localized)
+    value = _message(1, entity)
+    component = _message(8, value)
+    return _message(1, _message(4, component))
 
 
 def _payload():
-    """Field 1.5 holds a pair far from the place, field 8.1 the place itself, field 3 a
-    string, and the top level carries doubles in fields 1 and 2 that are not a nested pair."""
-    body = (_double(1, 12.5) + _double(2, 45.0)
-            + _message(1, _message(5, _pair(*FAR)))
-            + _message(3, b'Marked Location')
-            + _message(8, _message(1, _pair(*PLACE)))
-            + _message(9, _message(1, _pair(95.0, 10.0))))
-    return body
+    camera = _message(5, _pair(*CAMERA))
+    pin = _message(1, _pair(*PIN)) + _double(3, PIN_TIME)
+    typed = _message(1, _number(5, 1))
+    waypoint = typed + _message(2, _map_item('Synthetic Stop')) + _message(3, _pair(*WAYPOINT))
+    plan = _message(1, _message(1, waypoint))
+    return (_message(1, camera) + _message(3, b'synthetic search')
+            + _message(4, _map_item('Synthetic Result')) + _message(4, _map_item('Second Result'))
+            + _message(7, plan) + _message(8, pin) + _message(11, _map_item('Synthetic Place')))
 
 
-def _required_string(payload):
-    raw = b'\x00\x00\x00\x00' + bz2.compress(payload)
-    return ("v1.0/com.apple.Maps/t='Marked%20Location'&u={'bs'=$"
-            + base64.b64encode(raw).decode() + "$}")
+def _framed(payload, declared=None):
+    size = len(payload) if declared is None else declared
+    return struct.pack('<I', size) + bz2.compress(payload)
+
+
+def _required_string(data):
+    return ("v1.0/com.example.activity/t='Synthetic%20Title'&u={'bs'=$"
+            + base64.b64encode(data).decode() + "$,'other'='x'}")
+
+
+def _phones(*numbers):
+    objects = ['$null', {'NS.objects': [plistlib.UID(i + 2) for i in range(len(numbers))]}, *numbers]
+    return plistlib.dumps({'$top': {'root': plistlib.UID(1)}, '$objects': objects}, fmt=plistlib.FMT_BINARY)
 
 
 class TestPayloadHelpers(unittest.TestCase):
+    decode = staticmethod(knowledgeC._location_activity_payload)  # pylint: disable=protected-access
 
-    def test_nested_pairs_are_found_with_their_paths(self):
-        pairs = knowledgeC._pb_coordinate_pairs(_payload())  # pylint: disable=protected-access
-        self.assertEqual([(p, round(a, 6), round(b, 6)) for p, a, b in pairs],
-                         [('1.5', *FAR), ('8.1', *PLACE)])
+    def test_fields_are_read_by_name(self):
+        message, status = self.decode(_required_string(_framed(_payload())))
+        self.assertEqual(status, 'Decoded')
+        first = knowledgeC._maps_first  # pylint: disable=protected-access
+        self.assertEqual(first(message, 'searchString'), 'synthetic search')
+        self.assertEqual(first(message, 'droppedPin', 'latLng', 'lat'), PIN[0])
+        self.assertEqual(first(message, 'droppedPin', 'timestamp'), PIN_TIME)
+        self.assertEqual(len(message['searchPlaces']), 2)
+        self.assertNotIn('displayOptions', message)
 
-    def test_truncated_bytes_give_no_pairs(self):
-        self.assertEqual(knowledgeC._pb_coordinate_pairs(_payload()[:-3]), [])  # pylint: disable=protected-access
+    def test_absent_values(self):
+        for text in (None, '', "v1.0/com.example.activity/t='x'&u={}", "v1.0/com.example.activity/t='x'"):
+            self.assertEqual(self.decode(text), (None, 'Not present'))
 
-    def test_payload_statuses(self):
-        decode = knowledgeC._location_activity_payload  # pylint: disable=protected-access
-        self.assertEqual(decode("v1.0/com.apple.Maps/t='x'&u={}"), (None, 'Not present'))
-        body, status = decode(_required_string(_payload()))
-        self.assertEqual((body, status), (_payload(), 'Decoded'))
-        wrong = "'bs'=$" + base64.b64encode(b'\x00' * 12).decode() + '$'
-        self.assertEqual(decode(wrong), (None, 'Not decoded (no bzip2 header after the first 4 bytes)'))
+    def test_a_bs_text_outside_user_info_is_not_a_payload(self):
+        encoded = base64.b64encode(_framed(_payload())).decode()
+        self.assertEqual(self.decode(f"v1.0/com.example.activity/t='bs'&url=$" + encoded + '$'),
+                         (None, 'Not present'))
+
+    def test_wrong_length_is_reported(self):
+        self.assertEqual(self.decode(_required_string(_framed(_payload(), declared=0))),
+                         (None, 'Not decoded (length mismatch)'))
+
+    def test_bad_compressed_data_is_reported(self):
+        self.assertEqual(self.decode(_required_string(b'\x00' * 12)), (None, 'Not decoded (bzip2)'))
+
+    def test_bad_protobuf_is_reported(self):
+        self.assertEqual(self.decode(_required_string(_framed(b'\xff' * 8))),
+                         (None, 'Not decoded (protobuf)'))
+
+    def test_malformed_strings_do_not_hang(self):
+        for text in ("v1.0/x/u=(abc", "v1.0/x/u={'a'", 'v2.0/x/u={}', 'v1.0/noslash'):
+            self.assertEqual(self.decode(text), (None, 'Not decoded (activity string)'))
+
+    def test_undecodable_phone_blob_keeps_its_bytes(self):
+        self.assertEqual(knowledgeC._keyed_archive_strings(b'\x01\x02'),  # pylint: disable=protected-access
+                         'undecoded: 0102')
 
 
 class TestLocationActivityRows(unittest.TestCase):
@@ -97,20 +141,27 @@ class TestLocationActivityRows(unittest.TestCase):
             path = pathlib.Path(tmp) / 'knowledgeC.db'
             db = sqlite3.connect(path)
             uuid_col = f', {A}USERACTIVITYUUID TEXT' if with_uuid_column else ''
+            db.execute('CREATE TABLE Z_PRIMARYKEY (Z_ENT INTEGER, Z_NAME TEXT)')
+            db.execute("INSERT INTO Z_PRIMARYKEY VALUES (5, 'Event'), (6, 'Other')")
+            db.execute('CREATE TABLE ZSOURCE (Z_PK INTEGER PRIMARY KEY, ZDEVICEID TEXT)')
             db.execute(f'CREATE TABLE ZSTRUCTUREDMETADATA (Z_PK INTEGER PRIMARY KEY, {L}LOCATIONNAME TEXT, '
                        f'{L}DISPLAYNAME TEXT, {L}FULLYFORMATTEDADDRESS TEXT, {L}LATITUDE REAL, '
-                       f'{L}LONGITUDE REAL, {A}USERACTIVITYREQUIREDSTRING TEXT{uuid_col})')
-            db.execute('CREATE TABLE ZOBJECT (Z_PK INTEGER PRIMARY KEY, ZSTARTDATE REAL, ZCREATIONDATE REAL, '
-                       'ZVALUESTRING TEXT, ZSTREAMNAME TEXT, ZSTRUCTUREDMETADATA INTEGER)')
-            values = [1, 'Marked Location', 'Marked Location', '400 N Michigan Ave, Chicago', *PLACE,
-                      _required_string(_payload())]
+                       f'{L}LONGITUDE REAL, {L}PHONENUMBERS BLOB, {A}USERACTIVITYREQUIREDSTRING TEXT{uuid_col})')
+            db.execute('CREATE TABLE ZOBJECT (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, ZSTARTDATE REAL, ZENDDATE REAL, '
+                       'ZCREATIONDATE REAL, ZLOCALCREATIONDATE REAL, ZSECONDSFROMGMT INTEGER, ZVALUESTRING TEXT, '
+                       'ZVALUEINTEGER INTEGER, ZVALUEDOUBLE REAL, ZUUID TEXT, ZSTREAMNAME TEXT, ZSOURCE INTEGER, '
+                       'ZSTRUCTUREDMETADATA INTEGER)')
+            values = [1, 'Synthetic Place', 'Synthetic Display', '1 Example Road', *PLACE, _phones('555-0100', '555-0101'),
+                      _required_string(_framed(_payload()))]
             if with_uuid_column:
                 values.append('ABC')
             db.execute(f'INSERT INTO ZSTRUCTUREDMETADATA VALUES ({",".join("?" * len(values))})', values)
-            db.execute("INSERT INTO ZOBJECT VALUES (1, 780000000, 780000012.5, 'com.apple.Maps', "
-                       "'/app/locationActivity', 1)")
-            db.execute("INSERT INTO ZOBJECT VALUES (2, 780000060, 780000070, 'com.apple.Maps', "
-                       "'/app/usage', NULL)")
+            insert = 'INSERT INTO ZOBJECT VALUES (?, ?, ?, ?, ?, NULL, 0, ?, NULL, NULL, ?, ?, NULL, ?)'
+            db.execute(insert, (1, 5, 780000000, 780000000, 780000040.25, 'com.example.app', 'U1',
+                                '/app/locationActivity', 1))
+            db.execute(insert, (2, 5, 780000060, 780000070, 780000070, 'com.example.app', 'U2', '/app/usage', None))
+            db.execute(insert, (3, 6, 780000000, 780000000, 780000000, 'com.example.app', 'U3',
+                                '/app/locationActivity', 1))
             db.commit()
             db.close()
             Context.clear()
@@ -118,25 +169,33 @@ class TestLocationActivityRows(unittest.TestCase):
             headers, data_list, source = knowledgeC.knowledgeC_LocationActivity.__wrapped__(Context)
         return headers, data_list, source, str(path)
 
-    def test_row_reports_the_place_and_the_far_pair(self):
+    def test_row_reports_each_field_under_its_name(self):
         headers, data_list, source, path = self._run()
         self.assertEqual(source, path)
         self.assertEqual(len(data_list), 1)
-        row = dict(zip([h[0] if isinstance(h, tuple) else h for h in headers], data_list[0]))
+        names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        self.assertEqual(len(names), len(data_list[0]))
+        row = dict(zip(names, data_list[0]))
         self.assertEqual((row['Place Latitude'], row['Place Longitude']), PLACE)
-        self.assertEqual(row['Compressed Payload'], 'Decoded')
+        self.assertEqual((row['Dropped Pin Latitude'], row['Dropped Pin Longitude']), PIN)
+        self.assertEqual(row['Dropped Pin Time'].isoformat(), '2025-09-19T18:40:30.500000+00:00')
+        self.assertEqual(row['Created'].microsecond, 250000)
+        self.assertEqual(row['Phone Numbers'], '555-0100; 555-0101')
+        self.assertEqual(row['Maps Search String'], 'synthetic search')
+        self.assertEqual(row['Presented Map Item'], 'Synthetic Place')
+        self.assertEqual(row['Search Places in Payload'], 2)
+        self.assertEqual(row['Directions Waypoints'],
+                         f'Synthetic Stop | {WAYPOINT[0]}, {WAYPOINT[1]} | is_current_location=1')
+        self.assertEqual(row['Payload Status'], 'Decoded')
         self.assertEqual(row['Activity UUID'], 'ABC')
-        # the pair equal to the place (8.1) is left out; the far pair is listed with its distance
-        self.assertEqual(row['Other Coordinate Pairs in Payload'].count('\n'), 0)
-        self.assertIn('48.858370, 2.294481', row['Other Coordinate Pairs in Payload'])
-        self.assertIn('field 1.5', row['Other Coordinate Pairs in Payload'])
-        self.assertGreater(row['Farthest Other Pair (m)'], 6_000_000)
+        self.assertEqual(row['Bundle ID'], 'com.example.app')
+        self.assertNotIn(str(CAMERA[0]), ' '.join(str(value) for value in data_list[0]))
 
     def test_a_missing_metadata_column_is_reported_blank(self):
         headers, data_list, _, _ = self._run(with_uuid_column=False)
         row = dict(zip([h[0] if isinstance(h, tuple) else h for h in headers], data_list[0]))
         self.assertIsNone(row['Activity UUID'])
-        self.assertEqual(row['Location Name'], 'Marked Location')
+        self.assertEqual(row['Location Name'], 'Synthetic Place')
 
 
 if __name__ == '__main__':
