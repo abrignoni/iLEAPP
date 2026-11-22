@@ -124,6 +124,15 @@ class CouldNotCheckIsNotAFailure(unittest.TestCase):
         items, _ = run_on(synthetic(body))
         self.assert_no_difference(items, 'version_enum')
 
+    def test_inline_version_table_with_other_numbering(self):
+        body = """
+            _PLATFORM = {0: {0: 'iPad', 1: 'iPhone', 2: 'MacDesktop'},
+                         1: {0: 'Unknown', 1: 'iPad', 2: 'iPhone'}}
+            """
+        path = '*/Biome/streams/public/Device.Metadata/local/*'
+        items, _ = run_on(synthetic(body, path=path))
+        self.assertFalse([i for i in items if i.status == cbr.DIFFERENT])
+
     def test_generic_table_binds_to_nothing(self):
         items, _ = run_on(synthetic("ON_OFF = {0: 'Off', 1: 'On'}\n"))
         self.assert_no_difference(items, 'enum')
@@ -139,13 +148,90 @@ class CouldNotCheckIsNotAFailure(unittest.TestCase):
         self.assertFalse([i for i in items if i.status == cbr.DIFFERENT])
 
 
-class Exceptions(unittest.TestCase):
-    FILES = planted('biomeMotionActivity.py', "1: 'Low'", "1: 'Lowest'")
+    def test_typedef_for_a_nested_payload_is_not_the_stream_class(self):
+        body = """
+            import blackboxprotobuf
+            INNER = {'1': {'type': 'str', 'name': ''}}
+            def get_biomeSynthetic(record, payload):
+                return blackboxprotobuf.decode_message(payload, INNER)
+            """
+        items, _ = run_on(synthetic(body))
+        self.assert_no_difference(items, 'field')
 
-    def entry(self, key='1'):
+    def test_note_that_compares_with_another_class(self):
+        notes = 'This stream is separate from the BMAppInFocus class.'
+        items, _ = run_on(synthetic('', notes=notes))
+        self.assert_no_difference(items, 'stream')
+
+    def test_table_sharing_two_names_with_an_enum_is_not_bound(self):
+        self.assertEqual(cbr.compare_table({0: 'Alpha', 1: 'Beta', 2: 'Other'},
+                                           {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}})[0],
+                         cbr.UNCHECKED)
+
+    def test_small_tables_that_disagree_are_listed(self):
+        full = {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}}
+        status, key, conflicts = cbr.compare_table({0: 'Alpha', 1: 'Wrong'}, full)
+        self.assertEqual((status, key), (cbr.UNCHECKED, 'full'))
+        self.assertTrue(conflicts)
+
+    def test_plain_tuple_in_another_order_is_not_a_swap(self):
+        full = {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}}
+        table = {0: 'Beta', 1: 'Alpha', 2: 'Gamma'}
+        self.assertNotEqual(cbr.compare_table(table, full, keyed=False)[0], cbr.DIFFERENT)
+
+
+class TypedefBinding(unittest.TestCase):
+    WRONG = "{'2': {'type': 'double', 'name': ''}}"
+
+    def test_typedef_passed_through_a_helper_is_judged(self):
+        body = f"""
+            import blackboxprotobuf
+            T = {self.WRONG}
+            def _records(context, label, typess=None):
+                for record in context:
+                    yield blackboxprotobuf.decode_message(record.data, typess or {{}})
+            def get_biomeSynthetic(context):
+                return list(_records(context, 'x', T))
+            """
+        self.assertEqual(len(different(run_on(synthetic(body))[0], 'field')), 1)
+
+    def test_default_typedef_of_a_helper_is_judged(self):
+        body = f"""
+            import blackboxprotobuf
+            T = {self.WRONG}
+            def _records(context, typess=None):
+                typess = T if typess is None else typess
+                for record in context:
+                    yield blackboxprotobuf.decode_message(record.data, typess)
+            def get_biomeSynthetic(context):
+                return list(_records(context))
+            """
+        self.assertEqual(len(different(run_on(synthetic(body))[0], 'field')), 1)
+
+
+class TableBinding(unittest.TestCase):
+    def test_smaller_tied_enum_cannot_vouch_for_a_wrong_name(self):
+        status = cbr.compare_table({0: 'Alpha', 1: 'Beta', 2: 'Delta', 3: 'Wrong'},
+                                   {'full': {0: 'Alpha', 1: 'Beta', 2: 'Delta', 3: 'Gamma'},
+                                    'small': {0: 'Alpha', 1: 'Beta', 2: 'Delta'}})[0]
+        self.assertEqual(status, cbr.DIFFERENT)
+
+
+    def test_two_numbers_swapped_in_a_small_enum(self):
+        status, _, conflicts = cbr.compare_table({0: 'Alpha', 1: 'Gamma', 2: 'Beta'},
+                                                 {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}})
+        self.assertEqual((status, sorted(conflicts)), (cbr.DIFFERENT, [1, 2]))
+
+
+class Exceptions(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.FILES = planted('biomeMotionActivity.py', "1: 'Low'", "1: 'Lowest'")
+
+    def entry(self, key='1', value='Lowest'):
         found = different(run_on(self.FILES)[0], 'enum')[0]
         return {'module': found.module, 'kind': found.kind, 'item': found.item, 'key': key,
-                'reason': 'test'}
+                'value': value, 'reason': 'test'}
 
     def test_exact_exception_clears_only_that_item(self):
         items, stale = run_on(self.FILES, [self.entry()])
@@ -156,6 +242,28 @@ class Exceptions(unittest.TestCase):
         items, stale = run_on(self.FILES, [self.entry('3')])
         self.assertTrue(different(items, 'enum'))
         self.assertEqual(len(stale), 1)
+
+    def test_exception_for_another_value_does_not_clear_it(self):
+        items, stale = run_on(self.FILES, [self.entry(value='SomethingElse')])
+        self.assertTrue(different(items, 'enum'))
+        self.assertEqual(len(stale), 1)
+
+    def test_exception_with_no_value_does_not_clear_it(self):
+        entry = self.entry()
+        del entry['value']
+        items, stale = run_on(self.FILES, [entry])
+        self.assertTrue(different(items, 'enum'))
+        self.assertEqual(len(stale), 1)
+
+    def test_exception_survives_a_line_added_above_a_typedef(self):
+        files = planted('biomeBacklight.py', "'2': {'type': 'int'", "'2': {'type': 'double'")
+        found = different(run_on(files)[0], 'field')[0]
+        entry = {'module': found.module, 'kind': found.kind, 'item': found.item, 'key': found.key,
+                 'value': found.stored, 'reason': 'test'}
+        moved = {name: '# one more line\n' + source for name, source in files.items()}
+        items, stale = run_on(moved, [entry])
+        self.assertFalse(different(items, 'field'))
+        self.assertEqual(stale, [])
 
     def test_exception_that_matches_nothing_is_stale(self):
         source = (ARTIFACTS / 'biomeMotionActivity.py').read_text(encoding='utf-8')
