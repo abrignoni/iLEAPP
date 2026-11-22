@@ -20,21 +20,30 @@ Address columns hold JSON, decoded here to
 __artifacts_v2__ = {
     "protonMailInboxMessages": {
         "name": "Proton Mail - Inbox Messages",
-        "description": "Messages cached by the Proton Mail iOS Inbox app, with the subject, "
-                       "body, sender and recipients as cached",
+        "description": "Messages cached by the Proton Mail iOS Inbox app, with the cached subject, the "
+                       "sender and recipients decoded from the cached JSON, and the body as readable text",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-14",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-22",
         "requirements": "BeautifulSoup",
         "category": "Proton Mail",
         "notes": "Reads the group.me.proton.mail cache (Proton Mail Inbox); the tested image ran "
                  "Proton Mail 7.9.2. In the tested "
                  "image the cached subject, body, sender and recipient values are stored in clear "
-                 "text; the store holds an HTML body for each message, and Body is the readable "
-                 "text "
-                 "extracted from it (tags, styling and repeated whitespace removed). Each link's "
-                 "place in the text is marked [n], and Links lists the link targets by those "
-                 "numbers, as stored; a repeated target keeps its first number. A link with no "
+                 "text. On hc_ios18_7 one of the 2 messages had a message_body row, with mime_type "
+                 "text/html, and the other had none, so its Body is empty. Body is text extracted from"
+                 " a text/html body. A body with no mime_type is also read as HTML. A body of another "
+                 "mime_type is reported as stored; the tested image held none. Tags, comments and the "
+                 "text of closed style and script elements are removed, and line breaks are placed at "
+                 "br and block tags. Malformed HTML can leave markup or style text in Body, and the "
+                 "result can differ between Python versions. Text the message hides with styling is "
+                 "still reported, and soft hyphens and the zero-width characters U+034F, U+200B to "
+                 "U+200D and U+FEFF show as a space. Each link is marked [n], and Links lists the link"
+                 " targets by those numbers as the HTML parser returns them, so on some Python "
+                 "versions a target can differ from the stored href. A repeated target keeps its first"
+                 " number. An empty or short Body does not show the message had no text: check the "
+                 "stored HTML. "
+                 "A link with no "
                  "words of its own, such as a linked image, still gets a marker, so the words just "
                  "before a marker are not always the link's text. The unmodified "
                  "HTML stays in the source database. Labels lists the name of every labels row that "
@@ -52,6 +61,7 @@ __artifacts_v2__ = {
         "paths": ('*/Shared/AppGroup/*/support/*.db*',
                   '*/Shared/AppGroup/*/cache/mail-cache/attachments/*'),
         "output_types": "standard",
+        "multiline_columns": ["Body", "Links"],
         "artifact_icon": "mail",
         "data_views": {
             "conversation": {
@@ -129,7 +139,10 @@ __artifacts_v2__ = {
 import json
 import re
 
-from bs4 import BeautifulSoup, NavigableString
+from html.parser import HTMLParser
+
+from bs4 import BeautifulSoup, CData, NavigableString
+from bs4.element import PreformattedString, Tag
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records,
                                does_table_exist_in_db, convert_unix_ts_to_utc,
@@ -138,19 +151,48 @@ from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records,
 _ATTACHMENT_ID_RE = re.compile(r'/mail-cache/attachments/(\d+)/')
 # whitespace plus the invisible padding characters observed in marketing preheaders
 _WHITESPACE_RUN = re.compile(r'[\s\u00ad\u034f\u200b\u200c\u200d\ufeff]+')
+_LINE_END = re.compile(r'\r\n|\r|\n')
+_NON_DISPLAY_TAGS = ('script', 'style')
+_CELL_TAGS = ('td', 'th')
+_BLOCK_TAGS = ('address', 'article', 'aside', 'blockquote', 'center', 'dd', 'details', 'div', 'dl',
+               'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4',
+               'h5', 'h6', 'header', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section',
+               'table', 'title', 'tr', 'ul')
+
+
+class _LineBreak(NavigableString):
+    """A marker placed in the parsed tree. It is not evidence text and is never emitted."""
 
 
 def _body_text_and_links(html_body):
     """The readable text of an HTML body plus the link targets it carries.
 
-    Tags are dropped and whitespace runs collapse to one space. Each link's place in
-    the text is marked [n], and the second value lists the targets by those numbers,
-    as stored. A repeated target keeps its first number. A link with no words of its
-    own, such as a linked image, still gets a marker, so the words just before a marker
-    are not always the link's text."""
+    Tags and the contents of closed style and script elements are dropped. A br or block element
+    ends a line, table cells are separated by a space and text inside pre keeps its
+    lines. Within a line, whitespace runs (including the zero-width padding marketing
+    mail hides its preheader behind) collapse to one space. Each link's place in the
+    text is marked [n], and the second value lists the targets by those numbers, as
+    the parser returns them. A repeated target keeps its first number. A link with no words of its own,
+    such as a linked image, still gets a marker, so the words just before a marker are
+    not always the link's text."""
     if not html_body:
         return '', ''
-    soup = BeautifulSoup(html_body, 'html.parser')
+    source = html_body.decode('utf-8', 'replace') if isinstance(html_body, bytes) else str(html_body)
+    scan = HTMLParser()
+    scan.feed(source)
+    # A style or script left open holds the rest of the body. Closing it for the parse keeps
+    # that text on Python versions that would otherwise drop it at the end of the input.
+    open_element = scan.cdata_elem if scan.cdata_elem in _NON_DISPLAY_TAGS else None
+    closer = f'</{open_element}>' if open_element else ''
+    soup = BeautifulSoup(html_body + (closer.encode() if isinstance(html_body, bytes) else closer),
+                         'html.parser')
+    for name in _NON_DISPLAY_TAGS:
+        found = soup.find_all(name)
+        # The scan and the tree can disagree on malformed input, so the element may be absent.
+        if name == open_element and found:
+            found.pop()
+        for hidden in found:
+            hidden.extract()
     targets = []
     numbers = {}
     for anchor in soup.find_all('a', href=True):
@@ -161,9 +203,45 @@ def _body_text_and_links(html_body):
             targets.append(href)
             numbers[href] = len(targets)
         anchor.append(NavigableString(f' [{numbers[href]}]'))
-    text = _WHITESPACE_RUN.sub(' ', soup.get_text(separator=' ')).strip()
+    for tag in soup.find_all(_BLOCK_TAGS):
+        tag.insert(0, _LineBreak(''))
+        tag.append(_LineBreak(''))
+    for tag in soup.find_all(_CELL_TAGS):
+        tag.append(NavigableString(' '))
+    has_pre = soup.find('pre') is not None
+    lines = [[]]
+    for node in soup.descendants:
+        if isinstance(node, _LineBreak):
+            # A block edge ends a line that has text. It never makes a blank line by itself.
+            if _WHITESPACE_RUN.sub('', ''.join(lines[-1])):
+                lines.append([])
+            else:
+                lines[-1] = []
+        elif isinstance(node, Tag) and node.name == 'br':
+            lines.append([])
+        elif isinstance(node, NavigableString) and (
+                isinstance(node, CData) or not isinstance(node, PreformattedString)):
+            if has_pre and node.find_parent('pre') is not None:
+                first, *rest = _LINE_END.split(str(node))
+                lines[-1].append(first)
+                lines.extend([line] for line in rest)
+            else:
+                lines[-1].append(str(node))
+    kept = []
+    for line in lines:
+        line = _WHITESPACE_RUN.sub(' ', ''.join(line)).strip()
+        if line or (kept and kept[-1]):  # one blank line at most, none at the start
+            kept.append(line)
+    text = '\n'.join(kept).rstrip('\n')
     links = '\n'.join(f'[{number}] {target}' for number, target in enumerate(targets, 1))
     return text, links
+
+
+def _message_body(body, mime_type):
+    """Readable text and links of an HTML body. A body of another stored type is left as stored."""
+    if mime_type and str(mime_type).split(';')[0].strip().lower() != 'text/html':
+        return (body.decode('utf-8', 'replace') if isinstance(body, bytes) else body or ''), ''
+    return _body_text_and_links(body)
 
 
 def _is_mail_cache(file_found):
@@ -261,7 +339,7 @@ def protonMailInboxMessages(context):
     query = '''
         SELECT m.local_id, m.time, m.subject, m.sender, m.to_list, m.cc_list, m.bcc_list,
                b.body, m.unread, m.is_replied, m.is_forwarded, m.num_attachments, m.size,
-               m.deleted, m.remote_conversation_id, c.subject
+               m.deleted, m.remote_conversation_id, c.subject, b.mime_type
         FROM messages m
         LEFT JOIN message_body b ON b.message_id = m.local_id
         LEFT JOIN conversations c ON c.local_id = m.local_conversation_id
@@ -296,14 +374,17 @@ def protonMailInboxMessages(context):
                     first_attachment[message_id] = (found_by_id[att_id], filename)
 
         rows_seen = False
-        for row in get_sqlite_db_records(file_found, query):
+        has_mime_type = any(column[1] == 'mime_type' for column in
+                            get_sqlite_db_records(file_found, 'PRAGMA table_info(message_body)'))
+        store_query = query if has_mime_type else query.replace('b.mime_type', 'NULL')
+        for row in get_sqlite_db_records(file_found, store_query):
             sender_address = _first_address(row[3])
             from_me = 'Yes' if sender_address and sender_address in owner_addresses else 'No'
             media_ref = ''
             attachment = first_attachment.get(row[0])
             if attachment:
                 media_ref = check_in_media(attachment[0], attachment[1]) or ''
-            body, body_links = _body_text_and_links(row[7])
+            body, body_links = _message_body(row[7], row[16])
             data_list.append((
                 convert_unix_ts_to_utc(row[1]),
                 from_me,

@@ -24,6 +24,15 @@ def set_html_row_limit(limit):
     HTML_TABLE_ROW_LIMIT = max(0, int(limit))
 
 
+def cell_html(value, header, html_no_escape, html_multiline):
+    """One cell's markup. Only the page changes: the stored value keeps its plain newlines."""
+    text = str(value) if value not in [None, 'N/A'] else ''
+    if header in html_no_escape:
+        return text
+    escaped = html.escape(text)
+    return escaped.replace('\n', '<br>') if header in html_multiline else escaped
+
+
 def tsv_export_location(tsv_name):
     """Describe an artifact's TSV export for the held-back table notice."""
     return f'the TSV export <code>_TSV Exports/{html.escape(tsv_name)}.tsv</code>'
@@ -90,7 +99,8 @@ class ArtifactHtmlReport:
         html_no_escape=[],
         row_count=None,
         row_limit=None,
-        full_data_locations=None
+        full_data_locations=None,
+        html_multiline=()
     ):
         ''' Writes info about data, then writes the table to html file
             Parameters
@@ -116,6 +126,8 @@ class ArtifactHtmlReport:
             table_id       : Specify an identifier string, which will be referenced in javascript
 
             html_no_escape  : if html_escape=True, list of columns not to escape
+
+            html_multiline  : columns still escaped, whose line breaks show as <br> on the page
 
             row_count       : Optional precomputed row count for streaming data_list iterables
             row_limit      : Rows above which the table is left off the page and a notice
@@ -159,10 +171,10 @@ class ArtifactHtmlReport:
 
         if html_escape:
             for row in data_list:
-                if html_no_escape:
-                    self.report_file.write('<tr>' + ''.join(('<td>{}</td>'.format(html.escape(
-                        str(x) if x not in [None, 'N/A'] else '')) if h not in html_no_escape else '<td>{}</td>'.format(
-                        str(x) if x not in [None, 'N/A'] else '') for x, h in zip(row, data_headers))) + '</tr>')
+                if html_no_escape or html_multiline:
+                    self.report_file.write('<tr>' + ''.join(
+                        '<td>{}</td>'.format(cell_html(x, h, html_no_escape, html_multiline))
+                        for x, h in zip(row, data_headers)) + '</tr>')
                 else:
                     self.report_file.write('<tr>' + ''.join(
                         ('<td>{}</td>'.format(html.escape(str(x) if x not in [None, 'N/A'] else '')) for x in
