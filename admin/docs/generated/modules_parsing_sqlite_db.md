@@ -265,6 +265,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | chrome |
 | chromeCreditCards |
 | chromePaymentsCustomerData |
+| chromeShortcuts |
 | citizen |
 | cloudkitSharing |
 | cloudkit_cache |
