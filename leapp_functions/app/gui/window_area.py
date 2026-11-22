@@ -19,6 +19,12 @@ def frame_position(window):
     return (int(found[1]), int(found[2])) if found else None
 
 
+def content_offset(window):
+    """ How far the content is from the window's top left corner, title bar included. """
+    x, y = frame_position(window) or (window.winfo_rootx(), window.winfo_rooty())
+    return window.winfo_rootx() - x, window.winfo_rooty() - y
+
+
 def zoom(window, zoomed):
     """ Maximize the window or not. """
     before = window.winfo_height()
@@ -42,9 +48,11 @@ def measure(window):
         pointer_x, pointer_y = window.winfo_pointerxy()
         window.geometry(f"1x1+{pointer_x}+{pointer_y}")
         window.update()
+        offset_x, offset_y = content_offset(window)
         if zoom(window, True):
             if window.winfo_height() > SMALLEST_MAXIMIZED:
-                x, y = frame_position(window) or (0, 0)
+                x = window.winfo_rootx() - offset_x
+                y = window.winfo_rooty() - offset_y
                 area = (x, y, window.winfo_width(), window.winfo_height())
             zoom(window, False)
     except tk.TclError:
