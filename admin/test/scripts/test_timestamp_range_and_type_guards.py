@@ -92,7 +92,7 @@ class TestHealthAchievementsSchemas(unittest.TestCase):
                                 1.0, 'count', 1)])
         _headers, data_list, _source = health_achievements.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][0],
+        self.assertEqual(data_list[0][1],
                          datetime(2025, 9, 1, tzinfo=timezone.utc))
 
     def test_text_numeric_created_date_converts_to_datetime(self):
@@ -101,7 +101,7 @@ class TestHealthAchievementsSchemas(unittest.TestCase):
                                 1.0, 'count', 1)])
         _headers, data_list, _source = health_achievements.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][0],
+        self.assertEqual(data_list[0][1],
                          datetime(2025, 9, 1, tzinfo=timezone.utc))
 
     def test_text_non_numeric_created_date_passes_through(self):
@@ -115,13 +115,13 @@ class TestHealthAchievementsSchemas(unittest.TestCase):
                                 1.0, 'count', 1)])
         _headers, data_list, _source = health_achievements.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
-        self.assertEqual(data_list[0][0], '2025-10-13 06:53:59')
+        self.assertEqual(data_list[0][1], '2025-10-13 06:53:59')
 
     def test_null_created_date_does_not_crash(self):
         self._make_db('TEXT', [('FirstWorkout', 730.0, None, 1.0, 'count', 1)])
         _headers, data_list, _source = health_achievements.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
-        self.assertIsNone(data_list[0][0])
+        self.assertIsNone(data_list[0][1])
 
 
 if __name__ == '__main__':
