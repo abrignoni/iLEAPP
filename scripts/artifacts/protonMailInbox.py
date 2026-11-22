@@ -35,7 +35,7 @@ __artifacts_v2__ = {
                  " a text/html body. A body with no mime_type is also read as HTML. A body of another "
                  "mime_type is reported as stored; the tested image held none. Tags, comments and the "
                  "text of closed style and script elements are removed, and line breaks are placed at "
-                 "br and block tags. Malformed HTML can leave markup or style text in Body, and the "
+                 "br and block tags. Malformed HTML that the parser refuses is reported as stored. Malformed HTML can leave markup or style text in Body, and the "
                  "result can differ between Python versions. Text the message hides with styling is "
                  "still reported, and soft hyphens and the zero-width characters U+034F, U+200B to "
                  "U+200D and U+FEFF show as a space. Each link is marked [n], and Links lists the link"
@@ -142,6 +142,7 @@ import re
 from html.parser import HTMLParser
 
 from bs4 import BeautifulSoup, CData, NavigableString
+from bs4.builder import ParserRejectedMarkup
 from bs4.element import PreformattedString, Tag
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records,
@@ -178,14 +179,19 @@ def _body_text_and_links(html_body):
     if not html_body:
         return '', ''
     source = html_body.decode('utf-8', 'replace') if isinstance(html_body, bytes) else str(html_body)
-    scan = HTMLParser()
-    scan.feed(source)
-    # A style or script left open holds the rest of the body. Closing it for the parse keeps
-    # that text on Python versions that would otherwise drop it at the end of the input.
-    open_element = scan.cdata_elem if scan.cdata_elem in _NON_DISPLAY_TAGS else None
-    closer = f'</{open_element}>' if open_element else ''
-    soup = BeautifulSoup(html_body + (closer.encode() if isinstance(html_body, bytes) else closer),
-                         'html.parser')
+    try:
+        scan = HTMLParser()
+        scan.feed(source)
+        # A style or script left open holds the rest of the body. Closing it for the parse keeps
+        # that text on Python versions that would otherwise drop it at the end of the input.
+        open_element = scan.cdata_elem if scan.cdata_elem in _NON_DISPLAY_TAGS else None
+        closer = f'</{open_element}>' if open_element else ''
+        soup = BeautifulSoup(html_body + (closer.encode() if isinstance(html_body, bytes) else closer),
+                             'html.parser')
+    except (AssertionError, ParserRejectedMarkup):
+        # Some Python versions refuse malformed markup. One body must not stop the artifact,
+        # so the body is reported as stored.
+        return source, ''
     for name in _NON_DISPLAY_TAGS:
         found = soup.find_all(name)
         # The scan and the tree can disagree on malformed input, so the element may be absent.
