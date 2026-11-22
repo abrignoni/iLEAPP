@@ -188,7 +188,8 @@ def _body_text_and_links(html_body):
                          'html.parser')
     for name in _NON_DISPLAY_TAGS:
         found = soup.find_all(name)
-        if name == open_element:
+        # The scan and the tree can disagree on malformed input, so the element may be absent.
+        if name == open_element and found:
             found.pop()
         for hidden in found:
             hidden.extract()
@@ -210,7 +211,13 @@ def _body_text_and_links(html_body):
     has_pre = soup.find('pre') is not None
     lines = [[]]
     for node in soup.descendants:
-        if isinstance(node, _LineBreak) or (isinstance(node, Tag) and node.name == 'br'):
+        if isinstance(node, _LineBreak):
+            # A block edge ends a line that has text. It never makes a blank line by itself.
+            if _WHITESPACE_RUN.sub('', ''.join(lines[-1])):
+                lines.append([])
+            else:
+                lines[-1] = []
+        elif isinstance(node, Tag) and node.name == 'br':
             lines.append([])
         elif isinstance(node, NavigableString) and (
                 isinstance(node, CData) or not isinstance(node, PreformattedString)):
@@ -220,8 +227,12 @@ def _body_text_and_links(html_body):
                 lines.extend([line] for line in rest)
             else:
                 lines[-1].append(str(node))
-    cleaned = (_WHITESPACE_RUN.sub(' ', ''.join(line)).strip() for line in lines)
-    text = '\n'.join(line for line in cleaned if line)
+    kept = []
+    for line in lines:
+        line = _WHITESPACE_RUN.sub(' ', ''.join(line)).strip()
+        if line or (kept and kept[-1]):  # one blank line at most, none at the start
+            kept.append(line)
+    text = '\n'.join(kept).rstrip('\n')
     links = '\n'.join(f'[{number}] {target}' for number, target in enumerate(targets, 1))
     return text, links
 

@@ -36,6 +36,17 @@ class ProtonBodyTextTest(unittest.TestCase):
     def test_a_tag_name_in_an_attribute_does_not_keep_style_text(self):
         self.assertEqual(read('<style>p{}</style><a title="<style>" href="u">x</a>')[0], 'x [1]')
 
+    def test_explicit_blank_lines_are_kept_once(self):
+        self.assertEqual(read('one<br><br>two')[0], 'one\n\ntwo')
+        self.assertEqual(read('<pre>one\n\ntwo</pre>')[0], 'one\n\ntwo')
+        self.assertEqual(read('one<br><br><br><br>two<br><br>')[0], 'one\n\ntwo')
+
+    def test_block_edges_make_no_blank_line(self):
+        self.assertEqual(read('<div><p>one</p></div><div><p>two</p></div>')[0], 'one\ntwo')
+
+    def test_a_broken_character_reference_before_an_open_style_does_not_raise(self):
+        self.assertIn('Hello', read('<p>Hello</p>&#<style>Kept')[0])
+
     def test_pre_keeps_a_line_end_before_an_inline_tag(self):
         self.assertEqual(read('<pre>one\n<b>two</b></pre>')[0], 'one\ntwo')
 
