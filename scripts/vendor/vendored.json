@@ -3,12 +3,12 @@
     {
       "path": "scripts/vendor/qnxprobe.py",
       "name": "qnxprobe",
-      "version": "1.80",
+      "version": "1.83",
       "upstream": "https://github.com/abrignoni/qnxprobe",
       "upstream_file": "qnxprobe.py",
-      "commit": "059c8fe110d369cc51d1cf5b74155a33aa1a7f7e",
-      "commit_date": "2026-11-17T14:39:19-05:00",
-      "sha256": "d55d5354959ab688da3cc950b4aa01ed6d8b17fcb3ce7ed99d932da4a6016353",
+      "commit": "ac6ccaec9d97a5fb33b7b9140207ebe441377732",
+      "commit_date": "2026-11-22T11:27:41-05:00",
+      "sha256": "28daea8c0da4172b243aad8d24dcd6fb5acc849530ec62c5bf243ba8038a1e66",
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-qnxprobe",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
@@ -16,12 +16,12 @@
     {
       "path": "scripts/vendor/ewfprobe.py",
       "name": "ewfprobe",
-      "version": "0.15.1",
+      "version": "0.17.0",
       "upstream": "https://github.com/abrignoni/ewfprobe",
       "upstream_file": "ewfprobe.py",
-      "commit": "d14572626e54f3bb99763287b3adfea212c47d7e",
-      "commit_date": "2026-11-13T13:52:07-05:00",
-      "sha256": "f596b57072ec9fbb555d1d1439851a030b2b99c6c370f11b71a48226797b4017",
+      "commit": "a597cfb76ab28c3b218b1497313eb1a876e11c29",
+      "commit_date": "2026-11-22T11:07:32-05:00",
+      "sha256": "69abd3f10264a54e48f3aad8905c201a54910eaeb3d7d4d56a7c449e05593d56",
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-ewfprobe",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."

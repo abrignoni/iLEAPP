@@ -1,0 +1,89 @@
+{
+ "writer": "EnCase Forensic Imager 7.10 (x64)",
+ "content": "synthetic files made for this test",
+ "entries": [
+  {
+   "path": "empty.bin",
+   "is_dir": false,
+   "size": 0,
+   "md5": "d41d8cd98f00b204e9800998ecf8427e",
+   "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+   "path": "empty_folder",
+   "is_dir": true,
+   "size": 0,
+   "md5": "",
+   "sha1": ""
+  },
+  {
+   "path": "notes.txt",
+   "is_dir": false,
+   "size": 3120,
+   "md5": "76f2f4c74afc37e41a8d62e7fa4c62a9",
+   "sha1": "84cd01d9d4210bb9e4c53ea0999777a72127aad3"
+  },
+  {
+   "path": "one.bin",
+   "is_dir": false,
+   "size": 1,
+   "md5": "7fc56270e7a70fa81a5935b72eacbe29",
+   "sha1": "6dcd4ce23d88e2ee9568ba546c007c63d9131c1b"
+  },
+  {
+   "path": "sub",
+   "is_dir": true,
+   "size": 0,
+   "md5": "",
+   "sha1": ""
+  },
+  {
+   "path": "sub/copy_a.bin",
+   "is_dir": false,
+   "size": 5000,
+   "md5": "c6587c0d0ff3a9efc466d6e06e1fc782",
+   "sha1": "1e27804c24cc68575b3748ee800753fe0f7fbbf1"
+  },
+  {
+   "path": "sub/deep",
+   "is_dir": true,
+   "size": 0,
+   "md5": "",
+   "sha1": ""
+  },
+  {
+   "path": "sub/deep/copy_b.bin",
+   "is_dir": false,
+   "size": 5000,
+   "md5": "c6587c0d0ff3a9efc466d6e06e1fc782",
+   "sha1": "1e27804c24cc68575b3748ee800753fe0f7fbbf1"
+  },
+  {
+   "path": "sub/deep/counter.bin",
+   "is_dir": false,
+   "size": 20000,
+   "md5": "c968d3e881d1ec95343a421fe3e79a1a",
+   "sha1": "7f21d0bec0ec41aea43854e5bb9e97951d383157"
+  },
+  {
+   "path": "unicode_\u00e9\u00f1_\u65e5\u672c_\ud83d\udd0d.txt",
+   "is_dir": false,
+   "size": 17,
+   "md5": "80b39668dd35e35c9893ab874df4bbd3",
+   "sha1": "3c3ef31c4d8e9e8b9a3bb30f1462ddcd12419e68"
+  },
+  {
+   "path": "zeros_40k.bin",
+   "is_dir": false,
+   "size": 40960,
+   "md5": "ab893875d697a3145af5eed5309bee26",
+   "sha1": "c90116149196cbf74ffb453ecb3b12945372ebfa"
+  }
+ ],
+ "times": {
+  "notes.txt": {
+   "cr": 1614834367,
+   "wr": 1660039872
+  }
+ }
+}

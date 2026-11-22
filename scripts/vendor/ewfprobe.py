@@ -9,11 +9,12 @@ Advanced Forensic Format that AFFLIB and FTK Imager write, as a single .aff file
 as an AFD directory of them, AFF4 (.aff4), including one striped across several
 files, and Apple disk images: UDIF (.dmg), compressed with
 zlib, bzip2, LZMA, LZFSE or ADC or stored, including one split into .dmgpart
-segments, sparse images (.sparseimage) and sparse bundles (.sparsebundle). An Apple
+segments, sparse images (.sparseimage), ASIF images (.asif) and sparse bundles
+(.sparsebundle). An Apple
 disk image encrypted with a
 password (hdiutil -encryption, AES-128 or AES-256) opens with that password and
 needs the optional pycryptodome package, and so does an E01, SMART or raw (dd) set
-FTK Imager encrypted with AD encryption. From an L01, EnCase's logical evidence, and
+FTK Imager encrypted with AD encryption. From an L01 or Lx01, EnCase's logical evidence, and
 an AD1, FTK Imager's (AD-encrypted or not), it lists the files collected and reads
 each one's content. It also reads the disks virtual machines keep: VHD and VHDX,
 VMDK and QCOW (versions 1 to 3), including a differencing disk, delta or overlay
@@ -63,15 +64,15 @@ disks Windows, VMware's tools and qemu-img wrote; no code from any of them is co
 Scope. This reads EWF-E01, the format EnCase 6 and 7 and FTK Imager write and
 by far the most common one in the field, EWF-S01, the variant ASR Data's SMART
 writes, EWF2-Ex01, which EnCase 7 and later write, AFF, including AFD and AFM, and
-EWF-L01 logical evidence, FTK Imager's AD1 (version 4), and UDIF, sparse image and
+EWF-L01 and EWF2-Lx01 logical evidence, FTK Imager's AD1 (version 4), and UDIF, sparse image and
 sparse bundle Apple disk images, encrypted with a password or not, AD-encrypted E01,
 SMART, raw and AD1 sets, AFF4 containers, standard and pre-standard, striped or
-not, and VHD, VHDX, VMDK and QCOW virtual disks. It does not read Lx01 logical evidence, encrypted AFF4 or AFF4-L, an AD1 other
+not, and VHD, VHDX, VMDK and QCOW virtual disks. It does not read encrypted AFF4 or AFF4-L, an AD1 other
 than version 4, an Apple disk
 image unlocked by a keybag rather than a password or a certificate, or one in the
 older version 1 encrypted format (cdsaencr), an encrypted QCOW, a VMDK SESPARSE
-extent, a VHD split into .v01 files, encrypted Ex01 images (the encryption
-is not publicly documented), or Ex01 images compressed with bzip2 (no sample exists to
+extent, a VHD split into .v01 files, encrypted Ex01 or Lx01 images (the encryption
+is not publicly documented), or Ex01 or Lx01 images compressed with bzip2 (no sample exists to
 validate against), and it never writes.
 An encrypted AFF opens with its passphrase or with the private key of a certificate
 it is sealed to, and an Apple disk image or an AD-encrypted set sealed to a
@@ -112,7 +113,7 @@ try:
 except ImportError:
     lzma = None
 
-__version__ = "0.15.1"
+__version__ = "0.17.0"
 
 # ---------------------------------------------------------------- constants
 
@@ -145,6 +146,9 @@ FORMAT_E01 = "EWF-E01"
 FORMAT_S01 = "EWF-S01"
 FORMAT_EX01 = "EWF2-Ex01"
 FORMAT_L01 = "EWF-L01"
+FORMAT_LX01 = "EWF2-Lx01"
+_EWF2_FORMATS = (FORMAT_EX01, FORMAT_LX01)
+_EWF_LOGICAL_FORMATS = (FORMAT_L01, FORMAT_LX01)
 FORMAT_AD1 = "AD1"
 FORMAT_VHD = "VHD"
 FORMAT_VHDX = "VHDX"
@@ -173,6 +177,8 @@ V2_SHA1 = 0x09
 V2_ENCRYPTION_KEYS = 0x0B
 V2_NEXT = 0x0D
 V2_DONE = 0x0F
+V2_SINGLE_FILES = 0x20
+V2_SECTION_HASHED = 0x01
 V2_SECTION_ENCRYPTED = 0x02
 
 V2_CHUNK_COMPRESSED = 0x01
@@ -327,6 +333,17 @@ FORMAT_UDIF = "UDIF"
 SPARSEIMAGE_SIGNATURE = b"sprs"
 FORMAT_SPARSEIMAGE = "SPARSEIMAGE"
 _SPARSE_HEADER_SIZE = 4096
+# An Apple Sparse Image (.asif, macOS 26 and later) is a big-endian header, two
+# versioned directories of table chunk numbers, tables of chunk groups, and data
+# chunks. A group is 4 * block size data entries and one bitmap entry. A data entry's
+# top two bits are its state and its low 55 bits its physical chunk. A bitmap holds
+# two bits per block, low bits first. Layout from the CC0 community specification
+# (huven/asif-format), read here against what macOS returns for the same images.
+ASIF_SIGNATURE = b"shdw"
+FORMAT_ASIF = "ASIF"
+_ASIF_HEADER = struct.Struct(">4sIIIQQ16sQQIHHQ")
+_ASIF_CHUNK_MASK = (1 << 55) - 1
+_ASIF_UNINITIALIZED, _ASIF_FULL, _ASIF_UNMAPPED, _ASIF_BITMAP = 0, 1, 2, 3
 # A sparse bundle (.sparsebundle) is a directory: Info.plist, whose band-size is
 # the size of each band in bytes and whose size is the disk's size in bytes, and a
 # bands folder of files named by band number in lowercase hexadecimal, 0 for the
@@ -536,14 +553,15 @@ def _extension_sequence(first="E"):
                 yield chr(lead) + chr(second) + chr(third)
 
 
-def _extension_sequence_v2():
-    """Ex01 to Ex99, then ExAA to EzZZ, as the EWF2 specification lists them."""
+def _extension_sequence_v2(first="E"):
+    """Ex01 to Ex99, then ExAA to EzZZ, as the EWF2 specification lists them, or the
+    same from Lx01 for logical evidence."""
     for i in range(1, 100):
-        yield f"Ex{i:02d}"
+        yield f"{first}x{i:02d}"
     for lead in "xyz":
         for second in range(ord("A"), ord("Z") + 1):
             for third in range(ord("A"), ord("Z") + 1):
-                yield "E" + lead + chr(second) + chr(third)
+                yield first + lead + chr(second) + chr(third)
 
 
 def _family(ext):
@@ -562,9 +580,9 @@ def is_image(path) -> bool:
     overwrote; an encrypted AFF counts, and opening one needs its passphrase or key,
     which EwfPasswordRequiredError's ``needs`` names), an AFF4 container, an AFD
     directory holding AFF files,
-    an Apple UDIF (.dmg), sparse image (.sparseimage) or sparse bundle
+    an Apple UDIF (.dmg), sparse image (.sparseimage), ASIF (.asif) or sparse bundle
     (.sparsebundle), or a virtual disk virtual_disk_kind names (VHD, VHDX, VMDK,
-    QCOW). An L01 holds files rather than a disk; is_logical_evidence answers for it. An
+    QCOW). An L01 or Lx01 holds files rather than a disk; is_logical_evidence answers for it. An
     encrypted Apple disk image is not counted, because it opens only with its
     password; apple_image_kind reports it as ENCRYPTED."""
     if os.path.isdir(path):
@@ -583,7 +601,8 @@ def is_image(path) -> bool:
                 return True
     except OSError:
         return False
-    return (_is_aff(path) or is_aff4(path) or apple_image_kind(path) in (FORMAT_UDIF, FORMAT_SPARSEIMAGE)
+    return (_is_aff(path) or is_aff4(path) or apple_image_kind(path) in (FORMAT_UDIF, FORMAT_SPARSEIMAGE,
+                                                                     FORMAT_ASIF)
             or virtual_disk_kind(path) is not None)
 
 
@@ -1129,6 +1148,15 @@ def _open_content(path, password=None, keys=None, private_key=None):
         with open(path, "rb") as fh:
             key = (_encrcdsa_unlock(fh, name, password, private_key)
                    if fh.read(8) == DMG_ENCRYPTED_SIGNATURE else None)
+        if key is not None and not key.length:
+            # An encrypted ASIF grows, and macOS records its data length as 0: its
+            # data runs to the end of the file.
+            probe = _EncryptedFile(path, key, key.start, key.block, name)
+            try:
+                if probe.read(len(ASIF_SIGNATURE)) == ASIF_SIGNATURE:
+                    key.length = os.path.getsize(path) - key.start
+            finally:
+                probe.close()
         if key is not None and os.path.getsize(path) < key.start + -(
                 -key.length // key.block) * key.block:
             raise EwfIncompleteSetError(f"{name} ends inside its encrypted data; the "
@@ -1144,7 +1172,7 @@ def _open_content(path, password=None, keys=None, private_key=None):
 
 
 def apple_image_kind(path):
-    """``"UDIF"``, ``"SPARSEIMAGE"``, ``"SPARSEBUNDLE"`` or ``"ENCRYPTED"`` for an
+    """``"UDIF"``, ``"SPARSEIMAGE"``, ``"ASIF"``, ``"SPARSEBUNDLE"`` or ``"ENCRYPTED"`` for an
     Apple disk image, else None. A sparse bundle is a directory. A UDIF image is
     recognised by its trailer, so an uncompressed read-write image, which has none,
     is None here: it is plain disk bytes. ``"ENCRYPTED"`` is any encrypted image,
@@ -1169,6 +1197,8 @@ def apple_image_kind(path):
                 return "ENCRYPTED"
             if head[:4] == SPARSEIMAGE_SIGNATURE:
                 return FORMAT_SPARSEIMAGE
+            if head[:4] == ASIF_SIGNATURE:
+                return FORMAT_ASIF
             if size >= UDIF_TRAILER_SIZE:
                 fh.seek(size - UDIF_TRAILER_SIZE)
                 if fh.read(4) == UDIF_TRAILER_SIGNATURE:
@@ -1264,7 +1294,7 @@ def udif_segments(path, password=None, _keys=None, private_key=None) -> list[str
 
 
 def is_logical_evidence(path) -> bool:
-    """True when the file begins with the L01 or AD1 signature, logical evidence
+    """True when the file begins with the L01, Lx01 or AD1 signature, logical evidence
     ewfprobe reads as a tree of files. An AD-encrypted AD1 is not counted, because it
     opens only with its password; is_adcrypt reports it."""
     try:
@@ -1272,7 +1302,7 @@ def is_logical_evidence(path) -> bool:
             head = fh.read(len(AD1_SIGNATURE))
     except OSError:
         return False
-    return head[:8] == LVF_SIGNATURE or head == AD1_SIGNATURE
+    return head[:8] in LOGICAL_SIGNATURES or head == AD1_SIGNATURE
 
 
 def _aff_start(fh, size):
@@ -1475,11 +1505,8 @@ def ewf_segments(path) -> list[str]:
 
     segments = []
     family = _family(ext)
-    if family == "Lx":
-        raise EwfFormatError(
-            f"{os.path.basename(path)} has an Lx01 name; Lx01 logical evidence is not "
-            f"read")
-    sequence = _extension_sequence_v2() if family == "Ex" else _extension_sequence(family)
+    sequence = (_extension_sequence_v2(family[0]) if family in ("Ex", "Lx")
+                else _extension_sequence(family))
     for seg_ext in sequence:
         want = f"{stem}.{seg_ext}".lower()
         actual = present.get(want)
@@ -1489,7 +1516,7 @@ def ewf_segments(path) -> list[str]:
     if not segments:
         raise EwfFormatError(
             f"{os.path.basename(path)} is not the first segment of an EWF set; "
-            f"the set is opened from its .E01, its .Ex01, its .L01, or its .s01 for "
+            f"the set is opened from its .E01, its .Ex01, its .L01, its .Lx01, or its .s01 for "
             f"SMART")
     return segments
 
@@ -1539,11 +1566,12 @@ def _sections(fh, segment_path):
         offset = next_offset
 
 
-def _sections_v2(fh, segment_path):
-    """The file header and the sections of one Ex01 segment, first to last.
+def _sections_v2(fh, segment_path, expected=SIGNATURE_V2):
+    """The file header and the sections of one Ex01 or Lx01 segment, first to last.
 
     Returns (segment number, compression method, set identifier, sections), where
-    each section is (type, data flags, data offset, data size).
+    each section is (type, data flags, data offset, data size, padding size, MD5 of
+    the data with its padding).
     """
     name = os.path.basename(segment_path)
     fh.seek(0, os.SEEK_END)
@@ -1551,8 +1579,9 @@ def _sections_v2(fh, segment_path):
     fh.seek(0)
     (signature, major, minor, method, segment_number,
      set_id) = _FILE_HEADER_V2.unpack(_read_exactly(fh, FILE_HEADER_V2_SIZE))
-    if signature != SIGNATURE_V2:
-        raise EwfFormatError(f"{name} is not an Ex01 file")
+    if signature != expected:
+        kind = "Lx01" if expected == LEF2_SIGNATURE else "Ex01"
+        raise EwfFormatError(f"{name} is not an {kind} file")
     if major != 2:
         raise EwfFormatError(f"{name} has EWF2 version {major}.{minor}, not 2.x")
 
@@ -1568,12 +1597,12 @@ def _sections_v2(fh, segment_path):
         if zlib.adler32(raw[:60]) & 0xFFFFFFFF != struct.unpack_from("<I", raw, 60)[0]:
             raise EwfFormatError(f"{name}: the section descriptor at {offset} fails "
                                  f"its checksum")
-        stype, flags, previous, size, _dsize, _pad = _SECTION_V2.unpack_from(raw)
+        stype, flags, previous, size, _dsize, padding = _SECTION_V2.unpack_from(raw)
         data_offset = offset - size
         if data_offset < FILE_HEADER_V2_SIZE:
             raise EwfFormatError(f"{name}: the section at {offset} claims more data "
                                  f"than precedes it")
-        sections.append((stype, flags, data_offset, size))
+        sections.append((stype, flags, data_offset, size, padding, raw[32:48]))
         if previous == 0:
             break
         if previous >= offset:
@@ -2351,6 +2380,15 @@ class LogicalEntry:
         """True when the entry is marked as a parent (p) or carries the folder flag."""
         return self.values.get("p") == "1" or bool(self.flags & L01_FLAG_FOLDER)
 
+    @property
+    def content_collected(self):
+        """False for a folder whose size and MD5 were recorded and whose content was
+        not collected. EnCase Imager 7.10, with "Include contents of folder objects"
+        off, stores one byte for such a folder, without the sparse flag."""
+        return not (self.is_folder and self.duplicate_offset is None
+                    and not self.flags & L01_FLAG_SPARSE
+                    and sum(length for _offset, length in self.extents) < self.size)
+
     def __repr__(self):
         return f"<LogicalEntry {self.path!r} size={self.size}>"
 
@@ -2361,7 +2399,7 @@ def _l01_int(text, base, where, what):
     try:
         return int(text, base)
     except ValueError:
-        raise EwfFormatError(f"L01 entry {where}: its {what} {text!r} is not a number") from None
+        raise EwfFormatError(f"logical entry {where}: its {what} {text!r} is not a number") from None
 
 
 def _l01_digest(text, width):
@@ -2386,7 +2424,7 @@ def _l01_extents(text, where):
         types = [rest[3 * k] for k in range(count)]
         pairs = [(rest[3 * k + 1], rest[3 * k + 2]) for k in range(count)]
     else:
-        raise EwfFormatError(f"L01 entry {where}: its extents {text!r} do not hold "
+        raise EwfFormatError(f"logical entry {where}: its extents {text!r} do not hold "
                              f"{count} offset and size pairs")
     extents = [(_l01_int(o, 16, where, "extent offset"),
                 _l01_int(n, 16, where, "extent size")) for o, n in pairs]
@@ -2416,10 +2454,10 @@ def _parse_ltree_text(text):
     record = dict(zip(rec[0].split("\t"), rec[1].split("\t"))) if len(rec) >= 2 else {}
     media_size = _l01_int(record.get("tb"), 10, "records", "total size")
     if media_size is None:
-        raise EwfFormatError("the L01 ltree records no total size (rec tb), which is "
+        raise EwfFormatError("the file tree records no total size (rec tb), which is "
                              "how much file content its chunks hold")
     if root is None:
-        raise EwfFormatError("the L01 ltree has no entry category, which is where its "
+        raise EwfFormatError("the file tree has no entry category, which is where its "
                              "files are described")
     return media_size, root
 
@@ -2429,7 +2467,7 @@ def _parse_l01_entries(lines, start):
     entries, a line of tab-separated values in the order of the category's column
     line, and then its children, each the same way."""
     if start + 1 >= len(lines):
-        raise EwfFormatError("the L01 ltree ends inside its entry category")
+        raise EwfFormatError("the file tree ends inside its entry category")
     columns = lines[start + 1].split("\t")
 
     def read(pos):
@@ -2438,7 +2476,7 @@ def _parse_l01_entries(lines, start):
             count = int(count)
             values = lines[pos + 1].split("\t")
         except (IndexError, ValueError):
-            raise EwfFormatError(f"the L01 ltree entry list is malformed or cut short at "
+            raise EwfFormatError(f"the file tree entry list is malformed or cut short at "
                                  f"line {pos + 1}") from None
         return dict(zip(columns, values)), count, pos + 2
 
@@ -3893,7 +3931,7 @@ def _uuid_text(raw):
 
 class EwfImage:
     """An EWF-E01, EWF-S01, EWF2-Ex01, AFF or AFD acquisition, read as one seekable stream,
-    or an EWF-L01, read as its media data with its entries in ``logical_entries``.
+    or an EWF-L01 or EWF2-Lx01, read as its media data with its entries in ``logical_entries``.
 
     ``media_size`` is the size of the disk that was acquired, which is what
     ``seek`` and ``read`` address. The segment files themselves are an
@@ -4000,6 +4038,7 @@ class EwfImage:
         self.vmdk = None
         self._vmdk_extents: list[dict] = []
         self.qcow = None
+        self.asif = None
         # AD1: what the image records about itself, and how its logical space maps
         # onto its files.
         self.ad1 = None
@@ -4056,6 +4095,9 @@ class EwfImage:
         if kind == FORMAT_SPARSEIMAGE:
             self._index_sparseimage()
             return
+        if kind == FORMAT_ASIF:
+            self._index_asif()
+            return
         if kind == FORMAT_UDIF:
             self._index_udif()
             return
@@ -4079,13 +4121,9 @@ class EwfImage:
         if magic == AD1_SIGNATURE[:8]:
             self._index_ad1()
             return
-        if magic == LEF2_SIGNATURE:
-            raise EwfFormatError(
-                f"{os.path.basename(self.paths[0])} is Lx01 logical evidence, which "
-                f"ewfprobe does not read")
         logical = magic == LVF_SIGNATURE
-        if magic == SIGNATURE_V2:
-            self._index_v2()
+        if magic in (SIGNATURE_V2, LEF2_SIGNATURE):
+            self._index_v2(magic)
             return
         if magic == AF_HEADER or (magic[:4] == b"AFF\x00" and _is_aff(self.paths[0])):
             self._index_aff()
@@ -4164,9 +4202,10 @@ class EwfImage:
 
     def _finish_index(self, chunks):
         self.chunk_size = self.sectors_per_chunk * self.sector_size
-        if self.format == FORMAT_L01:
+        if self.format in _EWF_LOGICAL_FORMATS:
             # An L01's volume section does not describe its data: the sector count
-            # times the sector size is not the content's size, the ltree's tb is.
+            # times the sector size is not the content's size, the ltree's tb is. An
+            # Lx01's device information leaves the sector count empty.
             self.media_size = self._l01_media_size
         else:
             self.media_size = self.sector_count * self.sector_size
@@ -4185,16 +4224,18 @@ class EwfImage:
                 f"the chunk tables cover {chunks} chunks but the volume section "
                 f"describes {self._needed_chunks()}; the segment set is incomplete")
 
-    def _index_v2(self):
-        """The EWF2 counterpart of ``_index``."""
-        self.format = FORMAT_EX01
+    def _index_v2(self, signature=SIGNATURE_V2):
+        """The EWF2 counterpart of ``_index``, for an Ex01 or an Lx01."""
+        logical = signature == LEF2_SIGNATURE
+        kind = "Lx01" if logical else "Ex01"
+        self.format = FORMAT_LX01 if logical else FORMAT_EX01
         device, case = None, None
         set_id = None
         chunks = 0
         for i, path in enumerate(self.paths):
             fh = self._handle(i)
             name = os.path.basename(path)
-            segno, method, this_set, sections = _sections_v2(fh, path)
+            segno, method, this_set, sections = _sections_v2(fh, path, signature)
             if segno != i + 1:
                 raise EwfFormatError(f"{name} says it is segment {segno}, but it sits "
                                      f"at position {i + 1} of the set")
@@ -4206,14 +4247,14 @@ class EwfImage:
             if method == 2:
                 raise EwfFormatError(
                     f"{name} is compressed with bzip2. ewfprobe does not read bzip2 "
-                    f"Ex01 images: no sample was available to validate a reader against")
+                    f"{kind} images: no sample was available to validate a reader against")
             if method not in (0, 1):
                 raise EwfFormatError(f"{name} names compression method {method}")
             self.compression_level = V2_COMPRESSION_METHODS[method]
-            for stype, flags, offset, size in sections:
+            for stype, flags, offset, size, padding, digest in sections:
                 if flags & V2_SECTION_ENCRYPTED or stype == V2_ENCRYPTION_KEYS:
                     raise EwfFormatError(
-                        f"{name} is encrypted. Ex01 encryption is not publicly "
+                        f"{name} is encrypted. {kind} encryption is not publicly "
                         f"documented, so ewfprobe cannot read it")
                 if stype in (V2_DEVICE_INFORMATION, V2_CASE_DATA):
                     parsed = None
@@ -4230,6 +4271,9 @@ class EwfImage:
                 elif stype in (V2_MD5, V2_SHA1):
                     fh.seek(offset)
                     self._parse_hashes_v2(stype, _read_exactly(fh, size))
+                elif stype == V2_SINGLE_FILES and logical and self.logical_root is None:
+                    fh.seek(offset)
+                    self._parse_single_files(_read_exactly(fh, size), flags, padding, digest)
             if sections and sections[-1][0] == V2_NEXT and i == len(self.paths) - 1:
                 raise EwfIncompleteSetError(
                     f"{name} ends with a 'next' section, so the acquisition continues "
@@ -4239,15 +4283,22 @@ class EwfImage:
 
         if not device or not case:
             raise EwfFormatError("the image carries no device information or case data")
+        if logical and self.logical_root is None:
+            raise EwfFormatError("the Lx01 carries no single files section, which is "
+                                 "where its files are described")
         try:
-            self.sector_count = int(device["ts"])
             self.sector_size = int(device["bp"])
             self.sectors_per_chunk = int(case["sb"])
+            if not logical:
+                self.sector_count = int(device["ts"])
         except (KeyError, ValueError) as exc:
             raise EwfFormatError(f"the image does not record its geometry: {exc}") from exc
-        if not self.sector_count or not self.sector_size or not self.sectors_per_chunk:
-            raise EwfFormatError(
-                "the image gives a zero sector size, chunk size or sector count")
+        if not self.sector_size or not self.sectors_per_chunk:
+            raise EwfFormatError("the image gives a zero sector size or chunk size")
+        if logical:
+            self.sector_count = -(-self._l01_media_size // self.sector_size)
+        elif not self.sector_count:
+            raise EwfFormatError("the image gives a zero sector count")
         try:
             self.chunk_count = int(case.get("tb") or 0)
         except ValueError:
@@ -4279,6 +4330,27 @@ class EwfImage:
         if hashlib.md5(text).digest() != digest:
             raise EwfFormatError("the L01 ltree text does not match the MD5 its header "
                                  "records")
+        self._set_logical_tree(text)
+
+    def _parse_single_files(self, data, flags, padding, digest):
+        """An Lx01's single files section. Measured on EnCase Imager 7.10 output: a
+        byte-order mark and the same UTF-16 text as an L01's ltree, with no ltree
+        header, then an Adler-32 of that text, then the padding. The section
+        descriptor's MD5 covers all of it."""
+        if flags & V2_SECTION_HASHED and hashlib.md5(data).digest() != digest:
+            raise EwfFormatError("the Lx01 single files section does not match the MD5 "
+                                 "its descriptor records")
+        end = len(data) - padding
+        if end < 6 or (end - 4) % 2:
+            raise EwfFormatError("the Lx01 single files section is too short or does not "
+                                 "hold whole UTF-16 characters")
+        text = data[:end - 4]
+        if zlib.adler32(text) & 0xFFFFFFFF != struct.unpack_from("<I", data, end - 4)[0]:
+            raise EwfFormatError("the Lx01 single files text does not match its Adler-32")
+        self._set_logical_tree(text)
+
+    def _set_logical_tree(self, text):
+        """Read the file tree from an L01's or Lx01's UTF-16 text."""
         # The specification notes names can hold unpaired surrogates, which a strict
         # decoder refuses; they are kept as they are.
         self._l01_media_size, root = _parse_ltree_text(
@@ -4296,9 +4368,13 @@ class EwfImage:
         """Where an L01 entry's content lies in the media data, as (offset, length,
         fill) runs covering its size."""
         where = entry.path or "the root entry"
+        kind = "Lx01" if self.format == FORMAT_LX01 else "L01"
         if entry.extent_types:
-            raise EwfFormatError(f"L01 entry {where}: its extents carry the type "
+            raise EwfFormatError(f"{kind} entry {where}: its extents carry the type "
                                  f"{entry.extent_types[0]!r}, which ewfprobe does not read")
+        if not entry.content_collected:
+            raise EwfFormatError(f"{kind} entry {where} is a folder whose content the "
+                                 f"acquisition did not collect")
         size = entry.size
         if entry.flags & L01_FLAG_SPARSE:
             # The data is one stored byte, repeated, unless a duplicate data offset
@@ -4309,14 +4385,14 @@ class EwfImage:
                 self.seek(entry.extents[0][0])
                 byte = self.read(1)
                 if len(byte) != 1:
-                    raise EwfFormatError(f"L01 entry {where}: its data lies past the media "
+                    raise EwfFormatError(f"{kind} entry {where}: its data lies past the media "
                                          f"data")
                 return [(None, size, byte[0])] if size else []
             else:
-                raise EwfFormatError(f"L01 entry {where}: it is marked sparse and stores "
+                raise EwfFormatError(f"{kind} entry {where}: it is marked sparse and stores "
                                      f"no data")
         elif entry.duplicate_offset is not None:
-            raise EwfFormatError(f"L01 entry {where}: it has a duplicate data offset "
+            raise EwfFormatError(f"{kind} entry {where}: it has a duplicate data offset "
                                  f"without the sparse flag, which ewfprobe does not read")
         else:
             runs, need = [], size
@@ -4326,37 +4402,37 @@ class EwfImage:
                 runs.append((offset, min(length, need), 0))
                 need -= length
             if need > 0:
-                raise EwfFormatError(f"L01 entry {where}: its extents hold "
+                raise EwfFormatError(f"{kind} entry {where}: its extents hold "
                                      f"{size - need:,} of its {size:,} bytes")
         for offset, length, _fill in runs:
             if offset < 0 or offset + length > self.media_size:
-                raise EwfFormatError(f"L01 entry {where}: its data lies past the media "
+                raise EwfFormatError(f"{kind} entry {where}: its data lies past the media "
                                      f"data")
         return runs
 
     def open_entry(self, entry):
-        """An L01 or AD1 entry's content as a seekable, read-only file object."""
+        """An L01, Lx01 or AD1 entry's content as a seekable, read-only file object."""
         if self.format == FORMAT_AD1:
             return io.BufferedReader(_Ad1File(self, entry, self._ad1_chunks(entry)),
                                      buffer_size=1 << 16)
-        if self.format != FORMAT_L01:
-            raise EwfFormatError("only an L01 or AD1 holds entries")
+        if self.format not in _EWF_LOGICAL_FORMATS:
+            raise EwfFormatError("only an L01, Lx01 or AD1 holds entries")
         return io.BufferedReader(_LogicalFile(self, self._entry_runs(entry), entry.size),
                                  buffer_size=1 << 16)
 
     def read_entry(self, entry):
-        """An L01 or AD1 entry's content, whole."""
+        """An L01, Lx01 or AD1 entry's content, whole."""
         with self.open_entry(entry) as fh:
             return fh.read()
 
     def find_entry(self, path):
-        """The first L01 or AD1 entry, in tree order, whose path (its names joined by
+        """The first L01, Lx01 or AD1 entry, in tree order, whose path (its names joined by
         "/") is ``path``."""
         path = path.strip("/")
         for entry in self.logical_entries:
             if entry.path == path:
                 return entry
-        kind = "AD1" if self.format == FORMAT_AD1 else "L01"
+        kind = {FORMAT_AD1: "AD1", FORMAT_LX01: "Lx01"}.get(self.format, "L01")
         raise EwfFormatError(f"no {kind} entry has the path {path!r}")
 
     def _walk_aff(self, i):
@@ -4948,8 +5024,8 @@ class EwfImage:
 
     def _index_encrypted(self):
         """Unlock an encrypted Apple disk image and index what it decrypts to: a UDIF
-        image, a sparse image, or the disk itself (an encrypted read-write image), or,
-        for a sparse bundle, what its bands decrypt to."""
+        image, a sparse image, an ASIF, or the disk itself (an encrypted read-write
+        image), or, for a sparse bundle, what its bands decrypt to."""
         path = self.paths[0]
         name = os.path.basename(path)
         if os.path.isdir(path):
@@ -4975,6 +5051,8 @@ class EwfImage:
                 tail = fh.read(4)
         if head == SPARSEIMAGE_SIGNATURE:
             self._index_sparseimage()
+        elif head == ASIF_SIGNATURE:
+            self._index_asif()
         elif tail == UDIF_TRAILER_SIGNATURE:
             self._index_udif()
         else:
@@ -7069,6 +7147,140 @@ class EwfImage:
         self.chunk_size = band
         self._apple_finish(sectors, FORMAT_SPARSEIMAGE)
 
+    def _index_asif(self):
+        """Read an ASIF header and choose its current directory. Tables are read
+        when a chunk needs them: the directory can address petabytes."""
+        path = self.paths[0]
+        name = os.path.basename(path)
+        fh = self._handle(0)
+        size = self._content_size(path)
+        fh.seek(0)
+        raw = fh.read(_ASIF_HEADER.size)
+        if len(raw) != _ASIF_HEADER.size:
+            raise EwfIncompleteSetError(f"{name} ends inside its ASIF header")
+        (_magic, version, header_size, flags, first, second, image_id, sectors, maximum,
+         chunk, block, segments, metadata) = _ASIF_HEADER.unpack(raw)
+        if version != 1:
+            # hdiutil's -shadow files start with the same four bytes (version 4 seen)
+            raise EwfFormatError(f"{name} starts with the signature ASIF and hdiutil "
+                                 f"shadow files share, at header version {version}; "
+                                 f"only ASIF version 1 is read")
+        if header_size < _ASIF_HEADER.size or flags or segments:
+            raise EwfFormatError(
+                f"{name}: unsupported ASIF header (size {header_size}, flags "
+                f"{flags:#x}, segments {segments})")
+        if not block or block % 512 or not chunk or chunk % block:
+            raise EwfFormatError(f"{name}: the ASIF header gives a chunk size of {chunk} "
+                                 f"and a block size of {block}")
+        per_group = 4 * block
+        groups = chunk // (8 * (per_group + 1))
+        if not groups:
+            raise EwfFormatError(f"{name}: an ASIF chunk of {chunk} bytes cannot hold "
+                                 f"a chunk group")
+        if sectors > maximum:
+            raise EwfFormatError(f"{name}: the ASIF header gives {sectors} sectors, past "
+                                 f"its maximum of {maximum}")
+        per_table = groups * per_group * chunk
+        tables = -(-maximum * block // per_table)
+        length = 8 + tables * 8
+        versions = []
+        for offset in (first, second):
+            if offset < header_size or offset + length > size:
+                raise EwfIncompleteSetError(
+                    f"{name}: an ASIF directory at offset {offset} does not fit in "
+                    f"the file")
+            fh.seek(offset)
+            versions.append(struct.unpack(">Q", _read_exactly(fh, 8))[0])
+        if versions[0] == versions[1] and first != second:
+            fh.seek(first)
+            one = _read_exactly(fh, length)
+            fh.seek(second)
+            if one != _read_exactly(fh, length):
+                raise EwfFormatError(f"{name}: its two ASIF directories have the same "
+                                     f"version, {versions[0]}, and different contents")
+        current = first if versions[0] >= versions[1] else second
+        self.asif = {
+            "version": version, "uuid": str(uuid.UUID(bytes=image_id)),
+            "chunk_size": chunk, "block_size": block, "max_sectors": maximum,
+            "directory_offset": current, "directory_version": max(versions),
+            "metadata_chunk": metadata,
+        }
+        self._asif = {"chunk": chunk, "block": block, "per_group": per_group,
+                      "groups": groups, "directory": current, "tables": tables,
+                      "file_size": size, "bitmap_chunk": None, "bitmap": b""}
+        self.compression_level = "none"
+        self.chunk_size = chunk
+        if sectors * block % 512:
+            raise EwfFormatError(f"{name}: the ASIF disk is not whole 512-byte sectors")
+        self._apple_finish(sectors * block // 512, FORMAT_ASIF)
+
+    def _asif_stored(self, fh, chunk_number, offset, want):
+        """``want`` bytes at ``offset`` into a stored physical chunk."""
+        a = self._asif
+        start = chunk_number * a["chunk"] + offset
+        if start + want > a["file_size"]:
+            raise EwfIncompleteSetError(
+                f"{os.path.basename(self.paths[0])} ends inside ASIF chunk "
+                f"{chunk_number}; the file is cut short")
+        fh.seek(start)
+        return _read_exactly(fh, want)
+
+    def _chunk_data_asif(self, n):
+        a = self._asif
+        name = os.path.basename(self.paths[0])
+        chunk, block, per_group = a["chunk"], a["block"], a["per_group"]
+        want = min(chunk, self.media_size - n * chunk)
+        fh = self._handle(0)
+        table, within = divmod(n, a["groups"] * per_group)
+        fh.seek(a["directory"] + 8 + table * 8)
+        table_chunk = struct.unpack(">Q", _read_exactly(fh, 8))[0]
+        if not table_chunk:
+            return bytes(want)
+        group, slot = divmod(within, per_group)
+        base = group * 8 * (per_group + 1)
+        entry = struct.unpack(">Q", self._asif_stored(fh, table_chunk, base + slot * 8, 8))[0]
+        state, physical = entry >> 62, entry & _ASIF_CHUNK_MASK
+        if state in (_ASIF_UNINITIALIZED, _ASIF_UNMAPPED):
+            if physical:
+                raise EwfFormatError(f"{name}: ASIF chunk {n} has state {state} and a "
+                                     f"physical chunk, which is not a documented state")
+            return bytes(want)
+        if not physical:
+            raise EwfFormatError(f"{name}: ASIF chunk {n} is stored but names chunk 0, "
+                                 f"which holds the header")
+        if state == _ASIF_FULL:
+            return self._asif_stored(fh, physical, 0, want)
+        bitmap_entry = struct.unpack(
+            ">Q", self._asif_stored(fh, table_chunk, base + per_group * 8, 8))[0]
+        bitmap_chunk = bitmap_entry & _ASIF_CHUNK_MASK
+        if not bitmap_chunk:
+            raise EwfFormatError(f"{name}: ASIF chunk {n} uses a bitmap its group "
+                                 f"does not have")
+        if a["bitmap_chunk"] != bitmap_chunk:
+            a["bitmap"] = self._asif_stored(fh, bitmap_chunk, 0, chunk)
+            a["bitmap_chunk"] = bitmap_chunk
+        bitmap = a["bitmap"]
+        first = slot * (chunk // block)
+        blocks = want // block
+        out = bytearray(want)
+        run = None
+        for index in range(blocks + 1):
+            written = False
+            if index < blocks:
+                sector = first + index
+                value = (bitmap[sector // 4] >> ((sector % 4) * 2)) & 3
+                if value == 3:
+                    raise EwfFormatError(f"{name}: ASIF chunk {n} has an invalid bitmap "
+                                         f"state at block {index}")
+                written = value == 1
+            if written and run is None:
+                run = index
+            elif not written and run is not None:
+                out[run * block:index * block] = self._asif_stored(
+                    fh, physical, run * block, (index - run) * block)
+                run = None
+        return bytes(out)
+
     def _index_sparsebundle(self):
         """Read a sparse bundle's Info.plist and list its band files."""
         directory = self.paths[0]
@@ -7445,7 +7657,7 @@ class EwfImage:
             if tail:
                 want = tail
 
-        if self.format == FORMAT_EX01:
+        if self.format in _EWF2_FORMATS:
             data = self._chunk_data_v2(n)
             if len(data) < want:
                 self._note_padded("chunk", n, n * self.chunk_size, want, len(data), False)
@@ -7462,6 +7674,8 @@ class EwfImage:
             return self._keep(n, self._chunk_data_udif(n), want)
         if self.format == FORMAT_SPARSEIMAGE:
             return self._keep(n, self._chunk_data_sparse(n), want)
+        if self.format == FORMAT_ASIF:
+            return self._keep(n, self._chunk_data_asif(n), want)
         if self.format == FORMAT_SPARSEBUNDLE:
             return self._keep(n, self._chunk_data_bundle(n), want)
         if self.format == FORMAT_UDRW:
@@ -7708,11 +7922,15 @@ class EwfImage:
                 match = (computed[name] == value) if match in (None, True) else False
         checked, mismatched = 0, []
         sha1_checked, sha1_mismatched = 0, []
+        not_collected = []
         if ad1:
             checked, mismatched = ad1[2]["md5"], ad1[3]["md5"]
             sha1_checked, sha1_mismatched = ad1[2]["sha1"], ad1[3]["sha1"]
         for entry in [] if ad1 else self.logical_entries:
             if entry.md5 is None:
+                continue
+            if not entry.content_collected:
+                not_collected.append(entry.path)
                 continue
             digest = hashlib.md5()
             with self.open_entry(entry) as fh:
@@ -7740,6 +7958,7 @@ class EwfImage:
             "entry_md5_mismatched": mismatched,
             "entry_sha1_checked": sha1_checked,
             "entry_sha1_mismatched": sha1_mismatched,
+            "entry_content_not_collected": not_collected,
             "container_checks": container,
         }
 
@@ -7782,6 +8001,7 @@ class EwfImage:
             "vhdx": None if self.vhdx is None else dict(self.vhdx),
             "vmdk": None if self.vmdk is None else dict(self.vmdk),
             "qcow": None if self.qcow is None else dict(self.qcow),
+            "asif": None if self.asif is None else dict(self.asif),
             "ad1": None if self.ad1 is None else {
                 key: value for key, value in self.ad1.items()
                 if key not in ("first_item", "footer")},
@@ -7789,7 +8009,7 @@ class EwfImage:
 
 
 def open_ewf(path, segments=None, password=None, private_key=None) -> EwfImage:
-    """Open an acquisition ewfprobe reads: an EWF, EWF2 or L01 set from any path in
+    """Open an acquisition ewfprobe reads: an EWF, EWF2, L01 or Lx01 set from any path in
     it, an AFF file, an AFM from its .afm with its raw files beside it, an AFD
     directory from the directory or any file in it, an AFF4
     container (a striped one from any of its files), an Apple
@@ -7890,7 +8110,7 @@ def _cmd_info(args):
             if a["log"]:
                 print(f"log             {_shown(a['log'])}, FTK Imager's, which holds the "
                       f"stored hashes below")
-        elif d["format"] == FORMAT_L01:
+        elif d["format"] in _EWF_LOGICAL_FORMATS:
             print(f"media data      {d['media_size']:,} bytes ({_size(d['media_size'])}), "
                   f"the content of its entries")
             print(f"entries         {d['entry_count']:,}, {d['entry_md5_count']:,} with a "
@@ -7898,7 +8118,7 @@ def _cmd_info(args):
             print(f"chunk size      {d['chunk_size']:,} bytes")
         else:
             print(f"media size      {d['media_size']:,} bytes ({_size(d['media_size'])})")
-        if d["format"] == FORMAT_L01:
+        if d["format"] in _EWF_LOGICAL_FORMATS:
             # An L01's volume section declares no chunks; its tables list them.
             print(f"chunks          {d['indexed_chunks']:,}")
         elif d["format"] == FORMAT_AD1:
@@ -7925,6 +8145,11 @@ def _cmd_info(args):
             elif d["format"] == FORMAT_SPARSEIMAGE:
                 print(f"band size       {d['chunk_size']:,} bytes")
                 print(f"bands stored    {d['stored_bands']:,} of {d['chunk_count']:,}")
+            elif d["format"] == FORMAT_ASIF:
+                a = d["asif"]
+                print(f"chunk size      {a['chunk_size']:,} bytes")
+                print(f"block size      {a['block_size']:,} bytes")
+                print(f"image uuid      {a['uuid']}")
             elif d["format"] == FORMAT_SPARSEBUNDLE:
                 b = d["sparsebundle"]
                 print(f"band size       {b['band_size']:,} bytes")
@@ -8168,6 +8393,9 @@ def _cmd_verify(args):
             for path in bad:
                 print(f"  mismatch      {_shown(path)}")
             any_bad = any_bad or bool(bad)
+        if result["entry_content_not_collected"]:
+            print(f"folders whose content was not collected, so their stored MD5 could "
+                  f"not be checked: {len(result['entry_content_not_collected']):,}")
         if any_bad:
             return 1
         if result["match"] is None:
@@ -8187,7 +8415,7 @@ def _shown(text):
 
 def _cmd_files(args):
     with _open_cli(args) as img:
-        if img.format not in (FORMAT_L01, FORMAT_AD1):
+        if img.format not in (*_EWF_LOGICAL_FORMATS, FORMAT_AD1):
             raise EwfFormatError(f"{os.path.basename(args.image)} is a disk image, not "
                                  f"logical evidence; it holds no entry list")
         # The listing is data, so it is UTF-8 wherever it goes; on Windows a pipe or
@@ -8259,9 +8487,9 @@ def main(argv=None):
         prog="ewfprobe",
         description="Read an EnCase/EWF (.E01, .Ex01), SMART (.s01), AFF (.aff, "
                     ".afd) or AFF4 (.aff4) forensic image, an Apple disk image (.dmg, .sparseimage, "
-                    ".sparsebundle), a virtual machine disk (.vhd, .vhdx, .vmdk, .qcow2), "
+                    ".asif, .sparsebundle), a virtual machine disk (.vhd, .vhdx, .vmdk, .qcow2), "
                     "an E01, SMART or raw set FTK Imager encrypted "
-                    "with AD encryption, or logical evidence: EnCase's (.L01) or "
+                    "with AD encryption, or logical evidence: EnCase's (.L01, .Lx01) or "
                     "FTK Imager's (.ad1). Read only.")
     ap.add_argument("--version", action="version", version=f"ewfprobe {__version__}")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -8277,15 +8505,15 @@ def main(argv=None):
     s.add_argument("-q", "--quiet", action="store_true", help="no progress output")
     s.set_defaults(func=_cmd_verify)
 
-    s = sub.add_parser("files", help="list the entries of an L01 or AD1, tab separated")
+    s = sub.add_parser("files", help="list the entries of an L01, Lx01 or AD1, tab separated")
     s.add_argument("image")
     s.set_defaults(func=_cmd_files)
 
     s = sub.add_parser("export", help="write the acquired disk out as a raw image, or "
-                                      "one L01 or AD1 entry's content with --entry")
+                                      "one L01, Lx01 or AD1 entry's content with --entry")
     s.add_argument("image")
     s.add_argument("--entry", default=None,
-                   help="the path of an L01 or AD1 entry, as the files command "
+                   help="the path of an L01, Lx01 or AD1 entry, as the files command "
                         "lists it")
     s.add_argument("-o", "--output", default="-", help="output file, or - for stdout")
     s.add_argument("--offset", type=int, default=0, help="start at this byte offset")
