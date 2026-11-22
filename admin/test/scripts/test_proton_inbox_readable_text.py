@@ -11,6 +11,9 @@ read = proton._body_text_and_links  # pylint: disable=protected-access
 
 
 class ProtonBodyTextTest(unittest.TestCase):
+    def test_every_line_ending_shows_one_break(self):
+        self.assertEqual(artifact_report.cell_html('a\r\nb\rc\nd', 'Body', [], ['Body']), 'a<br>b<br>c<br>d')
+
     def test_a_page_reads_as_lines_of_text(self):
         page = ('<html><head><title>Hidden</title><style>p{color:red}</style></head><body>'
                 '<p>Hello&nbsp;<b>wor</b>ld</p><script>var x=1</script>'
@@ -46,6 +49,9 @@ class ProtonBodyTextTest(unittest.TestCase):
 
     def test_a_broken_character_reference_before_an_open_style_does_not_raise(self):
         self.assertIn('Hello', read('<p>Hello</p>&#<style>Kept')[0])
+
+    def test_markup_the_parser_refuses_does_not_raise(self):
+        self.assertIn('Hello', read('<p>Hello</p><![bogus]>')[0])
 
     def test_pre_keeps_a_line_end_before_an_inline_tag(self):
         self.assertEqual(read('<pre>one\n<b>two</b></pre>')[0], 'one\ntwo')

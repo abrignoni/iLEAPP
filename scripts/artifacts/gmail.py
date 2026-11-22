@@ -6,11 +6,12 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-15",
         "version": "0.0.2",
         "date": "2024-03-20",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-11-22",
         "requirements": "none",
         "category": "Gmail",
         "notes": "Column meanings for the offline_search_content FTS shadow table (positional columns c0 to c8) were inferred from observed content and are not sourced; Timestamp reads c0 as Unix milliseconds on the same basis. An account directory under Library/Application Support/data/ can carry its own searchsqlitedb; every matched store is read, in sorted path order. Sender Name and Sender Email are the stored sender value split at its commas, the first piece and the second; a name that contains a comma is split in the wrong place and any further piece is not reported. The Account column reports the name of the account directory the row's store sits under (email-address-shaped in tested images). Not every account directory holds one: in the tested two-account image only one account had an offline search store. A store that cannot be opened or queried is logged and skipped without dropping the other accounts' rows.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*',),
+        "multiline_columns": ["Body"],
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "search",
         "sample_data": {
