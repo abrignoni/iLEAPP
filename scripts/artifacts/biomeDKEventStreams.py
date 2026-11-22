@@ -159,51 +159,57 @@ __artifacts_v2__ = {
     },
     "get_biomeDKDisplayOrientation": {
         "name": "Biome - Display Orientation DKEvent",
-        "description": "Parses records from the _DKEvent.Display.Orientation biome stream. "
-                       "The stored value is reported in Value (raw) without an orientation "
-                       "label.",
+        "description": "Parses records from the _DKEvent.Display.Orientation biome stream, with "
+                       "the stored value labelled Portrait, Landscape or Unknown.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Biome",
-        "notes": ("The meaning of the stored value is not established for this stream, so the "
-                 "Value column is left empty and the stored value is reported in Value (raw). "
-                 "On the nine "
-                 "tested images (abe_ios16, dexter_ios18, felix_ios17, hc_ios18_7, hc_ios26, "
-                 "iphone11_ios17, iphone12_ios18, iphone14plus_ios18, otto_ios17) the stored "
-                 "value was 0, 1 or 2 on every written record (163, 139 and 20 rows); 3 to 6 did "
-                 "not occur. Published research lists the values 0, 1 and 2 for this stream, and "
-                 "APOLLO labels the knowledgeC /display/orientation stream 0 Portrait and 1 "
-                 "Landscape "
-                 "(https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_device_orientation.txt). "
-                 "The UIDeviceOrientation enumeration (0 Unknown, 1 Portrait, 2 Portrait Upside "
-                 "Down, 3 Landscape Left, 4 Landscape Right, 5 Face Up, 6 Face Down) is a second "
-                 "candidate reading that disagrees with APOLLO on the value 1; that this stream "
-                 "uses either was not tested, so neither is applied. Deleted records carry no "
-                 "value. UIDeviceOrientation source: Apple UIKit header UIDevice.h, "
-                 "mirrored at "
-                 "https://github.com/silent0123/OSXDev/blob/c943c2158bcd3a6caa3023e396e653cbe3832ae1/"
-                 "uSav-Mac/usavMac/UIKit.framework/Headers/UIDevice.h "
-                 "Stream reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
-                 "Biome', "
+        "notes": ("The value meanings below were derived independently from Apple's "
+                 "KnowledgeMonitor and CoreDuet code on the iOS builds named and from measured "
+                 "data. Value is the stored integer labelled from the writer's table: 0 Portrait, "
+                 "1 Landscape, 2 Unknown, and Value (raw) keeps the integer. The writer takes the "
+                 "interface orientation of a display layout "
+                 "(FBSDisplayLayout.interfaceOrientation) and collapses it: portrait and portrait "
+                 "upside down become 0, landscape left and right become 1, and any other input "
+                 "becomes 2. The value therefore does not say which landscape, whether portrait "
+                 "was upside down, or how the device was held, and whether rotation lock or a "
+                 "portrait-only app records portrait on a sideways device is not established. The "
+                 "writer logic was read on iOS 12.4, 13.3.1, 14.3 and 18.7, where the table is the"
+                 " same; iOS 15, 16, 17 and 26 were not read. The "
+                 "Device.Display.InterfaceOrientation stream stores the same states with different"
+                 " integers. On iOS 18.7 the writer converts 0 to 1, 1 to 2 and 2 to 0. The "
+                 "category names 0 Unknown, 1 Portrait and 2 Landscape were read on macOS 27.2.1 "
+                 "(26B131). For each record with a positive duration, the category stream's value "
+                 "at the record's midpoint was compared. The two tables agreed on 300 of 327 "
+                 "across 19 images, and the 27 mismatches are not explained. On iOS 18.7 the "
+                 "writer sets the event start from the current time when the layout handler runs. "
+                 "Every stored start and end time measured is a whole second. On iOS 18.7 the "
+                 "writer sets the previous event's end to the next event's start on a change, but "
+                 "stored records do not always follow that, and 173 of 517 written records on 19 "
+                 "images have equal start and end times, at one-second resolution. The delay "
+                 "between a rotation and Start Timestamp is not established. SEGB Timestamp is the"
+                 " time in the SEGB record header, and its meaning is not established. Deleted "
+                 "records carry no value. Stream reference: Mattia Epifani, '84 Streams Later, "
+                 "Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
-                 " "
-                 "Metadata lists each metadata entry that holds a string or integer value as "
-                 "key=value (entries with another value type are not listed; none occurred on the "
-                 "tested images). The key is the entry's key string (field 7.N.1) or, when that is "
-                 "empty, the CoreDuet key name for its integer index (7.N.3), or the index itself "
-                 "where no name is known. Value (string) is the value field's string (4.3) and "
-                 "Value (raw) its integer (4.4); on the tested images only the Siri UI records stored a "
-                 "string value. Stream Name is field 1.1. The layout and key names "
-                 "follow the _DKPREvent and _DKPRMetadataEntry classes of CoreDuet.framework read "
-                 "on macOS 27.2.1 (26B131); no iOS copy of the classes was read."),
+                 " Metadata lists each metadata entry that holds a string or integer value as "
+                 "key=value (entries with another value type are not listed). No record of this "
+                 "stream held a metadata entry on the 19 images measured. The key is the entry's "
+                 "key string (field 7.N.1) or, when that is empty, the CoreDuet key name for its "
+                 "integer index (7.N.3), or the index itself where no name is known. Value "
+                 "(string) is the value field's string (4.3) and Value (raw) its integer (4.4). "
+                 "Stream Name is field 1.1. The layout and key names follow the _DKPREvent and "
+                 "_DKPRMetadataEntry classes of CoreDuet.framework read on macOS 27.2.1 (26B131)."),
         "paths": ('*/streams/*/_DKEvent.Display.Orientation/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
         "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | 12 rows",
             "hc_ios18_7": "iOS 18.7.8 | 94 rows",
             "iphone11_ios17": "iOS 17.3 | 85 rows",
+            "iphone12_ios18": "iOS 18.7 | 208 rows",
         },
     },
     "get_biomeDKSiriUi": {
@@ -332,6 +338,8 @@ TYPESS = {
 }
 
 ON_OFF = {0: 'Off', 1: 'On'}
+# The writer's three categories for _DKEvent.Display.Orientation.
+DISPLAY_ORIENTATION = {0: 'Portrait', 1: 'Landscape', 2: 'Unknown'}
 
 # Metadata index to key name, for the indexes these streams use. Read from CoreDuet.framework
 # on macOS 27.2.1 (26B131) by converting synthetic _DKPREvent records with
@@ -480,7 +488,7 @@ def get_biomeDKDeviceLowPowerMode(context):
 
 @artifact_processor
 def get_biomeDKDisplayOrientation(context):
-    return _parse(context, 'Display Orientation DKEvent', None)
+    return _parse(context, 'Display Orientation DKEvent', DISPLAY_ORIENTATION)
 
 
 @artifact_processor
