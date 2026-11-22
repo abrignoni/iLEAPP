@@ -49,7 +49,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.85"
+QNXPROBE_VERSION = "1.86"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -12585,7 +12585,7 @@ def _zip_time(v):
         d = datetime.datetime.fromtimestamp(v, datetime.timezone.utc)
     except (OverflowError, OSError, ValueError):
         pass
-    if d is None or d.year < 1980:      # the zip format cannot hold earlier
+    if d is None or not 1980 <= d.year <= 2107:  # the zip format holds only these
         return (1980, 1, 1, 0, 0, 0)
     return (d.year, d.month, d.day, d.hour, d.minute, d.second)
 
@@ -12789,15 +12789,19 @@ _ZIP_UNSAFE = set(range(0x20)) | {0x7F, ord("\\"), ord(":")}
 def _zip_safe_component(part):
     """One path component as a zip member may hold it: '.', '..' and an empty
     component (a '/' that was part of a stored name, or a leading one) are
-    written escaped, and so is any character in _ZIP_UNSAFE, as %XX of its
-    UTF-8 bytes. A '%' is escaped too, but only in a component that needs other
+    written escaped, and so is any character in _ZIP_UNSAFE or a lone surrogate,
+    as %XX of its UTF-8 bytes. A '%' is escaped too, but only in a component that needs other
     escaping, so ordinary names stay exactly as stored."""
     if part in ("", ".", ".."):
         return {"": "%2F", ".": "%2E", "..": "%2E%2E"}[part]
-    if not any(ord(c) in _ZIP_UNSAFE for c in part):
+    def unsafe(c):
+        # a lone surrogate can come from a stored name and has no UTF-8 form
+        return ord(c) in _ZIP_UNSAFE or 0xD800 <= ord(c) <= 0xDFFF
+
+    if not any(unsafe(c) for c in part):
         return part
-    return "".join("".join(f"%{b:02X}" for b in c.encode("utf-8"))
-                   if ord(c) in _ZIP_UNSAFE or c == "%" else c for c in part)
+    return "".join("".join(f"%{b:02X}" for b in c.encode("utf-8", "surrogatepass"))
+                   if unsafe(c) or c == "%" else c for c in part)
 
 
 def zip_member_name(volume, path):
@@ -12817,7 +12821,16 @@ def damage_lines(w, limit=5):
     return len(damage), [str(d)[:240] for d in list(damage)[:limit]]
 
 
-def extract_to_zip(zf, w, volume, entries, log, progress=None):
+def _zip_names_in_use(zf, volume, entries):
+    """Every file and folder name the zip holds or this volume's entries will take."""
+    names = set()
+    for name in [*zf.namelist(), *(zip_member_name(volume, e[0]) for e in entries)]:
+        parts = name.rstrip("/").split("/")
+        names.update("/".join(parts[:depth]) for depth in range(1, len(parts) + 1))
+    return names
+
+
+def extract_to_zip(zf, w, volume, entries, log, progress=None, short_names=None):
     """Stream each regular file into the open zipfile. Returns a tally.
 
     Returns (files, written, skipped, failed, short). progress, when given, is
@@ -12835,7 +12848,9 @@ def extract_to_zip(zf, w, volume, entries, log, progress=None):
     answers a seek past the end of the file with empty bytes, so the walker
     hands back fewer bytes than the inode says and raises nothing. Such a file
     is counted in short, not in files, and logged, and it is stored under a name
-    that says how much of it is here: <path>.SHORT-<got>-of-<size>-bytes.
+    that says how much of it is here: <path>.SHORT-<got>-of-<size>-bytes, with a
+    number after it when another member already has that name. short_names, when
+    given, is filled with {member name: name it was written under} for these.
 
     Each file is read in full into a spool before anything is written, because
     zipfile cannot remove a member once it is written. A file whose read raises
@@ -12851,6 +12866,7 @@ def extract_to_zip(zf, w, volume, entries, log, progress=None):
     total_files = sum(1 for _, _, size, _ in entries if size is not None)
     total_bytes = sum(size for _, _, size, _ in entries if size is not None)
     files = written = skipped = failed = short = 0
+    reserved = None
     for path, ino, size, mtime in entries:
         arc = zip_member_name(volume, path)
         if arc != f"{volume}/{path}":
@@ -12873,7 +12889,16 @@ def extract_to_zip(zf, w, volume, entries, log, progress=None):
                 past_end = EOF_SHORTFALL["bytes"] - before
                 got = min(got, max(size - past_end, 0))
                 if got < size:
-                    info.filename = f"{arc}.SHORT-{got}-of-{size}-bytes"
+                    if reserved is None:
+                        reserved = _zip_names_in_use(zf, volume, entries)
+                    stem = f"{arc}.SHORT-{got}-of-{size}-bytes"
+                    info.filename, retry = stem, 1
+                    while info.filename in reserved:
+                        retry += 1
+                        info.filename = f"{stem}-{retry}"
+                    reserved.add(info.filename)
+                    if short_names is not None:
+                        short_names[arc] = info.filename
                 spool.seek(0)
                 with zf.open(info, "w") as dst:
                     shutil.copyfileobj(spool, dst)
@@ -30223,7 +30248,7 @@ def _logical_volume_name(path, manifest):
     def held(volume):
         return {_zip_safe_component(volume), _zip_safe_component(f"{volume}.entries.tsv")}
 
-    used = set()
+    used = {"volumes.json"}             # the zip's record of the run, at its root
     for rec in manifest or []:
         if rec.get("volume"):
             used |= held(rec["volume"])
@@ -30234,7 +30259,8 @@ def _logical_volume_name(path, manifest):
     return name
 
 
-def _write_logical_table(zf, volume, entries, members, excluded, walker, arcs):
+def _write_logical_table(zf, volume, entries, members, excluded, walker, arcs,
+                         short_names=None):
     """<volume>.entries.tsv in the zip: one row per entry, with its path and times
     as the container stores them, since a zip member keeps one time and a name made
     safe. Returns the member name."""
@@ -30261,7 +30287,8 @@ def _write_logical_table(zf, volume, entries, members, excluded, walker, arcs):
             elif got is None:
                 status, arc = "FAILED", ""
             elif got < entry.size:
-                arc = f"{arcs[member]}.SHORT-{got}-of-{entry.size}-bytes"
+                arc = (short_names or {}).get(
+                    arcs[member], f"{arcs[member]}.SHORT-{got}-of-{entry.size}-bytes")
                 status = "SHORT"
             else:
                 status, arc = "complete", arcs[member]
@@ -30321,7 +30348,7 @@ def read_logical_image(image, path, do_list=False, list_depth=2, list_max=400, e
             mark = "/" if entry.is_folder else ""
             gone = "  [deleted]" if getattr(entry, "is_deleted", False) else ""
             print(f"      {human(entry.size) if not entry.is_folder else '':>10}  "
-                  f"{entry.path}{mark}{gone}")
+                  f"{entry.path.encode('utf-8', 'backslashreplace').decode()}{mark}{gone}")
         else:
             if below:
                 print(f"      ... {below:,} entries below --depth {list_depth}")
@@ -30336,12 +30363,14 @@ def read_logical_image(image, path, do_list=False, list_depth=2, list_max=400, e
         kept = {r[0] for r in rows}
         excluded = {m for m, _e in members if m not in kept}
         log = []
+        short_names = {}
         files, written, skipped, failed, short = extract_to_zip(
-            zf, walker, volume, rows, log, reporter)
+            zf, walker, volume, rows, log, reporter, short_names)
         log = [line.replace("are in the image, the rest lies past its end",
                             "are in the container") for line in log]
         arcs = {m: zip_member_name(volume, m) for m, _e in members}
-        table = _write_logical_table(zf, volume, entries, members, excluded, walker, arcs)
+        table = _write_logical_table(zf, volume, entries, members, excluded, walker, arcs,
+                                     short_names)
         checks = collections.Counter(c for _g, c in walker.results.values())
         print(f"      {files:,} files, {human(written)}"
               + (f", {failed:,} FAILED" if failed else "")
@@ -34965,7 +34994,10 @@ def self_test():
                 ("two images whose names escape alike get separate zip folders",
                  _logical_volume_name("a%3Ab.L01", [{"volume": "a:b"}]) == "a%3Ab_2"
                  and _logical_volume_name("a.entries.tsv.L01", [{"volume": "a"}])
-                 == "a.entries.tsv_2"),
+                 == "a.entries.tsv_2"
+                 and _logical_volume_name("volumes.json.L01", []) == "volumes.json_2"),
+                ("a stored name with a lone surrogate is escaped so the zip can hold it",
+                 _zip_safe_component("a\ud800") == "a%ED%A0%80"),
                 ("a file that starts with the ASIF signature and has no version is raw",
                  acquisition_format(shdw_raw) is None),
                 ("a sparse bundle is named by its Info.plist, an encrypted one by its "
@@ -38514,7 +38546,8 @@ def self_test():
             kline = [ln for ln in shown.getvalue().splitlines() if " kernel " in ln]
             tcond = (k_mtime is None and lf_mtime is None and len(kline) == 1
                      and "1970" not in shown.getvalue()
-                     and _zip_time(None) == (1980, 1, 1, 0, 0, 0))
+                     and _zip_time(None) == (1980, 1, 1, 0, 0, 0)
+                     and _zip_time(7258118400) == (1980, 1, 1, 0, 0, 0))
             if not tcond:
                 ok = False
             print(f"  [{'PASS' if tcond else 'FAIL'}] a raw UBI volume and YAFFS's lost+found, "
