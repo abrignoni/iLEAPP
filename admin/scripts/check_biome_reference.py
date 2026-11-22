@@ -265,8 +265,9 @@ def claimed_classes(notes):
     found = set()
     for pattern in NOTE_CLASS_CLAIMS:
         for match in pattern.finditer(text):
-            sentence = text[:match.start()].rsplit('. ', 1)[-1]
-            if not NOTE_CONTRAST.search(sentence):
+            before = text[:match.start()].rsplit('. ', 1)[-1]
+            after = text[match.end():].split('. ', 1)[0]
+            if not NOTE_CONTRAST.search(before) and not NOTE_CONTRAST.search(after):
                 found.add(match.group(1).lstrip('_'))
     return found
 

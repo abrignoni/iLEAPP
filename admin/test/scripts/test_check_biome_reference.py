@@ -168,6 +168,11 @@ class CouldNotCheckIsNotAFailure(unittest.TestCase):
         items, _ = run_on(synthetic('', notes=notes))
         self.assert_no_difference(items, 'stream')
 
+    def test_contrast_after_the_class_is_not_a_contradiction(self):
+        notes = "The fields of the BMAppInFocus class are separate from this stream's fields."
+        items, _ = run_on(synthetic('', notes=notes))
+        self.assert_no_difference(items, 'stream')
+
     def test_table_sharing_two_names_with_an_enum_is_not_bound(self):
         self.assertEqual(cbr.compare_table({0: 'Alpha', 1: 'Beta', 2: 'Other'},
                                            {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}})[0],
