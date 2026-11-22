@@ -46,9 +46,16 @@ TYPE_WIRE = {'uint': 0, 'int': 0, 'sint': 0, 'fixed32': 5, 'sfixed32': 5, 'float
              'bytes_hex': 2, 'message': 2}
 SEGMENT = re.compile(r'streams/(?:\*|public|restricted|private)?/?([A-Za-z0-9_.\-]+)/(?:local|remote|\*)')
 NOTE_CLASS = re.compile(r'\b(_?BM[A-Z][A-Za-z0-9]+) class\b')
-# The wording that says a stream's fields come from a class. Any other mention of a class
+# The wordings that say a stream's fields come from a class. Any other mention of a class
 # can be a comparison ("separate from the BMx class"), so it cannot be a contradiction.
-NOTE_CLASS_CLAIM = re.compile(r'\b(?:are|is) (?:those|that) of the (_?BM[A-Z][A-Za-z0-9]+) class\b')
+NOTE_CLASS_CLAIMS = (
+    re.compile(r'(?:\b(?:are|is) (?:those|that)|\bfields?|\)|\bvalue) of the '
+               r'(_?BM[A-Z][A-Za-z0-9]+) class\b'),
+    re.compile(r'\bcomes? from the (_?BM[A-Z][A-Za-z0-9]+) class\b'),
+    re.compile(r'\bthe (_?BM[A-Z][A-Za-z0-9]+) class names\b'),
+)
+NOTE_CONTRAST = re.compile(r'\b(?:not|unlike|instead|rather than|separate|compared?|versus)\b',
+                           re.I)
 CITED = re.compile(r'\b_?(BM[A-Z][A-Za-z0-9]+)\b')
 VERSION_NAME = re.compile(r'_V\d+$')
 FIELD_STATEMENTS = (
@@ -252,6 +259,18 @@ def path_segments(entry):
     return found
 
 
+def claimed_classes(notes):
+    """Classes the notes state as the source of the fields, in a sentence with no contrast."""
+    text = ' '.join(notes.split())
+    found = set()
+    for pattern in NOTE_CLASS_CLAIMS:
+        for match in pattern.finditer(text):
+            sentence = text[:match.start()].rsplit('. ', 1)[-1]
+            if not NOTE_CONTRAST.search(sentence):
+                found.add(match.group(1).lstrip('_'))
+    return found
+
+
 def callee(call):
     return call.func.attr if isinstance(call.func, ast.Attribute) else getattr(call.func, 'id', '')
 
@@ -316,7 +335,7 @@ class ModuleCheck:
                 self.add('stream', name, segment, status)
             notes = str(entry.get('notes') or '')
             reach = self.ref.reach(classes - {None})
-            claimed = {c.lstrip('_') for c in NOTE_CLASS_CLAIM.findall(notes)}
+            claimed = claimed_classes(notes)
             for stated in sorted({c.lstrip('_') for c in NOTE_CLASS.findall(notes)}):
                 if stated not in self.ref.classes or not segments or None in classes:
                     status, detail = UNCHECKED, ''
@@ -490,18 +509,27 @@ class ModuleCheck:
         return inner
 
     def inline_version_tables(self):
-        """Tables written directly as the values of a {version: table} dict."""
-        inline = set()
+        """{table: label} for tables written directly as values of a {version: table} dict."""
+        owner = self.node_owners()
+        variable = {n.value: n.targets[0].id for n in ast.walk(self.tree)
+                    if isinstance(n, ast.Assign) and len(n.targets) == 1
+                    and isinstance(n.targets[0], ast.Name)}
+        inline = {}
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Dict) and node.keys and all(
                     isinstance(k, ast.Constant) and type(k.value) is int for k in node.keys):
-                inline.update(val for val in node.values if isinstance(val, ast.Dict))
+                parent = variable.get(node)
+                scope = f'{owner[node]}.' if node in owner else ''
+                for key, val in zip(node.keys, node.values):
+                    if isinstance(val, ast.Dict):
+                        inline[val] = f'{scope}{parent}[{key.value}]' if parent else None
         return inline
 
     def named_tables(self):
         seen = set()
         owner = self.node_owners()
         inline = self.inline_version_tables()
+        unnamed = collections.Counter()
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(
                     node.targets[0], ast.Name):
@@ -513,8 +541,13 @@ class ModuleCheck:
             if isinstance(node, ast.Dict) and id(node) not in seen:
                 table = literal_table(node)
                 if table:
-                    keys = ','.join(str(k) for k in sorted(table))
-                    yield f"{owner.get(node, 'module')}.table({keys})", table, True, node in inline
+                    label = inline.get(node)
+                    if not label:
+                        keys = ','.join(str(k) for k in sorted(table))
+                        base = f"{owner.get(node, 'module')}.table({keys})"
+                        unnamed[base] += 1
+                        label = base if unnamed[base] == 1 else f'{base}#{unnamed[base]}'
+                    yield label, table, True, node in inline
 
     def check_tables(self):
         inner = self.version_inner()
@@ -592,7 +625,8 @@ def apply_exceptions(items, exceptions):
     used, out = set(), []
     for item in items:
         key = (item.module, item.kind, item.item, item.key)
-        if item.status == DIFFERENT and key in index and str(index[key].get('value')) == item.stored:
+        value = index[key].get('value') if key in index else None
+        if item.status == DIFFERENT and isinstance(value, str) and value == item.stored:
             used.add(key)
             out.append(item._replace(status=CONFIRMED, detail=f"exception: {index[key]['reason']}"))
         else:

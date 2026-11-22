@@ -163,6 +163,11 @@ class CouldNotCheckIsNotAFailure(unittest.TestCase):
         items, _ = run_on(synthetic('', notes=notes))
         self.assert_no_difference(items, 'stream')
 
+    def test_contrast_in_a_field_claim_is_not_a_contradiction(self):
+        notes = 'Unlike field 3 (name) of the BMAppInFocus class, this holds a level.'
+        items, _ = run_on(synthetic('', notes=notes))
+        self.assert_no_difference(items, 'stream')
+
     def test_table_sharing_two_names_with_an_enum_is_not_bound(self):
         self.assertEqual(cbr.compare_table({0: 'Alpha', 1: 'Beta', 2: 'Other'},
                                            {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}})[0],
@@ -178,6 +183,17 @@ class CouldNotCheckIsNotAFailure(unittest.TestCase):
         full = {'full': {0: 'Alpha', 1: 'Beta', 2: 'Gamma'}}
         table = {0: 'Beta', 1: 'Alpha', 2: 'Gamma'}
         self.assertNotEqual(cbr.compare_table(table, full, keyed=False)[0], cbr.DIFFERENT)
+
+
+class StatedClassClaims(unittest.TestCase):
+    def test_each_source_wording_is_judged(self):
+        for notes in ('Level is field 2 (level) of the BMAppInFocus class, read from a framework.',
+                      'Field names come from the BMAppInFocus class in a framework.',
+                      'Field names are those of the BMAppInFocus class.',
+                      'The level and state fields of the BMAppInFocus class.',
+                      'Field 2 is what the BMAppInFocus class names level.'):
+            with self.subTest(notes=notes):
+                self.assertEqual(len(different(run_on(synthetic('', notes=notes))[0], 'stream')), 1)
 
 
 class TypedefBinding(unittest.TestCase):
@@ -277,6 +293,36 @@ class Exceptions(unittest.TestCase):
         items, stale = run_on(self.FILES, [entry])
         self.assertTrue(different(items, 'enum'))
         self.assertEqual(len(stale), 1)
+
+    def test_exception_with_null_value_does_not_clear_the_name_none(self):
+        files = planted('biomeMotionActivity.py', "1: 'Low'", "1: 'None'")
+        found = different(run_on(files)[0], 'enum')[0]
+        for entry in ({}, {'value': None}):
+            waiver = {'module': found.module, 'kind': found.kind, 'item': found.item,
+                      'key': found.key, 'reason': 'test', **entry}
+            items, stale = run_on(files, [waiver])
+            self.assertTrue(different(items, 'enum'))
+            self.assertEqual(len(stale), 1)
+
+    def test_exception_does_not_leak_between_inline_tables(self):
+        body = """
+            _FIRST = {1: {0: 'Alpha', 1: 'Beta'}}
+            _SECOND = {1: {0: 'Alpha', 1: 'Beta'}}
+            """
+        module = cbr.ModuleCheck.__new__(cbr.ModuleCheck)
+        module.tree = cbr.ast.parse(textwrap.dedent(body))
+        names = [row[0] for row in module.named_tables()]
+        self.assertEqual(sorted(names), ['_FIRST[1]', '_SECOND[1]'])
+
+    def test_unnamed_tables_with_the_same_keys_differ(self):
+        body = """
+            print({0: 'Alpha', 1: 'Beta'})
+            print({0: 'Gamma', 1: 'Delta'})
+            """
+        module = cbr.ModuleCheck.__new__(cbr.ModuleCheck)
+        module.tree = cbr.ast.parse(textwrap.dedent(body))
+        names = [row[0] for row in module.named_tables()]
+        self.assertEqual(len(set(names)), 2)
 
     def test_exception_survives_a_line_added_above_a_typedef(self):
         files = planted('biomeBacklight.py', "'2': {'type': 'int'", "'2': {'type': 'double'")
