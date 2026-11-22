@@ -63,9 +63,7 @@ __artifacts_v2__ = {
                  " source_id and device_id resolved in healthdb.sqlite (sources, logical_sources, "
                  "source_devices). First Sample Start, Last Sample End and Sample Rows cover samples "
                  "whose objects.type is 1, Deleted Sample Rows counts type 2, and Other Rows any other "
-                 "type. First Sample Start is blank for a provenance with no type 1 sample. Times are "
-                 "UTC. Device and the other device columns are as stored, including the literal "
-                 "__NONE__. Origin OS Version (as stored) is the stored major, minor and patch. Origin "
+                 "type. First Sample Start is blank for a provenance with no type 1 sample. First Sample Start and Last Sample End are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Device and the other device columns are as stored, including the literal __NONE__. A binary value in Device Local Identifier, Device UDI, Device Bluetooth Identifier, sync_provenance, derived_flags, sync_identity or Source Deleted would be shown as a UUID or as hex. None occurred on the corpus keys run. Origin OS Version (as stored) is the stored major, minor and patch. Origin "
                  "and Local Product Model and OS Version are names looked up from the stored product "
                  "type and build. The meaning of sync_provenance, derived_flags, sync_identity and "
                  "Source Deleted is not established, so they are shown as stored. Owner Bundle ID, "
@@ -121,17 +119,15 @@ __artifacts_v2__ = {
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. One row per sample of type 173, the code of "
                  "HKQuantityTypeIdentifierHeadphoneAudioExposure in the _HKDataTypeDefinitions tables of"
-                 " the iOS 13, 14, 15 and 18 HealthKit builds read, plus one row per series point. A "
-                 "series point repeats its parent's Record Added or Deleted, metadata, device and source"
-                 " columns. Record Kind is sample, series parent, series point or deleted sample record."
+                 " the iOS 13.3, 14.3 and 18.7 HealthKit builds read, plus one row per series point. A "
+                 "series point repeats its parent's Record Added or Deleted, metadata, device and Source columns. Record Kind is sample, series parent, series point or deleted sample record."
                  " Any other objects.type is shown as its stored number, marked not established. None "
                  "occurred on the corpus keys run. objects.type 2 is a deleted sample record: the iOS "
                  "14.3 and 18.7 HealthDaemon builds create the index objects_deleted on objects.type = "
                  "2, and HealthDaemon has a deleted-object insert (HDDeletedObjectEntity). The index is "
                  "not in the 12.4 and 13.3 builds read. Type 1 rows are reported as samples, and every "
                  "one held a quantity row on the corpus keys run. No deleted sample record of this type "
-                 "was present on the corpus keys run. On the other sample types of this module none held"
-                 " a quantity row. It shows that a sample of this type existed. Record Added or Deleted "
+                 "was present on the corpus keys run. On the corpus keys run no deleted sample record of any type held a quantity row, so a deleted record carries no value. A deleted sample record shows that a sample of this type existed. Record Added or Deleted "
                  "is then objects.creation_date, which the deleted-object insert writes. That this value"
                  " is the deletion date rests on the order of that method's arguments. It can have no "
                  "Start or End. On a type 1 row, Record Added or Deleted is objects.creation_date, and "
@@ -144,15 +140,13 @@ __artifacts_v2__ = {
                  "those in SQLite. On hickman_ios13, hickman_ios14 and hickman_ios15 the declared points"
                  " are not in SQLite. healthdb_secure.hfd is not read, so only the parent row is "
                  "reported there. The iOS 18.7 HealthDaemon build has a migration of series data from "
-                 "that store to SQLite. What the file holds was not read. series_location is shown as "
-                 "stored: 2 goes with points in SQLite, and the meaning of 0 and 1 is not established. "
+                 "that store to SQLite. What the file holds was not read. series_location is shown as stored. On the corpus keys run 2 went with points in SQLite and 1 with points not in SQLite (hickman_ios15). The meaning of the values is not established. The column is absent on hickman_ios13 and hickman_ios14. "
                  "_HKPrivateMediaSourceBundleIdentifier (as stored) is that metadata value, and its "
                  "meaning is not established beyond the key name. Other Metadata holds any other key as "
-                 "stored, including _HKPrivateMetadataKeyHeadphoneAudioDataIsTransient, whose meaning is"
-                 " not established. The statistics archives in "
+                 "stored, including _HKPrivateMetadataKeyHeadphoneAudioDataIsTransient, whose meaning is not established. A binary metadata value is shown as its byte length. The statistics archives in "
                  "hearing_headphone_audio_exposure_statistics (healthdb.sqlite) are not read. Original "
                  "Value (as stored) and Original Unit (as stored) held no value on any row of the corpus"
-                 " keys run. See also: Heather Mahalik and Jared Barnhart, SANS DFIR Summit 2022, "
+                 " keys run. Start, End and Record Added or Deleted are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Provenance ROWID is the Row ID of Health - Provenances, which holds the bundle ID. See also: Heather Mahalik and Jared Barnhart, SANS DFIR Summit 2022, "
                  "https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
@@ -197,8 +191,7 @@ __artifacts_v2__ = {
         "notes": "The field meanings (except the model names looked up from stored hardware identifiers)"
                  " and method below were derived independently, using the store's schema, measured data "
                  "and Apple's code. One row per sample of type 5, the code of "
-                 "HKQuantityTypeIdentifierHeartRate in the _HKDataTypeDefinitions tables of the iOS 13, "
-                 "14, 15 and 18 HealthKit builds read, plus one row per series point. A series point "
+                 "HKQuantityTypeIdentifierHeartRate in the _HKDataTypeDefinitions tables of the iOS 13.3, 14.3 and 18.7 HealthKit builds read, plus one row per series point. A series point "
                  "repeats its parent's Record Added or Deleted, context, device and source columns. "
                  "Record Kind is sample, series parent, series point or deleted sample record. Any other"
                  " objects.type is shown as its stored number, marked not established. None occurred on "
@@ -220,8 +213,7 @@ __artifacts_v2__ = {
                  "SQLite. On hickman_ios14 and hickman_ios15 the declared points are not in SQLite. "
                  "healthdb_secure.hfd is not read, so only the parent row is reported there. The iOS "
                  "18.7 HealthDaemon build has a migration of series data from that store to SQLite. What"
-                 " the file holds was not read. series_location is shown as stored: 2 goes with points "
-                 "in SQLite, and the meaning of 0 and 1 is not established. Heart Rate Context Value is "
+                 " the file holds was not read. series_location is shown as stored. On the corpus keys run 2 went with points in SQLite and 1 with points not in SQLite (hickman_ios15). The meaning of the values is not established. The column is absent on hickman_ios13 and hickman_ios14. Heart Rate Context Value is "
                  "the stored number of the _HKPrivateHeartRateContext metadata key. Heart Rate Context "
                  "is the string HealthKit's _NSStringFromPrivateHeartRateContext returns for codes 0 to "
                  "9, read statically from the iOS 12.4, 13.3, 14.3 and 18.7 builds, where all four "
@@ -231,7 +223,7 @@ __artifacts_v2__ = {
                  "while Sleep Mode is enabled on 18.7 and absent from the older builds, so both show as "
                  "not established with the stored number kept. Device Name is as stored, including the "
                  "literal __NONE__. Model Name is looked up from Hardware. Other Metadata (as stored) "
-                 "held no value on any row of the corpus keys run. See also: Heather Mahalik and Jared "
+                 "held no value on any row of the corpus keys run. Start, End and Record Added or Deleted are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Provenance ROWID is the Row ID of Health - Provenances, which holds the bundle ID. See also: Heather Mahalik and Jared "
                  "Barnhart, SANS DFIR Summit 2022, https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
@@ -275,8 +267,7 @@ __artifacts_v2__ = {
         "notes": "The field meanings (except the model names looked up from stored product types) and "
                  "method below were derived independently, using the store's schema, measured data and "
                  "Apple's code. One row per sample of type 118, the code of "
-                 "HKQuantityTypeIdentifierRestingHeartRate in the _HKDataTypeDefinitions tables of the "
-                 "iOS 13, 14, 15 and 18 HealthKit builds read. Record Kind is sample or deleted sample "
+                 "HKQuantityTypeIdentifierRestingHeartRate in the _HKDataTypeDefinitions tables of the iOS 13.3, 14.3 and 18.7 HealthKit builds read. Record Kind is sample or deleted sample "
                  "record on the corpus keys run. A series parent or series point would be labelled as "
                  "such, and any other objects.type is shown as its stored number, marked not "
                  "established. objects.type 2 is a deleted sample record: the iOS 14.3 and 18.7 "
@@ -292,9 +283,8 @@ __artifacts_v2__ = {
                  "carried in by sync is not established. The stored value is in count/min (beats per "
                  "minute): on every row with a stored original unit, that unit is count/s and the stored"
                  " value is the original times 60. Source Product Type is sources.product_type, and "
-                 "Model Name is looked up from it. Metadata is shown as stored, and the meaning of its "
-                 "keys is not established. Series Point Status held no value on any row of the corpus "
-                 "keys run. See also: Heather Mahalik and Jared Barnhart, SANS DFIR Summit 2022, "
+                 "Model Name is looked up from it. Device Name is as stored, and it held the literal __NONE__ on every row of the corpus keys run. Metadata is shown as stored, and the meaning of its keys is not established. A binary metadata value is shown as its byte length. Series Point Status held no value on any row of the corpus "
+                 "keys run. Start, End and Record Added or Deleted are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Provenance ROWID is the Row ID of Health - Provenances, which holds the bundle ID. See also: Heather Mahalik and Jared Barnhart, SANS DFIR Summit 2022, "
                  "https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
@@ -339,12 +329,12 @@ __artifacts_v2__ = {
                  "schema, measured data and Apple's code. One row per earned instance, joined to "
                  "ACHAchievementsPlugin_templates on the template's unique name. Earned Date is a "
                  "calendar date stored as text and is not converted, because it is not an instant. "
-                 "Created Timestamp is Cocoa seconds. It is stored as a number, or as numeric text on "
+                 "Created Timestamp is read as Cocoa seconds, which rests on its range. It is stored as a number, or as numeric text on "
                  "wilkerson_iphone16_ios26, the one key with rows whose schema declares the column TEXT."
                  " A value that is neither is left unconverted by this artifact. Value and Unit are "
                  "value_in_canonical_unit and value_canonical_unit as stored. Template In Store says "
                  "whether the template row exists. The meaning of Creator Device, sync_provenance and "
-                 "sync_identity is not established, so they are shown as stored. The template catalog "
+                 "sync_identity is not established, so they are shown as stored. A binary value in these three columns would be shown as a UUID or as hex. None occurred on the corpus keys run. The template catalog "
                  "and fitness_friend_achievements are not reported, and achievement badge files in app "
                  "containers are not read. See also: Heather Mahalik and Jared Barnhart, SANS DFIR "
                  "Summit 2022, https://for585.com/dfirsummit22",
@@ -830,8 +820,8 @@ _HEART_RATE_CONTEXT_NAMES = {
     5: 'Breathe', 6: 'Workout', 7: 'Wheelchair Motion', 8: 'Background Tachogram',
     9: 'Streaming ECG'}
 _HEALTH_PARENT_NOTES = {
-    173: 'Matches the equivalent continuous level of its points where they are in SQLite. '
-         'Not another reading.',
+    173: 'On the corpus keys run this level equalled the equivalent continuous level of its '
+         'points.',
     5: 'As stored. How it relates to the points is not established.'}
 _HEALTH_HFD_NOT_READ = 'healthdb_secure.hfd is not read by this artifact.'
 
@@ -1556,7 +1546,7 @@ def health_headphone_audio_levels(context):
         'Original Unit (as stored)', 'Series Min (as stored)', 'Series Max (as stored)',
         'Series Points Declared', 'Series Points Read', 'Series Point Status',
         'Series Parent Value Note', '_HKPrivateMediaSourceBundleIdentifier (as stored)', 'Device Name',
-        'Device Manufacturer', 'Device Model', 'Local Identifier', 'Source', 'Bundle ID',
+        'Device Manufacturer', 'Device Model', 'Local Identifier', 'Source',
         'Other Metadata (as stored)', 'series_location (as stored)', 'Object UUID', 'Data ID',
         'Provenance ROWID')
 
@@ -1576,11 +1566,13 @@ def health_headphone_audio_levels(context):
                 _health_ts(rec['start']), _health_ts(rec['end']), _health_ts(rec['created']),
                 rec['kind'], rec['quantity'], rec['original_quantity'], rec['original_unit'],
                 rec['series_min'], rec['series_max'], rec['declared'], rec['points_read'],
-                rec['status'], _HEALTH_PARENT_NOTES[173] if rec['kind'] == 'series parent' else '',
+                rec['status'],
+                _HEALTH_PARENT_NOTES[173]
+                if rec['kind'] == 'series parent' and rec['points_read'] else '',
                 '; '.join(str(item[1]) for item in media), row.get('device_name'),
                 row.get('device_manufacturer'), row.get('device_model'),
                 _health_cell(row.get('device_local_identifier')), row.get('source_name'),
-                row.get('bundle_id'), _health_metadata_text(other), rec['series_location'],
+                _health_metadata_text(other), rec['series_location'],
                 _health_cell(rec['uuid']), rec['data_id'], rec['provenance']))
     except sqlite3.Error as ex:
         logfunc(f'Error reading Health headphone audio samples: {ex}')
@@ -1603,7 +1595,7 @@ def health_heart_rate(context):
         'Heart Rate Context Value', 'Series Min (as stored)', 'Series Max (as stored)',
         'Series Points Declared', 'Series Points Read', 'Series Point Status',
         'Series Parent Value Note', 'Device Name', 'Manufacturer', 'Hardware',
-        'Model Name (from Hardware)', 'Source', 'Bundle ID', 'Source Version', 'Timezone',
+        'Model Name (from Hardware)', 'Source', 'Source Version', 'Timezone',
         'Other Metadata (as stored)', 'series_location (as stored)', 'Object UUID', 'Data ID',
         'Provenance ROWID')
 
@@ -1633,7 +1625,7 @@ def health_heart_rate(context):
                 rec['points_read'], rec['status'],
                 _HEALTH_PARENT_NOTES[5] if rec['kind'] == 'series parent' else '',
                 row.get('device_name'), row.get('device_manufacturer'), hardware, models[hardware],
-                row.get('source_name'), row.get('bundle_id'), row.get('source_version'),
+                row.get('source_name'), row.get('source_version'),
                 row.get('tz_name'), _health_metadata_text(other), rec['series_location'],
                 _health_cell(rec['uuid']), rec['data_id'], rec['provenance']))
     except sqlite3.Error as ex:
@@ -1654,7 +1646,7 @@ def health_resting_heart_rate(context):
         ('Start', 'datetime'), ('End', 'datetime'), ('Record Added or Deleted', 'datetime'),
         'Record Kind', 'Resting Heart Rate (BPM, as stored)', 'Original Value (as stored)',
         'Original Unit (as stored)', 'Series Point Status', 'Source Product Type',
-        'Model Name (from Source Product Type)', 'Source', 'Bundle ID', 'Device Name', 'Source Version',
+        'Model Name (from Source Product Type)', 'Source', 'Device Name', 'Source Version',
         'Timezone', 'Metadata (as stored)', 'Object UUID', 'Data ID', 'Provenance ROWID')
 
     con, attached = _health_open(data_source, healthdb)
@@ -1676,7 +1668,7 @@ def health_resting_heart_rate(context):
                 _health_ts(rec['start']), _health_ts(rec['end']), _health_ts(rec['created']),
                 rec['kind'], rec['quantity'], rec['original_quantity'], rec['original_unit'],
                 rec['status'], product, models[product], row.get('source_name'),
-                row.get('bundle_id'), row.get('device_name'), row.get('source_version'),
+                row.get('device_name'), row.get('source_version'),
                 row.get('tz_name'), _health_metadata_text(rec['metadata']),
                 _health_cell(rec['uuid']), rec['data_id'], rec['provenance']))
     except sqlite3.Error as ex:
