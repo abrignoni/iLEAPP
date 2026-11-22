@@ -21,14 +21,22 @@ EXPECTED = datetime(2024, 1, 3, 19, 6, 15, 927575, tzinfo=timezone.utc)
 STORED_ROW = (EPOCH, 7, '/usr/libexec/test', 12, 'subsystem', 'category', 'message', '0')
 
 
-def stored_rows(_path, _query):
+INTERACTION_REQUEST = ('((null)) deleteInteractionsWithGroupIdentifiers, protectionClass:(null), '
+                       'identifiers number:1')
+
+
+def stored_rows(_path, query):
     """One row of the table as get_sqlite_db_records returns it, readable by column name."""
+    row = STORED_ROW
+    if 'deleteInteractionsWithGroupIdentifiers' in query:
+        # This artifact writes a row only for a line in the shape of an app's request.
+        row = STORED_ROW[:6] + (INTERACTION_REQUEST, STORED_ROW[7])
     db = sqlite3.connect(':memory:')
     db.row_factory = sqlite3.Row
     db.execute('CREATE TABLE logarchive_artifacts(timestamp REAL, row_number INTEGER, '
                'process_image_path TEXT, process_id INTEGER, subsystem TEXT, category TEXT, '
                'event_message TEXT, trace_id TEXT)')
-    db.execute('INSERT INTO logarchive_artifacts VALUES(?,?,?,?,?,?,?,?)', STORED_ROW)
+    db.execute('INSERT INTO logarchive_artifacts VALUES(?,?,?,?,?,?,?,?)', row)
     rows = db.execute('SELECT * FROM logarchive_artifacts').fetchall()
     db.close()
     return rows

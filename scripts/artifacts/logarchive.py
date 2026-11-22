@@ -2333,6 +2333,50 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 41 rows; all Disconnected",
         },
     },
+    "logarchive_app_interaction_deletes": {
+        "name": "logarchive app interaction deletes",
+        "description": "Unified log entries in which a process calls deleteInteractionsWithGroupIdentifiers, "
+                       "a CoreSpotlight request to delete interactions by group identifier",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-21",
+        "last_update_date": "2026-11-21",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "One row per log line in the com.apple.corespotlight subsystem, from a process other than "
+                 "searchd, of the form '(...) deleteInteractionsWithGroupIdentifiers, protectionClass:(null), "
+                 "identifiers number:<n>'. App Process is the process that logged the call (imagent on the "
+                 "Messages rows seen). App Bundle ID is taken from the call. When the call does not name one, it "
+                 "is taken from the first searchd line that names a bundle within the next second. That pairing "
+                 "is by time only, so it is left blank when a different process made a request within a second. "
+                 "It is also blank when no line in that second names a bundle, for example when the log shows "
+                 "<private>. Interactions Deleted is taken from the first coreduetd line 'Deleted <n> interactions "
+                 "with reason deleteInteractionsWithBundleId' for that bundle within the next second, and is blank "
+                 "when there is no such line or the bundle is not known. The two lines share no identifier, so "
+                 "the pairing is by time and bundle. coreduetd 'Deleted <n> interactions' lines with any other "
+                 "reason, and count lines that follow no request row, are not reported. The request line gives "
+                 "only the number of identifiers, and the coreduetd line showed domainIdentifiers as (redacted) "
+                 "in every line seen, so a row does not name the conversation. What causes a row was tested for "
+                 "WhatsApp only (WhatsApp 26.46.72 on iOS 27.2.1, linked to another phone): a row was written when "
+                 "a one-to-one chat was deleted (2 of 2) and when a group with no other members was left (2 of 2), "
+                 "and none when a single message was deleted (1 run), a chat was cleared (1 run), or a group "
+                 "already left was deleted (2 runs). A row therefore does not separate deleting a chat from "
+                 "leaving a group, and the absence of a row does not show that nothing was deleted. For other "
+                 "apps a row shows only that the process logged the request. In the three WhatsApp tests that "
+                 "logged a count it equalled the messages sent from that iPhone in the chat, cleared ones "
+                 "included. The fourth chat had none sent and logged no count line. No source defines the number, "
+                 "so it is reported as logged. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "trash-2",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 2 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 2 rows",
+        },
+    },
 }
 
 import json
@@ -3068,6 +3112,12 @@ def logarchive_artifacts(context):
         OR (subsystem LIKE 'com.apple.mobilesafari' AND event_message LIKE '%passkey keychain records from%')
         -- logarchive_shortcut_actions
         OR (subsystem = 'com.apple.shortcuts' AND category = 'RunningLifecycle' AND event_message LIKE '%actionID=%')
+        -- logarchive_app_interaction_deletes. Collected here as well as filtered in the
+        -- dependent artifact, or the rows never reach the table it reads.
+        OR (subsystem = 'com.apple.corespotlight'
+            AND event_message LIKE '%deleteInteractionsWithGroupIdentifiers, protectionClass:%')
+        OR (subsystem = 'com.apple.coreduet.interaction'
+            AND event_message LIKE 'Deleted % interactions with reason deleteInteractionsWithBundleId:%')
         -- logarchive_vpn_state
         OR (subsystem = 'com.apple.networkextension' AND event_message LIKE '%VPN connectivity state is now%')
     )
@@ -4370,3 +4420,85 @@ def logarchive_recording_indicator(context):
     data_list = [(_report_time(record[0]), record[1], record[2], record[3], record[6])
                  for record in get_sqlite_db_records(source_path, query)]
     return RECORDING_INDICATOR_HEADERS, data_list, source_path
+
+
+# App requests to delete donated interactions. The WHERE fragment must stay within the markers
+# logarchive_artifacts collects, because this artifact only reads the table that query builds.
+INTERACTION_DELETE_WHERE = """
+    (subsystem = 'com.apple.corespotlight'
+     AND event_message LIKE '%deleteInteractionsWithGroupIdentifiers, protectionClass:%')
+    OR (subsystem = 'com.apple.coreduet.interaction'
+        AND event_message LIKE 'Deleted % interactions with reason deleteInteractionsWithBundleId:%')
+"""
+INTERACTION_DELETE_HEADERS = (
+    ('Timestamp', 'datetime'), ('Row Number', 'number'), 'App Process', ('Process ID', 'number'),
+    'App Bundle ID', ('Identifiers in Request (as logged)', 'number'),
+    ('Interactions Deleted (as logged)', 'number'), 'Event Message')
+INTERACTION_REQUEST = re.compile(
+    r'^\((.*?)\) deleteInteractionsWithGroupIdentifiers, protectionClass:([^,\s]*)(?:, identifiers number:(\d+))?')
+INTERACTION_COUNT = re.compile(
+    r'^Deleted (\d+) interactions with reason deleteInteractionsWithBundleId:(\S+) domainIdentifiers:')
+INTERACTION_PAIR_SECONDS = 1.0
+_UNNAMED_BUNDLES = ('', '(null)', '<private>')
+
+
+def _next_unused(entries, used, start, wanted=None):
+    """Index of the first unused (time, bundle) entry within the pairing window, or None."""
+    for index, (when, bundle) in enumerate(entries):
+        if index in used or when < start or when > start + INTERACTION_PAIR_SECONDS:
+            continue
+        if wanted is None or bundle == wanted:
+            used.add(index)
+            return index
+    return None
+
+
+def _interaction_delete_rows(records):
+    """One row per app request, with the daemon lines that name its bundle and count.
+
+    The bundle and count are filled only from a line that follows the request within the
+    pairing window. Nothing is inferred from the process name, and an unpaired request keeps
+    blanks rather than a guess.
+    """
+    ordered = sorted((r for r in records if isinstance(r[0], (int, float))), key=lambda r: (r[0], r[1]))
+    requests, named, counts = [], [], []
+    for record in ordered:
+        message = str(record[6] or '')
+        process = str(record[2] or '').rsplit('/', 1)[-1]
+        request = INTERACTION_REQUEST.match(message)
+        if request:
+            if process != 'searchd' and request.group(2) == '(null)' and request.group(3):
+                requests.append((record, process, request.group(1), int(request.group(3))))
+            elif process == 'searchd' and request.group(1) not in _UNNAMED_BUNDLES:
+                named.append((record[0], request.group(1)))
+            continue
+        count = INTERACTION_COUNT.match(message)
+        if count:
+            counts.append((record[0], count.group(2), int(count.group(1))))
+    count_entries = [(when, bundle) for when, bundle, _ in counts]
+    used_named, used_counts, data_list = set(), set(), []
+    for record, process, logged_bundle, identifiers in requests:
+        bundle = '' if logged_bundle in _UNNAMED_BUNDLES else logged_bundle
+        other_process = any(
+            other[1] != process and abs(other[0][0] - record[0]) <= INTERACTION_PAIR_SECONDS
+            for other in requests)
+        if bundle or not other_process:
+            named_index = _next_unused(named, used_named, record[0], bundle or None)
+            if not bundle and named_index is not None:
+                bundle = named[named_index][1]
+        deleted = None
+        if bundle:
+            count_index = _next_unused(count_entries, used_counts, record[0], bundle)
+            if count_index is not None:
+                deleted = counts[count_index][2]
+        data_list.append((_report_time(record[0]), record[1], process, record[3], bundle,
+                          identifiers, deleted, record[6]))
+    return data_list
+
+
+@artifact_processor
+def logarchive_app_interaction_deletes(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {INTERACTION_DELETE_WHERE}'
+    records = list(get_sqlite_db_records(source_path, query))
+    return INTERACTION_DELETE_HEADERS, _interaction_delete_rows(records), source_path
