@@ -37,16 +37,18 @@ __artifacts_v2__ = {
                  "Every linked Message row on these images has ZISFROMME 1. Delivered and read times were not found in"
                  " the ZRECEIPTINFO blobs of the 54 linked messages on these two images. Message is blank on 46 of the"
                  " 87 Message rows; Message Type shows ZMESSAGETYPE as stored, and attachments are not shown here. "
-                 "Played Timestamp has no value on any of the 112 rows, so its unit is not measured. Device ID held 0 "
-                 "on all 112 rows and its meaning is not established. User Push Name is from ZWAPROFILEPUSHNAME, User "
-                 "Address Book Name is the ZFULLNAME of the ContactsV2 contact whose ZLID matches, and User Phone "
-                 "Number is the one number LID.sqlite stores for the user's LID (all 112 came from ZWAZACCOUNT). All "
-                 "112 user_jid values end in @lid; a user_jid in another form gets no address book name or phone "
-                 "number, and that branch is unexercised. The two name columns are blank on the same 4 rows. "
-                 "device_version is not shown because its meaning is not established, and associated_bot_jid held no "
-                 "value on any of the 112 rows and is not shown. The status_receipt_device and status_seen_receipt "
-                 "tables in statusDB/Status.sqlite held 0 rows on hill_iphone15pro_ios26 and wilkerson_iphone16_ios26 "
-                 "and are not read. receipt_device held 0 rows on hc_ios26.",
+                 "Played Timestamp has no value on any of the 112 rows, so its unit is not measured; it is kept so a "
+                 "value stored on another extraction is shown. Device ID held 0 on all 112 rows and its meaning is not"
+                 " established; it is kept because it is part of the table's unique index, so it separates rows for "
+                 "one user that differ only by device. User Push Name is from ZWAPROFILEPUSHNAME, User Address Book "
+                 "Name is the ZFULLNAME of the ContactsV2 contact whose ZLID matches, and User Phone Number is the one"
+                 " number LID.sqlite stores for the user's LID (all 112 came from ZWAZACCOUNT). All 112 user_jid "
+                 "values end in @lid; a user_jid in another form gets no address book name or phone number, and that "
+                 "branch is unexercised. The two name columns are blank on the same 4 rows. device_version is not "
+                 "shown because its meaning is not established, and associated_bot_jid held no value on any of the 112"
+                 " rows and is not shown. The status_receipt_device and status_seen_receipt tables in "
+                 "statusDB/Status.sqlite held 0 rows on hill_iphone15pro_ios26 and wilkerson_iphone16_ios26 and are "
+                 "not read. receipt_device held 0 rows on hc_ios26.",
         "sample_data": {
             "hc_ios26": "iOS 26.5.2 | WhatsApp Messenger 26.28.75 | 0 rows",
             "hill_iphone15pro_ios26": "iOS 26.3.1 | WhatsApp Messenger 26.38.74 | 42 rows",
@@ -65,15 +67,23 @@ __artifacts_v2__ = {
 
 import os
 import sqlite3
+import struct
+
+from google.protobuf.message import DecodeError
 
 from scripts import blackboxprotobuf
-
 from scripts.artifacts.whatsAppLID import _Lid, _bare
 from scripts.ilapfuncs import (artifact_processor, convert_cocoa_core_data_ts_to_utc, convert_unix_ts_to_utc,
                                does_column_exist_in_db, does_table_exist_in_db, logfunc, open_sqlite_db_readonly)
 
 _INFRA = 'MessagingInfraDatabase.sqlite'
 _SIBLINGS = ('ChatStorage.sqlite', 'LID.sqlite', 'ContactsV2.sqlite')
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
+_PARENT = ('ZMESSAGEDATE', 'ZMESSAGETYPE', 'ZTEXT', 'ZPARTNERNAME')
+_MESSAGE_QUERY = '''
+    SELECT m.ZSTANZAID, m.ZMESSAGEDATE, m.ZMESSAGETYPE, m.ZTEXT, s.ZCONTACTJID, s.ZPARTNERNAME{extra}
+    FROM ZWAMESSAGE m
+    LEFT JOIN ZWACHATSESSION s ON s.Z_PK = m.ZCHATSESSION{join}'''
 
 
 def _stores(context):
@@ -91,13 +101,13 @@ def _stores(context):
     return [(p, siblings.get(os.path.dirname(os.path.dirname(p)), {})) for p in sorted(set(infra))]
 
 
-def _fetch(path, sql):
+def _fetch(path, sql, params=()):
     db = open_sqlite_db_readonly(path)
     if db is None:
         return []
     try:
         db.row_factory = sqlite3.Row
-        return db.execute(sql).fetchall()
+        return db.execute(sql, params).fetchall()
     except sqlite3.Error as error:
         logfunc(f'WhatsApp Message Receipts: could not read {os.path.basename(path)}: {error}')
         return []
@@ -121,36 +131,46 @@ def _time(value):
     return convert_unix_ts_to_utc(value) if value else ''
 
 
-def _message_index(chat_db):
-    """Messages keyed by (stanza id, chat JID), and reactions keyed by (key id, chat JID)."""
+def _link_index(chat_db, wanted, label):
+    """Parents of the wanted (stanza id, chat JID) keys, as message and reaction dicts.
+
+    Reaction blobs are decoded only in chats that still have a key no message matched.
+    """
     messages, reactions = {}, {}
     if not chat_db or not does_table_exist_in_db(chat_db, 'ZWAMESSAGE'):
         return messages, reactions
-    rows = _fetch(chat_db, '''
-        SELECT m.ZSTANZAID, m.ZMESSAGEDATE, m.ZMESSAGETYPE, m.ZTEXT, i.ZRECEIPTINFO,
-               s.ZCONTACTJID, s.ZPARTNERNAME
-        FROM ZWAMESSAGE m
-        LEFT JOIN ZWAMESSAGEINFO i ON i.Z_PK = m.ZMESSAGEINFO
-        LEFT JOIN ZWACHATSESSION s ON s.Z_PK = m.ZCHATSESSION''')
-    for row in rows:
+    for row in _fetch(chat_db, _MESSAGE_QUERY.format(extra='', join='')):
+        key = (row['ZSTANZAID'], row['ZCONTACTJID'])
+        if key in wanted:
+            messages[key] = {name: row[name] for name in _PARENT}
+    unresolved = wanted - messages.keys()
+    chats = sorted({chat for _, chat in unresolved})
+    if not chats or not does_table_exist_in_db(chat_db, 'ZWAMESSAGEINFO'):
+        return messages, reactions
+    marks = ', '.join('?' for _ in chats)
+    query = _MESSAGE_QUERY.format(
+        extra=', i.Z_PK AS INFO_PK, i.ZRECEIPTINFO',
+        join=f"""
+    JOIN ZWAMESSAGEINFO i ON i.Z_PK = m.ZMESSAGEINFO
+    WHERE i.ZRECEIPTINFO IS NOT NULL AND s.ZCONTACTJID IN ({marks})""")
+    for row in _fetch(chat_db, query, chats):
         chat = row['ZCONTACTJID']
-        if row['ZSTANZAID']:
-            messages[(row['ZSTANZAID'], chat)] = row
-        if not row['ZRECEIPTINFO']:
-            continue
         try:
             decoded, _ = blackboxprotobuf.decode_message(row['ZRECEIPTINFO'])
-        except Exception as ex:  # pylint: disable=broad-exception-caught
-            # blackboxprotobuf raises library-internal types
-            logfunc(f'WhatsApp Message Receipts: a ZRECEIPTINFO blob could not be decoded ({type(ex).__name__})')
+        except _DECODE_ERRORS as ex:
+            logfunc(f'WhatsApp Message Receipts: ZRECEIPTINFO of ZWAMESSAGEINFO row {row["INFO_PK"]} in {label} '
+                    f'could not be decoded ({type(ex).__name__}); its reaction entries are not linked')
             continue
         for sub in _entries(decoded.get('7')):
             if not isinstance(sub, dict):
                 continue
             for field, emoji_field in (('1', '3'), ('2', '2')):
                 for entry in _entries(sub.get(field)):
-                    if isinstance(entry, dict) and entry.get('1'):
-                        reactions[(_text(entry['1']), chat)] = (row, _text(entry.get(emoji_field)))
+                    if not isinstance(entry, dict) or not entry.get('1'):
+                        continue
+                    key = (_text(entry['1']), chat)
+                    if key in unresolved:
+                        reactions[key] = ({name: row[name] for name in _PARENT}, _text(entry.get(emoji_field)))
     return messages, reactions
 
 
@@ -178,7 +198,9 @@ def whatsAppMessageReceipts(context):
         if not rows:
             continue
         chat_db = files.get('ChatStorage.sqlite')
-        messages, reactions = _message_index(chat_db)
+        wanted = {(row['stanza_id'], row['chat_jid']) for row in rows}
+        label = context.get_relative_path(chat_db) if chat_db else ''
+        messages, reactions = _link_index(chat_db, wanted, label)
         names = _push_names(chat_db)
         lid = _Lid(files)
         sources.extend(path for path in files.values() if path)
