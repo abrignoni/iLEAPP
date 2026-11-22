@@ -49,7 +49,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.83"
+QNXPROBE_VERSION = "1.84"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -30118,7 +30118,7 @@ def open_image_trying(path, segments=None, passwords=(), private_keys=()):
 # and write them through extract_to_zip(), with the same SHORT and FAILED handling
 # as a file read from a filesystem.
 
-class _LogicalWalker:
+class _LogicalEntryReader:
     """What extract_to_zip() needs from a walker, over an L01, Lx01 or AD1 opened by
     ewfprobe. The node is the entry. Each read is hashed against the MD5 and SHA-1
     the entry stores, and ``results`` keeps, by entry, the bytes read and the check."""
@@ -30176,23 +30176,30 @@ def _logical_members(entries):
     def joined(names):
         return "/".join(part(n) for n in names)
 
+    def in_zip(path):
+        # two stored names can escape to one (a:b and a%3Ab), so uniqueness is
+        # decided on the name the zip will hold
+        return "/".join(_zip_safe_component(c) for c in path.split("/"))
+
     taken = set()
     for entry in entries:
         names = tuple(entry.names)
         for depth in range(1, len(names)):
-            taken.add(joined(names[:depth]))
+            taken.add(in_zip(joined(names[:depth])))
         if entry.is_folder and names:
-            taken.add(joined(names))
+            taken.add(in_zip(joined(names)))
     out = []
     for number, entry in enumerate(entries, 1):
         if _folder_without_content(entry):
             continue
-        member = joined(entry.names) or "root-entry"
+        base = joined(entry.names) or "root-entry"
         if entry.is_folder:
-            member += ".folder-data"
-        if member in taken:
-            member = f"{member}.entry-{number}"
-        taken.add(member)
+            base += ".folder-data"
+        member, retry = base, 1
+        while in_zip(member) in taken:
+            member = f"{base}.entry-{number}" + (f"-{retry}" if retry > 1 else "")
+            retry += 1
+        taken.add(in_zip(member))
         out.append((member, entry))
     return out
 
@@ -30302,8 +30309,10 @@ def read_logical_image(image, path, do_list=False, list_depth=2, list_max=400, e
                 print(f"      ... {below:,} entries below --depth {list_depth}")
     if zf is not None and wanted:
         print(f"\n  EXTRACTING to {extract}  as {volume}/")
-        walker = _LogicalWalker(image)
-        rows = [(m, e, e.size, e.times.get("modified") if kind == "AD1" else None)
+        walker = _LogicalEntryReader(image)
+        # the file's last written time: an AD1's "modified" record, an L01 or Lx01's wr
+        # column (libyal/libewf, "Expert Witness Compression Format (EWF).asciidoc")
+        rows = [(m, e, e.size, e.times.get("modified" if kind == "AD1" else "wr"))
                 for m, e in members]
         rows, dropped = apply_exclude(rows, exclude)
         kept = {r[0] for r in rows}
@@ -30394,7 +30403,13 @@ def _logical_self_check():
         Entry(("broken",), b"x", fail=True),
         Entry(("skip.me",), b"left out"),
         Entry(("uncollected",), b"x", folder=True, size=48, md5="1" * 32, collected=False),
+        Entry(("n.entry-12",), b"literal"),
+        Entry(("n",), b"first n"),
+        Entry(("n",), b"second n"),
+        Entry(("a:b",), b"colon"),
+        Entry(("a%3Ab",), b"percent"),
     ])
+    image.logical_entries[1].times = {"wr": 1_600_000_000}
     buffer, manifest = _io.BytesIO(), []
     with zipfile.ZipFile(buffer, "w") as zf, contextlib.redirect_stdout(_io.StringIO()):
         read_logical_image(image, "case.L01", extract="x.zip", zf=zf, manifest=manifest,
@@ -30409,14 +30424,19 @@ def _logical_self_check():
                 and zf.read("case/d/same") == b"one" and zf.read("case/d/same.entry-3") == b"two"
                 and zf.read("case/d.folder-data") == b"folder bytes"
                 and zf.read("case/a%2Fb") == b"slash"
+                and zf.read("case/n.entry-12") == b"literal" and zf.read("case/n") == b"first n"
+                and zf.read("case/n.entry-12-2") == b"second n"
+                and zf.read("case/a%3Ab") == b"colon"
+                and zf.read("case/a%3Ab.entry-14") == b"percent"
+                and zf.getinfo("case/d/same").date_time[:3] == (2020, 9, 13)
                 and "case/short.SHORT-3-of-9-bytes" in names
                 and not any("broken" in n or "skip" in n or "uncollected" in n for n in names)
-                and by_status == {"complete": 5, "SHORT": 1, "FAILED": 1, "excluded": 1,
+                and by_status == {"complete": 10, "SHORT": 1, "FAILED": 1, "excluded": 1,
                                   "content not collected": 1}
                 and any(r["stored_path"] == "a/b" for r in table)
                 and (rec["files"], rec["short"], rec["failed"], rec["excluded"],
                      rec["stored_hashes_matched"], rec["stored_hashes_mismatched"])
-                == (5, 1, 1, 1, 1, 1))
+                == (10, 1, 1, 1, 1, 1))
 
 
 def _open_logical(path, passwords=(), private_keys=()):

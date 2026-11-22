@@ -113,7 +113,7 @@ try:
 except ImportError:
     lzma = None
 
-__version__ = "0.17.0"
+__version__ = "0.17.1"
 
 # ---------------------------------------------------------------- constants
 
@@ -344,6 +344,9 @@ FORMAT_ASIF = "ASIF"
 _ASIF_HEADER = struct.Struct(">4sIIIQQ16sQQIHHQ")
 _ASIF_CHUNK_MASK = (1 << 55) - 1
 _ASIF_UNINITIALIZED, _ASIF_FULL, _ASIF_UNMAPPED, _ASIF_BITMAP = 0, 1, 2, 3
+# A chunk is read into memory whole, and the header alone sets its size, so a tiny file
+# could ask for gigabytes. The images macOS wrote for the tests use 1 MiB.
+_ASIF_MAX_CHUNK = 64 << 20
 # A sparse bundle (.sparsebundle) is a directory: Info.plist, whose band-size is
 # the size of each band in bytes and whose size is the disk's size in bytes, and a
 # bands folder of files named by band number in lowercase hexadecimal, 0 for the
@@ -2384,10 +2387,12 @@ class LogicalEntry:
     def content_collected(self):
         """False for a folder whose size and MD5 were recorded and whose content was
         not collected. EnCase Imager 7.10, with "Include contents of folder objects"
-        off, stores one byte for such a folder, without the sparse flag."""
+        off, stores one byte in one extent for such a folder, with its MD5 and without
+        the sparse flag. Any other folder whose extents fall short is incomplete, and
+        reading it raises."""
         return not (self.is_folder and self.duplicate_offset is None
-                    and not self.flags & L01_FLAG_SPARSE
-                    and sum(length for _offset, length in self.extents) < self.size)
+                    and not self.flags & L01_FLAG_SPARSE and self.md5 and self.size > 1
+                    and [length for _offset, length in self.extents] == [1])
 
     def __repr__(self):
         return f"<LogicalEntry {self.path!r} size={self.size}>"
@@ -7172,6 +7177,10 @@ class EwfImage:
         if not block or block % 512 or not chunk or chunk % block:
             raise EwfFormatError(f"{name}: the ASIF header gives a chunk size of {chunk} "
                                  f"and a block size of {block}")
+        if chunk > _ASIF_MAX_CHUNK:
+            raise EwfFormatError(f"{name}: the ASIF header gives a chunk size of {chunk:,} "
+                                 f"bytes, past the {_ASIF_MAX_CHUNK:,} this reader holds "
+                                 f"in memory")
         per_group = 4 * block
         groups = chunk // (8 * (per_group + 1))
         if not groups:
@@ -7192,12 +7201,15 @@ class EwfImage:
             fh.seek(offset)
             versions.append(struct.unpack(">Q", _read_exactly(fh, 8))[0])
         if versions[0] == versions[1] and first != second:
-            fh.seek(first)
-            one = _read_exactly(fh, length)
-            fh.seek(second)
-            if one != _read_exactly(fh, length):
-                raise EwfFormatError(f"{name}: its two ASIF directories have the same "
-                                     f"version, {versions[0]}, and different contents")
+            # the header sets this length, so the two are compared a block at a time
+            for at in range(0, length, 1 << 20):
+                want = min(1 << 20, length - at)
+                fh.seek(first + at)
+                one = _read_exactly(fh, want)
+                fh.seek(second + at)
+                if one != _read_exactly(fh, want):
+                    raise EwfFormatError(f"{name}: its two ASIF directories have the same "
+                                         f"version, {versions[0]}, and different contents")
         current = first if versions[0] >= versions[1] else second
         self.asif = {
             "version": version, "uuid": str(uuid.UUID(bytes=image_id)),
