@@ -225,15 +225,15 @@ class LoggingIntegrationTests(unittest.TestCase):
         self.assertFalse(self.path.exists())
 
     def test_real_processing_entry_point_owns_a_session(self):
-        # The directory name can be arbitrary in CI; version_info carries the core.
-        from scripts.version_info import leapp_name  # pylint: disable=import-outside-toplevel
-        core = leapp_name.lower()
+        # The directory name can be arbitrary in CI; leapp_config.json carries the core.
+        from leapp_functions import leapp  # pylint: disable=import-outside-toplevel
+        core = leapp.name.lower()
         module = importlib.import_module(core)
         self.assertTrue(hasattr(module.crunch_artifacts, '__wrapped__'))
 
     def test_actual_processing_early_returns_close_the_log(self):
-        from scripts.version_info import leapp_name  # pylint: disable=import-outside-toplevel
-        module = importlib.import_module(leapp_name.lower())
+        from leapp_functions import leapp  # pylint: disable=import-outside-toplevel
+        module = importlib.import_module(leapp.name.lower())
         arguments = dict(plugins=[], extracttype='invalid', input_path=self.temp.name,
                          out_params=Mock(), wrap_text=True, loader=Mock(), casedata={},
                          profile_filename=None)

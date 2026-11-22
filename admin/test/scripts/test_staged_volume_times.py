@@ -44,7 +44,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import scripts.raw_image as raw_image  # pylint: disable=wrong-import-position
 from scripts.raw_image import FileSeekerRaw  # pylint: disable=wrong-import-position
 from scripts.search_files import staged_files_tsv_line  # pylint: disable=wrong-import-position
-from scripts.version_info import leapp_name  # pylint: disable=wrong-import-position
+from leapp_functions import leapp  # pylint: disable=wrong-import-position
 
 FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
 PROFILE_SUFFIX = {'aleapp': 'alprofile', 'ileapp': 'ilprofile', 'rleapp': 'rlprofile',
@@ -228,7 +228,7 @@ class OptInVolumeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.mkdtemp(prefix='leapp_volume_times_run_')
-        core = leapp_name.lower()
+        core = leapp.name.lower()
         plugins = os.path.join(cls.tmp, 'plugins')
         os.makedirs(plugins)
         with open(os.path.join(plugins, 'volumeTimesProbe.py'), 'w', encoding='utf8') as handle:

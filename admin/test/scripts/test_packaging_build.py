@@ -241,8 +241,8 @@ class TestDriver(unittest.TestCase):
             self.assertIn(word, result.stdout)
 
     def test_version_matches_the_app_without_importing_it(self):
-        from scripts.version_info import leapp_version  # pylint: disable=import-outside-toplevel
-        self.assertEqual(self.driver.read_version(), leapp_version)
+        from leapp_functions import leapp  # pylint: disable=import-outside-toplevel
+        self.assertEqual(self.driver.read_version(), leapp.version)
 
     def test_numeric_version_keeps_only_the_leading_numbers(self):
         self.assertEqual(self.driver.numeric_version('2026.4.2-dev'), '2026.4.2')
@@ -460,9 +460,9 @@ class TestEntryPoint(unittest.TestCase):
     def test_the_command_line_runs_from_the_entry_point(self):
         result = subprocess.run([sys.executable, str(PACKAGING / 'entrypoint.py'), '--version'],
                                 capture_output=True, text=True, check=False)
-        from scripts.version_info import leapp_version  # pylint: disable=import-outside-toplevel
+        from leapp_functions import leapp  # pylint: disable=import-outside-toplevel
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), f'iLEAPP {leapp_version}')
+        self.assertEqual(result.stdout.strip(), f'iLEAPP {leapp.version}')
 
 
 @unittest.skipUnless(sys.platform in ('win32', 'darwin') or 'DISPLAY' in os.environ,

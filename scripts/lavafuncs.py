@@ -40,7 +40,7 @@ import datetime
 import queue
 import threading
 
-from scripts.version_info import leapp_name, leapp_version
+from leapp_functions import leapp
 from scripts.context import Context
 
 # Global variables
@@ -311,8 +311,8 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None, 
     lava_data = {
         "lava_schema_version": LAVA_SCHEMA_VERSION,
         "parser_info": {
-            "leapp_name": leapp_name,
-            "leapp_version": leapp_version,
+            "leapp_name": leapp.name,
+            "leapp_version": leapp.version,
             # From source the script's name says which program runs. A build is one
             # executable that opens the window when started without arguments, so there the
             # GUI module having been loaded is what says it.

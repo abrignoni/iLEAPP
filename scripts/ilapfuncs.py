@@ -26,7 +26,6 @@ from pathlib import Path
 from urllib.parse import quote
 import scripts.artifact_report as artifact_report
 from scripts.context import Context
-from scripts.version_info import leapp_name  # pylint: disable=unused-import  # re-exported
 
 # new location for modules imported for backward compatibility
 # existing functions that are moved should leave a commented out def line

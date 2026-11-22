@@ -38,7 +38,7 @@ from scripts.raw_image import FileSeekerRaw  # pylint: disable=wrong-import-posi
 from scripts.search_files import (  # pylint: disable=wrong-import-position
     staged_files_tsv_line, staged_time_values)
 from scripts.vendor import qnxprobe  # pylint: disable=wrong-import-position
-from scripts.version_info import leapp_name  # pylint: disable=wrong-import-position
+from leapp_functions import leapp  # pylint: disable=wrong-import-position
 
 FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
 PROFILE_SUFFIX = {'aleapp': 'alprofile', 'ileapp': 'ilprofile', 'rleapp': 'rlprofile',
@@ -238,7 +238,7 @@ class OptInRawTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.mkdtemp(prefix='leapp_fat_times_run_')
-        core = leapp_name.lower()
+        core = leapp.name.lower()
         plugins = os.path.join(cls.tmp, 'plugins')
         os.makedirs(plugins)
         with open(os.path.join(plugins, 'fatTimesProbe.py'), 'w', encoding='utf8') as handle:

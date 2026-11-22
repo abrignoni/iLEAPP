@@ -85,7 +85,7 @@ import nska_deserialize as nd
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, \
     logfunc, open_sqlite_db_readonly
-from scripts.version_info import leapp_name, leapp_version
+from leapp_functions import leapp
 
 
 # Container metadata plists searched to map container UUIDs to bundle IDs.
@@ -330,8 +330,8 @@ def extractionInfo(context):
             data_list.append((prop, str(value), source))
 
     input_path = _input_path(seeker)
-    add('LEAPP Name', leapp_name)
-    add('LEAPP Version', leapp_version)
+    add('LEAPP Name', leapp.name)
+    add('LEAPP Version', leapp.version)
     add('Extraction Type', _seeker_kind(seeker))
     add('Input Path', input_path)
     add('Input Name', os.path.basename(input_path) if input_path else '')

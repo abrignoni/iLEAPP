@@ -1,10 +1,10 @@
 ; Inno Setup script for iLEAPP  (https://jrsoftware.org/isdl.php)
-;   python packaging\build.py installer      (passes /DAppVer and /DAppVerNumeric from scripts\version_info.py)
+;   python packaging\build.py installer      (passes /DAppVer and /DAppVerNumeric from data\leapp_config.json)
 ; Expects a one-folder PyInstaller build at dist\iLEAPP\, holding ileapp.exe
 
 #define AppName "iLEAPP"
 #ifndef AppVer
-  #error Pass the version in with /DAppVer=<version>. packaging\build.py reads it from scripts\version_info.py and does this for you.
+  #error Pass the version in with /DAppVer=<version>. packaging\build.py reads it from data\leapp_config.json and does this for you.
 #endif
 #ifndef AppVerNumeric
   #error Pass the numeric part of the version in with /DAppVerNumeric=<n.n.n>. packaging\build.py does this for you.

@@ -26,7 +26,7 @@ Signing belongs between the two phases. Sign dist/iLEAPP/ileapp.exe, or codesign
 dist/iLEAPP.app, after phase 1 and before phase 2, or the installer carries an unsigned
 executable inside a signed wrapper. `all` refuses --sign-tool for exactly that reason.
 
-The version is read from scripts/version_info.py as text, so nothing is imported, and
+The version is read from data/leapp_config.json, so nothing is imported, and
 handed to the spec and to Inno Setup, so neither the executable nor the installer can
 report a different version from the app. Windows and macOS take only numbers in their
 version fields, so a suffix such as -dev is left out there and kept everywhere else.
@@ -45,6 +45,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import json
 import os
 import platform
 import re
@@ -146,12 +147,14 @@ APPIMAGE_DIGESTS = {
 
 
 def read_version() -> str:
-    """The version string from scripts/version_info.py, read as text so nothing is imported."""
-    text = (ROOT / "scripts" / "version_info.py").read_text(encoding="utf-8")
-    m = re.search(r"""^leapp_version\s*=\s*['"]([^'"]+)['"]""", text, re.M)
-    if not m:
-        sys.exit("build: could not find leapp_version in scripts/version_info.py")
-    return m.group(1)
+    """The version string from data/leapp_config.json, read so that nothing is imported."""
+    try:
+        version = json.loads((ROOT / "data" / "leapp_config.json").read_text(encoding="utf-8"))["version"]
+    except (OSError, ValueError, KeyError, TypeError):
+        version = None
+    if not isinstance(version, str) or not version:
+        sys.exit("build: could not find version in data/leapp_config.json")
+    return version
 
 
 def numeric_version(version: str) -> str:

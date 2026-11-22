@@ -34,7 +34,7 @@ from scripts.raw_image import volume_times  # pylint: disable=wrong-import-posit
 from scripts.search_files import (  # pylint: disable=wrong-import-position
     FileSeekerDir, FileSeekerTar, FileSeekerZip, StagedTimes, staged_files_tsv_line,
     staged_time_values)
-from scripts.version_info import leapp_name  # pylint: disable=wrong-import-position
+from leapp_functions import leapp  # pylint: disable=wrong-import-position
 
 try:
     import msgpack
@@ -360,7 +360,7 @@ class OptInTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.mkdtemp(prefix='leapp_staged_times_run_')
-        core = leapp_name.lower()
+        core = leapp.name.lower()
         plugins = os.path.join(cls.tmp, 'plugins')
         os.makedirs(plugins)
         with open(os.path.join(plugins, 'stagedTimesProbe.py'), 'w', encoding='utf8') as handle:

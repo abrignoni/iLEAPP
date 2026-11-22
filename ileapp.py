@@ -23,7 +23,8 @@ from scripts.raw_image import FileSeekerRaw, cli_raw_input, input_text, logical_
 from scripts.ilapfuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from scripts.html_safe import esc
 from leapp_functions.app.output import validate_output_folder_available
-from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
+from scripts.version_info import check_runtime_dependencies
+from leapp_functions import leapp
 from time import process_time, gmtime, strftime, perf_counter
 from scripts.lavafuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from scripts.context import Context
@@ -206,7 +207,7 @@ def profile_plugins_not_found(profile_plugins, available_plugins):
 
 def main():
     check_runtime_dependencies()
-    parser = argparse.ArgumentParser(description=f'iLEAPP v{leapp_version}: iOS Logs, Events, And Plists Parser.')
+    parser = argparse.ArgumentParser(description=f'{leapp.name} v{leapp.version}: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file', 'raw'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
@@ -284,7 +285,7 @@ def main():
                         help=("Path to a keychain file captured from the device. Some apps keep "
                               "their database key in the keychain, which is collected separately "
                               "from the file system extraction."))
-    parser.add_argument('--version', action='version', version=f'{leapp_name} {leapp_version}')
+    parser.add_argument('--version', action='version', version=f'{leapp.name} {leapp.version}')
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -481,7 +482,7 @@ def main():
     if crunch_successful:
         # _lava_data.lava exists only after finalize; recording earlier is a no-op.
         lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
+        history.record_recent_run(leapp.name.lower(), leapp.version, lava_project_path)
 
 # Artifacts that read the iOS version from the input, in the order they run. last_build and
 # the iTunes backup Info.plist are handled in crunch_artifacts.
@@ -537,7 +538,7 @@ def crunch_artifacts(
     logfunc('Processing started. Please wait. This may take a few minutes...')
 
     logfunc('\n--------------------------------------------------------------------------------------')
-    logfunc(f'iLEAPP v{leapp_version}: iOS Logs, Events, And Plists Parser')
+    logfunc(f'{leapp.name} v{leapp.version}: iOS Logs, Events, And Plists Parser')
     logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')

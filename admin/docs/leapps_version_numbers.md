@@ -20,11 +20,11 @@ iLEAPP follows a semantic-style versioning system (`Major.Minor.Patch`):
 
 The version lives in one place, and changing it there is the whole change.
 
-### `scripts/version_info.py`
-The only source of the version string. The CLI and GUI report it, and it is written into
-every report.
-- Update the `leapp_version` variable.
-- **Example**: `leapp_version = '2.6.0-dev.0'`
+### `data/leapp_config.json`
+The only source of the version string, beside the tool's name. The CLI and GUI report it,
+and it is written into every report and into the LAVA manifest.
+- Update the `"version"` value.
+- **Example**: `"version": "2.6.0-dev.0",`
 
 `packaging/build.py` reads it from there when it builds, so the Windows executable's
 version information, the macOS bundle's `Info.plist`, the installer and the disk image
@@ -33,9 +33,9 @@ all follow it. Windows and macOS accept only numbers in those fields, so the bui
 
 ## Releasing
 
-Pushing a tag `v` + `leapp_version` (for example `v2.6.0`) runs
+Pushing a tag `v` + that version (for example `v2.6.0`) runs
 `.github/workflows/release.yml`, which builds every platform and creates a **draft**
-release. It refuses a tag that does not match `leapp_version`, so set the release version
+release. It refuses a tag that does not match the version, so set the release version
 first, tag that commit, then bump to the next `-dev.0`. It also refuses to publish while
 the repository lacks the `MACOS_*` secrets that sign and notarise the macOS disk images.
 Windows is signed by SignPath when `SIGNPATH_API_TOKEN` is set and the signing policy is
@@ -43,7 +43,7 @@ Windows is signed by SignPath when `SIGNPATH_API_TOKEN` is set and the signing p
 a warning. `.claude/rules/ileapp-build-and-release.md` lists the secrets and variables.
 
 ## Summary Checklist
-- [ ] Update `scripts/version_info.py`
+- [ ] Update `"version"` in `data/leapp_config.json`
 
 ## Reference Examples
 - [PR #1494: Update version number](https://github.com/abrignoni/iLEAPP/pull/1494/changes)

@@ -146,7 +146,7 @@ jobs:
           python -c "import tkinter" || { echo "tkinter unavailable in this Python"; exit 1; }
 
       # The tag names the version the assets will be published under, and
-      # scripts/version_info.py names the version the app reports and writes into every
+      # data/leapp_config.json names the version the app reports and writes into every
       # report. A release where those disagree ships a binary that tells the examiner one
       # thing while the download page says another, so the mismatch stops the build here
       # rather than being found in the report of a case.
@@ -154,11 +154,11 @@ jobs:
         shell: bash
         run: |
           VERSION="$(python -c "import sys; sys.path.insert(0, 'packaging'); import build; print(build.read_version())")"
-          echo "scripts/version_info.py leapp_version = $VERSION"
+          echo "data/leapp_config.json version = $VERSION"
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then
             echo "tag = $GITHUB_REF_NAME"
             if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
-              echo "::error::tag $GITHUB_REF_NAME does not match leapp_version $VERSION (expected tag v$VERSION)"
+              echo "::error::tag $GITHUB_REF_NAME does not match version $VERSION in data/leapp_config.json (expected tag v$VERSION)"
               exit 1
             fi
           fi

@@ -24,6 +24,7 @@ project, which is kept up-to-date by running this script.
 import os
 import re
 import ast
+import json
 from pathlib import Path
 
 # Get the root directory of the repository (2 directories above the script)
@@ -32,7 +33,7 @@ REPO_ROOT = os.path.abspath(
 
 # Define key paths and constants
 ARTIFACTS_DIR = os.path.join(REPO_ROOT, 'scripts', 'artifacts')
-VERSION_INFO_PATH = os.path.join(REPO_ROOT, 'scripts', 'version_info.py')
+CONFIG_PATH = os.path.join(REPO_ROOT, 'data', 'leapp_config.json')
 MD_FILE_PATH = os.path.join(
     REPO_ROOT, 'admin', 'docs', 'generated', 'module_info.md')
 GITHUB_MODULE_URL = "/scripts/artifacts/"
@@ -41,28 +42,13 @@ END_MARKER = "<!-- MODULE_INFO_END -->"
 
 
 def get_tool_name():
-    """Get the LEAPP tool name from project metadata."""
+    """Get the LEAPP tool name from data/leapp_config.json."""
     try:
-        with open(VERSION_INFO_PATH, 'r', encoding='utf-8') as f:
-            tree = ast.parse(f.read())
-    except (OSError, SyntaxError):
+        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+            name = json.load(f).get('name')
+    except (OSError, ValueError, AttributeError):
         return ""
-
-    for item in tree.body:
-        if not isinstance(item, ast.Assign):
-            continue
-        if not any(
-            isinstance(target, ast.Name) and target.id == 'leapp_name'
-            for target in item.targets
-        ):
-            continue
-        try:
-            leapp_name = ast.literal_eval(item.value)
-        except (ValueError, TypeError, SyntaxError):
-            return ""
-        if isinstance(leapp_name, str) and leapp_name:
-            return leapp_name
-    return ""
+    return name if isinstance(name, str) else ""
 
 
 TOOL_NAME = get_tool_name()
