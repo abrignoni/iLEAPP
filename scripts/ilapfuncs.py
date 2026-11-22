@@ -746,6 +746,7 @@ def artifact_processor(func):
         description = artifact_info.get('description', '')
         icon = artifact_info.get('artifact_icon', '')
         html_columns = artifact_info.get('html_columns', [])
+        multiline_columns = artifact_info.get('multiline_columns', ())
 
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
         is_lava_only = 'lava_only' in output_types
@@ -911,6 +912,7 @@ def artifact_processor(func):
                         output_rows(html_output=True) if is_artifact_result else html_data_list,
                         source_path,
                         html_no_escape=html_columns,
+                        html_multiline=multiline_columns,
                         row_count=inserted_count if is_artifact_result else None,
                         full_data_locations=full_data_locations)
                     report.end_artifact_report()

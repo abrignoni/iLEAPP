@@ -21,8 +21,9 @@ An item missing from the reference is not a contradiction. The reference comes f
 macOS build, so a stream or field from another OS version can be missing from it.
 
 A deliberate exception goes in admin/data/biome_reference_exceptions.json, keyed to the
-exact module, kind, item and key, with the stored value and a reason. An exception that
-matches nothing fails the run, so it cannot outlive the code it covers.
+exact module, kind, item and key, with the value the module states ("value") and a reason.
+An exception that matches nothing, or whose value is no longer the one stated, fails the
+run, so it cannot outlive the code it covers.
 """
 import argparse
 import ast
@@ -45,6 +46,16 @@ TYPE_WIRE = {'uint': 0, 'int': 0, 'sint': 0, 'fixed32': 5, 'sfixed32': 5, 'float
              'bytes_hex': 2, 'message': 2}
 SEGMENT = re.compile(r'streams/(?:\*|public|restricted|private)?/?([A-Za-z0-9_.\-]+)/(?:local|remote|\*)')
 NOTE_CLASS = re.compile(r'\b(_?BM[A-Z][A-Za-z0-9]+) class\b')
+# The wordings that say a stream's fields come from a class. Any other mention of a class
+# can be a comparison ("separate from the BMx class"), so it cannot be a contradiction.
+NOTE_CLASS_CLAIMS = (
+    re.compile(r'(?:\b(?:are|is) (?:those|that)|\bfields?|\)|\bvalue) of the '
+               r'(_?BM[A-Z][A-Za-z0-9]+) class\b'),
+    re.compile(r'\bcomes? from the (_?BM[A-Z][A-Za-z0-9]+) class\b'),
+    re.compile(r'\bthe (_?BM[A-Z][A-Za-z0-9]+) class names\b'),
+)
+NOTE_CONTRAST = re.compile(r'\b(?:not|unlike|instead|rather than|separate|compared?|versus)\b',
+                           re.I)
 CITED = re.compile(r'\b_?(BM[A-Z][A-Za-z0-9]+)\b')
 VERSION_NAME = re.compile(r'_V\d+$')
 FIELD_STATEMENTS = (
@@ -56,9 +67,13 @@ FIELD_STATEMENTS = (
 )
 DK_EVENT_CLASS = '_DKPREvent'
 DK_FLOOR = 1000
+# Agreeing entries needed before a disagreement counts. Two common names ("Unknown", "On")
+# can be shared by unrelated enums, so two do not show the table describes that enum.
+BIND_MINIMUM = 3
 
 
-Item = collections.namedtuple('Item', 'module kind item key status detail')
+Item = collections.namedtuple('Item', 'module kind item key status detail stored',
+                              defaults=('',))
 
 
 def norm(text):
@@ -122,33 +137,64 @@ class Reference:
         return out
 
 
-def compare_table(table, candidates):
+def same_names_reordered(table, reference):
+    """The table holds the enum's full set of numbers and each of its names exactly once."""
+    if len(table) < 3 or set(table) != set(reference):
+        return False
+    prefix = common_prefix(list(reference.values()))
+
+    def bare(name):
+        text = norm(name)
+        return text[len(prefix):] if prefix and text.startswith(prefix) else text
+
+    return sorted(bare(n) for n in table.values()) == sorted(bare(n) for n in reference.values())
+
+
+def compare_table(table, candidates, keyed=True):
     """Return (status, candidate, conflicts) for an {int: name} table.
 
-    The candidate that agrees on the most entries is the binding, so a smaller enum that
-    happens to share two names cannot vouch for a table with a wrong third name.
+    The candidate that agrees on the most entries is the binding. On a tie the one covering
+    the most of the table wins, so a smaller enum that happens to share two names cannot
+    vouch for a table with a wrong third name. When too little agrees to bind, the status
+    is could not check and the closest candidate and its disputed entries are returned.
+
+    A keyed table holding exactly an enum's names under other numbers is that enum with its
+    numbers swapped. A plain tuple has no numbers of its own, so keyed=False skips that test.
     """
     scored = []
     for key, ref in candidates.items():
         prefix = common_prefix(list(ref.values()))
         shared = [k for k in table if k in ref]
         conflicts = [k for k in shared if not same_name(table[k], ref[k], prefix)]
-        scored.append((len(shared) - len(conflicts), key, conflicts))
+        scored.append((len(shared) - len(conflicts), key, conflicts, len(shared)))
     if not scored:
         return UNCHECKED, None, []
     top = max(row[0] for row in scored)
-    if top < 2:
-        return UNCHECKED, None, []
     best = [row for row in scored if row[0] == top]
+    widest = max(row[3] for row in best)
+    best = [row for row in best if row[3] == widest]
     clean = [row for row in best if not row[2]]
-    if clean:
+    if top >= 2 and clean:
         return CONFIRMED, clean[0][1], []
+    reordered = [row for row in scored if keyed and row[2]
+                 and same_names_reordered(table, candidates[row[1]])]
+    if reordered:
+        most = max(row[0] for row in reordered)
+        reordered = [row for row in reordered if row[0] == most]
+        if len({tuple((k, candidates[row[1]][k]) for k in row[2]) for row in reordered}) == 1:
+            return DIFFERENT, reordered[0][1], reordered[0][2]
+    if top < 1:
+        return UNCHECKED, None, []
+    if top < 2:
+        disputed = [row for row in best if row[2]]
+        return (UNCHECKED, disputed[0][1], disputed[0][2]) if disputed and not clean \
+            else (UNCHECKED, None, [])
     # The same enum can be saved twice (a field's table and its AsString function). Tied
     # candidates are one binding when they say the same thing about the disputed entries.
     readings = {tuple((k, candidates[row[1]][k]) for k in row[2]) for row in best}
-    if len(readings) == 1 and top >= len(best[0][2]):
+    if len(readings) == 1 and top >= BIND_MINIMUM and top >= len(best[0][2]):
         return DIFFERENT, best[0][1], best[0][2]
-    return UNCHECKED, None, []
+    return UNCHECKED, best[0][1], best[0][2]
 
 
 def literal_table(node):
@@ -213,6 +259,42 @@ def path_segments(entry):
     return found
 
 
+def claimed_classes(notes):
+    """Classes the notes state as the source of the fields, in a sentence with no contrast."""
+    text = ' '.join(notes.split())
+    found = set()
+    for pattern in NOTE_CLASS_CLAIMS:
+        for match in pattern.finditer(text):
+            before = text[:match.start()].rsplit('. ', 1)[-1]
+            after = text[match.end():].split('. ', 1)[0]
+            if not NOTE_CONTRAST.search(before) and not NOTE_CONTRAST.search(after):
+                found.add(match.group(1).lstrip('_'))
+    return found
+
+
+def callee(call):
+    return call.func.attr if isinstance(call.func, ast.Attribute) else getattr(call.func, 'id', '')
+
+
+def is_record_decode(call):
+    """blackboxprotobuf.decode_message(record.data, typedef): the stream's own message."""
+    return callee(call) == 'decode_message' and len(call.args) >= 2 and isinstance(
+        call.args[0], ast.Attribute) and call.args[0].attr == 'data'
+
+
+def parameters(function):
+    return [a.arg for a in function.args.posonlyargs + function.args.args]
+
+
+def assignments(root):
+    found = collections.defaultdict(list)
+    for node in ast.walk(root):
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(
+                node.targets[0], ast.Name):
+            found[node.targets[0].id].append(node.value)
+    return found
+
+
 class ModuleCheck:
     def __init__(self, reference, path):
         self.ref = reference
@@ -233,8 +315,8 @@ class ModuleCheck:
         self.scope = self.ref.reach(self.all_classes | self.cited_classes)
         self.is_dk = any(s.startswith('_DKEvent') for s in every) or 'METADATA_KEYS' in self.source
 
-    def add(self, kind, item, key, status, detail=''):
-        self.items.append(Item(self.module, kind, item, str(key), status, detail))
+    def add(self, kind, item, key, status, detail='', stored=''):
+        self.items.append(Item(self.module, kind, item, str(key), status, detail, str(stored)))
 
     def run(self):
         self.check_streams()
@@ -254,15 +336,18 @@ class ModuleCheck:
                 self.add('stream', name, segment, status)
             notes = str(entry.get('notes') or '')
             reach = self.ref.reach(classes - {None})
+            claimed = claimed_classes(notes)
             for stated in sorted({c.lstrip('_') for c in NOTE_CLASS.findall(notes)}):
                 if stated not in self.ref.classes or not segments or None in classes:
                     status, detail = UNCHECKED, ''
                 elif stated in reach:
                     status, detail = CONFIRMED, ''
+                elif stated not in claimed:
+                    status, detail = UNCHECKED, 'mentioned, not stated as the source of the fields'
                 else:
                     status = DIFFERENT
                     detail = f'notes name {stated}; its streams use {sorted(classes)}'
-                self.add('stream', name, f'class {stated}', status, detail)
+                self.add('stream', name, f'class {stated}', status, detail, stated)
 
     def typedef_classes(self, function):
         if function and function in self.segments:
@@ -272,6 +357,69 @@ class ModuleCheck:
             return set()
         return set(self.all_classes)
 
+    def record_typedefs(self):
+        """The typedefs that reach a decode of the stream's record, directly or through a helper.
+
+        A typedef decoded from anything else (a nested payload held in a variable) describes
+        some other message, so comparing it with the stream's class would prove nothing.
+        """
+        module_values = assignments(ast.Module(body=[n for n in self.tree.body
+                                                     if isinstance(n, ast.Assign)], type_ignores=[]))
+        functions = {n.name: n for n in self.tree.body if isinstance(n, ast.FunctionDef)}
+        local_values = {name: assignments(fn) for name, fn in functions.items()}
+        bound, sinks = set(), collections.defaultdict(set)
+
+        def collect(expr, function, seen):
+            if isinstance(expr, ast.Dict):
+                if is_typedef(expr):
+                    bound.add(expr)
+            elif isinstance(expr, ast.BoolOp):
+                for value in expr.values:
+                    collect(value, function, seen)
+            elif isinstance(expr, ast.IfExp):
+                collect(expr.body, function, seen)
+                collect(expr.orelse, function, seen)
+            elif isinstance(expr, ast.Name) and expr.id not in seen:
+                seen.add(expr.id)
+                if function and expr.id in parameters(functions[function]):
+                    sinks[function].add(expr.id)
+                values = local_values[function].get(expr.id, ()) if function else ()
+                for value in values or module_values.get(expr.id, ()):
+                    collect(value, function, seen)
+
+        def passed(call, target):
+            """Yield (expression, scope) for each typedef parameter of this call."""
+            definition = functions[target].args
+            names = parameters(functions[target])
+            defaults = dict(zip(names[len(names) - len(definition.defaults):], definition.defaults))
+            for param in sinks[target]:
+                index = names.index(param)
+                given = [call.args[index]] if index < len(call.args) else []
+                given += [k.value for k in call.keywords if k.arg == param]
+                if given:
+                    yield given[0], caller
+                elif param in defaults:
+                    yield defaults[param], None
+
+        size = -1
+        while size != len(bound) + sum(len(v) for v in sinks.values()):
+            size = len(bound) + sum(len(v) for v in sinks.values())
+            for caller, function in functions.items():
+                for call in (n for n in ast.walk(function) if isinstance(n, ast.Call)):
+                    if is_record_decode(call):
+                        collect(call.args[1], caller, set())
+                    elif callee(call) in functions and isinstance(call.func, ast.Name):
+                        for arg, scope in list(passed(call, call.func.id)):
+                            collect(arg, scope, set())
+        return bound
+
+    def node_owners(self):
+        owner = {}
+        for function in (n for n in self.tree.body if isinstance(n, ast.FunctionDef)):
+            for node in ast.walk(function):
+                owner[node] = function.name
+        return owner
+
     def check_typedefs(self):
         nested = set()
         for node in ast.walk(self.tree):
@@ -280,15 +428,21 @@ class ModuleCheck:
                     if isinstance(val, ast.Dict):
                         for sub in field_spec(val).values():
                             nested.add(sub)
-        functions = [n for n in self.tree.body if isinstance(n, ast.FunctionDef)]
-        owner = {}
-        for function in functions:
-            for node in ast.walk(function):
-                owner[node] = function.name
+        owner = self.node_owners()
+        bound = self.record_typedefs()
+        variable = {n.value: n.targets[0].id for n in ast.walk(self.tree)
+                    if isinstance(n, ast.Assign) and len(n.targets) == 1
+                    and isinstance(n.targets[0], ast.Name)}
+        unnamed = collections.Counter()
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Dict) and is_typedef(node) and node not in nested:
-                classes = self.typedef_classes(owner.get(node))
-                self.walk_typedef(node, classes, f'line {node.lineno}', '')
+                scope = owner.get(node, 'module')
+                name = variable.get(node)
+                if not name:
+                    unnamed[scope] += 1
+                    name = f'typedef{unnamed[scope]}'
+                classes = self.typedef_classes(owner.get(node)) if node in bound else set()
+                self.walk_typedef(node, classes, f'{scope}.{name}', '')
 
     def walk_typedef(self, node, classes, where, prefix):
         for key, val in zip(node.keys, node.values):
@@ -303,14 +457,14 @@ class ModuleCheck:
             present = [r for r in rows if r]
             subs = {r[3] for r in present if r[3]}
             if not rows or len(present) < len(rows) or wire is None:
-                self.add('field', label, stated_type, UNCHECKED)
+                self.add('field', label, stated_type, UNCHECKED, stored=stated_type)
             elif any(r[4] and wire == 2 for r in present) or any(r[2] == wire for r in present):
-                self.add('field', label, stated_type, CONFIRMED)
+                self.add('field', label, stated_type, CONFIRMED, stored=stated_type)
             else:
                 names = sorted({r[1] for r in present})
                 self.add('field', label, stated_type, DIFFERENT,
                          f'{stated_type} is wire {wire}; reference {names} is wire '
-                         f'{sorted({r[2] for r in present})}')
+                         f'{sorted({r[2] for r in present})}', stated_type)
             sub = spec.get('message_typedef')
             if isinstance(sub, ast.Dict) and sub.keys:
                 self.walk_typedef(sub, subs if len(present) == len(rows) else set(),
@@ -339,7 +493,7 @@ class ModuleCheck:
                 else:
                     at = sorted({row[0] for row in rows if row[1] == name})
                     self.add('field_name', label, name, DIFFERENT,
-                             f'classes in scope hold {name} at field {at}')
+                             f'classes in scope hold {name} at field {at}', name)
 
     def nearby_field_holds(self, match, number, rows):
         before = self.source[max(0, match.start() - 60):match.start()]
@@ -355,43 +509,69 @@ class ModuleCheck:
                         inner.add(val.id)
         return inner
 
+    def inline_version_tables(self):
+        """{table: label} for tables written directly as values of a {version: table} dict."""
+        owner = self.node_owners()
+        variable = {n.value: n.targets[0].id for n in ast.walk(self.tree)
+                    if isinstance(n, ast.Assign) and len(n.targets) == 1
+                    and isinstance(n.targets[0], ast.Name)}
+        inline = {}
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Dict) and node.keys and all(
+                    isinstance(k, ast.Constant) and type(k.value) is int for k in node.keys):
+                parent = variable.get(node)
+                scope = f'{owner[node]}.' if node in owner else ''
+                for key, val in zip(node.keys, node.values):
+                    if isinstance(val, ast.Dict):
+                        inline[val] = f'{scope}{parent}[{key.value}]' if parent else None
+        return inline
+
     def named_tables(self):
         seen = set()
+        owner = self.node_owners()
+        inline = self.inline_version_tables()
+        unnamed = collections.Counter()
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(
                     node.targets[0], ast.Name):
                 table = literal_table(node.value)
                 if table:
                     seen.add(id(node.value))
-                    yield node.targets[0].id, table, isinstance(node.value, ast.Dict)
+                    yield node.targets[0].id, table, isinstance(node.value, ast.Dict), False
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Dict) and id(node) not in seen:
                 table = literal_table(node)
                 if table:
-                    yield f'line {node.lineno}', table, True
+                    label = inline.get(node)
+                    if not label:
+                        keys = ','.join(str(k) for k in sorted(table))
+                        base = f"{owner.get(node, 'module')}.table({keys})"
+                        unnamed[base] += 1
+                        label = base if unnamed[base] == 1 else f'{base}#{unnamed[base]}'
+                    yield label, table, True, node in inline
 
     def check_tables(self):
         inner = self.version_inner()
         field_enums = self.ref.scoped(self.ref.enums, self.scope, self.cited_tables,
                                       self.every_segment)
         versioned = self.ref.scoped(self.ref.versioned, self.scope, ())
-        for name, table, is_dict in self.named_tables():
+        for name, table, is_dict, is_version in self.named_tables():
             if is_dict and min(table) >= DK_FLOOR and self.is_dk:
                 self.check_dk(name, table)
                 continue
-            if name in inner or VERSION_NAME.search(name):
-                self.check_versioned(name, table, field_enums, versioned)
+            if is_version or name in inner or VERSION_NAME.search(name):
+                self.check_versioned(name, table, field_enums, versioned, is_dict)
                 continue
-            status, key, conflicts = compare_table(table, field_enums)
+            status, key, conflicts = compare_table(table, field_enums, is_dict)
             if not is_dict and status == UNCHECKED:
                 continue  # a plain tuple of strings that matches no enum is not an enum table
             self.report_table('enum', name, table, status, key, conflicts, field_enums)
 
-    def check_versioned(self, name, table, field_enums, versioned):
-        status, key, conflicts = compare_table(table, versioned)
+    def check_versioned(self, name, table, field_enums, versioned, keyed):
+        status, key, conflicts = compare_table(table, versioned, keyed)
         if status == CONFIRMED:
             self.add('version_enum', name, key, CONFIRMED)
-        elif compare_table(table, field_enums)[0] == CONFIRMED:
+        elif compare_table(table, field_enums, keyed)[0] == CONFIRMED:
             self.add('version_enum', name, 'latest', CONFIRMED)
         else:
             self.report_table('version_enum', name, table, status, key, conflicts, versioned)
@@ -400,7 +580,10 @@ class ModuleCheck:
         if status == DIFFERENT:
             for value in conflicts:
                 self.add(kind, name, value, DIFFERENT,
-                         f'{table[value]!r}; {key} has {candidates[key][value]!r}')
+                         f'{table[value]!r}; {key} has {candidates[key][value]!r}', table[value])
+        elif status == UNCHECKED and conflicts:
+            self.add(kind, name, key, status,
+                     f'{len(conflicts)} of {len(table)} entries disagree, too few agree to bind')
         else:
             self.add(kind, name, key or '', status)
 
@@ -412,7 +595,8 @@ class ModuleCheck:
             elif same_name(label, stored.rsplit('-', 1)[-1]):
                 self.add('dk_label', name, index, CONFIRMED)
             else:
-                self.add('dk_label', name, index, DIFFERENT, f'{label!r}; reference has {stored!r}')
+                self.add('dk_label', name, index, DIFFERENT, f'{label!r}; reference has {stored!r}',
+                         label)
 
 
 def module_paths(root):
@@ -442,7 +626,8 @@ def apply_exceptions(items, exceptions):
     used, out = set(), []
     for item in items:
         key = (item.module, item.kind, item.item, item.key)
-        if item.status == DIFFERENT and key in index:
+        value = index[key].get('value') if key in index else None
+        if item.status == DIFFERENT and isinstance(value, str) and value == item.stored:
             used.add(key)
             out.append(item._replace(status=CONFIRMED, detail=f"exception: {index[key]['reason']}"))
         else:
@@ -473,15 +658,21 @@ def main(argv=None):
     if args.unchecked:
         for item in items:
             if item.status == UNCHECKED:
-                print(f'could not check: {item.module} {item.kind} {item.item} {item.key}')
+                note = f': {item.detail}' if item.detail else ''
+                print(f'could not check: {item.module} {item.kind} {item.item} {item.key}{note}')
+    partial = sum(1 for i in items if i.status == UNCHECKED and 'too few agree' in i.detail)
+    if partial:
+        print(f'{partial} tables partly match the reference but too few entries agree to bind; '
+              '--unchecked lists them.')
     different = [i for i in items if i.status == DIFFERENT]
     for item in different:
         print(f'DIFFERENT: {item.module} [{item.kind}] {item.item} key {item.key}: {item.detail}')
     for entry in stale:
-        print(f"STALE EXCEPTION: {entry['module']} [{entry['kind']}] {entry['item']} key {entry['key']}")
+        print(f"STALE EXCEPTION: {entry['module']} [{entry['kind']}] {entry['item']} key {entry['key']} "
+              f"value {entry.get('value')!r}")
     if different or stale:
         print('\nFix the module, or if the difference is deliberate add an exact entry to '
-              'admin/data/biome_reference_exceptions.json with a reason.')
+              'admin/data/biome_reference_exceptions.json with the stated value and a reason.')
         return 1
     return 0
 

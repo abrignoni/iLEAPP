@@ -119,12 +119,18 @@ def safe_join(values, sep='<br>'):
 
 
 def safe_source(text):
-    """Escape an evidence text/document body for display as source.
+    """Escape an evidence text/document body for display as source on the HTML page.
 
     Real newlines become ``<br>`` for readability *after* escaping, so any markup in
-    the evidence (including a literal ``<br>``) is shown inert as text. Use for
-    Tier-1 raw bodies -- message/email bodies, whole return pages, notes -- per the
-    escape-to-source policy.
+    the evidence (including a literal ``<br>``) is shown inert as text.
+
+    The result is page markup. Use it only for a value that goes to the HTML page alone,
+    such as the second list of a ``(data_list, html_data_list)`` return, in a column
+    listed in ``html_columns``. Without ``html_columns`` the page escapes it a second
+    time. A value in the main row also reaches LAVA, TSV and the timeline, where the entities and ``<br>``
+    show as literal text. For a multi-line body in the main row, store it unescaped (the
+    page escapes every column by default) and, where the core has the key, list the
+    column in ``multiline_columns`` so its line breaks show on the page.
     """
     if text is None:
         return ''
