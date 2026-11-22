@@ -40,6 +40,7 @@ __artifacts_v2__ = {
 | `notes`         | Any additional information about the artifact (can be an empty string) | Optional          |
 | `paths`         | A tuple containing one or more file paths (with wildcards if needed) where the artifact data can be found                                 | Required          |
 | `output_types`  | Specifies the desired output formats. See 'Output Types Details' below for options.                                                     | Required          |
+| `multiline_columns` | Header names, as plain strings, whose line breaks show as `<br>` on the HTML report page. The cell is still escaped, and LAVA, TSV and timeline keep the plain newlines. A column also listed in `html_columns` follows `html_columns`. | Optional |
 | `artifact_icon` | The name of the Tabler icon to display in the left sidebar ot the HTML report. List of available icons on [tabler.io](https://tabler.io/icons) website | Optional          |
 | `sample_data`   | Optional human-readable notes about known sample data or test coverage for the artifact. This can include local image names, test case names, row counts, OS versions, or schema variations that were verified. Not used by the artifact processor. | Optional          |
 
