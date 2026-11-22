@@ -89,7 +89,8 @@ def _required_string(data):
 
 def _phones(*numbers):
     objects = ['$null', {'NS.objects': [plistlib.UID(i + 2) for i in range(len(numbers))]}, *numbers]
-    return plistlib.dumps({'$top': {'root': plistlib.UID(1)}, '$objects': objects}, fmt=plistlib.FMT_BINARY)
+    return plistlib.dumps({'$top': {'root': plistlib.UID(1)}, '$objects': objects},
+                          fmt=plistlib.PlistFormat.FMT_BINARY)
 
 
 class TestPayloadHelpers(unittest.TestCase):
@@ -111,7 +112,7 @@ class TestPayloadHelpers(unittest.TestCase):
 
     def test_a_bs_text_outside_user_info_is_not_a_payload(self):
         encoded = base64.b64encode(_framed(_payload())).decode()
-        self.assertEqual(self.decode(f"v1.0/com.example.activity/t='bs'&url=$" + encoded + '$'),
+        self.assertEqual(self.decode("v1.0/com.example.activity/t='bs'&url=$" + encoded + '$'),
                          (None, 'Not present'))
 
     def test_wrong_length_is_reported(self):
