@@ -8,23 +8,35 @@ __artifacts_v2__ = {
                        "being dismissed.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Dismissal reasons observed: HardwareButton, Punchout, Timeout and "
-                 "TapOutsideOfContent. The two records of a pair share a session identifier, "
-                 "so records can be grouped on it; the time between the two records of a "
-                 "pair is the time between their SEGB record timestamps, and that it equals "
-                 "the time the interface was shown was not tested. On the tested images "
-                 "field 5 was 1 on the record with no dismissal reason and 0 on the record "
-                 "that carries one; the Interface State labels Presented and Dismissed "
-                 "follow that observation. The "
-                 "presentation field carried a single constant value in the sample and is "
-                 "reported raw.",
-        "paths": ('*/streams/*/Siri.UI/local/*',),
+        "notes": ("Field names are those of the BMSiriUI class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Columns reported before as Session ID, Related ID and Presentation "
+                 "(raw) are now UUID, Turn ID and View Mode. The two records of a pair share a "
+                 "UUID, so records can be grouped on it: on the tested images the 154 written records formed 77 UUID pairs, each with one record at field 5 = 1 and one at "
+                 "0. The time between the two records of a pair is the time between their SEGB "
+                 "record timestamps, and that it equals the time the interface was shown was "
+                 "not tested. The framework names field 5 starting, a boolean. On the tested "
+                 "images it was 1 on the record with no dismissal reason and 0 on the record "
+                 "that carries one; the Interface State labels Presented and Dismissed follow "
+                 "that observation. On the tested images all 77 Dismissed records carried a dismissal reason, with eight distinct values, among them HardwareButton, "
+                 "Timeout and TapOutsideOfContent. View Mode is a string in the framework and is reported "
+                 "as stored; on the tested images it was set on the 77 Presented records and empty on the 77 Dismissed records. On the tested images Turn ID was set on 55 of the 154 written records. The framework sessionID field was not present on any written record "
+                 "on the tested images and is not reported. Absolute Timestamp is the framework "
+                 "absoluteTimestamp field (field 6), which the class reads as seconds since "
+                 "2001-01-01 UTC; it was not reported before. It was set on 154 of the 154 written "
+                 "records on the tested images, and on each of them the SEGB Timestamp was later, "
+                 "by 0.004 to 1.74 seconds (median 0.071 seconds for Siri.UI, 0.012 seconds for "
+                 "SiriUI). The carplayPPID field (field 8, present on 6) is not reported."
+                 " "
+                 "On 2 tested iOS 16 images (abe_ios16, felix23_ios16) the stream is stored under SiriUI, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 74 written records held fields 2 to 6; none held Turn ID."),
+        "paths": ('*/streams/*/Siri.UI/local/*', '*/streams/*/SiriUI/local/*'),
         "output_types": "standard",
         "artifact_icon": "mic",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 294 rows",
             "dexter_ios18": "11 rows",
             "felix_ios17": "6 rows",
             "hc_ios26": "26.5.2 | 2 rows",
@@ -37,7 +49,7 @@ __artifacts_v2__ = {
 
 import os
 import struct
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 
 from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
@@ -50,6 +62,17 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
 
 SESSION_STATE = {0: 'Dismissed', 1: 'Presented'}
 
+# Pin the string fields so a short string is never decoded as a nested message.
+TYPESS = {
+    '1': {'type': 'str', 'name': ''},
+    '2': {'type': 'str', 'name': ''},
+    '3': {'type': 'str', 'name': ''},
+    '4': {'type': 'str', 'name': ''},
+    '6': {'type': 'double', 'name': ''},
+    '7': {'type': 'str', 'name': ''},
+    '8': {'type': 'str', 'name': ''},
+}
+
 
 def _to_str(value):
     """Absent submessages decode as an empty dict, which is not a value."""
@@ -61,6 +84,19 @@ def _to_str(value):
     if value is None or isinstance(value, (dict, list)):
         return ''
     return str(value)
+
+
+_COCOA_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
+
+
+def _cocoa_date(value):
+    """absoluteTimestamp (field 6): an NSDate stored as seconds since 2001-01-01 UTC."""
+    if not isinstance(value, float) or value == 0:
+        return None
+    try:
+        return _COCOA_EPOCH + timedelta(seconds=value)
+    except (OverflowError, ValueError):
+        return None
 
 
 @artifact_processor
@@ -85,7 +121,7 @@ def get_biomeSiriUI(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, TYPESS)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'Siri UI: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
@@ -93,7 +129,7 @@ def get_biomeSiriUI(context):
 
                 raw_state = protostuff.get('5', '')
 
-                data_list.append((ts, record.state.name,
+                data_list.append((ts, _cocoa_date(protostuff.get('6')), record.state.name,
                                   SESSION_STATE.get(raw_state, ''), raw_state,
                                   _to_str(protostuff.get('4')),
                                   _to_str(protostuff.get('2')),
@@ -102,11 +138,12 @@ def get_biomeSiriUI(context):
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, None, None, None, None,
-                                  filename, record.data_start_offset))
+                data_list.append((ts, None, record.state.name, None, None, None, None, None,
+                                  None, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Interface State',
-                    'State (raw)', 'Dismissal Reason', 'Session ID', 'Related ID',
-                    'Presentation (raw)', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Absolute Timestamp', 'datetime'),
+                    'SEGB State', 'Interface State',
+                    'State (raw)', 'Dismissal Reason', 'UUID', 'Turn ID',
+                    'View Mode', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

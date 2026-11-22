@@ -4,18 +4,18 @@ __artifacts_v2__ = {
 'description': "Parses Assets in iCloud Shared Photo Library with contributor information from the "
 "PhotoData/Photos.sqlite ZASSET table, joined to ZSHARE and ZSHAREPARTICIPANT, for "
 "assets whose Active Library Scope Participation State is 1. Queries exist for iOS 16 "
-"through 26; other versions return no rows. Parses basic asset data and iCloud SPL "
+"through 27; other versions return no rows. Parses basic asset data and iCloud SPL "
 "and contributor information. If you are attempting to match SPL count with results "
 "please check hidden, trashed, and burst assets. "
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '5.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen. The iOS 27.2 store has no ZSHAREPARTICIPANT.ZROLE; that column is reported empty. The store has ZCPLROLE, ZCPLPERMISSION and ZPARTICIPANTROLE, which this artifact does not read; whether they hold the same values is not established.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "cloud-upload",
@@ -60,7 +60,7 @@ def Ph032iCloudSPLAssetswithContributorPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) < version.parse("16")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) < version.parse("16")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("17.6")):
@@ -539,7 +539,7 @@ def Ph032iCloudSPLAssetswithContributorPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

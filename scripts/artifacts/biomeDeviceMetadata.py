@@ -1,19 +1,44 @@
 __artifacts_v2__ = {
     "get_biomeDeviceMetadata": {
         "name": "Biome - Device Metadata",
-        "description": "Parses OS build records from the Device.Metadata biome stream. Each record "
-                       "carries an OS build string and a SEGB timestamp.",
+        "description": "Parses OS build records from the Device.Metadata biome stream, from its local and remote folders. The 49 written records on the tested images each carried an OS build string.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Observed builds spanning iOS 16 through 18 in test extractions (e.g. 20B110, "
-                 "21D50, 22H31).",
-        "paths": ('*/streams/*/Device.Metadata/local/*',),
+        "notes": ("Builds with prefixes 19 through 23 were on the tested images (e.g. 20B110, "
+                 "21D50, 22H31). The Supplemental Build and Platform field names and the Platform "
+                 "value names are those of the BMDeviceMetadata class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of "
+                 "the class was read. Supplemental Build was reported before as OS Build (Field 4) "
+                 "and Platform as Type (raw). "
+                 "Platform names depend on the integer shown in Data Version. The SEGB reader returns "
+                 "it unnamed with each entry: it is the second integer of the entry header in SEGB "
+                 "version 2 files and the last field of the record header in SEGB version 1 files. "
+                 "It is read here as the Biome data version. BMDeviceMetadata reads "
+                 "data version 0 with 0 = iPad, 1 = iPhone, 2 = MacDesktop, 3 = MacPortable, 4 = TV, "
+                 "5 = Watch, 6 = HomePod, 8 = Vision, and data version 1 with 0 = Unknown, "
+                 "1 = iPad, 2 = iPhone, 3 = MacDesktop, 4 = MacPortable, 5 = TV, 6 = Watch, "
+                 "7 = HomePod, 8 = Vision, 9 = HomeAccessory. A value or version outside those "
+                 "lists keeps its integer in Platform (raw) with the name blank. On the 46 written local records on the tested images, the 18 data version 0 records hold 1 and the 28 data version 1 records hold 2, so all 46 read iPhone. Supplemental Build was the same as OS Build on 41 of the 46, different on 3 and empty on 2."
+                 " "
+                 "On 5 tested images (jess_ios15 on iOS 15; abe_ios16, felix23_ios16, hexordia_ios1651 and magnet_ios16 on iOS 16) the stream is stored under DeviceMetadata, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. Its 10 written local records are data version 0. Fields 2 and 3 were on all 10 and field 4 on 9; the iOS 15 record held no field 4."
+                 " "
+                 "The remote folders of both stream names are now read too, and the Sync Origin "
+                 "column reports Local, or Remote with the name of the folder under remote; what "
+                 "that name identifies is not sourced here. On the tested images they added 3 "
+                 "written records: 1 under Device.Metadata on hc_ios17_2 and 2 under DeviceMetadata "
+                 "on felix23_ios16, the only images with Remote rows. Sync Origin read Local on 46 of the 49 written records and Remote on 3. Those 3 are in SEGB version 1 "
+                 "files whose entry carries -1 in Data Version, and on macOS 27.2.1 BMDeviceMetadata "
+                 "returned no event for a synthetic record at that value read as an unsigned "
+                 "data version (4294967295), so their Platform name is left "
+                 "blank and only Platform (raw) is shown. They held fields 2 and 3 and no field 4."),
+        "paths": ('*/streams/*/Device.Metadata/local/*', '*/streams/*/Device.Metadata/remote/*',
+                  '*/streams/*/DeviceMetadata/local/*', '*/streams/*/DeviceMetadata/remote/*'),
         "output_types": "standard",
         "artifact_icon": "smartphone",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 5 rows",
             "hc_ios18_7": "iOS 18.7.8 | 3 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
         },
@@ -41,6 +66,18 @@ TYPESS = {
     '4': {'type': 'str', 'name': ''},
 }
 
+# platform names by record data version (the unnamed int the SEGB reader returns per entry), read
+# from BiomeLibrary.framework BMDeviceMetadata on macOS 27.2.1 (26B131). Data version 1
+# adds 0 = Unknown and 9 = HomeAccessory. Values the class renders only as its fallback
+# (version 0: 7 and 9, which render as Unknown, and values above 9, not named here; version 1: 10
+# and up) get no name.
+PLATFORM_BY_VERSION = {
+    0: {0: 'iPad', 1: 'iPhone', 2: 'MacDesktop', 3: 'MacPortable', 4: 'TV', 5: 'Watch',
+        6: 'HomePod', 8: 'Vision'},
+    1: dict(enumerate(('Unknown', 'iPad', 'iPhone', 'MacDesktop', 'MacPortable', 'TV',
+                       'Watch', 'HomePod', 'Vision', 'HomeAccessory'))),
+}
+
 
 def _to_str(value):
     if isinstance(value, bytes):
@@ -51,6 +88,18 @@ def _to_str(value):
     if value is None:
         return ''
     return str(value)
+
+
+def _sync_origin(relative_path):
+    """Local for a file under local/, Remote (<folder>) for a file under remote/, where <folder>
+    is the name of the folder under remote/. What that name identifies is not sourced here."""
+    normalized = relative_path.replace('\\', '/')
+    if '/remote/' in normalized:
+        trailer = normalized.split('/remote/', 1)[1]
+        if '/' in trailer:
+            return f"Remote ({trailer.split('/', 1)[0]})"
+        return 'Remote'
+    return 'Local'
 
 
 @artifact_processor
@@ -69,6 +118,7 @@ def get_biomeDeviceMetadata(context):
         else:
             continue
 
+        origin = _sync_origin(context.get_relative_path(file_found))
         source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
@@ -83,17 +133,21 @@ def get_biomeDeviceMetadata(context):
                     continue
 
                 os_build = _to_str(protostuff.get('2', b''))
-                os_build_alt = _to_str(protostuff.get('4', b''))
-                record_type = protostuff.get('3', '')
+                supplemental_build = _to_str(protostuff.get('4', b''))
+                platform = protostuff.get('3', '')
+                version = getattr(record, '_unknown_value', None)
 
-                data_list.append((ts, record.state.name, os_build, os_build_alt, record_type,
-                                  filename, record.data_start_offset))
-
-            elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, None, filename,
+                data_list.append((ts, record.state.name, os_build, supplemental_build,
+                                  PLATFORM_BY_VERSION.get(version, {}).get(platform, ''),
+                                  platform, _to_str(version), origin, filename,
                                   record.data_start_offset))
 
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, record.state.name, None, None, None, None, None,
+                                  origin, filename, record.data_start_offset))
+
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'OS Build',
-                    'OS Build (Field 4)', 'Type (raw)', 'Filename', 'Offset')
+                    'Supplemental Build', 'Platform', 'Platform (raw)', 'Data Version',
+                    'Sync Origin', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

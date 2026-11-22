@@ -49,208 +49,323 @@ __artifacts_v2__ = {
     },
     "health_provenances": {
         "name": "Health - Provenances",
-        "description": "Provenance records (source app, device and operating system build) stored "
-                       "for Health data. Queries are a derivative of research provided by Heather "
-                       "Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk as "
-                       "well as research provided by Sarah Edwards as part of her APOLLO project. "
-                       "https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO/tree/"
-                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
-        "author": "@KevinPagano3 - @Johann-PLW",
+        "description": "Provenance records of Health data: the source, device and operating system build "
+                       "recorded for samples in healthdb_secure.sqlite, with the number of sample rows that "
+                       "reference each one.",
+        "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Claude",
         "creation_date": "2022-08-15",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The field meanings (except the model and OS version names looked up from stored "
+                 "product types and builds) and method below were derived independently, using the "
+                 "store's schema, measured data and Apple's code. One row per data_provenances row, with"
+                 " source_id and device_id resolved in healthdb.sqlite (sources, logical_sources, "
+                 "source_devices). First Sample Start, Last Sample End and Sample Rows cover samples "
+                 "whose objects.type is 1, Deleted Sample Rows counts type 2, and Other Rows any other "
+                 "type. First Sample Start is blank for a provenance with no type 1 sample. First Sample Start and Last Sample End are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Device and the other device columns are as stored, including the literal __NONE__. A binary value in Device Local Identifier, Device UDI, Device Bluetooth Identifier, sync_provenance, derived_flags, sync_identity or Source Deleted would be shown as a UUID or as hex. None occurred on the corpus keys run. Origin OS Version (as stored) is the stored major, minor and patch. Origin "
+                 "and Local Product Model and OS Version are names looked up from the stored product "
+                 "type and build. The meaning of sync_provenance, derived_flags, sync_identity and "
+                 "Source Deleted is not established, so they are shown as stored. Owner Bundle ID, "
+                 "Device Firmware, Device UDI, Device Bluetooth Identifier, Contributor Apple ID and "
+                 "Contributor Caller ID held no value on any row of the corpus keys run. When "
+                 "healthdb_secure.sqlite is not a readable database, as on ctf2020_ios12, which sources "
+                 "wrote samples is unknown, not empty: the rows are then the sources and devices "
+                 "healthdb.sqlite registers, with Record Kind registered source or registered device and"
+                 " their time in Source Modified or Device Created. These two times are read as Cocoa "
+                 "seconds, which rests on their range only. Sources in healthdb.sqlite with no "
+                 "provenance row are not listed when the secure database is readable. See also: Heather "
+                 "Mahalik and Jared Barnhart, SANS DFIR Summit 2022, https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "device-mobile",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 79 rows",
+            "belkactf6_tar": "iOS 16.3 | 1 row",
+            "cookbook_ios1751": "iOS 17.5.1 | 10 rows",
+            "ctf2020_ios12": "iOS 12.4 | 4 rows (registered sources and devices only: healthdb_secure.sqlite is not a database)",
             "dexter_ios18": "iOS 18.3.2 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
             "felix_ios17": "iOS 17.6.1 | 80 rows",
             "fsfull002_ios17": "iOS 17.1 | 17 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 2 rows",
             "hc_ios18_7": "iOS 18.7.8 | 8 rows",
+            "hc_ios26": "iOS 26.5.2 | 20 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 31 rows",
+            "hickman_ios14": "iOS 14.3 | 54 rows",
+            "hickman_ios15": "iOS 15.3.1 | 61 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 18 rows",
             "iphone11_ios17": "iOS 17.3 | 100 rows",
             "iphone12_ios18": "iOS 18.7 | 9 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
-            "otto_ios17": "iOS 17.5.1 | 144 rows",
-            "abe_ios16": "iOS 16.5 | 79 rows",
-            "felix23_ios16": "iOS 16.5 | 10 rows",
-            "hickman_ios13": "iOS 13.3.1 | 31 rows",
-            "hickman_ios14": "iOS 14.3 | 54 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 5 rows",
             "jess_ios15": "iOS 15.0.2 | 1 row",
             "magnet_ios16": "iOS 16.1.1 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 144 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 145 rows",
         }
     },
     "health_headphone_audio_levels": {
         "name": "Health - Headphone Audio Levels",
-        "description": "Headphone audio level samples (data type 173), one row per metadata value "
-                       "stored for the sample other than the "
-                       "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient key, and one row for a "
-                       "sample with no metadata value. Queries are a derivative of research "
-                       "provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR "
-                       "Summit 2022 talk as well as research provided by Sarah Edwards as part of "
-                       "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO/tree/"
-                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
-        "author": "@KevinPagano3",
+        "description": "Headphone audio exposure samples (HealthKit type code 173) from "
+                       "healthdb_secure.sqlite, with each series parent followed by the points SQLite holds "
+                       "for it.",
+        "author": "@KevinPagano3, @AlexisBrignoni, Claude",
         "creation_date": "2022-08-24",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "Quantity (as stored) is quantity_samples.quantity for the sample, reported as "
-                 "stored; earlier versions of this artifact headed the column Decibels, and the "
-                 "unit of the stored number is not established here. A sample with no metadata "
-                 "value is reported once with Bundle Name and Key blank. A sample whose only "
-                 "metadata value has the key _HKPrivateMetadataKeyHeadphoneAudioDataIsTransient is "
-                 "not reported. The sample_data counts were recorded before samples with no "
-                 "metadata value were kept and were not remeasured for that change.",
+        "notes": "The field meanings and method below were derived independently, using the store's "
+                 "schema, measured data and Apple's code. One row per sample of type 173, the code of "
+                 "HKQuantityTypeIdentifierHeadphoneAudioExposure in the _HKDataTypeDefinitions tables of"
+                 " the iOS 13.3, 14.3 and 18.7 HealthKit builds read, plus one row per series point. A "
+                 "series point repeats its parent's Record Added or Deleted, metadata, device and Source columns. Record Kind is sample, series parent, series point or deleted sample record."
+                 " Any other objects.type is shown as its stored number, marked not established. None "
+                 "occurred on the corpus keys run. objects.type 2 is a deleted sample record: the iOS "
+                 "14.3 and 18.7 HealthDaemon builds create the index objects_deleted on objects.type = "
+                 "2, and HealthDaemon has a deleted-object insert (HDDeletedObjectEntity). The index is "
+                 "not in the 12.4 and 13.3 builds read. Type 1 rows are reported as samples, and every "
+                 "one held a quantity row on the corpus keys run. No deleted sample record of this type "
+                 "was present on the corpus keys run. On the corpus keys run no deleted sample record of any type held a quantity row, so a deleted record carries no value. A deleted sample record shows that a sample of this type existed. Record Added or Deleted "
+                 "is then objects.creation_date, which the deleted-object insert writes. That this value"
+                 " is the deletion date rests on the order of that method's arguments. It can have no "
+                 "Start or End. On a type 1 row, Record Added or Deleted is objects.creation_date, and "
+                 "whether that is the insert on this device or a value carried in by sync is not "
+                 "established. The dBASPL unit is source-verified only: Apple's HKTypeIdentifiers.h "
+                 "gives it for this type, and the corpus keys run held no stored original unit to "
+                 "measure it against. A series parent's level matched the equivalent continuous level of"
+                 " its points, within a relative 0.0001, on every parent with points in SQLite, so it is"
+                 " not another reading. Series Point Status gives the points a parent declares against "
+                 "those in SQLite. On hickman_ios13, hickman_ios14 and hickman_ios15 the declared points"
+                 " are not in SQLite. healthdb_secure.hfd is not read, so only the parent row is "
+                 "reported there. The iOS 18.7 HealthDaemon build has a migration of series data from "
+                 "that store to SQLite. What the file holds was not read. series_location is shown as stored. On the corpus keys run 2 went with points in SQLite and 1 with points not in SQLite (hickman_ios15). The meaning of the values is not established. The column is absent on hickman_ios13 and hickman_ios14. "
+                 "_HKPrivateMediaSourceBundleIdentifier (as stored) is that metadata value, and its "
+                 "meaning is not established beyond the key name. Other Metadata holds any other key as "
+                 "stored, including _HKPrivateMetadataKeyHeadphoneAudioDataIsTransient, whose meaning is not established. A binary metadata value is shown as its byte length. The statistics archives in "
+                 "hearing_headphone_audio_exposure_statistics (healthdb.sqlite) are not read. Original "
+                 "Value (as stored) and Original Unit (as stored) held no value on any row of the corpus"
+                 " keys run. Start, End and Record Added or Deleted are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Provenance ROWID is the Row ID of Health - Provenances, which holds the bundle ID. See also: Heather Mahalik and Jared Barnhart, SANS DFIR Summit 2022, "
+                 "https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "headphones",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
-            "dexter_ios18": "iOS 18.3.2 | 183 rows",
+            "abe_ios16": "iOS 16.5 | 595 rows",
+            "belkactf6_tar": "iOS 16.3 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows (unknown, not empty: healthdb_secure.sqlite is not a database)",
+            "dexter_ios18": "iOS 18.3.2 | 7256 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 27 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 23 rows",
-            "abe_ios16": "iOS 16.5 | 17 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | 8 rows",
             "hickman_ios14": "iOS 14.3 | 13 rows",
+            "hickman_ios15": "iOS 15.3.1 | 20 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 930 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 643 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 4484 rows",
         }
     },
     "health_heart_rate": {
         "name": "Health - Heart Rate",
-        "description": "Heart rate samples (data type 5). Queries are a derivative of research "
-                       "provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR "
-                       "Summit 2022 talk as well as research provided by Sarah Edwards as part of "
-                       "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO/tree/"
-                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
-        "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Codex",
+        "description": "Heart rate samples (HealthKit type code 5) from healthdb_secure.sqlite, with each "
+                       "series parent followed by the points SQLite holds for it, and the stored heart rate "
+                       "context.",
+        "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Codex, Claude",
         "creation_date": "2023-03-06",
-        "last_update_date": "2026-10-10",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "One row per heart rate sample and distinct stored numeric context value (data type 5). On "
-                 "iOS 15 and later a sample that holds a series is reported as one row per value "
-                 "in the series and distinct context value. Repeated identical context pairs do not "
-                 "add rows; differing values remain separate, without choosing one. "
-                 "Rows whose objects.type is 2 are not reported. Heart Rate Context "
-                 "is read only from the sample's metadata value whose key is "
-                 "_HKPrivateHeartRateContext, as named in the store's metadata_keys table; it is "
-                 "blank when the sample has none. On hickman_ios13, hickman_ios14, iphone11_ios17 "
-                 "and cookbook_ios1751 no heart rate sample held more than one such value, and "
-                 "that key was the only metadata key on these samples. A sample holding two such "
-                 "distinct numeric values is reported for both. Heart Rate Context Value reports the "
-                 "stored numerical_value separately from the existing label. The quantity-times-60 "
-                 "BPM conversion is retained; its basis is not established here. "
-                 "The Heart Rate Context labels are not in the "
-                 "cited APOLLO health_heart_rate module and their source is not established here; "
-                 "a value with no label is shown as stored. Device Name, Manufacturer and "
-                 "Hardware are the source_devices name, manufacturer and hardware values of the "
-                 "sample's provenance; Device Model is the name this tool maps the Hardware value "
-                 "to.",
+        "notes": "The field meanings (except the model names looked up from stored hardware identifiers)"
+                 " and method below were derived independently, using the store's schema, measured data "
+                 "and Apple's code. One row per sample of type 5, the code of "
+                 "HKQuantityTypeIdentifierHeartRate in the _HKDataTypeDefinitions tables of the iOS 13.3, 14.3 and 18.7 HealthKit builds read, plus one row per series point. A series point "
+                 "repeats its parent's Record Added or Deleted, context, device and source columns. "
+                 "Record Kind is sample, series parent, series point or deleted sample record. Any other"
+                 " objects.type is shown as its stored number, marked not established. None occurred on "
+                 "the corpus keys run. objects.type 2 is a deleted sample record: the iOS 14.3 and 18.7 "
+                 "HealthDaemon builds create the index objects_deleted on objects.type = 2, and "
+                 "HealthDaemon has a deleted-object insert (HDDeletedObjectEntity). The index is not in "
+                 "the 12.4 and 13.3 builds read. Type 1 rows are reported as samples, and every one held"
+                 " a quantity row on the corpus keys run. No deleted sample record held a quantity row "
+                 "on those keys, so no value survives. It shows that a sample of this type existed. "
+                 "Record Added or Deleted is then objects.creation_date, which the deleted-object insert"
+                 " writes. That this value is the deletion date rests on the order of that method's "
+                 "arguments. It can have no Start or End. On a type 1 row, Record Added or Deleted is "
+                 "objects.creation_date, and whether that is the insert on this device or a value "
+                 "carried in by sync is not established. The stored value is in count/s: on every row "
+                 "with a stored original unit, that unit is count/min and the stored value is the "
+                 "original divided by 60, to 6 places. Heart Rate (BPM) is the stored value times 60, "
+                 "rounded to 3 places. How a series parent's value relates to its points is not "
+                 "established. Series Point Status gives the points a parent declares against those in "
+                 "SQLite. On hickman_ios14 and hickman_ios15 the declared points are not in SQLite. "
+                 "healthdb_secure.hfd is not read, so only the parent row is reported there. The iOS "
+                 "18.7 HealthDaemon build has a migration of series data from that store to SQLite. What"
+                 " the file holds was not read. series_location is shown as stored. On the corpus keys run 2 went with points in SQLite and 1 with points not in SQLite (hickman_ios15). The meaning of the values is not established. The column is absent on hickman_ios13 and hickman_ios14. Heart Rate Context Value is "
+                 "the stored number of the _HKPrivateHeartRateContext metadata key. Heart Rate Context "
+                 "is the string HealthKit's _NSStringFromPrivateHeartRateContext returns for codes 0 to "
+                 "9, read statically from the iOS 12.4, 13.3, 14.3 and 18.7 builds, where all four "
+                 "agree. That this function describes the stored metadata value rests on the shared "
+                 "name. No watchOS build was read. The tables of iOS 15, 16, 17 and 26 were not read. "
+                 "Code 10 is Scandium on 14.3 and Oxygen Saturation on 18.7, and code 11 is Sedentary "
+                 "while Sleep Mode is enabled on 18.7 and absent from the older builds, so both show as "
+                 "not established with the stored number kept. Device Name is as stored, including the "
+                 "literal __NONE__. Model Name is looked up from Hardware. Other Metadata (as stored) "
+                 "held no value on any row of the corpus keys run. Start, End and Record Added or Deleted are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Provenance ROWID is the Row ID of Health - Provenances, which holds the bundle ID. See also: Heather Mahalik and Jared "
+                 "Barnhart, SANS DFIR Summit 2022, https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "activity",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "belkactf6_tar": "iOS 16.3 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 155 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows (unknown, not empty: healthdb_secure.sqlite is not a database)",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 39140 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3651 rows",
+            "hickman_ios14": "iOS 14.3 | 24999 rows",
+            "hickman_ios15": "iOS 15.3.1 | 23485 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 39176 rows",
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 0 rows",
-            "abe_ios16": "iOS 16.5 | 0 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
-            "hickman_ios13": "iOS 13.3.1 | 3651 rows",
-            "hickman_ios14": "iOS 14.3 | 21152 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 8816 rows",
         }
     },
     "health_resting_heart_rate": {
         "name": "Health - Resting Heart Rate",
-        "description": "Resting Heart Rate. "
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
-                       "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO/tree/"
-                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
-        "author": "@KevinPagano3 - @Johann-PLW",
+        "description": "Resting heart rate samples (HealthKit type code 118) from healthdb_secure.sqlite, "
+                       "including deleted sample records.",
+        "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Claude",
         "creation_date": "2023-03-06",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "One row per resting heart rate sample (data type 118) that stores a quantity. "
-                 "Hardware ID is the product type of the source record.",
+        "notes": "The field meanings (except the model names looked up from stored product types) and "
+                 "method below were derived independently, using the store's schema, measured data and "
+                 "Apple's code. One row per sample of type 118, the code of "
+                 "HKQuantityTypeIdentifierRestingHeartRate in the _HKDataTypeDefinitions tables of the iOS 13.3, 14.3 and 18.7 HealthKit builds read. Record Kind is sample or deleted sample "
+                 "record on the corpus keys run. A series parent or series point would be labelled as "
+                 "such, and any other objects.type is shown as its stored number, marked not "
+                 "established. objects.type 2 is a deleted sample record: the iOS 14.3 and 18.7 "
+                 "HealthDaemon builds create the index objects_deleted on objects.type = 2, and "
+                 "HealthDaemon has a deleted-object insert (HDDeletedObjectEntity). The index is not in "
+                 "the 12.4 and 13.3 builds read. Type 1 rows are reported as samples, and every one held"
+                 " a quantity row on the corpus keys run. No deleted sample record held a quantity row "
+                 "on those keys, so no value survives. It shows that a sample of this type existed. "
+                 "Record Added or Deleted is then objects.creation_date, which the deleted-object insert"
+                 " writes. That this value is the deletion date rests on the order of that method's "
+                 "arguments. It can have no Start or End. On a type 1 row, Record Added or Deleted is "
+                 "objects.creation_date, and whether that is the insert on this device or a value "
+                 "carried in by sync is not established. The stored value is in count/min (beats per "
+                 "minute): on every row with a stored original unit, that unit is count/s and the stored"
+                 " value is the original times 60. Source Product Type is sources.product_type, and "
+                 "Model Name is looked up from it. Device Name is as stored, and it held the literal __NONE__ on every row of the corpus keys run. Metadata is shown as stored, and the meaning of its keys is not established. A binary metadata value is shown as its byte length. Series Point Status held no value on any row of the corpus "
+                 "keys run. Start, End and Record Added or Deleted are read as Cocoa seconds (from 2001-01-01 UTC), which rests on their range, and are shown in UTC. Provenance ROWID is the Row ID of Health - Provenances, which holds the bundle ID. See also: Heather Mahalik and Jared Barnhart, SANS DFIR Summit 2022, "
+                 "https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "activity",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "belkactf6_tar": "iOS 16.3 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 2 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows (unknown, not empty: healthdb_secure.sqlite is not a database)",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 107 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 94 rows",
+            "hickman_ios14": "iOS 14.3 | 449 rows",
+            "hickman_ios15": "iOS 15.3.1 | 76 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 125 rows",
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 0 rows",
-            "abe_ios16": "iOS 16.5 | 0 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
-            "hickman_ios13": "iOS 13.3.1 | 14 rows",
-            "hickman_ios14": "iOS 14.3 | 71 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 46 rows",
         }
     },
     "health_achievements": {
         "name": "Health - Achievements",
-        "description": "Earned achievement records from the ACHAchievementsPlugin_earned_instances "
-                       "table. Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk as well as "
-                       "research provided by Sarah Edwards as part of her APOLLO project. "
-                       "https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO/tree/"
-                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
-        "author": "@KevinPagano3",
+        "description": "Earned achievement records from ACHAchievementsPlugin_earned_instances in "
+                       "healthdb_secure.sqlite, with the source name of the matching template.",
+        "author": "@KevinPagano3, @AlexisBrignoni, Claude",
         "creation_date": "2022-08-24",
-        "last_update_date": "2026-08-04",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The field meanings and method below were derived independently, using the store's "
+                 "schema, measured data and Apple's code. One row per earned instance, joined to "
+                 "ACHAchievementsPlugin_templates on the template's unique name. Earned Date is a "
+                 "calendar date stored as text and is not converted, because it is not an instant. "
+                 "Created Timestamp is read as Cocoa seconds, which rests on its range. It is stored as a number, or as numeric text on "
+                 "wilkerson_iphone16_ios26, the one key with rows whose schema declares the column TEXT."
+                 " A value that is neither is left unconverted by this artifact. Value and Unit are "
+                 "value_in_canonical_unit and value_canonical_unit as stored. Template In Store says "
+                 "whether the template row exists. The meaning of Creator Device, sync_provenance and "
+                 "sync_identity is not established, so they are shown as stored. A binary value in these three columns would be shown as a UUID or as hex. None occurred on the corpus keys run. The template catalog "
+                 "and fitness_friend_achievements are not reported, and achievement badge files in app "
+                 "containers are not read. See also: Heather Mahalik and Jared Barnhart, SANS DFIR "
+                 "Summit 2022, https://for585.com/dfirsummit22",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "star",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 19 rows",
+            "belkactf6_tar": "iOS 16.3 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows (unknown, not empty: healthdb_secure.sqlite is not a database)",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 8 rows",
+            "hickman_ios14": "iOS 14.3 | 30 rows",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 38 rows",
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 22 rows",
-            "abe_ios16": "iOS 16.5 | 19 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
-            "hickman_ios13": "iOS 13.3.1 | 8 rows",
-            "hickman_ios14": "iOS 14.3 | 30 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 22 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 5 rows",
         }
     },
     "health_steps": {
@@ -292,16 +407,20 @@ __artifacts_v2__ = {
                        "recorded in the sample's provenance and the model it maps to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "Reads samples whose data_type is 12 and that have a row in quantity_samples, an "
-                 "objects row and a data_provenances record. Sarah Edwards (@iamevltwin, "
-                 "mac4n6.com) documented data_type 12 as flights climbed in her APOLLO research "
-                 "(https://github.com/mac4n6/APOLLO/blob/"
-                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/health_flights.txt). The query "
-                 "follows this module's Health - Steps query with data_type 12. On the 13 images in "
-                 "sample_data with a readable database (3,577 rows) the stored quantity ranged from "
+        "notes": "The type code, unit and joins were derived independently from the store's schema, "
+                 "measured data and Apple's HealthKit and HealthDaemon code, and agree with this "
+                 "query, which follows this module's Health - Steps query with data_type 12. Reads "
+                 "samples whose data_type is 12 and that have a row in quantity_samples, an objects "
+                 "row and a data_provenances record. HealthKit names code 12 "
+                 "HKQuantityTypeIdentifierFlightsClimbed. The name was returned by HealthKit on macOS "
+                 "27.2.1 (26B131) and read from the HealthKit type table of one build each of iOS 13, "
+                 "14, 15 and 18. The canonical unit, count, was returned by HealthKit on macOS 27.2.1 "
+                 "only. The table was not read for iOS 16, 17 or 26. On the 23 tested images with a "
+                 "readable database, no type 12 sample stores an original unit (0 of 5,182 rows), so "
+                 "the unit was not checked against stored data. On the 13 images in sample_data with a readable database (3,577 rows) the stored quantity ranged from "
                  "0.79364 to 56 and was never negative; 9 rows, all on iphone11_ios17, hold a "
                  "non-integer value. On the 11 tested images that have the shared_summaries table, "
                  "every summary whose name contains HKQuantityTypeIdentifierFlightsClimbed is linked "
@@ -342,28 +461,29 @@ __artifacts_v2__ = {
                        "kilometers and miles, duration and the writing device's id and model.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Health",
-        "notes": "Reads samples whose data_type is 8 and that have a row in quantity_samples "
-                 "and a data_provenances record. "
-                 "The Health database names this type itself: on 17 of the tested images, "
+        "notes": "The type code, unit and joins were derived independently from the store's schema, "
+                 "measured data and Apple's HealthKit and HealthDaemon code, and agree with this "
+                 "query. Reads samples whose data_type is 8 and that have a row in quantity_samples "
+                 "and a data_provenances record. HealthKit names code 8 "
+                 "HKQuantityTypeIdentifierDistanceWalkingRunning. The name was returned by HealthKit "
+                 "on macOS 27.2.1 (26B131) and read from the HealthKit type table of one build each "
+                 "of iOS 13, 14, 15 and 18. The canonical unit, m, was returned by HealthKit on macOS "
+                 "27.2.1 only. The table was not read for iOS 16, 17 or 26. "
+                 "The Health database also names this type itself: on 17 of the tested images, "
                  "the chart records in its shared_summaries table pair "
                  "HKQuantityTypeIdentifierDistanceWalkingRunning with data type 8 and "
-                 "HKQuantityTypeIdentifierStepCount with data type 7. Sarah Edwards "
-                 "(@iamevltwin, mac4n6.com) also documented data_type 8 as a distance in "
-                 "meters in her APOLLO research "
-                 "(https://github.com/mac4n6/APOLLO/blob/"
-                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/health_distance.txt#L78-L91); "
-                 "this query was written independently from "
-                 "the live schema. The stored quantity is in meters: on 205 of the 226 chart "
+                 "HKQuantityTypeIdentifierStepCount with data type 7. The stored quantity is in meters: on 205 of the 226 chart "
                  "buckets those records store in meters, the type 8 samples in the bucket "
                  "add up to its total, and the 10 samples on each of hickman_ios13, "
                  "hickman_ios14 and iphone11_ios17 that recorded an original unit carried km "
                  "and stored exactly 1,000 times the original value. Distance (Kilometers) "
                  "and Distance (Miles) are computed from the meters value. "
                  "Samples with no quantity_samples row are not reported: 3,293 on "
-                 "hickman_ios14 and 12 on hickman_ios13, none on the other tested images. "
+                 "hickman_ios14, 12 on hickman_ios13 and 31 on wilkerson_iphone16_ios26, none on "
+                 "the other 20 tested images with a readable database. "
                  "Health - Steps skips such samples the same way. Device ID is the origin "
                  "product type from data_provenances. Each writing device, such as an "
                  "iPhone and an Apple Watch, stores its own samples, and they can "
@@ -675,14 +795,371 @@ __artifacts_v2__ = {
     }
 }
 
-from packaging import version
+import math
+import sqlite3
+import uuid
+
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc, \
-    does_column_exist_in_db, logfunc
+    does_column_exist_in_db, logfunc, open_sqlite_db_readonly
 
 
 def _record_value(record, index, default=None):
     return record[index] if index < len(record) else default
+
+
+_HEALTH_SQLITE_MAGIC = b'SQLite format 3\x00'
+_HEALTH_RECORD_KINDS = {1: 'sample', 2: 'deleted sample record'}
+_HEART_RATE_CONTEXT_KEY = '_HKPrivateHeartRateContext'
+_HEADPHONE_MEDIA_KEY = '_HKPrivateMediaSourceBundleIdentifier'
+# The strings HealthKit's _NSStringFromPrivateHeartRateContext returns. Codes 0 to 9 are the
+# same in the iOS 12.4, 13.3, 14.3 and 18.7 builds. Code 10 differs between them and code 11
+# is only in 18.7, so neither is named here.
+_HEART_RATE_CONTEXT_NAMES = {
+    0: 'Not Set', 1: 'Background', 2: 'Streaming PPG', 3: 'Sedentary', 4: 'Walking',
+    5: 'Breathe', 6: 'Workout', 7: 'Wheelchair Motion', 8: 'Background Tachogram',
+    9: 'Streaming ECG'}
+_HEALTH_PARENT_NOTES = {
+    173: 'On the corpus keys run this level equalled the equivalent continuous level of its '
+         'points.',
+    5: 'As stored. How it relates to the points is not established.'}
+_HEALTH_HFD_NOT_READ = 'healthdb_secure.hfd is not read by this artifact.'
+
+
+def _health_is_sqlite(path):
+    """True when the file starts with the SQLite header."""
+    if not path:
+        return False
+    try:
+        with open(path, 'rb') as handle:
+            return handle.read(16) == _HEALTH_SQLITE_MAGIC
+    except OSError:
+        return False
+
+
+def _health_open(data_source, healthdb):
+    """Open healthdb_secure.sqlite read-only and attach healthdb.sqlite as h when it is readable."""
+    if not _health_is_sqlite(data_source):
+        return None, False
+    con = open_sqlite_db_readonly(data_source)
+    if con is None:
+        return None, False
+    attached = False
+    if _health_is_sqlite(healthdb):
+        try:
+            con.execute(attach_sqlite_db_readonly(healthdb, 'h'))
+            attached = True
+        except sqlite3.Error as ex:
+            logfunc(f'Could not attach healthdb.sqlite: {ex}')
+    return con, attached
+
+
+def _health_has_table(con, table, schema='main'):
+    query = f'SELECT 1 FROM "{schema}".sqlite_master WHERE type = \'table\' AND name = ?'
+    return con.execute(query, (table,)).fetchone() is not None
+
+
+def _health_columns(con, table, schema='main'):
+    return [row[1] for row in con.execute(f'PRAGMA "{schema}".table_info("{table}")')]
+
+
+def _health_field(columns, name, alias):
+    return f'{alias}."{name}"' if name in columns else 'NULL'
+
+
+def _health_cell(value):
+    """A value for a report cell: a 16-byte blob as a UUID, other blobs as hex."""
+    if isinstance(value, (bytes, memoryview)):
+        raw = bytes(value)
+        return str(uuid.UUID(bytes=raw)) if len(raw) == 16 else raw.hex()
+    return value
+
+
+def _health_ts(value):
+    """Cocoa seconds, as a number or numeric text, to UTC. Anything else is returned as stored."""
+    if value is None or value == '':
+        return value
+    try:
+        seconds = float(value)
+        if not math.isfinite(seconds):
+            return value
+        return convert_cocoa_core_data_ts_to_utc(seconds)
+    except (TypeError, ValueError, OverflowError, OSError):
+        return value
+
+
+def _health_stored_os(row):
+    parts = [row.get(name) for name in (
+        'origin_major_version', 'origin_minor_version', 'origin_patch_version')]
+    return '.'.join(str(part) for part in parts) if all(p is not None for p in parts) else ''
+
+
+def _health_os_version(context, build, product_type):
+    """The OS version name for a build, blank when the product type is NULL."""
+    if product_type is None:
+        return ''
+    return context.get_apple_os_version(build, product_type)
+
+
+def _health_provenance(con, attached):
+    """data_provenances rows by ROWID, with their sources and devices from healthdb.sqlite."""
+    if not _health_has_table(con, 'data_provenances'):
+        return {}
+    columns = _health_columns(con, 'data_provenances')
+    select = {name: _health_field(columns, name, 'p') for name in (
+        'origin_product_type', 'origin_build', 'local_product_type', 'local_build', 'source_id',
+        'device_id', 'contributor_id', 'source_version', 'tz_name', 'origin_major_version',
+        'origin_minor_version', 'origin_patch_version', 'sync_provenance', 'sync_identity',
+        'derived_flags')}
+    joins = []
+    if attached and _health_has_table(con, 'sources', 'h'):
+        source_columns = _health_columns(con, 'sources', 'h')
+        select['source_name'] = _health_field(source_columns, 'name', 's')
+        select['source_product_type'] = _health_field(source_columns, 'product_type', 's')
+        select['source_deleted'] = _health_field(source_columns, 'deleted', 's')
+        joins.append('LEFT JOIN h.sources s ON s.ROWID = p.source_id')
+        if 'bundle_id' in source_columns:
+            select['bundle_id'] = 's."bundle_id"'
+            select['owner_bundle_id'] = _health_field(source_columns, 'owner_bundle_id', 's')
+        elif 'logical_source_id' in source_columns and _health_has_table(con, 'logical_sources', 'h'):
+            logical_columns = _health_columns(con, 'logical_sources', 'h')
+            select['bundle_id'] = _health_field(logical_columns, 'bundle_id', 'l')
+            select['owner_bundle_id'] = _health_field(logical_columns, 'owner_bundle_id', 'l')
+            joins.append('LEFT JOIN h.logical_sources l ON l.ROWID = s.logical_source_id')
+    if attached and _health_has_table(con, 'source_devices', 'h'):
+        device_columns = _health_columns(con, 'source_devices', 'h')
+        for name, column in (
+                ('device_name', 'name'), ('device_manufacturer', 'manufacturer'),
+                ('device_model', 'model'), ('device_hardware', 'hardware'),
+                ('device_firmware', 'firmware'), ('device_software', 'software'),
+                ('device_local_identifier', 'localIdentifier'), ('device_udi', 'FDAUDI'),
+                ('device_bluetooth_identifier', 'bluetooth_identifier')):
+            select[name] = _health_field(device_columns, column, 'd')
+        joins.append('LEFT JOIN h.source_devices d ON d.ROWID = p.device_id')
+    if 'contributor_id' in columns and _health_has_table(con, 'contributors'):
+        contributor_columns = _health_columns(con, 'contributors')
+        select['contributor_apple_id'] = _health_field(contributor_columns, 'apple_id', 'c')
+        select['contributor_caller_id'] = _health_field(contributor_columns, 'caller_id', 'c')
+        joins.append('LEFT JOIN contributors c ON c.ROWID = p.contributor_id')
+    names = list(select)
+    fields = ', '.join(f'{select[name]} AS "{name}"' for name in names)
+    query = f'SELECT p.ROWID, {fields} FROM data_provenances p {" ".join(joins)}'
+    return {row[0]: dict(zip(names, row[1:])) for row in con.execute(query)}
+
+
+def _health_provenance_counts(con):
+    """Sample rows per provenance by objects.type, and the time span of the type 1 rows."""
+    counts = {}
+    if not (_health_has_table(con, 'samples') and _health_has_table(con, 'objects')):
+        return counts
+    query = '''
+    SELECT o.provenance, o.type, COUNT(*), MIN(s.start_date), MAX(s.end_date)
+    FROM samples s JOIN objects o ON o.data_id = s.data_id
+    GROUP BY o.provenance, o.type
+    '''
+    for provenance, kind, number, first, last in con.execute(query):
+        entry = counts.setdefault(provenance, {'sample': 0, 'deleted': 0, 'other': 0})
+        entry['sample' if kind == 1 else 'deleted' if kind == 2 else 'other'] += number
+        if kind == 1:
+            entry['first'] = first
+            entry['last'] = last
+    return counts
+
+
+def _health_registered_rows(healthdb, width):
+    """Sources and devices healthdb.sqlite registers, for when the secure database is unreadable."""
+    rows = []
+    if not _health_is_sqlite(healthdb):
+        return rows
+    con = open_sqlite_db_readonly(healthdb)
+    if con is None:
+        return rows
+    # Positions in the health_provenances headers.
+    when, kind, name, bundle, owner, product = 2, 3, 4, 5, 6, 7
+    device_first, deleted, source_at, device_at = 10, 36, 38, 39
+    try:
+        if _health_has_table(con, 'sources'):
+            columns = _health_columns(con, 'sources')
+            join = ''
+            bundle_field = _health_field(columns, 'bundle_id', 's')
+            owner_field = _health_field(columns, 'owner_bundle_id', 's')
+            if 'bundle_id' not in columns and 'logical_source_id' in columns \
+                    and _health_has_table(con, 'logical_sources'):
+                logical = _health_columns(con, 'logical_sources')
+                bundle_field = _health_field(logical, 'bundle_id', 'l')
+                owner_field = _health_field(logical, 'owner_bundle_id', 'l')
+                join = 'LEFT JOIN logical_sources l ON l.ROWID = s.logical_source_id'
+            query = f'''
+            SELECT {_health_field(columns, 'mod_date', 's')}, {_health_field(columns, 'name', 's')},
+                {bundle_field}, {owner_field}, {_health_field(columns, 'product_type', 's')},
+                {_health_field(columns, 'deleted', 's')}, s.ROWID
+            FROM sources s {join} ORDER BY s.ROWID
+            '''
+            for mod, source, bid, obid, ptype, gone, rowid in con.execute(query):
+                row = [''] * width
+                row[when], row[kind], row[name] = _health_ts(mod), 'registered source', source
+                row[bundle], row[owner], row[product] = bid, obid, ptype
+                row[deleted], row[source_at] = _health_cell(gone), rowid
+                rows.append(tuple(row))
+        if _health_has_table(con, 'source_devices'):
+            columns = _health_columns(con, 'source_devices')
+            fields = ', '.join(_health_field(columns, column, 'd') for column in (
+                'creation_date', 'name', 'manufacturer', 'model', 'hardware', 'firmware',
+                'software', 'localIdentifier', 'FDAUDI', 'bluetooth_identifier'))
+            for values in con.execute(f'SELECT {fields}, d.ROWID FROM source_devices d ORDER BY d.ROWID'):
+                row = [''] * width
+                row[when], row[kind] = _health_ts(values[0]), 'registered device'
+                row[device_first - 1] = values[1]
+                for offset, value in enumerate(values[2:10]):
+                    row[device_first + offset] = _health_cell(value)
+                row[device_at] = values[10]
+                rows.append(tuple(row))
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading healthdb.sqlite: {ex}')
+    finally:
+        con.close()
+    return rows
+
+
+def _health_metadata(con, data_type):
+    """Metadata of one data type: {data_id: [(key, value shown, numerical_value)]}."""
+    metadata = {}
+    if not (_health_has_table(con, 'metadata_values') and _health_has_table(con, 'metadata_keys')):
+        return metadata
+    columns = _health_columns(con, 'metadata_values')
+    query = f'''
+    SELECT v.object_id, k.key, {_health_field(columns, 'string_value', 'v')},
+        {_health_field(columns, 'numerical_value', 'v')},
+        {_health_field(columns, 'date_value', 'v')}, {_health_field(columns, 'data_value', 'v')}
+    FROM metadata_values v
+    JOIN metadata_keys k ON k.ROWID = v.key_id
+    JOIN samples s ON s.data_id = v.object_id
+    WHERE s.data_type = ?
+    ORDER BY v.object_id, k.key
+    '''
+    for object_id, key, text, number, date, blob in con.execute(query, (data_type,)):
+        if text is not None:
+            shown = text
+        elif number is not None:
+            shown = number
+        elif date is not None:
+            shown = date
+        elif blob is not None:
+            shown = f'<blob {len(bytes(blob))} bytes>'
+        else:
+            shown = ''
+        metadata.setdefault(object_id, []).append((key, shown, number))
+    return metadata
+
+
+def _health_split_metadata(metadata, key):
+    """Split metadata into the values of one key and the rest."""
+    wanted = [item for item in metadata if item[0] == key]
+    return wanted, [item for item in metadata if item[0] != key]
+
+
+def _health_metadata_text(metadata):
+    return '; '.join(f'{key}={shown}' for key, shown, _number in metadata)
+
+
+def _health_context_cells(contexts):
+    """Apple's name and the stored value of a sample's distinct heart rate context values."""
+    values = []
+    for _key, shown, number in contexts:
+        value = number if number is not None else shown
+        if value not in values:
+            values.append(value)
+    if not values:
+        return '', ''
+    names = []
+    for value in values:
+        code = int(value) if isinstance(value, (int, float)) and float(value).is_integer() else None
+        names.append(_HEART_RATE_CONTEXT_NAMES.get(code, 'not established'))
+    stored = values[0] if len(values) == 1 else '; '.join(str(value) for value in values)
+    return '; '.join(names), stored
+
+
+def _health_sample_records(con, data_type):
+    """Every sample of a type, each series parent followed by the points SQLite holds for it."""
+    if not (_health_has_table(con, 'samples') and _health_has_table(con, 'objects')):
+        return
+    metadata = _health_metadata(con, data_type)
+    object_columns = _health_columns(con, 'objects')
+    quantity_columns = _health_columns(con, 'quantity_samples') \
+        if _health_has_table(con, 'quantity_samples') else []
+    series_columns = _health_columns(con, 'quantity_sample_series') \
+        if _health_has_table(con, 'quantity_sample_series') else []
+    statistic_columns = _health_columns(con, 'quantity_sample_statistics') \
+        if _health_has_table(con, 'quantity_sample_statistics') else []
+    has_units = 'original_unit' in quantity_columns and _health_has_table(con, 'unit_strings')
+    joins = ['LEFT JOIN objects o ON o.data_id = s.data_id']
+    if quantity_columns:
+        joins.append('LEFT JOIN quantity_samples q ON q.data_id = s.data_id')
+    if has_units:
+        joins.append('LEFT JOIN unit_strings u ON u.ROWID = q.original_unit')
+    if statistic_columns:
+        joins.append('LEFT JOIN quantity_sample_statistics st ON st.owner_id = s.data_id')
+    if series_columns:
+        joins.append('LEFT JOIN quantity_sample_series ser ON ser.data_id = s.data_id')
+    query = f'''
+    SELECT s.data_id, o.type, s.start_date, s.end_date,
+        {_health_field(object_columns, 'creation_date', 'o')},
+        {_health_field(object_columns, 'uuid', 'o')},
+        {_health_field(object_columns, 'provenance', 'o')},
+        {_health_field(quantity_columns, 'quantity', 'q')},
+        {_health_field(quantity_columns, 'original_quantity', 'q')},
+        {'u.unit_string' if has_units else 'NULL'},
+        {_health_field(statistic_columns, 'min', 'st')},
+        {_health_field(statistic_columns, 'max', 'st')},
+        {_health_field(series_columns, 'count', 'ser')},
+        {_health_field(series_columns, 'hfd_key', 'ser')},
+        {_health_field(series_columns, 'series_location', 'ser')}
+    FROM samples s {' '.join(joins)}
+    WHERE s.data_type = ?
+    ORDER BY s.start_date IS NULL, s.start_date, s.data_id
+    '''
+    point_columns = _health_columns(con, 'quantity_series_data') \
+        if _health_has_table(con, 'quantity_series_data') else []
+    point_query = f'''
+    SELECT timestamp, value, {_health_field(point_columns, 'duration', 'p')}
+    FROM quantity_series_data p WHERE series_identifier = ? ORDER BY timestamp
+    '''
+    point_cursor = con.cursor()
+    for row in con.cursor().execute(query, (data_type,)):
+        data_id, object_type, start, end, created, object_uuid, provenance, quantity, \
+            original_quantity, original_unit, series_min, series_max, declared, series_key, \
+            location = row
+        kind = _HEALTH_RECORD_KINDS.get(object_type,
+                                        f'objects.type {object_type} (meaning not established)')
+        points, status, shown_declared, points_read = [], '', '', ''
+        if series_key is not None:
+            if object_type == 1:
+                kind = 'series parent'
+            if point_columns:
+                points = point_cursor.execute(point_query, (series_key,)).fetchall()
+            shown_declared, points_read = declared, len(points)
+            missing = (declared or 0) - len(points)
+            if not points and declared:
+                status = f'{declared} points not in SQLite. {_HEALTH_HFD_NOT_READ}'
+            elif missing:
+                status = f'{len(points)} of {declared} declared points in SQLite. ' \
+                         f'{_HEALTH_HFD_NOT_READ}'
+            else:
+                status = 'all declared points in SQLite'
+        record = {
+            'data_id': data_id, 'kind': kind, 'start': start, 'end': end, 'created': created,
+            'uuid': object_uuid, 'provenance': provenance, 'quantity': quantity,
+            'original_quantity': original_quantity, 'original_unit': original_unit,
+            'series_min': series_min, 'series_max': series_max, 'declared': shown_declared,
+            'points_read': points_read, 'status': status, 'series_location': location,
+            'metadata': metadata.get(data_id, [])}
+        yield record
+        for timestamp, value, duration in points:
+            point_end = timestamp + duration if isinstance(duration, (int, float)) else ''
+            yield {**record, 'kind': 'series point', 'start': timestamp, 'end': point_end,
+                   'quantity': value, 'original_quantity': None, 'original_unit': None,
+                   'series_min': None, 'series_max': None, 'declared': '', 'points_read': '',
+                   'status': '', 'series_location': None}
 
 
 @artifact_processor
@@ -997,51 +1474,62 @@ def health_provenances(context):
     data_source = context.get_source_file_path('healthdb_secure.sqlite')
     healthdb = context.get_source_file_path('healthdb.sqlite')
 
-    data_list = []
-
-    attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
-
-    query = '''
-    SELECT
-        data_provenances.ROWID AS 'Row ID',
-        data_provenances.origin_product_type AS 'Origin Product Type',
-        data_provenances.origin_build AS 'Origin OS Build',
-        data_provenances.local_product_type AS 'Local Product Type',
-        data_provenances.local_build AS 'Local OS Build',
-        data_provenances.source_id AS 'Source ID',
-        healthdb.sources.name AS ' Source Name',
-        data_provenances.source_version AS 'Source Version',
-        data_provenances.device_id AS 'Device ID',
-        CASE
-            WHEN healthdb.source_devices.name = '__NONE__' THEN ''
-            ELSE healthdb.source_devices.name
-        END AS 'Device',
-        data_provenances.tz_name AS 'Timezone'
-    FROM data_provenances
-    LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
-    LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
-    ORDER BY data_provenances.ROWID
-    '''
-
     data_headers = (
-        'Row ID', 'Origin Product Type', 'Origin Product Model', 'Origin OS Build',
-        'Origin OS Version', 'Local Product Type', 'Local Product Model',
-        'Local OS Build', 'Local OS Version', 'Source ID', 'Source Name',
-        'Source Version', 'Device ID', 'Device', 'Timezone')
+        ('First Sample Start', 'datetime'), ('Last Sample End', 'datetime'),
+        ('Source Modified or Device Created', 'datetime'), 'Record Kind', 'Source Name',
+        'Bundle ID', 'Owner Bundle ID', 'Source Product Type', 'Source Version', 'Device',
+        'Device Manufacturer', 'Device Model', 'Device Hardware', 'Device Firmware',
+        'Device Software', 'Device Local Identifier', 'Device UDI',
+        'Device Bluetooth Identifier', 'Origin Product Type', 'Origin Product Model',
+        'Origin OS Build', 'Origin OS Version', 'Origin OS Version (as stored)',
+        'Local Product Type', 'Local Product Model', 'Local OS Build', 'Local OS Version',
+        'Timezone', 'Contributor Apple ID', 'Contributor Caller ID', 'Sample Rows',
+        'Deleted Sample Rows', 'Other Rows', 'sync_provenance (as stored)',
+        'derived_flags (as stored)', 'sync_identity (as stored)', 'Source Deleted (as stored)',
+        'Row ID', 'Source ID', 'Device ID', 'Contributor ID')
 
-    db_records = get_sqlite_db_records(data_source, query, attach_query)
+    con, attached = _health_open(data_source, healthdb)
+    if con is None:
+        logfunc('healthdb_secure.sqlite is not a readable database, so which sources wrote '
+                'samples is unknown, not empty. Listing what healthdb.sqlite registers.')
+        return data_headers, _health_registered_rows(healthdb, len(data_headers)), \
+            healthdb or data_source or ''
 
-    for record in db_records:
-        origin_device_model = context.lookup_metadata('apple_device_id_to_model', record[1])
-        origin_os_version = context.get_apple_os_version(record[2], record[1])
-        local_device_model = context.lookup_metadata('apple_device_id_to_model', record[3])
-        local_os_version = context.get_apple_os_version(record[4], record[3])
-
-        data_list.append(
-            (record[0], record[1], origin_device_model, record[2], origin_os_version,
-             record[3], local_device_model, record[4], local_os_version, record[5],
-             record[6], record[7], record[8], record[9], record[10])
-            )
+    data_list = []
+    try:
+        provenance = _health_provenance(con, attached)
+        counts = _health_provenance_counts(con)
+        def order(item):
+            first = counts.get(item[0], {}).get('first')
+            return (first is None, first or 0, item[0])
+        for rowid, row in sorted(provenance.items(), key=order):
+            count = counts.get(rowid, {})
+            origin_type = row.get('origin_product_type')
+            origin_build = row.get('origin_build')
+            local_type = row.get('local_product_type')
+            local_build = row.get('local_build')
+            data_list.append((
+                _health_ts(count.get('first')), _health_ts(count.get('last')), '', 'provenance',
+                row.get('source_name'), row.get('bundle_id'), row.get('owner_bundle_id'),
+                row.get('source_product_type'), row.get('source_version'), row.get('device_name'),
+                row.get('device_manufacturer'), row.get('device_model'), row.get('device_hardware'),
+                row.get('device_firmware'), row.get('device_software'),
+                _health_cell(row.get('device_local_identifier')), _health_cell(row.get('device_udi')),
+                _health_cell(row.get('device_bluetooth_identifier')), origin_type,
+                context.lookup_metadata('apple_device_id_to_model', origin_type), origin_build,
+                _health_os_version(context, origin_build, origin_type), _health_stored_os(row),
+                local_type, context.lookup_metadata('apple_device_id_to_model', local_type),
+                local_build, _health_os_version(context, local_build, local_type),
+                row.get('tz_name'), row.get('contributor_apple_id'),
+                row.get('contributor_caller_id'), count.get('sample', 0), count.get('deleted', 0),
+                count.get('other', 0), _health_cell(row.get('sync_provenance')),
+                _health_cell(row.get('derived_flags')), _health_cell(row.get('sync_identity')),
+                _health_cell(row.get('source_deleted')), rowid, row.get('source_id'),
+                row.get('device_id'), row.get('contributor_id')))
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading Health provenances: {ex}')
+    finally:
+        con.close()
 
     return data_headers, data_list, data_source
 
@@ -1052,47 +1540,44 @@ def health_headphone_audio_levels(context):
     data_source = context.get_source_file_path('healthdb_secure.sqlite')
     healthdb = context.get_source_file_path('healthdb.sqlite')
 
-    data_list = []
-
-    attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
-
-    query = '''
-    SELECT
-        samples.start_date,
-        samples.end_date,
-        quantity_samples.quantity,
-        metadata_values.string_value,
-        healthdb.source_devices.name,
-        healthdb.source_devices.manufacturer,
-        healthdb.source_devices.model,
-        healthdb.source_devices.localIdentifier,
-        metadata_keys.key,
-        samples.data_id
-    FROM samples
-    LEFT OUTER JOIN quantity_samples ON samples.data_id = quantity_samples.data_id
-    LEFT OUTER JOIN metadata_values ON metadata_values.object_id = samples.data_id
-    LEFT OUTER JOIN metadata_keys ON metadata_keys.ROWID = metadata_values.key_id
-    LEFT OUTER JOIN objects ON samples.data_id = objects.data_id
-    LEFT OUTER JOIN data_provenances ON objects.provenance = data_provenances.ROWID
-    LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
-    WHERE samples.data_type = 173
-        AND (metadata_values.object_id IS NULL
-             OR metadata_keys.key != '_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient')
-    '''
-
     data_headers = (
-        ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Quantity (as stored)',
-        'Bundle Name', 'Device Name', 'Device Manufacturer', 'Device Model',
-        'Local Identifier', 'Key', 'Data ID')
+        ('Start', 'datetime'), ('End', 'datetime'), ('Record Added or Deleted', 'datetime'),
+        'Record Kind', 'Level (dBASPL, as stored)', 'Original Value (as stored)',
+        'Original Unit (as stored)', 'Series Min (as stored)', 'Series Max (as stored)',
+        'Series Points Declared', 'Series Points Read', 'Series Point Status',
+        'Series Parent Value Note', '_HKPrivateMediaSourceBundleIdentifier (as stored)', 'Device Name',
+        'Device Manufacturer', 'Device Model', 'Local Identifier', 'Source',
+        'Other Metadata (as stored)', 'series_location (as stored)', 'Object UUID', 'Data ID',
+        'Provenance ROWID')
 
-    db_records = get_sqlite_db_records(data_source, query, attach_query)
+    con, attached = _health_open(data_source, healthdb)
+    if con is None:
+        logfunc('healthdb_secure.sqlite is not a readable database, so headphone audio '
+                'samples are unknown, not empty.')
+        return data_headers, [], data_source or ''
 
-    for record in db_records:
-        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        data_list.append(
-            (start_timestamp, end_timestamp, record[2], record[3], record[4],
-             record[5], record[6], record[7], record[8], record[9]))
+    data_list = []
+    try:
+        provenance = _health_provenance(con, attached)
+        for rec in _health_sample_records(con, 173):
+            row = provenance.get(rec['provenance'], {})
+            media, other = _health_split_metadata(rec['metadata'], _HEADPHONE_MEDIA_KEY)
+            data_list.append((
+                _health_ts(rec['start']), _health_ts(rec['end']), _health_ts(rec['created']),
+                rec['kind'], rec['quantity'], rec['original_quantity'], rec['original_unit'],
+                rec['series_min'], rec['series_max'], rec['declared'], rec['points_read'],
+                rec['status'],
+                _HEALTH_PARENT_NOTES[173]
+                if rec['kind'] == 'series parent' and rec['points_read'] else '',
+                '; '.join(str(item[1]) for item in media), row.get('device_name'),
+                row.get('device_manufacturer'), row.get('device_model'),
+                _health_cell(row.get('device_local_identifier')), row.get('source_name'),
+                _health_metadata_text(other), rec['series_location'],
+                _health_cell(rec['uuid']), rec['data_id'], rec['provenance']))
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading Health headphone audio samples: {ex}')
+    finally:
+        con.close()
 
     return data_headers, data_list, data_source
 
@@ -1103,106 +1588,50 @@ def health_heart_rate(context):
     data_source = context.get_source_file_path('healthdb_secure.sqlite')
     healthdb = context.get_source_file_path('healthdb.sqlite')
 
+    data_headers = (
+        ('Start', 'datetime'), ('End', 'datetime'), ('Record Added or Deleted', 'datetime'),
+        'Record Kind', 'Heart Rate (BPM)', 'Value (count/s, as stored)',
+        'Original Value (as stored)', 'Original Unit (as stored)', 'Heart Rate Context',
+        'Heart Rate Context Value', 'Series Min (as stored)', 'Series Max (as stored)',
+        'Series Points Declared', 'Series Points Read', 'Series Point Status',
+        'Series Parent Value Note', 'Device Name', 'Manufacturer', 'Hardware',
+        'Model Name (from Hardware)', 'Source', 'Source Version', 'Timezone',
+        'Other Metadata (as stored)', 'series_location (as stored)', 'Object UUID', 'Data ID',
+        'Provenance ROWID')
+
+    con, attached = _health_open(data_source, healthdb)
+    if con is None:
+        logfunc('healthdb_secure.sqlite is not a readable database, so heart rate samples '
+                'are unknown, not empty.')
+        return data_headers, [], data_source or ''
+
     data_list = []
-    os_version = context.get_installed_os_version()
-    if not os_version:
-        logfunc('No iOS version had been read when this artifact ran, heart rate samples were not queried')
-        return (), data_list, data_source
-
-    attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
-
-    query = '''
-    SELECT
-        samples.start_date,
-        samples.end_date,
-        CAST(round(quantity_samples.quantity * 60) AS INT),
-        CASE metadata_values.numerical_value
-            WHEN 1.0 THEN 'Background'
-            WHEN 2.0 THEN 'Streaming'
-            WHEN 3.0 THEN 'Sedentary'
-            WHEN 4.0 THEN 'Walking'
-            WHEN 5.0 THEN 'Breathe'
-            WHEN 6.0 THEN 'Workout'
-            WHEN 8.0 THEN 'Background'
-            WHEN 9.0 THEN 'ECG'
-            WHEN 10.0 THEN 'Blood Oxygen Saturation'
-            ELSE metadata_values.numerical_value
-        END,
-        objects.creation_date,
-        CASE healthdb.source_devices.name
-            WHEN '__NONE__' THEN ''
-            ELSE healthdb.source_devices.name
-        END,
-        healthdb.source_devices.manufacturer,
-        healthdb.source_devices.hardware,
-        healthdb.sources.name,
-        data_provenances.source_version,
-        data_provenances.tz_name,
-        quantity_sample_series.hfd_key,
-        quantity_sample_series.count,
-        healthdb.sources.source_options,
-        metadata_values.numerical_value
-    FROM samples
-    LEFT JOIN quantity_samples on samples.data_id = quantity_samples.data_id
-    LEFT JOIN (
-        SELECT DISTINCT metadata_values.object_id, metadata_values.numerical_value
-        FROM metadata_values
-        JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
-        WHERE metadata_keys.key = '_HKPrivateHeartRateContext'
-    ) AS metadata_values ON samples.data_id = metadata_values.object_id
-    LEFT JOIN objects ON samples.data_id = objects.data_id
-    LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
-    LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
-    LEFT JOIN healthdb.source_devices ON data_provenances.device_id = healthdb.source_devices.ROWID
-    LEFT JOIN quantity_sample_series ON samples.data_id = quantity_sample_series.data_id
-    WHERE samples.data_type = 5 AND objects.type != 2
-    ORDER BY samples.start_date DESC
-    '''
-
-    db_records = get_sqlite_db_records(data_source, query, attach_query)
-
-    for record in db_records:
-        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[4])
-        device_model = context.lookup_metadata('apple_device_id_to_model', record[7])
-        if version.parse(os_version) >= version.parse("15"):
-            if record[11] and record[12] > 0:
-                quantity_series_data_query = '''
-                SELECT
-                    quantity_series_data.timestamp,
-                    CAST(round(quantity_series_data.value *60) AS INT)
-                FROM quantity_series_data
-                WHERE quantity_series_data.series_identifier = ''' + str(record[11]) + '''
-                ORDER BY quantity_series_data.timestamp DESC
-                '''
-                quantity_series_data_records = get_sqlite_db_records(data_source, quantity_series_data_query)
-                for qsd_record in quantity_series_data_records:
-                    series_data_date = convert_cocoa_core_data_ts_to_utc(qsd_record[0])
-                    data_list.append(
-                        (series_data_date, added_timestamp, qsd_record[1], record[3],
-                         record[5], record[6], record[7], device_model, record[8],
-                         record[9], record[10], record[14]))
-            else:
-                data_list.append(
-                    (start_timestamp, added_timestamp, record[2], record[3], record[5],
-                     record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
-        else:
-            data_list.append(
-                (start_timestamp, end_timestamp, added_timestamp, record[2], record[3],
-                 record[5], record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
-
-    if version.parse(os_version) >= version.parse("15"):
-        data_headers = (
-            ('Date', 'datetime'), ('Date added to Health', 'datetime'),
-            'Heart Rate (BPM)', 'Heart Rate Context', 'Device Name', 'Manufacturer',
-            'Hardware', 'Device Model', 'Source', 'Software Version', 'Timezone', 'Heart Rate Context Value')
-    else:
-        data_headers = (
-            ('Start Date', 'datetime'), ('End Date', 'datetime'),
-            ('Date added to Health', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
-            'Device Name', 'Manufacturer', 'Hardware', 'Device Model', 'Source',
-            'Software Version', 'Timezone', 'Heart Rate Context Value')
+    try:
+        provenance = _health_provenance(con, attached)
+        models = {}
+        for rec in _health_sample_records(con, 5):
+            row = provenance.get(rec['provenance'], {})
+            hardware = row.get('device_hardware')
+            if hardware not in models:
+                models[hardware] = context.lookup_metadata('apple_device_id_to_model', hardware)
+            contexts, other = _health_split_metadata(rec['metadata'], _HEART_RATE_CONTEXT_KEY)
+            label, stored = _health_context_cells(contexts)
+            quantity = rec['quantity']
+            bpm = round(quantity * 60, 3) if isinstance(quantity, (int, float)) else ''
+            data_list.append((
+                _health_ts(rec['start']), _health_ts(rec['end']), _health_ts(rec['created']),
+                rec['kind'], bpm, quantity, rec['original_quantity'], rec['original_unit'],
+                label, stored, rec['series_min'], rec['series_max'], rec['declared'],
+                rec['points_read'], rec['status'],
+                _HEALTH_PARENT_NOTES[5] if rec['kind'] == 'series parent' else '',
+                row.get('device_name'), row.get('device_manufacturer'), hardware, models[hardware],
+                row.get('source_name'), row.get('source_version'),
+                row.get('tz_name'), _health_metadata_text(other), rec['series_location'],
+                _health_cell(rec['uuid']), rec['data_id'], rec['provenance']))
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading Health heart rate samples: {ex}')
+    finally:
+        con.close()
 
     return data_headers, data_list, data_source
 
@@ -1213,42 +1642,39 @@ def health_resting_heart_rate(context):
     data_source = context.get_source_file_path('healthdb_secure.sqlite')
     healthdb = context.get_source_file_path('healthdb.sqlite')
 
-    data_list = []
-
-    attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
-
-    query = '''
-    SELECT
-        samples.start_date,
-        samples.end_date,
-        CAST(quantity_samples.quantity AS INT),
-        objects.creation_date,
-        healthdb.sources.product_type,
-        healthdb.sources.name
-    FROM samples
-    LEFT JOIN quantity_samples ON samples.data_id = quantity_samples.data_id
-    LEFT JOIN objects ON samples.data_id = objects.data_id
-    LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
-    LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
-    WHERE samples.data_type = 118 AND quantity_samples.quantity NOT NULL
-    ORDER BY samples.start_date DESC
-    '''
-
     data_headers = (
-        ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Resting Heart Rate (BPM)',
-        ('Date added to Health', 'datetime'), 'Hardware ID',
-        'Device Model', 'Source')
+        ('Start', 'datetime'), ('End', 'datetime'), ('Record Added or Deleted', 'datetime'),
+        'Record Kind', 'Resting Heart Rate (BPM, as stored)', 'Original Value (as stored)',
+        'Original Unit (as stored)', 'Series Point Status', 'Source Product Type',
+        'Model Name (from Source Product Type)', 'Source', 'Device Name', 'Source Version',
+        'Timezone', 'Metadata (as stored)', 'Object UUID', 'Data ID', 'Provenance ROWID')
 
-    db_records = get_sqlite_db_records(data_source, query, attach_query)
+    con, attached = _health_open(data_source, healthdb)
+    if con is None:
+        logfunc('healthdb_secure.sqlite is not a readable database, so resting heart rate '
+                'samples are unknown, not empty.')
+        return data_headers, [], data_source or ''
 
-    for record in db_records:
-        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[3])
-        device_model = context.lookup_metadata('apple_device_id_to_model', record[4])
-        data_list.append(
-            (start_timestamp, end_timestamp, record[2], added_timestamp, record[4],
-             device_model, record[5]))
+    data_list = []
+    try:
+        provenance = _health_provenance(con, attached)
+        models = {}
+        for rec in _health_sample_records(con, 118):
+            row = provenance.get(rec['provenance'], {})
+            product = row.get('source_product_type')
+            if product not in models:
+                models[product] = context.lookup_metadata('apple_device_id_to_model', product)
+            data_list.append((
+                _health_ts(rec['start']), _health_ts(rec['end']), _health_ts(rec['created']),
+                rec['kind'], rec['quantity'], rec['original_quantity'], rec['original_unit'],
+                rec['status'], product, models[product], row.get('source_name'),
+                row.get('device_name'), row.get('source_version'),
+                row.get('tz_name'), _health_metadata_text(rec['metadata']),
+                _health_cell(rec['uuid']), rec['data_id'], rec['provenance']))
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading Health resting heart rate samples: {ex}')
+    finally:
+        con.close()
 
     return data_headers, data_list, data_source
 
@@ -1257,37 +1683,52 @@ def health_resting_heart_rate(context):
 def health_achievements(context):
     """ See artifact description """
     data_source = context.get_source_file_path('healthdb_secure.sqlite')
-    data_list = []
-
-    query = '''
-    SELECT
-        created_date,
-        earned_date,
-        template_unique_name,
-        value_in_canonical_unit,
-        value_canonical_unit,
-        creator_device
-    FROM ACHAchievementsPlugin_earned_instances
-    '''
 
     data_headers = (
-        ('Created Timestamp', 'datetime'), ('Earned Date', 'date'), 'Achievement',
-        'Value', 'Unit', 'Creator Device')
+        ('Earned Date', 'date'), ('Created Timestamp', 'datetime'), 'Achievement', 'Value', 'Unit',
+        'Template Source Name', 'Template In Store', 'External Identifier',
+        'Creator Device (as stored)', 'sync_provenance (as stored)', 'sync_identity (as stored)',
+        'Row ID')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    con, _attached = _health_open(data_source, None)
+    if con is None:
+        logfunc('healthdb_secure.sqlite is not a readable database, so achievements are '
+                'unknown, not empty.')
+        return data_headers, [], data_source or ''
 
-    for record in db_records:
-        # created_date is REAL (Core Data seconds) in older schemas but TEXT in
-        # newer ones (seen on iOS 26); a str value made the converter's
-        # arithmetic raise and abort the artifact. Convert numeric values
-        # (including numeric strings) and pass other text through as-is.
-        created_date = record[0]
-        try:
-            created_timestamp = convert_cocoa_core_data_ts_to_utc(float(created_date))
-        except (TypeError, ValueError):
-            created_timestamp = created_date
-        data_list.append((created_timestamp, record[1], record[2], record[3],
-                          record[4], record[5]))
+    data_list = []
+    earned = 'ACHAchievementsPlugin_earned_instances'
+    templates = 'ACHAchievementsPlugin_templates'
+    try:
+        if not _health_has_table(con, earned):
+            logfunc(f'{earned} is not in this healthdb_secure.sqlite')
+            return data_headers, data_list, data_source
+        columns = _health_columns(con, earned)
+        has_templates = _health_has_table(con, templates)
+        template_source = 't.source_name' if has_templates else 'NULL'
+        template_found = 't.unique_name IS NOT NULL' if has_templates else 'NULL'
+        template_join = f'LEFT JOIN {templates} t ON t.unique_name = e.template_unique_name' \
+            if has_templates else ''
+        external = _health_field(columns, 'external_identifier', 'e')
+        creator = _health_field(columns, 'creator_device', 'e')
+        sync_provenance = _health_field(columns, 'sync_provenance', 'e')
+        sync_identity = _health_field(columns, 'sync_identity', 'e')
+        query = f'''
+        SELECT e.earned_date, e.created_date, e.template_unique_name,
+            e.value_in_canonical_unit, e.value_canonical_unit, {template_source},
+            {template_found}, {external}, {creator}, {sync_provenance}, {sync_identity}, e.ROWID
+        FROM {earned} e {template_join}
+        ORDER BY e.earned_date, e.ROWID
+        '''
+        for row in con.execute(query):
+            in_store = '' if row[6] is None else ('yes' if row[6] else 'no')
+            data_list.append((row[0], _health_ts(row[1]), row[2], row[3], row[4], row[5],
+                              in_store, _health_cell(row[7]), _health_cell(row[8]),
+                              _health_cell(row[9]), _health_cell(row[10]), row[11]))
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading Health achievements: {ex}')
+    finally:
+        con.close()
 
     return data_headers, data_list, data_source
 

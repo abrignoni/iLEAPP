@@ -12,10 +12,12 @@ __artifacts_v2__ = {
         "description": "Parses and extracts account information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
-        "notes": "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
+        "notes": "First Use comes from the General.First use key of the user file. On the row read from "
+                 "cached_data it is field 10 of the profile message, whose meaning is not established. "
+                 "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
                  "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
                  "(in Italian).",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
@@ -34,15 +36,17 @@ __artifacts_v2__ = {
         "description": "Parses and extracts session information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
-        "notes": "Reads the key and value lines of the Waze Documents/session file. Only the keys "
-                 "this module lists are reported, and lines with an empty value are skipped. "
-                 "Field is the key as stored. Friendly Name is a label added by this module; no "
-                 "Waze source for the labels is cited. Coordinates are the stored integers "
-                 "divided by 1,000,000. Reference: Django Faiola, 'Comprehensive Waze Forensic "
-                 "Parsing for iOS', "
+        "notes": "Reads the key and value lines of the Waze Documents/session file. Only the keys this "
+                 "module lists are reported, and lines with an empty value are skipped. Field is the key "
+                 "as stored. Friendly Name is a label added by this module; no Waze source for the labels "
+                 "is cited. Coordinates are the stored integers divided by 1,000,000. Timestamps are read "
+                 "as Unix time, and a value of more than ten digits is scaled to seconds by its size. A "
+                 "stored 0 leaves Timestamp empty and is kept in Value. A stored 0,0 position is shown as "
+                 "0.000000, 0.000000; the module does not establish whether it is a position or an unset "
+                 "value. Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
                  "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
                  "(in Italian).",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
@@ -60,17 +64,22 @@ __artifacts_v2__ = {
         "description": "Parses and extracts track GPS quality information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
-        "notes": "Read from GPS_QUALITY entries in the spdlog.*logdata files under the Waze "
-                 "Documents folder. Two log layouts are read. When an older single-line entry is "
-                 "followed by a newer block whose timestamp is within 250 ms, only the newer "
-                 "block is reported; that pairing rule is this module's and is not taken from a "
-                 "Waze source. Timestamp is the entry's own TIMESTAMP_MS or "
-                 "event_client_timestamp value. Counts, accuracy values and provider are reported "
-                 "as logged, with N/A where an entry has none. Reference: Django Faiola, "
-                 "'Comprehensive Waze Forensic Parsing for iOS', "
+        "notes": "Read from GPS_QUALITY entries in the spdlog.*logdata files under the Waze Documents "
+                 "folder. Two log layouts are read. When an older single-line entry is followed by a newer "
+                 "block whose timestamp is within 250 ms, only the newer block is reported; that pairing "
+                 "rule is this module's and is not taken from a Waze source. Timestamp is the entry's "
+                 "TIMESTAMP_MS value or, on the newer layout, the first seconds and nanos values in the "
+                 "block; the cited research shows those under event_client_timestamp. Counts and accuracy "
+                 "values are reported as logged, with N/A where an entry has none. Position Provider is "
+                 "the logged value. On the newer layout the text LOCATION_PROVIDER_ is removed from it. "
+                 "Duplicate Sample Count is read from a dup_sample_count or duplicate_sample_count line. "
+                 "The accuracy columns combine the ACC_MIN/ACC_AVG/ACC_MAX fields, which carry no unit in "
+                 "the log, with the accuracy_min_meters/accuracy_avg_meters/accuracy_max_meters fields, "
+                 "whose names carry a unit of meters. Reference: Django Faiola, 'Comprehensive Waze "
+                 "Forensic Parsing for iOS', "
                  "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
                  "(in Italian).",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata"),
@@ -85,13 +94,19 @@ __artifacts_v2__ = {
     },
     "waze_search_history": {
         "name": 'Waze - PLACES Table Entries',
-        "description": 'Reports supported rows selected from the PLACES table in the selected Waze user.db. The query applies no search-event filter; a row alone does not establish a search, navigation, visit, or user interaction.',
+        "description": 'Reports the rows of the PLACES table in the Waze user.db. The query applies no search-event filter; a row alone does not establish a search, navigation, visit, or user interaction.',
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2024-02-02",
-        "last_update_date": '2026-10-14',
+        "last_update_date": '2026-11-17',
         "requirements": "none",
         "category": "Waze",
-        "notes": "Every row of the PLACES table in user.db is reported with no filter. The module's own documentation says the table includes searched and referenced places, so a row is not by itself a record of a search. Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html (in Italian). Original contribution and Waze research credited to Django Faiola (@djangofaiola). Artifact naming was neutralized to match the existing all-PLACES query; no native value, header, SQL, filter, date conversion, source selection, or row multiplicity was changed. Existing per-record error skips and database error handling are unchanged. Coordinate scaling, Residential Status labels, date meanings, source-state association and other Waze research remain outside this change. Historical sample_data entries are retained and are not fresh validation.",
+        "notes": "Every row of the PLACES table in user.db is reported with no filter. The module's own "
+                 "documentation says the table includes searched and referenced places, so a row is not by "
+                 "itself a record of a search. Reference: Django Faiola, 'Comprehensive Waze Forensic "
+                 "Parsing for iOS', "
+                 "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
+                 "(in Italian). Original contribution and Waze research credited to Django Faiola "
+                 "(@djangofaiola).",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "search",
@@ -107,17 +122,17 @@ __artifacts_v2__ = {
         "description": "Parses and extracts recent locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
-        "notes": "Type shows a label this module assigns to the stored RECENTS.type integer (0 "
-                 "User Search, 1 Advertising, 2 Map Interaction, 3 Shared, 4 Navigation History); "
-                 "-1 is shown as N/A and any other value is shown as stored. The labels follow "
-                 "Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
+        "notes": "Type shows a label this module assigns to the stored RECENTS.type integer (0 User "
+                 "Search, 1 Advertising, 2 Map Interaction, 3 Shared, 4 Navigation History); -1 is shown "
+                 "as N/A and any other value is shown as stored. The labels follow Django Faiola, "
+                 "'Comprehensive Waze Forensic Parsing for iOS', "
                  "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
-                 "(in Italian), which says the classification comes from empirical analysis and "
-                 "not from Waze documentation. A label is not by itself a record of what a person "
-                 "did.",
+                 "(in Italian), which says the classification comes from empirical analysis and not from "
+                 "Waze documentation. A label is not by itself a record of what a person did. A stored 0 "
+                 "in Last Waypoint Access leaves it empty.",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "artifact_icon": "map-pin",
@@ -133,13 +148,16 @@ __artifacts_v2__ = {
         "description": "Parses and extracts favorite locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Waze",
         "notes": "Type shows a label this module assigns to the stored type integer, which is "
-                 "FAVORITES.type in user.db (0 Custom, 1 Home, 2 Work, 3 Events, 4 Saved POI); -1 "
-                 "is shown as N/A. Any other value is shown as stored by both readers (the cached "
-                 "data reader and the user.db reader). The labels "
+                 "FAVORITES.type in user.db (0 Custom, 1 Home, 2 Work, 3 Events, 4 Saved POI); -1 is shown "
+                 "as N/A. On rows read from cached_data the integer is field 3 of the saved place "
+                 "message. Any other value is shown as stored by both readers (the cached data reader and "
+                 "the user.db reader). Modified is FAVORITES.modified_time on rows read from user.db. On "
+                 "rows read from cached_data it is field 10 of the place message, which the cited research "
+                 "describes as the last modification time; no Waze source for that is cited. The labels "
                  "follow Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
                  "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
                  "(in Italian); no Waze source for them is cited.",
@@ -246,9 +264,26 @@ from scripts.ilapfuncs import open_sqlite_db_readonly, get_sqlite_db_records, \
 # Constants
 COMMA_SEP = ', '
 WAZE_PREFERENCES_PLIST = 'com.waze.iphone.plist'
-SOURCE_FILE_NAME = 'Source File Name'
-SOURCE_PATH_NOTE = f"Refer to the '{SOURCE_FILE_NAME}' column to identify the exact " \
-                   "device location of the origin file."
+SOURCE_FILE_NAME = 'Source File Path'
+# The staged files each artifact read, by run and artifact, in first-seen order.
+# get_device_file_path records every file it converts, including a file that
+# then gave no row, and the artifact returns them as its source paths.
+_ROW_SOURCES = {}
+
+
+def _row_sources_key(context):
+    seeker = context.get_seeker()
+    return (str(getattr(seeker, 'data_folder', '')), context.get_artifact_name())
+
+
+def _note_row_source(file_path, context):
+    """Record a staged file the running artifact read."""
+    _ROW_SOURCES.setdefault(_row_sources_key(context), {})[str(file_path)] = None
+
+
+def _row_source_paths(context):
+    """The staged files the running artifact read, newline joined."""
+    return '\n'.join(_ROW_SOURCES.pop(_row_sources_key(context), {}))
 MAX_URL_LENGTH = 4096
 ALLOWED_URL_SCHEMES = (
     'http',
@@ -302,9 +337,9 @@ WAZE_EVENT_RE   = re.compile(r"WCEWazeAppEvent")
 GPS_BLOCK_RE    = re.compile(r"^\s*gps_quality\s*\{")
 SWIFT_LAT_RE = re.compile(r"latitude:\s*([+-]?[0-9.]+)")
 SWIFT_LON_RE = re.compile(r"longitude:\s*([+-]?[0-9.]+)")
-SWIFT_SAM_CNT_RE = re.compile(r"sample_count:\s*([0-9]+)")
-SWIFT_BAD_CNT_RE = re.compile(r"bad_sample_count:\s*([0-9]+)")
-SWIFT_DUP_CNT_RE = re.compile(r"dup_sample_count:\s*([0-9]+)")
+SWIFT_SAM_CNT_RE = re.compile(r"(?<![A-Za-z0-9_])sample_count:\s*([0-9]+)")
+SWIFT_BAD_CNT_RE = re.compile(r"(?<![A-Za-z0-9_])bad_sample_count:\s*([0-9]+)")
+SWIFT_DUP_CNT_RE = re.compile(r"(?<![A-Za-z0-9_])(?:dup|duplicate)_sample_count:\s*([0-9]+)")
 SWIFT_ACC_AVG_RE = re.compile(r"accuracy_avg_meters:\s*([0-9]+)")
 SWIFT_ACC_MIN_RE = re.compile(r"accuracy_min_meters:\s*([0-9]+)")
 SWIFT_ACC_MAX_RE = re.compile(r"accuracy_max_meters:\s*([0-9]+)")
@@ -397,47 +432,17 @@ def _search_user_db(context, app_identifier):
 
 def get_device_file_path(file_path: str, context) -> str:
     """
-    Converts a local report file path back to the original iOS device path.
-    Strips the local report base directory and reconstructs the /private/var 
-    structure for File System extractions or preserves Domain paths for iTunes.
-    Version 1.0
+    The path of a staged file inside the extraction, as get_relative_path reports
+    it, for the Source File Name column. No device path is rebuilt from it, so the
+    column shows what the extraction holds. Records the file as one the running
+    artifact read.
     """
 
     if not file_path:
         return ''
 
-    # Retrieve the seeker from the context to access the local data_folder
-    seeker = context.get_seeker()
-
-    # The data_folder is the root where the seeker extracted the files (e.g., E:/Case/Data/)
-    base_folder = getattr(seeker, 'data_folder', '')
-
-    # Standardize separators to forward slashes for cross-platform consistency
-    norm_file_path = file_path.replace('\\', '/')
-    norm_base_folder = base_folder.replace('\\', '/')
-
-    # Check if the file is within the report's data directory
-    if norm_base_folder and norm_file_path.startswith(norm_base_folder):
-        # Strip the local PC base path to get the relative extraction path
-        relative_path = norm_file_path[len(norm_base_folder):].lstrip('/')
-
-        # Case 1: Path starts with 'var/' but is missing the 'private/' prefix.
-        # In iOS forensics, /private/var/ is the canonical physical path.
-        if relative_path.startswith('var/') and not relative_path.startswith('private/var/'):
-            return '/private/' + relative_path
-
-        # Case 2: Path already contains standard iOS system roots.
-        # We add a leading slash to represent the root of the device.
-        ios_system_roots = ('private/', 'Library/', 'System/', 'Developer/', 'usr/')
-        if relative_path.startswith(ios_system_roots):
-            return '/' + relative_path
-
-        # Case 3: iTunes Backup Domains (e.g., AppDomain-com.apple.mobilesafari).
-        # These are kept relative as they don't represent a direct file system root.
-        return relative_path
-
-    # Fallback: if the path is outside the data folder, return the cleaned input path
-    return norm_file_path.lstrip('/')
+    _note_row_source(file_path, context)
+    return context.get_relative_path(str(file_path))
 
 
 def format_url(str_url: str | None, html_format: bool = False, label: str | None = None) -> str:
@@ -1138,7 +1143,7 @@ def waze_account(context):
     if source_path:
         _parse_account_cached(source_path, context, data_list, data_list_html)
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
 
 @artifact_processor
@@ -1242,7 +1247,7 @@ def waze_session_info(context):
             # Timestamp processing
             if key in ts_keys:
                 friendly_name = ts_keys[key]
-                val_utc = convert_unix_ts_to_utc(value if value != '0' else 0)
+                val_utc = convert_unix_ts_to_utc(value) if value != '0' else None
                 data_list.append(
                     (val_utc, friendly_name, key, value, None, None, fmt_loc(line_num))
                 )
@@ -1307,9 +1312,9 @@ def waze_track_gps_quality(context):
         'Sample Count',
         'Bad Sample Count',
         'Duplicate Sample Count',
-        'Accuracy Min (m)',
-        'Accuracy Avg (m)',
-        'Accuracy Max (m)',
+        'Accuracy Min',
+        'Accuracy Avg',
+        'Accuracy Max',
         'Position Provider',
         SOURCE_FILE_NAME,
         'Location'
@@ -1555,7 +1560,7 @@ def waze_track_gps_quality(context):
                 pending_legacy[F_LOCATION]
             ))
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -1814,7 +1819,8 @@ def waze_recent_locations(context):
             # Convert timestamps to UTC
             fields[F_LAST_ACCESS] = convert_unix_ts_to_utc(record[2])
             fields[F_CREATED] = convert_unix_ts_to_utc(record[12])
-            fields[F_LAST_WAYPOINT_ACCESS] = convert_unix_ts_to_utc(record[13])
+            fields[F_LAST_WAYPOINT_ACCESS] = (convert_unix_ts_to_utc(record[13])
+                                              if record[13] not in (0, '0') else None)
 
             # Location Type
             fields[F_LOCATION_TYPE] = record[3]
@@ -2194,7 +2200,7 @@ def waze_favorite_locations(context):
         'Latitude',
         'Longitude',
         ('Created', 'datetime'),
-        ('Possible Timestamp (field 10)', 'datetime'),
+        ('Modified', 'datetime'),
         ('Last Waypoint Access', 'datetime'),
         'Rank',
         'Server ID',
@@ -2221,7 +2227,7 @@ def waze_favorite_locations(context):
     if source_path:
         _parse_favorite_cached(source_path, context, data_list)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor

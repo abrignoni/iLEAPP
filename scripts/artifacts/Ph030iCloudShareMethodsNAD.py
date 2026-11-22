@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
 'Ph030iCloudSharedMethodswithNADPhDaPsql': {
 'name': 'Ph030-iCloud Shared Methods NAD-PhDaPsql',
-'description': 'Share and participant records from PhotoData/Photos.sqlite ZSHARE and ZSHAREPARTICIPANT, one row per share and participant pair. Queries cover iOS 14 through 26; no asset records are parsed. Enum fields report raw stored values without assigning sharing-method or invitation-action meanings.',
-'author': '@AlexisBrignoni, Codex',
+'description': 'Share and participant records from PhotoData/Photos.sqlite ZSHARE and ZSHAREPARTICIPANT, one row per share and participant pair. Queries cover iOS 14 through 27; no asset records are parsed. Enum fields report raw stored values without assigning sharing-method or invitation-action meanings.',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.',
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. Raw enum projections preserve stored NULL and unknown values; per-value interpretations are not emitted.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 data was available that produces rows here, so the iOS 27 output has not been seen. On iOS 27 the participant share entity column (Z66_SHARE on iOS 26) is renumbered by entity name from the Z_PRIMARYKEY table of the store before the query runs. It is reported raw, and its header keeps the iOS 26 name. The iOS 27.2 store has no ZSHAREPARTICIPANT.ZROLE or ZPERMISSION; those columns are reported empty. The store has ZCPLROLE, ZCPLPERMISSION and ZPARTICIPANTROLE, which this artifact does not read; whether they hold the same values is not established.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "cloud-upload",
@@ -36,6 +36,7 @@ __artifacts_v2__ = {
 import os
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.artifacts.Ph126iOS26REFforAssetAnalysis import renumber_photos_entities
 
 @artifact_processor
 def Ph030iCloudSharedMethodswithNADPhDaPsql(context):
@@ -54,7 +55,7 @@ def Ph030iCloudSharedMethodswithNADPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
@@ -533,7 +534,7 @@ def Ph030iCloudSharedMethodswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -598,7 +599,7 @@ def Ph030iCloudSharedMethodswithNADPhDaPsql(context):
         ORDER BY zShare.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -656,7 +657,7 @@ def Ph030iCloudSharedMethodswithNADPhDaPsql(context):
         ('zShare-LastParticipant Asset Trash Notification Date-46', 'datetime'),
         ('zShare-Last Participant Asset Trash Notification View Date-47', 'datetime'),
         'zShare-Z_ENT Raw Value-48')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 

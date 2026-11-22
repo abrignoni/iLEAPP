@@ -73,6 +73,12 @@ class NormalizeRowsTests(unittest.TestCase):
         self.assertEqual(rtc.normalize_rows(rows, backslash_paths=True),
                          rtc.normalize_rows(rows, backslash_paths=False))
 
+    def test_a_path_inside_a_json_cell_compares_as_forward_slashes(self):
+        windows = [['{"sourceFile": "private\\\\var\\\\db"}']]
+        recorded = [['{"sourceFile": "private/var/db"}']]
+        self.assertEqual(rtc.normalize_rows(windows, backslash_paths=True),
+                         rtc.normalize_rows(recorded, backslash_paths=True))
+
     def test_windows_temp_extract_path_is_tokenized(self):
         windows = [["admin\\test\\temp\\extract_case_1_123\\x.db"]]
         recorded = [["admin/test/temp/extract_case_1_999/x.db"]]

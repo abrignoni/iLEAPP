@@ -7,37 +7,25 @@ stamped with the SEGB record timestamp.
 __artifacts_v2__ = {
     "get_biomeInterfaceOrientation": {
         "name": "Biome - Interface Orientation",
-        "description": "Parses interface orientation changes from the "
+        "description": "Parses interface orientation records from the "
                        "Device.Display.InterfaceOrientation biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Value is labelled with the UIInterfaceOrientation enumeration (UIKit, defined in "
-                 "UIApplication.h). As explained below, the data does not yet confirm that choice. "
-                 "The raw value is reported alongside the label. Read the landscape labels "
-                 "carefully: Apple crosses the two landscape cases against UIDeviceOrientation, so "
-                 "under UIInterfaceOrientation 3 is Landscape Right and 4 is Landscape Left, the "
-                 "opposite of the values in the _DKEvent.Display.Orientation stream parsed by "
-                 "Biome - Display Orientation DKEvent. Header text: "
-                 "UIInterfaceOrientationLandscapeLeft = UIDeviceOrientationLandscapeRight and "
-                 "UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft. Only "
-                 "values 0, 1 and 2 have been observed on the written records of the tested images "
-                 "(records in the deleted SEGB state carry no value). Values 1 and 2 are identical "
-                 "in both enumerations, so the choice of enumeration is not yet confirmed by data: "
-                 "the stream name says interface orientation while the System Events plist "
-                 "describes it as capturing device orientation. The cited revision of "
-                 "UIApplication.h defines no UIInterfaceOrientation case for 0, so the Value "
-                 "column is left empty for 0 and the stored value is in Value (raw). A value of 5 or 6 appearing here would "
-                 "indicate the device "
-                 "enumeration instead, since UIInterfaceOrientation has no Face Up or Face Down "
-                 "case. Enumeration source: Apple UIKit headers UIApplication.h and UIDevice.h, "
-                 "mirrored at "
-                 "https://github.com/silent0123/OSXDev/blob/c943c2158bcd3a6caa3023e396e653cbe3832ae1/uSav-Mac/usavMac/UIKit.framework/Headers/UIApplication.h "
+        "notes": ("Category is field 1 (category) of the BMDeviceInterfaceOrientation class, "
+                 "read from BiomeLibrary.framework on macOS 27.2.1 (26B131), where the field's values are 0 Unknown, "
+                 "1 Portrait and 2 Landscape; the iOS writer's schema was checked only against "
+                 "the data. Only values 0, 1 and 2 were seen on the written records of the nine tested "
+                 "images (records in the deleted SEGB state carry no value). Before, this artifact "
+                 "labelled the values with UIKit's UIInterfaceOrientation, which named 2 Portrait "
+                 "Upside Down and left 0 blank. The framework enumeration has one Landscape value, "
+                 "so Category does not give the landscape side; see "
+                 "Biome - Display Orientation DKEvent for the _DKEvent.Display.Orientation stream. "
                  "Stream reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
                  "Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"),
         "paths": ('*/streams/*/Device.Display.InterfaceOrientation/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
@@ -114,24 +102,29 @@ __artifacts_v2__ = {
     },
     "get_biomeCarPlayConnected": {
         "name": "Biome - CarPlay Connected",
-        "description": "Parses CarPlay connection state changes from the CarPlay.Connected "
+        "description": "Parses CarPlay connection records from the CarPlay.Connected "
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The CarPlay State column labels the stored value 0 as Not "
-                 "Connected and 1 as Connected, as given in the reference "
-                 "below. The raw value is reported alongside the label. See "
+        "notes": ("The CarPlay State column labels the stored value 0 as Not "
+                 "Connected and 1 as Connected; the BMCarPlayConnected class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131), "
+                 "names field 1 starting. Reason is field 2 (reason), named from the "
+                 "same class: 0 Unknown, 1 USB, 2 WiFi; the iOS writer's schema was checked only "
+                 "against the data. On hc_ios18_7 Reason held USB on all 24 rows; WiFi appeared on three tested images: abe_ios16 (4 rows), dexter_ios18 (4) and wilkerson_iphone16_ios26 (7). The raw values are reported alongside the labels. See "
                  "also the _DKEvent.Carplay.IsConnected stream parsed by Biome "
                  "- Carplay. Reference: Mattia Epifani, '84 Streams Later, "
                  "Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
-        "paths": ('*/streams/*/CarPlay.Connected/local/*',),
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
+                 " "
+                 "On one tested iOS 16 image (abe_ios16) the stream is stored under CarPlay, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 56 written records held fields 1 and 2."),
+        "paths": ('*/streams/*/CarPlay.Connected/local/*', '*/streams/*/CarPlay/local/*'),
         "output_types": "standard",
         "artifact_icon": "truck",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 122 rows",
             "hc_ios18_7": "iOS 18.7.8 | 24 rows",
             "iphone11_ios17": "iOS 17.3 | 36 rows",
         },
@@ -142,13 +135,16 @@ __artifacts_v2__ = {
                        "Device.Thermals.BatteryTemperature biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The raw value is temperature in hundredths of a degree Celsius (observed range "
-                 "600-4300 on the tested images, i.e. 6.00-43.00 C); both the converted "
-                 "and raw values are reported. Field 2 is reported raw as its meaning is not "
-                 "confirmed.",
+        "notes": ("The framework names field 1 temperature, an integer, and gives no unit. The "
+                 "values fit hundredths of a degree Celsius, and Temperature (C) divides by 100 on "
+                 "that reading. Observed range 600 to 4500 on the nine tested images (6.00 to "
+                 "45.00 C on that reading); every written value was a multiple of 100. Both the "
+                 "converted and raw values are reported. Plugged In is field 2, which the "
+                 "BMDeviceBatteryTemperature class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131), names "
+                 "pluggedIn, a bool; the iOS writer's schema was checked only against the data."),
         "paths": ('*/streams/*/Device.Thermals.BatteryTemperature/local/*',),
         "output_types": "standard",
         "artifact_icon": "thermometer",
@@ -207,13 +203,15 @@ __artifacts_v2__ = {
                        "stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The level is stored as a double; on the tested images it ranged from 1.0 to "
-                 "100.0, which fits a percentage. "
-                 "See also the _DKEvent.Device.BatteryPercentage "
-                 "stream parsed by Biome - Battery Percentage.",
+        "notes": ("The level is stored as a double; on the tested images it ranged from 1.0 to "
+                 "100.0, which fits a percentage, and the BMDeviceBatteryLevel class, "
+                 "read from BiomeLibrary.framework on macOS 27.2.1 (26B131), names it batteryPercentage. Fully Charged is "
+                 "field 2 (fullyCharged), a bool in the same class; the iOS writer's schema was "
+                 "checked only against the data. See also the _DKEvent.Device.BatteryPercentage "
+                 "stream parsed by Biome - Battery Percentage."),
         "paths": ('*/streams/*/Device.Power.BatteryLevel/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -228,18 +226,21 @@ __artifacts_v2__ = {
                        "Device.Power.PluggedIn biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "On the tested images Field 3 was populated on every record that carried a power "
-                 "state, plugged in or not, and absent on the records that carried none; it is "
-                 "reported raw as its "
-                 "meaning is not confirmed. A record is written whenever the device is charging, "
-                 "which includes wireless charging as well as a physical cable connection "
-                 "(observation by Ian Whiffin). See also the "
+        "notes": ("Field names are those of the BMDevicePluggedIn class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131): "
+                 "1 starting, 2 wireless (a bool, reported in Wireless) and 3 adapterType, a "
+                 "64-bit integer that the class prints as a number, with no enumeration found, "
+                 "reported in Adapter Type "
+                 "(raw); the iOS writer's schema was checked only against the data. On the nine "
+                 "tested images every written record held fields 1, 2 and 3, plugged in or not; "
+                 "deleted records carry no value. Ian Whiffin observed that records are written "
+                 "for wireless charging as well as a cable connection; on the tested images "
+                 "Wireless was True on one image. See also the "
                  "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In. "
                  "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"),
         "paths": ('*/streams/*/Device.Power.PluggedIn/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
@@ -250,23 +251,27 @@ __artifacts_v2__ = {
     },
     "get_biomeEnergyMode": {
         "name": "Biome - Energy Mode",
-        "description": "Parses energy mode changes from the Device.Power.EnergyMode biome "
+        "description": "Parses energy mode records from the Device.Power.EnergyMode biome "
                        "stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Both fields are reported raw: the sample data does not confirm which energy "
-                 "mode each value denotes. Field 1 was observed as 1 or 2 and field 2 as 1, 3 "
-                 "or 7.",
+        "notes": ("Mode is field 1 (mode) and Reason is field 2 (reason) of the BMEnergyMode class, "
+                 "read from BiomeLibrary.framework on macOS 27.2.1 (26B131). Mode values are 0 Unknown, 1 LowPower, "
+                 "2 Normal, 3 HighPower. Reason values are 0 Unknown, 1 Settings, 2 "
+                 "SiriShortcuts, 3 SpringBoardAlert, 4 ReenableBulletin, 5 ControlCenter, 6 "
+                 "LostMode, 7 SystemDisable, 8 Workouts, 9 StandbyMode. The iOS writer's schema "
+                 "was checked only against the data: on five tested images Mode held 1 or 2 and "
+                 "Reason held 1, 3, 5, 6 or 7. The raw values are reported beside the names."),
         "paths": ('*/streams/*/Device.Power.EnergyMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "zap",
         "sample_data": {
             "abe_ios16": "13 rows",
-            "fsfull002_ios17": "2 rows",
-            "hc_ios18_7": "11 rows",
+            "fsfull002_ios17": "2 rows, all deleted state",
+            "hc_ios18_7": "11 rows, all deleted state",
             "iphone12_ios18": "13 rows",
             "magnet_ios16": "5 rows",
             "otto_ios17": "7 rows",
@@ -274,16 +279,26 @@ __artifacts_v2__ = {
     },
     "get_biomeSilentMode": {
         "name": "Biome - Silent Mode",
-        "description": "Parses ringer switch and silent mode changes from the "
+        "description": "Parses ringer and silent mode records from the "
                        "Device.SilentMode biome stream, including the reason string stored "
                        "with the record, reported as stored.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Reasons observed: RingerSwitchEvent and 'MXSessionManager startup HID ringer "
-                 "switch state'. Field 2 is reported raw as its meaning is not confirmed.",
+        "notes": ("Ringer State labels the stored value 0 as Ringer On and 1 as Silent; the "
+                 "BMDeviceSilentMode class names field 1 starting. Reasons observed include "
+                 "RingerSwitchEvent and 'MXSessionManager startup HID ringer switch state'. Client "
+                 "Type is field 2 (clientType) of the BMDeviceSilentMode "
+                 "class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131): 0 Unknown, 1 Springboard, 2 "
+                 "ControlCenter, 3 FocusFilter, 4 Accessibility, 5 Gesture, 6 Shortcuts, 7 "
+                 "Settings, 8 CarKitDaemon, 9 WidgetKitControl; the raw value is reported beside "
+                 "the name, and the iOS writer's schema was checked only against the data. The "
+                 "class also defines field 3 (untilTime); no tested written record held it, and "
+                 "this artifact does not report it. On hc_ios18_7 Client Type (raw) equalled State "
+                 "(raw) on all 10 written rows (the other 63 rows are deleted records with no "
+                 "value); the two differed on other tested images, so they are kept apart."),
         "paths": ('*/streams/*/Device.SilentMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "bell-off",
@@ -321,15 +336,26 @@ CONNECTED = {0: 'Not Connected', 1: 'Connected'}
 LOCKED = {0: 'Unlocked', 1: 'Locked'}
 PLUGGED = {0: 'Not Plugged In', 1: 'Plugged In'}
 SILENT = {0: 'Ringer On', 1: 'Silent'}
-# UIInterfaceOrientation (UIKit, UIApplication.h). Apple deliberately crosses the two
-# landscape cases against UIDeviceOrientation, because rotating the device left rotates
-# the interface right:
-#     UIInterfaceOrientationLandscapeLeft  = UIDeviceOrientationLandscapeRight  (4)
-#     UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft   (3)
-# These 3/4 labels are the opposite of the UIDeviceOrientation ones. The cited header
-# revision defines no case for 0, so 0 carries no label.
-INTERFACE_ORIENTATION = {1: 'Portrait', 2: 'Portrait Upside Down',
-                         3: 'Landscape Right', 4: 'Landscape Left'}
+# Enum names read from BiomeLibrary.framework on macOS 27.2.1 (26B131), by building one-field
+# records and reading each event's own description.
+# BMDeviceInterfaceOrientation field 1 (category).
+INTERFACE_ORIENTATION = {0: 'Unknown', 1: 'Portrait', 2: 'Landscape'}
+# BMCarPlayConnected field 2 (reason).
+CARPLAY_REASON = {0: 'Unknown', 1: 'USB', 2: 'WiFi'}
+# BMDeviceSilentMode field 2 (clientType).
+SILENT_CLIENT = {0: 'Unknown', 1: 'Springboard', 2: 'ControlCenter', 3: 'FocusFilter',
+                 4: 'Accessibility', 5: 'Gesture', 6: 'Shortcuts', 7: 'Settings',
+                 8: 'CarKitDaemon', 9: 'WidgetKitControl'}
+# BMEnergyMode field 1 (mode) and field 2 (reason).
+ENERGY_MODE = {0: 'Unknown', 1: 'LowPower', 2: 'Normal', 3: 'HighPower'}
+ENERGY_REASON = {0: 'Unknown', 1: 'Settings', 2: 'SiriShortcuts', 3: 'SpringBoardAlert',
+                 4: 'ReenableBulletin', 5: 'ControlCenter', 6: 'LostMode', 7: 'SystemDisable',
+                 8: 'Workouts', 9: 'StandbyMode'}
+
+
+def _bool(value):
+    """A framework bool field: 1 True, 0 False, anything else blank."""
+    return {1: 'True', 0: 'False'}.get(value, '') if isinstance(value, int) else ''
 
 
 def _to_str(value):
@@ -376,9 +402,9 @@ def _records(context, label, typess=None):
                 yield ts, record, None, filename
 
 
-def _parse_state(context, label, value_map):
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Value', 'Value (raw)',
-                    'Filename', 'Offset')
+def _parse_state(context, label, value_map, value_header='Value'):
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', value_header,
+                    f'{value_header} (raw)', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _records(context, label):
         if protostuff is None:
@@ -393,7 +419,7 @@ def _parse_state(context, label, value_map):
 
 @artifact_processor
 def get_biomeInterfaceOrientation(context):
-    return _parse_state(context, 'Interface Orientation', INTERFACE_ORIENTATION)
+    return _parse_state(context, 'Interface Orientation', INTERFACE_ORIENTATION, 'Category')
 
 
 @artifact_processor
@@ -414,23 +440,25 @@ def get_biomeCellularDataEnabled(context):
 @artifact_processor
 def get_biomeCarPlayConnected(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'CarPlay State',
-                    'State (raw)', 'Field 2 (raw)', 'Filename', 'Offset')
+                    'State (raw)', 'Reason', 'Reason (raw)', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _records(context, 'CarPlay Connected'):
         if protostuff is None:
-            data_list.append((ts, record.state.name, None, None, None, filename,
+            data_list.append((ts, record.state.name, None, None, None, None, filename,
                               record.data_start_offset))
             continue
         raw = protostuff.get('1', '')
+        reason = protostuff.get('2', '')
         data_list.append((ts, record.state.name, CONNECTED.get(raw, ''), raw,
-                          protostuff.get('2', ''), filename, record.data_start_offset))
+                          CARPLAY_REASON.get(reason, ''), reason, filename,
+                          record.data_start_offset))
     return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
 def get_biomeBatteryTemperature(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Temperature (C)',
-                    'Temperature (raw)', 'Field 2 (raw)', 'Filename', 'Offset')
+                    'Temperature (raw)', 'Plugged In', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _records(context, 'Battery Temperature'):
         if protostuff is None:
@@ -439,7 +467,7 @@ def get_biomeBatteryTemperature(context):
             continue
         raw = protostuff.get('1', '')
         celsius = round(raw / 100, 2) if isinstance(raw, int) else ''
-        data_list.append((ts, record.state.name, celsius, raw, protostuff.get('2', ''),
+        data_list.append((ts, record.state.name, celsius, raw, _bool(protostuff.get('2')),
                           filename, record.data_start_offset))
     return data_headers, data_list, _source_path(context)
 
@@ -457,7 +485,7 @@ def get_biomeKeybagLocked(context):
 @artifact_processor
 def get_biomeBatteryLevel(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Battery Level (%)',
-                    'Field 2 (raw)', 'Filename', 'Offset')
+                    'Fully Charged', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _records(context, 'Battery Level', BATTERY_TYPESS):
         if protostuff is None:
@@ -467,7 +495,7 @@ def get_biomeBatteryLevel(context):
         level = protostuff.get('1', '')
         if isinstance(level, float):
             level = round(level, 2)
-        data_list.append((ts, record.state.name, level, protostuff.get('2', ''), filename,
+        data_list.append((ts, record.state.name, level, _bool(protostuff.get('2')), filename,
                           record.data_start_offset))
     return data_headers, data_list, _source_path(context)
 
@@ -475,7 +503,7 @@ def get_biomeBatteryLevel(context):
 @artifact_processor
 def get_biomeDevicePluggedIn(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Power State', 'State (raw)',
-                    'Field 2 (raw)', 'Field 3 (raw)', 'Filename', 'Offset')
+                    'Wireless', 'Adapter Type (raw)', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _records(context, 'Device Plugged In',
                                                      PLUGGED_TYPESS):
@@ -485,7 +513,7 @@ def get_biomeDevicePluggedIn(context):
             continue
         raw = protostuff.get('1', '')
         data_list.append((ts, record.state.name, PLUGGED.get(raw, ''), raw,
-                          protostuff.get('2', ''), protostuff.get('3', ''), filename,
+                          _bool(protostuff.get('2')), protostuff.get('3', ''), filename,
                           record.data_start_offset))
     return data_headers, data_list, _source_path(context)
 
@@ -493,30 +521,34 @@ def get_biomeDevicePluggedIn(context):
 @artifact_processor
 def get_biomeSilentMode(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Ringer State', 'State (raw)',
-                    'Reason', 'Field 2 (raw)', 'Filename', 'Offset')
+                    'Reason', 'Client Type', 'Client Type (raw)', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _records(context, 'Silent Mode', SILENT_TYPESS):
         if protostuff is None:
-            data_list.append((ts, record.state.name, None, None, None, None, filename,
+            data_list.append((ts, record.state.name, None, None, None, None, None, filename,
                               record.data_start_offset))
             continue
         raw = protostuff.get('1', '')
+        client = protostuff.get('2', '')
         data_list.append((ts, record.state.name, SILENT.get(raw, ''), raw,
-                          _to_str(protostuff.get('4', b'')), protostuff.get('2', ''), filename,
-                          record.data_start_offset))
+                          _to_str(protostuff.get('4', b'')), SILENT_CLIENT.get(client, ''), client,
+                          filename, record.data_start_offset))
     return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
 def get_biomeEnergyMode(context):
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Field 1 (raw)',
-                    'Field 2 (raw)', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Mode', 'Mode (raw)', 'Reason',
+                    'Reason (raw)', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _records(context, 'Energy Mode'):
         if protostuff is None:
-            data_list.append((ts, record.state.name, None, None, filename,
+            data_list.append((ts, record.state.name, None, None, None, None, filename,
                               record.data_start_offset))
             continue
-        data_list.append((ts, record.state.name, protostuff.get('1', ''),
-                          protostuff.get('2', ''), filename, record.data_start_offset))
+        mode = protostuff.get('1', '')
+        reason = protostuff.get('2', '')
+        data_list.append((ts, record.state.name, ENERGY_MODE.get(mode, ''), mode,
+                          ENERGY_REASON.get(reason, ''), reason, filename,
+                          record.data_start_offset))
     return data_headers, data_list, _source_path(context)

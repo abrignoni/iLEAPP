@@ -15,6 +15,10 @@ own qnx6 driver, not assumed:
   QNX6_SUPERBLOCK_SIZE    0x200   include/linux/qnx6_fs.h:21
   struct qnx6_super_block          include/linux/qnx6_fs.h:94
 
+One value is not the Linux driver's: where the data area starts. Its formula
+is right for block sizes up to 4096 and lands a block early above that, so
+qnx6_data_start() follows QNX's own sys/fs_qnx6.h instead (see there).
+
 fs/qnx6/inode.c reads the first superblock at QNX6_BOOTBLOCK_SIZE and, if the
 magic is wrong there, retries at offset 0. It tries little endian first, then
 big endian, so both are live in the wild.
@@ -45,11 +49,38 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.77"
+QNXPROBE_VERSION = "1.80"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
 SECTOR         = 512
+
+
+def qnx6_data_start(blocksize):
+    """Byte offset, from the start of a qnx6 volume, of its data area: block 0
+    of every block pointer. This is QNX6FS_DATA_START(b) in QNX's own
+    sys/fs_qnx6.h (RunZeJustin/qnx660 at 47c4158e, lines 221-231): the 8 KiB
+    boot block and the 4 KiB superblock area, then, for block sizes above 4 KiB,
+    padding up to a block boundary "to ensure data contents are aligned to the
+    block size boundaries". 0x3000 up to 4096; 0x4000 at 8192 and 16384;
+    0x8000 at 32768, the largest block size that header allows (line 219).
+
+    Linux fs/qnx6/inode.c (v6.12, lines 374-375) shifts the boot block and the
+    superblock area by the block size separately, which gives the same value
+    up to 4096 and one block too little above it, so every pointer then names
+    the block before the one meant. On a kernel with 4 KiB pages the driver
+    cannot meet such a volume:
+    block/bdev.c (v6.12, lines 158-159) refuses a block size above the page
+    size. NFI's qnxmount uses the QNX value (qnx6/parser.ksy data_start)."""
+    area = BOOTBLOCK_SIZE + 0x1000
+    return area + (0 if blocksize <= 0x1000 else abs(blocksize - area))
+
+
+# The start of q6_boothdr_t, the qnx6 boot header at byte 0 of the boot block
+# (sys/fs_qnx6.h lines 280-286: b_jmp[3], b_flags, b_offset, b_sblk0, b_sblk1).
+# These three jump bytes are what QNX's mkqnx6fs wrote on qnxmount's committed
+# test image, and what qnxmount itself requires (qnx6/parser.ksy, bootblock).
+QNX6_BOOT_JMP = b"\xeb\x10\x90"
 # How many FAT entries free_extents() reads at once. Four bytes each, so a
 # megabyte a pass, which keeps one read per 262,144 clusters instead of one
 # per cluster.
@@ -95,17 +126,47 @@ def sb_slots(fh, base, label, sized_regions):
         total = head[1]["num_blocks"] * head[1]["blocksize"]
         if 0 < total < (1 << 42):
             ends.append(total)
-            # Where the kernel itself reads the second superblock: block
-            # sb_num_blocks + (QNX6_BOOTBLOCK_SIZE + QNX6_SUPERBLOCK_AREA) /
-            # blocksize, fs/qnx6/inode.c qnx6_fill_super, with the area 0x1000
-            # from include/linux/qnx6_fs.h. The region-size candidates above
-            # reach the same place only when the partition is exactly
-            # BOOTBLOCK + area + volume + area long; this reaches it when the
-            # partition is larger, or when there is no partition at all.
+            # Where the kernel itself reads the second superblock for block
+            # sizes up to 4096: block sb_num_blocks + (QNX6_BOOTBLOCK_SIZE >>
+            # bits) + (QNX6_SUPERBLOCK_AREA >> bits), fs/qnx6/inode.c
+            # qnx6_fill_super (v6.12, lines 369-371), which is byte 0x3000 +
+            # num_blocks * blocksize. The region-size candidates above reach
+            # the same place only when the partition is exactly BOOTBLOCK +
+            # area + volume + area long; this reaches it when the partition is
+            # larger, or when there is no partition at all. Above 4096 the
+            # kernel's expression is not where QNX puts it (see
+            # qnx6_data_start()); the boot header below is.
             second = BOOTBLOCK_SIZE + 0x1000 + total
             rels += [second, second + 0xE00]
     for e in ends:
         rels += [e - 0x1000, e - 0x200]
+
+    # Where the volume itself records its two superblocks: b_sblk0 and b_sblk1
+    # of the boot header (sys/fs_qnx6.h lines 280-286), counted in sectors of
+    # a size the header does not give. The first superblock is at
+    # BOOTBLOCK_SIZE, so the sector size is the one that puts b_sblk0 there.
+    # Measured on the seven qnx6 volumes of two vehicle images (Ford Sync G4,
+    # GM): every one carries the header, b_sblk0 names 0x2000 in 512-byte
+    # sectors on three, 1024-byte ones on three and 4096-byte ones on one, and
+    # b_sblk1 in that unit is the second superblock the kernel's expression
+    # above finds, on all seven. qnxmount tries 512 and 4096 only
+    # (qnx6/interface.py determine_sector_size). The value comes off the disk,
+    # so a place found this way is only offered when the superblock there is a
+    # copy of this volume's own: the same volume id, block size and block count
+    # as the first superblock. It finds the second copy when the region-size
+    # candidates do not, which the self-test shows for blocks above 4096; that
+    # has not been measured on a real volume with blocks above 4096.
+    boot = read_at(fh, base, 16)
+    if head and len(boot) == 16 and boot[:3] == QNX6_BOOT_JMP:
+        sblk0, sblk1 = struct.unpack_from("<II", boot, 8)
+        for unit in (512, 1024, 2048, 4096):
+            if sblk0 * unit == BOOTBLOCK_SIZE:
+                for rel in (sblk1 * unit, sblk1 * unit + 0xE00):
+                    other = check(fh, base + rel)
+                    if other and all(other[1][k] == head[1][k]
+                                     for k in ("volumeid", "blocksize", "num_blocks")):
+                        rels.append(rel)
+                break
 
     seen = set()
     for rel in rels:
@@ -1050,8 +1111,37 @@ def stamp(v):
             else f"raw {v}  (no valid clock when written)")
 
 
+def _qnx6_crc_table():
+    table = []
+    for i in range(256):
+        c = i << 24
+        for _ in range(8):
+            c = ((c << 1) ^ 0x04C11DB7) & 0xFFFFFFFF if c & 0x80000000 else (c << 1) & 0xFFFFFFFF
+        table.append(c)
+    return table
+
+
+_QNX6_CRC_TABLE = _qnx6_crc_table()
+
+
+def qnx6_sb_crc(data):
+    """crc32_be(0, data, len), the checksum Linux fs/qnx6/inode.c (v6.12, lines
+    349-351 and 390-392) compares with sb_checksum over bytes 8..512 of each
+    superblock: the CRC-32 polynomial 0x04C11DB7, most significant bit first,
+    seed 0, no final inversion (CRC-32/CKSUM before its final inversion)."""
+    crc = 0
+    for byte in data:
+        crc = ((crc << 8) & 0xFFFFFFFF) ^ _QNX6_CRC_TABLE[((crc >> 24) ^ byte) & 0xFF]
+    return crc
+
+
 def parse_sb(buf, endian):
-    """Parse a candidate superblock. Returns (dict, [reasons it failed])."""
+    """Parse a candidate superblock. Returns (dict, [reasons it failed]).
+
+    sb["checksum_ok"] says whether sb_checksum, read in the superblock's own
+    byte order, equals qnx6_sb_crc() over bytes 8..512. A failed checksum is
+    not a reason on its own. sb["clock_note"] is set when the only reason
+    would have been the clock and the checksum holds: the copy is accepted."""
     e = "<" if endian == "little endian" else ">"
     g32 = lambda k: struct.unpack_from(e + "I", buf, F[k])[0]
     g16 = lambda k: struct.unpack_from(e + "H", buf, F[k])[0]
@@ -1065,6 +1155,7 @@ def parse_sb(buf, endian):
         free_inodes=g32("free_inodes"), num_blocks=g32("num_blocks"),
         free_blocks=g32("free_blocks"), allocgroup=g32("allocgroup"),
     )
+    sb["checksum_ok"] = sb["checksum"] == qnx6_sb_crc(buf[8:512])
     bad = []
     bs = sb["blocksize"]
     if not (512 <= bs <= 65536 and (bs & (bs - 1)) == 0):
@@ -1074,9 +1165,16 @@ def parse_sb(buf, endian):
     # Sync G4 dps_os partition: ctime 308, atime 2024-04-04, everything else
     # consistent and the volume size an exact match for its GPT entry.
     # Requiring BOTH timestamps rejected a real filesystem, so require one.
+    # Some volumes were formatted and mounted with no clock at all, so neither
+    # value falls between T_MIN and T_MAX (measured on a GM vehicle image: two
+    # volumes, one of them in use, refused only for this with their checksums
+    # intact; VLEAPP issue 448 reports the same on a VW/Audi image). The
+    # checksum the kernel itself checks is the stronger test, so when it holds
+    # and the clock is the only thing wrong, the copy is accepted and says why.
+    clock = None
     if ts(sb["ctime"]) is None and ts(sb["atime"]) is None:
-        bad.append(f"neither ctime ({sb['ctime']}) nor atime ({sb['atime']}) "
-                   f"is a plausible date")
+        clock = (f"neither ctime ({sb['ctime']}) nor atime ({sb['atime']}) "
+                 f"is a plausible date")
     if sb["free_blocks"] > sb["num_blocks"]:
         bad.append("free_blocks > num_blocks")
     if sb["free_inodes"] > sb["num_inodes"]:
@@ -1085,7 +1183,37 @@ def parse_sb(buf, endian):
         bad.append("num_blocks is zero")
     if sb["num_inodes"] == 0:
         bad.append("num_inodes is zero")
+    if clock and not bad and sb["checksum_ok"]:
+        sb["clock_note"] = clock + "; accepted because the superblock checksum matches"
+    elif clock:
+        bad.append(clock)
     return sb, bad
+
+
+def _logical_slots(fh, regions):
+    """The offsets of superblocks that belong to a logical volume of an
+    extended partition, as a set. regions are (label, base, size); the EBR walk
+    names those "logical @N". A superblock belongs to a logical volume when the
+    logical volume has a first superblock of its own (at +0x2000, or +0 as the
+    kernel retries) that passes check(), and this copy, at one of the offsets
+    the logical volume probes (sb_slots), carries the same volume id. An
+    extended container that meets such a copy has met its logical volume's
+    filesystem, which the logical volume reports, so the container leaves it
+    alone. A logical volume read out of boot code that only looks like an EBR
+    has no first superblock of its own, so a qnx6 that really is in a 0x05
+    entry keeps every copy it has."""
+    out = set()
+    for label, base, _size in regions:
+        if not label.startswith("logical @"):
+            continue
+        own = check(fh, base + BOOTBLOCK_SIZE) or check(fh, base)
+        if not own or own[2]:
+            continue
+        for off, _rel in sb_slots(fh, base, label, regions):
+            r = check(fh, off)
+            if r and r[1]["volumeid"] == own[1]["volumeid"]:
+                out.add(off)
+    return out
 
 
 def check(fh, off):
@@ -1362,10 +1490,13 @@ def _e(sb, k, n=4):
 # ---------------------------------------------------------------------------
 # Directory listing (--list)
 #
-# qnx6 block resolution follows fs/qnx6/inode.c qnx6_block_map():
+# qnx6 block resolution follows fs/qnx6/inode.c qnx6_block_map() (v6.12):
 #   ptrbits  = ilog2(blocksize / 4)                          inode.c:431
-#   blks_off = (0x2000 >> bits) + (0x1000 >> bits)            inode.c:374
 #   devblock = stored_block + blks_off                        inode.c:68
+# except for blks_off, the data area's first block, which is
+#   blks_off = qnx6_data_start(blocksize) // blocksize       sys/fs_qnx6.h:229
+# The kernel's (0x2000 >> bits) + (0x1000 >> bits) (inode.c:374-375) is the
+# same value for block sizes up to 4096 and one block short above it.
 # Structure layouts are struct qnx6_inode_entry, qnx6_dir_entry,
 # qnx6_long_dir_entry and qnx6_root_node in include/linux/qnx6_fs.h.
 #
@@ -1419,9 +1550,8 @@ class Qnx6Walker:
         self.fh, self.base = fh, base
         sb = read_at(fh, base + sb_off, 512)
         self.bs = struct.unpack_from("<I", sb, 48)[0]
-        bits = self.bs.bit_length() - 1
         self.ptrbits = (self.bs // 4).bit_length() - 1
-        self.blks_off = (0x2000 >> bits) + (0x1000 >> bits)
+        self.blks_off = qnx6_data_start(self.bs) // self.bs
         self.inode_rn = self._rn(sb, QNX6_ROOTNODE["Inode"])
         self.long_rn = self._rn(sb, QNX6_ROOTNODE["Longfile"])
         # what free_extents() reads: sb_num_blocks, sb_free_blocks and the
@@ -29788,9 +29918,12 @@ def volumes(fh, size=None):
     # are read and say so; any other's are named and not walked.
     disk_raid = raid_foreign_disk(fh, size)
 
+    logical_slots = _logical_slots(fh, regions) if containers else set()
     for label, base, rsize in regions:
         best = None
         for off, _rel in sb_slots(fh, base, label, regions):
+            if label in containers and off in logical_slots:
+                continue
             r = check(fh, off)
             if r and not r[2] and (best is None or r[1]["serial"] > best[1]["serial"]):
                 best = (off, r[1])
@@ -29800,7 +29933,8 @@ def volumes(fh, size=None):
         vol = dict(label=label, base=base, size=rsize, lba=base // ss, kind="qnx6",
                    name=names.get(base) or f"lba{base // ss}",
                    detail=f"serial {best[1]['serial']:,}, "
-                          f"volumeid {best[1]['volumeid'].hex()} (as stored)",
+                          f"volumeid {best[1]['volumeid'].hex()} (as stored)"
+                          + (f"; {best[1]['clock_note']}" if best[1].get("clock_note") else ""),
                    missing_past_end=missing.get(base, 0))
         try:
             vol["walker"] = Qnx6Walker(fh, base, best[0] - base)
@@ -30367,8 +30501,11 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
 
         # the two offsets the kernel itself probes, per region and whole-image
         print()
+        logical_slots = _logical_slots(fh, sized_regions) if containers else set()
         for label, base in [("image start", 0)] + regions:
             for off, rel in sb_slots(fh, base, label, sized_regions):
+                if label in containers and off in logical_slots:
+                    continue                    # the logical volume's own superblock
                 r = check(fh, off)
                 if r:
                     candidates.append((off, f"{label} +0x{rel:x}", *r))
@@ -30465,6 +30602,8 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                   + ", ".join(f"0x{o:x}" for o in sorted(act["at"])))
             print(f"        sb_ctime   {stamp(sb['ctime'])}")
             print(f"        sb_atime   {stamp(sb['atime'])}")
+            if sb.get("clock_note"):
+                print(f"        note       {sb['clock_note']}")
             print(f"        version    {sb['version1']}.{sb['version2']}   "
                   f"blocksize {sb['blocksize']:,}   flags 0x{sb['flags']:08x}")
             print(f"        volume     {human(total)}  ({sb['num_blocks']:,} blocks, "
@@ -30482,6 +30621,8 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                       + "   (still on disk)")
                 print(f"        sb_ctime   {stamp(pb['ctime'])}")
                 print(f"        sb_atime   {stamp(pb['atime'])}")
+                if pb.get("clock_note"):
+                    print(f"        note       {pb['clock_note']}")
 
                 print(f"\n      WHAT CHANGED between the two generations")
                 d_ser = sb['serial'] - pb['serial']
@@ -32549,6 +32690,130 @@ def _flash_fixture_check(image_gz, hashes, listing=None, style="stat", prefix=""
     return res
 
 
+# Where QNX6FS_DATA_START puts the data area at each block size, written out from
+# QNX's sys/fs_qnx6.h (lines 221-231) and not computed with qnx6_data_start(), so a
+# wrong function cannot make its own test pass.
+_Q6_DATA_START_WANT = {1024: 0x3000, 4096: 0x3000, 8192: 0x4000, 16384: 0x4000,
+                       32768: 0x8000}
+
+
+def _qnx6_test_volume(bs, cut=None, unit=512, foreign=False, clock=True, bad_crc=False):
+    """A small little-endian qnx6 volume at block size ``bs``, for the self-test.
+
+    Returns (image bytes, the tree the newer generation holds, the tree the older
+    one holds, the free runs as (image offset, bytes)). Layout as QNX's
+    sys/fs_qnx6.h describes it: q6_boothdr_t at byte 0 with b_sblk0 and b_sblk1 in
+    ``unit``-byte sectors (512, 1024 and 4096 are each seen on real volumes), the first superblock at 8 KiB, data from _Q6_DATA_START_WANT,
+    and the second superblock straight after the data (where b_sblk1 says, which is
+    the only thing the reader is told). Superblock checksums are crc32_be over bytes
+    8..512 (fs/qnx6/inode.c), long names one per Longfile block with the dir.c
+    checksum. The two superblocks are two generations: serial 10 at 8 KiB with an
+    older root, serial 11 after the data with a root that also holds big.bin, so a
+    reader that walks the wrong copy lists a different tree. big.bin has 20 blocks,
+    more than the 16 direct pointers, so one level of indirection; deep.bin is two
+    blocks through two levels. ``cut`` truncates the image to that many bytes;
+    ``foreign`` gives the second superblock another volume id; ``clock=False``
+    writes ctime and atime as 297, a clock that was never set, as on a GM
+    vehicle image; ``bad_crc`` stores both superblock checksums off by one."""
+    le, none = "<", 0xFFFFFFFF
+    blocks, nxt = {}, [0]
+
+    def alloc(content=b""):
+        nxt[0] += 1
+        blocks[nxt[0] - 1] = content.ljust(bs, b"\x00")[:bs]
+        return nxt[0] - 1
+
+    def ptrblock(ptrs):
+        return alloc(struct.pack(le + "%dI" % (bs // 4), *(ptrs + [none] * (bs // 4 - len(ptrs)))))
+
+    small = b"qnx6 small file\n"
+    long_name = "a_file_whose_name_is_longer_than_27_bytes.txt"
+    long_body = bytes(range(256)) * 3
+    big = b"".join(struct.pack(le + "I", i) * (bs // 4) for i in range(20))
+    deep = b"D" * bs + b"E" * 100
+    small_b = [alloc(small)]
+    long_b = [alloc(long_body)]
+    big_b = [alloc(big[i:i + bs]) for i in range(0, len(big), bs)]
+    big_ind = ptrblock(big_b)
+    deep_b = [alloc(deep[i:i + bs]) for i in range(0, len(deep), bs)]
+    deep_top = ptrblock([ptrblock(deep_b)])
+    lname = long_name.encode()
+    longfile_b = alloc(struct.pack(le + "H", len(lname)) + lname)
+
+    def lfsum(name):
+        crc = 0
+        for ch in name:
+            crc = (((crc >> 1) + ch) ^ (0x80000000 if crc & 1 else 0)) & 0xFFFFFFFF
+        return crc
+
+    def de(ino, name):
+        return struct.pack(le + "IB", ino, len(name)) + name.encode().ljust(27, b"\x00")
+
+    def long_de(ino, index, name):
+        return struct.pack(le + "IB3xII", ino, 0xFF, index, lfsum(name.encode())) + bytes(16)
+
+    common = de(1, ".") + de(1, "..") + de(2, "sub") + long_de(4, 0, long_name) + de(6, "deep.bin")
+    root_new = alloc(common + de(5, "big.bin"))
+    root_old = alloc(common)
+    sub = alloc(de(2, ".") + de(1, "..") + de(3, "small.txt"))
+
+    def inode(size, mode, ptrs, levels=0):
+        ptrs = list(ptrs) + [none] * (16 - len(ptrs))
+        return (struct.pack(le + "QIIIIIIHH16IBB2x", size, 0, 0, 1700000000, 1700000000,
+                            1700000000, 1700000000, mode, 0, *ptrs, levels, 3) + bytes(24))
+
+    dmode, fmode = S_IFDIR | 0o755, S_IFREG | 0o644
+    rest = [inode(bs, dmode, [sub]), inode(len(small), fmode, small_b),
+            inode(len(long_body), fmode, long_b), inode(len(big), fmode, [big_ind], 1),
+            inode(len(deep), fmode, [deep_top], 2)]
+    tables = {}
+    for gen, root in (("new", root_new), ("old", root_old)):
+        itab = inode(bs, dmode, [root]) + b"".join(rest)
+        tables[gen] = (len(itab), [alloc(itab[i:i + bs]) for i in range(0, len(itab), bs)])
+    num_blocks = nxt[0] + 1 + 9                 # the bitmap block, then 9 free blocks
+    bitmap_bytes = (num_blocks + 7) // 8
+    bitmap = bytearray(bitmap_bytes)
+    for n in list(range(nxt[0] + 1)) + list(range(num_blocks, bitmap_bytes * 8)):
+        bitmap[n >> 3] |= 1 << (n & 7)
+    bitmap_b = alloc(bytes(bitmap))
+    ds = _Q6_DATA_START_WANT[bs]
+    second = ds + num_blocks * bs
+    img = bytearray(second + max(0x1000, bs))
+    for n, content in blocks.items():
+        img[ds + n * bs:ds + (n + 1) * bs] = content
+
+    def rnode(size, ptrs):
+        return struct.pack(le + "Q16IBB6x", size, *(list(ptrs) + [none] * (16 - len(ptrs))), 0, 0)
+
+    def superblock(serial, gen):
+        sb = bytearray(512)
+        when = (1700000000, 1700000000 + serial) if clock else (297, 297)
+        struct.pack_into(le + "IIQIIIHH", sb, 0, 0x68191122, 0, serial, *when, 0, 4, 3)
+        sb[32:48] = bytes(range(16)[::-1]) if foreign and gen == "new" else bytes(range(16))
+        struct.pack_into(le + "6I", sb, 48, bs, 16, 10, num_blocks, 9, 0)
+        sb[72:152] = rnode(*tables[gen])
+        sb[152:232] = rnode(bitmap_bytes, [bitmap_b])
+        sb[232:312] = rnode(bs, [longfile_b])
+        crc = 0
+        for byte in bytes(sb[8:]):
+            crc ^= byte << 24
+            for _ in range(8):
+                crc = ((crc << 1) ^ 0x04C11DB7) & 0xFFFFFFFF if crc & 0x80000000 else (crc << 1) & 0xFFFFFFFF
+        struct.pack_into(le + "I", sb, 4, crc ^ (1 if bad_crc else 0))
+        return bytes(sb)
+
+    struct.pack_into("<4sIII", img, 0, b"\xeb\x10\x90\x00", 0, 0x2000 // unit, second // unit)
+    img[0x2000:0x2200] = superblock(10, "old")
+    img[second:second + 512] = superblock(11, "new")
+
+    def tree(with_big):
+        rows = [("sub", "d", None), ("sub/small.txt", "f", small), (long_name, "f", long_body),
+                ("deep.bin", "f", deep)] + ([("big.bin", "f", big)] if with_big else [])
+        return sorted((p, k, d) for p, k, d in rows)
+    return (bytes(img[:cut]) if cut else bytes(img), tree(True), tree(False),
+            [(ds + (bitmap_b + 1) * bs, 9 * bs)])
+
+
 def _gpt_test_image(ss, volume, first_lba, name, type_guid, used=True):
     """A whole disk image with one GPT partition holding ``volume``, for the
     self-test: a protective MBR at LBA 0, the primary header at LBA 1 and its
@@ -33153,8 +33418,8 @@ def self_test():
         # positive 3: no partition table, but sector 0 is boot code ending in
         # 0x55AA, the shape of qnxmount's qnx6 reference image. Two superblock
         # copies: serial 1 at 0x2000 and serial 2 where the kernel puts the
-        # second copy, 0x2000 + 0x1000 + num_blocks * blocksize (fs/qnx6/inode.c
-        # qnx6_fill_super). The junk at 446..510 is deterministic and parses as
+        # second copy for block sizes up to 4096, 0x2000 + 0x1000 + num_blocks *
+        # blocksize (fs/qnx6/inode.c qnx6_fill_super). The junk at 446..510 is deterministic and parses as
         # entries with non-zero type and count starting far past the image.
         img3 = bytearray(64 * 1024)
         img3[0:446] = bytes(((i * 11 + 5) & 0xFF) for i in range(446))
@@ -35740,6 +36005,212 @@ def self_test():
                            and _q6_image(cut=Q6_BASE + Q6_DATA + 11 * Q6_BS + 100)
                            .free_extents() == [])
 
+        # qnx6 at block sizes 1024, 4096, 8192, 16384 and 32768 (32 KiB is the
+        # largest sys/fs_qnx6.h allows), the data area where QNX6FS_DATA_START
+        # puts it (_qnx6_test_volume). Above 4096 the Linux
+        # formula lands a block early, so a walker that follows it lists the
+        # wrong tree. Each image carries two generations with different roots,
+        # and the newer one sits where only the boot header's b_sblk1 points
+        # once blocks are larger than 4096.
+        def _q6_tree(walker, ino=QNX6_ROOT_INO, prefix=""):
+            rows = []
+            for name, num in walker.listdir(ino):
+                got = walker.entry(num)
+                if got is None:                         # an inode that does not read
+                    rows.append((prefix + name, "?", None))
+                    continue
+                mode, size, _mtime = got
+                path = prefix + name
+                if mode & S_IFMT == S_IFDIR:
+                    rows.append((path, "d", None))
+                    rows += _q6_tree(walker, num, path + "/")
+                else:
+                    rows.append((path, "f", b"".join(walker.read_file(num, size))))
+            return sorted(rows)
+
+        q6_size_problems = []
+        for _bs in sorted(_Q6_DATA_START_WANT):
+            _img, _new, _old, _runs = _qnx6_test_volume(_bs)
+            _vols = [v for v in volumes(io.BytesIO(_img), len(_img)) if v["kind"] == "qnx6"]
+            if len(_vols) != 1 or "walker" not in _vols[0]:
+                q6_size_problems.append(f"{_bs}: volumes() found {[v['kind'] for v in _vols]}")
+                continue
+            _w = _vols[0]["walker"]
+            if "serial 11," not in _vols[0]["detail"]:
+                q6_size_problems.append(f"{_bs}: not the newer generation ({_vols[0]['detail']})")
+            if _w.blks_off * _bs != _Q6_DATA_START_WANT[_bs]:
+                q6_size_problems.append(f"{_bs}: data area at {_w.blks_off * _bs:#x}")
+            try:
+                _read = _q6_tree(_w)
+            except Exception as _exc:                   # report it under the check
+                _read = f"raised {_exc!r}"
+            if _read != _new:
+                q6_size_problems.append(f"{_bs}: the tree read differs from the one written")
+            if _w.free_extents() != _runs:
+                q6_size_problems.append(f"{_bs}: free runs {_w.free_extents()} != {_runs}")
+            # the control: the Linux driver's blks_off, which is the same value up
+            # to 4096 and must give a different tree above it
+            _bits = _bs.bit_length() - 1
+            _w.blks_off = (0x2000 >> _bits) + (0x1000 >> _bits)
+            try:
+                _linux = _q6_tree(_w)
+            except Exception:                           # any failure is a difference
+                _linux = None
+            if (_linux == _new) != (_bs <= 4096):
+                q6_size_problems.append(f"{_bs}: the Linux formula's tree "
+                                        f"{'differs' if _bs <= 4096 else 'matches'}")
+        # a boot header whose b_sblk1 names another volume's superblock, with a
+        # higher serial, is not followed: the copy has to be this volume's own
+        _img, _new, _old, _runs = _qnx6_test_volume(8192, foreign=True)
+        _vols = [v for v in volumes(io.BytesIO(_img), len(_img)) if v["kind"] == "qnx6"]
+        if not (len(_vols) == 1 and "serial 10," in _vols[0]["detail"]):
+            q6_size_problems.append("8192 with a foreign superblock at b_sblk1: "
+                                    + ", ".join(v["detail"] for v in _vols))
+        # the boot header's sectors are 1024 or 4096 bytes on some real volumes
+        for _unit in (1024, 4096):
+            _img, _new, _old, _runs = _qnx6_test_volume(8192, unit=_unit)
+            _vols = [v for v in volumes(io.BytesIO(_img), len(_img)) if v["kind"] == "qnx6"]
+            if not (len(_vols) == 1 and "serial 11," in _vols[0]["detail"]):
+                q6_size_problems.append(f"8192 with {_unit}-byte boot header sectors: "
+                                        + ", ".join(v["detail"] for v in _vols))
+        # the image ends before the second superblock: the first copy is walked,
+        # with the older tree, and nothing raises
+        _img, _new, _old, _runs = _qnx6_test_volume(32768, cut=len(_qnx6_test_volume(32768)[0]) - 0x8000)
+        _vols = [v for v in volumes(io.BytesIO(_img), len(_img)) if v["kind"] == "qnx6"]
+        if not (len(_vols) == 1 and "serial 10," in _vols[0]["detail"]
+                and _q6_tree(_vols[0]["walker"]) == _old):
+            q6_size_problems.append("32768 cut before the second superblock: "
+                                    + ", ".join(v["detail"] for v in _vols))
+        # and main() lists it: the report names a file only the newer root holds
+        _img = _qnx6_test_volume(32768)[0]
+        _p = os.path.join(d, "qnx6_32k.img")
+        with open(_p, "wb") as _fh:
+            _fh.write(_img)
+        _buf = io.StringIO()
+        with contextlib.redirect_stdout(_buf):
+            main(_p, do_list=True, list_depth=4)
+        _rep = _buf.getvalue()
+        if not ("big.bin" in _rep and "small.txt" in _rep and "ACTIVE   serial 11" in _rep):
+            q6_size_problems.append("main(--list) on the 32 KiB volume does not list its tree")
+
+        # A superblock whose clock was never set. Its checksum is crc32_be over
+        # bytes 8..512 (fs/qnx6/inode.c), checked here against a second way of
+        # computing it: zlib's reflected CRC-32 run over bit-reversed bytes, and
+        # the published check value of CRC-32/CKSUM for "123456789" (0x765E7680,
+        # this CRC with its final inversion).
+        q6_clock_problems = []
+
+        def _rev(x, bits):
+            return int(f"{x:0{bits}b}"[::-1], 2)
+
+        def _crc_by_zlib(data):
+            import zlib as _zlib                       # pylint: disable=import-outside-toplevel
+            return _rev(_zlib.crc32(bytes(_rev(b, 8) for b in data), 0xFFFFFFFF) ^ 0xFFFFFFFF, 32)
+        _blob = bytes((i * 37 + 11) & 0xFF for i in range(504))
+        if (qnx6_sb_crc(b"123456789") ^ 0xFFFFFFFF != 0x765E7680
+                or qnx6_sb_crc(_blob) != _crc_by_zlib(_blob)):
+            q6_clock_problems.append("qnx6_sb_crc is not crc32_be")
+        for _bs in (4096, 32768):
+            _img = _qnx6_test_volume(_bs, clock=False)[0]
+            _r = check(io.BytesIO(_img), 0x2000)
+            if not (_r and not _r[2] and _r[1].get("clock_note")):
+                q6_clock_problems.append(f"{_bs}: an unset clock with a good checksum "
+                                         f"is not accepted with a note: {_r and _r[2]}")
+            _vols = [v for v in volumes(io.BytesIO(_img), len(_img)) if v["kind"] == "qnx6"]
+            if not (len(_vols) == 1 and "accepted because the superblock checksum" in _vols[0]["detail"]
+                    and _q6_tree(_vols[0]["walker"]) == _qnx6_test_volume(_bs)[1]):
+                q6_clock_problems.append(f"{_bs}: volumes() does not walk the clockless volume")
+            _bad = _qnx6_test_volume(_bs, clock=False, bad_crc=True)[0]
+            _r = check(io.BytesIO(_bad), 0x2000)
+            if not (_r and _r[2] and not _r[1].get("clock_note")):
+                q6_clock_problems.append(f"{_bs}: an unset clock with a bad checksum is accepted")
+            if [v for v in volumes(io.BytesIO(_bad), len(_bad)) if v["kind"] == "qnx6"]:
+                q6_clock_problems.append(f"{_bs}: volumes() lists the bad-checksum volume")
+            # a good clock with a bad checksum is read as before: the checksum
+            # is not a new reason to refuse
+            _r = check(io.BytesIO(_qnx6_test_volume(_bs, bad_crc=True)[0]), 0x2000)
+            if not (_r and not _r[2] and not _r[1]["checksum_ok"]):
+                q6_clock_problems.append(f"{_bs}: a bad checksum alone now rejects")
+        # the same superblock stored big-endian, checksum read in that order
+        _sbb = bytearray(512)
+        struct.pack_into(">IIQIIIHH", _sbb, 0, 0x68191122, 0, 7, 297, 297, 0, 4, 3)
+        _sbb[32:48] = bytes(range(16))
+        struct.pack_into(">6I", _sbb, 48, 4096, 16, 10, 64, 9, 0)
+        struct.pack_into(">I", _sbb, 4, _crc_by_zlib(bytes(_sbb[8:])))
+        _r = check(io.BytesIO(bytes(0x2000) + bytes(_sbb)), 0x2000)
+        if not (_r and _r[0] == "big endian" and not _r[2] and _r[1].get("clock_note")):
+            q6_clock_problems.append(f"big endian: not accepted with a note: {_r and _r[2]}")
+        # a whole-disk qnx6 whose boot block ends in 0x55AA is a filesystem's
+        # boot block, not a partition table, clock or no clock
+        _img = bytearray(_qnx6_test_volume(4096, clock=False)[0])
+        _img[510:512] = b"\x55\xaa"
+        if parse_mbr(io.BytesIO(bytes(_img))) is not None:
+            q6_clock_problems.append("a clockless qnx6 boot block is read as an MBR")
+
+        # Extended containers. A 0x05 container whose only logical volume ends
+        # where the container ends: the container's trailing superblock slots
+        # land on the logical's superblock, which is the logical's to report.
+        q6_ext_problems = []
+
+        def _mbr_disk(vol, with_ebr=True, boot_55aa=False, wipe_tail=False):
+            vol = vol + bytes(-len(vol) % 512)
+            nsec = len(vol) // 512
+            cstart, lrel = 2048, 2048
+            clen = (lrel + nsec) if with_ebr else nsec
+            img = bytearray((cstart + clen) * 512)
+            img[446:462] = bytes([0, 0, 0, 0, 0x05, 0, 0, 0]) + struct.pack("<II", cstart, clen)
+            img[510:512] = b"\x55\xaa"
+            if with_ebr:
+                ebr = bytearray(512)
+                ebr[446:462] = bytes([0, 0, 0, 0, 0x4D, 0, 0, 0]) + struct.pack("<II", lrel, nsec)
+                ebr[510:512] = b"\x55\xaa"
+                img[cstart * 512:cstart * 512 + 512] = ebr
+                img[(cstart + lrel) * 512:(cstart + lrel) * 512 + len(vol)] = vol
+            else:
+                if boot_55aa:
+                    vol = bytearray(vol)
+                    vol[446:462] = bytes([0, 0, 0, 0, 0x83, 0, 0, 0]) + struct.pack("<II", 8, 16)
+                    vol[510:512] = b"\x55\xaa"
+                    if wipe_tail:                       # only the first superblock left
+                        _second = struct.unpack_from("<I", vol, 12)[0] * 512   # b_sblk1
+                        vol[_second:_second + 0x1000] = bytes(0x1000)
+                    vol = bytes(vol)
+                img[cstart * 512:cstart * 512 + len(vol)] = vol
+            return bytes(img)
+
+        for _bs in (4096, 32768):
+            _img = _mbr_disk(_qnx6_test_volume(_bs)[0])
+            _kinds = sorted((v["label"].split(" @")[0], v["kind"])
+                            for v in volumes(io.BytesIO(_img), len(_img)))
+            if _kinds != [("MBR part 1", "extended container"), ("logical", "qnx6")]:
+                q6_ext_problems.append(f"{_bs}: volumes() gives {_kinds}")
+            _p = os.path.join(d, f"qnx6_ext_{_bs}.img")
+            with open(_p, "wb") as _fh:
+                _fh.write(_img)
+            _buf = io.StringIO()
+            with contextlib.redirect_stdout(_buf):
+                main(_p)
+            _rep = _buf.getvalue()
+            if ("CONFIRMED qnx6 filesystem on MBR part 1" in _rep
+                    or "CONFIRMED qnx6 filesystem on logical @" not in _rep
+                    or "extended partition container" not in _rep):
+                q6_ext_problems.append(f"{_bs}: main() lists the container as qnx6 or drops it")
+            os.remove(_p)
+        # a 0x05 entry with no EBR chain that holds a qnx6 itself is still read,
+        # and so is one whose qnx6 boot block ends in 0x55AA and parses as an
+        # EBR naming a logical volume 8 sectors in, with and without its second
+        # superblock (without it, only the first copy, at container + 0x2000,
+        # inside that bogus logical, says it is qnx6)
+        for _boot, _wipe in ((False, False), (True, False), (True, True)):
+            _img = _mbr_disk(_qnx6_test_volume(4096)[0], with_ebr=False, boot_55aa=_boot,
+                             wipe_tail=_wipe)
+            _q = [v for v in volumes(io.BytesIO(_img), len(_img))
+                  if v["kind"] == "qnx6" and v["label"] == "MBR part 1"]
+            if len(_q) != 1:
+                q6_ext_problems.append(f"a qnx6 in a 0x05 entry with no EBR chain"
+                                       f"{' and a 0x55AA boot block' if _boot else ''}"
+                                       f"{' and no second superblock' if _wipe else ''} is lost")
+
         # --unallocated, on that volume. The map is written out here as the
         # text it must be: block 7 is 16,384 + 7 * 512 bytes into the image.
         import hashlib as _hl
@@ -35923,6 +36394,25 @@ def self_test():
                 ("a qnx6 bitmap that disagrees with its superblock, is too short, is "
                  "not mapped, or is cut off reports nothing rather than nothing free",
                  qnx6_refused_ok),
+                ("qnx6 at block sizes 1024, 4096, 8192, 16384 and 32768: the data "
+                 "area is where QNX's header puts it, the newer superblock is found "
+                 "through the boot header in 512, 1024 or 4096-byte sectors and a "
+                 "foreign one there is not, the tree and file bytes read back, free "
+                 "runs are right, the Linux formula gives the wrong tree above 4096, "
+                 "and a volume cut before its second superblock walks the first"
+                 + "".join(f"; {p}" for p in q6_size_problems),
+                 not q6_size_problems),
+                ("a qnx6 superblock whose clock was never set is accepted with a note "
+                 "when its checksum (crc32_be, checked against zlib and CRC-32/CKSUM) "
+                 "holds, little and big endian, still refused when it does not, and a "
+                 "bad checksum alone is no reason to refuse"
+                 + "".join(f"; {p}" for p in q6_clock_problems),
+                 not q6_clock_problems),
+                ("an extended container is not listed as the qnx6 of its own logical "
+                 "volume, by volumes() or main(), and a 0x05 entry with no EBR chain "
+                 "that holds a qnx6 still is, 0x55AA boot block or not"
+                 + "".join(f"; {p}" for p in q6_ext_problems),
+                 not q6_ext_problems),
                 ("--unallocated writes a volume's free runs in order, with a map back "
                  "to the image and the hash of what it wrote", unalloc_written_ok),
                 ("--unallocated cuts a run at the end of a partial image and counts "

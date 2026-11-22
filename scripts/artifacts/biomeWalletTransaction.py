@@ -6,12 +6,22 @@ __artifacts_v2__ = {
                        "labelled from a private sample.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field mapped from a private sample of this stream; the stream is absent from "
-                 "the iOS 17 and iOS 18 test images. The stream folder name on disk is "
-                 "singular: Wallet.Transaction.",
+        "notes": "Field mapped from a private sample of this stream. On the tested images the "
+                 "stream held 8 rows, 1 written, on dexter_ios18 and wilkerson_iphone16_ios26; "
+                 "the written record had Transaction Type 1 (Payment) and Merchant Type 0 "
+                 "(Unknown). The stream folder name on disk is "
+                 "singular: Wallet.Transaction. The Transaction Type and Merchant Type field "
+                 "names and their value names are those of the BMWalletTransaction class, read "
+                 "from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class "
+                 "was read. The class reads only data version 0 (the unnamed integer the SEGB reader "
+                 "returns with each entry); a record of another version, or a value outside the class's "
+                 "lists, keeps its integer in the (raw) column with the name blank. Transaction "
+                 "Type was reported before as Field 3 (raw) and Merchant Type as Field 5 (raw). "
+                 "The class names the fields shown here as Card Name, Pass ID and Transaction UUID "
+                 "passLocalizedDescription, passUniqueID and transactionID.",
         "paths": ('*/streams/*/Wallet.Transaction/local/*',),
         "output_types": "standard",
         "artifact_icon": "credit-card",
@@ -43,6 +53,19 @@ TYPESS = {
     '3': {'type': 'int', 'name': ''},
     '4': {'type': 'str', 'name': ''},
     '5': {'type': 'int', 'name': ''},
+}
+
+# transactionType and merchantType names, read from BiomeLibrary.framework
+# BMWalletTransaction on macOS 27.2.1 (26B131). The class reads only data version 0 (the
+# unnamed int the SEGB reader returns per entry); other versions get no name, and so do values the
+# class renders only as its fallback.
+TRANSACTION_TYPE_BY_VERSION = {
+    0: dict(enumerate(('Unknown', 'Payment', 'VAS', 'Transit', 'Access', 'EMoney',
+                       'Identity'))),
+}
+MERCHANT_TYPE_BY_VERSION = {
+    0: dict(enumerate(('Unknown', 'FoodAndDrinks', 'Shopping', 'Travel', 'Services', 'Fun',
+                       'Health', 'Transport'))),
 }
 
 
@@ -89,17 +112,24 @@ def get_biomeWalletTransaction(context):
                 card_name = _to_str(protostuff.get('2', b''))
                 pass_id = _to_str(protostuff.get('1', b''))
                 transaction_uuid = _to_str(protostuff.get('4', b''))
-                field3 = protostuff.get('3', '')
-                field5 = protostuff.get('5', '')
+                transaction_type = protostuff.get('3', '')
+                merchant_type = protostuff.get('5', '')
+                version = getattr(record, '_unknown_value', None)
 
                 data_list.append((ts, record.state.name, card_name, pass_id, transaction_uuid,
-                                  field3, field5, filename, record.data_start_offset))
+                                  TRANSACTION_TYPE_BY_VERSION.get(version, {}).get(
+                                      transaction_type, ''),
+                                  transaction_type,
+                                  MERCHANT_TYPE_BY_VERSION.get(version, {}).get(
+                                      merchant_type, ''),
+                                  merchant_type, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, None, None, None, filename,
-                                  record.data_start_offset))
+                data_list.append((ts, record.state.name, None, None, None, None, None, None,
+                                  None, filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Card Name', 'Pass ID',
-                    'Transaction UUID', 'Field 3 (raw)', 'Field 5 (raw)', 'Filename', 'Offset')
+                    'Transaction UUID', 'Transaction Type', 'Transaction Type (raw)',
+                    'Merchant Type', 'Merchant Type (raw)', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

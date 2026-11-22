@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
 'Ph126_1iOS26RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph126.1-iOS26_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData/Photos.sqlite on iOS 26. Returns no rows on other iOS'
+'description': 'Parses asset records from PhotoData/Photos.sqlite on iOS 26 and 27. Returns no rows on other iOS'
 ' versions. A row is one result of a query that joins each asset to its internal resources, albums,'
 ' cloud resources, detected faces, comments, share participants, memories and suggestions, so one'
 ' asset can fill more than one row; the row count is not the asset count. The column names and value'
@@ -11,14 +11,14 @@ __artifacts_v2__ = {
 ' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
 ' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
 ' in a spreadsheet or timeline viewer to search and filter it.',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '1.0',
 'date': '2026-05-25',
 'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. On iOS 27 the join table, Z_FOK order column and participant column names of the AlbumList, Asset, GenericAlbum, Album, Memory, Share and Suggestion entities (Z_<n>ASSETS, Z_FOK_<n>ALBUMS, Z<n>_SHARE and the memory and suggestion join columns) are renumbered by entity name from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers some of those entities higher than iOS 26.5.2 does. Columns the iOS 26.5.2 store has and the iOS 27.2 store does not are reported empty: ZSHARE.ZCLOUDSUBSCRIPTIONDATE, ZSHARE.ZCOLLECTIONSHARECURRENTUSERCONTRIBUTIONSTATE, ZSHAREPARTICIPANT.ZPERMISSION and ZSHAREPARTICIPANT.ZROLE. The store has ZCPLROLE, ZCPLPERMISSION and ZPARTICIPANTROLE, which this artifact does not read; whether they hold the same values is not established. The two share participant entity columns (their headers keep the iOS 26 number) are labelled for earlier versions, so an iOS 27 value is shown after Unknown-New-Value!; the same holds for zShare-zENT-CMM and SPLzShare-zENT-SPL. No iOS 27 participant record was available, so this was not seen. The zGenAlbum-zENT- Entity labels were written for earlier versions and do not match the iOS 26.5.2 or 27.2 entity numbers (35 is DuplicateAlbum on 26.5.2 and CloudSharedAlbum on 27.2), so the label shown for 35 does not apply there. Rely on the stored number.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database"
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
 'Ph126_2iOS26RefforAssetAnalysisSyndPL': {
 'name': 'Ph126.2-iOS26_Ref_for_Asset_Analysis-SyndPL',
 'description': 'Parses asset records from the Photos.sqlite of the Syndication.photoslibrary library'
-' (Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite) on iOS 26. Returns no'
+' (Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite) on iOS 26 and 27. Returns no'
 ' rows on other iOS versions. A row is one result of a query that joins each asset to its internal'
 ' resources, albums, cloud resources, detected faces, comments, share participants, memories and'
 ' suggestions, so one asset can fill more than one row; the row count is not the asset count. The'
@@ -36,14 +36,14 @@ __artifacts_v2__ = {
 ' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
 ' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
 ' in a spreadsheet or timeline viewer to search and filter it.',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '1.0',
 'date': '2026-05-25',
 'requirements': 'Acquisition that contains Syndication.photoslibrary/database/Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. On iOS 27 the join table, Z_FOK order column and participant column names of the AlbumList, Asset, GenericAlbum, Album, Memory, Share and Suggestion entities (Z_<n>ASSETS, Z_FOK_<n>ALBUMS, Z<n>_SHARE and the memory and suggestion join columns) are renumbered by entity name from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers some of those entities higher than iOS 26.5.2 does. Columns the iOS 26.5.2 store has and the iOS 27.2 store does not are reported empty: ZSHARE.ZCLOUDSUBSCRIPTIONDATE, ZSHARE.ZCOLLECTIONSHARECURRENTUSERCONTRIBUTIONSTATE, ZSHAREPARTICIPANT.ZPERMISSION and ZSHAREPARTICIPANT.ZROLE. The store has ZCPLROLE, ZCPLPERMISSION and ZPARTICIPANTROLE, which this artifact does not read; whether they hold the same values is not established. The two share participant entity columns (their headers keep the iOS 26 number) are labelled for earlier versions, so an iOS 27 value is shown after Unknown-New-Value!; the same holds for zShare-zENT-CMM and SPLzShare-zENT-SPL. No iOS 27 participant record was available, so this was not seen. The zGenAlbum-zENT- Entity labels were written for earlier versions and do not match the iOS 26.5.2 or 27.2 entity numbers (35 is DuplicateAlbum on 26.5.2 and CloudSharedAlbum on 27.2), so the label shown for 35 does not apply there. Rely on the stored number.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database"
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
 'name': 'Ph126.3-iOS26_Ref_for_Asset_Analysis-GenPlayPsql',
 'description': 'Parses asset records from the Photos.sqlite of the com.apple.GenerativePlayground photo library'
 ' (Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite)'
-' on iOS 26. Returns no rows on other iOS versions. A row is one result of a query that joins each'
+' on iOS 26 and 27. Returns no rows on other iOS versions. A row is one result of a query that joins each'
 ' asset to its internal resources, albums, cloud resources, detected faces, comments, share'
 ' participants, memories and suggestions, so one asset can fill more than one row; the row count is'
 ' not the asset count. The column names and value labels come from the module author, Scott Koenig.'
@@ -61,14 +61,14 @@ __artifacts_v2__ = {
 ' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
 ' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
 ' in a spreadsheet or timeline viewer to search and filter it.',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '1.0',
 'date': '2026-05-25',
 'requirements': 'Acquisition that contains the com.apple.GenerativePlayground photoslibrary database/Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': '' 'iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run. The renumbering and column notes that follow were measured on the PhotoData and Syndication stores of iOS 27.2 and not seen for this library. On iOS 27 the join table, Z_FOK order column and participant column names of the AlbumList, Asset, GenericAlbum, Album, Memory, Share and Suggestion entities (Z_<n>ASSETS, Z_FOK_<n>ALBUMS, Z<n>_SHARE and the memory and suggestion join columns) are renumbered by entity name from the Z_PRIMARYKEY table of the store before the query runs. The iOS 27.2 store numbers some of those entities higher than iOS 26.5.2 does. Columns the iOS 26.5.2 store has and the iOS 27.2 store does not are reported empty: ZSHARE.ZCLOUDSUBSCRIPTIONDATE, ZSHARE.ZCOLLECTIONSHARECURRENTUSERCONTRIBUTIONSTATE, ZSHAREPARTICIPANT.ZPERMISSION and ZSHAREPARTICIPANT.ZROLE. The store has ZCPLROLE, ZCPLPERMISSION and ZPARTICIPANTROLE, which this artifact does not read; whether they hold the same values is not established. The two share participant entity columns (their headers keep the iOS 26 number) are labelled for earlier versions, so an iOS 27 value is shown after Unknown-New-Value!; the same holds for zShare-zENT-CMM and SPLzShare-zENT-SPL. No iOS 27 participant record was available, so this was not seen. The zGenAlbum-zENT- Entity labels were written for earlier versions and do not match the iOS 26.5.2 or 27.2 entity numbers (35 is DuplicateAlbum on 26.5.2 and CloudSharedAlbum on 27.2), so the label shown for 35 does not apply there. Rely on the stored number.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database"
@@ -76,8 +76,53 @@ __artifacts_v2__ = {
 }
 
 import os
+import re
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+
+
+# Core Data names a many-to-many join table and its columns after entity numbers
+# (Z_<entity><RELATIONSHIP>, for example Z_33ASSETS with columns Z_33ALBUMS and Z_3ASSETS), and
+# the entity column of a to-one relationship to an entity with subentities as Z<entity>_<NAME>
+# (Z66_SHARE on ZSHAREPARTICIPANT), and an ordered relationship's order column as
+# Z_FOK_<entity><RELATIONSHIP> (Z_FOK_32ALBUMS).
+# The iOS 26 queries in the Photos.sqlite modules use the numbers of an iOS 26.5.2
+# Photos.sqlite, read from its Z_PRIMARYKEY. iOS 27.2 adds entities ahead of GenericAlbum,
+# so the same tables carry higher numbers there (Album 33 becomes 34, Memory 56 becomes 59).
+IOS26_PHOTOS_ENTITY_NAMES = {
+    2: 'AlbumList', 3: 'Asset', 32: 'GenericAlbum', 33: 'Album', 56: 'Memory', 66: 'Share',
+    71: 'Suggestion',
+}
+_ENTITY_NUMBERED_NAME = re.compile(
+    r'\b(Z_|Z_FOK_)(\d+)([A-Z][A-Z_]*)\b|\b(Z)(\d+)(_[A-Z][A-Z_]*)\b')
+
+
+def renumber_photos_entities(source_path, query, iosversion):
+    """Return the query with its iOS 26 entity numbers replaced by this store's numbers.
+
+    Only from iOS 27 on; older versions get the query unchanged. Each number is resolved by
+    entity name through the store's own Z_PRIMARYKEY, never by assuming a new number. A
+    number this map does not name, or a name the store does not have, is left as written,
+    and null_absent_columns then nulls a column it cannot find. A missing table makes the
+    query fail and return no rows.
+    """
+    if version.parse(iosversion) < version.parse("27"):
+        return query
+    numbers = {}
+    for record in get_sqlite_db_records(source_path, 'SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY'):
+        numbers[record[1]] = record[0]
+    if not numbers:
+        logfunc(f"Z_PRIMARYKEY could not be read from {source_path}; entity numbers left as written")
+        return query
+
+    def _renumber(match):
+        prefix, number, suffix = match.group(1, 2, 3) if match.group(1) else match.group(4, 5, 6)
+        name = IOS26_PHOTOS_ENTITY_NAMES.get(int(number))
+        if name is None or name not in numbers:
+            return match.group(0)
+        return f'{prefix}{numbers[name]}{suffix}'
+
+    return _ENTITY_NUMBERED_NAME.sub(_renumber, query)
 
 @artifact_processor
 def Ph126_1iOS26RefforAssetAnalysisPhDaPsql(context):
@@ -96,10 +141,10 @@ def Ph126_1iOS26RefforAssetAnalysisPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData/Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -2962,7 +3007,7 @@ def Ph126_1iOS26RefforAssetAnalysisPhDaPsql(context):
         ORDER BY zAsset.ZADDEDDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -4379,7 +4424,7 @@ def Ph126_1iOS26RefforAssetAnalysisPhDaPsql(context):
         'z3MemoryBCAs-56Memories Being Custom User Assets-1251',
         'z3MemoryBCAs-3Custom User Assets-1252',
         'z3MemoryBCAs-FOK-3Custom User Assets-1253')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 
@@ -4402,10 +4447,10 @@ def Ph126_2iOS26RefforAssetAnalysisSyndPL(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for Syndication.photoslibrary/database/Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -7268,7 +7313,7 @@ def Ph126_2iOS26RefforAssetAnalysisSyndPL(context):
         ORDER BY zAsset.ZADDEDDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -8685,7 +8730,7 @@ def Ph126_2iOS26RefforAssetAnalysisSyndPL(context):
         'z3MemoryBCAs-56Memories Being Custom User Assets-1251',
         'z3MemoryBCAs-3Custom User Assets-1252',
         'z3MemoryBCAs-FOK-3Custom User Assets-1253')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 
@@ -8709,10 +8754,10 @@ def Ph126_3iOS26RefforAssetAnalysisGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("18.7.8")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for the com.apple.GenerativePlayground Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
-    if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    if (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -11575,7 +11620,7 @@ def Ph126_3iOS26RefforAssetAnalysisGenPlayPsql(context):
         ORDER BY zAsset.ZADDEDDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion)))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -12992,7 +13037,7 @@ def Ph126_3iOS26RefforAssetAnalysisGenPlayPsql(context):
         'z3MemoryBCAs-56Memories Being Custom User Assets-1251',
         'z3MemoryBCAs-3Custom User Assets-1252',
         'z3MemoryBCAs-FOK-3Custom User Assets-1253')
-        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, renumber_photos_entities(source_path, query, iosversion))))
 
         return data_headers, data_list, source_path
 

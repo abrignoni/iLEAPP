@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
 'Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql': {
 'name': 'Ph011.1-KwrdsCapsTitlesDescripsLikesBasicAsstData-PhDaPsql',
-'description': 'Parses asset rows from PhotoData/Photos.sqlite on iOS 14 through 26 (earlier versions are not'
+'description': 'Parses asset rows from PhotoData/Photos.sqlite on iOS 14 through 27 (earlier versions are not'
 ' handled) for assets that have a long description, title, accessibility description, keyword,'
 ' shared album comment or like. Any one is enough. An asset with several keywords, comments or'
 ' likes appears on several rows. The tests are: ZASSETDESCRIPTION.ZLONGDESCRIPTION,'
@@ -9,9 +9,9 @@ __artifacts_v2__ = {
 ' ZKEYWORD.ZSHORTCUT, ZKEYWORD.ZTITLE or ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT not empty,'
 ' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE not NULL and not empty, or ZISLIKE equal to 1.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': '@AlexisBrignoni, Codex',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
 " module author's working interpretations from testing. The module cites no source for them. Each"
 ' label carries the stored value. Labels marked StillTesting or STILLTESTING are unconfirmed. The'
 ' Syndication State labels for values 2, 8 and 10 are interpretations with no cited source. The'
-' store records the state value. It does not record who changed it.',
+' store records the state value. It does not record who changed it.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "info-circle",
@@ -52,15 +52,15 @@ __artifacts_v2__ = {
 'name': 'Ph011.3-KwrdsCapsTitlesDescripsLikesBasicAsstData-GenPlayPsql',
 'description': 'Parses basic asset record data from iOS GenPlay-Photos.sqlite for assets that have a long'
 ' description, title, accessibility description, keyword, shared album comment or like (iOS 18'
-' through 26). Any one is enough. An asset with several keywords, comments or likes appears on'
+' through 27). Any one is enough. An asset with several keywords, comments or likes appears on'
 ' several rows. The tests are: ZASSETDESCRIPTION.ZLONGDESCRIPTION,'
 ' ZADDITIONALASSETATTRIBUTES.ZTITLE, ZADDITIONALASSETATTRIBUTES.ZACCESSIBILITYDESCRIPTION,'
 ' ZKEYWORD.ZSHORTCUT, ZKEYWORD.ZTITLE or ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT not empty,'
 ' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE not NULL and not empty, or ZISLIKE equal to 1.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',    
-'author': '@AlexisBrignoni, Codex',
+'author': '@AlexisBrignoni, Codex, Claude',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-10',
+'last_update_date': '2026-11-20',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
 " module author's working interpretations from testing. The module cites no source for them. Each"
 ' label carries the stored value. Labels marked StillTesting or STILLTESTING are unconfirmed. The'
 ' Syndication State labels for values 2, 8 and 10 are interpretations with no cited source. The'
-' store records the state value. It does not record who changed it.',
+' store records the state value. It does not record who changed it.' ' iOS 27.2 is read with the same query as iOS 26. No iOS 27 sample of this library was available, so the iOS 27 path has not been run.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "info-circle",
@@ -119,7 +119,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
@@ -1459,7 +1459,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -1759,7 +1759,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
     if not iosversion:
         logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
         return (), [], source_path
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("28")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("26")):
@@ -2045,7 +2045,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
+    elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("28")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")

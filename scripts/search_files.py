@@ -51,6 +51,18 @@ from scripts.filetype import guess_mime
 
 normcase = lru_cache(maxsize=None)(os.path.normcase)
 
+
+def _required_literal(pattern):
+    """A necessary substring of a normalized fnmatch pattern, or no filter.
+
+    Without bracket syntax, every literal segment separated by * or ? must
+    occur in any match. Leave bracket patterns, including malformed ones, to
+    fnmatch rather than attempting to interpret character classes here.
+    """
+    if '[' in pattern or ']' in pattern:
+        return ''
+    return max(pattern.replace('?', '*').split('*'), key=len)
+
 # A damaged or unsupported member of an otherwise readable zip (bad CRC-32,
 # truncated deflate stream, unsupported compression or encryption).
 _ZIP_MEMBER_ERRORS = (BadZipFile, zlib.error, RuntimeError, NotImplementedError)
@@ -2103,12 +2115,17 @@ class FileSeekerZip(FileSeekerBase):
             pathlist = self.searched[filepattern]
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
         pathlist = []
-        pat = _compile_pattern(normcase(filepattern))
+        pattern = normcase(filepattern)
+        pat = _compile_pattern(pattern)
+        required = _required_literal(pattern)
         root = normcase("root/")
         for member in self._search_names:
             if member.startswith("__MACOSX"):
                 continue
-            if pat(root + normcase(member)) is not None:
+            match_name = root + normcase(member)
+            if required and required not in match_name:
+                continue
+            if pat(match_name) is not None:
                 if member not in self.copied or force:
                     source = self._chosen.get(member, member)
                     dest_path = None

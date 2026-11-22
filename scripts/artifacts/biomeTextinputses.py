@@ -136,7 +136,8 @@ def get_biomeTextinputses(context):
                 if '/streams/restricted/' in relative_path:
                     timestart = convert_ts_int_to_utc(protostuff['2'])
                 else:
-                    timestart = (webkit_timestampsconv(protostuff['2']))
+                    # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                    timestart = (webkit_timestampsconv(protostuff['2']) or None)
 
                 bundleid = (protostuff.get('3',''))
                 # Field 5 holds a per-session identifier. The older stream layout does not carry it.

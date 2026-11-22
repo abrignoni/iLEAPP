@@ -118,7 +118,8 @@ def stage_case_members(zip_ref, temp_dir, file_infos):
     extracted file's modification time is then set as the seeker sets it: that
     modification time, else the member's date and time read as local time. So an
     artifact sees the values a real run of the same zip gives it, not the time of
-    the test. A CLBX zip's version and metadata members are not staged: a run hands
+    the test. Each member is staged under the name the seeker gives it. A CLBX
+    zip's version and metadata members are not staged: a run hands
     an artifact only the members its patterns match.
 
     Args:
@@ -133,7 +134,11 @@ def stage_case_members(zip_ref, temp_dir, file_infos):
         for info in zip_ref.infolist():
             if info.filename in clbx_own:
                 continue
-            extracted_path = zip_ref.extract(info, temp_dir)
+            # Staged under the name a run gives it. The seeker replaces characters
+            # Windows cannot hold on every platform; ZipFile.extract replaces fewer,
+            # and only on Windows, so a case recorded on macOS or Linux saw names a
+            # real run never produces.
+            extracted_path = seeker._extract_member(info.filename, source=info)
             if info.is_dir():
                 continue
             creation_date, modification_date, staged, times = seeker._member_times(info.filename, info)
@@ -196,8 +201,16 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
     base_temp_dir = Path('admin/test/temp').resolve()
     base_temp_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create a unique temporary directory within the base temp directory
-    temp_dir = base_temp_dir / f'extract_{module_name}_{artifact_name}_{int(time.time())}'
+    # Create a temporary directory no earlier case used. Two cases of one artifact
+    # can start within the same second, and on Windows a file an artifact left open
+    # survives the cleanup at the end, so a reused name hands one case's files to
+    # the next.
+    temp_dir = unused_temp_dir(base_temp_dir, module_name, artifact_name)
+    # On Windows a run puts \\?\ in front of its output folder, so every path an
+    # artifact is handed carries it. Stage under the same form, so a test sees the
+    # paths a run gives.
+    if os.name == 'nt':
+        temp_dir = Path('\\\\?\\' + str(temp_dir))
 
     # Define mock_report_folder path within the temp_dir and create it
     mock_report_folder_path = temp_dir / 'mock_reports'
@@ -582,11 +595,30 @@ def process_data(headers, data):
     return processed_headers, processed_data
 
 
+def unused_temp_dir(base_temp_dir, module_name, artifact_name):
+    """A path under base_temp_dir, named extract_<module>_<artifact>_<n>, that does not exist."""
+    stamp = time.time_ns()
+    while True:
+        candidate = base_temp_dir / f'extract_{module_name}_{artifact_name}_{stamp}'
+        if not candidate.exists():
+            return candidate
+        stamp += 1
+
+
 def staged_temp_prefixes():
-    """(absolute, relative) spellings of admin/test/temp in the working directory."""
+    r"""(absolute, relative) spellings of admin/test/temp in the working directory.
+
+    On Windows the harness stages under the \\?\ form, as a run does, and an
+    artifact can hand that back as \\?\ or //?/. The longest spellings come first,
+    because the bare ones are part of the prefixed ones.
+    """
     root = Path('admin/test/temp').resolve().parents[2]
-    return [(f'{spelling}{sep}admin{sep}test{sep}temp{sep}', f'admin{sep}test{sep}temp{sep}')
-            for spelling in sorted({str(root), root.as_posix()}) for sep in ('/', '\\')]
+    bare = {str(root), root.as_posix()}
+    spellings = (bare | {'\\\\?\\' + s.replace('/', '\\') for s in bare}
+                 | {'//?/' + s.replace('\\', '/') for s in bare})
+    pairs = [(f'{spelling}{sep}admin{sep}test{sep}temp{sep}', f'admin{sep}test{sep}temp{sep}')
+             for spelling in spellings for sep in ('/', '\\')]
+    return sorted(pairs, key=lambda pair: (-len(pair[0]), pair[0]))
 
 
 def relative_temp_path(value, prefixes):

@@ -51,6 +51,20 @@ jobs:
       - name: Convert pre-1970 Unix timestamps
         run: python admin/test/scripts/test_unix_timestamp_conversion.py
 
+      # webkit_timestampsconv and the Cocoa converters, before 1970 and after the year 3000,
+      # where Windows' gmtime() fails, and the NSDate sentinels.
+      - name: Convert Cocoa timestamps outside 1970 to 3000
+        run: python admin/test/scripts/test_ilapfuncs_conversion_edges.py
+
+      # Artifacts that keep None for an NSDate sentinel, through constructed SEGB, protobuf and plist
+      # input parsed by the artifacts' own readers.
+      - name: Keep sentinel times blank in webkit timestamp callers
+        run: python admin/test/scripts/test_webkit_sentinel_callers.py
+
+      # Cocoa times between NSDate.distantPast and 0001-01-01 UTC: blank, and the record kept.
+      - name: Keep records with Cocoa times Python cannot hold
+        run: python admin/test/scripts/test_cocoa_year_one_window.py
+
 
       - name: Open SQLite on a path longer than 260 characters
         run: python admin/test/scripts/test_sqlite_longpath_uri.py
@@ -114,3 +128,6 @@ jobs:
       # compare those against baselines recorded with forward slashes.
       - name: Compare test-case output with Windows separators
         run: python admin/test/scripts/test_run_test_cases.py
+
+      - name: Stage case members under the names a run gives them
+        run: python admin/test/scripts/test_harness_stages_like_the_seeker.py

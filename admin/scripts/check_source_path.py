@@ -74,7 +74,9 @@ so neither rule fires on it. A literal touching a value with no space between th
 The reached-literal check follows the value the same way and reports a whole string
 literal that gets there by any route but the plain return the prose check reads:
 either side of a conditional expression, any operand of an 'or' or 'and', any one
-of several assignments to a variable, a module constant, or a helper's return:
+of several assignments to a variable, a module constant, or a helper's return.
+A module constant written as an f-string or a '+' chain is read by the
+composed-label check, as if it were written at the return:
 
     return data_headers, data_list, source_path or 'activeUser'          # WRONG
     source = 'See source paths in data' if sources else ''               # WRONG
@@ -225,6 +227,19 @@ def module_constants(tree):
             and isinstance(values[0].value, str)}
 
 
+def module_compositions(tree):
+    """Top-level names bound once, to an f-string or a '+' chain."""
+    bound = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    bound.setdefault(target.id, []).append(node.value)
+    return {name: values[0] for name, values in bound.items()
+            if len(values) == 1 and (isinstance(values[0], ast.JoinedStr) or (
+                isinstance(values[0], ast.BinOp) and isinstance(values[0].op, ast.Add)))}
+
+
 def bindings(func, name):
     """(value, position, augmented) for every assignment to `name` in `func`.
 
@@ -298,6 +313,7 @@ class JoinFinder:
         self.helpers = {n.name: n for n in tree.body
                         if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
         self.constants = module_constants(tree)
+        self.compositions = module_compositions(tree)
         # (line, text) for each label or prose composed into a source path.
         self.prose = set()
         # (line, text) for each whole literal that reaches a source path through a
@@ -320,6 +336,12 @@ class JoinFinder:
                     and len({v.value for v in values}) == 1):
                 return values[0].value
         return None
+
+    def interpolated_literal(self, func, part):
+        """An f-string field that only interpolates a name bound to a string literal."""
+        return (isinstance(part, ast.FormattedValue) and part.conversion == -1
+                and part.format_spec is None and isinstance(part.value, ast.Name)
+                and self.literal(func, part.value) is not None)
 
     def helper_returns(self, call, position, seen):
         func = call.func
@@ -348,6 +370,8 @@ class JoinFinder:
                     and isinstance(part.value, str) else None)
             if text is None and not isinstance(part, (ast.Constant, ast.FormattedValue)):
                 text = self.literal(func, part)
+            if text is None and self.interpolated_literal(func, part):
+                text = self.literal(func, part.value)
             if text is None:
                 runs.append(None)
             elif runs and runs[-1] is not None:
@@ -371,7 +395,8 @@ class JoinFinder:
                     if leading_counts or 0 < index < len(parts) - 1:
                         yield part.lineno, part.value
             elif isinstance(part, ast.FormattedValue):
-                yield from self.find(func, part.value, seen)
+                if not self.interpolated_literal(func, part):
+                    yield from self.find(func, part.value, seen)
             else:
                 yield from self.find(func, part, seen)
 
@@ -406,6 +431,8 @@ class JoinFinder:
             found = bindings(func, node.id)
             if not found and node.id in self.constants:
                 self.note_literal(node, self.constants[node.id])
+            if not found and node.id in self.compositions:
+                yield from self.find(func, self.compositions[node.id], seen)
             for value, position, augmented in found:
                 if augmented:
                     if isinstance(value, ast.JoinedStr):

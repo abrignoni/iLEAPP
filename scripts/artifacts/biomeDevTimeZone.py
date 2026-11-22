@@ -5,10 +5,16 @@ __artifacts_v2__ = {
                        "stream",
         "author": "Cynthia van Dorp, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-09",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Field names are those of the BMDeviceTimeZone class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Seconds From GMT is field 1, a double the framework names secondsFromGMT; "
+                 "it was not reported before. On the tested images (16 images, 386 rows) every "
+                 "value was a whole number of seconds, a multiple of 900 and within 14 hours of "
+                 "GMT. Seconds From GMT held one value on every row of cookbook_ios1751 (11 rows) "
+                 "and hc_ios17_2 (4 rows), and two to seven values on the other images.",
         "paths": ('*/streams/*/Device.TimeZone/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -34,7 +40,7 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
 
 @artifact_processor
 def get_biomeDevTimeZone(context):
-    typess = {'1': {'type': 'fixed64', 'name': ''}, '2': {'type': 'str', 'name': ''}}
+    typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'str', 'name': ''}}
     data_list = []
     source_dirs = set()
     for file_found in context.get_files_found():
@@ -66,8 +72,12 @@ def get_biomeDevTimeZone(context):
                     logfunc(f"Biome - Device TimeZone: record without timezone field in {filename}, skipped")
                     continue
 
-                data_list.append((ts, tz, filename))
+                offset = protostuff.get('1')
+                if isinstance(offset, float) and offset.is_integer():
+                    offset = int(offset)
 
-    data_headers = (('SEGB Timestamp', 'datetime'), 'Timezone', 'Filename')
+                data_list.append((ts, tz, offset, filename))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), 'Timezone', 'Seconds From GMT', 'Filename')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

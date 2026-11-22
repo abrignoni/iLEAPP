@@ -61,14 +61,19 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | anonymousChat |
 | appStoreSearches |
 | appleAccountDeviceList |
+| appleCalculator |
 | appleMapsTrips |
 | applePodcasts |
 | appleWalletCards |
 | appleWalletTransactions |
+| appleWeather |
 | atxDatastore |
 | august |
 | biomeApplePaySecurity |
 | biomeIntelligenceEntity |
+| biomeLocationSemantic |
+| biomePhotos |
+| biomeSetsPhoneIndexedCalls |
 | biomeSync |
 | booking |
 | botim |
@@ -90,6 +95,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | duckduckgo |
 | duetNotificationSuggestions |
 | easy4ip |
+| faceTimeLinks |
 | faceTimeMessages |
 | facebookMessenger |
 | filesApp |
@@ -127,10 +133,12 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | keyboard |
 | keyboardInputContexts |
 | keychain |
+| knowledgeCAppStreams |
 | life360 |
 | line |
 | linePrivateStore |
 | locationdCacheEncryptedB |
+| locationdCacheEncryptedC |
 | logarchive |
 | mailprotect |
 | mastodon |
@@ -147,6 +155,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | notesPasswordProtected |
 | notion |
 | nsVault |
+| nsurlsessiondTasks |
 | nytimes |
 | offerup |
 | oneDrive |
@@ -160,6 +169,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | photosMetadata |
 | photosMigration |
 | pingertextfree |
+| playbackEventStreams |
 | potatoChat |
 | powerlog |
 | privatePhotoVault |
@@ -195,6 +205,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | suggestionsUrls |
 | swissmeteo |
 | tcc |
+| telegramAccounts |
 | teleguard |
 | telekomMail |
 | textNow |
@@ -226,6 +237,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | wickr |
 | wifiAnalytics |
 | wire |
+| zillow |
 | zoomChat |
 <!-- GET_RECORDS_END -->
 
@@ -241,6 +253,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | appleWatchMailRegistry |
 | appleWatchPhotoCollections |
 | applicationStateDB |
+| biomeNotificationDelivery |
 | biomeSetsStores |
 | bluetoothOther |
 | bluetoothPairedLE |
@@ -252,12 +265,15 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | chrome |
 | chromeCreditCards |
 | chromePaymentsCustomerData |
+| chromeShortcuts |
+| citizen |
 | cloudkitSharing |
 | cloudkit_cache |
 | coreAccessoriesAcc |
 | coreAccessoriesUserEvent |
 | discord_cache |
 | dmss |
+| dust |
 | easy4ip |
 | familyHub |
 | foursquareSwarm |
@@ -266,6 +282,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleAppTabs |
 | googleChat |
 | googleHome |
+| health |
 | intelligencePlatformBehaviors |
 | intelligencePlatformGraph |
 | keyboard |
@@ -277,6 +294,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | knowledgeC |
 | lidl_plus |
 | life360Cache |
+| mailIntelligence |
 | mapsSync |
 | mixpanel |
 | nest |
@@ -299,6 +317,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | waze |
 | webkitResourceLoadStatistics |
 | whatsAppLID |
+| whatsAppMessageReceipts |
 | widgetEngagements |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->

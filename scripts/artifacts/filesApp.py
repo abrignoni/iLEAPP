@@ -343,7 +343,7 @@ __artifacts_v2__ = {
                        "matched on throttle_id and the stored stamps.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-12",
-        "last_update_date": "2026-11-12",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Files App",
         "notes": (
@@ -369,6 +369,10 @@ __artifacts_v2__ = {
                  "client_zones.zone_name. Run against eight images, iOS 12 to 18: 2 rows on iphone12_ios18 "
                  "and 1 row on hickman_ios13, and 0 rows on six others where the table was present and empty "
                  "as read with the write-ahead log; the queue and stage values were not sourced. "
+                 "On hill_iphone15pro_ios26 (iOS 26.3.1) and wilkerson_iphone16_ios26 (iOS 26.5.2) the table "
+                 "has no upload_request_stamp column, so Request time is blank on these versions. The table "
+                 "is empty on both. With one row planted in a scratch copy of the iOS 26.3.1 database, the "
+                 "row was returned with Request time blank and the other three stamps converted. "
         ),
         "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',),
         "output_types": ["html", "tsv", "lava"],
@@ -382,6 +386,8 @@ __artifacts_v2__ = {
             'iphone12_ios18': 'iOS 18 | 2 rows',
             'hc_ios18_7': 'iOS 18.7 | 0 rows',
             'hickman_ios13': 'iOS 13 | 1 row',
+            'hill_iphone15pro_ios26': 'iOS 26.3.1 | 0 rows',
+            'wilkerson_iphone16_ios26': 'iOS 26.5.2 | 0 rows',
         },
     },
 }
@@ -389,7 +395,7 @@ __artifacts_v2__ = {
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
     attach_sqlite_db_readonly, get_sqlite_db_records, get_plist_content, \
-    convert_bytes_to_unit, convert_unix_ts_to_utc, logfunc
+    convert_bytes_to_unit, convert_unix_ts_to_utc, logfunc, null_absent_columns
 
 
 def get_tree_structure(source_path):
@@ -923,7 +929,7 @@ def _transfer_rows(context, table, extra_select, data_headers):
             return f"({len(value)} bytes)"
         return value
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     parents = get_tree_structure(source_path) if db_records else {}
     for record in db_records:
         (last_try, request, next_retry, expire, parent_id, filename, size_in_bytes, queue, stage,

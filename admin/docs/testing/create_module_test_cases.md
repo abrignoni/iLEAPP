@@ -175,6 +175,11 @@ Every committed case runs in CI against a recorded snapshot. The workflow
 which re-runs each artifact against its case zip and fails when the output no
 longer matches the latest snapshot under `admin/test/results/<module>/`.
 
+`.github/workflows/windows_test_cases.yml` runs the same cases on Windows on
+pull requests that change shared code, weekly, and on demand. There the runner
+compares backslashes as forward slashes, so a baseline recorded on macOS or
+Linux also serves Windows.
+
 Baselines are ordinary committed files. When a PR deliberately changes a
 parser's output, re-record the affected snapshot in the same PR:
 

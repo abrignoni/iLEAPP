@@ -1,23 +1,24 @@
 __artifacts_v2__ = {
     "fmfd_notbackedup_devices": {
-        "name": "Find My - Devices",
+        "name": "Find My FMFD Devices",
         "description": "Parses the device list (name, two identifiers and four stored flags) from "
                        "the fmfd notbackedup preferences plist.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-04-01",
         "version": "1.0",
         "date": "2026-03-31",
-        "last_update_date": "2026-10-31",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Find My",
-        "notes": "Located in the NotBackedUp preferences area. The device list is stored under "
-                 "kFMFDDevicesListKey inside the keyed archive held in kFMFDStoredDataKey. idsDeviceId (as "
-                 "stored) and deviceId (as stored) identify the entry keys without establishing their "
-                 "identifier semantics. Active?, This Device?, Companion Device? and Auto Me Capable? are "
-                 "the entry's isActiveDevice, isThisDevice, isCompanionDevice and isAutoMeCapable values, "
-                 "reported as stored; what each means is not established here. The artifact returned no "
-                 "rows on the six tested iOS 17 and iOS 18 images; whether the plist or the key is absent "
-                 "there was not recorded. Original parser contribution: @ghmihkel.",
+        "notes": "The file is com.apple.icloud.fmfd.notbackedup.plist in Library/Preferences. The device list is "
+                 "stored under kFMFDDevicesListKey inside the keyed archive held in kFMFDStoredDataKey. "
+                 "idsDeviceId (as stored) and deviceId (as stored) identify the entry keys without establishing "
+                 "their identifier semantics. Active?, This Device?, Companion Device? and Auto Me Capable? are "
+                 "the entry's isActiveDevice, isThisDevice, isCompanionDevice and isAutoMeCapable values, reported"
+                 " as stored; what each means is not established here. The artifact returned no rows on "
+                 "dexter_ios18, felix_ios17, fsfull002_ios17, iphone11_ios17, iphone14plus_ios18 and otto_ios17. "
+                 "On dexter_ios18 the plist is present and holds no kFMFDStoredDataKey. For the other five this "
+                 "was not recorded. Original parser contribution: @ghmihkel.",
         "paths": ('*/Library/Preferences/com.apple.icloud.fmfd.notbackedup.plist',),
         "output_types": "standard",
         "artifact_icon": "map-pin",

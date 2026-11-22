@@ -3,16 +3,27 @@ __artifacts_v2__ = {
         "name": "Biome - Photos Search Insights",
         "description": "Parses Photos search terms from the "
                        "AeroML.Insights.PhotosSearchInsights biome stream, along with two "
-                       "strings read as a language and a region. The search term is the text "
-                       "stored for the Photos app search.",
+                       "strings read as a language and a region. The search term is the "
+                       "class's queryRaw field. The UI Surface names include Spotlight as well as "
+                       "the Photos app.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Fields 1, 5, 25 and 26 were constant across the sample and are "
-                 "reported raw. Field 24 is reported under the name Schema Version; no "
-                 "source for that label is cited here.",
+        "notes": "Field names (Search Term aside) and UI Surface and Library Size Bucket value "
+                 "names are those of the "
+                 "BMAeroMLPhotosSearchInsights class, read from BiomeLibrary.framework on macOS "
+                 "27.2.1 (26B131); no iOS copy of the class was read. The class reads only data "
+                 "version 0 (the unnamed integer the SEGB reader returns with each entry); a record of another "
+                 "version, or a value outside the class's lists, keeps its integer in the (raw) "
+                 "column with the name blank. Version was reported before as Schema Version, Was "
+                 "There Any Results Shown as Field 1 (raw), UI Surface as Field 5 (raw), Library "
+                 "Processing Progress as Field 25 (raw) and Library Size Bucket as Field 26 (raw). "
+                 "Search Term is the class's queryRaw field. Was There Any Results Shown reads True "
+                 "for 1, False for 0 and is blank otherwise. Fields 1, 5, 25 and 26 were constant "
+                 "across the private sample the fields were mapped from. No record of this stream was on the tested images, so these "
+                 "columns were not exercised on them.",
         "paths": ('*/streams/*/AeroML.Insights.PhotosSearchInsights/local/*',),
         "output_types": "standard",
         "artifact_icon": "search",
@@ -32,6 +43,19 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+
+# uiSurface and librarySizeBucket names, read from BiomeLibrary.framework
+# BMAeroMLPhotosSearchInsights on macOS 27.2.1 (26B131). The class reads only data
+# version 0 (the unnamed int the SEGB reader returns per entry); other versions get no name, and so
+# do values the class renders only as its fallback.
+UI_SURFACE_BY_VERSION = {
+    0: dict(enumerate(('Unknown', 'Spotlight', 'PhotosAppGlobalSearch',
+                       'PhotosAppScopedSearch', 'StoryTellingBackground'))),
+}
+LIBRARY_SIZE_BUCKET_BY_VERSION = {
+    0: dict(enumerate(('Unknown', '500OrLess', '500To2K', '2KTo5K', '5KTo10K', '10KTo20K',
+                       '20KTo30K', '30KTo40K', '40KTo50K', '50KTo100K', 'MoreThan100K'))),
+}
 
 TYPESS = {
     '1': {'type': 'int', 'name': ''},
@@ -56,6 +80,14 @@ def _to_str(value):
     if value is None or isinstance(value, (dict, list)):
         return ''
     return str(value)
+
+
+def _bool_text(value):
+    if value == 1 and not isinstance(value, bool):
+        return 'True'
+    if value == 0 and not isinstance(value, bool):
+        return 'False'
+    return ''
 
 
 @artifact_processor
@@ -86,21 +118,28 @@ def get_biomePhotosSearchInsights(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
+                version = getattr(record, '_unknown_value', None)
+                ui_surface = protostuff.get('5', '')
+                size_bucket = protostuff.get('26', '')
                 data_list.append((ts, record.state.name,
                                   _to_str(protostuff.get('9', b'')),
                                   _to_str(protostuff.get('22', b'')),
                                   _to_str(protostuff.get('23', b'')),
                                   _to_str(protostuff.get('24', b'')),
-                                  protostuff.get('1', ''), protostuff.get('5', ''),
-                                  protostuff.get('25', ''), protostuff.get('26', ''),
-                                  filename, record.data_start_offset))
+                                  _bool_text(protostuff.get('1')),
+                                  UI_SURFACE_BY_VERSION.get(version, {}).get(ui_surface, ''),
+                                  ui_surface, protostuff.get('25', ''),
+                                  LIBRARY_SIZE_BUCKET_BY_VERSION.get(version, {}).get(
+                                      size_bucket, ''),
+                                  size_bucket, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, record.state.name, None, None, None, None, None, None,
-                                  None, None, filename, record.data_start_offset))
+                                  None, None, None, None, filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Search Term', 'Language',
-                    'Region', 'Schema Version', 'Field 1 (raw)', 'Field 5 (raw)',
-                    'Field 25 (raw)', 'Field 26 (raw)', 'Filename', 'Offset')
+                    'Region', 'Version', 'Was There Any Results Shown', 'UI Surface',
+                    'UI Surface (raw)', 'Library Processing Progress', 'Library Size Bucket',
+                    'Library Size Bucket (raw)', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

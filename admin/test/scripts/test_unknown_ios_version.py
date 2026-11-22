@@ -14,7 +14,7 @@ ARTIFACTS = Path(__file__).resolve().parents[3] / 'scripts' / 'artifacts'
 
 # Modules whose version read is not in the artifact function itself, or comes from the context.
 # Each has its own test below.
-OWN_TEST = {'filesApp', 'health', 'mobileInstallb', 'springboard'}
+OWN_TEST = {'filesApp', 'mobileInstallb', 'springboard'}
 
 # What iOS.get_version() and context.get_installed_os_version() hold before any of the
 # version-reading artifacts (lastBuild, systemVersionPlist, iTunesBackupInfo, Ph087) has run.
@@ -120,7 +120,7 @@ class TestUnknownIosVersion(unittest.TestCase):
                 self.assertEqual(source, str(store))
                 self.assert_logged(log)
 
-    def test_health_heart_rate(self):
+    def test_health_heart_rate_does_not_need_a_version(self):
         module = load('health')
         for unknown in UNKNOWN:
             with self.subTest(version=unknown), patch.object(module, 'logfunc') as log:
@@ -128,7 +128,7 @@ class TestUnknownIosVersion(unittest.TestCase):
                     Context(self.store, unknown))
                 self.assertEqual(rows, [])
                 self.assertEqual(source, str(self.store))
-                self.assert_logged(log)
+                log.assert_not_called()
 
     def test_mobile_installation_logs(self):
         module = load('mobileInstallb')

@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Peer record field names (fn, ln, un, p, ph) follow the open-source "
@@ -65,7 +65,9 @@ __artifacts_v2__ = {
                  "a summary. Original parser and research credit: @AlexisBrignoni. "
                  "Avatar images are matched "
                  "from telegram-peer-photo-size files in postbox/media and from the "
-                 "accounts-metadata Spotlight cache.",
+                 "accounts-metadata Spotlight cache."
+                 " This artifact needs both the peer table (t2) and the message table (t7). A "
+                 "Postbox database missing either one gives no rows and is noted in the run log.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/accounts-metadata/spotlight/p*/data.json',
@@ -89,7 +91,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-04",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Telegram",
         "notes": "The chat list is table t9, the Postbox ChatListTable (tableSpec(9) in "
@@ -108,7 +110,11 @@ __artifacts_v2__ = {
                  "pinning value of 0 means the chat is not pinned. Unread counts come from "
                  "table t14, the MessageHistoryReadStateTable, whose id-based records carry "
                  "the count and a marked-unread flag. Names are resolved from the peer table "
-                 "(t2) and the stored message count from the message table (t7).",
+                 "(t2) and the stored message count from the message table (t7)."
+                 " This artifact needs both the peer table (t2) and the message table (t7). A "
+                 "Postbox database missing either one gives no rows and is noted in the run log, "
+                 "and chat list entries in t9 of such a database, hole entries included, are not "
+                 "reported.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -134,7 +140,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-05",
-        "last_update_date": "2026-08-05",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Table t54 is the Postbox DeviceContactImportInfoTable (tableSpec(54) in "
@@ -148,7 +154,8 @@ __artifacts_v2__ = {
                  "value the server returned for the number (ContactSyncManager.swift lines "
                  "360 to 378 at Telegram-iOS 6ad963e5); the client writes 0 when the server "
                  "returned none, or when the number already belonged to a known user with "
-                 "the same first and last name (line 297).",
+                 "the same first and last name (line 297)."
+                 " A Postbox database without table t54 gives no rows and is noted in the run log.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -167,7 +174,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-05",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Table t20 is the Postbox PeerPresenceTable (tableSpec(20) in Postbox.swift). "
@@ -189,7 +196,8 @@ __artifacts_v2__ = {
                  "return a bucketed status rather than a time is not sourced here. The other "
                  "status labels remain existing interpretations; this change does not "
                  "verify them for all app versions. Original parser and research credit: "
-                 "@AlexisBrignoni.",
+                 "@AlexisBrignoni."
+                 " A Postbox database without table t20 gives no rows and is noted in the run log.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -248,7 +256,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Table t18 is the Postbox CachedPeerDataTable (tableSpec(18) in "
@@ -267,7 +275,8 @@ __artifacts_v2__ = {
                  "matched to the app versions tested. The auto-delete "
                  "field wraps its value in a known/unknown record, so 'None set' means "
                  "Telegram cached the timer state and found none, while a blank means it "
-                 "was never cached. Peer names are resolved from the peer table (t2).",
+                 "was never cached. Peer names are resolved from the peer table (t2)."
+                 " A Postbox database without table t18 gives no rows and is noted in the run log.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -282,13 +291,13 @@ __artifacts_v2__ = {
         "name": "Telegram Settings",
         "description": (
             "Parses named Telegram settings from the shared accounts-metadata table t2 "
-            "and account Postbox table t35. Headline settings receive a placeholder when "
+            "and account Postbox table t35. When the settings table was read, headline settings receive a placeholder when "
             "no supported stored record is reported for the key. That placeholder does "
             "not establish whether the app uses a default value."
         ),
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Setting key IDs are taken from the open-source Telegram-iOS client "
@@ -301,7 +310,9 @@ __artifacts_v2__ = {
                  "was reported for the key. This parser requires a four-byte key and a byte "
                  "value with a mapped key ID; an existing record with an unsupported shape "
                  "can also lead to a placeholder. Original parser and research credit: "
-                 "@AlexisBrignoni.",
+                 "@AlexisBrignoni."
+                 " A database without its settings table gives no rows, no placeholder, and a line"
+                 " in the run log.",
         "paths": (
             '*/telegram-data/accounts-metadata/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/db/db_sqlite*'
@@ -325,7 +336,8 @@ import struct
 
 import mmh3
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media, logfunc
+from scripts.ilapfuncs import (artifact_processor, check_in_media, get_sqlite_db_records, logfunc,
+                               open_sqlite_db_readonly)
 
 
 # --- Generic Postbox value decoding -----------------------------------------
@@ -445,13 +457,29 @@ def _account_id_from_path(path):
     return match.group(1) if match else ''
 
 
-def _postbox_dbs(files_found):
-    '''Yields (account_id, db_path) for each account Postbox database.'''
+def _missing_tables(db_path, tables):
+    '''The named tables a readable database does not hold. An unreadable database returns none,
+    so the read that follows reports its own error for that file.'''
+    present = {row[0] for row in get_sqlite_db_records(
+        db_path, "SELECT name FROM sqlite_master WHERE type = 'table'")}
+    if not present:
+        return []
+    return [table for table in tables if table not in present]
+
+
+def _postbox_dbs(files_found, needs=()):
+    '''Yields (account_id, db_path) for each account Postbox database. A readable database
+    without a table in needs is logged and skipped.'''
     for file_found in files_found:
         path = str(file_found)
         normalized = path.replace('\\', '/')
         if normalized.endswith('/postbox/db/db_sqlite'):
-            yield _account_id_from_path(normalized), path
+            account_id = _account_id_from_path(normalized)
+            missing = _missing_tables(path, needs)
+            if missing:
+                logfunc(f'Telegram: account {account_id} skipped, no table {", ".join(missing)}')
+                continue
+            yield account_id, path
 
 
 # --- Telegram Accounts -------------------------------------------------------
@@ -635,7 +663,7 @@ def telegramContacts(context):
 
     contact_read_failures = 0
     contact_read_examples = 0
-    for account_id, db_path in _postbox_dbs(files_found):
+    for account_id, db_path in _postbox_dbs(files_found, needs=('t2', 't7')):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
             continue
@@ -815,7 +843,7 @@ def telegramChats(context):
     data_list = []
     source_paths = []
 
-    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+    for account_id, db_path in _postbox_dbs(context.get_files_found(), needs=('t2', 't7')):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
             continue
@@ -890,7 +918,7 @@ def telegramDeviceContacts(context):
     data_list = []
     source_paths = []
 
-    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+    for account_id, db_path in _postbox_dbs(context.get_files_found(), needs=('t54',)):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
             continue
@@ -987,7 +1015,7 @@ def telegramPeerPresence(context):
     data_list = []
     source_paths = []
 
-    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+    for account_id, db_path in _postbox_dbs(context.get_files_found(), needs=('t20',)):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
             continue
@@ -1172,7 +1200,7 @@ def telegramCachedPeerData(context):
     data_list = []
     source_paths = []
 
-    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+    for account_id, db_path in _postbox_dbs(context.get_files_found(), needs=('t18',)):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
             continue
@@ -1339,6 +1367,9 @@ def _format_setting_value(decoded):
 
 
 def _read_settings_table(db_path, table, core_names, app_names, scope, data_list):
+    if _missing_tables(db_path, (table,)):
+        logfunc(f'Telegram settings: {scope} database has no settings table ({table})')
+        return False
     db = open_sqlite_db_readonly(db_path)
     if db is None:
         return False

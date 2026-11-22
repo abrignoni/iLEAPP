@@ -1,21 +1,38 @@
 __artifacts_v2__ = {
     "biomeProactiveMail": {
         "name": "Biome - Proactive Harvesting Mail",
-        "description": "Email metadata harvested by the system into the ProactiveHarvesting.Mail biome stream "
-                       "(the SEGB record timestamp, the message date, subject, sender and recipient).",
+        "description": ("Email records from the ProactiveHarvesting.Mail biome stream: the SEGB "
+                       "record timestamp, the stored message date and date received, subject, and the "
+                       "From and To headers. The HTML body is in the Proactive Harvesting Mail Body "
+                       "artifact."),
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The message date comes from an embedded CFAbsoluteTime value; the SEGB Record Timestamp "
-                 "column is the SEGB record timestamp, the time the record was written to the "
-                 "stream.",
-        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',),
+        "notes": ("Field names are those of the BMProactiveHarvestingMail class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
+                 "On the tested images (the sample_data keys) the field numbers and wire types of "
+                 "the written records that decoded fit this class. Message Date is field 3 "
+                 "(absoluteTimestamp) and Date Received is field 30 (dateReceived); the framework "
+                 "decodes both as seconds since 2001-01-01 UTC. On the tested images the two were "
+                 "equal on 73, within 60 seconds on 633 and more than 60 seconds apart on 32 of the "
+                 "738 written records that held both. Sender and Recipient are the From and To "
+                 "headers of field 10 (headers). Domain ID is field 2 (domainID), reported before "
+                 "as Message ID, and Message Identifier is field 5 (messageIdentifier). Message Identifier held a string of digits on each of the 1,216 written records that decoded; what store it indexes was not established. 28 written records on dexter_ios18 are not readable as this class (17 raised a decode error and 11 decoded to no reported field) and show their SEGB fields only. "
+                 "The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2). Deleted rows carry no stored fields."
+                 " "
+                 "On 4 further staged iOS 16 images (3 of them outside the sample_data keys) the stream is stored under MailContent, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. 3 of the 4 held written records, 513 in all, which decoded with field numbers that fit the class; none held field 30, so Date Received is blank on them. The tested iOS 15 image held no such folder."),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',
+                  '*/[Bb]iome/streams/*/MailContent/local/*'),
         "output_types": "standard",
         "artifact_icon": "mail",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 478 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 82 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 38 rows",
             "dexter_ios18": "iOS 18.3.2 | 295 rows",
+            "falken_ios26": "iOS 26.2.1 | 941 rows",
             "felix_ios17": "iOS 17.6.1 | 25 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 275 rows",
@@ -25,23 +42,73 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 193 rows",
         },
     },
-    "biomeProactiveMessages": {
-        "name": "Biome - Proactive Harvesting Messages",
-        "description": "Message records from the ProactiveHarvesting.Messages biome stream "
-                       "(service and handle, message text, sender). The SEGB Record Timestamp column is the "
-                       "SEGB record timestamp, the time the record was written to the stream; the "
-                       "message's own date is not reported.",
+    "biomeProactiveMailBody": {
+        "name": "Biome - Proactive Harvesting Mail Body",
+        "description": ("The HTML body of email records from the ProactiveHarvesting.Mail biome "
+                       "stream, shown as text, with the message date, subject and sender. It has "
+                       "its own page because the bodies can be large, and it is left out of the "
+                       "timeline."),
         "author": "@AlexisBrignoni, Claude, Codex",
-        "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-04",
+        "creation_date": "2026-11-20",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": ("Body (HTML) is field 14 (htmlContent) of the BMProactiveHarvestingMail class, "
+                 "read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the "
+                 "class was read. It was not reported before. This artifact holds one row per "
+                 "written record that has a body, decoded by the same code as the Proactive Harvesting Mail artifact. Subject is field 11 (subject). The other columns are defined there. Across the 21 "
+                 "staged iOS images, 14 held written records of this stream and field 14 was set on "
+                 "1,313 of their 1,341 written records, on 13 images; after leading whitespace, 1,301 of the 1,313 began with a doctype declaration or an html or div tag, 6 with another tag or declaration and 6 with text. Its size ran from 32 to 206,706 bytes (median 64,253), and two images "
+                 "held about 41 MB and 53 MB of it, so this page can be large. On the tested images each of the 1,313 bodies was valid UTF-8 and is kept whole. Bytes that are not UTF-8 would show as the replacement character. The HTML report escapes the markup and does not render it, so the report page loads nothing from the body."),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',
+                  '*/[Bb]iome/streams/*/MailContent/local/*'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "mail",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 450 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 10 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 658 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 76 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 16 rows",
+        },
+    },
+    "biomeProactiveMessages": {
+        "name": "Biome - Proactive Harvesting Messages",
+        "description": ("Message records from the ProactiveHarvesting.Messages biome stream "
+                       "(message date, domain id, message text, sender and recipient names and handles, "
+                       "messages service, attachment path and the isFromMe flag)."),
+        "author": "@AlexisBrignoni, Claude, Codex",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-11-20",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": ("Field names are those of the BMProactiveHarvestingMessages class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
+                 "On the tested images (the sample_data keys) the field numbers and wire types of "
+                 "the written records that decoded fit this class. Message Date is field 3 "
+                 "(absoluteTimestamp), which the framework decodes as seconds since 2001-01-01 "
+                 "UTC; each of the 38 written records that decoded held a value in that range. "
+                 "Domain ID is field 2 (domainID), reported before as Service and Handle. Sender "
+                 "is the name (11.1) and Sender Handle the handle (11.2) of field 11 (fromHandle). "
+                 "Is From Me is field 22 (isFromMe); it is blank where the record "
+                 "does not store it (27 of the 38). Unique ID is field 1 (uniqueID), reported "
+                 "before as GUID. Deleted rows and the 5 written records on dexter_ios18 that are not readable as this class carry no Message Date. The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2). "
+                 "These fields were not reported before: Sender Handle (11.2, handle), Recipient and Recipient Handle (field 12, toHandles: 12.1 name, 12.2 handle), Messages Service (field 31, messagesService) and Attachment and Attachment Path (field 16, attachment: 16.3 path). Across the 21 staged iOS images, 6 held written records of this stream, 47 in all. 42 of the 47, on 5 images, decoded to fields of this class. Of the 5 on dexter_ios18, 1 raised a decode error and 4 decoded to no reported field. Sender Handle and Recipient Handle were set on the 42; the sender name and handle differed on 1 and the recipient name and handle on 14. Domain ID contained the sender handle on 19 and the recipient handle on 17 of the 42. Messages Service was set on 15, on 3 images, with 2 distinct values; Domain ID contained that value on 12 of the 15. Attachment Path was set on 6, on 2 images, and is the stored file URL. Attachment shows the file that URL names when the extraction holds it, found by its own path under SMS/Attachments, and is empty otherwise; the 5 distinct files those 6 records name were present in the 2 full extractions. The attachment's type field held one value on those 6 and its filename is part of the path, so neither is a separate column."),
         "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Messages/local/*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
+            "adams_iphone12mini": "iOS 17.1.1 | 137 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 27 rows",
             "dexter_ios18": "iOS 18.3.2 | 383 rows",
+            "falken_ios26": "iOS 26.2.1 | 297 rows",
             "felix_ios17": "iOS 17.6.1 | 39 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 118 rows",
@@ -53,21 +120,37 @@ __artifacts_v2__ = {
     },
     "biomeMessagesRead": {
         "name": "Biome - Messages Read",
-        "description": "Message read events from the Messages.Read biome stream (message identifier and the "
-                       "SEGB record timestamp; "
-                       "that it equals the time the message was read was not tested here).",
+        "description": ("Records from the Messages.Read biome stream (the IDS handle, the "
+                       "marked-unread flag and the SEGB record timestamp; that the record timestamp "
+                       "equals the time a message was read was not tested here)."),
         "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
-        "paths": ('*/[Bb]iome/streams/restricted/Messages.Read/local/*',),
+        "notes": ("Field names are those of the BMMessagesRead class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
+                 "On the tested images (the sample_data keys) the field numbers and wire types of "
+                 "the written records that decoded fit this class. IDS Handle is field 1 (idsHandle), "
+                 "reported before as Message ID. On the tested images it held a plus sign and digits on 491 written rows, digits only on 127, an email-shaped string on 15 and other short text on 5, and was blank on 112. Marked Unread is field 2 "
+                 "(markedUnread): True on 440, False on 202 and blank on 108 of the 750 written rows; the blank rows are on dexter_ios18, where the records did not decode or did "
+                 "not store the field. What Marked Unread means for these records was not "
+                 "established. Written records with no payload give no row. The SEGB Record Timestamp column is the record's first SEGB timestamp as read by ccl_segb (named creation in SEGB version 2). "
+                 "Reference: Mattia "
+                 "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"
+                 " "
+                 "On 3 tested iOS 16 images the stream is stored under ReadMessage, which BiomeLibrary.framework on macOS 27.2.1 (26B131) lists as its legacy name, and is read too. The tested iOS 15 image held no such folder. Its 78 written records held field 1, and 73 held field 2; Marked Unread was False on all 73."),
+        "paths": ('*/[Bb]iome/streams/restricted/Messages.Read/local/*',
+                  '*/[Bb]iome/streams/*/ReadMessage/local/*'),
         "output_types": "standard",
         "artifact_icon": "check",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 86 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 171 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 36 rows",
             "dexter_ios18": "iOS 18.3.2 | 280 rows",
+            "falken_ios26": "iOS 26.2.1 | 260 rows",
             "felix_ios17": "iOS 17.6.1 | 53 rows",
             "fsfull002_ios17": "iOS 17.1 | 14 rows",
             "hc_ios18_7": "iOS 18.7.8 | 136 rows",
@@ -79,21 +162,31 @@ __artifacts_v2__ = {
     },
     "biomeScreenTimeAppUsage": {
         "name": "Biome - ScreenTime App Usage",
-        "description": "Per-app usage events from the ScreenTime.AppUsage biome stream; the event code's "
-                       "meaning is not documented and is reported as stored.",
+        "description": ("Per-app usage records from the ScreenTime.AppUsage biome stream: the bundle "
+                       "id, the starting flag, the SEGB record timestamp and the stored absolute "
+                       "timestamp."),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The SEGB record timestamp is used; the record also holds an embedded timestamp "
-                 "field whose meaning is not established and which is not reported. "
-                 "The event code's meaning is not documented; its value is reported as stored.",
+        "notes": ("Field names are those of the BMScreenTimeAppUsage class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
+                 "On the tested images (the sample_data keys) the field numbers and wire types of "
+                 "the written records that decoded fit this class. Starting is field 1 (starting), "
+                 "reported before as an undocumented event code. Absolute Timestamp is field 2 "
+                 "(absoluteTimestamp), which the framework decodes as Unix seconds; on the tested "
+                 "images it was within 2 seconds of the SEGB record timestamp on 4,759 of the 4,766 "
+                 "written records that held it, and within 10 seconds on the other 7. 10 written "
+                 "records on dexter_ios18 did not decode and are reported with their SEGB fields "
+                 "only. Timestamp is the SEGB record's creation timestamp as read by ccl_segb."),
         "paths": ('*/[Bb]iome/streams/restricted/ScreenTime.AppUsage/local/*',),
         "output_types": "standard",
         "artifact_icon": "clock",
         "sample_data": {
+            "cookbook_ios1751": "iOS 17.5.1 | 835 rows",
             "dexter_ios18": "iOS 18.3.2 | 3678 rows",
+            "falken_ios26": "iOS 26.2.1 | 1239 rows",
             "felix_ios17": "iOS 17.6.1 | 361 rows",
             "hc_ios18_7": "iOS 18.7.8 | 3723 rows",
             "iphone12_ios18": "iOS 18.7 | 1152 rows",
@@ -103,49 +196,63 @@ __artifacts_v2__ = {
     },
     "biomeKeyboardTokens": {
         "name": "Biome - Keyboard Learned Tokens",
-        "description": "Words and tokens the keyboard learned, from the Keyboard.TokenFrequency biome stream, "
-                       "with their frequency.",
+        "description": ("Token entries from the Keyboard.TokenFrequency biome stream, one row per "
+                       "token entry with its count, token type and locale. A deleted record gives one "
+                       "row with no token."),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-09",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Token is the text in subfield 1 of field 1. Where field 1 is stored as bytes or "
-                 "a scalar, the module reads subfield 1 from those bytes when they parse as a "
-                 "submessage holding it, and otherwise reports the stored value as text. Where "
-                 "field 1 is a submessage with no text in subfield 1, the decoded submessage is "
-                 "printed as decoded. What records of the last two kinds hold was not "
-                 "established, and no tested image was checked for them. Reference: Mattia "
-                 "Epifani, "
-                 "'84 Streams Later, Part 2: Inside Apple Biome', "
-                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+        "notes": ("Field names are those of the BMKeyboardTokenFrequency class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was read. "
+                 "On the tested images (the sample_data keys) the field numbers and wire types of "
+                 "the written records that decoded fit this class. Field 1 is a repeated list of "
+                 "token entries, each with the token text (1.1) and its count (1.2); one record "
+                 "held up to 48 entries on the tested images, and the artifact writes one row per "
+                 "entry, so several rows share a Timestamp and Offset. Before, a record with more "
+                 "than one entry was printed as one decoded list, and the Frequency column held "
+                 "field 3. Field 3 is tokenType, named in Token Type from the framework (0 Unknown, "
+                 "1 Unigram, 2 Emoji, 3 NamedEntityGivenName, 4 NamedEntitySurname), with the "
+                 "integer in Token Type (raw). Locale is field 2 (locale). On the tested images the "
+                 "written rows per image equalled a separate count of field 1 entries in the "
+                 "stored records (12 images, 4,074 entries). Timestamp is the SEGB record's "
+                 "creation timestamp as read by ccl_segb. Reference: Mattia Epifani, '84 Streams "
+                 "Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html"),
         "paths": ('*/[Bb]iome/streams/restricted/Keyboard.TokenFrequency/local/*',),
         "output_types": "standard",
         "artifact_icon": "keyboard",
         "sample_data": {
-            "abe_ios16": "iOS 16.5 | 290 rows",
-            "dexter_ios18": "iOS 18.3.2 | 167 rows",
-            "felix23_ios16": "iOS 16.5 | 3 rows",
-            "felix_ios17": "iOS 17.6.1 | 11 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 143 rows",
-            "iphone11_ios17": "iOS 17.3 | 379 rows",
-            "iphone12_ios18": "iOS 18.7 | 180 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 58 rows",
-            "otto_ios17": "iOS 17.5.1 | 187 rows",
+            "abe_ios16": "iOS 16.5 | 1147 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 414 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 90 rows",
+            "dexter_ios18": "iOS 18.3.2 | 280 rows",
+            "falken_ios26": "iOS 26.2.1 | 454 rows",
+            "felix23_ios16": "iOS 16.5 | 12 rows",
+            "felix_ios17": "iOS 17.6.1 | 20 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 179 rows",
+            "iphone11_ios17": "iOS 17.3 | 861 rows",
+            "iphone12_ios18": "iOS 18.7 | 896 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 390 rows",
+            "otto_ios17": "iOS 17.5.1 | 223 rows",
         },
     },
 }
 
 import os
+import re
 import struct
-from datetime import timezone
+from datetime import datetime, timezone
+from urllib.parse import unquote, urlparse
 
 from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, convert_cocoa_core_data_ts_to_utc, logfunc
+from scripts.ilapfuncs import (artifact_processor, check_in_media,
+                              convert_cocoa_core_data_ts_to_utc, logfunc)
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
 
@@ -159,6 +266,22 @@ def _txt(value):
     return str(value)
 
 
+def _bool(value):
+    """A framework bool field: 1 True, 0 False, anything else blank."""
+    return {1: 'True', 0: 'False'}.get(value, '') if isinstance(value, int) else ''
+
+
+def _unix_double_to_utc(value):
+    """A double read as Unix seconds (the BiomeLibrary decoding of this field)."""
+    seconds = _seconds(value)
+    if not seconds or seconds < 0:
+        return ''
+    try:
+        return datetime.fromtimestamp(seconds, tz=timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        return ''
+
+
 def _header(message, name):
     """Looks up an email header (name/value pairs in field 10)."""
     headers = message.get('10', [])
@@ -170,16 +293,41 @@ def _header(message, name):
     return ''
 
 
+def _messages(value):
+    """A sub-message field as a list: one arrives as a dict, a repeated one as a list."""
+    if isinstance(value, dict):
+        return [value]
+    return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
+
+
+def _joined(value, field):
+    """One string field across a sub-message field's entries, joined with a comma."""
+    return ', '.join(filter(None, (_txt(item.get(field)) for item in _messages(value))))
+
+
+def _seconds(value):
+    """A double field: a float under a pinned typedef, raw fixed64 bits otherwise."""
+    if isinstance(value, float):
+        return value
+    if isinstance(value, int) and not isinstance(value, bool):
+        try:
+            return struct.unpack('<d', struct.pack('<q', value))[0]
+        except (struct.error, OverflowError):
+            return None
+    return None
+
+
 def _cf_double_to_utc(value):
-    """The embedded date is a CFAbsoluteTime (seconds since 2001) stored as the
-    raw bits of a little-endian double."""
-    if not isinstance(value, int):
-        return ''
-    try:
-        seconds = struct.unpack('<d', struct.pack('<q', value))[0]
-    except (struct.error, OverflowError):
+    """A Cocoa-epoch double (seconds since 2001-01-01 UTC)."""
+    seconds = _seconds(value)
+    if not seconds:
         return ''
     return convert_cocoa_core_data_ts_to_utc(seconds)
+
+
+def _mail_records(context):
+    """The Mail stream's records, decoded once here for both Mail artifacts."""
+    return _records(context, MAIL_TYPEDEF)
 
 
 def _stream_files(context):
@@ -196,7 +344,7 @@ def _source_path(context):
     return '\n'.join(sorted({os.path.dirname(f) for f in _stream_files(context)}))
 
 
-def _records(context):
+def _records(context, typedef=None):
     """Yields (segb_ts_utc, state_name, decoded_message_or_None, filename, offset)
     for each non-tombstone SEGB record across the matched stream files."""
     for file_found in _stream_files(context):
@@ -205,7 +353,7 @@ def _records(context):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
             if record.state == EntryState.Written and record.data:
                 try:
-                    message, _ = blackboxprotobuf.decode_message(record.data)
+                    message, _ = blackboxprotobuf.decode_message(record.data, typedef)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'Skipping {filename} record at offset {record.data_start_offset} '
                             f'due to protobuf decode error: {ex}')
@@ -215,58 +363,115 @@ def _records(context):
                 yield ts, 'Deleted', None, filename, record.data_start_offset
 
 
+# Field types pinned from the BiomeLibrary classes so that a string whose bytes happen to
+# parse as protobuf stays a string. Fields not listed decode schema-less.
+_STR = {'type': 'bytes', 'name': ''}
+_INT = {'type': 'int', 'name': ''}
+_DBL = {'type': 'double', 'name': ''}
+_HANDLE = {'type': 'message', 'name': '', 'message_typedef': {'1': _STR, '2': _STR}}
+_ATTACHMENT = {'type': 'message', 'name': '', 'message_typedef': {'3': _STR}}
+MAIL_TYPEDEF = {'1': _STR, '2': _STR, '3': _DBL, '4': _STR, '5': _STR, '10': _HANDLE,
+                '11': _STR, '14': _STR, '30': _DBL}
+MESSAGES_TYPEDEF = {'1': _STR, '2': _STR, '3': _DBL, '10': _STR, '11': _HANDLE, '12': _HANDLE,
+                    '16': _ATTACHMENT, '22': _INT, '31': _STR}
+READ_TYPEDEF = {'1': _STR, '2': _INT}
+SCREENTIME_TYPEDEF = {'1': _INT, '2': _DBL, '3': _STR}
+
+
 @artifact_processor
 def biomeProactiveMail(context):
-    data_headers = (('Message Date', 'datetime'), ('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Subject',
-                    'Sender', 'Recipient', 'Message ID', 'Filename', 'Offset')
+    data_headers = (('SEGB Record Timestamp', 'datetime'), ('Message Date', 'datetime'),
+                    ('Date Received', 'datetime'), 'SEGB State', 'Subject', 'Sender', 'Recipient',
+                    'Domain ID', 'Message Identifier', 'Filename', 'Offset')
     data_list = []
-    for ts, state, message, filename, offset in _records(context):
+    for ts, state, message, filename, offset in _mail_records(context):
         if message is None:
-            data_list.append(('', ts, state, '', '', '', '', filename, offset))
+            data_list.append((ts, '', '', state, '', '', '', '', '', filename, offset))
             continue
-        data_list.append((_cf_double_to_utc(message.get('3')), ts, state, _txt(message.get('11')),
-                          _header(message, 'from'), _header(message, 'to'), _txt(message.get('2')),
-                          filename, offset))
+        data_list.append((ts, _cf_double_to_utc(message.get('3')),
+                          _cf_double_to_utc(message.get('30')), state, _txt(message.get('11')),
+                          _header(message, 'from'), _header(message, 'to'),
+                          _txt(message.get('2')), _txt(message.get('5')), filename, offset))
     return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
-def biomeProactiveMessages(context):
-    data_headers = (('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Service and Handle', 'Content', 'Sender',
-                    'GUID', 'Filename', 'Offset')
+def biomeProactiveMailBody(context):
+    data_headers = (('SEGB Record Timestamp', 'datetime'), ('Message Date', 'datetime'), 'Subject',
+                    'Sender', 'Message Identifier', 'Body (HTML)', 'Filename', 'Offset')
     data_list = []
-    for ts, state, message, filename, offset in _records(context):
+    for ts, _state, message, filename, offset in _mail_records(context):
+        body = _txt(message.get('14')) if message else ''
+        if body:
+            data_list.append((ts, _cf_double_to_utc(message.get('3')), _txt(message.get('11')),
+                              _header(message, 'from'), _txt(message.get('5')), body, filename,
+                              offset))
+    return data_headers, data_list, _source_path(context)
+
+
+def _attachment_media(context, attachment):
+    """Checks in the file a recorded attachment URL names. Only that file is staged, by a
+    search on its own path under SMS/Attachments. None when it is not in the extraction."""
+    path = unquote(urlparse(_txt(attachment)).path)
+    marker = '/Library/SMS/Attachments/'
+    if marker not in path:
+        return None
+    tail = path.split(marker, 1)[1]
+    if not tail or '..' in tail.split('/'):
+        return None
+    pattern = '*' + marker + re.sub(r'([*?[])', r'[\1]', tail)
+    found = context.get_seeker().search(pattern, return_on_first_hit=True)
+    if not found or os.path.isdir(found):
+        return None
+    return check_in_media(found, name=os.path.basename(tail))
+
+
+@artifact_processor
+def biomeProactiveMessages(context):
+    data_headers = (('SEGB Record Timestamp', 'datetime'), ('Message Date', 'datetime'), 'SEGB State',
+                    'Domain ID', 'Content', 'Sender', 'Sender Handle', 'Recipient', 'Recipient Handle',
+                    'Messages Service', ('Attachment', 'media'), 'Attachment Path', 'Is From Me', 'Unique ID', 'Filename',
+                    'Offset')
+    data_list = []
+    for ts, state, message, filename, offset in _records(context, MESSAGES_TYPEDEF):
         if message is None:
-            data_list.append((ts, state, '', '', '', '', filename, offset))
+            data_list.append((ts, '', state, '', '', '', '', '', '', '', None, '', '', '', filename, offset))
             continue
-        sender = message.get('11', {})
-        sender = _txt(sender.get('1')) if isinstance(sender, dict) else ''
-        data_list.append((ts, state, _txt(message.get('2')), _txt(message.get('10')), sender,
-                          _txt(message.get('1')), filename, offset))
+        from_handle = message.get('11', {})
+        if not isinstance(from_handle, dict):
+            from_handle = {}
+        data_list.append((ts, _cf_double_to_utc(message.get('3')), state, _txt(message.get('2')),
+                          _txt(message.get('10')), _txt(from_handle.get('1')),
+                          _txt(from_handle.get('2')), _joined(message.get('12'), '1'),
+                          _joined(message.get('12'), '2'), _txt(message.get('31')),
+                          _attachment_media(context, _joined(message.get('16'), '3')),
+                          _joined(message.get('16'), '3'), _bool(message.get('22')), _txt(message.get('1')), filename, offset))
     return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
 def biomeMessagesRead(context):
-    data_headers = (('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Message ID', 'Filename', 'Offset')
+    data_headers = (('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'IDS Handle', 'Marked Unread',
+                    'Filename', 'Offset')
     data_list = []
-    for ts, state, message, filename, offset in _records(context):
-        message_id = _txt(message.get('1')) if message else ''
-        data_list.append((ts, state, message_id, filename, offset))
+    for ts, state, message, filename, offset in _records(context, READ_TYPEDEF):
+        handle = _txt(message.get('1')) if message else ''
+        marked_unread = _bool(message.get('2')) if message else ''
+        data_list.append((ts, state, handle, marked_unread, filename, offset))
     return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
 def biomeScreenTimeAppUsage(context):
-    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Event (as stored)', 'Filename',
-                    'Offset')
+    data_headers = (('Timestamp', 'datetime'), ('Absolute Timestamp', 'datetime'), 'SEGB State', 'Bundle ID',
+                    'Starting', 'Filename', 'Offset')
     data_list = []
-    for ts, state, message, filename, offset in _records(context):
+    for ts, state, message, filename, offset in _records(context, SCREENTIME_TYPEDEF):
         if message is None:
-            data_list.append((ts, state, '', '', filename, offset))
+            data_list.append((ts, '', state, '', '', filename, offset))
             continue
-        event = _txt(message.get('1'))
-        data_list.append((ts, state, _txt(message.get('3')), event, filename, offset))
+        data_list.append((ts, _unix_double_to_utc(message.get('2')), state, _txt(message.get('3')),
+                          _bool(message.get('1')), filename, offset))
     return data_headers, data_list, _source_path(context)
 
 
@@ -296,14 +501,52 @@ def _keyboard_token(token_field):
     return _txt(token_field)
 
 
+# tokenType names, read from BiomeLibrary.framework BMKeyboardTokenFrequency on macOS 27.2.1 (26B131).
+TOKEN_TYPES = {0: 'Unknown', 1: 'Unigram', 2: 'Emoji', 3: 'NamedEntityGivenName', 4: 'NamedEntitySurname'}
+
+
+# Field types from BMKeyboardTokenFrequency: 1 repeated (1 token string, 2 count int), 2 locale string,
+# 3 tokenType enum. Pinned so a token whose text happens to parse as protobuf stays text.
+KEYBOARD_TYPEDEF = {
+    '1': {'type': 'message', 'name': '', 'message_typedef': {
+        '1': {'type': 'bytes', 'name': ''},
+        '2': {'type': 'int', 'name': ''},
+    }},
+    '2': {'type': 'bytes', 'name': ''},
+    '3': {'type': 'int', 'name': ''},
+}
+
+
+def _token_entries(field):
+    """Field 1 is repeated (token, count) pairs; one record can hold many."""
+    if field is None:
+        return [None]
+    return field if isinstance(field, list) else [field]
+
+
+def _token_count(entry):
+    if isinstance(entry, bytes):
+        try:
+            entry, _ = blackboxprotobuf.decode_message(entry)
+        except _DECODE_ERRORS:
+            return ''
+    count = entry.get('2') if isinstance(entry, dict) else None
+    return count if isinstance(count, int) else ''
+
+
 @artifact_processor
 def biomeKeyboardTokens(context):
-    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Token', 'Frequency', 'Filename', 'Offset')
+    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Token', 'Count', 'Token Type',
+                    'Token Type (raw)', 'Locale', 'Filename', 'Offset')
     data_list = []
-    for ts, state, message, filename, offset in _records(context):
+    for ts, state, message, filename, offset in _records(context, KEYBOARD_TYPEDEF):
         if message is None:
-            data_list.append((ts, state, '', '', filename, offset))
+            data_list.append((ts, state, '', '', '', '', '', filename, offset))
             continue
-        data_list.append((ts, state, _keyboard_token(message.get('1')), _txt(message.get('3')),
-                          filename, offset))
+        token_type = message.get('3')
+        type_name = TOKEN_TYPES.get(token_type, '') if isinstance(token_type, int) else ''
+        locale = _txt(message.get('2'))
+        for entry in _token_entries(message.get('1')):
+            data_list.append((ts, state, _keyboard_token(entry), _token_count(entry), type_name,
+                              _txt(token_type), locale, filename, offset))
     return data_headers, data_list, _source_path(context)

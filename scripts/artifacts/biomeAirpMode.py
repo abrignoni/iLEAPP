@@ -4,10 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses airplane mode entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2020-04-30",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS "
+                  "27.2.1 (26B131); no iOS copy of the class was read. Start Date and End Date are fields 2 "
+                  "and 3 (startDate and endDate) and were reported before as Timestamp and Timestamp2. "
+                  "Stream Name is field 1.1 (the name of the record's stream) and was reported before as "
+                  "Event. Identifier is field 5 (identifier) and was reported before as GUID. Airplane Mode (as stored) is field 4.4 (the value's integerValue) of the _DKEvent.System.AirplaneMode stream, and the header repeats that stream name. It does not say that 1 means on. It is shown as stored, its meaning is not established, and it was not reported in v2026.4.6. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it held 0 on 72 and 1 on 49 of the 121 written rows. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it was set on each of the 121 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
         "paths": ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
         "output_types": "standard",
         "artifact_icon": "plane",
@@ -70,13 +74,8 @@ def get_biomeAirpMode(context):
                     },
                     'name': ''
                 },
-                '3': {
-                    'type': 'bytes',
-                    'message_typedef': {
-                        '8': {'type': 'fixed64', 'name': ''}
-                    },
-                    'name': ''
-                }
+                '3': {'type': 'bytes', 'name': ''},
+                '4': {'type': 'int', 'name': ''}
             },
             'name': ''
         },
@@ -111,18 +110,21 @@ def get_biomeAirpMode(context):
                     logfunc(f'Biome Airplane Mode DKEvent: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
-                timestart = (webkit_timestampsconv(protostuff['2']))
-                timeend = (webkit_timestampsconv(protostuff['3']))
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['2']) or None)
+                timeend = (webkit_timestampsconv(protostuff['3']) or None)
                 event = protostuff['1']['1']
                 guid = protostuff['5'].decode()
+                value = protostuff['4'].get('4', '') if isinstance(protostuff.get('4'), dict) else ''
+                tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
 
-                data_list.append((ts, timestart, timeend, record.state.name, event, guid, filename, offset))
+                data_list.append((ts, timestart, timeend, tz_offset, record.state.name, event, value, guid, filename, offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, record.state.name, None, None, filename, record.data_start_offset))
+                data_list.append((ts, None, None, None, record.state.name, None, None, None, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), ('Timestamp2', 'datetime'), 'SEGB State'
-                    , 'Event', 'GUID', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
+                    'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Airplane Mode (as stored)', 'Identifier', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
 

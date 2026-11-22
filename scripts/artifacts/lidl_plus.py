@@ -15,13 +15,14 @@ from datetime import timezone, datetime
 from scripts.artifacts.keychain import parse_keychain
 from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
 from scripts.html_safe import esc, safe_join
+from leapp_functions.app.platform import sanitize_file_path
 from scripts.ilapfuncs import (
     open_sqlite_db_readonly, does_column_exist_in_db, convert_unix_ts_to_utc,
     convert_cocoa_core_data_ts_to_utc, get_plist_file_content, get_plist_content,
     check_in_media, artifact_processor, logfunc
 )
 
-SOURCE_FILE_NAME = 'Source File Name'
+SOURCE_FILE_NAME = 'Source File Path'
 
 __artifacts_v2__ = {
     "lidl_shopping_list": {
@@ -29,15 +30,19 @@ __artifacts_v2__ = {
         "description": "Extracts shopping lists and item details.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "Is Checked reports ListItemEntity.isChecked through the existing SQL CASE: NULL is shown as "
-                 "N/A, empty text as N/D, 1 as Yes, 0 as No, and other stored values as Unknown (value). A "
-                 "checked list item does not by itself establish a purchase. Item Last Updated is followed by "
-                 "List Last Updated; both retain the existing SQLite unixepoch projection and UTC conversion. "
-                 "Original contribution and research credited to @djangofaiola (Django Faiola). Reference: Django "
-                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
+        "notes": "Is Checked reports ListItemEntity.isChecked: NULL is shown as N/A, empty text as N/D, 1 "
+                 "as Yes, 0 as No, and other stored values as Unknown (value). A list with no items also "
+                 "shows N/A. A checked list item does not by itself establish a purchase. Item Last "
+                 "Updated and List Last Updated are ListItemEntity.lastUpdate and ListEntity.lastUpdate, "
+                 "read with SQLite's unixepoch() and shown to the whole second. The cited research shows "
+                 "them stored as ISO 8601 text with no time zone. SQLite reads such text as UTC, so the "
+                 "zone of the times shown is not established. A value stored as a number is not converted "
+                 "and leaves the column empty. Original contribution and research credited to "
+                 "@djangofaiola (Django Faiola). Reference: Django Faiola, 'What's in Your Lidl Plus App? "
+                 "An iOS Forensic Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Application Support/databases/ShoppingListDatabase.db*",
@@ -50,7 +55,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached ticket and transaction metadata.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -66,7 +71,7 @@ __artifacts_v2__ = {
         "description": "Extracts purchased items from cached receipt details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -83,7 +88,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached payment methods and Lidl Pay profile status.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -100,7 +105,7 @@ __artifacts_v2__ = {
                        "reported as Card Number (Derived).",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Card Number (Derived) is the first 17 characters of the cached paymentQR value, "
@@ -120,7 +125,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached coupon and promotion details.",
         "author": "@djangofaiola, @AlexisBrignoni, Codex",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Cache Time is when the response was cached. Valid From and Valid To are "
@@ -141,7 +146,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached product details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -159,7 +164,7 @@ __artifacts_v2__ = {
                        "derives.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Sequence ID, Sequence Position and Sequence Final are computed by this parser "
@@ -181,19 +186,17 @@ __artifacts_v2__ = {
                        "returned store fields including distance as stored without a verified unit.",  # pylint: disable=line-too-long
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-07-03",
-        "last_update_date": '2026-10-07',
+        "last_update_date": '2026-11-17',
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "Latitude and Longitude are the values sent in the request URL, reported as transmitted. "
-                 "The research cited below describes them as the centre of the search area or map sent to "
-                 "the server, so they are not reported as the device's location. distance (as stored) "
-                 "reports the decoded response's distance field through the existing projection, without "
-                 "unit conversion. The parser does not establish its unit or reference point. A missing "
-                 "distance key and explicit JSON null both yield None through the existing dictionary "
-                 "lookup; other supported decoded values retain the existing native values and rendering. "
-                 "This header correction does not revalidate the cited research's interpretation. Original"
-                 " contribution and research credited to @djangofaiola (Django Faiola). Reference: Django "
-                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
+        "notes": "Latitude and Longitude are the latitude and longitude parameters of the request URL, "
+                 "URL-decoded. The research cited below describes them as the centre of the search area or "
+                 "map sent to the server, so they are not reported as the device's location. distance (as "
+                 "stored) is the distance field of the decoded response, with no unit conversion. The "
+                 "parser does not establish its unit or reference point. A missing distance key and a JSON "
+                 "null both leave it empty. Original contribution and research credited to @djangofaiola "
+                 "(Django Faiola). Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS "
+                 "Forensic Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
@@ -205,7 +208,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached promotional offer data.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -222,7 +225,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached loyalty-points marketplace rewards and account points metadata.",   # pylint: disable=line-too-long
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
@@ -350,8 +353,25 @@ __artifacts_v2__ = {
 # Constants
 COMMA_SEP = ', '
 LIST_SEP = '|'
-SOURCE_PATH_NOTE = f"Refer to the '{SOURCE_FILE_NAME}' column to identify the exact " \
-                   "device location of the origin file."
+# The staged files each artifact read, by run and artifact, in first-seen order.
+# get_device_file_path records every file it converts, including a file that
+# then gave no row, and the artifact returns them as its source paths.
+_ROW_SOURCES = {}
+
+
+def _row_sources_key(context):
+    seeker = context.get_seeker()
+    return (str(getattr(seeker, 'data_folder', '')), context.get_artifact_name())
+
+
+def _note_row_source(file_path, context):
+    """Record a staged file the running artifact read."""
+    _ROW_SOURCES.setdefault(_row_sources_key(context), {})[str(file_path)] = None
+
+
+def _row_source_paths(context):
+    """The staged files the running artifact read, newline joined."""
+    return '\n'.join(_ROW_SOURCES.pop(_row_sources_key(context), {}))
 
 # Lidl Bundle ID
 LIDL_BUNDLE_ID = 'com.lidl.eci.lidl.plus'
@@ -565,44 +585,17 @@ def convert_iso8601_to_utc(str_date: str | bytes | None) -> str | None:
 
 def get_device_file_path(file_path: str, context) -> str:
     """
-    Converts a local report file path back to the original iOS device path.
+    The path of a staged file inside the extraction, as get_relative_path reports
+    it, for the Source File Name column. No device path is rebuilt from it, so the
+    column shows what the extraction holds. Records the file as one the running
+    artifact read.
     """
 
     if not file_path:
         return ''
 
-    seeker = context.get_seeker()
-    base_folder = getattr(seeker, 'data_folder', '')
-
-    norm_file_path = str(file_path).replace('\\', '/')
-    norm_base_folder = str(base_folder).replace('\\', '/').rstrip('/')
-
-    base_prefix = norm_base_folder + '/' if norm_base_folder else ''
-
-    if norm_base_folder and (
-        norm_file_path == norm_base_folder
-        or norm_file_path.startswith(base_prefix)
-    ):
-        relative_path = norm_file_path[len(norm_base_folder):].lstrip('/')
-
-        # Canonical iOS physical path
-        if relative_path.startswith('var/'):
-            return '/private/' + relative_path
-
-        # Known iOS filesystem roots
-        ios_system_roots = (
-            'private/', 'Library/', 'System/',
-            'Developer/', 'usr/'
-        )
-
-        if relative_path.startswith(ios_system_roots):
-            return '/' + relative_path
-
-        # Backup-domain or extraction-relative path
-        return relative_path
-
-    # Preserve unresolved external paths as observed
-    return norm_file_path
+    _note_row_source(file_path, context)
+    return context.get_relative_path(str(file_path))
 
 
 def convert_bool_to_str(value, true_value='Yes', false_value='No', none_value='N/A'):
@@ -847,8 +840,10 @@ def _decrypt_database(encrypted_path, context, db_config=None):
             )
             return None
 
-    # Build decrypted output path.
-    relative_path = context.get_relative_path(encrypted_path)
+    # Build decrypted output path. The report names a file by its evidence name,
+    # which can hold characters Windows cannot write, so the copy is named the way
+    # the seeker staged it.
+    relative_path = sanitize_file_path(context.get_relative_path(encrypted_path))
 
     if not relative_path or relative_path == encrypted_path:
         relative_path = os.path.basename(encrypted_path)
@@ -1547,7 +1542,7 @@ def lidl_shopping_list(context):
         # Ensure the database connection is closed safely
         db.close()
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 def _get_cache_record(record, context, cache_id):
@@ -1766,7 +1761,7 @@ def lidl_tickets(context):
     # Sort by Timestamp (index 0) in descending order (newest first)
     # We check if index 0 is valid (not None) to prevent errors
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -1970,7 +1965,7 @@ def lidl_receipt_items(context):
         reverse=True
     )
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
 
 def _extract_last4(number_field):
@@ -2175,7 +2170,7 @@ def lidl_payment_methods(context):
             logfunc(f"[{context.get_artifact_name()}] Error parsing record: {ex}")
             continue
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2247,7 +2242,7 @@ def lidl_loyalty_card(context):
             )
             continue
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2452,7 +2447,7 @@ def lidl_promotion_details(context):
     order = (0, 10, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
     data_headers = tuple(data_headers[i] for i in order)
     data_list = [tuple(row[i] for i in order) for row in data_list]
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2597,7 +2592,7 @@ def lidl_product_details(context):
     # Sort by Cache Time descending
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -2725,7 +2720,7 @@ def lidl_searched_terms(context):
             )
 
     if not search_records:
-        return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+        return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
     # Chronological order for derived sequence grouping.
     search_records.sort(
@@ -2824,7 +2819,7 @@ def lidl_searched_terms(context):
     data_list.sort(key=lambda row: row[0] or '', reverse=True)
     data_list_html.sort(key=lambda row: row[0] or '', reverse=True)
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), _row_source_paths(context)
 
 
 @artifact_processor
@@ -3004,7 +2999,7 @@ def lidl_store_searches(context):
 
     data_list.sort(key=lambda row: (row[0] or '', -(row[7] or 0)), reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -3176,7 +3171,7 @@ def lidl_offers(context):
     # Sort final timeline by Cache Time descending (newest updates first)
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor
@@ -3359,7 +3354,7 @@ def lidl_mypoints(context):
     # Sort final timeline by Cache Time descending (newest updates first)
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, data_list, _row_source_paths(context)
 
 
 @artifact_processor

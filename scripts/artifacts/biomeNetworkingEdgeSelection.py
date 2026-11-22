@@ -6,12 +6,11 @@ __artifacts_v2__ = {
                        ' or user deletion.',
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": 'Reports successfully yielded Written and Deleted SEGB records. Written payload columns '
-                 'retain the existing decoder and interpretations. Deleted rows contain only the SEGB '
-                 'timestamp, structural SEGB State, Filename and Offset; all eight payload columns are '
+        "notes": 'Reports successfully yielded Written and Deleted SEGB records. Deleted rows contain only the SEGB '
+                 'timestamp, structural SEGB State, Filename and Offset; the nine payload columns are '
                  'empty. Deleted is a structural reader state, not proof of a user deletion or a network '
                  'event. Offset is the shared reader data_start_offset within the source file. Unknown and '
                  'reader-excluded states are not recovered. Files under a tombstone folder and dot files '
@@ -19,21 +18,32 @@ __artifacts_v2__ = {
                  'same basename and existing report source information cannot associate that basename and '
                  'offset with one source path. Historical Written-only sample counts below are not a recount'
                  ' of the expanded output. Original implementation/research attribution: @AlexisBrignoni, '
-                 'Claude. Each written record is read here as a network-edge observation: the values are '
-                 'consistent with a device-side public network prefix; this interpretation is inferred from '
-                 'observed values and is unverified. IMPORTANT: the address is TRUNCATED to the accompanying'
-                 " prefix length, not the device's full public IP - every observed value has its host bits "
-                 'zeroed (an IPv4 seen as 69.143.130.0 is the /24 network, an IPv6 as 2600:380:1871:6d00:: '
-                 'is the /56). Report it as a network, not as an endpoint address. The stream is protobuf, '
-                 'which carries field numbers but no field names, so the eight Written payload column names '
-                 'are inferred from the observed values; field 6 has no established meaning and is reported '
-                 'as Field 6. Files under a tombstone folder are skipped.',
+                 'Claude. Each written record is read here as a network-edge observation; that reading is inferred '
+                 'from observed values and is unverified. Field names are those of the '
+                 'BMDeviceEdgeSelection class, read from BiomeLibrary.framework on macOS 27.2.1 '
+                 '(26B131); no iOS copy of the class was read. The framework names field 1 '
+                 'publicIPPrefix, and on the tested images every value had its host bits zeroed '
+                 'to the prefix length in field 3, so it is a network, not an endpoint address. '
+                 'IP Version is the framework field addressFamily, which binds no names to its '
+                 'values. Radio Band is field 6, reported before as Field 6. On the tested images (5 '
+                 'images with written records, 64 written rows) IP Version held 4 on 44 rows and 6 '
+                 'on 20, Prefix Length held 24 and 56 on the same rows, every address had its host '
+                 'bits zeroed to that prefix, and Radio Band was empty on 25 rows. Geohash Field (as stored) is field 9, which '
+                 'the framework names geohash. It was not reported before. '
+                 'On the same 64 written rows (5 of 21 images held written '
+                 'records) it held text on 35 rows on 2 images, with 9 distinct values of 10 to 18 '
+                 'characters, and was empty on 29. Those 35 values were not in geohash form: each was three characters, a hyphen and further text. What that text identifies '
+                 'is not established, so no location precision is stated for it.',
         "paths": ('*/streams/*/Device.Networking.EdgeSelection/local/*',),
         "output_types": "standard",
         "artifact_icon": "network",
         "sample_data": {
-            "otto_ios17": "iOS 17.5.1 | 8 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 0 rows (stream present, all slots deleted)",
+            "cookbook_ios1751": "iOS 17.5.1 | 13 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 17 rows",
+            "hc_ios26": "iOS 26.5.2 | 4 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 135 rows",
+            "otto_ios17": "iOS 17.5.1 | 144 rows (8 written)",
+            "hc_ios18_7": "iOS 18.7.8 | 7 rows (0 written)",
             "felix23_ios16": "iOS 16.5 | 0 rows (stream directory present but empty)",
         },
     }
@@ -66,8 +76,9 @@ def _text(value):
 
 @artifact_processor
 def get_biomeNetworkingEdgeSelection(context):
-    # Field 6 is absent on some records and empty on others, so it is typed as bytes here and
-    # normalized by _text(); the remaining fields are stable across the observed records.
+    # BMDeviceEdgeSelection fields, read from BiomeLibrary.framework on macOS 27.2.1 (26B131).
+    # Field 6 (radioBand) is absent on some records and empty on others, so it is left untyped
+    # and normalized by _text(); the remaining fields are stable across the observed records.
     typess = {
         '1': {'type': 'bytes', 'name': ''},
         '2': {'type': 'int', 'name': ''},
@@ -76,6 +87,7 @@ def get_biomeNetworkingEdgeSelection(context):
         '5': {'type': 'bytes', 'name': ''},
         '7': {'type': 'bytes', 'name': ''},
         '8': {'type': 'bytes', 'name': ''},
+        '9': {'type': 'bytes', 'name': ''},
     }
 
     data_list = []
@@ -95,7 +107,7 @@ def get_biomeNetworkingEdgeSelection(context):
             if record.state == EntryState.Deleted:
                 timestamp = record.timestamp1.replace(tzinfo=timezone.utc)
                 data_list.append((timestamp, record.state.name, None, None, None, None,
-                                  None, None, None, None, filename, record.data_start_offset))
+                                  None, None, None, None, None, filename, record.data_start_offset))
                 row_sources.append(file_found)
                 paths_by_basename.setdefault(filename, set()).add(file_found)
                 continue
@@ -116,21 +128,22 @@ def get_biomeNetworkingEdgeSelection(context):
             prefix_length = _text(protostuff.get('3'))
             interface = _text(protostuff.get('4'))
             radio_technology = _text(protostuff.get('5'))
-            field_6 = _text(protostuff.get('6'))  # meaning unknown; reported verbatim
+            radio_band = _text(protostuff.get('6'))
             country = _text(protostuff.get('7'))
             time_zone = _text(protostuff.get('8'))
+            geohash = _text(protostuff.get('9'))
 
             timestamp = record.timestamp1.replace(tzinfo=timezone.utc)
 
             data_list.append((timestamp, record.state.name, ip_address, ip_version, prefix_length,
-                              interface, radio_technology, field_6, country, time_zone,
+                              interface, radio_technology, radio_band, country, time_zone, geohash,
                               filename, record.data_start_offset))
             row_sources.append(file_found)
             paths_by_basename.setdefault(filename, set()).add(file_found)
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'IP Address (Truncated)', 'IP Version',
-                    'Prefix Length', 'Interface', 'Radio Technology', 'Field 6', 'Country',
-                    'Time Zone', 'Filename', 'Offset')
+                    'Prefix Length', 'Interface', 'Radio Technology', 'Radio Band', 'Country',
+                    'Time Zone', 'Geohash Field (as stored)', 'Filename', 'Offset')
 
     if any(len(paths) > 1 for paths in paths_by_basename.values()):
         data_headers += ('Source File',)

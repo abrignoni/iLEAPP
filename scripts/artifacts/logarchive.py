@@ -643,21 +643,44 @@ __artifacts_v2__ = {
     },
     "logarchive_media_playback": {
         "name": "logarchive media playback",
-        "description": "Unified log entries in the MediaRemote category recording "
-                       "now-playing state: originating app bundle id, playback state "
-                       "changes, and route information",
+        "description": "Unified log entries in subsystem com.apple.amp.mediaremote whose format names a "
+                       "now-playing app, client, player or item change, playback state or rate, a route, a "
+                       "system endpoint change or the AirPlay active state",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-11-22",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Category documented by Sarah Edwards "
-                 "(https://www.mac4n6.com/blog/2020/5/22/analysis-of-apple-unified-logs-quarantine-edition-entry-9-we-all-know-youre-binging-netflix-now-playing-on-your-apple-devices); "
-                 "observed on iOS 18.7. The cited research reports media duration, elapsed "
-                 "time, playback rate and AirPlay target names in these entries.",
+        "notes": "The selection rules below were derived independently, using Apple's log format strings "
+                 "and measured logs. A row is selected when its message in subsystem "
+                 "com.apple.amp.mediaremote matches one of 9 mediaremoted format strings or 3 MediaRemote "
+                 "library format strings from any process. Each comes from Apple's log format tables, with "
+                 "its arguments and line breaks as wildcards. Other MediaRemote entries are not selected "
+                 "and remain in the unified log table. The message is shown as the log reader rendered it. "
+                 "This artifact does not parse or change it. A row shows that the state was logged at that "
+                 "time, not that a person watched or listened. On the 14 images in sample_data, iOS 12.4 "
+                 "to 26.6, read from tracev3 data, the rules gave 484 rows; four images gave none, which "
+                 "means nothing matched in the retained log. A rule with no matching entry on these images "
+                 "is unexercised. A 'log show' JSON export was not tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "play-circle",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 12 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 60 rows",
+            "jess_ios15": "iOS 15.0.2 | 83 rows",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 195 rows",
+            "iphone12_ios18": "iOS 18.7 | 74 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 2 rows",
+            "hc_ios26": "iOS 26.5.2 | 40 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 14 rows",
+        },
     },
     "logarchive_sim_cellular": {
         "name": "logarchive SIM and cellular state",
@@ -1131,62 +1154,62 @@ __artifacts_v2__ = {
     },
     "logarchive_airdrop": {
         "name": "logarchive AirDrop",
-        "description": "Unified log entries matching AirDrop and share sheet message text: the "
-                       "device's AirDrop ID, discoverability "
-                       "scanning mode (Everyone/Contacts Only/Off), SharingDaemon state "
-                       "dumps, share sheet activation, transfer entries, discoverable mode changes, and "
-                       "validation record hash entries",
+        "description": "Unified log entries from AirDrop and the share sheet: the device's AirDrop ID, "
+                       "discoverable and scanning modes, SharingDaemon state dumps, share sheet activity, "
+                       "transfer entries and validation record hash entries",
         "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-10-12",
+        "last_update_date": "2026-11-22",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Documented by Sarah Edwards "
-                 "(https://www.mac4n6.com/blog/2020/6/5/analysis-of-apple-unified-logs-quarantine-edition-entry-11-airdropping-some-knowledge). "
-                 "'Current AirDrop ID is ...' (identifier in the clear), 'Scanning mode "
-                 "Contacts Only' and SharingDaemon state dumps were observed on iOS 17.1, "
-                 "and share sheet activation with 'startSending' on iOS 18.7. The "
-                 "incoming-transfer and accept/decline entries are collected as "
-                 "documented-only; no transfer occurred in the validation images' log "
-                 "windows. The cited research reports that the AirDrop ID is not constant for the "
-                 "life of the device and changes often; how long one ID stays in use is not "
-                 "established here. Every term is matched as message text in any process, with no "
-                 "process, subsystem or category condition. 'Scanning mode' and 'startSending' are "
-                 "short strings, and whether components other than AirDrop and the share sheet log "
-                 "them was not measured, so read Process Image Path, Subsystem and Category on each "
-                 "row before attributing it. 'Discoverable mode changed from' and 'Hashes in validation "
-                 "record:' come from Hexordia research and are matched at the start of the message. On "
-                 "the 14 images in sample_data, iOS 12.4 to 26.6, read from tracev3 data, 'Discoverable "
-                 "mode changed from' gave 84 rows on 11 images, all from /usr/libexec/sharingd in "
-                 "subsystem com.apple.sharing, category AirDrop. The 76 rows on the eight images from "
-                 "iOS 12.4 to 17.3 name the old and new mode ((null), Off, Contacts Only or Everyone); "
-                 "the 8 rows on the iOS 18.3.2, 18.7 and 26.6 images read '<private> to <private>'. "
-                 "'Hashes in validation record:' is collected as documented-only: no entry on any of "
-                 "the 14 images contained that text, so what those entries hold was not measured here. "
-                 "Partial SHA-256 hash values in the receiver's sysdiagnose logarchive are described by "
-                 "Epstein, Klein and Feuerstein, 'Analysis of Sysdiagnose in iOS 15 to Identify the "
-                 "Sending Phone Number of AirDrop Data', Journal of Forensic Sciences, January 2022, "
-                 "as summarised in the 4n6 Ninja post "
-                 "(https://gforce4n6.blogspot.com/2022/03/airdropping-some-knowledge-using-rleapp.html). "
-                 "A 'log show' JSON export was not tested.",
+        "notes": "The selection rules below were derived independently, using Apple's log format strings "
+                 "and measured logs. A row is selected when its message matches one of 73 sharingd format "
+                 "strings in subsystem com.apple.sharing, category AirDrop or a category beginning with "
+                 "AirDrop; 'Discoverable mode changed to' from any process in that subsystem and category; "
+                 "'Everyone mode expired' from sharingd in category Daemon; the AirDropUI transfer accept "
+                 "format when logged in that subsystem and category (the subsystem and category AirDropUI "
+                 "logs it under were not sourced); 7 sharingd and 7 any-process formats in subsystem "
+                 "com.apple.ShareSheet, category ShareSheet; 'Activating com.apple.sharing.sharesheet', as "
+                 "exact text, from a process other than sharingd in that subsystem and category; or a "
+                 "sharingd 'SharingDaemon State' dump, which has no subsystem or category. Each format "
+                 "comes from Apple's log format tables for the daemon or library that writes it. Arguments "
+                 "and line breaks are matched as wildcards, except the Activating text, which is matched "
+                 "exactly. A rule with no matching entry on the images below is unexercised. An "
+                 "unexercised rule misses its entries if they are logged under another category. The "
+                 "format table shows what a message holds, not what caused it: a row shows that the text "
+                 "was logged at that time, not that a file was sent or received. How long one AirDrop ID "
+                 "stays in use is not established here. 'Discoverable mode changed from' and 'Hashes in "
+                 "validation record:' are also described in Hexordia research. On the 14 images in "
+                 "sample_data, iOS 12.4 to 26.6, read from tracev3 data, 'Discoverable mode changed from' "
+                 "gave 84 rows on 11 images, all from /usr/libexec/sharingd in subsystem "
+                 "com.apple.sharing, category AirDrop. The 76 rows on the eight images from iOS 12.4 to "
+                 "17.3 name the old and new mode ((null), Off, Contacts Only or Everyone); the 8 rows on "
+                 "the iOS 18.3.2, 18.7 and 26.6 images read '<private> to <private>'. No entry on any of "
+                 "the 14 images held 'Hashes in validation record:', so what those entries hold was not "
+                 "measured here. Partial SHA-256 hash values in the receiver's sysdiagnose logarchive are "
+                 "described by Epstein, Klein and Feuerstein, 'Analysis of Sysdiagnose in iOS 15 to "
+                 "Identify the Sending Phone Number of AirDrop Data', Journal of Forensic Sciences, "
+                 "January 2022, as summarised in the 4n6 Ninja post "
+                 "(https://gforce4n6.blogspot.com/2022/03/airdropping-some-knowledge-using-rleapp.html). A "
+                 "'log show' JSON export was not tested.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "share",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 94 rows; 5 discoverable mode, 0 validation record hashes",
-            "hickman_ios14_sysdiag": "iOS 14.3 | 232 rows; 6 discoverable mode, 0 validation record hashes",
-            "jess_ios15": "iOS 15.0.2 | 66 rows; 3 discoverable mode, 0 validation record hashes",
-            "abe_ios16": "iOS 16.5 | 268 rows; 3 discoverable mode, 0 validation record hashes",
-            "felix23_ios16": "iOS 16.5 | 30 rows; 4 discoverable mode, 0 validation record hashes",
-            "fsfull002_ios17": "iOS 17.1 | 160 rows; 46 discoverable mode, 0 validation record hashes",
-            "hc_ios17_2": "iOS 17.2.1 | 275 rows; 8 discoverable mode, 0 validation record hashes",
-            "rodeo_ios17_sysdiag": "iOS 17.3 | 90 rows; 1 discoverable mode, 0 validation record hashes",
-            "dexter_ios18": "iOS 18.3.2 | 12 rows; 3 discoverable mode, 0 validation record hashes",
-            "iphone12_ios18": "iOS 18.7 | 17 rows; 3 discoverable mode, 0 validation record hashes",
-            "hc_ios18_7": "iOS 18.7.8 | 0 rows; 0 discoverable mode, 0 validation record hashes",
-            "ai16_ios26_sysdiag": "iOS 26.5.2 | 1 rows; 0 discoverable mode, 0 validation record hashes",
-            "hc_ios26": "iOS 26.5.2 | 46 rows; 0 discoverable mode, 0 validation record hashes",
-            "hc_ios26_sysdiag": "iOS 26.6 | 13 rows; 2 discoverable mode, 0 validation record hashes",
+            "ctf2020_ios12": "iOS 12.4 | 168 rows; 5 discoverable mode changed from, 0 validation record hashes",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 328 rows; 6 discoverable mode changed from, 0 validation record hashes",
+            "jess_ios15": "iOS 15.0.2 | 61 rows; 3 discoverable mode changed from, 0 validation record hashes",
+            "abe_ios16": "iOS 16.5 | 289 rows; 3 discoverable mode changed from, 0 validation record hashes",
+            "felix23_ios16": "iOS 16.5 | 30 rows; 4 discoverable mode changed from, 0 validation record hashes",
+            "fsfull002_ios17": "iOS 17.1 | 345 rows; 46 discoverable mode changed from, 0 validation record hashes",
+            "hc_ios17_2": "iOS 17.2.1 | 316 rows; 8 discoverable mode changed from, 0 validation record hashes",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 90 rows; 1 discoverable mode changed from, 0 validation record hashes",
+            "dexter_ios18": "iOS 18.3.2 | 144 rows; 3 discoverable mode changed from, 0 validation record hashes",
+            "iphone12_ios18": "iOS 18.7 | 142 rows; 3 discoverable mode changed from, 0 validation record hashes",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; 0 discoverable mode changed from, 0 validation record hashes",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 1 row; 0 discoverable mode changed from, 0 validation record hashes",
+            "hc_ios26": "iOS 26.5.2 | 76 rows; 0 discoverable mode changed from, 0 validation record hashes",
+            "hc_ios26_sysdiag": "iOS 26.6 | 28 rows; 2 discoverable mode changed from, 0 validation record hashes",
         },
     },
     "logarchive_carplay_session": {
@@ -2333,6 +2356,50 @@ __artifacts_v2__ = {
             "hc_ios26_sysdiag": "iOS 26.6 (23G71) sysdiagnose | 41 rows; all Disconnected",
         },
     },
+    "logarchive_app_interaction_deletes": {
+        "name": "logarchive app interaction deletes",
+        "description": "Unified log entries in which a process calls deleteInteractionsWithGroupIdentifiers, "
+                       "a CoreSpotlight request to delete interactions by group identifier",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-21",
+        "last_update_date": "2026-11-21",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "One row per log line in the com.apple.corespotlight subsystem, from a process other than "
+                 "searchd, of the form '(...) deleteInteractionsWithGroupIdentifiers, protectionClass:(null), "
+                 "identifiers number:<n>'. App Process is the process that logged the call (imagent on the "
+                 "Messages rows seen). App Bundle ID is taken from the call. When the call does not name one, it "
+                 "is taken from the first searchd line that names a bundle within the next second. That pairing "
+                 "is by time only, so it is left blank when a different process made a request within a second. "
+                 "It is also blank when no line in that second names a bundle, for example when the log shows "
+                 "<private>. Interactions Deleted is taken from the first coreduetd line 'Deleted <n> interactions "
+                 "with reason deleteInteractionsWithBundleId' for that bundle within the next second, and is blank "
+                 "when there is no such line or the bundle is not known. The two lines share no identifier, so "
+                 "the pairing is by time and bundle. coreduetd 'Deleted <n> interactions' lines with any other "
+                 "reason, and count lines that follow no request row, are not reported. The request line gives "
+                 "only the number of identifiers, and the coreduetd line showed domainIdentifiers as (redacted) "
+                 "in every line seen, so a row does not name the conversation. What causes a row was tested for "
+                 "WhatsApp only (WhatsApp 26.46.72 on iOS 27.2.1, linked to another phone): a row was written when "
+                 "a one-to-one chat was deleted (2 of 2) and when a group with no other members was left (2 of 2), "
+                 "and none when a single message was deleted (1 run), a chat was cleared (1 run), or a group "
+                 "already left was deleted (2 runs). A row therefore does not separate deleting a chat from "
+                 "leaving a group, and the absence of a row does not show that nothing was deleted. For other "
+                 "apps a row shows only that the process logged the request. In the three WhatsApp tests that "
+                 "logged a count it equalled the messages sent from that iPhone in the chat, cleared ones "
+                 "included. The fourth chat had none sent and logged no count line. No source defines the number, "
+                 "so it is reported as logged. Only the direct tracev3 import was tested.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "trash-2",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 2 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 2 rows",
+        },
+    },
 }
 
 import json
@@ -2633,6 +2700,141 @@ def logarchive(context):
 
     return results.extend(process_all_sysdiagnoses())
 
+# Message patterns for the AirDrop, share sheet and media playback artifacts. Each is one of Apple's
+# format strings from the writer's log format table, with every argument as a LIKE wildcard.
+_AIRDROP_SHARINGD = ('AirDrop browse start handler called',
+ 'AirDrop received ask request',
+ 'AirDrop received upload request',
+ 'AirDrop sending to % over %',
+ 'Ask request sender bundle ID: %',
+ 'BTLE advertising hashes %',
+ 'BTLE discovered hashes % rssi %',
+ 'Canceling receive transfer %',
+ 'Canceling send transfer %',
+ 'Created new AirDrop ID (%)',
+ 'Current AirDrop ID is %',
+ 'Current Discoverable Mode     %%',
+ 'Current Discoverable Mode:    %%',
+ 'Device hashes % recognized',
+ 'Device hashes % unrecognized',
+ 'Discoverable mode changed from % to %, posting notification',
+ 'Discoverable mode off: appleIDAccountState=% eduModeEnabled=%',
+ 'Got verified identity for % (%)',
+ 'Hash lookup complete: email hash - % phone hash - %',
+ 'Hashes % exist in contacts',
+ 'Hashes in validation record are not recognized.',
+ 'Hashes in validation record: Email=[%], Phone=[%]',
+ 'Incoming transfer % from senderNode',
+ 'New incoming transfer % with items %',
+ 'New incoming transfer % with items: %',
+ 'No AirDrop browse clients present, stopping all browsing',
+ 'Notifying % clients that transfer % was accepted',
+ 'Notifying % clients that transfer % was declined',
+ 'Receive StateMachine PostAccept END {transfer.state: %}',
+ 'Receive StateMachine PreAccept END {response: %, transfer.state: %}',
+ 'Received ASK request',
+ 'Received ASK response {response: %}',
+ 'Received UPLOAD request %',
+ 'Received Upload request for %',
+ 'Receiver cancelled transfer %',
+ 'Receiving first upload request %',
+ 'Returning cached AirDropID %',
+ 'SDAirDropReceiveManager: Received event % for transfer %',
+ 'SDAirDropReceiveService.transfers ADD {id: %}',
+ 'SDAirDropReceiveService.transfers REMOVE {id: %}',
+ 'SDAirDropReceiveService.transfers UPDATE {id: %, state: %}',
+ 'SDAirDropSendService.transfers ADD {id: %}',
+ 'SDAirDropSendService.transfers ERROR {id: %, error: %}',
+ 'SDAirDropSendService.transfers REMOVE {id: %}',
+ 'SDAirDropSendService.transfers UPDATE {id: %, state: %}',
+ 'Scanning mode %',
+ 'Send StateMachine ASK END {response: %}',
+ 'Send StateMachine END %',
+ 'Send StateMachine FAILED % {error: %}',
+ 'Send StateMachine START % {initialEndpoints: %}',
+ 'Sender validation record verified',
+ 'Sending % request to %',
+ 'Sending ASK request',
+ 'Sending UPLOAD request %',
+ 'Started scanning for AirDrop',
+ 'Starting to scan for AirDrop',
+ 'Transfer % changed to state: %. Response: %. Progress: %. Completed URLs: %',
+ 'Transfer connection failed % %',
+ 'Transfer failed {error: %}',
+ 'Transfer with id % failed with reason %',
+ 'Updating browse results for client % - bundleID % - pid % - startTime %',
+ 'User response is %',
+ 'User response is %, dismissing alert.',
+ 'User response updated for transfer %',
+ 'User response: % for transfer with id %',
+ 'Validation record data for % not available',
+ 'Validation record data is accepted for %',
+ 'Verified validation record data (% ms)%',
+ 'Writing AirDropID % to preferences',
+ '[Transfer: %]: New incoming transfer % with items: %',
+ 'alertLog: %',
+ 'startSending to: "%", validated % airdrop items. properties: %',
+ 'startSending, validated airdrop items. properties: %')
+_SHARE_SHEET_SHARINGD = ('%, airdropGloballyAllowed: %, classroomEnabled: %, hostBundleID: %, isContentManaged: %, mayShare: %',
+ '%, airdropGloballyAllowed: %, hostBundleID: %, configIsManaged: %, mayShare: %',
+ '%, airdropGloballyAllowed: %, hostBundleID: %, isContentManaged: %, mayShare: %',
+ 'SDShareSheetSlotManager current connection bundle ID %',
+ 'activityViewControllerDidAppear: for session ID %',
+ 'activityViewControllerDidDisappear: for session ID %',
+ 'current connection bundle ID: %')
+_SHARE_SHEET_ANY = ('Performing activity % (%)',
+ 'UIAVC: did complete activity:% (success=%, error=%) activityType:% shouldCallCompletionHandler:%',
+ 'UIAVC: perform activity:%',
+ 'UIAVC: view did appear',
+ 'UIAVC: view did disappear',
+ 'User selected node in section %',
+ 'did perform activity with result:%')
+_MEDIA_MEDIAREMOTED = ('[AccessoryController] Routes changed: Output=% System=% Input=%',
+ '[MRDNowPlayingClient] ActiveNowPlayingPlayer changed from % to % for %',
+ '[MRDNowPlayingOriginClient] ActiveNowPlayingClient changed from % to %',
+ '[MRDNowPlayingPlayerClient] PlaybackState changed from % to % for %',
+ '[MRDNowPlayingPlayerClient] isPlaying changed to % for %',
+ '[MRDNowPlayingPlayerClient] playbackRate changed to % for %',
+ '[MRDRRC] route: % bundleIdentifier: %, emittedEvent: %',
+ '[MediaServerNowPlayingDataSource] Now playing app change notification received. New now playing app '
+ 'display ID = %',
+ '[MediaServerNowPlayingDataSource] Now playing app is playing did change notification received. Playing = '
+ '%')
+_MEDIA_ANY_PROCESS = ('PlaybackQueueInvalidation: NowPlayingItem for % changed from% %% -> %%',
+ '[AVDiscoverySession] Current airplay active state = %',
+ '[MRNowPlayingOriginClientManager] %SystemEndpoint changed from % to % because %')
+
+
+def _message_like(patterns):
+    return ' OR '.join("event_message LIKE '" + item.replace("'", "''") + "' ESCAPE '\\'" for item in patterns)
+
+
+_AIRDROP_WHERE = f"""
+        (subsystem = 'com.apple.sharing' AND (
+            (category LIKE 'AirDrop%' AND process_image_path LIKE '%/sharingd'
+             AND ({_message_like(_AIRDROP_SHARINGD)}))
+            OR (category LIKE 'AirDrop%' AND event_message LIKE 'Discoverable mode changed to %')
+            OR (category = 'Daemon' AND process_image_path LIKE '%/sharingd'
+                AND event_message LIKE 'Everyone mode expired - setting to %')
+            OR (category LIKE 'AirDrop%' AND process_image_path LIKE '%/AirDropUI'
+                AND event_message LIKE 'Accept transfer for transfer identifier: %.')))
+        OR (subsystem = 'com.apple.ShareSheet' AND category = 'ShareSheet' AND (
+            (process_image_path LIKE '%/sharingd' AND ({_message_like(_SHARE_SHEET_SHARINGD)}))
+            OR (process_image_path NOT LIKE '%/sharingd'
+                AND event_message = 'Activating com.apple.sharing.sharesheet')
+            OR {_message_like(_SHARE_SHEET_ANY)}))
+        OR (process_image_path LIKE '%/sharingd' AND COALESCE(subsystem, '') = '' AND COALESCE(category, '') = ''
+            AND (event_message IN ('SharingDaemon State', 'title: SharingDaemon State')
+                 OR event_message LIKE 'SharingDaemon State' || char(10) || '%'
+                 OR event_message LIKE 'title: SharingDaemon State' || char(10) || '%'))
+"""
+
+_MEDIA_WHERE = f"""
+        subsystem = 'com.apple.amp.mediaremote' AND (
+            (process_image_path LIKE '%/mediaremoted' AND ({_message_like(_MEDIA_MEDIAREMOTED)}))
+            OR {_message_like(_MEDIA_ANY_PROCESS)})
+"""
+
 @artifact_processor
 def logarchive_artifacts(context):
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
@@ -2860,7 +3062,17 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Initiating launch from icon view%'
         OR event_message LIKE '%Scene lifecycle state did change%'
         -- logarchive_media_playback
-        OR category = 'MediaRemote'
+        OR (subsystem = 'com.apple.amp.mediaremote' AND (
+            event_message LIKE '%AccessoryController%'
+            OR event_message LIKE '%ActiveNowPlaying%'
+            OR event_message LIKE '%PlaybackState changed%'
+            OR event_message LIKE '%isPlaying changed%'
+            OR event_message LIKE '%playbackRate changed%'
+            OR event_message LIKE '%MRDRRC%'
+            OR event_message LIKE '%MediaServerNowPlayingDataSource%'
+            OR event_message LIKE '%PlaybackQueueInvalidation%'
+            OR event_message LIKE '%AVDiscoverySession%'
+            OR event_message LIKE '%SystemEndpoint changed%'))
         -- logarchive_sim_cellular
         OR event_message LIKE '%kCTSIMSupportSIMStatus%'
         OR event_message LIKE '%dataNetwork changed to%'
@@ -2928,15 +3140,12 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Deferring device orientation updates for reason: shutdown%'
         OR event_message LIKE '%locationd shutting down%'
         -- logarchive_airdrop
-        OR event_message LIKE '%AirDrop ID%'
-        OR event_message LIKE '%SharingDaemon State%'
-        OR event_message LIKE '%Scanning mode%'
-        OR event_message LIKE '%startSending%'
-        OR event_message LIKE '%New incoming transfer%'
-        OR event_message LIKE '%alertLog: idx:%'
-        OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
-        OR event_message LIKE 'Discoverable mode changed from%'
-        OR event_message LIKE 'Hashes in validation record:%'
+        OR (subsystem = 'com.apple.sharing' AND category LIKE 'AirDrop%')
+        OR (subsystem = 'com.apple.sharing' AND category = 'Daemon'
+            AND event_message LIKE 'Everyone mode expired%')
+        OR (subsystem = 'com.apple.ShareSheet' AND category = 'ShareSheet')
+        OR (process_image_path LIKE '%/sharingd' AND event_message LIKE 'SharingDaemon State%')
+        OR (process_image_path LIKE '%/sharingd' AND event_message LIKE 'title: SharingDaemon State%')
         -- logarchive_wifi_status additions (password retrieval, auto-join with
         -- SSID in the clear, link loss, session duration)
         OR event_message LIKE '%Copy password for Network%'
@@ -3068,6 +3277,12 @@ def logarchive_artifacts(context):
         OR (subsystem LIKE 'com.apple.mobilesafari' AND event_message LIKE '%passkey keychain records from%')
         -- logarchive_shortcut_actions
         OR (subsystem = 'com.apple.shortcuts' AND category = 'RunningLifecycle' AND event_message LIKE '%actionID=%')
+        -- logarchive_app_interaction_deletes. Collected here as well as filtered in the
+        -- dependent artifact, or the rows never reach the table it reads.
+        OR (subsystem = 'com.apple.corespotlight'
+            AND event_message LIKE '%deleteInteractionsWithGroupIdentifiers, protectionClass:%')
+        OR (subsystem = 'com.apple.coreduet.interaction'
+            AND event_message LIKE 'Deleted % interactions with reason deleteInteractionsWithBundleId:%')
         -- logarchive_vpn_state
         OR (subsystem = 'com.apple.networkextension' AND event_message LIKE '%VPN connectivity state is now%')
     )
@@ -3555,9 +3770,7 @@ def logarchive_app_focus(context):
 
 @artifact_processor
 def logarchive_media_playback(context):
-    return _artifacts_table_records(context, '''
-        category = 'MediaRemote'
-    ''')
+    return _artifacts_table_records(context, _MEDIA_WHERE)
 
 @artifact_processor
 def logarchive_sim_cellular(context):
@@ -4062,17 +4275,7 @@ def logarchive_power_events(context):
 
 @artifact_processor
 def logarchive_airdrop(context):
-    return _artifacts_table_records(context, '''
-        event_message LIKE '%AirDrop ID%'
-        OR event_message LIKE '%SharingDaemon State%'
-        OR event_message LIKE '%Scanning mode%'
-        OR event_message LIKE '%startSending%'
-        OR event_message LIKE '%New incoming transfer%'
-        OR event_message LIKE '%alertLog: idx:%'
-        OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
-        OR event_message LIKE 'Discoverable mode changed from%'
-        OR event_message LIKE 'Hashes in validation record:%'
-    ''')
+    return _artifacts_table_records(context, _AIRDROP_WHERE)
 
 @artifact_processor
 def logarchive_carplay_session(context):
@@ -4370,3 +4573,85 @@ def logarchive_recording_indicator(context):
     data_list = [(_report_time(record[0]), record[1], record[2], record[3], record[6])
                  for record in get_sqlite_db_records(source_path, query)]
     return RECORDING_INDICATOR_HEADERS, data_list, source_path
+
+
+# App requests to delete donated interactions. The WHERE fragment must stay within the markers
+# logarchive_artifacts collects, because this artifact only reads the table that query builds.
+INTERACTION_DELETE_WHERE = """
+    (subsystem = 'com.apple.corespotlight'
+     AND event_message LIKE '%deleteInteractionsWithGroupIdentifiers, protectionClass:%')
+    OR (subsystem = 'com.apple.coreduet.interaction'
+        AND event_message LIKE 'Deleted % interactions with reason deleteInteractionsWithBundleId:%')
+"""
+INTERACTION_DELETE_HEADERS = (
+    ('Timestamp', 'datetime'), ('Row Number', 'number'), 'App Process', ('Process ID', 'number'),
+    'App Bundle ID', ('Identifiers in Request (as logged)', 'number'),
+    ('Interactions Deleted (as logged)', 'number'), 'Event Message')
+INTERACTION_REQUEST = re.compile(
+    r'^\((.*?)\) deleteInteractionsWithGroupIdentifiers, protectionClass:([^,\s]*)(?:, identifiers number:(\d+))?')
+INTERACTION_COUNT = re.compile(
+    r'^Deleted (\d+) interactions with reason deleteInteractionsWithBundleId:(\S+) domainIdentifiers:')
+INTERACTION_PAIR_SECONDS = 1.0
+_UNNAMED_BUNDLES = ('', '(null)', '<private>')
+
+
+def _next_unused(entries, used, start, wanted=None):
+    """Index of the first unused (time, bundle) entry within the pairing window, or None."""
+    for index, (when, bundle) in enumerate(entries):
+        if index in used or when < start or when > start + INTERACTION_PAIR_SECONDS:
+            continue
+        if wanted is None or bundle == wanted:
+            used.add(index)
+            return index
+    return None
+
+
+def _interaction_delete_rows(records):
+    """One row per app request, with the daemon lines that name its bundle and count.
+
+    The bundle and count are filled only from a line that follows the request within the
+    pairing window. Nothing is inferred from the process name, and an unpaired request keeps
+    blanks rather than a guess.
+    """
+    ordered = sorted((r for r in records if isinstance(r[0], (int, float))), key=lambda r: (r[0], r[1]))
+    requests, named, counts = [], [], []
+    for record in ordered:
+        message = str(record[6] or '')
+        process = str(record[2] or '').rsplit('/', 1)[-1]
+        request = INTERACTION_REQUEST.match(message)
+        if request:
+            if process != 'searchd' and request.group(2) == '(null)' and request.group(3):
+                requests.append((record, process, request.group(1), int(request.group(3))))
+            elif process == 'searchd' and request.group(1) not in _UNNAMED_BUNDLES:
+                named.append((record[0], request.group(1)))
+            continue
+        count = INTERACTION_COUNT.match(message)
+        if count:
+            counts.append((record[0], count.group(2), int(count.group(1))))
+    count_entries = [(when, bundle) for when, bundle, _ in counts]
+    used_named, used_counts, data_list = set(), set(), []
+    for record, process, logged_bundle, identifiers in requests:
+        bundle = '' if logged_bundle in _UNNAMED_BUNDLES else logged_bundle
+        other_process = any(
+            other[1] != process and abs(other[0][0] - record[0]) <= INTERACTION_PAIR_SECONDS
+            for other in requests)
+        if bundle or not other_process:
+            named_index = _next_unused(named, used_named, record[0], bundle or None)
+            if not bundle and named_index is not None:
+                bundle = named[named_index][1]
+        deleted = None
+        if bundle:
+            count_index = _next_unused(count_entries, used_counts, record[0], bundle)
+            if count_index is not None:
+                deleted = counts[count_index][2]
+        data_list.append((_report_time(record[0]), record[1], process, record[3], bundle,
+                          identifiers, deleted, record[6]))
+    return data_list
+
+
+@artifact_processor
+def logarchive_app_interaction_deletes(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {INTERACTION_DELETE_WHERE}'
+    records = list(get_sqlite_db_records(source_path, query))
+    return INTERACTION_DELETE_HEADERS, _interaction_delete_rows(records), source_path

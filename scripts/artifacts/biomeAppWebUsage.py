@@ -4,12 +4,20 @@ __artifacts_v2__ = {
         "description": "Parses App Web Usage entries from Biome",
         "author": "r.schramp@nfi.nl",
         "creation_date": "2026-05-29",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-11-18",
         "version": "0.0.1",
         "date": "2026-05-29",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "The Usage State and Is Usage Trusted field names and the Usage State "
+                 "value names are those of the BMAppWebUsage class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class "
+                 "was read. The class reads only data version 1 (the unnamed integer the SEGB reader "
+                 "returns with each entry); a record of another version, or a value outside the class's "
+                 "list, keeps its integer in Usage State (raw) with the name blank. Usage State "
+                 "was reported before as pb_int_3 and Is Usage Trusted as pb_int_8. Is Usage "
+                 "Trusted reads True for 1, False for 0 and is blank otherwise. On the 718 written "
+                 "records on the tested images Usage State was 1 (NotInUse) on 370 and 3 "
+                 "(InFocus) on 348, and Is Usage Trusted was True on all 718.",
         "paths": ('*/Biome/streams/restricted/App.WebUsage/local/*'),
         "output_types": "standard",
         "artifact_icon": "world",
@@ -40,30 +48,42 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
 
+# usageState names, read from BiomeLibrary.framework BMAppWebUsage on macOS 27.2.1 (26B131).
+# The class reads only data version 1 (the unnamed int the SEGB reader returns per entry); other
+# versions get no name, and so do values the class renders only as its fallback.
+USAGE_STATE_BY_VERSION = {
+    1: dict(enumerate(('Unknown', 'NotInUse', 'InUse', 'InFocus'))),
+}
+
+
+def _bool_text(value):
+    if value == 1 and not isinstance(value, bool):
+        return 'True'
+    if value == 0 and not isinstance(value, bool):
+        return 'False'
+    return ''
+
+
 @artifact_processor
 def get_biomeAppWebUsage(context):
 
-    # Tested with:
-    # MagnetCTF2026/00008110-0008196A2299401E_files_full.zip
-    # 7b9530778c88472cc0a0361da361d953355cdc38428d3e1cebc48d2f4ce2291b  private/var/mobile/Library/Biome/streams/restricted/App.WebUsage/local/785879718693707
-    #
-    # Field mapping (based on observed protobuf decode):
-    #   1  -> GUID / UUID string
-    #   2  -> Timestamp (webkit/double, e.g. 7.858817e8)
-    #   3  -> VARINT - function TBD (placeholder: pb_int_3)
-    #   4  -> Full URL string
-    #   5  -> Domain / host string
-    #   6  -> Bundle ID string (e.g. com.apple.mobilesafari)
-    #   8  -> VARINT - function TBD (placeholder: pb_int_8)
+    # Field mapping (BMAppWebUsage field names in brackets):
+    #   1  -> GUID / UUID string (uniqueID)
+    #   2  -> Timestamp (webkit/double, e.g. 7.858817e8) (absoluteTimestamp)
+    #   3  -> Usage State enum (usageState)
+    #   4  -> Full URL string (webpageURL)
+    #   5  -> Domain / host string (webDomain)
+    #   6  -> Bundle ID string (e.g. com.apple.mobilesafari) (applicationID)
+    #   8  -> Is Usage Trusted bool (isUsageTrusted)
 
     typess = {
         '1': {'type': 'str',    'name': 'guid'},
         '2': {'type': 'double', 'name': 'timestamp'},
-        '3': {'type': 'int',    'name': 'pb_int_3'}, # Values 1 and 3
+        '3': {'type': 'int',    'name': 'usage_state'},
         '4': {'type': 'str',    'name': 'url'},
         '5': {'type': 'str',    'name': 'domain'},
         '6': {'type': 'str',    'name': 'bundle_id'},
-        '8': {'type': 'int',    'name': 'pb_int_8'},
+        '8': {'type': 'int',    'name': 'is_usage_trusted'},
     }
 
     data_list = []
@@ -96,12 +116,17 @@ def get_biomeAppWebUsage(context):
                     continue
 
                 guid               = protostuff.get('guid', '')
-                timestamp          = webkit_timestampsconv(protostuff['timestamp'])
-                pb_int_3           = protostuff.get('pb_int_3', None)
+                raw_timestamp      = protostuff.get('timestamp')
+                # an NSDate sentinel converts to '', kept as None like the other absent values
+                timestamp          = ((webkit_timestampsconv(raw_timestamp) or None)
+                                      if isinstance(raw_timestamp, (int, float)) else None)
+                usage_state        = protostuff.get('usage_state', None)
                 url                = protostuff.get('url', '')
                 domain             = protostuff.get('domain', '')
                 bundle_id          = protostuff.get('bundle_id', '')
-                pb_int_8           = protostuff.get('pb_int_8', None)
+                is_usage_trusted   = _bool_text(protostuff.get('is_usage_trusted'))
+                version            = getattr(record, '_unknown_value', None)
+                usage_state_name   = USAGE_STATE_BY_VERSION.get(version, {}).get(usage_state, '')
 
                 data_list.append((
                     ts,
@@ -111,8 +136,9 @@ def get_biomeAppWebUsage(context):
                     domain,
                     bundle_id,
                     guid,
-                    pb_int_3,
-                    pb_int_8,
+                    usage_state_name,
+                    usage_state,
+                    is_usage_trusted,
                     filename,
                     record.data_start_offset
                 ))
@@ -126,8 +152,9 @@ def get_biomeAppWebUsage(context):
                     None,               # domain
                     None,               # bundle_id
                     None,               # guid
-                    None,               # is_private_browsing
-                    None,               # is_secure
+                    None,               # usage state
+                    None,               # usage state (raw)
+                    None,               # is usage trusted
                     filename,
                     record.data_start_offset
                 ))
@@ -140,8 +167,9 @@ def get_biomeAppWebUsage(context):
         'Domain',
         'Bundle ID',
         'GUID',
-        'pb_int_3',
-        'pb_int_8',
+        'Usage State',
+        'Usage State (raw)',
+        'Is Usage Trusted',
         'Filename',
         'Offset'
     )

@@ -1,22 +1,31 @@
 __artifacts_v2__ = {
     "get_biomeDiscoverabilitySignals": {
         "name": "Biome - Discoverability Signals",
-        "description": "Parses feature signals from the Discoverability.Signals biome stream. "
-                       "Each written record carries a signal name as stored (the names seen "
+        "description": "Parses records from the Discoverability.Signals biome stream. "
+                       "Written records carry a signal name in Content Identifier (the "
+                       "names seen "
                        "include ones that refer to Face ID face coverings, Wallet transactions "
-                       "and photos moved to the trash), together with the value or JSON "
-                       "payload stored with it. What causes a signal to be written is not "
+                       "and photos moved to the trash), together with the context, OS build "
+                       "and user info stored with it. What causes a signal to be written is not "
                        "established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The five tested images held 31 to 8,951 rows each. Some "
-                 "records carry the signal name as a submessage rather than a string; those "
-                 "are reported with an empty Signal column and their raw content in the "
-                 "Signal (raw) "
-                 "column rather than being dropped.",
+        "notes": "Field names are those of the BMDiscoverabilitySignals class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. The four fields are read with a fixed layout. Content Identifier, Context "
+                 "and OS Build were reported before as Signal, Value and Context ID (raw), and "
+                 "User Info as Payload. Field 3 is the OS build string. The old Context ID (raw) "
+                 "column held a number taken from that string after the schema-less decoder "
+                 "misread it as a submessage, and the old Signal (raw) column held signal names "
+                 "misread the same way. User Info is stored as bytes and is reported as text. On "
+                 "the tested images (9 images, 18,895 written rows) Content Identifier is filled "
+                 "on 18,894 rows, 258 of which had an empty Signal before; OS Build is filled on "
+                 "17,734 rows, where Context ID (raw) held digits on 12,901; Context is filled on "
+                 "1,768 rows, 6 more than Value was. On wilkerson_iphone16_ios26, 64 written "
+                 "records could not be decoded and are logged, not reported.",
         "paths": ('*/streams/*/Discoverability.Signals/local/*',),
         "output_types": "standard",
         "artifact_icon": "radio",
@@ -56,11 +65,15 @@ def _to_str(value):
     return str(value)
 
 
-def _raw_repr(value):
-    """Keep non-string content visible without pretending it is a name."""
-    if value is None or (isinstance(value, dict) and not value):
-        return ''
-    return _to_str(value) if not isinstance(value, (dict, list)) else str(value)
+# BMDiscoverabilitySignals fields, read from BiomeLibrary.framework on macOS 27.2.1 (26B131):
+# 1 contentIdentifier, 2 context, 3 osBuild (strings), 4 userInfo (data). Pinned as bytes so
+# short strings are never guessed to be submessages.
+TYPESS = {
+    '1': {'type': 'bytes', 'name': ''},
+    '2': {'type': 'bytes', 'name': ''},
+    '3': {'type': 'bytes', 'name': ''},
+    '4': {'type': 'bytes', 'name': ''},
+}
 
 
 @artifact_processor
@@ -85,29 +98,23 @@ def get_biomeDiscoverabilitySignals(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, TYPESS)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'Discoverability Signals: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
-                signal = protostuff.get('1')
-                context_msg = protostuff.get('3', {})
-                if not isinstance(context_msg, dict):
-                    context_msg = {}
-
-                data_list.append((ts, record.state.name, _to_str(signal),
+                data_list.append((ts, record.state.name, _to_str(protostuff.get('1')),
                                   _to_str(protostuff.get('2')),
+                                  _to_str(protostuff.get('3')),
                                   _to_str(protostuff.get('4')),
-                                  _raw_repr(signal) if not isinstance(signal, bytes) else '',
-                                  context_msg.get('13', ''), filename,
-                                  record.data_start_offset))
-
-            elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, None, None, None,
                                   filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Signal', 'Value',
-                    'Payload', 'Signal (raw)', 'Context ID (raw)', 'Filename', 'Offset')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, record.state.name, None, None, None, None,
+                                  filename, record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Content Identifier',
+                    'Context', 'OS Build', 'User Info', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

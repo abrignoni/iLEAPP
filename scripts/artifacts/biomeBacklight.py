@@ -4,10 +4,15 @@ __artifacts_v2__ = {
         "description": "Parses backlight entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Field names are those of the BMDeviceBacklight class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. Backlight Level is the integer stored in field 2, reported as stored; the "
+                 "framework binds no names to its values. It was reported before as State. On the "
+                 "tested images (21 images, 21,202 written rows) it held 0 on 10,731 rows and 1 "
+                 "on 10,471.",
         "paths": (
             '*/Biome/streams/public/Backlight/local/*',
             '*/streams/*/Device.Display.Backlight/local/*',
@@ -70,14 +75,15 @@ def get_biomeBacklight(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
-                timestart = (webkit_timestampsconv(protostuff['1']))
-                state = (protostuff['2'])
+                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                timestart = (webkit_timestampsconv(protostuff['1']) or None)
+                backlight_level = protostuff['2']
 
-                data_list.append((ts, timestart, record.state.name, state, filename, record.data_start_offset))
+                data_list.append((ts, timestart, record.state.name, backlight_level, filename, record.data_start_offset))
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, None, record.state.name, None, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'State', 'Filename',
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Backlight Level', 'Filename',
                     'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

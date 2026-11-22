@@ -290,6 +290,28 @@ class ComposedProse(unittest.TestCase):
                 return results
         '''), [(5, 'Cache: '), (6, ' files')])
 
+    def test_flags_a_module_constant_written_as_an_f_string(self):
+        """lidl_plus' and waze's shape."""
+        self.assertEqual(composed_for('''
+            SOURCE_FILE_NAME = 'Source File Name'
+            SOURCE_PATH_NOTE = f"Refer to the '{SOURCE_FILE_NAME}' column to identify the " \\
+                               "location of the origin file."
+
+            @artifact_processor
+            def demo(context):
+                return (), [1], SOURCE_PATH_NOTE
+        '''), [(3, "Refer to the 'Source File Name' column to identify the location of the origin file.")])
+
+    def test_leaves_a_module_constant_path_built_from_values(self):
+        self.assertEqual(composed_for('''
+            ROOT = 'private/var/mobile'
+            DB_PATH = f'{ROOT}/Library/app.db'
+
+            @artifact_processor
+            def demo(context):
+                return (), [1], DB_PATH
+        '''), [])
+
     def test_flags_a_label_returned_by_a_helper(self):
         self.assertEqual(composed_for('''
             def _parse(context):

@@ -4,10 +4,12 @@ __artifacts_v2__ = {
         "description": "Parses hardware reliability entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Field names are those of the BMOSAnalyticsReliability class, read from "
+                 "BiomeLibrary.framework on macOS 27.2.1 (26B131); no iOS copy of the class was "
+                 "read. The Reason column was reported before as Hardware.",
         "paths": ('*/Biome/streams/restricted/OSAnalytics.Hardware.Reliability/local/*'),
         "output_types": "standard",
         "artifact_icon": "cpu",
@@ -76,6 +78,6 @@ def get_biomeHardware(context):
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, record.state.name, None, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Record Time', 'datetime'), 'SEGB State', 'Hardware', 'Filename', 'Offset')
+    data_headers = (('SEGB Record Time', 'datetime'), 'SEGB State', 'Reason', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: "
@@ -15,7 +15,7 @@ __artifacts_v2__ = {
                  "read at App.InstalledApp/Database/Set.db and at App.InstalledApp/Set.db: on "
                  "iphone14plus_ios18 and iphone14plus_ios18_mvs2025 (iOS 18.0, two acquisitions of one "
                  "iPhone 14 Plus) it sat directly in the set folder with no Database folder, and on the "
-                 "other tested images in Database.",
+                 "other tested images in Database." ' A record the schema-less protobuf decoder raises an error on is decoded again with its top-level fields typed by their own wire types and its row is kept, and the log says so; on a private iOS 27.2 sample this kept App.InstalledApp rows that were skipped before.',
         "paths": ('*/Biome/sets/Default/App.InstalledApp/*Set.db*',),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                        "fields 1 and 3 reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
                  "on the hc_ios26 image). The store is read at Contacts.Contact/Database/Set.db and at "
                  "Contacts.Contact/Set.db: on iphone14plus_ios18 and iphone14plus_ios18_mvs2025 (iOS "
                  "18.0, two acquisitions of one iPhone 14 Plus) it sat directly in the set folder with no "
-                 "Database folder, and on the other tested images in Database.",
+                 "Database folder, and on the other tested images in Database." ' A record the schema-less protobuf decoder raises an error on is decoded again with its top-level fields typed by their own wire types and its row is kept, and the log says so.',
         "paths": ('*/Biome/sets/Default/Contacts.Contact/*Set.db*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -58,25 +58,29 @@ __artifacts_v2__ = {
         },
     },
     "biomeSetsFindMyDevices": {
-        "name": "Biome Sets - FindMy Devices",
+        "name": "Biome Sets - Find My Devices",
         "description": "FindMy device records (a device name and two strings stored with it in "
                        "field 2, reported as stored) from the FindMy.Device Biome "
                        "Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: "
-                 "https://northloopconsulting.com/blog/f/ready-sets-go. Fields 2.1 and 2.2 are two "
-                 "strings nested in field 2 of each record; no source was found that names them, so they "
-                 "are reported under their field numbers and no owner name label is applied. The Modified "
-                 "column comes from the store's instance table, or metacontent_provenance.written_date on "
-                 "stores without one (observed on the hc_ios26 image). The store is read at "
-                 "FindMy.Device/Database/Set.db and at FindMy.Device/Set.db: on iphone14plus_ios18 and "
-                 "iphone14plus_ios18_mvs2025 (iOS 18.0, two acquisitions of one iPhone 14 Plus) it sat "
-                 "directly in the set folder with no Database folder, and on the other tested images in "
-                 "Database.",
+                 "https://northloopconsulting.com/blog/f/ready-sets-go. Field 1 is reported as Device Name from "
+                 "the store name and the cited description of the set. No source names the field. Fields 2.1 and "
+                 "2.2 are two strings nested in field 2 of each record; no source was found that names them, so "
+                 "they are reported under their field numbers and no owner name label is applied. The Modified "
+                 "column comes from the store's instance table, or metacontent_provenance.written_date on stores "
+                 "without one (observed on the hc_ios26 image). The store is read at FindMy.Device/Database/Set.db"
+                 " and at FindMy.Device/Set.db: on iphone14plus_ios18 and iphone14plus_ios18_mvs2025 (iOS 18.0, "
+                 "two acquisitions of one iPhone 14 Plus) it sat directly in the set folder with no Database "
+                 "folder, and on the other tested images in Database. A record the schema-less protobuf decoder "
+                 "raises an error on is decoded again with its top-level fields typed by their own wire types. "
+                 "When that succeeds the row is kept and the log says so. When it fails the record is skipped and "
+                 "logged. Other Fields lists top-level fields other than 1 and 2. A subfield of field 2 beyond 2.1"
+                 " and 2.2 is not reported.",
         "paths": ('*/Biome/sets/Default/FindMy.Device/*Set.db*',),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -95,7 +99,7 @@ __artifacts_v2__ = {
                        "Location.SignificantLocation Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: "
@@ -106,7 +110,7 @@ __artifacts_v2__ = {
                  "Location.SignificantLocation/Set.db: on iphone14plus_ios18 and "
                  "iphone14plus_ios18_mvs2025 (iOS 18.0, two acquisitions of one iPhone 14 Plus) it sat "
                  "directly in the set folder with no Database folder, and on the other tested images in "
-                 "Database.",
+                 "Database." ' A record the schema-less protobuf decoder raises an error on is decoded again with its top-level fields typed by their own wire types and its row is kept, and the log says so.',
         "paths": ('*/Biome/sets/Default/Location.SignificantLocation/*Set.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -124,7 +128,7 @@ __artifacts_v2__ = {
                        "(one store per source application).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The Set.db layout is described in North Loop Consulting, 'Apple Did Your Homework: "
@@ -139,7 +143,7 @@ __artifacts_v2__ = {
                  "18.0), directly in it. On the six registered images read so far that carry these stores "
                  "(dexter_ios18, hc_ios18_7, iphone12_ios18, hc_ios26, falken_ios26 and "
                  "iphone14plus_ios18) no Source App had a second store, so the report's located-at line "
-                 "names the file each row came from.",
+                 "names the file each row came from." ' A record the schema-less protobuf decoder raises an error on is decoded again with its top-level fields typed by their own wire types and its row is kept, and the log says so.',
         "paths": ('*/Biome/sets/Default/App.Shortcut.Phrase/*/*Set.db*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -156,7 +160,7 @@ __artifacts_v2__ = {
                        "Biome Set.db stores (can include user content names such as note titles and board names).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The Set.db layout is described in North Loop Consulting, 'Apple Did Your Homework: "
@@ -169,7 +173,7 @@ __artifacts_v2__ = {
                  "folder or, on iphone14plus_ios18 (iOS 18.0), directly in it. On the six registered "
                  "images read so far that carry these stores (dexter_ios18, hc_ios18_7, iphone12_ios18, "
                  "hc_ios26, falken_ios26 and iphone14plus_ios18) no Source App had a second store, so the "
-                 "report's located-at line names the file each row came from.",
+                 "report's located-at line names the file each row came from." ' A record the schema-less protobuf decoder raises an error on is decoded again with its top-level fields typed by their own wire types and its row is kept, and the log says so.',
         "paths": ('*/Biome/sets/Default/App.Shortcut.Entity/*/*Set.db*',),
         "output_types": "standard",
         "artifact_icon": "database",
@@ -194,9 +198,56 @@ from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly, does
 SOURCE_APP_RE = re.compile(r'sourceIdentifier=([^/\\]+)')
 
 
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
+_WIRE_TYPES = {0: 'int', 1: 'fixed64', 2: 'bytes', 5: 'fixed32'}
+
+
+def _varint(blob, offset):
+    value, shift = 0, 0
+    while True:
+        byte = blob[offset]
+        offset += 1
+        value |= (byte & 0x7F) << shift
+        shift += 7
+        if byte < 0x80:
+            return value, offset
+
+
+def _top_level_typedef(blob):
+    """A typedef naming each top-level field by its wire type, so nothing below it is guessed.
+
+    Raises ValueError when the top level cannot be walked as varint, fixed64, fixed32 and
+    length-delimited fields. Group wire types are refused.
+    """
+    blob = bytes(blob)
+    typedef, offset = {}, 0
+    try:
+        while offset < len(blob):
+            key, offset = _varint(blob, offset)
+            field, wire = key >> 3, key & 7
+            if wire not in _WIRE_TYPES or field == 0:
+                raise ValueError(f'wire type {wire} for field {field} at offset {offset}')
+            if wire == 0:
+                _, offset = _varint(blob, offset)
+            elif wire == 1:
+                offset += 8
+            elif wire == 5:
+                offset += 4
+            else:
+                length, offset = _varint(blob, offset)
+                offset += length
+            typedef[str(field)] = {'type': _WIRE_TYPES[wire], 'name': ''}
+    except IndexError as ex:
+        raise ValueError('record ends inside a field') from ex
+    if offset != len(blob):
+        raise ValueError('record ends inside a field')
+    return typedef
+
+
 def _set_records(file_found):
     """Yields (timestamp_utc, protobuf_dict) for every content record of a
-    Set.db store. Records that fail protobuf decoding are logged and skipped."""
+    Set.db store. A record that fails the schema-less decode is decoded again by top-level
+    wire type; one that fails both is logged and skipped."""
     if not does_table_exist_in_db(file_found, 'content'):
         logfunc(f'No content table in {file_found} (unsupported Set.db layout?)')
         return
@@ -238,9 +289,20 @@ def _set_records(file_found):
     for timestamp, blob in rows:
         try:
             message, _ = blackboxprotobuf.decode_message(blob)
-        except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
-            logfunc(f'Skipping Set.db record in {file_found} due to protobuf decode error: {ex}')
-            continue
+        except _DECODE_ERRORS as ex:
+            # The schema-less decoder guesses whether a length-delimited field is a nested
+            # message and reuses that guess for later occurrences of the same field, where it
+            # can raise while the record's own framing is sound. Decode again with every
+            # top-level field typed from that framing, so the record is kept, with its
+            # length-delimited fields as bytes (_nested decodes them where a column needs it),
+            # instead of being dropped.
+            try:
+                message, _ = blackboxprotobuf.decode_message(blob, _top_level_typedef(blob))
+            except _DECODE_ERRORS:
+                logfunc(f'Skipping Set.db record in {file_found} due to protobuf decode error: {ex}')
+                continue
+            logfunc(f'Set.db record in {file_found} decoded with its top-level fields typed by '
+                    f'wire type (the schema-less decode raised: {ex})')
         # instance.modified / metacontent_provenance.written_date are Unix
         # epoch microseconds
         yield convert_unix_ts_to_utc(timestamp), message
@@ -260,6 +322,12 @@ def _text(message, key):
 
 def _nested(message, key):
     value = message.get(key, {})
+    if isinstance(value, bytes):
+        # A record kept by the wire-type fallback holds its length-delimited fields as bytes.
+        try:
+            value, _ = blackboxprotobuf.decode_message(value)
+        except _DECODE_ERRORS:
+            return {}
     return value if isinstance(value, dict) else {}
 
 

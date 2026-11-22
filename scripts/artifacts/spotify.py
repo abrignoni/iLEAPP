@@ -113,59 +113,66 @@ __artifacts_v2__ = {
                        "with the position, flags and times the file stores.",
         "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": '2026-10-09',
+        "last_update_date": '2026-11-20',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per Library/Application "
                  "Support/PersistentCache/Users/<account>-user/context_player_state_restore, "
-                 "the app's saved player state file. Every tested "
-                 "image that carries the app has exactly one, so this is 6 rows across "
-                 "6 images. State Saved is the millisecond time the file itself begins "
-                 "with, and Playback Reported is the time inside the saved playback "
-                 "block. They are separate stored values and need not be equal. Both are "
-                 "reported in UTC. The file changes format between releases. On the "
-                 "three images running app version 8.5 it holds JSON and on the three "
-                 "running 8.8 or later it holds a protobuf instead. Where in between "
-                 "the change happened is not established. The protobuf is undocumented, "
-                 "so the playing track is found by shape rather than by field numbers "
-                 "written into this module: the first subtree that carries a Spotify "
-                 "track address beside a block of three numbers whose first is a "
-                 "millisecond time. The metadata inside names its own keys, so the "
-                 "album, the artist address and the playlist come out under the names "
-                 "the file uses. That format change is why some columns are thinner on "
-                 "the newer images. Title is blank on 3 of 6 rows and Artist on 4, "
-                 "because the newer form does not always carry them; Album, Album URI, "
-                 "Artist URI, Track URI and Played From URI are filled on all 6. "
-                 "Feature and Reached From are filled on 3 rows, the JSON ones. App "
-                 "Version is the version string the file carries, and it is not the "
-                 "same reading as the version the device has installed. On four of the "
-                 "6 images the two agree to three parts and on two they do not: one "
-                 "file says 8.5.47.887 against an installed 8.5.49, and another says "
-                 "8.8.60.501 against an installed 8.9.6. In the JSON form it is "
-                 "play_origin.feature_version; in the protobuf form it is the first "
-                 "four-part number found in the file. What the string marks is not "
-                 "established; it is reported as stored. Position and Duration are "
-                 "reported as stored. In the JSON form they are the position and duration "
-                 "values of the playback block. In the protobuf form they are the second "
-                 "and third integers of the block whose first integer is a millisecond "
-                 "time, assigned by order. In either form Duration falls back to the "
-                 "duration value in the track's metadata when the playback block has none. "
-                 "The millisecond unit is this module's reading of the values and is not "
-                 "sourced. "
-                 "Playing and Paused are two separate flags and they are not opposites: "
-                 "three rows, all from the JSON form, read Yes to both. What the app means "
-                 "by that combination is not established. Shuffle, Repeat Context, Repeat "
-                 "Track, Explicit Content Filtered, Playing and Paused are read only from "
-                 "the JSON form of the file. On the three rows from the JSON form "
-                 "(ctf2020_ios12, hickman_ios13, hickman_ios14) the file stores false for "
-                 "the first four and they read No. Each of the six is blank when the file "
-                 "does not store its key. On the three rows from the protobuf form "
-                 "(hickman_ios15, iphone11_ios17, iphone12_ios18) all six are blank because "
-                 "the module does not read them there; a blank does not mean the "
-                 "setting was off or that nothing was playing. The same file also lists the "
-                 "tracks "
-                 "of the playlist that was loaded, up to ninety of them on one image. "
-                 "That list is not read by this module and is not reported.",
+                 "the app's saved player state file. Every tested image that carries the app "
+                 "has exactly one, so this is 6 rows across 6 images. State Saved is the "
+                 "millisecond time the file itself begins with, and Playback Reported is the "
+                 "time inside the saved playback block. They are separate stored values and "
+                 "need not be equal. Both are reported in UTC. The file changes format "
+                 "between releases. On the three images running app version 8.5 it holds JSON"
+                 " and on the three running 8.8 or later it holds a protobuf instead. Where "
+                 "in between the change happened is not established. The protobuf is "
+                 "undocumented, so the playing track is found by shape, not by a field number"
+                 " written into this module: the first subtree that carries a Spotify track "
+                 "address. The playback block beside it is found by shape too, as the first "
+                 "block of three or more integers whose first is in the range of a "
+                 "millisecond time. Only Position and Duration are then read by field number."
+                 " The metadata inside names its own keys, so the album, the artist address "
+                 "and the playlist come out under the names the file uses. That format change"
+                 " is why some columns are thinner on the newer images. Title is blank on 3 "
+                 "of 6 rows and Artist on 4, because the newer form does not always carry "
+                 "them; Album, Album URI, Artist URI, Track URI and Played From URI are "
+                 "filled on all 6. Feature and Reached From are filled on 3 rows, the JSON "
+                 "ones. App Version is the version string the file carries, and it is not the"
+                 " same reading as the version the device has installed. On four of the 6 "
+                 "images the two agree to three parts and on two they do not: one file says "
+                 "8.5.47.887 against an installed 8.5.49, and another says 8.8.60.501 against"
+                 " an installed 8.9.6. In the JSON form it is play_origin.feature_version; in"
+                 " the protobuf form it is the first four-part number found in the file. What"
+                 " the string marks is not established; it is reported as stored. Position "
+                 "and Duration are reported as stored. In the JSON form they are the position"
+                 " and duration values of the playback block. In the protobuf form the module"
+                 " takes the first block that holds at least three integer fields and whose "
+                 "first integer falls in the range of a millisecond time. Position is that "
+                 "block's integer field 2 and Duration is its integer field 3. That field 2 "
+                 "is a position and field 3 a duration is this module's reading and is not "
+                 "sourced. Position is blank when the block has no integer field 2. When the "
+                 "block has no integer field 3, Duration takes the metadata fallback "
+                 "described next and is blank only when that is missing too. A block with "
+                 "fewer than three integer fields is not recognised, and Playback Reported "
+                 "and Position are then blank. On the three protobuf images in sample_data "
+                 "both fields are present. The missing-field cases were run only on "
+                 "constructed blocks. In either form Duration falls back to the duration "
+                 "value in the track's metadata when the playback block has none or stores "
+                 "zero. No image in sample_data exercises the fallback. The millisecond unit "
+                 "is this module's reading of the values and is not sourced. Playing and "
+                 "Paused are two separate flags and they are not opposites: three rows, all "
+                 "from the JSON form, read Yes to both. What the app means by that "
+                 "combination is not established. Shuffle, Repeat Context, Repeat Track, "
+                 "Explicit Content Filtered, Playing and Paused are read only from the JSON "
+                 "form of the file. On the three rows from the JSON form (ctf2020_ios12, "
+                 "hickman_ios13, hickman_ios14) the file stores false for the first four and "
+                 "they read No. Each of the six is blank when the file does not store its "
+                 "key. On the three rows from the protobuf form (hickman_ios15, "
+                 "iphone11_ios17, iphone12_ios18) all six are blank because the module does "
+                 "not read them there; a blank does not mean the setting was off or that "
+                 "nothing was playing. The same file also lists the tracks of the playlist "
+                 "that was loaded, up to ninety of them on one image. That list is not read "
+                 "by this module and is not reported.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/Users/*',),
         "output_types": "standard",
         "artifact_icon": "music",
@@ -670,7 +677,9 @@ def _protobuf_state(blob, depth=0):
 
     From a later release the file holds a protobuf rather than JSON. The message is
     undocumented, so the track is found by shape, as the first subtree carrying a Spotify
-    track address beside a block of three numbers whose first is a millisecond time.
+    track address. The playback block beside it is found by shape too, as the first with
+    three or more integers whose first is a millisecond time; its position and duration
+    are then read as fields 2 and 3.
     '''
     parsed = _field_list(blob)
     if parsed is None or depth > 8:
@@ -693,11 +702,16 @@ def _protobuf_state(blob, depth=0):
         for _, item in parsed:
             if not isinstance(item, bytes):
                 continue
-            numbers = [value for _, value in (_field_list(item) or [])
+            numbers = [(number, value) for number, value in (_field_list(item) or [])
                        if isinstance(value, int)]
-            if len(numbers) >= 3 and 1_200_000_000_000 < numbers[0] < 2_100_000_000_000:
-                playback = {'timestamp': numbers[0] * 1000, 'position': numbers[1],
-                            'duration': numbers[2]}
+            if len(numbers) >= 3 and 1_200_000_000_000 < numbers[0][1] < 2_100_000_000_000:
+                # By field number: if a block leaves field 3 out, the next integer is
+                # not a duration.
+                by_number = {}
+                for number, value in numbers:
+                    by_number.setdefault(number, value)
+                playback = {'timestamp': numbers[0][1] * 1000, 'position': by_number.get(2),
+                            'duration': by_number.get(3)}
                 break
         return {'track': track, 'meta': meta, 'playback': playback}
     for _, item in parsed:

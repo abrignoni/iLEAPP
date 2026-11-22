@@ -8,16 +8,26 @@ __artifacts_v2__ = {
     "get_biomeAudioRoute": {
         "name": "Biome - Audio Route",
         "description": "Parses audio route changes from the Audio.Route biome stream: the "
-                       "route name, its port type and the port name (for example Built-In "
-                       "Microphone / MicrophoneBuiltIn / iPhone Microphone).",
+                       "route identifier, its port type and port name, whether the route is "
+                       "external, the route change reason and whether the route is an input "
+                       "or an output.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "On the tested images Field 6 was 1 on rows with microphone routes and 2 on "
-                 "rows with speaker and receiver routes. It is reported raw "
-                 "as the mapping is not confirmed.",
+        "notes": "Field names and the Route Change Reason and Type names are those of the "
+                 "BMAudioRoute class, read from BiomeLibrary.framework on macOS 27.2.1 "
+                 "(26B131); no iOS copy of the class was read. Columns reported before as "
+                 "Route Name, Field 1 (raw), Field 5 (raw) and Field 6 (raw) are now "
+                 "Identifier, External, Route Change Reason and Type; the integers for Route "
+                 "Change Reason and Type stay in the (raw) columns, and External shows True "
+                 "for 1 and False for 0. On the tested images Type was Input (1) on 350 and "
+                 "Output (2) on 917 of the 1,267 written rows. On the tested images Input was on "
+                 "341 rows whose port type names a microphone, and Output on 813 rows whose "
+                 "port type names a speaker or receiver, which fits the framework names. On the "
+                 "tested images External was True on 113 and False on 1,154 of the 1,267 "
+                 "written rows, and it was uniform False on some images.",
         "paths": ('*/streams/*/Audio.Route/local/*',),
         "output_types": "standard",
         "artifact_icon": "headphones",
@@ -28,15 +38,21 @@ __artifacts_v2__ = {
     },
     "get_biomeMediaRoute": {
         "name": "Biome - Media Route",
-        "description": "Parses media output route changes from the Media.Route biome stream. "
-                       "Rows carry a route name and, where stored, a route identifier; route "
+        "description": "Parses records from the Media.Route biome stream. Rows carry a group "
+                       "leader output device ID and, where stored, a route identifier; route "
                        "type and subtype are reported raw.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "A BMMediaRoute class exists in BiomeLibrary.framework on macOS 27.2.1 "
+                 "(26B131) but is not bound to a stream there. Its field layout fits the 461 "
+                 "written records on the tested images, and Group Leader Output Device ID "
+                 "(reported before as Route Name) is its name for field 2. Labels are not "
+                 "established from an iOS source. On the tested images Group Leader Output "
+                 "Device ID and Route Identifier were identical on each of the 434 written rows "
+                 "where both are set.",
         "paths": ('*/streams/*/Media.Route/local/*',),
         "output_types": "standard",
         "artifact_icon": "speaker",
@@ -61,6 +77,13 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
+# routeChangeReason names, read from BiomeLibrary.framework BMAudioRoute on macOS 27.2.1 (26B131).
+ROUTE_CHANGE_REASON = {0: 'Unknown', 1: 'NewDeviceAvailable', 2: 'OldDeviceUnavailable',
+                       3: 'CategoryChange', 4: 'Override', 5: 'WakeFromSleep',
+                       6: 'NoSuitableRouteForCategory', 7: 'RouteConfigurationChange'}
+# type names, read from BiomeLibrary.framework BMAudioRoute on macOS 27.2.1 (26B131).
+ROUTE_TYPE = {0: 'Unknown', 1: 'Input', 2: 'Output'}
+
 AUDIO_TYPESS = {
     '1': {'type': 'int', 'name': ''},
     '2': {'type': 'str', 'name': ''},
@@ -80,6 +103,18 @@ def _to_str(value):
     if value is None:
         return ''
     return str(value)
+
+
+def _bool(value):
+    if value == 1:
+        return 'True'
+    if value == 0:
+        return 'False'
+    return ''
+
+
+def _name(names, value):
+    return names.get(value, '') if isinstance(value, int) else ''
 
 
 def _stream_files(context):
@@ -117,26 +152,28 @@ def _iter_records(context, label, typess=None):
 
 @artifact_processor
 def get_biomeAudioRoute(context):
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Route Name', 'Port Type',
-                    'Port Name', 'Field 1 (raw)', 'Field 5 (raw)', 'Field 6 (raw)', 'Filename',
-                    'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Identifier', 'Port Type',
+                    'Port Name', 'External', 'Route Change Reason', 'Route Change Reason (raw)',
+                    'Type', 'Type (raw)', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _iter_records(context, 'Audio Route', AUDIO_TYPESS):
         if protostuff is None:
             data_list.append((ts, record.state.name, None, None, None, None, None, None,
-                              filename, record.data_start_offset))
+                              None, None, filename, record.data_start_offset))
             continue
         data_list.append((ts, record.state.name, _to_str(protostuff.get('2', b'')),
                           _to_str(protostuff.get('3', b'')), _to_str(protostuff.get('4', b'')),
-                          protostuff.get('1', ''), protostuff.get('5', ''),
+                          _bool(protostuff.get('1')),
+                          _name(ROUTE_CHANGE_REASON, protostuff.get('5')),
+                          protostuff.get('5', ''), _name(ROUTE_TYPE, protostuff.get('6')),
                           protostuff.get('6', ''), filename, record.data_start_offset))
     return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
 def get_biomeMediaRoute(context):
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Route Name',
-                    'Route Identifier', 'Route Type (raw)', 'Route Subtype (raw)',
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State',
+                    'Group Leader Output Device ID', 'Route Identifier', 'Route Type (raw)', 'Route Subtype (raw)',
                     'Field 1 (raw)', 'Filename', 'Offset')
     data_list = []
     for ts, record, protostuff, filename in _iter_records(context, 'Media Route'):

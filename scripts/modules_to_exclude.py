@@ -48,5 +48,4 @@ modules_to_exclude = [
     'Ph126iOS26REFforAssetAnalysis',
     'photosDbexif',
     'photosMetadata',
-    'walStrings',
 ]

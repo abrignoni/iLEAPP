@@ -587,9 +587,8 @@ none of them a file the seeker got wrong:
   routes, and the raw route is the more faithful of the two.
 - First-match order. A few artifacts read one file out of several equivalent
   copies and take the first the seeker returns. The zip, tar and raw seekers each
-  list a directory in their own order, so which copy wins can differ. On Android
-  `walstrings` numbers its rows by arrival. This is a property of those artifacts
-  and shows between the zip and tar routes too.
+  list a directory in their own order, so which copy wins can differ. This is a
+  property of those artifacts and shows between the zip and tar routes too.
 - Companion files beside the zip. Some artifacts read a file a tool exported next
   to the acquisition rather than inside it. iOS keychain artifacts read a
   `<udid>_keychain.plist` sitting beside the zip on disk, found only when the
