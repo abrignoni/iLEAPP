@@ -67,7 +67,9 @@ class ChromeShortcutsLocalTest(LocalCorpusTestCase):
         if not stores:
             self.skipTest('no Chrome Shortcuts database in the local image')
         with mock.patch.object(module, 'get_browser_name', return_value='Chrome'):
-            headers, rows, _source = module.chromeShortcuts.__wrapped__(_Context(stores))
+            headers, rows, source = module.chromeShortcuts.__wrapped__(_Context(stores))
+        self.assertEqual(set(source.split('\n')), {str(store) for store in stores},
+                         'every staged store was read')
         self.assert_row_shape(headers, rows)
         for row in rows:
             self.assert_plausible_timestamp(row[0])
