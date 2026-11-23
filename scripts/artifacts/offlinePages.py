@@ -43,7 +43,7 @@ def _utc(seconds):
     if seconds is None:
         return ''
     try:
-        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=int(seconds))
+        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds // 1)
     except OverflowError:
         return ''
 

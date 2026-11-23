@@ -11,6 +11,7 @@ import sys
 import tempfile
 import time
 import unittest
+from datetime import datetime, timezone
 from types import SimpleNamespace
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -50,6 +51,18 @@ class RecordedFileTimes(unittest.TestCase):
     def test_a_recorded_zero_is_no_time(self):
         self.check(FileInfo('f', 0, 0, times=StagedTimes(modified=0, modified_no_zone=READING)), (None, READING))
         self.check(FileInfo('f', 0, 0), (None, ''))
+
+    def test_a_shown_time_rounds_down_and_is_not_rescaled(self):
+        for name in MODULES:
+            module = importlib.import_module(f'scripts.artifacts.{name}')
+            convert = getattr(module, '_utc', None) or getattr(module, '_sec_to_utc', None)
+            if convert is None:
+                continue
+            with self.subTest(module=name):
+                self.assertEqual(convert(-0.5), datetime(1969, 12, 31, 23, 59, 59, tzinfo=timezone.utc))
+                self.assertEqual(convert(10_000_000_000), datetime(2286, 11, 20, 17, 46, 40, tzinfo=timezone.utc))
+                self.assertEqual(convert(1e20), '')
+                self.assertEqual(convert(None), '')
 
     def test_no_record_gives_no_time(self):
         for name in MODULES:
