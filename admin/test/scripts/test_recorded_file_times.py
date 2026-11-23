@@ -45,6 +45,9 @@ class RecordedFileTimes(unittest.TestCase):
     def test_a_reading_with_no_zone_stays_text(self):
         self.check(FileInfo('f', 0, 0, times=StagedTimes(modified_no_zone=READING)), (None, READING))
 
+    def test_a_reading_with_no_zone_comes_before_the_older_field(self):
+        self.check(FileInfo('f', 0, UTC, times=StagedTimes(modified_no_zone=READING)), (None, READING))
+
     def test_a_time_before_1970_is_kept(self):
         self.check(FileInfo('f', 0, -1, times=StagedTimes(modified=-1)), (-1, ''))
 
