@@ -48,6 +48,11 @@ class RecordedFileTimes(unittest.TestCase):
     def test_a_reading_with_no_zone_comes_before_the_older_field(self):
         self.check(FileInfo('f', 0, UTC, times=StagedTimes(modified_no_zone=READING)), (None, READING))
 
+    def test_an_infinite_or_nan_time_is_no_time(self):
+        for bad in (float('inf'), float('-inf'), float('nan')):
+            self.check(FileInfo('f', 0, bad, times=StagedTimes(modified=bad, modified_no_zone=READING)), (None, READING))
+            self.check(FileInfo('f', 0, bad), (None, ''))
+
     def test_a_time_before_1970_is_kept(self):
         self.check(FileInfo('f', 0, -1, times=StagedTimes(modified=-1)), (-1, ''))
 
@@ -64,7 +69,8 @@ class RecordedFileTimes(unittest.TestCase):
             with self.subTest(module=name):
                 self.assertEqual(convert(-0.5), datetime(1969, 12, 31, 23, 59, 59, tzinfo=timezone.utc))
                 self.assertEqual(convert(10_000_000_000), datetime(2286, 11, 20, 17, 46, 40, tzinfo=timezone.utc))
-                self.assertEqual(convert(1e20), '')
+                for bad in (1e20, float('inf'), float('-inf'), float('nan')):
+                    self.assertEqual(convert(bad), '')
                 self.assertEqual(convert(None), '')
 
     def test_no_record_gives_no_time(self):

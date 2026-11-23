@@ -200,8 +200,13 @@ def _utc(seconds):
         return ''
     try:
         return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds // 1)
-    except OverflowError:
+    except (OverflowError, ValueError):
         return ''
+
+
+def _usable(value):
+    """Whether a recorded time is a nonzero, finite number."""
+    return isinstance(value, (int, float)) and value != 0 and value == value and abs(value) != float('inf')
 
 
 def _file_times(seeker, path):
@@ -217,14 +222,14 @@ def _file_times(seeker, path):
                  if name in infos), None)
     times = getattr(info, 'times', None)
     modified = getattr(times, 'modified', None)
-    if isinstance(modified, (int, float)) and modified:
+    if _usable(modified):
         return modified, ''
     # a reading with no zone comes before the older field, which is never read as its UTC time
     reading = getattr(times, 'modified_no_zone', None)
     if reading:
         return None, reading
     modified = getattr(info, 'modification_date', None)
-    if isinstance(modified, (int, float)) and modified:
+    if _usable(modified):
         return modified, ''
     return None, ''
 
