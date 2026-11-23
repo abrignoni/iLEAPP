@@ -108,6 +108,15 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_report_local_paths.py
 
+      # A staged copy's own time is not evidence. For a FAT, exFAT or DOS-only zip reading
+      # it is that reading placed in the examiner's time zone, so a report built on it
+      # changes with the machine that ran the tool.
+      - name: Guard report output against staged file times
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: |
+          python admin/scripts/check_staged_file_times.py
+          python admin/test/scripts/test_check_staged_file_times.py
+
       # The third element of an artifact's return tuple becomes the report's
       # "located at" line and the LAVA manifest source_path, so it has to be real
       # paths. Prose standing in for one points the examiner at a column that often
