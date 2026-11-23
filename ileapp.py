@@ -606,7 +606,7 @@ def crunch_artifacts(
         logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding last_build and iTunesBackupInfo
         if profile_filename:
             logfunc(f'Loaded profile: {profile_filename}')
-        logfunc(f'Artifact to parse: {len(plugins)}')
+        logfunc(f'Artifact to parse: {selected_count}')
         input_path = input_text(input_path, found_members)
         logfunc(f'File/Directory selected: {input_path}')
         hashes = None
@@ -662,6 +662,8 @@ def crunch_artifacts(
         lava_only = False
         artifact_search_pattern_id = 0
         file_path_ids = set()
+        # last_build is added before the artifacts chosen, which alone are numbered, as in the window
+        added_first = len(plugins) - selected_count
 
         for plugin_number, plugin in enumerate(plugins, start=1):
             GuiWindow.SetProgressBar(plugin_number - 1, len(plugins))
@@ -678,9 +680,10 @@ def crunch_artifacts(
             # "artifact started" line is printed and is itself a place a run can sit.
             plugin_start = perf_counter()
             logfunc()
-            logfunc('[{}/{}] {} [{}] artifact started at {} UTC'.format(plugin_number, len(plugins),
-                                                                  plugin.name, plugin.module_name,
-                                                                  strftime('%H:%M:%S', gmtime())))
+            position = plugin_number - added_first
+            counter = f'[{position}/{selected_count}]' if position > 0 else '[-]'
+            logfunc(f'{counter} {plugin.name} [{plugin.module_name}] artifact started at '
+                    f'{strftime("%H:%M:%S", gmtime())} UTC')
             output_types = plugin.artifact_info.get('output_types', '')
             if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
                 search_regexes = plugin.search
