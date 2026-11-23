@@ -3,6 +3,7 @@ import os
 import plistlib
 import re
 
+from datetime import datetime, timedelta, timezone
 from scripts.filetype import guess_mime
 from scripts.ilapfuncs import artifact_processor, check_in_media
 
@@ -12,18 +13,30 @@ __artifacts_v2__ = {
         "description": "Media and other files cached under fsCachedData",
         "author": "@abrignoni & @stark4n6, @AlexisBrignoni, Codex",
         "creation_date": "2023-02-02",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-11-23",
         "requirements": "none",
         "category": "Cache Data",
-        "notes": "Source location in the extraction is provided for each item. Staged copy mtime "
-                 "is the modification time returned by the staging filesystem, reported as text; "
-                 "it is not read from the cached content. Bundle Name (inferred) is inferred from the path and "
-                 "is not a recorded link between the file and an app: for a path under an AppGroup "
-                 "container it is the file name of a preferences plist in that container; for a "
-                 "path under Caches it is the folder path between Caches and fsCachedData or "
-                 "nsurlcache; for other application container paths it is a CFBundleIdentifier or "
-                 "MCMMetadataIdentifier value read from a preferences plist in the same container, "
-                 "or that plist's file name. It is blank when none is found.",
+        "notes": "Source location in the extraction is provided for each item. File Modified is "
+                 "the modification time the tool reads from the input for the file as a UTC time,"
+                 " to the whole second, such as from a tar header or a zip entry's NTFS or "
+                 "extended timestamp field. When the tool reads no UTC time, File Modified is "
+                 "blank and Modified (no zone, as stored) shows the date and time the input "
+                 "holds, with no zone conversion. That is the case for a FAT directory entry, an "
+                 "exFAT directory entry (its stored UTC offset is not applied or shown here) and "
+                 "a zip entry with only its DOS date and time. Both columns are blank when the "
+                 "input holds neither, and a recorded time of 0 is treated as no time. For a "
+                 "folder or single-file input File Modified is the time the operating system "
+                 "reports for that file on the examiner's machine, including any conversion it "
+                 "applied, and whatever copied the file there may have set it. The staged copy's "
+                 "own time is not reported. File Modified is not read from the cached content. "
+                 "Bundle Name (inferred) is inferred from the path and is not a recorded link "
+                 "between the file and an app: for a path under an AppGroup container it is the "
+                 "file name, without the .plist extension, of a preferences plist in that "
+                 "container; for a path under Caches it is the folder path between Caches and "
+                 "fsCachedData or nsurlcache; for other application container paths it is a "
+                 "CFBundleIdentifier or MCMMetadataIdentifier value read from a preferences plist"
+                 " in the same container, or that plist's file name without the .plist extension."
+                 " It is blank when none is found.",
         "paths": (
             '*/fsCachedData/**',
             '*/Shared/AppGroup/*/Library/Preferences/*.plist',
@@ -181,10 +194,39 @@ def extract_bundle_name(file_path, app_group_plist_map, app_plist_map):
     return ''
 
 
+def _utc(seconds):
+    """Unix seconds as a UTC datetime in whole seconds, '' for none or a value datetime cannot hold."""
+    if seconds is None:
+        return ''
+    try:
+        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=int(seconds))
+    except OverflowError:
+        return ''
+
+
+def _file_times(seeker, path):
+    """(UTC seconds, reading with no zone) the input records for a staged file.
+
+    The staged copy's own time is not used: for a FAT, exFAT or DOS-only zip reading it is
+    that reading placed in the examiner's time zone.
+    """
+    infos = getattr(seeker, 'file_infos', None) or {}
+    windows = str(path).replace('/', '\\')
+    bare = windows.removeprefix('\\\\?\\')
+    info = next((infos[name] for name in (str(path), windows, bare, '\\\\?\\' + bare)
+                 if name in infos), None)
+    times = getattr(info, 'times', None)
+    for value in (getattr(times, 'modified', None), getattr(info, 'modification_date', None)):
+        if isinstance(value, (int, float)) and value:
+            return value, ''
+    return None, getattr(times, 'modified_no_zone', None) or ''
+
+
 @artifact_processor
 def fsCachedData(context):
     data_headers = (
-        'Staged copy mtime (Unix value)',
+        ('File Modified', 'datetime'),
+        'Modified (no zone, as stored)',
         ('Media', 'media'),
         'Mime Type',
         'Filename',
@@ -222,13 +264,15 @@ def fsCachedData(context):
             continue
 
         source_dirs.add(os.path.dirname(file_found))
-        modified_time = str(os.path.getmtime(file_found))
+        modified, no_zone = _file_times(context.get_seeker(), file_found)
+        modified_time = _utc(modified)
         mime = guess_mime(file_found)
         media_ref = check_in_media(file_found)
         bundle_name = extract_bundle_name(file_found, app_group_plist_map, app_plist_map)
 
         results.add_row((
             modified_time,
+            no_zone,
             media_ref,
             mime,
             os.path.basename(file_found),
