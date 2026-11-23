@@ -4,7 +4,7 @@ A raw image (``.img``, ``.dd``, ``.bin``, a numbered ``.001`` segment of a split
 set) or an acquisition (EnCase/EWF ``.E01``, SMART ``.s01``, EWF2 ``.Ex01``, AFF
 ``.aff``, an AFM ``.afm`` with its raw files, or an AFD folder of AFF files, each
 with the segments or files beside it, an AFF4 ``.aff4``, an Apple disk image,
-``.dmg``, ``.sparseimage`` or ``.sparsebundle``, or a virtual machine's disk,
+``.dmg``, ``.asif``, ``.sparseimage`` or ``.sparsebundle``, or a virtual machine's disk,
 ``.vhd``, ``.vhdx``, ``.vmdk`` or ``.qcow2``) is read in place, without mounting and
 without administrator rights, through the reader vendored in ``scripts/vendor/``
 (qnxprobe, with ewfprobe beside it for the acquisitions). The reader finds the
@@ -13,8 +13,8 @@ directory tree; this module turns that into the same contract the zip seeker
 offers: a list of member names to match artifact patterns against, and a copy of
 each matched file staged under the report's data folder.
 
-Logical evidence, EnCase's ``.L01`` and FTK Imager's ``.ad1``, holds copies of
-files rather than a disk. Its file tree is read through ewfprobe instead, and each
+Logical evidence, EnCase's ``.L01`` and ``.Lx01`` and FTK Imager's ``.ad1``, holds
+copies of files rather than a disk. Its file tree is read through ewfprobe instead, and each
 entry is a member under its path in the evidence: live files, folders and NTFS
 alternate data streams. An AD1's deleted entries and the file slack and index
 records FTK Imager keeps beside a file are not members, as a disk's deleted records
@@ -53,7 +53,7 @@ way by default. An NTFS directory marked case sensitive can hold two names that 
 only in case, and a pattern then matches both. The Windows XP image in the corpus
 (cfreds_hacking_case_winxp) stores ``WINDOWS/system32`` where the artifact patterns
 say ``Windows/System32``; on Windows, where ``os.path.normcase`` lowers both sides,
-it already matched. Logical evidence (AD1, L01) is matched exactly. Every other
+it already matched. Logical evidence (AD1, L01, Lx01) is matched exactly. Every other
 volume, APFS, HFS+, ext4, XFS, Btrfs, F2FS, QNX and the rest, is matched exactly as
 before, so a pattern must match a name there in its stored case. An APFS or HFS+
 volume can be case insensitive too (qnxprobe reports it); the seeker does not fold
@@ -138,20 +138,20 @@ from scripts.vendor import qnxprobe  # noqa: E402
 # and the reader joins the rest, and so is a .001; an .aff inside a folder whose
 # name ends .afd brings every file of that folder, and an .afm the raw files beside
 # it. A .dmg is one file, or the first of the .dmgpart files hdiutil segment splits
-# it into. A .sparseimage is one file, and a .sparsebundle is a folder, which a
+# it into. An .asif or .sparseimage is one file, and a .sparsebundle is a folder, which a
 # Mac's file dialog lists as one item. An .aff4 can be one of several files a
 # striped image is split across; a .vmdk can be the descriptor or an extent, and a
-# difference disk is read through the disks under it. An .L01 or .ad1 is the first
-# file of its logical evidence.
+# difference disk is read through the disks under it. An .L01, .Lx01 or .ad1 is the
+# first file of its logical evidence.
 RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01', 's01', 'ex01', 'aff',
-                      'afm', 'aff4', 'dmg', 'sparseimage', 'sparsebundle', 'vhd', 'vhdx',
-                      'vmdk', 'qcow', 'qcow2', 'l01', 'ad1')
+                      'afm', 'aff4', 'dmg', 'asif', 'sparseimage', 'sparsebundle', 'vhd', 'vhdx',
+                      'vmdk', 'qcow', 'qcow2', 'l01', 'lx01', 'ad1')
 
 # The same, as the file dialog's pattern list: the conventional spelling of each
 # extension, since a dialog on Linux matches the case it is given.
 RAW_IMAGE_FILE_PATTERNS = ('*.img *.bin *.dd *.raw *.001 *.E01 *.s01 *.Ex01 *.aff *.afm '
-                           '*.aff4 *.dmg *.sparseimage *.sparsebundle *.vhd *.vhdx *.vmdk '
-                           '*.qcow *.qcow2 *.L01 *.ad1')
+                           '*.aff4 *.dmg *.asif *.sparseimage *.sparsebundle *.vhd *.vhdx *.vmdk '
+                           '*.qcow *.qcow2 *.L01 *.Lx01 *.ad1')
 
 # What the vendored reader walks, for the file dialog and the -t help. A test
 # asserts each entry here has a walker in the vendored copy, so the two cannot
@@ -162,9 +162,9 @@ RAW_IMAGE_FILESYSTEMS = ('QNX6, QNX4, ETFS, EFS, ext2/3/4, F2FS, FAT32, FAT16, F
 RAW_IMAGE_LABEL = f'Raw disk image or acquisition ({RAW_IMAGE_FILESYSTEMS})'
 
 # qnxprobe's names for logical evidence, and for an AD-encrypted set, which can hold
-# logical evidence or a disk. ewfprobe opens all three and says which it holds.
-_MAYBE_LOGICAL = ('L01', 'AD1', 'AD_ENCRYPTED')
-_LOGICAL_FORMATS = (_ewfprobe.FORMAT_L01, _ewfprobe.FORMAT_AD1)
+# logical evidence or a disk. ewfprobe opens them all and says which it holds.
+_MAYBE_LOGICAL = ('L01', 'Lx01', 'AD1', 'AD_ENCRYPTED')
+_LOGICAL_FORMATS = (_ewfprobe.FORMAT_L01, _ewfprobe.FORMAT_LX01, _ewfprobe.FORMAT_AD1)
 # What a BitLocker volume can be opened with here: a password, a recovery
 # password or a startup key file. Its clear key needs nothing, and a TPM cannot be
 # reached from an image.
@@ -307,7 +307,7 @@ def password_opens(path, password):
 
 
 def open_logical(path, keys=None):
-    """The ewfprobe image of logical evidence, an L01 or an AD1 (AD-encrypted or not),
+    """The ewfprobe image of logical evidence, an L01, an Lx01 or an AD1 (AD-encrypted or not),
     opened with ``keys``; None for anything else, which is read as a disk."""
     if qnxprobe.acquisition_format(path) not in _MAYBE_LOGICAL:
         return None
@@ -880,7 +880,7 @@ def _image_files(path):
         kind = None
     files = []
     try:
-        if kind in ('EWF', 'EWF2'):
+        if kind in ('EWF', 'EWF2', 'L01', 'Lx01'):
             files = _ewfprobe.ewf_segments(path)
         elif kind == 'AD1':
             files = _ewfprobe.ad1_segments(path)
@@ -943,7 +943,7 @@ def repeat_lines(repeats):
 
 
 def logical_among(paths):
-    """The first of several paths that is logical evidence (an L01 or an AD1), which
+    """The first of several paths that is logical evidence (an L01, Lx01 or AD1), which
     holds files rather than a disk and is read on its own, or None."""
     if len(paths) < 2:
         return None
@@ -958,7 +958,7 @@ def logical_among(paths):
 
 def logical_refusal(path):
     """Why several images that include logical evidence are not read together."""
-    return (f'{_image_name(path)} is logical evidence (an L01 or AD1), which holds files '
+    return (f'{_image_name(path)} is logical evidence (an L01, Lx01 or AD1), which holds files '
             f'rather than a disk and is read on its own, not together with other images.')
 
 
@@ -1871,7 +1871,7 @@ class FileSeekerRaw(FileSeekerBase):
             logical = open_logical(path, keys)
             if logical is not None:
                 logical.close()
-                raise ValueError(f'{name} is logical evidence (an L01 or AD1), which holds '
+                raise ValueError(f'{name} is logical evidence (an L01, Lx01 or AD1), which holds '
                                  f'files rather than a disk and is read on its own, not '
                                  f'with other images')
             how = FOUND_AUTOMATICALLY if path in self.found else 'given'
@@ -2072,7 +2072,8 @@ class FileSeekerRaw(FileSeekerBase):
 
     def _open_logical(self, name, image):
         """List the entries of logical evidence as members, under their paths in it."""
-        kind = 'an AD1' if image.format == _ewfprobe.FORMAT_AD1 else 'an L01'
+        kind = {_ewfprobe.FORMAT_AD1: 'an AD1',
+                _ewfprobe.FORMAT_LX01: 'an Lx01'}.get(image.format, 'an L01')
         logfunc(f'Reading {name}, {kind} (logical evidence), in place with the vendored '
                 f'ewfprobe {_ewfprobe.__version__}; only the files an artifact asks for '
                 f'leave it.')

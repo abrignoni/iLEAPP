@@ -10,7 +10,7 @@ each with its segments or files, an AFF4 `.aff4`, an Apple `.dmg`, with any
 folder, or a virtual machine's disk, `.vhd`, `.vhdx`, `.vmdk` or `.qcow2`, a
 difference disk read through the disks under it) and reads it in place: no mounting,
 no administrator rights, and no copy of the image or of its files anywhere but the
-files an artifact asks for. Logical evidence, an EnCase `.L01` or an FTK Imager
+files an artifact asks for. Logical evidence, an EnCase `.L01` or `.Lx01` or an FTK Imager
 `.ad1`, is read as the files it holds (see below). Its NTFS,
 FAT32, FAT16, FAT12, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
 UBI/UBIFS, YAFFS and QNX IFS volumes are searched directly, on disks of 512-byte
@@ -59,7 +59,7 @@ or catalog id.
 Since qnxprobe 1.70, the images of a Linux software RAID set are read together, one
 image per disk. `-i` takes several paths with `-t raw`, and the GUI's file dialog takes
 several files. Each image can be any disk image or acquisition `-t raw` reads (raw,
-split, E01 and the rest). Logical evidence (an L01 or AD1) holds files, not a disk:
+split, E01 and the rest). Logical evidence (an L01, Lx01 or AD1) holds files, not a disk:
 given with other images it is refused before the run, on the command line and in the
 GUI. The reader assembles the images as `qnxprobe.raid_assemble` does: Linux md arrays
 (metadata 0.90, 1.0, 1.1 and 1.2; linear, RAID0, 1, 4, 5, 6 and 10) and LVM2 logical
@@ -466,7 +466,7 @@ use a stand-in reader.
 
 ## Logical evidence
 
-An EnCase `.L01` or an FTK Imager `.ad1` holds copies of files rather than a disk, so
+An EnCase `.L01` or `.Lx01` or an FTK Imager `.ad1` holds copies of files rather than a disk, so
 it is read through ewfprobe's entry list instead of a filesystem walk
 (`open_logical`). Each entry is a member under its path in the evidence, in the order
 the evidence stores them (a folder's children before its next sibling); an AD1 of

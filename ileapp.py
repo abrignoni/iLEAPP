@@ -218,7 +218,7 @@ def main():
                               ".afm, or any .aff in an AFD folder, AFF4 .aff4, an Apple .dmg, with any "
                               ".dmgpart files beside it, .sparseimage, or .sparsebundle folder, or a virtual "
                               "machine disk, .vhd, .vhdx, .vmdk or .qcow2), read in "
-                              "place without mounting (logical evidence, an EnCase .L01 or FTK Imager "
+                              "place without mounting (logical evidence, an EnCase .L01 or .Lx01 or FTK Imager "
                               ".ad1, is read as the files it holds): its "
                               "NTFS, FAT32, FAT16, FAT12, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, "
                               "ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS volumes "

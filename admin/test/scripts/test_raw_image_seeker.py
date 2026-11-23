@@ -18,6 +18,7 @@ seeker.
 import contextlib
 import gzip
 import hashlib
+import json
 import os
 import pathlib
 import plistlib
@@ -1687,6 +1688,20 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
             self.assertEqual(self._md5(staged[0]), row['Stored MD5 Hash'], name)
         self.assertEqual(len(seeker.stream_list), 1)
         self.assertIn('  not searched: 1 deleted entries', self.log.text())
+
+    def test_an_lx01_is_read_as_the_files_encase_recorded(self):
+        """Every file EnCase Forensic Imager 7.10 collected stages with its known MD5,
+        and the run log names the format."""
+        known = json.loads((FIXTURES / 'lx01-encase-imager-710.json').read_text(encoding='utf-8'))
+        seeker = self._seeker(str(FIXTURES / 'lx01-encase-imager-710.Lx01'))
+        files = [row for row in known['entries'] if not row['is_dir']]
+        self.assertTrue(files)
+        for row in files:
+            staged = [p for p in seeker.search('*' + row['path'])
+                      if seeker.file_infos[p].source_path.endswith(row['path'])]
+            self.assertEqual(len(staged), 1, row['path'])
+            self.assertEqual(self._md5(staged[0]), row['md5'], row['path'])
+        self.assertIn('an Lx01 (logical evidence)', self.log.text())
 
     def test_an_l01_folder_that_holds_data_stages_the_data_beside_its_children(self):
         entries = [_FakeLogicalEntry('Raw Data', folder=True),

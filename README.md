@@ -235,7 +235,7 @@ F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and Q
 volumes are searched directly (and a U-Boot environment or Belkin NVRM store is read as one
 file), and
 only the files an artifact asks for are read out of the image. Logical evidence, an
-EnCase `.L01` or an FTK Imager `.ad1`, is read as the files it holds. The GUI picks
+EnCase `.L01` or `.Lx01` or an FTK Imager `.ad1`, is read as the files it holds. The GUI picks
 `raw` on its own for those extensions, and for a sparse bundle or AFD folder chosen with
 its folder button. See `admin/docs/raw_image_input.md`.
 
