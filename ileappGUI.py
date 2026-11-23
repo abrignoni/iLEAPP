@@ -1,1344 +1,272 @@
-#!/usr/bin/env python3
+"""
+The new LEAPPs GUI.
+"""
 
+import subprocess
+import sys
 import tkinter as tk
-import typing
-import json
-import queue
-import threading
-import traceback
+from pathlib import Path
+from tkinter import messagebox, ttk
+
+from leapp_functions.app.gui import quick_exit
+from leapp_functions import leapp
+from leapp_functions.app import artifact_list, history
+from leapp_functions.app.gui import images, themes, window_area
+from leapp_functions.app.gui.app_state import AppState
+from leapp_functions.app.gui.header import Header
+from leapp_functions.app.gui.steps import Steps
+from leapp_functions.app.gui.artifacts import ArtifactsScreen
+from leapp_functions.app.gui.case import CaseScreen
+from leapp_functions.app.gui.custom_widgets import MARGIN, ScrollArea
+from leapp_functions.app.gui.results import ResultsScreen
+from leapp_functions.app.gui.review import ReviewScreen
+from leapp_functions.app.gui.run import RunControl, RunScreen
+from leapp_functions.app.gui.settings import SettingsControl
+from leapp_functions.app.gui.source import SourceScreen
+from leapp_functions.app.gui.status_bar import StatusBar
 import ileapp
-import webbrowser
-import base64
-
-import scripts.plugin_loader as plugin_loader
-import leapp_functions.app.history as history
-
-from PIL import Image, ImageTk
-from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
-from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
-from scripts.search_files import *
-from scripts.raw_image import (RAW_IMAGE_LABEL, RAW_IMAGE_SUFFIXES, RAW_IMAGE_FILE_PATTERNS,
-                               names_an_image_folder, ask_raw_input, input_text,
-                               names_raw_images, selected_paths, selection_text, PathsTooltip,
-                               logical_among, logical_refusal)
-from scripts.ilapfuncs import *
-from scripts.tz_offset import tzvalues
-from scripts.modules_to_exclude import modules_to_exclude
-from scripts.lavafuncs import *
-from leapp_functions.lava_launcher import (
-    LAVA_WEBSITE,
-    find_lava_launcher,
-    open_lava_project,
-    open_output_folder,
-)
-from leapp_functions.app.platform import sanitize_file_name
-from leapp_functions.app.output import default_output_folder_name, validate_output_folder_available
 from scripts.context import Context
-from scripts.lavafuncs import lava_json_name
+from scripts.version_info import check_runtime_dependencies
+
+MIN_SIZE = (1000, 700)
+UNLOCK_POLL = 100
+
+SCREENS = {"case": CaseScreen, "source": SourceScreen, "artifacts": ArtifactsScreen,
+           "review": ReviewScreen, "run": RunScreen, "results": ResultsScreen}
 
 
-# How often the main thread drains the worker's queue. Short enough that the log still
-# scrolls smoothly, long enough that polling is not itself the load.
-CRUNCH_POLL_MS = 50
-# The files picked together in the file dialog (the member images of a RAID set); the
-# input field shows the first and how many more while it still stands for them.
-input_selection = []
+def crunch(request):
+    """ The parser. """
+    Context.set_keychain_path(request.secrets.get("keychain") or None)
+    return ileapp.crunch_artifacts(request.plugins, request.detected.kind, request.input_path,
+                                   request.out_params, True, request.loader, request.case, "UTC",
+                                   request.profile, None, request.backup_keys,
+                                   image_password=request.image_keys, found_members=request.found,
+                                   hash_files=request.hash_files)
 
 
-def allow_output_folder_name_chars(proposed):
-    return sanitize_file_name(proposed) == proposed
+class MainWindow(tk.Tk):
+    """ Main application window for the LEAPP GUI. """
 
+    def __init__(self, show=True):
+        """ Initialize the window, application state, and widgets.
 
-def show_history_menu(button, path_type):
-    """
-    Displays a popup menu with recently used paths.
-    """
-    menu = tk.Menu(main_window, tearoff=0)
+        Args:
+            show (bool): False builds everything but never puts the window on screen, for
+                --selfcheck.
+        """
+        super().__init__()
+        self.title(f"{leapp.name} version {leapp.version}")
+        self.icon = images.load("icon.png")
+        self.iconphoto(True, self.icon)
+        self.screen_area = window_area.measure(self)
+        self.minsize(min(MIN_SIZE[0], self.screen_area[2]), min(MIN_SIZE[1], self.screen_area[3]))
 
-    if not history.is_history_enabled():
-        menu.add_command(label="(History Disabled - Enable in Settings)", state="disabled")
-    else:
-        paths = history.get_input_paths() if path_type == 'input' else history.get_output_paths()
-        if not paths:
-            menu.add_command(label="(No recent paths)", state="disabled")
-        for path in paths:
-            def set_path(p=path):
-                if path_type == 'input':
-                    set_input_selection([p])
-                else:
-                    output_entry.delete(0, tk.END)
-                    output_entry.insert(0, p)
-            menu.add_command(label=history.format_path_for_display(path), command=set_path)
-        if path_type == 'input':
-            # images given together in a run; the ones found beside them are found again
-            for input_set in history.get_input_sets():
-                given = [p for p in input_set.get('paths', [])
-                         if p not in input_set.get('found_automatically', [])]
-                if len(given) > 1:
-                    menu.add_command(
-                        label=selection_text([history.format_path_for_display(p) for p in given]),
-                        command=lambda g=given: set_input_selection(g))
-    x = input_entry.winfo_rootx()
-    y = button.winfo_rooty() + button.winfo_height()
+        self.app_state = AppState(self.refresh_steps)
+        self.app_state.artifacts = artifact_list.load_artifacts()
+        self.appearance = themes.Appearance(leapp.theme, history.get_appearance(leapp.name))
+        ttk.Style(self).theme_use("clam")
 
-    # On X11 (XWayland included) a posted menu stays on screen until it is unposted:
-    # close it when the window moves or the menu loses focus, or it is left behind.
-    closed = False
-
-    def close_menu(event=None):
-        nonlocal closed
-        # child widgets inherit the window's <Configure> binding; only the window counts
-        if closed or (event is not None and event.type == tk.EventType.Configure
-                      and event.widget is not main_window):
-            return
-        closed = True
-        main_window.unbind('<Configure>', configure_binding)
-        menu.unpost()
-        menu.destroy()
-
-    configure_binding = main_window.bind('<Configure>', close_menu, add='+')
-    menu.bind('<FocusOut>', close_menu)
-    menu.post(x, y)
-    menu.focus_set()
-
-
-def pickModules():
-    '''Create a list of available modules:
-        - itunes_backup_info, itunes_backup_installed_applications, last_build and Ph100-UFED-device-values-Plist that need
-        to be executed first are excluded
-        - logarchive_artifacts is also excluded as it uses the LAVA SQLite database to extract
-        relevant event messages from the logarchive table and must be executed only if logarchive
-        module has been already executed
-        - ones that take a long time to run are deselected by default'''
-    global mlist
-    for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
-        if (plugin.module_name == 'iTunesBackupInfo'
-                or plugin.name == 'last_build'
-                or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
-            continue
-        # Items that take a long time to execute are deselected by default
-        # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
-        plugin_enabled = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
-        plugin_module_name = plugin.artifact_info.get('name', plugin.name) if hasattr(plugin, 'artifact_info') else plugin.name
-        mlist[plugin.name] = [plugin.category, plugin_module_name, plugin.module_name, plugin_enabled]
-
-
-def get_selected_modules():
-    '''Update the number and return the list of selected modules'''
-    selected_modules = []
-
-    for artifact_name, module_infos in mlist.items():
-        if module_infos[-1].get():
-            selected_modules.append(artifact_name)
-
-    selected_modules_label.config(text=f'Number of selected modules: {len(selected_modules)} / {len(mlist)}')
-    return selected_modules
-
-
-def module_matches_filter(module_infos, filter_term=None):
-    '''Return True when a module matches the active filter, meaning it is one of the modules
-    currently shown in the list. An empty filter matches every module.'''
-    if filter_term is None:
-        filter_term = modules_filter_var.get().lower()
-    return filter_term in f"{module_infos[0]} {module_infos[1]}".lower()
-
-
-def select_all():
-    '''Select the modules currently shown in the list and execute get_selected_modules'''
-    for module_infos in mlist.values():
-        if module_matches_filter(module_infos):
-            module_infos[-1].set(True)
-
-    get_selected_modules()
-
-
-def deselect_all():
-    '''Unselect the modules currently shown in the list and execute get_selected_modules'''
-    for module_infos in mlist.values():
-        if module_matches_filter(module_infos):
-            module_infos[-1].set(False)
-
-    get_selected_modules()
-
-
-def filter_modules(*args):
-    mlist_text.config(state='normal')
-    filter_term = modules_filter_var.get().lower()
-
-    mlist_text.delete('0.0', tk.END)
-
-    for artifact_name, module_infos in mlist.items():
-        if module_matches_filter(module_infos, filter_term):
-            if is_platform_macos():
-                cb = ttk.Checkbutton(
-                    mlist_text,
-                    name=f'mcb_{artifact_name}',
-                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
-                    variable=module_infos[-1],
-                    onvalue=True,
-                    offvalue=False,
-                    command=get_selected_modules,
-                    style='Module.TCheckbutton')
-            else:
-                cb = tk.Checkbutton(
-                    mlist_text,
-                    name=f'mcb_{artifact_name}',
-                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
-                    variable=module_infos[-1],
-                    onvalue=True,
-                    offvalue=False,
-                    command=get_selected_modules)
-                cb.config(
-                    background=theme_bgcolor,
-                    fg=theme_fgcolor,
-                    selectcolor=theme_inputcolor,
-                    highlightthickness=0,
-                    activebackground=theme_bgcolor,
-                    activeforeground=theme_fgcolor)
-            mlist_text.window_create('insert', window=cb)
-            mlist_text.insert('end', '\n')
-    mlist_text.config(state='disabled')
-
-def load_profile():
-    '''Select modules from a profile file'''
-    global profile_filename
-
-    destination_path = tk_filedialog.askopenfilename(parent=main_window,
-                                                     title='Load a profile',
-                                                     filetypes=(('iLEAPP Profile', '*.ilprofile'),))
-
-    if destination_path and os.path.exists(destination_path):
-        profile_load_error = None
-        with open(destination_path, 'rt', encoding='utf-8') as profile_in:
-            try:
-                profile = json.load(profile_in)
-            except:
-                profile_load_error = 'File was not a valid profile file: invalid format'
-        if not profile_load_error:
-            if isinstance(profile, dict):
-                if profile.get('leapp') != 'ileapp' or profile.get('format_version') != 1:
-                    profile_load_error = 'File was not a valid profile file: incorrect LEAPP or version'
-                else:
-                    deselect_all()
-                    ticked = set(profile.get('plugins', []))
-                    for artifact_name, module_infos in mlist.items():
-                        if artifact_name in ticked:
-                            module_infos[-1].set(True)
-                    get_selected_modules()
-            else:
-                profile_load_error = 'File was not a valid profile file: invalid format'
-        if profile_load_error:
-            tk_msgbox.showerror(title='Error', message=profile_load_error, parent=main_window)
+        settings = SettingsControl(self)
+        if sys.platform == "darwin":
+            # On macOS: Settings item in the application menu and ⌘,
+            self.createcommand("::tk::mac::ShowPreferences", settings.open)
+            self.createcommand("::tk::mac::Quit", self.close)
         else:
-            profile_filename = destination_path
-            message = f'Loaded profile: {destination_path}'
-            unknown = sorted(name for name in profile.get('plugins', []) if name not in mlist)
-            if unknown:
-                message += (f'\n\nThe profile names {len(unknown)} artifact(s) this version does '
-                            f'not have, which will not run:\n' + '\n'.join(unknown))
-            tk_msgbox.showinfo(title='Profile loaded', message=message, parent=main_window)
-
-
-def save_profile():
-    '''Save selected modules in a profile file'''
-    destination_path = tk_filedialog.asksaveasfilename(parent=main_window,
-                                                       title='Save a profile',
-                                                       filetypes=(('iLEAPP Profile', '*.ilprofile'),),
-                                                       defaultextension='.ilprofile')
-
-    if destination_path:
-        selected_modules = get_selected_modules()
-        with open(destination_path, 'wt', encoding='utf-8') as profile_out:
-            json.dump({'leapp': 'ileapp', 'format_version': 1, 'plugins': selected_modules}, profile_out)
-        tk_msgbox.showinfo(
-            title='Save a profile', message=f'Profile saved: {destination_path}', parent=main_window)
-
-
-def scroll(event):
-    '''Continue to scroll the list with mouse wheel when cursor hover a checkbutton'''
-    parent = main_window.nametowidget(event.widget.winfo_parent())
-    parent.event_generate('<MouseWheel>', delta=event.delta, when='now')
-
-
-def set_input_selection(paths):
-    '''Show the files picked in the input field: one path, or the first and how many more.'''
-    input_selection[:] = list(paths) if len(paths) > 1 else []
-    input_entry.delete(0, 'end')
-    input_entry.insert(0, selection_text(paths))
-
-
-def input_paths():
-    '''The input the field stands for: the files picked together, or the one path in it.'''
-    return selected_paths(input_entry.get(), input_selection)
-
-
-def ValidateInput():
-    '''Returns tuple (success, extraction_type)'''
-    i_path = input_entry.get()  # input file/folder
-    several = input_paths()
-    if len(several) > 1:
-        # The member images of a RAID set, read together as raw images
-        missing = [p for p in several if not os.path.isfile(p) and not names_an_image_folder(p)]
-        if missing:
-            tk_msgbox.showerror(title='Error', message=f'INPUT file does not exist: {missing[0]}',
-                                parent=main_window)
-            return False, '', None
-        if not names_raw_images(several):
-            tk_msgbox.showerror(title='Error', message='Several files are read together only as disk '
-                                'images, the member images of a RAID set.', parent=main_window)
-            return False, '', None
-        logical = logical_among(several)
-        if logical is not None:
-            tk_msgbox.showerror(title='Error', message=logical_refusal(logical), parent=main_window)
-            return False, '', None
-        i_path = several[0]
-    o_path = output_entry.get()  # output folder
-    ext_type = ''
-
-    # check input
-    if len(i_path) == 0:
-        tk_msgbox.showerror(title='Error', message='No INPUT file or folder selected!', parent=main_window)
-        return False, ext_type, None
-    elif not os.path.exists(i_path):
-        tk_msgbox.showerror(title='Error', message='INPUT file/folder does not exist!', parent=main_window)
-        return False, ext_type, None
-    elif names_an_image_folder(i_path):
-        # an Apple sparse bundle or an AFD folder is one disk image, not a folder
-        # of extracted files
-        ext_type = 'raw'
-    elif os.path.isdir(i_path):
-        itunes_backup_type = get_itunes_backup_type(i_path)
-        if itunes_backup_type:
-            supported, encrypted, message = check_itunes_backup_status(
-                i_path, itunes_backup_type)
-            if not supported:
-                tk_msgbox.showerror(title='Error', message=message,
-                                    parent=main_window)
-                return False, ext_type, None
-            else:
-                if encrypted:
-                    decryption_keys = None
-                    while not decryption_keys:
-                        password = tk.simpledialog.askstring(
-                            "Detected encrypted iTunes backup",
-                            "iTunes Backup password:",
-                            show='*',
-                            parent=main_window)
-                        decryption_keys, message = decrypt_itunes_backup(i_path, password)
-                        if not decryption_keys:
-                            tk_msgbox.showerror(title='Error', message=message,
-                                                parent=main_window)
-                            return False, ext_type, decryption_keys
-                        else:
-                            return True, 'itunes', decryption_keys
-            ext_type = 'itunes'
-        else:
-            ext_type = 'fs'
-    else:
-        # one segment of a split raw image (.001 beside .002) is accepted as it
-        # is: the vendored reader joins the set and the run log says so
-        ext_type = Path(i_path).suffix[1:].lower()
-        # A raw disk image has no type of its own, only a conventional extension,
-        # so the suffix taken literally ('img', 'bin') matches no branch in
-        # crunch_artifacts and the run stops with nothing parsed. Map the
-        # conventional ones onto the input type that reads them.
-        if ext_type in RAW_IMAGE_SUFFIXES:
-            ext_type = 'raw'
-        # An xz-compressed tar ends in 'xz', which matches no branch either. The
-        # tar seeker opens it through tarfile's compression detection.
-        elif i_path.lower().endswith('.tar.xz'):
-            ext_type = 'tar'
-
-    if len(several) > 1:
-        ext_type = 'raw'
-
-    # check output now
-    if len(o_path) == 0:  # output path
-        tk_msgbox.showerror(title='Error', message='No output path provided!', parent=main_window)
-        return False, ext_type, None
-
-    folder_name = output_folder_name_entry.get().strip()
-    if not folder_name:
-        tk_msgbox.showerror(title='Error', message='Output folder name cannot be empty!', parent=main_window)
-        return False, ext_type, None
-    folder_name_valid, folder_name_error = validate_output_folder_available(o_path, folder_name)
-    if not folder_name_valid:
-        tk_msgbox.showerror(title='Error', message=folder_name_error, parent=main_window)
-        return False, ext_type, None
-
-    # check if at least one module is selected
-    if len(get_selected_modules()) == 0:
-        tk_msgbox.showerror(title='Error', message='No module selected for processing!', parent=main_window)
-        return False, ext_type, None
-
-    return True, ext_type, None
-
-
-def open_report(report_path):
-    '''Open report and Quit after processing completed'''
-    webbrowser.open_new_tab('file://' + report_path)
-    main_window.quit()
-
-
-def open_lava(project_path, launcher):
-    '''Open the generated project in LAVA and quit after processing completed.'''
-    try:
-        open_lava_project(project_path, launcher, logfunc)
-    except (OSError, ValueError) as ex:
-        tk_msgbox.showerror(
-            title='Unable to open LAVA',
-            message=f'iLEAPP could not open the project in LAVA:\n{ex}',
-            parent=main_window)
-        return
-    main_window.quit()
-
-
-def explore_lava():
-    '''Open the LAVA website.'''
-    webbrowser.open_new_tab(LAVA_WEBSITE)
-
-
-def open_folder(output_path):
-    '''Open the generated output folder.'''
-    try:
-        open_output_folder(output_path)
-    except OSError as ex:
-        tk_msgbox.showerror(
-            title='Unable to open output folder',
-            message=f'iLEAPP could not open the output folder:\n{ex}',
-            parent=main_window)
-
-
-def open_website(url):
-    webbrowser.open_new_tab(url)
-
-
-def open_settings_window():
-    '''Open Settings modal window'''
-    settings_window = tk.Toplevel(main_window)
-    settings_window.transient(main_window)
-    settings_window_width = 400
-    settings_window_height = 260
-
-    #### Places Case Data window in the center of the main window
-    main_window.update_idletasks()
-    main_x = main_window.winfo_x()
-    main_y = main_window.winfo_y()
-    main_w = main_window.winfo_width()
-    main_h = main_window.winfo_height()
-
-    margin_width = main_x + (main_w - settings_window_width) // 2
-    margin_height = main_y + (main_h - settings_window_height) // 2
-
-    settings_window.geometry(f'{settings_window_width}x{settings_window_height}+{margin_width}+{margin_height}')
-    settings_window.resizable(False, False)
-    settings_window.configure(bg=theme_bgcolor)
-    settings_window.title('Settings')
-    settings_window.grid_columnconfigure(0, weight=1)
-
-    def on_main_focus(event):
-        if settings_window.winfo_exists():
-            settings_window.bell()
-            settings_window.lift()
-            settings_window.focus_force()
-
-    main_window.bind("<FocusIn>", on_main_focus)
-
-    def close_settings_window():
-        main_window.unbind("<FocusIn>")
-        settings_window.destroy()
-
-    settings_window.protocol("WM_DELETE_WINDOW", close_settings_window)
-
-    settings_title_label = ttk.Label(settings_window, text='Settings', font='Helvetica 18')
-    settings_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
-
-    history_enabled_var = tk.BooleanVar(value=history.is_history_enabled())
-
-    def toggle_history():
-        history.set_history_enabled(history_enabled_var.get())
-
-    def update_clear_history_button():
-        state = tk.NORMAL if history.has_history() else tk.DISABLED
-        clear_history_btn.config(state=state)
-
-    def open_clear_history_window():
-        clear_window = tk.Toplevel(settings_window)
-        clear_window.transient(settings_window)
-        clear_window_width = 460
-        clear_window_height = 220
-
-        settings_window.update_idletasks()
-        settings_x = settings_window.winfo_x()
-        settings_y = settings_window.winfo_y()
-        settings_w = settings_window.winfo_width()
-        settings_h = settings_window.winfo_height()
-
-        margin_width = settings_x + (settings_w - clear_window_width) // 2
-        margin_height = settings_y + (settings_h - clear_window_height) // 2
-
-        clear_window.geometry(f'{clear_window_width}x{clear_window_height}+{margin_width}+{margin_height}')
-        clear_window.resizable(False, False)
-        clear_window.configure(bg=theme_bgcolor)
-        clear_window.title('Clear History')
-        clear_window.grid_columnconfigure(0, weight=1)
-
-        def on_settings_focus(event):
-            if clear_window.winfo_exists():
-                clear_window.bell()
-                clear_window.lift()
-                clear_window.focus_force()
-
-        settings_window.bind("<FocusIn>", on_settings_focus)
-
-        def close_clear_window():
-            settings_window.unbind("<FocusIn>")
-            clear_window.destroy()
-
-        clear_window.protocol("WM_DELETE_WINDOW", close_clear_window)
-
-        clear_title_label = ttk.Label(clear_window, text='Clear History', font='Helvetica 18')
-        clear_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
-
-        clear_message = (
-            'History is stored in shared LEAPP files. Input and output paths are shared by all '
-            'LEAPP tools, while recent runs are tagged by tool.'
-        )
-        clear_message_label = ttk.Label(clear_window, text=clear_message, wraplength=420)
-        clear_message_label.grid(row=1, column=0, padx=14, pady=10, sticky='w')
-
-        button_frame = ttk.Frame(clear_window)
-        button_frame.grid(row=2, column=0, padx=14, pady=18, sticky='e')
-
-        def clear_single_leapp_history():
-            if not tk_msgbox.askyesno(
-                    title=f'Clear {leapp_name} history',
-                    message=(
-                        f'Clear shared recent input/output paths and '
-                        f'{leapp_name} recent run entries?'
-                    ),
-                    parent=clear_window):
-                return
-            history.clear_single_leapp_history(leapp_name.lower())
-            update_clear_history_button()
-            close_clear_window()
-
-        def clear_all_history():
-            if not tk_msgbox.askyesno(
-                    title='Clear all LEAPP history',
-                    message='Clear all shared LEAPP history, including recent input and output paths?',
-                    parent=clear_window):
-                return
-            history.clear_history()
-            update_clear_history_button()
-            close_clear_window()
-
-        clear_single_leapp_btn = ttk.Button(
-            button_frame,
-            text=f'Clear {leapp_name} History',
-            command=clear_single_leapp_history)
-        clear_single_leapp_btn.pack(side='left', padx=5)
-        if not history.has_single_leapp_history(leapp_name.lower()):
-            clear_single_leapp_btn.config(state=tk.DISABLED)
-
-        clear_all_btn = ttk.Button(
-            button_frame,
-            text='Clear All History',
-            command=clear_all_history)
-        clear_all_btn.pack(side='left', padx=5)
-
-        cancel_btn = ttk.Button(button_frame, text='Cancel', command=close_clear_window)
-        cancel_btn.pack(side='left', padx=5)
-
-        if is_platform_macos():
-            clear_window.grab_set_global()
-        else:
-            clear_window.grab_set()
-
-    history_check = tk.Checkbutton(
-        settings_window,
-        text='Enable saving paths as recent history',
-        variable=history_enabled_var,
-        command=toggle_history,
-        background=theme_bgcolor,
-        fg=theme_fgcolor,
-        selectcolor=theme_inputcolor,
-        activebackground=theme_bgcolor,
-        activeforeground=theme_fgcolor,
-        highlightthickness=0,
-    )
-    history_check.grid(row=1, column=0, padx=14, pady=20, sticky='w')
-
-    clear_history_btn = ttk.Button(
-        settings_window,
-        text='Clear History',
-        command=open_clear_history_window)
-    clear_history_btn.grid(row=2, column=0, padx=14, pady=10, sticky='w')
-    update_clear_history_button()
-
-    close_btn = ttk.Button(settings_window, text='Close', command=close_settings_window)
-    close_btn.grid(row=3, column=0, padx=14, pady=20, sticky='e')
-
-    if is_platform_macos():
-        settings_window.grab_set_global()
-    else:
-        settings_window.grab_set()
-
-
-def resource_path(filename):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, 'assets', filename)
-
-
-def process(casedata):
-    '''Execute selected modules and create reports'''
-    # check if selections made properly; if not we will return to input form without exiting app altogether
-    is_valid, extracttype, decryption_keys = ValidateInput()
-
-    if is_valid:
-        # An encrypted image opens only with what locked it, and a BitLocker, APFS or
-        # LUKS volume in an image with its own key: asked for here, checked against the image,
-        # and handed to the run, never stored.
-        # One image that holds a RAID member has the other members looked for beside it,
-        # and the examiner is asked before files found that way are read.
-        image_password = None
-        found_members = None
-        input_path = input_entry.get()
-        if extracttype == 'raw':
-            raw_input = ask_raw_input(main_window, input_paths())
-            if raw_input is None:
-                return
-            image_password = raw_input.keys
-            input_path = raw_input.input_path
-            # what was found beside the image picked, and any image picked twice
-            found_members = raw_input
-        GuiWindow.window_handle = main_window
-        output_folder = output_entry.get()
-
-        # ios file system extractions contain paths > 260 char, which causes problems
-        # This fixes the problem by prefixing \\?\ on each windows path.
-        if is_platform_windows():
-            if input_path[1] == ':' and extracttype == 'fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
-            if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
-
-        # re-create modules list based on user selection
-        selected_modules = get_selected_modules()
-        selected_modules = [loader[module] for module in selected_modules]
-        progress_bar.config(maximum=len(selected_modules))
-        casedata = {key: value.get() for key, value in casedata.items()}
-        out_params = OutputParameters(output_folder, output_folder_name_entry.get().strip())
-        Context.set_output_params(out_params)
-        keychain_path = keychain_entry.get().strip()
-        if keychain_path and not os.path.isfile(keychain_path):
-            tk_msgbox.showerror(title='Error',
-                                message=f'Keychain file not found:\n{keychain_path}',
-                                parent=main_window)
-            return
-        Context.set_keychain_path(keychain_path or None)
-        wrap_text = True
-        time_offset = timezone_set.get()
-        if time_offset == '':
-            time_offset = 'UTC'
-
-        bottom_frame.pack_forget()
-        mlist_frame.pack_forget()
-        output_frame.pack_forget()
-        input_frame.pack_forget()
-        keychain_frame.pack_forget()
-        logtext_frame.pack(padx=8, pady=4, expand=True, fill='both')
-        # Packed at the bottom, ahead of the log, so a window shorter than its contents
-        # shrinks the log instead of hiding the progress bar or the end-of-run buttons.
-        progress_bar_frame.pack(side='bottom', padx=2, pady=2, ipady=2, fill='x', before=logtext_frame)
-
-        # Record history if enabled
-        if isinstance(input_path, list):
-            history.record_input_set(input_path, getattr(found_members, 'found', found_members))
-        else:
-            history.record_input_path(input_path)
-        history.record_output_path(output_folder)
-
-        # crunch_artifacts blocks for the length of the run. Called here it blocks the Tk
-        # event loop too, and the only thing pumping that loop was log_text.update() inside
-        # logfunc, so Windows paints "(Not Responding)" over a run that is perfectly healthy.
-        # Run it on a worker thread and poll for its output instead.
-        GuiWindow.message_queue = queue.Queue()
-        worker = threading.Thread(
-            target=run_crunch,
-            args=(GuiWindow.message_queue, selected_modules, extracttype, input_path,
-                  out_params, wrap_text, casedata, time_offset, decryption_keys,
-                  image_password, found_members,
-                  hash_files_var.get()),
-            daemon=True)
-        worker.start()
-        main_window.after(CRUNCH_POLL_MS, poll_crunch, GuiWindow.message_queue, out_params)
-
-
-def run_crunch(message_queue, selected_modules, extracttype, input_path, out_params, wrap_text,
-               case_info, time_offset, decryption_keys, image_password=None, found_members=None, hash_files=False):
-    '''Do the processing off the main thread. Touches no widget; reports on the queue.'''
-    try:
-        # LAVA's SQLite connection is opened here rather than in process(): a sqlite3
-        # object may only be used by the thread that created it, so a connection opened
-        # on the main thread is unusable by the artifacts running on this one.
-        initialize_lava(input_text(input_path, found_members), out_params.output_folder_base,
-                        extracttype, profile_filename, case_info)
-        crunch_successful = ileapp.crunch_artifacts(
-            selected_modules, extracttype, input_path, out_params, wrap_text,
-            loader, case_info, time_offset, profile_filename, None, decryption_keys,
-            image_password=image_password,
-            found_members=found_members, hash_files=hash_files)
-        lava_finalize_output(out_params.output_folder_base)
-    except Exception:  # pylint: disable=broad-exception-caught
-        # Without this the GUI would poll an empty queue forever and look hung for real.
-        message_queue.put(('failed', traceback.format_exc()))
-    else:
-        message_queue.put(('done', crunch_successful))
-
-
-def poll_crunch(message_queue, out_params):
-    '''Drain the worker's messages onto the widgets. The only place Tk is touched.'''
-    pending_logs = []
-    finished = None
-    while finished is None:
+            # Other platforms: Ctrl,
+            self.bind_all("<Control-comma>", lambda _event: settings.open())
+
+        self.bind("<Control-i>", lambda _event: self.focus_field("focus_input"))
+        self.bind("<Control-o>", lambda _event: self.focus_field("focus_output"))
+        self.bind("<Control-f>", lambda _event: self.focus_field("focus_search"))
+        for sequence in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            self.bind(sequence, self.on_wheel)
+        self.bind("<FocusIn>", self.on_focus)
         try:
-            kind, payload = message_queue.get_nowait()
-        except queue.Empty:
-            break
-        if kind == 'log':
-            pending_logs.append(payload)
-        elif kind == 'progress':
-            progress_bar.config(value=payload)
-        else:
-            finished = (kind, payload)
+            self.bind("<TouchpadScroll>", self.on_touchpad)
+        except tk.TclError:
+            pass
 
-    if pending_logs:
-        # One insert per poll, not one per line: a chatty artifact queues thousands, and
-        # inserting each separately costs more than the run it is reporting on.
-        log_text.insert('end', ''.join(pending_logs))
-        log_text.see('end')
+        self.protocol("WM_DELETE_WINDOW", self.close)
 
-    if finished is None:
-        main_window.after(CRUNCH_POLL_MS, poll_crunch, message_queue, out_params)
-        return
+        self.widgets = {}
+        self.unlock_watch = None
+        self.run_control = RunControl(self, crunch)
 
-    GuiWindow.end_worker_run()  # queue cleared, and print() put back on the console
-    kind, payload = finished
-    if kind == 'failed':
-        logfunc('Processing failed with an unhandled error:')
-        logfunc(payload)
-        finish_crunch(False, out_params)
-    else:
-        finish_crunch(payload, out_params)
+        self.build()
+        self.fix_size()
+        if show:
+            self.deiconify()
+            self.watch_unlock()
+            if sys.platform == "darwin":
+                self.after(300, self.redraw)
 
+    def on_wheel(self, event):
+        """ The mouse wheel, anywhere in the window. """
+        self.widgets["scroll"].wheel(event)
 
-def finish_crunch(crunch_successful, out_params):
-    '''Report the outcome. Runs on the main thread once the worker is done.'''
-    if crunch_successful:
-        # Record the run in history
-        report_path = os.path.join(out_params.output_folder_base, 'index.html')
-        lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
+    def on_touchpad(self, event):
+        """ The touchpad, anywhere in the window. """
+        self.widgets["scroll"].touchpad(event)
 
-        output_folder_path = out_params.output_folder_base
-        if report_path.startswith('\\\\?\\'):  # windows
-            report_path = report_path[4:]
-            lava_project_path = lava_project_path[4:]
-            output_folder_path = output_folder_path[4:]
-        if report_path.startswith('\\\\'):  # UNC path
-            report_path = report_path[2:]
-            lava_project_path = lava_project_path[2:]
-            output_folder_path = output_folder_path[2:]
-        if lava_only_artifacts:
-            message = "You have selected artifacts that are likely to return too much data "
-            message += "to be viewed in a Web browser.\n\n"
-            message += "Please see the 'LAVA only artifacts' tab in the HTML report for a list of these artifacts "
-            message += "and instructions on how to view them."
-            tk_msgbox.showwarning(
-                title="Important information",
-                message=message,
-                parent=main_window)
-        progress_bar.pack_forget()
-        completion_button_frame = ttk.Frame(progress_bar_frame)
-        completion_button_frame.place(relx=0.5, rely=0.5, anchor='center')
-        open_report_button = ttk.Button(
-            completion_button_frame,
-            text='Open HTML in Browser & Close',
-            command=lambda: open_report(report_path))
-        open_report_button.pack(side='left', padx=5)
+    def on_focus(self, event):
+        """ A widget has got the focus. """
+        self.widgets["scroll"].reveal(event)
 
-        lava_launcher = find_lava_launcher(lava_project_path)
-        if lava_launcher:
-            lava_button = ttk.Button(
-                completion_button_frame,
-                text='Open Project in LAVA & Close',
-                command=lambda: open_lava(lava_project_path, lava_launcher))
-        else:
-            lava_button = ttk.Button(
-                completion_button_frame,
-                text='Explore LAVA',
-                command=explore_lava)
-        lava_button.pack(side='left', padx=5)
+    def fix_size(self):
+        """ Give the window the width its first screen asks for, within the display. It then keeps
+        its size on every screen, unless the user changes it. """
+        self.update_idletasks()
+        width = min(max(self.winfo_reqwidth(), MIN_SIZE[0]), self.screen_area[2])
+        height = min(MIN_SIZE[1], self.screen_area[3])
+        self.geometry(f"{width}x{height}")
+        window_area.place(self, self.screen_area, width, height)
 
-        open_folder_button = ttk.Button(
-            completion_button_frame,
-            text='Open Output Folder',
-            command=lambda: open_folder(output_folder_path))
-        open_folder_button.pack(side='left', padx=5)
-    else:
-        log_path = out_params.screen_output_file_path
-        if log_path.startswith('\\\\?\\'):  # windows
-            log_path = log_path[4:]
-        tk_msgbox.showerror(
-            title='Error',
-            message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}',
-            parent=main_window)
+    def redraw(self):
+        """ On macOS, a window opened from a terminal stays empty until it is clicked:
+        resizing it by one pixel and back makes it draw. Then it is brought to the front. """
+        width, height = self.winfo_width(), self.winfo_height()
+        self.geometry(f"{width + 1}x{height}")
+        self.update_idletasks()
+        self.geometry(f"{width}x{height}")
 
+        self.activate_application()
 
-def close_main_window():
-    '''Handle the window's close button.
-
-    The GUI stays responsive during a run now, so this is reachable while the worker is
-    still going. The worker is a daemon thread: quitting kills it wherever it is, leaving
-    a part-written report, an unfinalised LAVA project, and any staging files the run
-    created. Ask first rather than losing a run to a stray click.
-    '''
-    if GuiWindow.message_queue is not None:
-        close_anyway = tk_msgbox.askokcancel(
-            title='Processing still running',
-            message='A run is still in progress.\n\n'
-                    'Closing now stops it where it is. The report and the LAVA project '
-                    'will be incomplete, and temporary files may be left behind.\n\n'
-                    'Close anyway?',
-            icon=tk_msgbox.WARNING,
-            default=tk_msgbox.CANCEL,
-            parent=main_window)
-        if not close_anyway:
+    def activate_application(self):
+        """ Make the program the active application. """
+        bundle = Path(sys.base_prefix) / "Resources" / "Python.app"
+        if getattr(sys, "frozen", False) or not bundle.is_dir():
             return
-    main_window.quit()
+        try:
+            subprocess.run(["open", str(bundle)], check=False, timeout=5)
+        except (OSError, subprocess.SubprocessError):
+            pass
+
+    @property
+    def colors(self):
+        """ The palette in use """
+        return self.appearance.colors
+
+    def build(self):
+        """ Build or replace every widget using the current palette. """
+        for name in ("header", "body"):
+            if name in self.widgets:
+                self.widgets[name].destroy()
+        self.configure(bg=self.colors.main_bg)
+        themes.apply_styles(ttk.Style(self), self.colors)
+        themes.title_bar(self, self.appearance.is_dark)
+
+        self.widgets["header"] = Header(self, self)
+        self.widgets["header"].pack(fill="x")
+
+        body = self.widgets["body"] = tk.Frame(self, bg=self.colors.main_bg)
+        body.pack(fill="both", expand=True, padx=(MARGIN, 0), pady=(16, 8))
+        body.columnconfigure(0, weight=1)
+        body.rowconfigure(1, weight=1)
+
+        self.widgets["steps"] = Steps(body, self)
+        self.widgets["steps"].grid(row=0, column=0, sticky="ew", padx=(0, MARGIN), pady=(0, 24))
+
+        self.widgets["scroll"] = ScrollArea(body, self)
+        self.widgets["scroll"].grid(row=1, column=0, sticky="nsew")
+
+        self.show_screen()
+
+        self.widgets["status_bar"] = StatusBar(body, self)
+        self.widgets["status_bar"].grid(row=2, column=0, sticky="ew", padx=(0, MARGIN),
+                                        pady=(16, 8))
+
+    def show_screen(self):
+        """ Build the screen of the step. """
+        old = self.widgets.pop("screen", None)
+        if old is not None:
+            old.destroy()
+        step = self.app_state.step
+        screen = SCREENS[step](self.widgets["scroll"].content, self)
+        self.widgets["screen"] = screen
+        self.widgets["scroll"].show(screen)
+
+    def go(self, step):
+        """ Navigate to a step when the current application state allows it. """
+        state = self.app_state
+        if step == "run" and state.run_status == "idle":
+            step = "review"
+        if state.can_go(step):
+            state.left.add(state.step)
+            state.step = step
+            self.show_screen()
+            self.refresh_steps()
+
+    def go_back(self):
+        """ Navigate to the previous step. """
+        previous = self.app_state.previous_open()
+        if previous is not None:
+            self.go(previous)
+
+    def go_next(self):
+        """ Navigate to the next step. """
+        state = self.app_state
+        if state.step in ("case", "source", "artifacts"):
+            self.go(state.neighbour(1))
+        elif state.step == "review":
+            self.run_control.start()
+        elif state.step == "run" and state.run_status == "running":
+            self.run_control.stop()
+        elif state.step == "run":
+            self.go("results")
+        else:
+            self.run_control.new_run()
+
+    def close(self):
+        """ The window's close button. Closing during a run stops it where it is. """
+        if self.app_state.run_status == "running" and not messagebox.askokcancel(
+                "Processing still running",
+                "A run is still in progress.\n\nClosing now stops it where it is. The report and "
+                "the LAVA project will be incomplete, and temporary files may be left behind.\n\n"
+                "Close anyway?", icon=messagebox.WARNING, default=messagebox.CANCEL, parent=self):
+            return
+        self.destroy()
+
+    def watch_unlock(self):
+        """ Follow the sequence that opens the source, whatever the screen on show. """
+        self.app_state.poll_unlock()
+        self.unlock_watch = self.after(UNLOCK_POLL, self.watch_unlock)
+
+    def destroy(self):
+        """ Stop following the sequence and the run before the window goes. """
+        if self.unlock_watch is not None:
+            self.after_cancel(self.unlock_watch)
+            self.unlock_watch = None
+        self.run_control.stop_watching()
+        super().destroy()
+
+    def refresh_steps(self):
+        """ Redraw the steps ans status bar after the application state changes. """
+        for name in ("steps", "status_bar", "checks"):
+            if name in self.widgets:
+                self.widgets[name].refresh()
+
+    def focus_field(self, method):
+        """ Ask the screen on show to put the cursor in one of its fields, if it has that field. """
+        action = getattr(self.widgets.get("screen"), method, None)
+        if action is not None:
+            action()
 
 
-def select_input(button_type):
-    '''Select source and insert its path into input field'''
-    if button_type == 'file':
-        # Several disk images can be picked together: the member images of a RAID set
-        picked = tk_filedialog.askopenfilenames(parent=main_window,
-                                                title='Select a file (or the disk images of a RAID set)',
-                                                filetypes=(('All supported files',
-                                                            '*.tar *.zip *.gz *.xz ' + RAW_IMAGE_FILE_PATTERNS),
-                                                           ('tar file', '*.tar'), ('zip file', '*.zip'),
-                                                           ('gz file', '*.gz'),
-                                                           ('tar.xz file', '*.xz'),
-                                                           (RAW_IMAGE_LABEL, RAW_IMAGE_FILE_PATTERNS)))
-        picked = list(main_window.tk.splitlist(picked)) if picked else []
-    else:
-        folder = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
-        picked = [folder] if folder else []
-    set_input_selection(picked)
-    if len(picked) > 1:
-        history.record_input_set(picked)
-    elif picked:
-        history.record_input_path(picked[0])
-
-
-def select_keychain():
-    '''Select a keychain file and insert its path into the keychain field'''
-    keychain_filename = tk_filedialog.askopenfilename(
-        parent=main_window,
-        title='Select a keychain file',
-        filetypes=(('Keychain files', '*.plist *.xml'), ('All files', '*.*')))
-    if keychain_filename:
-        keychain_entry.delete(0, 'end')
-        keychain_entry.insert(0, keychain_filename)
-
-
-def clear_keychain():
-    '''Forget the selected keychain so it is not reused on the next case'''
-    keychain_entry.delete(0, 'end')
-
-
-def select_output():
-    '''Select target and insert its path into output field'''
-    output_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
-    output_entry.delete(0, 'end')
-    output_entry.insert(0, output_filename)
-    if output_filename:
-        history.record_output_path(output_filename)
-
-
-def case_data():
-    # GUI layout
-    ## Case Data
-    '''Add Case Data window'''
-    global casedata
-
-    def clear():
-        '''Remove the contents of all fields'''
-        case_number_entry.delete(0, 'end')
-        case_agency_name_entry.delete(0, 'end')
-        case_agency_logo_path_entry.delete(0, 'end')
-        case_agency_logo_mimetype.delete(0, 'end')
-        case_agency_logo_b64.delete(0, 'end')
-        case_examiner_entry.delete(0, 'end')
-
-    def save_case():
-        '''Save case data in a Case Data file'''
-        destination_path = tk_filedialog.asksaveasfilename(parent=case_window,
-                                                           title='Save a case data file',
-                                                           filetypes=(('LEAPP Case Data', '*.lcasedata'),),
-                                                           defaultextension='.lcasedata')
-
-        if destination_path:
-            json_casedata = {key: value.get() for key, value in casedata.items()}
-            with open(destination_path, 'wt', encoding='utf-8') as case_data_out:
-                json.dump({'leapp': 'case_data', 'case_data_values': json_casedata}, case_data_out)
-            tk_msgbox.showinfo(
-                title='Save Case Data', message=f'Case Data saved: {destination_path}', parent=case_window)
-
-    def load_case():
-        '''Import case data from a Case Data file'''
-        destination_path = tk_filedialog.askopenfilename(parent=case_window,
-                                                         title='Load case data',
-                                                         filetypes=(('LEAPP Case Data', '*.lcasedata'),))
-
-        if destination_path and os.path.exists(destination_path):
-            case_data_load_error = None
-            with open(destination_path, 'rt', encoding='utf-8') as case_data_in:
-                try:
-                    case_data = json.load(case_data_in)
-                except:
-                    case_data_load_error = 'File was not a valid case data file: invalid format'
-            if not case_data_load_error:
-                if isinstance(case_data, dict):
-                    if case_data.get('leapp') != 'case_data':
-                        case_data_load_error = 'File was not a valid case data file'
-                    else:
-                        casedata = case_data.get('case_data_values', {})
-                        case_number_entry.delete(0, 'end')
-                        case_number_entry.insert(0, casedata.get('Case Number', ''))
-                        case_agency_name_entry.delete(0, 'end')
-                        case_agency_name_entry.insert(0, casedata.get('Agency', ''))
-                        case_agency_logo_path_entry.delete(0, 'end')
-                        case_agency_logo_path_entry.insert(0, casedata.get('Agency Logo Path', ''))
-                        case_agency_logo_mimetype.delete(0, 'end')
-                        case_agency_logo_mimetype.insert(0, casedata.get('Agency Logo mimetype', ''))
-                        case_agency_logo_b64.delete(0, 'end')
-                        case_agency_logo_b64.insert(0, casedata.get('Agency Logo base64', ''))
-                        case_examiner_entry.delete(0, 'end')
-                        case_examiner_entry.insert(0, casedata.get('Examiner', ''))
-                else:
-                    case_data_load_error = 'File was not a valid case data file: invalid format'
-            if case_data_load_error:
-                tk_msgbox.showerror(title='Error', message=case_data_load_error, parent=case_window)
-            else:
-                tk_msgbox.showinfo(
-                    title='Load Case Data', message=f'Loaded Case Data: {destination_path}', parent=case_window)
-
-    def add_agency_logo():
-        '''Import image file and covert it into base64'''
-        logo_path = tk_filedialog.askopenfilename(parent=case_window,
-                                                         title='Add agency logo',
-                                                         filetypes=(('All supported files', '*.png *.jpg *.gif'), ))
-
-        if logo_path and os.path.exists(logo_path):
-            agency_logo_load_error = None
-            with open(logo_path, 'rb') as agency_logo_file:
-                agency_logo_mimetype = guess_mime(agency_logo_file)
-                if agency_logo_mimetype and 'image' in agency_logo_mimetype:
-                    try:
-                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read()).decode("ascii")
-                    except:
-                        agency_logo_load_error = 'Unable to encode the selected file in base64.'
-                else:
-                    agency_logo_load_error = 'Selected file is not a valid picture file.'
-            if agency_logo_load_error:
-                tk_msgbox.showerror(title='Error', message=agency_logo_load_error, parent=case_window)
-            else:
-                case_agency_logo_path_entry.delete(0, 'end')
-                case_agency_logo_path_entry.insert(0, logo_path)
-                case_agency_logo_mimetype.delete(0, 'end')
-                case_agency_logo_mimetype.insert(0, agency_logo_mimetype)
-                case_agency_logo_b64.delete(0, 'end')
-                case_agency_logo_b64.insert(0, agency_logo_base64_encoded)
-                tk_msgbox.showinfo(
-                    title='Add agency logo', message=f'{logo_path} was added as Agency logo', parent=case_window)
-
-    ### Case Data Window creation
-    case_window = tk.Toplevel(main_window)
-    case_window.transient(main_window)
-    case_window_width = 560
-    if is_platform_linux():
-        case_window_height = 325
-    elif is_platform_macos():
-        case_window_height = 317
-    else:
-        case_window_height = 305
-
-    #### Places Case Data window in the center of the main window
-    main_window.update_idletasks()
-    main_x = main_window.winfo_x()
-    main_y = main_window.winfo_y()
-    main_w = main_window.winfo_width()
-    main_h = main_window.winfo_height()
-
-    margin_width = main_x + (main_w - case_window_width) // 2
-    margin_height = main_y + (main_h - case_window_height) // 2
-
-    #### Case Data window properties
-    case_window.geometry(
-        f'{case_window_width}x{case_window_height}'
-        f'{geometry_offset(margin_width)}{geometry_offset(margin_height)}')
-    case_window.resizable(False, False)
-    case_window.configure(bg=theme_bgcolor)
-    case_window.title('Add Case Data')
-    case_window.grid_columnconfigure(0, weight=1)
-
-    def on_main_focus(event):
-        if case_window.winfo_exists():
-            case_window.bell()
-            case_window.lift()
-            case_window.focus_force()
-
-    main_window.bind("<FocusIn>", on_main_focus)
-
-    def close_case_window():
-        main_window.unbind("<FocusIn>")
-        case_window.destroy()
-
-    case_window.protocol("WM_DELETE_WINDOW", close_case_window)
-
-    #### Layout
-    case_title_label = ttk.Label(case_window, text='Add Case Data', font=('Helvetica 18'))
-    case_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
-    case_number_frame = ttk.LabelFrame(case_window, text=' Case Number ')
-    case_number_frame.grid(row=1, column=0, padx=14, pady=5, sticky='we')
-    case_number_entry = ttk.Entry(case_number_frame, textvariable=casedata['Case Number'])
-    case_number_entry.pack(padx=5, pady=4, fill='x')
-    case_number_entry.focus()
-    case_agency_frame = ttk.LabelFrame(case_window, text=' Agency ')
-    case_agency_frame.grid(row=2, column=0, padx=14, pady=5, sticky='we')
-    case_agency_frame.grid_columnconfigure(1, weight=1)
-    case_agency_name_label = ttk.Label(case_agency_frame, text="Name:")
-    case_agency_name_label.grid(row=0, column=0, padx=5, pady=4, sticky='w')
-    case_agency_name_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency'])
-    case_agency_name_entry.grid(row=0, column=1, columnspan=2, padx=5, pady=4, sticky='we')
-    case_agency_logo_label = ttk.Label(case_agency_frame, text="Logo:")
-    case_agency_logo_label.grid(row=1, column=0, padx=5, pady=6, sticky='w')
-    case_agency_logo_path_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency Logo Path'])
-    case_agency_logo_mimetype = ttk.Entry(case_agency_frame, textvariable=casedata['Agency Logo mimetype'])
-    case_agency_logo_b64 = ttk.Entry(case_agency_frame, textvariable=casedata['Agency Logo base64'])
-    case_agency_logo_path_entry.grid(row=1, column=1, padx=5, pady=6, sticky='we')
-    case_agency_logo_button = ttk.Button(case_agency_frame, text='Add File', command=add_agency_logo)
-    case_agency_logo_button.grid(row=1, column=2, padx=5, pady=6)
-    case_examiner_frame = ttk.LabelFrame(case_window, text=' Examiner ')
-    case_examiner_frame.grid(row=3, column=0, padx=14, pady=5, sticky='we')
-    case_examiner_entry = ttk.Entry(case_examiner_frame, textvariable=casedata['Examiner'])
-    case_examiner_entry.pack(padx=5, pady=4, fill='x')
-    modules_btn_frame = ttk.Frame(case_window)
-    modules_btn_frame.grid(row=4, column=0, padx=14, pady=16, sticky='we')
-    modules_btn_frame.grid_columnconfigure(2, weight=1)
-    load_case_button = ttk.Button(modules_btn_frame, text='Load Case Data File', command=load_case)
-    load_case_button.grid(row=0, column=0, padx=5)
-    save_case_button = ttk.Button(modules_btn_frame, text='Save Case Data File', command=save_case)
-    save_case_button.grid(row=0, column=1, padx=5)
-    ttk.Separator(modules_btn_frame, orient='vertical').grid(row=0, column=2, padx=20, sticky='ns')
-    clear_case_button = ttk.Button(modules_btn_frame, text='Clear', command=clear)
-    clear_case_button.grid(row=0, column=3, padx=5)
-    close_case_button = ttk.Button(modules_btn_frame, text='Close', command=close_case_window)
-    close_case_button.grid(row=0, column=4, padx=5)
-
-    if is_platform_macos():
-        case_window.grab_set_global()
-    else:
-        case_window.grab_set()
+def selfcheck():
+    """ Build the window without showing it, then exit: a built binary is smoke tested with this
+    (packaging/build.py smoke). The line printed is the one smoke reads. """
+    window = MainWindow(show=False)
+    print(f"selfcheck passed: {len(window.app_state.artifacts.loader)} artifacts, "
+          f"Tk {window.tk.call('info', 'patchlevel')}")
+    window.destroy()
+    sys.exit(0)
 
 
 check_runtime_dependencies()
-
-## Main window creation
-main_window = tk.Tk()
-icon = resource_path('icon.png')
-loader: typing.Optional[plugin_loader.PluginLoader] = None
-loader = plugin_loader.PluginLoader()
-mlist = {}
-profile_filename = None
-casedata = {'Case Number': tk.StringVar(),
-            'Agency': tk.StringVar(),
-            'Agency Logo Path': tk.StringVar(),
-            'Agency Logo mimetype': tk.StringVar(),
-            'Agency Logo base64': tk.StringVar(),
-            'Examiner': tk.StringVar(),
-            }
-timezone_set = tk.StringVar()
-modules_filter_var = tk.StringVar()
-modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on input change
-pickModules()
-
-## Theme properties
-theme_bgcolor = '#2c2825'
-theme_inputcolor = '#705e52'
-theme_fgcolor = '#fdcb52'
-
-## Main window properties
-# Height allows for the optional keychain row (about 58px) added alongside
-# the input and output rows
-main_window.minsize(890, 750)
-main_window.title(f'iLEAPP version {leapp_version}')
-main_window.configure(bg=theme_bgcolor)
-logo_icon = tk.PhotoImage(file=icon)
-main_window.iconphoto(True, logo_icon)
-main_window.grid_columnconfigure(0, weight=1)
-main_window.option_add('*TkChooseDir*foreground', 'black')
-main_window.option_add('*TkFDialog*foreground', 'black')
-
-## Widgets default style
-style = ttk.Style()
-style.theme_use('default')
-style.configure('.',
-                background=theme_bgcolor,
-                foreground=theme_fgcolor)
-style.configure('TButton')
-style.map('TButton',
-          background=[('active', 'black'), ('!disabled', theme_fgcolor)],
-          foreground=[('active', theme_fgcolor), ('!disabled', 'black')])
-style.configure('TEntry', fieldbackground=theme_inputcolor, highlightthickness=0)
-style.configure(
-    'TCombobox', selectforeground=theme_fgcolor,
-    selectbackground=theme_inputcolor, arrowcolor=theme_fgcolor)
-style.map('TCombobox',
-          fieldbackground=[('active', theme_inputcolor), ('readonly', theme_inputcolor)],
-          )
-style.configure('TScrollbar', background=theme_fgcolor, arrowcolor='black', troughcolor=theme_inputcolor)
-style.configure('TProgressbar', thickness=4, background='DarkGreen')
-style.configure(
-    'Module.TCheckbutton',
-    background=theme_bgcolor,
-    foreground=theme_fgcolor)
-style.map(
-    'Module.TCheckbutton',
-    background=[('active', theme_bgcolor)],
-    foreground=[('active', theme_fgcolor)])
-
-## Main Window Layout
-### Top part of the window
-title_frame = ttk.Frame(main_window)
-title_frame.pack(padx=14, pady=8, fill='x')
-ileapp_logo = ImageTk.PhotoImage(file=resource_path("iLEAPP_logo.png"))
-ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
-ileapp_logo_label.pack(side='left')
-
-settings_icon = ImageTk.PhotoImage(Image.open(resource_path("settings.png")).resize((32, 32)))
-settings_label = ttk.Label(title_frame, image=settings_icon, cursor="hand2")
-settings_label.pack(side='right', padx=(10, 0))
-settings_label.bind("<Button-1>", lambda e: open_settings_window())
-
-leapps_logo = ImageTk.PhotoImage(Image.open(resource_path("leapps_i_logo.png")).resize((110, 51)))
-leapps_logo_label = ttk.Label(title_frame, image=leapps_logo, cursor="target")
-leapps_logo_label.pack(side='right')
-leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"))
-
-# --selfcheck stops here, before the window is ever drawn, so a built binary can be smoke
-# tested without anyone clicking. By this point Tk has started, the images under assets/
-# have loaded and every artifact module has been imported: the three things built binaries
-# have been found without while the same code ran fine from source.
-if '--selfcheck' in sys.argv[1:]:
-    print(f'selfcheck passed: {len(loader)} artifacts, Tk {main_window.tk.call("info", "patchlevel")}')
-    main_window.destroy()
-    sys.exit(0)
-
-### Input output selection
-input_frame = ttk.LabelFrame(
-    main_window,
-    text=' Select the file (tar, zip, gz, raw image, E01, AFF, DMG or virtual disk, L01 or AD1) or directory of the target iOS full file system extraction or a backup for parsing: ')
-input_frame.pack(padx=14, pady=2, fill='x')
-input_entry = ttk.Entry(input_frame)
-input_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
-# the full list when several images were picked together
-input_tooltip = PathsTooltip(input_entry, input_paths)
-input_history_button = ttk.Button(input_frame, text='▼', width=3,
-                                command=lambda: show_history_menu(input_history_button, 'input'))
-input_history_button.pack(side='left', padx=2, pady=4)
-input_file_button = ttk.Button(input_frame, text='Browse File', command=lambda: select_input('file'))
-input_file_button.pack(side='left', padx=5, pady=4)
-input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lambda: select_input('folder'))
-input_folder_button.pack(side='left', padx=5, pady=4)
-
-### Keychain (optional)
-# iOS keychains are captured separately from the file system extraction, so apps
-# that keep their database key in the keychain need it supplied here
-keychain_frame = ttk.LabelFrame(
-    main_window,
-    text=' Optional: keychain file captured from the device, used to decrypt apps such as Signal. Leave blank to use one the extraction carries: ')
-keychain_frame.pack(padx=14, pady=2, fill='x')
-keychain_entry = ttk.Entry(keychain_frame)
-keychain_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
-keychain_clear_button = ttk.Button(keychain_frame, text='Clear', width=6, command=clear_keychain)
-keychain_clear_button.pack(side='left', padx=2, pady=4)
-keychain_file_button = ttk.Button(keychain_frame, text='Browse File', command=select_keychain)
-keychain_file_button.pack(side='left', padx=5, pady=4)
-
-output_frame = ttk.LabelFrame(main_window, text=' Select Output Path ')
-output_frame.pack(padx=14, pady=5, fill='x')
-output_path_row = ttk.Frame(output_frame)
-output_path_row.pack(fill='x')
-output_entry = ttk.Entry(output_path_row)
-output_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
-output_history_button = ttk.Button(output_path_row, text='▼', width=3,
-                                 command=lambda: show_history_menu(output_history_button, 'output'))
-output_history_button.pack(side='left', padx=2, pady=4)
-output_folder_button = ttk.Button(output_path_row, text='Browse Folder', command=select_output)
-output_folder_button.pack(side='left', padx=5, pady=4)
-output_folder_name_row = ttk.Frame(output_frame)
-output_folder_name_row.pack(fill='x', padx=5, pady=(0, 4))
-ttk.Label(output_folder_name_row, text='Folder name:').pack(side='left', padx=(0, 5))
-output_folder_name_entry = ttk.Entry(output_folder_name_row)
-output_folder_name_entry.insert(0, default_output_folder_name())
-output_folder_name_entry.configure(
-    validate='key',
-    validatecommand=(main_window.register(allow_output_folder_name_chars), '%P'))
-output_folder_name_entry.pack(side='left', fill='x', expand=True)
-# Off at every start, never remembered: a run hashes its staged files and records
-# their times only when this run asks for it (the command line's --hash)
-hash_files_var = tk.BooleanVar(value=False)
-ttk.Checkbutton(output_frame, text='Hash staged files (SHA-256) and record the times the evidence gives them',
-                variable=hash_files_var).pack(anchor='w', padx=5, pady=(0, 4))
-
-mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
-mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
-
-button_frame = ttk.Frame(mlist_frame)
-button_frame.pack(pady=4, fill='x')
-
-if is_platform_macos():
-    modules_filter_icon = ttk.Label(button_frame, text="\U0001F50E")
-else:
-    modules_filter_img = ImageTk.PhotoImage(file=resource_path("magnif_glass.png"))
-    modules_filter_icon = ttk.Label(button_frame, image=modules_filter_img)
-modules_filter_icon.pack(padx=4, side='left')
-modules_filter_entry = ttk.Entry(button_frame, textvariable=modules_filter_var)
-modules_filter_entry.pack(padx=2, fill='x', expand=True, side='left')
-ttk.Separator(button_frame, orient='vertical').pack(padx=10, side='left', fill='y')
-all_button = ttk.Button(button_frame, text='Select All', command=select_all)
-all_button.pack(padx=5, side='left')
-none_button = ttk.Button(button_frame, text='Deselect All', command=deselect_all)
-none_button.pack(padx=5, side='left')
-ttk.Separator(button_frame, orient='vertical').pack(padx=10, side='left', fill='y')
-load_button = ttk.Button(button_frame, text='Load Profile', command=load_profile)
-load_button.pack(padx=5, side='left')
-save_button = ttk.Button(button_frame, text='Save Profile', command=save_profile)
-save_button.pack(padx=5, side='left')
-module_list_frame = ttk.Frame(mlist_frame)
-module_list_frame.pack(expand=True, fill='both')
-mlist_text = tk.Text(module_list_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0)
-mlist_text.pack(expand=True, fill='both', padx=4)
-mlist_text_scrollbar = ttk.Scrollbar(module_list_frame, orient='vertical', command=mlist_text.yview)
-mlist_text.config(yscrollcommand=mlist_text_scrollbar.set)
-mlist_text_scrollbar.place(relx=1, rely=0, relheight=1, anchor='ne')
-filter_modules()
-mlist_text.config(state='disabled')
-main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
-main_window.bind_class('Checkbutton', '<Button-4>', scroll)
-main_window.bind_class('Checkbutton', '<Button-5>', scroll)
-main_window.bind_class('TCheckbutton', '<MouseWheel>', scroll)
-main_window.bind_class('TCheckbutton', '<Button-4>', scroll)
-main_window.bind_class('TCheckbutton', '<Button-5>', scroll)
-main_window.bind("<Control-f>", lambda event: modules_filter_entry.focus_set()) # Focus on The Filter Field
-main_window.bind("<Control-i>", lambda event: input_entry.focus_set()) # Focus on the Input Field
-main_window.bind("<Control-o>", lambda event: output_entry.focus_set()) # Focus on the Output Field
-
-### Process
-bottom_frame = ttk.Frame(main_window)
-# Packed at the bottom, ahead of the module list, so a window shorter than its contents
-# (a larger system text size, a small screen) shrinks the list instead of hiding these buttons.
-bottom_frame.pack(side='bottom', padx=16, pady=6, fill='x', before=mlist_frame)
-process_button = ttk.Button(bottom_frame, text='Process', command=lambda: process(casedata))
-process_button.pack(side='left', padx=5)
-close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
-close_button.pack(side='left', padx=5)
-# ttk.Separator(bottom_frame, orient='vertical').pack(padx=10, side='left', expand=True, fill='both')
-case_data_button_frame = ttk.Frame(bottom_frame)
-case_data_button_frame.pack(side='left', expand=True, fill='x')
-case_data_button = ttk.Button(case_data_button_frame, text='Case Data', command=case_data)
-case_data_button.pack(padx=5)
-# ttk.Separator(bottom_frame, orient='vertical').pack(padx=10, side='left', expand=True, fill='both')
-selected_modules_frame = ttk.Frame(bottom_frame)
-selected_modules_frame.pack(side='right', padx=5)
-selected_modules_label = ttk.Label(selected_modules_frame, text='Number of selected modules: ')
-selected_modules_label.pack(anchor='e')
-auto_unselected_modules_label = ttk.Label(
-    selected_modules_frame,
-    text='(Modules making some time to run were automatically unselected)',
-    font='Helvetica 10')
-auto_unselected_modules_label.pack(anchor='e')
-get_selected_modules()
-
-#### Logs
-logtext_frame = ttk.Frame(main_window, name='logs_frame')
-log_text = tk.Text(
-    logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor, highlightthickness=1)
-log_text.pack(expand=True, fill='both')
-log_text_scrollbar = ttk.Scrollbar(logtext_frame, orient='vertical', command=log_text.yview)
-log_text.config(yscrollcommand=log_text_scrollbar.set)
-log_text_scrollbar.place(relx=1, rely=0, relheight=1, anchor='ne')
-
-### Progress bar
-progress_bar_frame = ttk.Frame(main_window, name='progress_bar_frame')
-progress_bar = ttk.Progressbar(progress_bar_frame, name='progress_bar', orient='horizontal')
-progress_bar.pack(padx=16, pady=20, fill='x')
-
-### Push main window on top
-def OnFocusIn(event):
-    if type(event.widget).__name__ == 'Tk':
-        event.widget.attributes('-topmost', False)
-
-def geometry_offset(value):
-    return f'+{value}' if value >= 0 else str(value)
-
-def center_main_window_macos(window, width, height):
-    """ 
-    MacOS: Determine full desktop dimensions and which monitor the mouse is on, 
-    then center the window within those specific monitor boundaries.
-    """
-    window.update_idletasks()
-    mx, my = window.winfo_pointerxy()
-
-    # 1. Get primary monitor dimensions (always starts at 0,0 on macOS)
-    window.geometry("+0+0")
-    window.update_idletasks()
-    pw = window.winfo_screenwidth()
-    ph = window.winfo_screenheight()
-
-    # 2. Move to mouse position to get the second monitor's dimensions
-    window.geometry(f'{geometry_offset(mx)}{geometry_offset(my)}')
-    window.update_idletasks()
-    sw = window.winfo_screenwidth()
-    sh = window.winfo_screenheight()
-
-    # 3. Get virtual desktop bounds to handle monitors to the left/right
-    vx = window.winfo_vrootx()
-
-    # 4. Determine the actual boundaries of the monitor the mouse is on
-    if mx < 0: # Monitor is to the left of primary
-        mon_x, mon_y, mon_w, mon_h = vx, 0, abs(vx), sh
-    elif mx >= pw: # Monitor is to the right of primary
-        mon_x, mon_y, mon_w, mon_h = pw, 0, sw, sh
-    else: # Mouse is on the primary monitor
-        mon_x, mon_y, mon_w, mon_h = 0, 0, pw, ph
-
-    # 5. Center the window within those specific monitor boundaries
-    start_x = mon_x + (mon_w - width) // 2
-    start_y = mon_y + (mon_h - height) // 2
-
-    window.geometry(f'{width}x{height}{geometry_offset(start_x)}{geometry_offset(start_y)}')
-
-main_window.attributes('-topmost', True)
-main_window.focus_force()
-main_window.bind('<FocusIn>', OnFocusIn)
-main_window.protocol('WM_DELETE_WINDOW', close_main_window)
-
-if is_platform_macos():
-    center_main_window_macos(main_window, 890, 690)
+if "--selfcheck" in sys.argv[1:]:
+    selfcheck()
+main_window = MainWindow()
 main_window.mainloop()
+if main_window.app_state.run_status != "running":
+    quick_exit.window_closed()

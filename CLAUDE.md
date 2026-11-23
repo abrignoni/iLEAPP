@@ -30,7 +30,7 @@ If something here ever contradicts `admin/docs/`, the doc wins and this file is 
   one executable, `ileapp`, that opens the window without arguments. Every artifact module
   is a hidden import, so what the artifacts import is followed without a list. What it
   cannot follow is a name built at run time (`importlib.import_module(some_variable)`) or a
-  data file kept outside `scripts/`, `leapp_functions/` or `assets/`: expect a working dev
+  data file kept outside `scripts/`, `leapp_functions/`, `assets/` or `data/`: expect a working dev
   run and a broken build, and run `python packaging/build.py smoke` or `test_builds.yml`.
   See `.claude/rules/ileapp-build-and-release.md`.
 

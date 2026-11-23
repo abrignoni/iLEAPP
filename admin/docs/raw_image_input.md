@@ -216,7 +216,9 @@ array, and an array whose members are partitions of one image.
   (`RAW_IMAGE_SUFFIXES`, `RAW_IMAGE_FILE_PATTERNS`), `split_image_sibling`, and
   `ImageKeys` with the functions that ask for them (`cli_image_keys`,
   `ask_image_keys`), and the several-image input: `cli_raw_input` and `ask_raw_input`
-  (what to read and what opens it, with the member search), `find_members`,
+  (what to read and what opens it, with the member search), `unlock_raw_input` (the
+  sequence of questions behind `ask_raw_input`, asked through any object with the
+  methods of `DialogAsker`, so another window can ask them its own way), `find_members`,
   `confirm_found_members`, `input_text` (the input as the report names it) and the
   GUI's `selection_text`, `selected_paths` and `PathsTooltip`.
   **This file is byte-identical in all five cores.** Change it in one, land the

@@ -653,17 +653,15 @@ def cli_image_keys(path, password_file=None, password_env=None, private_key=None
                          look_beside=False).keys
 
 
-def _gui_image_key(parent, path):
-    """(password, private key) that open the image at ``path``, asked for in dialogs
-    over ``parent``, or None when the examiner cancels: see ask_image_keys."""
-    from tkinter import filedialog, messagebox, simpledialog  # pylint: disable=import-outside-toplevel
+def _image_key(asker, path):
+    """(password, private key) that open the image at ``path``, asked for through
+    ``asker``, or None when the examiner cancels: see unlock_raw_input."""
     name = _image_name(path)
     if needs_private_key(path):
         title = f'{name} is sealed to a certificate: its RSA private key'
         while True:
-            key = filedialog.askopenfilename(
-                parent=parent, title=title,
-                filetypes=[('Private key', '*.pem *.key *.der'), ('All files', '*')])
+            key = asker.ask_file(title, [('Private key', '*.pem *.key *.der'),
+                                         ('All files', '*')])
             if not key:
                 return None
             try:
@@ -672,12 +670,11 @@ def _gui_image_key(parent, path):
                 why = f'That key does not open {name}.'
             except _ewfprobe.EwfError as exc:        # not a key it can read
                 why = str(exc)
-            messagebox.showerror('Encrypted disk image', why, parent=parent)
+            asker.show_error('Encrypted disk image', why)
     if needs_password(path):
         prompt = f'{name} is {_encrypted_kind(path)}. Its password:'
         while True:
-            password = simpledialog.askstring('Encrypted disk image', prompt, show='*',
-                                              parent=parent)
+            password = asker.ask_secret('Encrypted disk image', prompt)
             if password is None:
                 return None
             if _opens(path, password=password):
@@ -686,42 +683,77 @@ def _gui_image_key(parent, path):
     return None, None
 
 
-def _gui_volume_keys(parent, name, image, keys):
-    """Ask in dialogs over ``parent`` for what opens each BitLocker, APFS and LUKS
-    volume in ``image`` that ``keys`` leave locked. Cancelling leaves it locked."""
-    from tkinter import filedialog, simpledialog  # pylint: disable=import-outside-toplevel
+def _volume_keys(asker, name, image, keys):
+    """Ask through ``asker`` for what opens each BitLocker, APFS and LUKS volume in
+    ``image`` that ``keys`` leave locked. Cancelling leaves it locked."""
 
     def ask(bitlocker, wrong):
         prompt = (('That does not open it. ' if wrong else '')
                   + f'{bitlocker.label} of {name} is BitLocker-encrypted. Its password or '
                   f'recovery password (leave empty to choose a startup key .BEK file):')
-        answer = simpledialog.askstring('BitLocker volume', prompt, show='*',
-                                        parent=parent)
+        answer = asker.ask_secret('BitLocker volume', prompt)
         if answer is None:
             return None
         if answer:
             return ('secret', answer)
-        key = filedialog.askopenfilename(
-            parent=parent, title='BitLocker startup key',
-            filetypes=[('BitLocker startup key', '*.BEK *.bek'), ('All files', '*')])
+        key = asker.ask_file('BitLocker startup key',
+                             [('BitLocker startup key', '*.BEK *.bek'), ('All files', '*')])
         return ('key', key) if key else None
 
     _unlock_bitlocker_in(image, keys, ask)
 
     def ask_apfs(lock, wrong):
-        return simpledialog.askstring('Encrypted APFS volume',
-                                      _apfs_prompt(lock, name, wrong) + ':',
-                                      show='*', parent=parent)
+        return asker.ask_secret('Encrypted APFS volume', _apfs_prompt(lock, name, wrong) + ':')
 
     _unlock_apfs_in(image, keys, ask_apfs)
 
     def ask_luks(luks, wrong):
-        return simpledialog.askstring(
+        return asker.ask_secret(
             'LUKS container', ('That does not open it. ' if wrong else '')
-            + f'{luks.label} of {name} is a LUKS container. Its passphrase:',
-            show='*', parent=parent)
+            + f'{luks.label} of {name} is a LUKS container. Its passphrase:')
 
     _unlock_luks_in(image, keys, ask_luks)
+
+
+class DialogAsker:
+    """The questions of unlock_raw_input asked in Tk dialogs over ``parent``, as the
+    window has always asked them. Another window can ask them its own way by giving
+    unlock_raw_input any object with the same five methods:
+
+    ``ask_secret(title, prompt)``: a password, passphrase or recovery key, "" when left
+    empty, None when cancelled; ``ask_file(title, filetypes)``: the path of a file, ""
+    or None when cancelled; ``confirm_members(search)``: 'use', 'only' or None (see
+    confirm_found_members); ``show_info(title, message)`` and ``show_error(title,
+    message)``: something to tell the examiner, then the sequence goes on."""
+
+    def __init__(self, parent, confirm=None):
+        self.parent = parent
+        self.confirm = confirm or confirm_found_members
+
+    def ask_secret(self, title, prompt):
+        """A secret typed in a dialog, hidden as it is typed."""
+        from tkinter import simpledialog  # pylint: disable=import-outside-toplevel
+        return simpledialog.askstring(title, prompt, show='*', parent=self.parent)
+
+    def ask_file(self, title, filetypes):
+        """A file picked in a file dialog."""
+        from tkinter import filedialog  # pylint: disable=import-outside-toplevel
+        return filedialog.askopenfilename(parent=self.parent, title=title,
+                                          filetypes=filetypes)
+
+    def confirm_members(self, search):
+        """Whether to read the files the member search found beside the image picked."""
+        return self.confirm(self.parent, search)
+
+    def show_info(self, title, message):
+        """Something the examiner should know; the sequence goes on."""
+        from tkinter import messagebox  # pylint: disable=import-outside-toplevel
+        messagebox.showinfo(title, message, parent=self.parent)
+
+    def show_error(self, title, message):
+        """Why something did not open."""
+        from tkinter import messagebox  # pylint: disable=import-outside-toplevel
+        messagebox.showerror(title, message, parent=self.parent)
 
 
 def ask_image_keys(parent, path):
@@ -1133,24 +1165,33 @@ def confirm_found_members(parent, search):
 
 def ask_raw_input(parent, input_path, look_beside=True, confirm=None):
     """The images a raw run from the window reads, and what opens them, as RawInput,
-    or None when the examiner cancels or an image will not open (which is shown).
+    or None when the examiner cancels or an image will not open (which is shown):
+    unlock_raw_input with its questions asked in Tk dialogs over ``parent``.
+    ``confirm(parent, search)`` (confirm_found_members unless given) asks whether to
+    read the RAID members found beside the image picked."""
+    return unlock_raw_input(input_path, DialogAsker(parent, confirm), look_beside)
+
+
+def unlock_raw_input(input_path, asker, look_beside=True):
+    """The images a raw run reads, and what opens them, as RawInput, or None when the
+    examiner cancels or an image will not open (which is shown). Every question goes
+    through ``asker`` (see DialogAsker), so a window can ask them its own way, from a
+    worker thread if the answers come back to it there.
 
     Each image picked that needs it is asked for what opens it (see ask_image_keys).
     One image picked that holds a member of an md array or an LVM2 volume group then
     has the other members looked for beside it (``look_beside``). When the search adds
-    files, ``confirm(parent, search)`` (confirm_found_members unless given) asks
-    whether to read them: 'use' reads them, 'only' reads the file picked alone, None
-    cancels the run. Nothing is asked when the image holds no member or the search adds
-    nothing. Several images picked are read as picked. Last, the BitLocker, APFS and
-    LUKS volumes of each image, and of each array read from them, are asked about."""
-    from tkinter import messagebox  # pylint: disable=import-outside-toplevel
+    files, ``asker.confirm_members(search)`` asks whether to read them: 'use' reads
+    them, 'only' reads the file picked alone, None cancels the run. Nothing is asked
+    when the image holds no member or the search adds nothing. Several images picked
+    are read as picked. Last, the BitLocker, APFS and LUKS volumes of each image, and
+    of each array read from them, are asked about."""
     paths, repeats = distinct_images(image_paths(input_path))
     if repeats:
-        messagebox.showinfo('The same disk picked twice', '\n'.join(repeat_lines(repeats)),
-                            parent=parent)
+        asker.show_info('The same disk picked twice', '\n'.join(repeat_lines(repeats)))
     logical = logical_among(paths)
     if logical is not None:
-        messagebox.showerror('Error', logical_refusal(logical), parent=parent)
+        asker.show_error('Error', logical_refusal(logical))
         return None
     keys = ImageKeys()
     search = None
@@ -1159,20 +1200,20 @@ def ask_raw_input(parent, input_path, look_beside=True, confirm=None):
         opened = {}
         for one in paths:
             name = _image_name(one)
-            opened[one] = _gui_image_key(parent, one)
+            opened[one] = _image_key(asker, one)
             if opened[one] is None:
                 return None
         if look_beside and len(paths) == 1:
             name = _image_name(paths[0])
             search = find_members(paths[0], ImageKeys(*opened[paths[0]]))
             if search is not None and search.added:
-                answer = (confirm or confirm_found_members)(parent, search)
+                answer = asker.confirm_members(search)
                 if answer is None:
                     return None
                 search.used = answer == 'use'
                 for one in search.found:
                     name = _image_name(one)
-                    opened[one] = _gui_image_key(parent, one)
+                    opened[one] = _image_key(asker, one)
                     if opened[one] is None:
                         return None
                 paths = search.paths()
@@ -1185,11 +1226,11 @@ def ask_raw_input(parent, input_path, look_beside=True, confirm=None):
         def look(source, image):
             nonlocal name
             name = source
-            _gui_volume_keys(parent, source, image, keys)
+            _volume_keys(asker, source, image, keys)
 
         _for_each_source(paths, keys, look)
     except _open_errors() as exc:
-        messagebox.showerror('Error', f'{name} could not be opened:\n{exc}', parent=parent)
+        asker.show_error('Error', f'{name} could not be opened:\n{exc}')
         return None
     return RawInput(paths, keys, search, repeats)
 

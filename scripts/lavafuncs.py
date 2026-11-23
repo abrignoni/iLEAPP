@@ -40,7 +40,7 @@ import datetime
 import queue
 import threading
 
-from scripts.version_info import leapp_name, leapp_version
+from leapp_functions import leapp
 from scripts.context import Context
 
 # Global variables
@@ -311,8 +311,8 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None, 
     lava_data = {
         "lava_schema_version": LAVA_SCHEMA_VERSION,
         "parser_info": {
-            "leapp_name": leapp_name,
-            "leapp_version": leapp_version,
+            "leapp_name": leapp.name,
+            "leapp_version": leapp.version,
             # From source the script's name says which program runs. A build is one
             # executable that opens the window when started without arguments, so there the
             # GUI module having been loaded is what says it.
@@ -1158,11 +1158,11 @@ def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id)
         print(str(e))
 
 
-def lava_finalize_output(output_path):
+def lava_finalize_output(output_path, processing_status="Complete"):
     """
     Finalizes the LAVA output by completing data processing and saving results.
     This function performs the following operations:
-    1. Sets the processing status to "Complete"
+    1. Sets the processing status, which LAVA shows as it is
     2. Sorts modules alphabetically by module name
     3. Sorts artifact categories alphabetically
     4. Sorts artifacts within each category alphabetically by name
@@ -1170,6 +1170,7 @@ def lava_finalize_output(output_path):
     6. Closes the SQLite database connection
     Args:
         output_path (str): The directory path where the LAVA JSON output file will be saved
+        processing_status (str): "Complete", or "Stopped" when artifacts were left unparsed
     Global Variables:
         lava_data (dict): Global dictionary containing LAVA processing data including modules,
                           artifacts, and processing status
@@ -1178,7 +1179,7 @@ def lava_finalize_output(output_path):
     """
 
 
-    lava_data["processing_status"] = "Complete"
+    lava_data["processing_status"] = processing_status
 
     # Sort modules alphabetically
     lava_data["modules"].sort(key=lambda x: x["module_name"])

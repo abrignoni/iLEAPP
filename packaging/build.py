@@ -26,7 +26,7 @@ Signing belongs between the two phases. Sign dist/iLEAPP/ileapp.exe, or codesign
 dist/iLEAPP.app, after phase 1 and before phase 2, or the installer carries an unsigned
 executable inside a signed wrapper. `all` refuses --sign-tool for exactly that reason.
 
-The version is read from scripts/version_info.py as text, so nothing is imported, and
+The version is read from data/leapp_config.json, so nothing is imported, and
 handed to the spec and to Inno Setup, so neither the executable nor the installer can
 report a different version from the app. Windows and macOS take only numbers in their
 version fields, so a suffix such as -dev is left out there and kept everywhere else.
@@ -45,6 +45,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import json
 import os
 import platform
 import re
@@ -99,8 +100,9 @@ ISCC_DEFAULT = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 
 # Folders shipped as files beside the executable. The plugin loader reads the artifacts
 # from scripts/artifacts as source, the report copies scripts/_elements, and the window
-# loads its images from assets/. leapp_functions/ is imported by the artifacts.
-DATA_TREES = ("scripts", "leapp_functions", "assets")
+# loads its images from assets/. leapp_functions/ is imported by the artifacts, and reads
+# data/leapp_config.json (the tool's name, its palette, its input types) when imported.
+DATA_TREES = ("scripts", "leapp_functions", "assets", "data")
 # Never shipped: bytecode caches from the build machine, and Finder metadata.
 DATA_EXCLUDED_DIRS = {"__pycache__"}
 DATA_EXCLUDED_SUFFIXES = (".pyc", ".pyo")
@@ -144,13 +146,20 @@ APPIMAGE_DIGESTS = {
 }
 
 
+def read_config(field: str) -> str:
+    """A text field of data/leapp_config.json, read so that nothing is imported."""
+    try:
+        value = json.loads((ROOT / "data" / "leapp_config.json").read_text(encoding="utf-8"))[field]
+    except (OSError, ValueError, KeyError, TypeError):
+        value = None
+    if not isinstance(value, str) or not value:
+        sys.exit(f"build: could not find {field} in data/leapp_config.json")
+    return value
+
+
 def read_version() -> str:
-    """The version string from scripts/version_info.py, read as text so nothing is imported."""
-    text = (ROOT / "scripts" / "version_info.py").read_text(encoding="utf-8")
-    m = re.search(r"""^leapp_version\s*=\s*['"]([^'"]+)['"]""", text, re.M)
-    if not m:
-        sys.exit("build: could not find leapp_version in scripts/version_info.py")
-    return m.group(1)
+    """The version string from data/leapp_config.json."""
+    return read_config("version")
 
 
 def numeric_version(version: str) -> str:
@@ -458,7 +467,7 @@ def appimage_desktop_entry() -> str:
         "[Desktop Entry]",
         "Type=Application",
         f"Name={APP}",
-        "Comment=iOS Logs, Events, And Plists Parser",
+        f"Comment={read_config('description')}",
         f"Exec={EXE}",
         f"Icon={EXE}",
         "Terminal=false",

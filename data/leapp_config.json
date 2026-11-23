@@ -1,0 +1,52 @@
+{
+  "name": "iLEAPP",
+  "version": "2026.4.7-dev",
+  "description": "iOS Logs, Events, And Plists Parser",
+  "report_description": "iLEAPP is an open source project that aims to parse every known iOS artifact for the purpose of forensic analysis.",
+  "objective": "Triage iOS Full File System and iTunes Backup Extractions.",
+  "profile_extension": ".ilprofile",
+  "casedata_extension": ".lcasedata",
+  "source_hint": "A tar, zip or gz archive, a disk image (raw image, E01, AFF, DMG or virtual disk, L01 or AD1), or a folder holding an iOS full file system extraction or a backup. Several disk images of a RAID set can be picked together.",
+  "input_types": ["fs", "tar", "gz", "zip", "raw", "itunes", "file"],
+  "hidden_artifacts": ["itunes_backup_*", "last_build", "logarchive_*"],
+  "secrets": {
+    "title": "KEYCHAIN FILE",
+    "fields": [
+      {"name": "keychain", "label": "Optional. Captured from the device apart from the extraction.",
+       "if_absent": "No keychain file: apps that keep their key there stay encrypted, unless the extraction holds one.",
+       "filetypes": [["Keychain files", "*.plist *.xml"], ["All files", "*"]]}
+    ]
+  },
+  "theme": {
+    "dark": {
+      "border": "#565556",
+      "button_border": "#3e4047",
+      "card_accent": "#202228",
+      "card_bg": "#191A1E",
+      "header_bg": "#FC3E69",
+      "input_bg": "#0E0F11",
+      "line": "#3e4047",
+      "main_bg": "#0E0F13",
+      "progress": "#F5161F",
+      "text_error": "#FF5A5F",
+      "text_legend": "#6E6A65",
+      "text_primary": "#F7F2EA",
+      "text_secondary": "#A7A29B"
+    },
+    "light": {
+      "border": "#A3B0C2",
+      "button_border": "#A3B0C2",
+      "card_accent": "#F1F4F8",
+      "card_bg": "#FFFFFF",
+      "header_bg": "#FC3E69",
+      "input_bg": "#F8FAFC",
+      "line": "#D5DDE9",
+      "main_bg": "#F8FAFC",
+      "progress": "#F5161F",
+      "text_error": "#C4101A",
+      "text_legend": "#738195",
+      "text_primary": "#101720",
+      "text_secondary": "#5A697D"
+    }
+  }
+}

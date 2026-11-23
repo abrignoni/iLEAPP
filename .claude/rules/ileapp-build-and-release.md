@@ -44,9 +44,10 @@ Decided in `build.py`, which the spec loads, so it is tested without running PyI
 (`admin/test/scripts/test_packaging_build.py`, which also exec's the spec with PyInstaller
 stubbed out).
 
-- `scripts/`, `leapp_functions/` and `assets/` ship as files, without `__pycache__`. The
-  plugin loader reads the artifacts from `scripts/artifacts` as source, the report copies
-  `scripts/_elements`, and the window loads its images from `assets/`.
+- `scripts/`, `leapp_functions/`, `assets/` and `data/` ship as files, without `__pycache__`.
+  The plugin loader reads the artifacts from `scripts/artifacts` as source, the report copies
+  `scripts/_elements`, the window loads its images from `assets/`, and `leapp_functions`
+  reads `data/leapp_config.json` (name, palette, input types) as soon as it is imported.
 - **Every artifact module is also a hidden import.** Shipped as source, the artifacts were
   invisible to PyInstaller's analysis, and everything they imported had to be listed by
   hand; three startup crashes came from that list (google.protobuf, PIL, leapp_functions).
@@ -82,7 +83,7 @@ releases do not use it.
 
 ## What the driver guarantees
 
-The version is read from `scripts/version_info.py` as text and passed to the spec (the
+The version is read from `data/leapp_config.json` and passed to the spec (the
 Windows version resource, the bundle's `Info.plist`) and to Inno Setup; `installer.iss`
 refuses to compile without it. Windows and macOS take only numbers there, so
 `2026.4.2-dev` becomes `2026.4.2` in those fields. `ONEFILE` reaches the spec through
@@ -98,7 +99,7 @@ refuses to build one layout over the other; `--clean` is the explicit way.
 
 ## What `smoke` checks, and why each
 
-`--version` against `scripts/version_info.py`; a run over an empty extraction, which loads
+`--version` against `data/leapp_config.json`; a run over an empty extraction, which loads
 and runs every artifact and writes a report; a run over the NTFS raw fixture, whose log has
 to show the walk; the bundled parser, run from where the app looks for it, with its
 licence and notices beside it (read from the archive inside the executable for
@@ -146,8 +147,8 @@ once and has to report the version. Linux builds are made on Ubuntu 22.04 for it
 requests that touch packaging.
 
 `release.yml` runs the same steps when a `v*` tag is pushed, refuses a tag that is not
-`v` + `leapp_version`, names the assets `iLEAPP-<version>-<platform>-<arch>` (portable.zip
-on Windows, .dmg on macOS, .AppImage on Linux; no Linux .tar.gz), adds
+`v` + the `version` in `data/leapp_config.json`, names the assets `iLEAPP-<version>-<platform>-<arch>`
+ (portable.zip on Windows, .dmg on macOS, .AppImage on Linux; no Linux .tar.gz), adds
 `SHA256SUMS.txt`, and creates a **draft** release; publishing is a click. Dispatched by
 hand, it builds the assets without creating a release. `.github/release-footer.md` is
 appended to the notes. macOS is signed with a Developer ID, smoke-tested again as signed

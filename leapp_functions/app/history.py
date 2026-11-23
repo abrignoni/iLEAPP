@@ -5,6 +5,7 @@ It handles:
 - OS-specific shared directory resolution (Windows, macOS, Linux).
 - Atomic JSON read/write operations for settings and history data.
 - Opt-in history tracking for input paths, output paths, and tool runs.
+- The appearance of each LEAPP tool's window.
 - Shared configuration across different LEAPP parsers and LAVA.
 
 The data is stored in the user's application data directory:
@@ -203,6 +204,28 @@ def set_history_enabled(enabled):
         settings["path_history_limit"] = 10
     if "run_history_limit" not in settings:
         settings["run_history_limit"] = 20
+    _atomic_write_json(get_settings_path(), settings)
+
+
+def get_appearance(leapp_id):
+    """
+    Returns the appearance saved for a LEAPP tool's window ("dark", "light"), or None.
+    """
+    appearance = _read_json(get_settings_path()).get("appearance")
+    if not isinstance(appearance, dict):
+        return None
+    return appearance.get(leapp_id.lower())
+
+
+def set_appearance(leapp_id, appearance):
+    """
+    Saves the appearance of a LEAPP tool's window. Each tool has its own.
+    """
+    settings = _read_json(get_settings_path())
+    settings["schema_version"] = SCHEMA_VERSION
+    if not isinstance(settings.get("appearance"), dict):
+        settings["appearance"] = {}
+    settings["appearance"][leapp_id.lower()] = appearance
     _atomic_write_json(get_settings_path(), settings)
 
 

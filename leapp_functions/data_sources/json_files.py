@@ -1,10 +1,11 @@
 """
-JSON file data source for Leapp.
+JSON file data source for LEAPPs.
 This module provides functionality to load and save JSON files,
 and convert a JSON file into namedtuples for easier access to its contents.
 """
 
 import json
+from collections import namedtuple
 
 
 def get_json_file_content(file_path):
@@ -33,3 +34,48 @@ def get_json_file_content(file_path):
     except RecursionError as e:
         print(f"Error: JSON structure too deep to parse in '{file_path}': {e}")
     return {}
+
+
+def save_content_to_json_file(file_path, data):
+    """
+    Save data to a JSON file.
+    Args:
+        file_path (str|Path): The path to the JSON file.
+        data (dict): The data to save.
+    Returns:
+        bool: True if the file was written, False if an error occurred (it is printed).
+    """
+    try:
+        with open(file_path, "w", encoding="utf-8") as json_file:
+            json.dump(data, json_file, indent=4)
+        return True
+    except FileNotFoundError:
+        print(f"'{file_path}' does not exist or is not a invalid path.")
+    except PermissionError:
+        print(f"Error: Permission denied when trying to write '{file_path}'.")
+    except IsADirectoryError:
+        print(f"Error: Expected a file but '{file_path}' is a directory.")
+    except OSError as e:
+        print(f"Error: System error related to the file, disk, or path: {e}")
+    except UnicodeEncodeError as e:
+        print(f"Error: Encoding issue writing '{file_path}': {e}")
+    except TypeError as e:
+        print(f"Error: Data provided is not JSON serializable: {e}")
+    except ValueError as e:
+        print(f"Error: Invalid data provided for JSON serialization: {e}")
+    except RecursionError as e:
+        print(f"Error: Data structure too deep for JSON serialization: {e}")
+    return False
+
+
+def convert_json_file_to_namedtuple(json_file_path):
+    """Load a JSON file and recursively convert dictionaries to namedtuples."""
+    json_data = get_json_file_content(json_file_path)
+
+    def convert(dictionary):
+        for key, value in dictionary.items():
+            if isinstance(value, dict):
+                dictionary[key] = convert(value)
+        return namedtuple('GenericDict', dictionary.keys())(**dictionary)
+
+    return convert(json_data)

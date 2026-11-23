@@ -4,13 +4,13 @@ import os
 from datetime import datetime
 
 from leapp_functions.app.platform import validate_filename
-from scripts.version_info import leapp_name
+from leapp_functions import leapp
 
 
 def default_output_folder_name():
     '''Return the default report subfolder name for a new run.'''
     currenttime = datetime.now().strftime('%Y-%m-%d_%A_%H%M%S')
-    return f'{leapp_name}_Output_{currenttime}'
+    return f'{leapp.name}_Output_{currenttime}'
 
 
 def resolve_output_folder_name(custom_folder_name=None):

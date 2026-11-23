@@ -3,7 +3,7 @@ import os
 import sys
 from scripts.html_parts import *
 #from scripts.ilapfuncs import is_platform_windows
-from scripts.version_info import leapp_version
+from leapp_functions import leapp
 
 # Rows above which write_artifact_data_table leaves the table off the page and writes a
 # notice pointing at the LAVA database and the TSV export instead. Measured 2026-09-19 on
@@ -69,8 +69,8 @@ class ArtifactHtmlReport:
         '''Creates the report HTML file and writes the artifact name as a heading'''
         # artifact_file_name =  artifact_file_name.replace(" ", "_") # Replace " " with "_" in HTML filenames
         self.report_file = open(os.path.join(report_folder, f'{artifact_file_name}.temphtml'), 'w', encoding='utf8')
-        self.report_file.write(page_header.format(f'iLEAPP - {self.artifact_name} report'))
-        self.report_file.write(body_start.format(f'iLEAPP {leapp_version}'))
+        self.report_file.write(page_header.format(f'{leapp.name} - {self.artifact_name} report'))
+        self.report_file.write(body_start.format(f'{leapp.name} {leapp.version}'))
         self.report_file.write(body_sidebar_setup)
         self.report_file.write(body_sidebar_dynamic_data_placeholder) # placeholder for sidebar data
         self.report_file.write(body_sidebar_trailer)
