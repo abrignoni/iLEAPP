@@ -19,7 +19,7 @@ text as UTC.
 This check fails on a read of a file's stat times under scripts/, by name, by attribute or by
 tuple position, except in the seekers (which set those times), vendored code and the places listed in ALLOWED.
 A use that never reaches a report, such as a cache key or a cleanup cutoff, belongs in ALLOWED
-with its reason. An entry names the core, the file, the function and how many reads it holds,
+with its reason, and so does a safe read this check cannot tell apart from a real one. An entry names the core, the file, the function and how many reads it holds,
 so a new read in an allowed function fails, and an entry that no longer matches fails too.
 """
 import argparse
@@ -32,8 +32,9 @@ STAT_NAMES = {'getmtime', 'getctime', 'getatime'}
 STAT_ATTRIBUTES = {'st_mtime', 'st_mtime_ns', 'st_ctime', 'st_ctime_ns', 'st_atime', 'st_atime_ns',
                    'st_birthtime', 'st_birthtime_ns', 'ST_MTIME', 'ST_CTIME', 'ST_ATIME'}
 STAT_FUNCTIONS = {'stat', 'lstat', 'fstat'}
-# atime, mtime and ctime in a stat result, counted from either end
-STAT_TUPLE_INDEXES = {7, 8, 9, -1, -2, -3}
+# atime, mtime and ctime in the ten positions of a stat result
+STAT_RESULT_LENGTH = 10
+STAT_TUPLE_INDEXES = {7, 8, 9}
 SKIPPED_FILES = {'scripts/search_files.py', 'scripts/raw_image.py'}
 SKIPPED_FOLDERS = ('scripts/vendor/',)
 
@@ -85,16 +86,26 @@ def _own_nodes(scope):
             pending.extend(ast.iter_child_nodes(node))
 
 
-def _stat_aliases(tree):
-    """Every name that holds a stat function in this module."""
-    names = set(STAT_FUNCTIONS)
-    for node in ast.walk(tree):
+def _stat_aliases(scope, inherited):
+    """The names that hold a stat function in one scope."""
+    names = set(inherited)
+    for node in _own_nodes(scope):
         if isinstance(node, ast.ImportFrom):
             names.update(alias.asname or alias.name for alias in node.names if alias.name in STAT_FUNCTIONS)
         elif isinstance(node, ast.Assign) and isinstance(node.value, (ast.Attribute, ast.Name)):
             held = node.value.attr if isinstance(node.value, ast.Attribute) else node.value.id
-            if held in STAT_FUNCTIONS:
+            if held in STAT_FUNCTIONS or held in inherited:
                 names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+    return names
+
+
+def _bound_names(function):
+    """The names a function or lambda binds itself, which hide the same names outside it."""
+    arguments = function.args
+    names = {item.arg for item in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+    names.update(item.arg for item in (arguments.vararg, arguments.kwarg) if item)
+    names.update(node.id for node in _own_nodes(function)
+                 if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store))
     return names
 
 
@@ -130,10 +141,13 @@ def _integer(node):
 def _reaches_a_time(index):
     """Whether a subscript of a stat result can read atime, mtime or ctime."""
     if isinstance(index, ast.Slice):
-        start, stop = _integer(index.lower) if index.lower else 0, _integer(index.upper) if index.upper else None
-        return not (start is not None and start >= 0 and stop is not None and 0 <= stop <= 7)
+        parts = (index.lower, index.upper, index.step)
+        bounds = [None if part is None else _integer(part) for part in parts]
+        if any(part is not None and value is None for part, value in zip(parts, bounds)) or bounds[2] == 0:
+            return True
+        return bool(set(range(STAT_RESULT_LENGTH)[slice(*bounds)]) & STAT_TUPLE_INDEXES)
     value = _integer(index)
-    return value is None or value in STAT_TUPLE_INDEXES
+    return value is None or value in STAT_TUPLE_INDEXES or value + STAT_RESULT_LENGTH in STAT_TUPLE_INDEXES
 
 
 class Reads(ast.NodeVisitor):
@@ -142,23 +156,35 @@ class Reads(ast.NodeVisitor):
     def __init__(self, tree):
         self.stack = []
         self.found = []
-        self.aliases = _stat_aliases(tree)
-        self.results = [_saved_results(tree, self.aliases)]
+        aliases = _stat_aliases(tree, STAT_FUNCTIONS)
+        self.scopes = [(aliases, _saved_results(tree, aliases))]
 
     def _add(self, node, what):
         self.found.append((node.lineno, what, '.'.join(self.stack) or '<module>'))
 
     def _holds_stat(self, node):
-        return _is_stat_call(node, self.aliases) or (isinstance(node, ast.Name) and node.id in self.results[-1])
+        aliases, results = self.scopes[-1]
+        return _is_stat_call(node, aliases) or (isinstance(node, ast.Name) and node.id in results)
+
+    def _enter(self, function):
+        aliases, results = self.scopes[-1]
+        bound = _bound_names(function)
+        aliases = _stat_aliases(function, aliases - bound)
+        self.scopes.append((aliases, (results - bound) | _saved_results(function, aliases)))
 
     def visit_FunctionDef(self, node):
         self.stack.append(node.name)
-        self.results.append(self.results[-1] | _saved_results(node, self.aliases))
+        self._enter(node)
         self.generic_visit(node)
-        self.results.pop()
+        self.scopes.pop()
         self.stack.pop()
 
     visit_AsyncFunctionDef = visit_FunctionDef
+
+    def visit_Lambda(self, node):
+        self._enter(node)
+        self.generic_visit(node)
+        self.scopes.pop()
 
     def visit_ImportFrom(self, node):
         for alias in node.names:

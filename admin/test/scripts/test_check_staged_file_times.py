@@ -38,6 +38,9 @@ class EverySpelling(unittest.TestCase):
                        'value = os.stat(p)[-2]\n',
                        'value = os.stat(p)[7:]\n',
                        'value = os.stat(p)[:9]\n',
+                       'value = os.stat(p)[::-1]\n',
+                       'value = os.stat(p)[-4:]\n',
+                       'value = os.stat(p)[start:]\n',
                        'result = os.stat(p)\nvalue = result[8]\n',
                        'result = os.lstat(p)\nvalue = result[index]\n',
                        'from os import stat as read\nvalue = read(p)[8]\n',
@@ -62,6 +65,14 @@ class EverySpelling(unittest.TestCase):
                        'value = os.stat(p)[:7]\n',
                        'items = other(p)\nvalue = items[8]\n',
                        'mode, ino = other(p)\n',
+                       'value = os.stat(p)[:-3]\n',
+                       'value = os.stat(p)[6::-1]\n',
+                       'def f(p):\n    saved = os.stat(p)\n    def g(saved):\n        return saved[8]\n'
+                       '    return saved.st_size, g\n',
+                       'def f(p):\n    saved = os.stat(p)\n    def g():\n        saved = rows()\n        return saved[8]\n'
+                       '    return saved.st_size, g\n',
+                       'def f(p):\n    read = os.stat\n    return read(p).st_size\n\ndef g(read):\n    return read(p)[8]\n',
+                       'saved = os.stat(p)\nfield = lambda saved: saved[8]\n',
                        'def a(p):\n    result = os.stat(p)\n    return result.st_size\n\n'
                        'def b(x):\n    result = x\n    return result[8]\n'):
             with self.subTest(source=source):
