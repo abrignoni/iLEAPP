@@ -16,8 +16,8 @@ Read the times the seeker recorded instead, from seeker.file_infos[path]:
 Never put modified_no_zone in a column typed datetime: the LAVA writer reads zone-less ISO
 text as UTC.
 
-This check fails on any read of a file's stat times under scripts/, however it is spelled,
-except in the seekers (which set those times), vendored code and the places listed in ALLOWED.
+This check fails on a read of a file's stat times under scripts/, by name, by attribute or by
+tuple position, except in the seekers (which set those times), vendored code and the places listed in ALLOWED.
 A use that never reaches a report, such as a cache key or a cleanup cutoff, belongs in ALLOWED
 with its reason. An entry names the core, the file, the function and how many reads it holds,
 so a new read in an allowed function fails, and an entry that no longer matches fails too.
@@ -31,7 +31,9 @@ import sys
 STAT_NAMES = {'getmtime', 'getctime', 'getatime'}
 STAT_ATTRIBUTES = {'st_mtime', 'st_mtime_ns', 'st_ctime', 'st_ctime_ns', 'st_atime', 'st_atime_ns',
                    'st_birthtime', 'st_birthtime_ns', 'ST_MTIME', 'ST_CTIME', 'ST_ATIME'}
-STAT_TUPLE_INDEXES = {7, 8, 9}
+STAT_FUNCTIONS = {'stat', 'lstat', 'fstat'}
+# atime, mtime and ctime in a stat result, counted from either end
+STAT_TUPLE_INDEXES = {7, 8, 9, -1, -2, -3}
 SKIPPED_FILES = {'scripts/search_files.py', 'scripts/raw_image.py'}
 SKIPPED_FOLDERS = ('scripts/vendor/',)
 
@@ -73,19 +75,87 @@ ALLOWED = {
 }
 
 
+def _own_nodes(scope):
+    """The nodes of one scope, leaving out the inside of any function defined in it."""
+    pending = list(ast.iter_child_nodes(scope))
+    while pending:
+        node = pending.pop()
+        yield node
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            pending.extend(ast.iter_child_nodes(node))
+
+
+def _stat_aliases(tree):
+    """Every name that holds a stat function in this module."""
+    names = set(STAT_FUNCTIONS)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            names.update(alias.asname or alias.name for alias in node.names if alias.name in STAT_FUNCTIONS)
+        elif isinstance(node, ast.Assign) and isinstance(node.value, (ast.Attribute, ast.Name)):
+            held = node.value.attr if isinstance(node.value, ast.Attribute) else node.value.id
+            if held in STAT_FUNCTIONS:
+                names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+    return names
+
+
+def _is_stat_call(node, aliases):
+    if not isinstance(node, ast.Call):
+        return False
+    if isinstance(node.func, ast.Attribute):
+        return node.func.attr in STAT_FUNCTIONS
+    return isinstance(node.func, ast.Name) and node.func.id in aliases
+
+
+def _saved_results(scope, aliases):
+    """The names one scope assigns a stat result to."""
+    names = set()
+    for node in _own_nodes(scope):
+        if isinstance(node, ast.Assign) and _is_stat_call(node.value, aliases):
+            names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+        elif isinstance(node, ast.NamedExpr) and _is_stat_call(node.value, aliases):
+            names.add(node.target.id)
+    return names
+
+
+def _integer(node):
+    """The value of an integer literal, signed, or None."""
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+        inner = _integer(node.operand)
+        return None if inner is None else -inner
+    if isinstance(node, ast.Constant) and type(node.value) is int:  # pylint: disable=unidiomatic-typecheck
+        return node.value
+    return None
+
+
+def _reaches_a_time(index):
+    """Whether a subscript of a stat result can read atime, mtime or ctime."""
+    if isinstance(index, ast.Slice):
+        start, stop = _integer(index.lower) if index.lower else 0, _integer(index.upper) if index.upper else None
+        return not (start is not None and start >= 0 and stop is not None and 0 <= stop <= 7)
+    value = _integer(index)
+    return value is None or value in STAT_TUPLE_INDEXES
+
+
 class Reads(ast.NodeVisitor):
     """Every read of a stat time in one module: (line, what, enclosing function)."""
 
-    def __init__(self):
+    def __init__(self, tree):
         self.stack = []
         self.found = []
+        self.aliases = _stat_aliases(tree)
+        self.results = [_saved_results(tree, self.aliases)]
 
     def _add(self, node, what):
         self.found.append((node.lineno, what, '.'.join(self.stack) or '<module>'))
 
+    def _holds_stat(self, node):
+        return _is_stat_call(node, self.aliases) or (isinstance(node, ast.Name) and node.id in self.results[-1])
+
     def visit_FunctionDef(self, node):
         self.stack.append(node.name)
+        self.results.append(self.results[-1] | _saved_results(node, self.aliases))
         self.generic_visit(node)
+        self.results.pop()
         self.stack.pop()
 
     visit_AsyncFunctionDef = visit_FunctionDef
@@ -109,21 +179,29 @@ class Reads(ast.NodeVisitor):
         if name == 'getattr' and len(node.args) >= 2 and isinstance(node.args[1], ast.Constant) \
                 and node.args[1].value in (STAT_NAMES | STAT_ATTRIBUTES):
             self._add(node, node.args[1].value)
+        if name in ('tuple', 'list') and node.args and self._holds_stat(node.args[0]):
+            self._add(node, f'{name}() of a stat result')
+        self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        if self._holds_stat(node.value):
+            for target in node.targets:
+                if isinstance(target, (ast.Tuple, ast.List)) and (
+                        len(target.elts) > 7 or any(isinstance(item, ast.Starred) for item in target.elts)):
+                    self._add(node, 'an unpacked stat result')
         self.generic_visit(node)
 
     def visit_Subscript(self, node):
-        value, index = node.value, node.slice
-        if isinstance(value, ast.Call) and isinstance(index, ast.Constant) and index.value in STAT_TUPLE_INDEXES:
-            name = value.func.attr if isinstance(value.func, ast.Attribute) else getattr(value.func, 'id', '')
-            if name in ('stat', 'lstat'):
-                self._add(node, f'{name}()[{index.value}]')
+        if self._holds_stat(node.value) and _reaches_a_time(node.slice):
+            self._add(node, 'a stat result by position')
         self.generic_visit(node)
 
 
 def reads_in(source, filename='<source>'):
     """[(line, what, function)] for one module's source."""
-    visitor = Reads()
-    visitor.visit(ast.parse(source, filename))
+    tree = ast.parse(source, filename)
+    visitor = Reads(tree)
+    visitor.visit(tree)
     return sorted(visitor.found)
 
 

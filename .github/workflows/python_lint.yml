@@ -113,7 +113,9 @@ jobs:
       # changes with the machine that ran the tool.
       - name: Guard report output against staged file times
         if: steps.changed-files-py.outputs.any_changed == 'true'
-        run: python admin/scripts/check_staged_file_times.py
+        run: |
+          python admin/scripts/check_staged_file_times.py
+          python admin/test/scripts/test_check_staged_file_times.py
 
       # The third element of an artifact's return tuple becomes the report's
       # "located at" line and the LAVA manifest source_path, so it has to be real

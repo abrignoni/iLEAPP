@@ -33,7 +33,20 @@ class EverySpelling(unittest.TestCase):
                        'value = os.stat(p)[8]\n',
                        'value = os.lstat(p)[7]\n',
                        'value = result[stat.ST_MTIME]\n',
-                       "value = getattr(result, 'st_mtime')\n"):
+                       "value = getattr(result, 'st_mtime')\n",
+                       'value = os.fstat(fd)[8]\n',
+                       'value = os.stat(p)[-2]\n',
+                       'value = os.stat(p)[7:]\n',
+                       'value = os.stat(p)[:9]\n',
+                       'result = os.stat(p)\nvalue = result[8]\n',
+                       'result = os.lstat(p)\nvalue = result[index]\n',
+                       'from os import stat as read\nvalue = read(p)[8]\n',
+                       'read = os.stat\nvalue = read(p)[8]\n',
+                       'a, b, c, d, e, f, g, h, i, j = os.stat(p)\n',
+                       'first, *rest = os.stat(p)\n',
+                       'value = tuple(os.stat(p))\n',
+                       'def f(p):\n    if (saved := os.stat(p)):\n        return saved[8]\n',
+                       'def f(p):\n    saved = os.stat(p)\n    def g():\n        return saved[8]\n    return g\n'):
             with self.subTest(source=source):
                 self.assertTrue(check.reads_in(source), source)
 
@@ -44,7 +57,13 @@ class EverySpelling(unittest.TestCase):
                        'value = os.stat(p).st_size\n',
                        'value = os.stat(p)[6]\n',
                        "notes = 'not read from os.path.getmtime or st_mtime'\n",
-                       "value = getattr(result, 'st_size')\n"):
+                       "value = getattr(result, 'st_size')\n",
+                       'result = os.stat(p)\nvalue = result[6]\n',
+                       'value = os.stat(p)[:7]\n',
+                       'items = other(p)\nvalue = items[8]\n',
+                       'mode, ino = other(p)\n',
+                       'def a(p):\n    result = os.stat(p)\n    return result.st_size\n\n'
+                       'def b(x):\n    result = x\n    return result[8]\n'):
             with self.subTest(source=source):
                 self.assertEqual(check.reads_in(source), [], source)
 
