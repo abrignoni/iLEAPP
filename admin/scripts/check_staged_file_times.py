@@ -86,16 +86,21 @@ def _own_nodes(scope):
             pending.extend(ast.iter_child_nodes(node))
 
 
+def _targets(assignment):
+    """The targets of a plain or annotated assignment."""
+    return assignment.targets if isinstance(assignment, ast.Assign) else [assignment.target]
+
+
 def _stat_aliases(scope, inherited):
     """The names that hold a stat function in one scope."""
     names = set(inherited)
     for node in _own_nodes(scope):
         if isinstance(node, ast.ImportFrom):
             names.update(alias.asname or alias.name for alias in node.names if alias.name in STAT_FUNCTIONS)
-        elif isinstance(node, ast.Assign) and isinstance(node.value, (ast.Attribute, ast.Name)):
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)) and isinstance(node.value, (ast.Attribute, ast.Name)):
             held = node.value.attr if isinstance(node.value, ast.Attribute) else node.value.id
             if held in STAT_FUNCTIONS or held in inherited:
-                names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+                names.update(target.id for target in _targets(node) if isinstance(target, ast.Name))
     return names
 
 
@@ -121,8 +126,8 @@ def _saved_results(scope, aliases):
     """The names one scope assigns a stat result to."""
     names = set()
     for node in _own_nodes(scope):
-        if isinstance(node, ast.Assign) and _is_stat_call(node.value, aliases):
-            names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+        if isinstance(node, (ast.Assign, ast.AnnAssign)) and _is_stat_call(node.value, aliases):
+            names.update(target.id for target in _targets(node) if isinstance(target, ast.Name))
         elif isinstance(node, ast.NamedExpr) and _is_stat_call(node.value, aliases):
             names.add(node.target.id)
     return names
