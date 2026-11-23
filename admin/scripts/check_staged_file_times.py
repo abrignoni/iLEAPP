@@ -19,11 +19,14 @@ text as UTC.
 This check fails on a read of a file's stat times under scripts/, by name, by attribute or by
 tuple position, except in the seekers (which set those times), vendored code and the places listed in ALLOWED.
 A use that never reaches a report, such as a cache key or a cleanup cutoff, belongs in ALLOWED
-with its reason, and so does a safe read this check cannot tell apart from a real one. An entry names the core, the file, the function and how many reads it holds,
+with its reason, and so does a safe read this check cannot tell apart from a real one. It sees
+stat results saved in the same or an enclosing scope. It does not follow a value through calls,
+returns, containers or attributes. An entry names the core, the file, the function and how many reads it holds,
 so a new read in an allowed function fails, and an entry that no longer matches fails too.
 """
 import argparse
 import ast
+import json
 import os
 import re
 import sys
@@ -104,16 +107,6 @@ def _stat_aliases(scope, inherited):
     return names
 
 
-def _bound_names(function):
-    """The names a function or lambda binds itself, which hide the same names outside it."""
-    arguments = function.args
-    names = {item.arg for item in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
-    names.update(item.arg for item in (arguments.vararg, arguments.kwarg) if item)
-    names.update(node.id for node in _own_nodes(function)
-                 if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store))
-    return names
-
-
 def _is_stat_call(node, aliases):
     if not isinstance(node, ast.Call):
         return False
@@ -172,10 +165,11 @@ class Reads(ast.NodeVisitor):
         return _is_stat_call(node, aliases) or (isinstance(node, ast.Name) and node.id in results)
 
     def _enter(self, function):
+        # An inner scope keeps every outer name, even one it rebinds: a false alarm goes in
+        # ALLOWED with its reason, and a name wrongly hidden would be a silent miss.
         aliases, results = self.scopes[-1]
-        bound = _bound_names(function)
-        aliases = _stat_aliases(function, aliases - bound)
-        self.scopes.append((aliases, (results - bound) | _saved_results(function, aliases)))
+        aliases = _stat_aliases(function, aliases)
+        self.scopes.append((aliases, results | _saved_results(function, aliases)))
 
     def visit_FunctionDef(self, node):
         self.stack.append(node.name)
@@ -237,12 +231,23 @@ def reads_in(source, filename='<source>'):
 
 
 def core_of(root):
-    """The core this checkout is, from scripts/version_info.py."""
-    with open(os.path.join(root, 'scripts', 'version_info.py'), encoding='utf-8') as handle:
-        match = re.search(r"""^leapp_name\s*=\s*['"]([^'"]+)['"]""", handle.read(), re.M)
-    if not match or match.group(1) not in ALLOWED:
-        raise SystemExit('could not tell which LEAPP this checkout is from scripts/version_info.py')
-    return match.group(1)
+    """The core this checkout is, from data/leapp_config.json or scripts/version_info.py."""
+    config = os.path.join(root, 'data', 'leapp_config.json')
+    name = None
+    if os.path.isfile(config):
+        with open(config, encoding='utf-8') as handle:
+            try:
+                name = json.load(handle).get('name')
+            except (ValueError, AttributeError):
+                name = None
+    else:
+        with open(os.path.join(root, 'scripts', 'version_info.py'), encoding='utf-8') as handle:
+            match = re.search(r"""^leapp_name\s*=\s*['"]([^'"]+)['"]""", handle.read(), re.M)
+        name = match.group(1) if match else None
+    if name not in ALLOWED:
+        raise SystemExit('could not tell which LEAPP this checkout is from data/leapp_config.json '
+                         'or scripts/version_info.py')
+    return name
 
 
 def python_files(root):

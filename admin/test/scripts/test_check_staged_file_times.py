@@ -40,6 +40,10 @@ class EverySpelling(unittest.TestCase):
                        'value = os.stat(p)[:9]\n',
                        'value = os.stat(p)[::-1]\n',
                        'value = os.stat(p)[:7:-1]\n',
+                       'saved = os.stat(p)\ndef f(saved=saved[8]):\n    return saved\n',
+                       'saved = os.stat(p)\nfield = lambda x=saved[8]: x\n',
+                       'def f(p):\n    saved = os.stat(p)\n    def g(items):\n'
+                       '        names = [saved for saved in items]\n        return names, saved[8]\n    return g\n',
                        'result: os.stat_result = os.stat(p)\nvalue = result[8]\n',
                        'read: object = os.stat\nvalue = read(p)[8]\n',
                        'value = os.stat(p)[-4:]\n',
@@ -70,16 +74,20 @@ class EverySpelling(unittest.TestCase):
                        'mode, ino = other(p)\n',
                        'value = os.stat(p)[:-3]\n',
                        'value = os.stat(p)[6::-1]\n',
-                       'def f(p):\n    saved = os.stat(p)\n    def g(saved):\n        return saved[8]\n'
-                       '    return saved.st_size, g\n',
-                       'def f(p):\n    saved = os.stat(p)\n    def g():\n        saved = rows()\n        return saved[8]\n'
-                       '    return saved.st_size, g\n',
                        'def f(p):\n    read = os.stat\n    return read(p).st_size\n\ndef g(read):\n    return read(p)[8]\n',
-                       'saved = os.stat(p)\nfield = lambda saved: saved[8]\n',
                        'def a(p):\n    result = os.stat(p)\n    return result.st_size\n\n'
                        'def b(x):\n    result = x\n    return result[8]\n'):
             with self.subTest(source=source):
                 self.assertEqual(check.reads_in(source), [], source)
+
+    def test_a_name_rebound_in_an_inner_scope_is_still_reported(self):
+        # over-reporting is the choice: a safe read like these goes in ALLOWED with its reason
+        for source in ('def f(p):\n    saved = os.stat(p)\n    def g(saved):\n        return saved[8]\n    return g\n',
+                       'def f(p):\n    saved = os.stat(p)\n    def g():\n        saved = rows()\n'
+                       '        return saved[8]\n    return g\n',
+                       'saved = os.stat(p)\nfield = lambda saved: saved[8]\n'):
+            with self.subTest(source=source):
+                self.assertTrue(check.reads_in(source), source)
 
     def test_the_enclosing_function_is_named(self):
         found = check.reads_in('def outer():\n    def inner():\n        return os.path.getmtime(p)\n')
@@ -134,6 +142,16 @@ class Scan(unittest.TestCase):
         problems = check.scan(self.root, allowed={})[1]
         self.assertEqual(len(problems), 1)
         self.assertIn('could not be parsed', problems[0])
+
+    def test_the_core_can_be_named_in_the_config_file(self):
+        self.write('scripts/version_info.py', 'minimum = 1\n')
+        self.write('data/leapp_config.json', '{"name": "VLEAPP"}')
+        self.assertEqual(check.core_of(self.root), 'VLEAPP')
+
+    def test_an_unreadable_config_file_stops_the_check(self):
+        self.write('data/leapp_config.json', 'not json')
+        with self.assertRaises(SystemExit):
+            check.core_of(self.root)
 
     def test_an_unknown_core_stops_the_check(self):
         self.write('scripts/version_info.py', "leapp_name = 'other'\n")
