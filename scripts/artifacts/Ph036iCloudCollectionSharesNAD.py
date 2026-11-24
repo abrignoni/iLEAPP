@@ -21,7 +21,7 @@ __artifacts_v2__ = {
 ' as stored; no meaning is assigned to their values. Start Date and End Date are ZSTARTDATE and ZENDDATE'
 ' converted from Cocoa time to UTC; what they mark for an album is not established.'
 ' Evidence: data-proven on a private iOS 27.2.1 full file system extraction (field mapped from a private'
-' sample) holding an album its owner made with no one invited. Creation Date agreed with the time'
+' sample) holding a shared album made on the device. Creation Date agreed with the time'
 ' recorded when the album was made, and Last Modified Date with the time of the last comment posted to it,'
 ' each within five seconds. Expiry Date and Trashed Date were empty on that album, which was not made'
 ' temporary and was not deleted. The CollectionShare entity also exists on the tested iOS 26 image, which'
