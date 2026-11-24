@@ -17,7 +17,7 @@ __artifacts_v2__ = {
                   "before as GUID. Title is the metadata entry with index 28000, which CoreDuet's own "
                   "conversion of synthetic records names title. Before, Title took the value of the record's "
                   "only metadata entry whatever its index; on the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, each of the 236 written records "
-                  "held one entry, with index 28000, so the Title values did not change. On iphone12_ios18 (18 written rows) Stream Name, Source ID, Source Bundle ID, Source Group ID and Time Zone Offset (seconds) each held one value. Fields 3 (endDate) and 8 (creationDate) are not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, it was set on each of the 236 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value."),
+                  "held one entry, with index 28000, so the Title values did not change. On iphone12_ios18 (18 written rows) Stream Name, Source ID, Source Bundle ID, Source Group ID and Time Zone Offset (seconds) each held one value. Fields 3 (endDate) and 8 (creationDate) are not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, it was set on each of the 236 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value. A written record with no field 1, 1.1, 2, 4, 4.3, 5, 6, 6.1, 6.2 or 6.4 is skipped. So is one whose field 1, 4 or 6 is not a message, or whose field 7 is a single number. The log names the file name and the record offset, and the other records are still reported. A record with no field 7 or 10 keeps its row with those columns empty. A synthetic test (admin/test/scripts/test_biome_dkevent_missing_fields.py) checks the skip with fields 1, 2, 4, 5 and 6 removed in turn and with an integer in place of fields 1, 4 and 6. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) was skipped this way; 3 of the 4 held written records of this stream."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Safari.History/local/*',),
         "output_types": "standard",
         "artifact_icon": "compass",
@@ -50,6 +50,8 @@ from scripts.biome_stream_records import cocoa_date
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+# A decoded record that raises one of these while its fields are read is skipped and logged.
+_FIELD_ERRORS = (KeyError, TypeError, AttributeError, ValueError, IndexError)
 
 # Metadata index for the page title, read from CoreDuet.framework on macOS 27.2.1 (26B131) by
 # converting synthetic _DKPREvent records with _DKEvent fromPBCodable:
@@ -178,19 +180,24 @@ def get_biomeSafari(context):
                     logfunc(f'Biome Safari: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
-                activity = (protostuff['1']['1'])
-                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                timestart = (cocoa_date(protostuff['2'], 'Biome Safari', filename, record.data_start_offset) or None)
-                url = (protostuff['4']['3'])
-                guid = (protostuff['5'])
-                detail1 = (protostuff['6']['1'])
-                detail2 = (protostuff['6']['2'])
-                detail3 = (protostuff['6']['4'])
-                title = _metadata_by_index(protostuff.get('7')).get(_TITLE_INDEX, '')
-                tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
+                try:
+                    activity = (protostuff['1']['1'])
+                    # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+                    timestart = (cocoa_date(protostuff['2'], 'Biome Safari', filename, record.data_start_offset) or None)
+                    url = (protostuff['4']['3'])
+                    guid = (protostuff['5'])
+                    detail1 = (protostuff['6']['1'])
+                    detail2 = (protostuff['6']['2'])
+                    detail3 = (protostuff['6']['4'])
+                    title = _metadata_by_index(protostuff.get('7')).get(_TITLE_INDEX, '')
+                    tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
 
-                data_list.append((ts, timestart, tz_offset, record.state.name, activity, title, url, detail1, detail2, detail3, guid, filename,
-                                  record.data_start_offset))
+                    data_list.append((ts, timestart, tz_offset, record.state.name, activity, title, url, detail1, detail2, detail3, guid, filename,
+                                      record.data_start_offset))
+                except _FIELD_ERRORS as ex:
+                    logfunc(f'Biome Safari: record at offset {record.data_start_offset} in {filename} could not be '
+                            f'read ({type(ex).__name__}: {ex}); skipped')
+                    continue
 
             elif record.state == EntryState.Deleted:
                 data_list.append((ts, None, None, record.state.name, None, None, None, None, None, None, None, filename,
