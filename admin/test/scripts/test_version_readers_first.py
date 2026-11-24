@@ -9,7 +9,7 @@ from scripts import plugin_loader
 ARTIFACTS = Path(__file__).resolve().parents[3] / 'scripts' / 'artifacts'
 
 # Version setters that crunch_artifacts places itself.
-PLACED_BY_CRUNCH = {'lastBuild', 'iTunesBackupInfo'}
+PLACED_BY_CRUNCH = {'lastBuild', 'iTunesBackupInfo', 'iosVersionDiagnosticReports'}
 
 
 def specs(*plugin_names):
@@ -32,6 +32,22 @@ class TestVersionReadersFirst(unittest.TestCase):
         self.assertEqual(names(ileapp.version_readers_first(specs(
             'b', 'system_version_plist', 'a'))), ['system_version_plist', 'b', 'a'])
         self.assertEqual(ileapp.version_readers_first([]), [])
+
+    def test_crash_report_fallback_goes_after_the_readers(self):
+        fallback = SimpleNamespace(name=ileapp.CRASH_REPORT_VERSION)
+        placed = ileapp.add_crash_report_version(specs(
+            'last_build', 'system_version_plist', 'Ph087UFEDdevcievaluesplist', 'a', 'b'), fallback)
+        self.assertEqual(names(placed), ['last_build', 'system_version_plist', 'Ph087UFEDdevcievaluesplist',
+                                         ileapp.CRASH_REPORT_VERSION, 'a', 'b'])
+        self.assertEqual(names(ileapp.add_crash_report_version(specs('a'), fallback)),
+                         [ileapp.CRASH_REPORT_VERSION, 'a'])
+        self.assertEqual(names(ileapp.add_crash_report_version(specs('last_build', 'a'), fallback)),
+                         ['last_build', ileapp.CRASH_REPORT_VERSION, 'a'])
+
+    def test_stopped_count_leaves_out_the_added_steps(self):
+        self.assertEqual(ileapp.chosen_count(specs(ileapp.CRASH_REPORT_VERSION, 'a')), 1)
+        self.assertEqual(ileapp.chosen_count(specs('last_build', 'system_version_plist',
+                                                   ileapp.CRASH_REPORT_VERSION, 'a')), 2)
 
     def test_every_version_setter_is_placed(self):
         loader = plugin_loader.PluginLoader()
