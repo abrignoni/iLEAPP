@@ -72,8 +72,8 @@ __artifacts_v2__ = {
 ' Date, Album Title, Post Cloud GUID, zSharePost-zPK,'
 ' zShare-zPK, Contributor Email, Contributor User ID, Contributor Is Current User, Asset Saved Asset Type'
 ' and Asset Trashed State each held one value on every row. Contributor Phone was empty. Post Caption and'
-' Post Last Edited Date were empty and Post Comments Count and Post Reactions Count held zero, although the'
-' photos had comments and reactions: those rows name the asset, not the post (see Ph036.3). Posts by'
+' Post Last Edited Date were empty and Post Comments Count and Post Reactions Count each held one value, zero, on every'
+' row, although the photos had comments and reactions: those rows name the asset, not the post (see Ph036.3). Posts by'
 ' another participant, captions and post-level comments are unexercised. Needs the ZSHAREPOST table, which'
 ' the tested iOS 26 image does not have.',
 'paths': ('*/PhotoData/Photos.sqlite*', '*/PhotoData/UBF/scopes/collectionshare/resources/derivatives/*'),
