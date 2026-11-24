@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                   "27.2.1 (26B131); no iOS copy of the class was read. Start Date and End Date are fields 2 "
                   "and 3 (startDate and endDate) and were reported before as Timestamp and Timestamp2. "
                   "Stream Name is field 1.1 (the name of the record's stream) and was reported before as "
-                  "Event. Identifier is field 5 (identifier) and was reported before as GUID. Airplane Mode (raw) is field 4.4 (the value's integerValue) of the _DKEvent.System.AirplaneMode stream. Airplane Mode reads On for 1 and Off for 0 and is left empty for any other value. That reading comes from one known-data test on an iPhone running iOS 27.2.1, in which Airplane Mode was switched on and off at logged times about two minutes apart. The End Date of each record closed by a logged change fell within a second of that change (that test's records held End Date in whole seconds), and the value was 1 on the records whose interval Airplane Mode spent on and 0 on those it spent off. In that test a record described the interval that ended at the change, not the state the change set. The reading was not checked against known data on any other iOS version. The value was not reported in v2026.4.6 and was reported as Airplane Mode (as stored) in v2026.4.7. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it held 0 on 72 and 1 on 49 of the 121 written rows. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it was set on each of the 121 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
+                  "Event. Identifier is field 5 (identifier) and was reported before as GUID. Airplane Mode (raw) is field 4.4 (the value's integerValue) of the _DKEvent.System.AirplaneMode stream. Airplane Mode reads On for 1 and Off for 0 and is left empty for any other value. That reading comes from one known-data test on an iPhone running iOS 27.2.1, in which Airplane Mode was switched on and off at logged times about two minutes apart. The End Date of each record closed by a logged change fell within a second of that change (that test's records held End Date in whole seconds), and the value was 1 on the records whose interval Airplane Mode spent on and 0 on those it spent off. In that test a record described the interval that ended at the change, not the state the change set. The reading was not checked against known data on any other iOS version. The value was not reported in v2026.4.6 and was reported as Airplane Mode (as stored) in v2026.4.7. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it held 0 on 72 and 1 on 49 of the 121 written rows. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it was set on each of the 121 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date or End Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number in Start Date and with NaN in End Date. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value."),
         "paths": ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
         "output_types": "standard",
         "artifact_icon": "plane",
@@ -37,7 +37,8 @@ from google.protobuf.message import DecodeError
 from datetime import timezone
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.biome_stream_records import cocoa_date
 
 # Labels from a known-data test on iOS 27.2.1; see the notes.
 ON_OFF = {0: 'Off', 1: 'On'}
@@ -114,8 +115,8 @@ def get_biomeAirpMode(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
                 # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                timestart = (webkit_timestampsconv(protostuff['2']) or None)
-                timeend = (webkit_timestampsconv(protostuff['3']) or None)
+                timestart = (cocoa_date(protostuff['2'], 'Biome Airplane Mode DKEvent', filename, record.data_start_offset) or None)
+                timeend = (cocoa_date(protostuff['3'], 'Biome Airplane Mode DKEvent', filename, record.data_start_offset) or None)
                 event = protostuff['1']['1']
                 guid = protostuff['5'].decode()
                 value = protostuff['4'].get('4', '') if isinstance(protostuff.get('4'), dict) else ''

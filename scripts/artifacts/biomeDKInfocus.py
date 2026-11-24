@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "metadata stored with the record.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-20",
+        "last_update_date": "2026-11-24",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class on macOS 27.2.1 (26B131); no "
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                  "5,195 written rows, a version string or extension id on 744, and was empty on 544. "
                  "Creation Date is field 8 (creationDate), reported before as Time Write. Written records that "
                  "do not decode are skipped and logged (21, all on dexter_ios18, of 6,504 written "
-                 "records on 20 corpus images). Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), it was set on each of the 6,483 written rows, with 9 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
+                 "records on 20 corpus images). Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), it was set on each of the 6,483 written rows, with 9 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date, End Date or Creation Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number in Start Date and with NaN in End Date and Creation Date. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.App.InFocus/local/*',),
         "output_types": "standard",
         "artifact_icon": "focus-2",
@@ -49,7 +49,8 @@ from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.biome_stream_records import cocoa_date
 
 
 def _text(value):
@@ -131,9 +132,9 @@ def get_biomeDKInfocus(context):
 
                     activity = (protostuff['1']['1'])
                     # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                    timestart = (webkit_timestampsconv(protostuff['2']) or None)
-                    timeend = (webkit_timestampsconv(protostuff['3']) or None)
-                    timewrite = (webkit_timestampsconv(protostuff['8']) or None)
+                    timestart = (cocoa_date(protostuff['2'], 'Biome App In Focus DKEvent', filename, record.data_start_offset) or None)
+                    timeend = (cocoa_date(protostuff['3'], 'Biome App In Focus DKEvent', filename, record.data_start_offset) or None)
+                    timewrite = (cocoa_date(protostuff['8'], 'Biome App In Focus DKEvent', filename, record.data_start_offset) or None)
 
                     actionguid = (protostuff['5'])
                     bundleid = (protostuff['4']['3'])
