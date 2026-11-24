@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "Unlocked label. Only records in the Written state are reported.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-04-29",
-        "last_update_date": "2026-11-20",
+        "last_update_date": "2026-11-24",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on "
@@ -15,7 +15,7 @@ __artifacts_v2__ = {
                  "Start Date and End Date are fields 2 and 3 (startDate and endDate) and were reported "
                  "before as Start Time and End Time. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, Is Locked (as stored) held 1 on 1,657 "
                  "and 0 on 1,532 of the 3,189 rows. Missing required fields retain the existing "
-                 "skipped-record behavior, and Deleted-state records remain omitted. Original parser contribution: @JohnHyla. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 3,189 rows, with 8 distinct values, each a whole number of quarter hours within 14 hours of GMT.",
+                 "skipped-record behavior, and Deleted-state records remain omitted. Original parser contribution: @JohnHyla. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 3,189 rows, with 8 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date or End Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number in Start Date and with NaN in End Date. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Keybag.IsLocked/local/*'),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -43,7 +43,8 @@ from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.biome_stream_records import cocoa_date
 
 
 @artifact_processor
@@ -109,8 +110,8 @@ def get_biomeDKKeybag(context):
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
-                    time2 = (webkit_timestampsconv(protostuff['2']))
-                    time3 = (webkit_timestampsconv(protostuff['3']))
+                    time2 = (cocoa_date(protostuff['2'], 'Biome Keybag DKEvent', filename, record.data_start_offset))
+                    time3 = (cocoa_date(protostuff['3'], 'Biome Keybag DKEvent', filename, record.data_start_offset))
 
                     tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
                     data_list.append((ts, time2, time3, tz_offset, protostuff['4']['4'], filename))

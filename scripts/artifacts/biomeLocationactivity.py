@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "stored with the record.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-20",
+        "last_update_date": "2026-11-24",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class on macOS 27.2.1 (26B131); no "
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                  "read metadata list positions 2, 3, 4, 10, 13 and 16 (counting from 0) as Data 1 to Data 6, "
                  "although the key at each position varied between records, and skipped any record "
                  "with fewer than 17 entries: 69 written records on iphone12_ios18 gave no row. "
-                 "Data 0 and Bundle ID 2 are now Source ID and Source Bundle ID. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (4 held written records of this stream), it was set on each of the 193 written rows, with 3 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
+                 "Data 0 and Bundle ID 2 are now Source ID and Source Bundle ID. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (4 held written records of this stream), it was set on each of the 193 written rows, with 3 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date, End Date or Creation Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number in Start Date and with NaN in End Date and Creation Date. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.App.LocationActivity/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -53,6 +53,7 @@ from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, get_plist_content, logfunc
+from scripts.biome_stream_records import cocoa_date
 
 
 # Metadata index to key name, read from CoreDuet.framework on macOS 27.2.1 (26B131) by converting
@@ -224,8 +225,8 @@ def get_biomeLocationactivity(context):
 
                     activity = (protostuff['1']['1'])
                     # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                    timestart = (webkit_timestampsconv(protostuff['2']) or None)
-                    timeend = (webkit_timestampsconv(protostuff['3']) or None)
+                    timestart = (cocoa_date(protostuff['2'], 'Biome Location Activity', filename, record.data_start_offset) or None)
+                    timeend = (cocoa_date(protostuff['3'], 'Biome Location Activity', filename, record.data_start_offset) or None)
 
                     bundle = (protostuff['4']['3'])
                     actionguid = (protostuff['5'])
@@ -234,7 +235,7 @@ def get_biomeLocationactivity(context):
                     source_bundle = _text(source.get('2'))
                     metadata = _metadata(protostuff.get('7'))
 
-                    timewrite = (webkit_timestampsconv(protostuff['8']) or None)
+                    timewrite = (cocoa_date(protostuff['8'], 'Biome Location Activity', filename, record.data_start_offset) or None)
                     tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeLocationactivity record due to protobuf decode error: {ex} | "

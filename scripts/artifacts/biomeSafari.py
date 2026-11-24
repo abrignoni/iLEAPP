@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses safari entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-20",
+        "last_update_date": "2026-11-24",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS "
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
                   "before as GUID. Title is the metadata entry with index 28000, which CoreDuet's own "
                   "conversion of synthetic records names title. Before, Title took the value of the record's "
                   "only metadata entry whatever its index; on the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, each of the 236 written records "
-                  "held one entry, with index 28000, so the Title values did not change. On iphone12_ios18 (18 written rows) Stream Name, Source ID, Source Bundle ID, Source Group ID and Time Zone Offset (seconds) each held one value. Fields 3 (endDate) and 8 (creationDate) are not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, it was set on each of the 236 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
+                  "held one entry, with index 28000, so the Title values did not change. On iphone12_ios18 (18 written rows) Stream Name, Source ID, Source Bundle ID, Source Group ID and Time Zone Offset (seconds) each held one value. Fields 3 (endDate) and 8 (creationDate) are not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (17 held written records of this stream), which include the sample_data keys, it was set on each of the 236 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value."),
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Safari.History/local/*',),
         "output_types": "standard",
         "artifact_icon": "compass",
@@ -45,7 +45,8 @@ from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.biome_stream_records import cocoa_date
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
@@ -179,7 +180,7 @@ def get_biomeSafari(context):
                     continue
                 activity = (protostuff['1']['1'])
                 # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                timestart = (webkit_timestampsconv(protostuff['2']) or None)
+                timestart = (cocoa_date(protostuff['2'], 'Biome Safari', filename, record.data_start_offset) or None)
                 url = (protostuff['4']['3'])
                 guid = (protostuff['5'])
                 detail1 = (protostuff['6']['1'])

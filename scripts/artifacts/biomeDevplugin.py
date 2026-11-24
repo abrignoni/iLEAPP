@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses device plugged in entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-20",
+        "last_update_date": "2026-11-24",
         "requirements": "none",
         "category": "Biome",
         "notes": "Mattia Epifani quotes Ian Whiffin's article 'KnowledgeC Complete(ish)' under this stream: a record of this type is made whenever the device is charging, by cable or on a wireless charger, and isCharging may be a better name than plugged in. This module did not test it and does not label the value. Rows with SEGB State Deleted carry only the SEGB Timestamp, Filename and Offset; on the tested images there were 8,344 of them beside the 5,377 written rows, and the sample_data counts include both. Reference: "
@@ -15,7 +15,7 @@ __artifacts_v2__ = {
                  "Creation Date are fields 2, 3 and 8 (startDate, endDate and creationDate) and were "
                  "reported before as Time Start, Time End and Time Write. Stream Name is field 1.1 and "
                  "was reported before as Activity. Is Plugged In (as stored) is field 4.4 (the value's integerValue) of the _DKEvent.Device.IsPluggedIn stream, and the header repeats that stream name. It does not say that 1 means plugged in. It was reported as Status in v2026.4.6; it is shown as stored, and which value means which state is not established. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it held "
-                 "1 on 4,809 and 0 on 568 of the 5,377 written rows. Identifier is field 5 and was reported before as Action GUID. Adapter Is Wireless is the integer value of the metadata entry with index 38001, which CoreDuet's own conversion of synthetic records names adapterIsWireless; it is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it held 0 on 3,547 and 1 on 11 of the 5,377 written rows and was empty on the 1,819 that held no such entry. Adapter Type (raw) is the integer value of the metadata entry with index 38000, which CoreDuet's own conversion of synthetic records names adapterType; it is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on the same 3,558 written rows as Adapter Is Wireless, with 12 distinct values, and each value equals one of the kIOPSFamilyCode constants in IOPM.h (IOKit, macOS 27.2 SDK), for example kIOPSFamilyCodeUSBHost (-536854528) and kIOPSFamilyCodeUSBCPD (-536854518). That the writer stores this family code was not read from its code, so no name is given. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 5,377 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT.",
+                 "1 on 4,809 and 0 on 568 of the 5,377 written rows. Identifier is field 5 and was reported before as Action GUID. Adapter Is Wireless is the integer value of the metadata entry with index 38001, which CoreDuet's own conversion of synthetic records names adapterIsWireless; it is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it held 0 on 3,547 and 1 on 11 of the 5,377 written rows and was empty on the 1,819 that held no such entry. Adapter Type (raw) is the integer value of the metadata entry with index 38000, which CoreDuet's own conversion of synthetic records names adapterType; it is shown as stored and was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on the same 3,558 written rows as Adapter Is Wireless, with 12 distinct values, and each value equals one of the kIOPSFamilyCode constants in IOPM.h (IOKit, macOS 27.2 SDK), for example kIOPSFamilyCodeUSBHost (-536854528) and kIOPSFamilyCodeUSBCPD (-536854518). That the writer stores this family code was not read from its code, so no name is given. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (20 held written records of this stream), which include the sample_data keys, it was set on each of the 5,377 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date, End Date or Creation Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number in Start Date and with NaN in End Date and Creation Date. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value.",
         "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
@@ -43,7 +43,8 @@ from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.biome_stream_records import cocoa_date
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
@@ -159,9 +160,9 @@ def get_biomeDevplugin(context):
 
                 activity = (protostuff['1']['1'])
                 # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                timestart = (webkit_timestampsconv(protostuff['2']) or None)
-                timeend = (webkit_timestampsconv(protostuff['3']) or None)
-                timewrite = (webkit_timestampsconv(protostuff['8']) or None)
+                timestart = (cocoa_date(protostuff['2'], 'Biome Device Plugged In', filename, record.data_start_offset) or None)
+                timeend = (cocoa_date(protostuff['3'], 'Biome Device Plugged In', filename, record.data_start_offset) or None)
+                timewrite = (cocoa_date(protostuff['8'], 'Biome Device Plugged In', filename, record.data_start_offset) or None)
                 
                 con = (protostuff['4']['4'])
                 wireless = _metadata_int(protostuff.get('7'), _ADAPTER_IS_WIRELESS_INDEX)
