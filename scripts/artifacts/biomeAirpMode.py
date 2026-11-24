@@ -4,14 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses airplane mode entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2020-04-30",
-        "last_update_date": "2026-11-20",
+        "last_update_date": "2026-11-24",
         "requirements": "none",
         "category": "Biome",
         "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS "
                   "27.2.1 (26B131); no iOS copy of the class was read. Start Date and End Date are fields 2 "
                   "and 3 (startDate and endDate) and were reported before as Timestamp and Timestamp2. "
                   "Stream Name is field 1.1 (the name of the record's stream) and was reported before as "
-                  "Event. Identifier is field 5 (identifier) and was reported before as GUID. Airplane Mode (as stored) is field 4.4 (the value's integerValue) of the _DKEvent.System.AirplaneMode stream, and the header repeats that stream name. It does not say that 1 means on. It is shown as stored, its meaning is not established, and it was not reported in v2026.4.6. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it held 0 on 72 and 1 on 49 of the 121 written rows. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it was set on each of the 121 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
+                  "Event. Identifier is field 5 (identifier) and was reported before as GUID. Airplane Mode (raw) is field 4.4 (the value's integerValue) of the _DKEvent.System.AirplaneMode stream. Airplane Mode reads On for 1 and Off for 0 and is left empty for any other value. That reading comes from one known-data test on an iPhone running iOS 27.2.1, in which Airplane Mode was switched on and off by hand at logged times two minutes apart: each record's End Date, which that test's records held in whole seconds, fell within a second of a logged change, and the value was 1 on the records whose interval Airplane Mode spent on and 0 on those it spent off. A record therefore describes the interval that ended at the change, not the state the change set. Other iOS versions were not exercised. The value was not reported in v2026.4.6. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it held 0 on 72 and 1 on 49 of the 121 written rows. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (15 held written records of this stream), which include the sample_data keys, it was set on each of the 121 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT."),
         "paths": ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
         "output_types": "standard",
         "artifact_icon": "plane",
@@ -38,6 +38,9 @@ from datetime import timezone
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+
+# Labels from a known-data test on iOS 27.2.1; see the notes.
+ON_OFF = {0: 'Off', 1: 'On'}
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
@@ -116,15 +119,16 @@ def get_biomeAirpMode(context):
                 event = protostuff['1']['1']
                 guid = protostuff['5'].decode()
                 value = protostuff['4'].get('4', '') if isinstance(protostuff.get('4'), dict) else ''
+                state = ON_OFF.get(value, '') if type(value) is int else ''
                 tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
 
-                data_list.append((ts, timestart, timeend, tz_offset, record.state.name, event, value, guid, filename, offset))
+                data_list.append((ts, timestart, timeend, tz_offset, record.state.name, event, state, value, guid, filename, offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, None, record.state.name, None, None, None, filename, record.data_start_offset))
+                data_list.append((ts, None, None, None, record.state.name, None, None, None, None, filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Start Date', 'datetime'), ('End Date', 'datetime'),
-                    'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Airplane Mode (as stored)', 'Identifier', 'Filename', 'Offset')
+                    'Time Zone Offset (seconds)', 'SEGB State', 'Stream Name', 'Airplane Mode', 'Airplane Mode (raw)', 'Identifier', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
