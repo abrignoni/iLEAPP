@@ -1,6 +1,6 @@
 {
   "name": "iLEAPP",
-  "version": "2026.4.7",
+  "version": "2026.4.8-dev",
   "description": "iOS Logs, Events, And Plists Parser",
   "report_description": "iLEAPP is an open source project that aims to parse every known iOS artifact for the purpose of forensic analysis.",
   "objective": "Triage iOS Full File System and iTunes Backup Extractions.",
