@@ -37,10 +37,10 @@ This document outlines the various device information collected by LEAPP modules
 | Device Information | Model Number | deviceActivator |
 | Device Information | Product Name | lastBuild |
 | Device Information | Product Region | sdl_remotectl_dump |
-| Device Information | ProductBuildVersion | lastBuild |
+| Device Information | ProductBuildVersion | iosVersionDiagnosticReports, lastBuild |
 | Device Information | Reported Phone Number | deviceDatam |
 | Device Information | Serial Number | serialNumber |
-| Device Information | iOS version | lastBuild |
+| Device Information | iOS version | iosVersionDiagnosticReports, lastBuild |
 | Network | Bluetooth Address | deviceActivator, keychain |
 | Network | Bluetooth IRK | keychain |
 | Network | Ethernet MAC Address | deviceActivator |
