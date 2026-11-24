@@ -40,8 +40,8 @@ class MissingFieldTest(unittest.TestCase):
         open(segb, 'wb').close()
         self.assertTrue(fnmatch.fnmatch(segb, pattern), 'the synthetic file sits where the module looks')
         context = SimpleNamespace(get_files_found=lambda: [segb], get_relative_path=os.path.basename)
-        decoded = {b'good': payload(GOOD), b'bad': bad}
-        records = [record(8, b'good'), record(64, b'bad')]
+        decoded = {b'good': payload(GOOD), b'bad': bad, b'after': payload(GOOD + 600)}
+        records = [record(8, b'good'), record(64, b'bad'), record(128, b'after')]
         with mock.patch.object(module, 'read_segb_file', return_value=records), \
                 mock.patch.object(module.blackboxprotobuf, 'decode_message',
                                   side_effect=lambda data, _types: (decoded[data], {})), \
@@ -51,7 +51,7 @@ class MissingFieldTest(unittest.TestCase):
 
     def check_skipped(self, name, bad):
         rows, logged, segb_name = self.run_module(name, bad)
-        self.assertEqual(len(rows), 1, 'the good record is reported and the bad one is not')
+        self.assertEqual([row[-1] for row in rows], [8, 128], 'both good records are reported, the bad one is not')
         self.assertIn('offset 64', logged)
         self.assertIn(segb_name, logged)
         self.assertIn('could not be read', logged)
@@ -73,6 +73,18 @@ class MissingFieldTest(unittest.TestCase):
                 with self.subTest(module=name, field=field):
                     bad = payload(GOOD)
                     bad[field] = 7
+                    self.check_skipped(name, bad)
+
+    def test_invalid_utf8_skips_only_that_record(self):
+        cases = {'biomeAirpMode': ('5',), 'biomeWifi': ('5', '4.3')}
+        for name, fields in cases.items():
+            for field in fields:
+                with self.subTest(module=name, field=field):
+                    bad = payload(GOOD)
+                    if field == '4.3':
+                        bad['4'] = dict(bad['4'], **{'3': b'\xff'})
+                    else:
+                        bad[field] = b'\xff'
                     self.check_skipped(name, bad)
 
 
