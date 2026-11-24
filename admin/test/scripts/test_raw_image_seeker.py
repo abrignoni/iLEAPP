@@ -1870,7 +1870,11 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         volume is named locked with its hint and holds no members."""
         _seeker, files = self._apfs_members(None)
         self.assertEqual(files, [])
-        self.assertIn('CONVVOL is encrypted, and its blocks are ciphertext', self.log.text())
+        # qnxprobe 1.88 calls a volume ciphertext only when a mapped node other than
+        # the root can be tested; this one has none, so it says it cannot tell
+        self.assertIn('CONVVOL is flagged encrypted and could not be read', self.log.text())
+        self.assertIn('no other node shows whether the blocks are ciphertext or damaged',
+                      self.log.text())
         self.assertIn(f'its passphrase hint, as stored: "{APFS_HINT}"', self.log.text())
         for keys in (raw_image.ImageKeys(password=APFS_PASSWORD),
                      raw_image.ImageKeys(apfs_secrets=[APFS_PASSWORD])):
