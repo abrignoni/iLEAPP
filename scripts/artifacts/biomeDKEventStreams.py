@@ -98,23 +98,26 @@ __artifacts_v2__ = {
     "get_biomeDKDeviceIsLockedImputed": {
         "name": "Biome - Screen Lock Imputed DKEvent",
         "description": "Parses records from the _DKEvent.Device.IsLockedImputed biome "
-                       "stream. Value reads Locked for 1 and Unlocked for 0, with the stored "
-                       "value in Value (raw).",
+                       "stream. Value reads Locked for 1 and Unlocked for 0, from one known-data "
+                       "test on iOS 27.2.1 (see notes). The stored value is in Value (raw).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-11-24",
         "requirements": "none",
         "category": "Biome",
-        "notes": ("What \"imputed\" means for this stream is not documented. Value reads "
+        "notes": ("No documentation was found for what \"imputed\" means on this stream. Value reads "
                  "Locked for 1 and Unlocked for 0 and is left empty for any other value; the "
                  "stored integer is in Value (raw). That reading comes from one known-data test "
                  "on an iPhone running iOS 27.2.1, in which the phone was locked and unlocked by "
-                 "hand at the side button and with Face ID at logged times 3 to 49 seconds apart. "
-                 "The End Timestamp of each record closed by a logged change fell within a second "
-                 "of that change, and the value was 1 on the records whose interval the phone "
-                 "spent locked and 0 on those it spent unlocked. In that test a record described "
-                 "the interval that ended at the change, not the state the change set. The stream "
-                 "also held records for lock changes made before the logged ones. The reading was "
+                 "hand at the side button and with Face ID at logged times less than a minute "
+                 "apart. The End Timestamp of each record closed by a logged change, stored in "
+                 "whole seconds, fell within about one second of the logged time of that change, "
+                 "and the value was 1 on the records whose interval the phone "
+                 "spent locked and 0 on those it spent unlocked. In that test the value was the "
+                 "state from Start Timestamp to End Timestamp: the record ending at a change holds "
+                 "the state before it, and the record starting at that change holds the state it "
+                 "set. The stream also held records dated before and after the logged changes, "
+                 "which were not checked against known data. The reading was "
                  "not checked against known data on any other iOS version."
                  " "
                  "Metadata lists each metadata entry that holds a string or integer value as "
