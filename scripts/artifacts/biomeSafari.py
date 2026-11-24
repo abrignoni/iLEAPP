@@ -77,6 +77,18 @@ def _metadata_by_index(entries):
     return found
 
 
+
+def _cocoa_date(value, field, offset, filename):
+    """Convert a Cocoa date; a value no datetime can hold (nan, inf, out of range) is left empty and logged."""
+    try:
+        # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+        return webkit_timestampsconv(value) or None
+    except (ValueError, OverflowError) as ex:
+        logfunc(f'Biome Safari: date in field {field} could not be converted at offset '
+                f'{offset} in {filename}: {ex}')
+        return None
+
+
 @artifact_processor
 def get_biomeSafari(context):
 
@@ -178,8 +190,7 @@ def get_biomeSafari(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
                 activity = (protostuff['1']['1'])
-                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                timestart = (webkit_timestampsconv(protostuff['2']) or None)
+                timestart = _cocoa_date(protostuff['2'], 2, record.data_start_offset, filename)
                 url = (protostuff['4']['3'])
                 guid = (protostuff['5'])
                 detail1 = (protostuff['6']['1'])

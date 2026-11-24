@@ -67,6 +67,18 @@ def _metadata_int(entries, index):
     return ''
 
 
+
+def _cocoa_date(value, field, offset, filename):
+    """Convert a Cocoa date; a value no datetime can hold (nan, inf, out of range) is left empty and logged."""
+    try:
+        # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+        return webkit_timestampsconv(value) or None
+    except (ValueError, OverflowError) as ex:
+        logfunc(f'Biome Device Plugged In: date in field {field} could not be converted at offset '
+                f'{offset} in {filename}: {ex}')
+        return None
+
+
 @artifact_processor
 def get_biomeDevplugin(context):
 
@@ -158,10 +170,9 @@ def get_biomeDevplugin(context):
                     continue
 
                 activity = (protostuff['1']['1'])
-                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                timestart = (webkit_timestampsconv(protostuff['2']) or None)
-                timeend = (webkit_timestampsconv(protostuff['3']) or None)
-                timewrite = (webkit_timestampsconv(protostuff['8']) or None)
+                timestart = _cocoa_date(protostuff['2'], 2, record.data_start_offset, filename)
+                timeend = _cocoa_date(protostuff['3'], 3, record.data_start_offset, filename)
+                timewrite = _cocoa_date(protostuff['8'], 8, record.data_start_offset, filename)
                 
                 con = (protostuff['4']['4'])
                 wireless = _metadata_int(protostuff.get('7'), _ADAPTER_IS_WIRELESS_INDEX)

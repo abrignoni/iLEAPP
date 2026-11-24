@@ -44,6 +44,18 @@ _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
 
 
+
+def _cocoa_date(value, field, offset, filename):
+    """Convert a Cocoa date; a value no datetime can hold (nan, inf, out of range) is left empty and logged."""
+    try:
+        # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
+        return webkit_timestampsconv(value) or None
+    except (ValueError, OverflowError) as ex:
+        logfunc(f'Biome WiFi DKEvent: date in field {field} could not be converted at offset '
+                f'{offset} in {filename}: {ex}')
+        return None
+
+
 @artifact_processor
 def get_biomeWifi(context):
 
@@ -111,9 +123,8 @@ def get_biomeWifi(context):
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
-                # an NSDate sentinel converts to ''; kept as None, as in the Deleted rows
-                timestart = (webkit_timestampsconv(protostuff['2']) or None)
-                timeend = (webkit_timestampsconv(protostuff['3']) or None) if '3' in protostuff else None
+                timestart = _cocoa_date(protostuff['2'], 2, record.data_start_offset, filename)
+                timeend = _cocoa_date(protostuff['3'], 3, record.data_start_offset, filename) if '3' in protostuff else None
 
                 event = protostuff['1']['1']
                 guid = protostuff['5'].decode()
