@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-15",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Onion Browser",
+        "category": "Browsers",
         "notes": "Read from any Documents/bookmarks.plist whose root holds a bookmarks list, the "
                  "layout Onion Browser (com.miketigas.OnionBrowser) writes. The app is not "
                  "confirmed by bundle id; check the Source Path column. The file holds a version "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-15",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Onion Browser",
+        "category": "Browsers",
         "notes": "Read from any Documents/hsts_cache.plist in the extraction, the file Onion "
                  "Browser (com.miketigas.OnionBrowser) writes. The app is not confirmed by "
                  "bundle id; check the Source Path column. An entry without the Preloaded flag "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-07-21",
         "last_update_date": "2026-09-16",
         "requirements": "none",
-        "category": "Apple Podcasts",
+        "category": "Music, Video & News",
         "notes": "Columns the store lacks are reported empty and named in the run log. ZMTPODCAST carried "
                  "all nine selected columns on the 13 registered images found to carry MTLibrary.sqlite "
                  "(iOS 13.3.1 through 26.5.2), so no such column has been observed for this artifact.",
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-07-21",
         "last_update_date": "2026-09-16",
         "requirements": "none",
-        "category": "Apple Podcasts",
+        "category": "Music, Video & News",
         "notes": "Columns the store lacks are reported empty and named in the run log. ZMTEPISODE carried "
                  "all fourteen selected columns on the 13 registered images found to carry "
                  "MTLibrary.sqlite (iOS 13.3.1 through 26.5.2). iLEAPP issue #2192 reports an iOS 27.0 "

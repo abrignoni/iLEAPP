@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": "One row per distinct key, time and record state in the recently "
                  "played families of the LevelDB the "
                  "app keeps at Library/Application "
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": '2026-10-09',
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": "One row per collection or offline key in the same LevelDB the "
                  "recently played entries come from, newest record per key. Key Prefix "
                  "is the start of the key the row came from, as stored: !col# or "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": '2026-11-20',
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": "One row per Library/Application "
                  "Support/PersistentCache/Users/<account>-user/context_player_state_restore, "
                  "the app's saved player state file. Every tested image that carries the app "
@@ -195,7 +195,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": (
             'One row per entry of the play history list inside context_player_state_restore, in '
             'the order the file lists them, which Position In List reports. 15 rows across 3 '
@@ -242,7 +242,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": "One row per file in Library/Caches/genius whose name is a track "
                  "identifier. Each is a binary property list holding the artist, the "
                  "title, the lyrics, the provider's own song identifier and the time "
@@ -286,7 +286,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": "One row per record in Library/Application "
                  "Support/PersistentCache/Users/<account>-user/played-state-storage, "
                  "which the module reads as a protobuf. Field 4 is reported as raw text "
@@ -325,7 +325,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": "One row per settings file the app writes at Library/Application "
                  "Support/prefs. A file of that name is not on its own the app's, so "
                  "one is only read when it carries the key the app writes its signed in "
@@ -380,7 +380,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Spotify",
+        "category": "Music, Video & News",
         "notes": "One row per entry of the subscription list the app cached in "
                  "Library/Application Support/PersistentCache/mercury.db. The row that "
                  "holds it records the request it answered, which names the account, so "

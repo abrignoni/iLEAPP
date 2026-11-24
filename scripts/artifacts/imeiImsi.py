@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-03",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "Reading more than one PersonalWallet entry was exercised on magnet_ios16, whose "
                  "plist holds two entries. Reading more than one matched plist was not exercised on "
                  "a tested image. A PersonalWallet entry with no CarrierEntitlements dictionary is "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-06",
         "last_update_date": "2026-10-06",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "One document-field row is reported for the first selected dictionary-root "
                  "com.apple.commcenter.plist, including when PersonalWallet is absent, null, empty "
                  "or not a dictionary. This is not a wallet count. The IMEI - IMSI artifact "

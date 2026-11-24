@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_chromeCreditCards": {
-        "name": "Saved Credit Cards",
+        "name": "Chromium - Saved Credit Cards",
         "description": "Parses saved payment card records from Chromium based browsers",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "Reads the masked_credit_cards table in Web Data and in Account Web Data, joined to server_card_metadata on "
                  "id, mirroring the LEFT OUTER JOIN the browser itself uses, so a card with no "
                  "metadata row is still reported with an empty Date Last Used and Use Count. These "

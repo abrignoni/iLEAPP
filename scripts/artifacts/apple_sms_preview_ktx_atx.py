@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-09",
         "last_update_date": "2026-09-10",
         "requirements": "astc_decomp_faster, liblzfse",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "Reads the .ktx, .jpeg and .png files Messages caches under "
                  "com.apple.MobileSMS/Previews/. The Preview Type column is the folder each file "
                  "sits in (Attachments, StickerCache, Location or Search), which is recorded by "

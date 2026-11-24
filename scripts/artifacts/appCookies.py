@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
-        'category': 'Cookies',
+        'category': 'App Data Stores',
         'notes': ('Apple binarycookies format. The Source File column gives the path each file was '
                   'read from. That path names the container folder; this module does not resolve '
                   'it to an application name. Flags shows the Secure (1) and HTTP Only (4) bits; '

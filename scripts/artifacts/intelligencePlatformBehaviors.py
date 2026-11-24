@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
         "requirements": "none",
-        "category": "Knowledge Graph",
+        "category": "Device Activity",
         "notes": "Reads behaviors.db under IntelligencePlatform. "
                  "The behaviorEventsExtended table is a running log of device behaviors, "
                  "each with a behaviorType code, a behaviorIdentifier and a timestamp. The "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "CNN",
+        "category": "Music, Video & News",
         "notes": "Read from the app's NSURLCache at Library/Caches/com.cnn.iphone. The search term is "
                  "carried in the q parameter of the cached request URL and is percent decoded for "
                  "display; the raw parameter is reported beside it so the decoding can be checked. One "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "CNN",
+        "category": "Music, Video & News",
         "notes": "Read from the app's NSURLCache at Library/Caches/com.cnn.iphone. Only paths under "
                  "the app's mobile content API that carry a year, month and day segment are "
                  "reported; the home feed and video feed endpoints are excluded, and whether any "

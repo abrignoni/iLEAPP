@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "Read from the com.paypalRememberedUserV1 key of group.com.yourcompany.PPClient.plist, a keyed "
                  "archive. Each field is shown as the keyed-archive reader returns it. Phone-Password Login Flag is shown as Yes or No when it is a boolean. Account Type is the stored integer and its "
                  "meaning is not established. Fields absent from an archive are blank: in the research "
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "Read from com.yourcompany.PPClient.plist. The key suffix (or prefix, for the e-mail form) "
                  "is shown as Account Key. Values are as stored, except that a boolean is shown as Yes or No, binary data is shown as its length, and a nested object or list is shown as text. A key naming an account shows that the "
                  "app wrote a setting for that account key on this install; it does not show that the "
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "One row per key whose stored type is a date, from com.yourcompany.PPClient.plist and "
                  "group.com.yourcompany.PPClient.plist, shown to the second (a plist date is UTC; the sub-second part is dropped). The key "
                  "name is shown unchanged; the event each date records is not established by this "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "A curated set of keys from com.yourcompany.PPClient.plist and "
                  "group.com.yourcompany.PPClient.plist, shown by key name with the stored value, except that a boolean is shown as Yes or No, binary data is shown as its length, a list is joined with \", \", and a nested object is shown as text. "
                  "For appLaunchedFirstTime:<version> keys the key name suggests a first start of that version on this "
@@ -101,7 +101,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "Read from Library/Application Support/Thales-v2/slog-TSH-*.log, accepted only in a "
                  "container whose .com.apple.mobile_container_manager.metadata.plist names "
                  "com.yourcompany.PPClient. One row per line tagged SDKV, which carries the SDK build; "
@@ -124,7 +124,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "Read from Library/Caches/com.yourcompany.PPClient/Cache.db (table "
                  "cfurl_cache_response). Cached Time is the time_stamp column of the cache table read as UTC. Only the host and "
                  "path are shown, never the query or any body. For requests to stats.paypal.com or a subdomain of it "
@@ -148,7 +148,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "Read from Library/Caches/com.paypal.lighthouseanalytics/lighthouseanalytics.db, table "
                  "events. Event Time is event_ts read as Unix seconds. Fields come from the JSON in "
                  "event_payload, falling back to original_event; a field absent from both is blank. "
@@ -174,7 +174,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "PayPal",
+        "category": "Finance & Payments",
         "notes": "Read from Documents/mParticle28.db (table sessions), accepted only in a container whose "
                  ".com.apple.mobile_container_manager.metadata.plist names com.yourcompany.PPClient. "
                  "Start and End are the stored Unix seconds read to the second; Length is rounded to one decimal. Session Number was 0 on every row and is not shown. This database was present in 1 of 5 "

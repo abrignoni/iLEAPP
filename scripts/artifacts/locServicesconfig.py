@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "Reports FenceTimeStarted, ConsumptionPeriodBegin, "
                  "ReceivingLocationInformationTimeStopped, Authorization and LocationTimeStopped "
                  "from the "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-21",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "",
         "paths": ('*/Library/Preferences/com.apple.locationd.plist',),
         "output_types": ["html","lava","tsv"],
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-21",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "",
         "paths": ('*/Library/Preferences/com.apple.routined.plist',),
         "output_types": ["html","lava","tsv"],

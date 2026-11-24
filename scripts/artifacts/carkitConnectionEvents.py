@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "CarPlay",
+        "category": "Travel & Vehicles",
         "notes": ('Read from the CARConnectionTimeEventStoreKey array in '
                   'Library/Preferences/com.apple.internal.carkitd.plist, one row per stored event. Event and Event '
                   "Type (as stored) are the event's event and eventType values. Source-verified: the iOS 16 carkitd "

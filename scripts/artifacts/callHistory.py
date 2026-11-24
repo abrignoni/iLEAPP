@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-04-30",
         "last_update_date": "2026-09-23",
         "requirements": "none",
-        "category": "Call History",
+        "category": "Calls & Contacts",
         "notes": 'Call Type shows \'Third-Party App\', \'Phone Call\', \'FaceTime Video\' and '
                  '\'FaceTime Audio\' for the stored values 0, 1, 8 and 16. Disconnected Cause shows '
                  '\'Ended\' for 0 and \'Rejected\' for 6, and for WhatsApp calls applies its own '

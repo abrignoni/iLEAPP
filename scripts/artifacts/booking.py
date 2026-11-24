@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "Rows are read from two files, KeyValueStorageAccountDomain and AccountSettings. "
                  "Each of those files that is read adds one row, so one account can appear as two "
                  "rows. The Source File Name column holds the path of the file a row came from. "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-21",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "Rows come from the travellers list of the AccountSettings file. Only the first "
                  "matching file that yields rows is read. A second copy of the store (another app "
                  "container, or the same store with and without the .plist extension) is not "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "Rows are read from two files, KeyValueStorageAccountDomain and AccountSettings, "
                  "so one card can appear as two rows. The Source File Name column holds the path of "
                  "the file a row came from. Reference: Django Faiola, 'iOS Booking.com - Hotels & "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "One row per hotel identifier in each list of the wishlists array of "
                  "KeyValueStorageRecentsDomain. The list stores the hotel identifier, not the hotel "
                  "name. Only the first matching file that yields rows is read. A second copy of the "
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "One row per entry of the viewed dictionary of KeyValueStorageRecentsDomain. Last "
                  "Viewed is the entry's lastViewed value. Hotel Type labels follow the code list in "
                  "the cited research; other codes are shown as N/D with the stored number. The "
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "One row per entry of the stored_searches array of KeyValueStorageRecentsDomain. "
                  "Location Type labels follow the code list in the cited research; other codes are "
                  "shown as N/D with the stored number. The cited research reports that the list "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "One row per entry of the booked dictionary of KeyValueStorageRecentsDomain. The "
                  "columns headed Check-In (Hotel Time Zone) and Check-Out (Hotel Time Zone) are the "
                  "property's check-in and check-out hours, not the dates of a stay. No time zone "
@@ -165,7 +165,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "One row per entry of DeviceBookings and AccountBookings in the BookingClouds "
                  "file. A cancelled reservation stays in the store; the Rooms column shows the "
                  "Cancelled flag and Cancel date for each room. Total Price is the stored "
@@ -195,7 +195,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "One row per entry of the stored_destinations array of "
                  "KeyValueStorageSharedDomain. Location Type labels follow the code list in the "
                  "cited research; other codes are shown as N/D with the stored number. In the one "
@@ -218,7 +218,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "Timestamp is ZDATE read as a Core Data time, seconds since 2001, in UTC. Viewed "
                  "and Deleted are read from the stored ZVIEWED and ZLOCALLYDELETED flags: Yes for a "
                  "non-zero value and No otherwise, so a No can also be a missing value. What sets "
@@ -238,7 +238,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
-        "category": "Booking.com",
+        "category": "Travel & Vehicles",
         "notes": "One row per entry of the value array of each flight_rs_v2 JSON file. Last Updated "
                  "is the entry's lastUpdated value. A value with no offset is read as UTC; whether "
                  "the app writes it in UTC was not established. Reference: Django Faiola, 'iOS "

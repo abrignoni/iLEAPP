@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",
         "requirements": "none",
-        "category": "Keychain",
+        "category": "Accounts & Credentials",
         "notes": "",
         "paths": (
             '*/keychain-backup.plist',
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",
         "requirements": "none",
-        "category": "Keychain",
+        "category": "Accounts & Credentials",
         "notes": "",
         "paths": (
             '*/keychain-backup.plist',
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "function": "keychain_web_passwords"
     },
     "keychain_bluetooth_info": {
-        "name": "Bluetooth Information",
+        "name": "Keychain - Bluetooth Information",
         "description": "Bluetooth identity root key and local Bluetooth address from keychain "
                        "records with access group com.apple.bluetooth, written to Device Info. "
                        "Records are read only from an exported keychain (an iTunes backup keychain "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-18",
         "last_update_date": "2026-06-18",
         "requirements": "none",
-        "category": "Keychain",
+        "category": "Accounts & Credentials",
         "notes": "",
         "paths": (
             '*/keychain-backup.plist',
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
         }
     },
     "keychain_bluetooth_paired": {
-        "name": "Paired Bluetooth Devices",
+        "name": "Keychain - Paired Bluetooth Devices",
         "description": "Bluetooth key records from the keychain (access group "
                        "com.apple.bluetooth, services BluetoothLE and MobileBluetooth). The name "
                        "for a BluetoothLE record is looked up in "
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",
         "requirements": "none",
-        "category": "Keychain",
+        "category": "Accounts & Credentials",
         "notes": "",
         "paths": (
             '*/keychain-backup.plist',
@@ -168,7 +168,7 @@ __artifacts_v2__ = {
         "function": "keychain_bluetooth_paired"
     },
     "keychain_mail_accounts": {
-        "name": "Mail Accounts",
+        "name": "Keychain - Mail Accounts",
         "description": "Mail, CalDAV and CardDAV account credentials from keychain records "
                        "with access group apple and a com.apple.account SMTP, IMAP, CardDAV or "
                        "CalDAV password service. Records are read only from an exported keychain "
@@ -180,7 +180,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",
         "requirements": "none",
-        "category": "Keychain",
+        "category": "Accounts & Credentials",
         "notes": "",
         "paths": (
             '*/keychain-backup.plist',

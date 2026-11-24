@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2024-05-31',
         'last_update_date': '2026-09-11',
         'requirements': 'none',
-        'category': 'WhatsApp',
+        'category': 'Messaging',
         'notes': "The ZOUTCOME values 0, 1 and 4 are labelled Ended, Missed and Rejected; that "
                  "mapping has no vendor source and no recorded count, and unrecognized values are "
                  "reported as stored. Incoming (as stored), Video Call, Missed and Missed Reason "
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
         'creation_date': '2021-03-26',
         'last_update_date': '2026-11-16',
         'requirements': '',
-        'category': 'WhatsApp',
+        'category': 'Messaging',
         'notes': "Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf wire "
                  "format by a reader that decodes those two fields and skips every other field by the "
                  "length its wire type gives, so a blob it cannot walk yields what was read before that "
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
         'creation_date': '2021-03-26',
         'last_update_date': '2025-04-08',
         'requirements': '',
-        'category': 'WhatsApp',
+        'category': 'Messaging',
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',),
         'output_types': 'standard',

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-08-03",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per object in the archive that carries a _coordinateLat and "
                  "_coordinateLong pair. The time on every row of a file is the file name read as "
                  "Unix milliseconds, which is an interpretation based on the values seen on the "

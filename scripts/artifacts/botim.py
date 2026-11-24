@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "BOTIM",
+        "category": "Messaging",
         "notes": "Read from the kFtsMessageTable full text search index in the client's "
                  "t_common_db_<id>.sqlite store. Whether the client keeps its messages in another "
                  "store, and whether every message reaches this table, was not established, so the row "
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "BOTIM",
+        "category": "Messaging",
         "notes": "Read from the kFtsUserTable full text search index in t_common_db_<id>.sqlite. A "
                  "row is a user entry in the client's search index. Which users the client adds to that "
                  "index was not established, so a row is not by itself evidence of a conversation. "

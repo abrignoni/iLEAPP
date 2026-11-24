@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Easy4ip",
+        "category": "Smart Home & Connected Devices",
         "notes": "This artifact is named for the Easy4ip platform rather than for one app; the "
                  "tested sample came from a Lorex-branded app, and no other vendor's app was "
                  "tested. The Source File column gives the container the store was read from, "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Easy4ip",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the CHNMESSAGE table of easy4ip.sqlite. Alarm Time is stored as text with "
                  "no time zone recorded anywhere in the store, so it is reported exactly as stored in "
                  "a text column rather than being rendered as UTC, and an examiner should establish "

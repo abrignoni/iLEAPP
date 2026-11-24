@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "OfferUp",
+        "category": "Shopping & Marketplaces",
         "notes": "The Account ID is read from the name of a React Native storage key of the form "
                  "<number>:<NAME>:<hex>; it is the number in the key, and the file does not say "
                  "that the account was signed in at acquisition. The item userHasLoggedInAtLeastOnce "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "OfferUp",
+        "category": "Shopping & Marketplaces",
         "notes": "These are places the user (or the app, from the device location) chose as a "
                  "search or posting area, not a record of where the device was at any time. The "
                  "posting location row has a Used GPS column taken from the stored didUseGPS "
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "OfferUp",
+        "category": "Shopping & Marketplaces",
         "notes": "Position is the place of the entry in the stored list; whether the list is "
                  "newest first is not established and no time is stored per entry. The Type, "
                  "Sub Label and Preposition columns are reported as stored and their meaning "
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "OfferUp",
+        "category": "Shopping & Marketplaces",
         "notes": "Read from the feedAffinity store of the redux state. The store holds a list of "
                  "listing and category identifiers (listingAffinities) and a comma separated "
                  "list of category identifiers (LAST_VIEWED_CATEGORIES). The file does not say "
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "OfferUp",
+        "category": "Shopping & Marketplaces",
         "notes": "The key under chat_draft_message is reported as Conversation ID; that it "
                  "identifies a conversation is read from the name chat_draft_message and is not "
                  "established by the file. A draft is text typed and not sent at the time of the "
@@ -154,7 +154,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "OfferUp",
+        "category": "Shopping & Marketplaces",
         "notes": "Statsig sessions come from the session_id entries of the Statsig MMKV store. "
                  "MMKV is append-only between rewrites, so superseded entries of the same session "
                  "can be present and are read too; the latest Last Update per session is "
@@ -193,7 +193,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "OfferUp",
+        "category": "Shopping & Marketplaces",
         "notes": "Only entries whose host contains offerup or is an Ably host are listed; the "
                  "cache also holds advertising and analytics requests, which are left out. "
                  "Cached is the time_stamp column of the cache row, stored as text without a "

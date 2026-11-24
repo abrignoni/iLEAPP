@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'App Store',
+        'category': 'Installed Apps',
         'notes': ('On the one recorded image (iphone11_ios17, 24 of 27 rows from the suggestions '
                   'endpoint), cached suggestion requests appeared in per-keystroke progressions; '
                   'whether a search term was submitted by the user is not established by a cache '
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-01',
         'requirements': 'none',
-        'category': 'App Store',
+        'category': 'Installed Apps',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.AppStore/Cache.db*',),
         'output_types': 'standard',

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-03-20",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "Number of Missing ROWIDs is the size of the gap: the count of ROWID values absent "
                  "between the two rows. A final row compares the table "
                  "using its greatest live ROWID record with the message entry in sqlite_sequence. "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "Items.data is read in its JSON form or, on dexter_ios18, felix_ios17, otto_ios17, falken_ios26, "
                  "hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, decrypted with the FMIPDataManager key from"
                  " the keychain carried by the extraction or supplied with --keychain (falken_ios26 was run with "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "Timestamp is the timeStamp value stored in the item's location record, converted from Unix time "
                  "to UTC. What it marks is not established. Items.data is read in its JSON form or, on "
                  "dexter_ios18, felix_ios17, otto_ios17, falken_ios26, hill_iphone15pro_ios26 and "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "Timestamp is the timeStamp value stored with the safe location, converted from Unix time to UTC;"
                  " what it marks is not established. Street Address is read from the streetAddress key or, when "
                  "that is absent or empty, from a key spelled streetAddres. Items.data is read in its JSON form "
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "Timestamp is the timeStamp value stored in the crowdSourcedLocation record, converted from Unix "
                  "time to UTC. What it marks is not established. The position is the one stored for the item under"
                  " the crowdSourcedLocation key; how it was obtained is not established here, and a row does not "

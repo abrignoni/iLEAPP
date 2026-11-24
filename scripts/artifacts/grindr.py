@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Grindr",
+        "category": "Dating",
         "notes": "One row per message. The app stores its data in a Realm database named "
                  "PersistenceStore.bin, read here with the reader in scripts/realm_parser.py; "
                  "the file carries Realm's own T-DB header rather than a realm extension, so "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Grindr",
+        "category": "Dating",
         "notes": "One row per conversation record in the app's Realm database. This record holds "
                  "no message text; the messages themselves are reported by the messages artifact "
                  "and a conversation links to them. Messages Linked, Tap Messages Linked and "
@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Grindr",
+        "category": "Dating",
         "notes": "One row per cached profile. A profile row shows that the app stored the profile. "
                  "It does not show that the account holder looked at it. The app's own session "
                  "preferences keep a list it calls a cascade cache, and on the tested device the "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Grindr",
+        "category": "Dating",
         "notes": "One row per account. The identifier is the name of the directory holding that "
                  "account's database. Has Per Account Preferences is Yes when the container also "
                  "holds com.grindrguy.grindrx.profile.<identifier>.plist, which it did on the "

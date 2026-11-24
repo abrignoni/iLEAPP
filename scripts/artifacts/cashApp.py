@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-10-06",
         "last_update_date": "2026-08-25",
         "requirements": "none",
-        "category": "Banking",
+        "category": "Finance & Payments",
         "notes": "This artifact replaces the earlier Cash App and Cash App (B) artifacts. Rows come from "
                  "ZPAYMENT joined to ZCUSTOMER on the "
                  "customer token, so a customer record carrying no payment is not reported, and neither is "

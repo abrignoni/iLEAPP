@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-11",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "",
         "paths": (
             '*DuetExpertCenter/_ATXDataStore.db*', 

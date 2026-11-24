@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-10-06",
         "requirements": "none",
-        "category": "myQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the app's NSURLCache at Library/Caches/com.myliftmaster.myq, from "
                  "every cached accounthistory.myq-cloud.com deviceHistory response. An event id "
                  "found in more than one cached response is reported once, from the oldest "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "myQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached devices.myq-cloud.com Devices response, which returns both door "
                  "openers and gateways, so a column belonging to one device family is empty on rows of "
                  "the other; Door State and the cycle counts apply to openers and Firmware Version and "
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "myQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached guestaccess.myq-cloud.com account users response. Role is "
                  "reported as stored. A row records that the cached response listed the entry in "
                  "its account users list; it is not evidence that the person operated a door, "
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "myQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached profiles.myq-cloud.com profile response. The cached "
                  "response on the tested sample held a postal code and country and no street "
                  "address; only those are reported. "

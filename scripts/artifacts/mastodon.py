@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-31',
         'requirements': 'none',
-        'category': 'Mastodon',
+        'category': 'Social Media',
         'notes': "Rows are statuses whose stored ZVISIBILITYRAW value is \"direct\"."
                  " Conversation and Conversation Key are built by this module from the author "
                  "handle and the handles mentioned in the status; they are not a thread id the app "
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
         'requirements': 'none',
-        'category': 'Mastodon',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
         'output_types': 'standard',
@@ -59,7 +59,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-09',
         'requirements': 'none',
-        'category': 'Mastodon',
+        'category': 'Social Media',
         'notes': 'Followed By Account Holder and Follows Account Holder are read from the '
                  'Z_<n>FOLLOWING join table, where <n> is the MastodonUser entity number in '
                  'Z_PRIMARYKEY. The Z_<n>FOLLOWINGBY column is read as the follower and the '
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
         'requirements': 'none',
-        'category': 'Mastodon',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
         'output_types': 'standard',
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-09',
         'requirements': 'none',
-        'category': 'Mastodon',
+        'category': 'Social Media',
         'notes': 'One row is reported for each cached user whose id equals a ZUSERID value in '
                  'ZMASTODONAUTHENTICATION. When that table gives no user id, the ZUSERID values '
                  'of ZNOTIFICATION are used, and Identified From says which table was used. The '

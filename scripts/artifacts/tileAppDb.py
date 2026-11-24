@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-08-09",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "Timestamps are Cocoa/Mac absolute time (seconds since 2001-01-01 UTC), converted to UTC.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*',),
         "output_types": "all",

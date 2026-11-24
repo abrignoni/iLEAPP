@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "registered image; what importTime marks and which network the balance "
                        "belongs to are not established",
         "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Metamask", "notes": "",
+        "category": "Finance & Payments", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "credit-card"
     },
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "name": "MetaMask - Contacts",
         "description": "MetaMask address book contacts",
         "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Metamask", "notes": "",
+        "category": "Finance & Payments", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "users"
     },
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                        "Not validated against a registered image; the unit of Value depends on the "
                        "chain and is not checked",
         "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Metamask", "notes": "",
+        "category": "Finance & Payments", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "repeat"
     },
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "name": "MetaMask - Browser",
         "description": "MetaMask in-app browser history",
         "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Metamask", "notes": "",
+        "category": "Finance & Payments", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "globe"
     }

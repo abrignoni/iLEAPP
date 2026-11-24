@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
                  "the time zone is not established, so the timestamps are reported as text. Type is a label this artifact assigns from a phrase in the line; "
                  "'Update' and 'Parallel Update' mark a line that says a patch update was "
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
                  "the time zone is not established, so the timestamps are reported as text. Nothing is reported when the image's iOS version reads as earlier "
                  "than 17 or when no iOS version has been read.",

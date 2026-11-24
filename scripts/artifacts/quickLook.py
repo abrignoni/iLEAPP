@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-14",
         "requirements": "none",
-        "category": "iCloud Quick Look",
+        "category": "Cloud & Files",
         "notes": "On iOS 12 test images the database sits under Library/Application Support/Quick Look/; "
                  "on newer test images it sits under "
                  "Library/Caches/com.apple.QuickLook.thumbnailcache/ "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "iCloud Quick Look",
+        "category": "Cloud & Files",
         "notes": "Reads the thumbnails, basic_files and provider_files tables of index.sqlite, with its "
                  "-wal, and the bitmaps in thumbnails.data, in each "
                  "Library/Caches/com.apple.QuickLook.thumbnailcache folder; an index is read only against "

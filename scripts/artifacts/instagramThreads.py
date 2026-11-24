@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-03-09",
         "last_update_date": "2026-10-07",
         "requirements": "",
-        "category": "Instagram",
+        "category": "Social Media",
         "notes": "Sender Display Label preserves the existing truthy full-name/username fallback and lookup result; it is not a verified username or ownership identifier. Only the first reaction is reported. Viewer ID equals Sender PK is the stored numeric comparison, not independently verified ownership or direction. Source lists every selected database, including noncontributing files.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*",
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-03-09",
         "last_update_date": "2026-10-09",
         "requirements": "",
-        "category": "Instagram",
+        "category": "Social Media",
         "notes": "Sender Display Label holds the sender's full name where the thread metadata stores one, otherwise the username; it is not a verified username.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*",

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "New York Times",
+        "category": "Music, Video & News",
         "notes": "One row per entry of the app's recently viewed list, which it keeps in "
                  "Library/Application Support/productionNewsreaderDatabase.sqlite. That file is "
                  "a YapDatabase, so its rows are a collection name, a key and a serialised "

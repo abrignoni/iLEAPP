@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "iCloud Returns",
+        "category": "Cloud & Files",
         "notes": "btime, ctime and mtime are converted as Unix epoch values, with the "
                  "unit inferred from the size of the number, and rendered in UTC. No "
                  "tested return is recorded for this artifact.",

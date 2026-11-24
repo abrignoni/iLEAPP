@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Photos",
+        "category": "Photos & Media",
         "notes": "Position is the 1-based position of the entry in the file's array, as stored; "
                  "whether the first entry is the newest is not established. Search Text is the "
                  "entry's SearchText. Represented Objects is the number of items in the entry's "

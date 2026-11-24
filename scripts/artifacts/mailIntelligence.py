@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Apple Mail",
+        "category": "Email",
         "notes": "One row per written record of each SEGB file under "
                  "Library/Mail/BiomeStream/mailIntelligence/local. On both tested images every "
                  "record is an NSKeyedArchiver archive holding EFPropertyKey_eventName, "

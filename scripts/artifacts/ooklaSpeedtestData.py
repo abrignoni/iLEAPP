@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Applications",
+        "category": "Network & Connectivity",
         "notes": "Only the first speedtest.sqlite matched is read, and the path pattern is not "
                  "tied to an app container. Timestamp is the ZDATE value read as seconds since "
                  "2001. Device Model replaces a stored ZDEVICEMODEL identifier with a name from a "

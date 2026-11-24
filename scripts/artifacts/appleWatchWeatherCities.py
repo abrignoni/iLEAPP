@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Position is the 1-based place of the city in the Cities list, as stored. Name, "
                  "Country Abbreviation, Latitude, Longitude, Time Zone and UUID are the city's "
                  "Name, CountryAbbreviation, Lat, Lon, TimeZone and UUID, as stored; on the 13 "

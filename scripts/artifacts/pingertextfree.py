@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-11-18",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Pinger",
+        "category": "Messaging",
         "notes": "The Messaging_*.sqlite store is attributed to Text Free by this module; no test "
                  "image, row count or sample data is recorded for that attribution. None of the "
                  "27 registered iOS test images holds a file the pattern matches on a "

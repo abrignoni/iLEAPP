@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-06-02",
         "last_update_date": "2026-09-14",
         "requirements": "Acquisition that contains SystemVersion.plist",
-        "category": "IOS Build",
+        "category": "Device Information",
         "notes": "Reads System/Library/CoreServices/SystemVersion.plist from the extraction and, inside "
                  "each sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz archive, logs/SystemVersion/SystemVersion.plist; other "
                  "SystemVersion.plist members of an archive, such as logs/Splat/OS/SystemVersion.plist, "

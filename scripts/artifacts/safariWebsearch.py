@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Safari Browser",
+        "category": "Browsers",
         "notes": (
             "The history_visits.origin value is reported as stored. Community documentation "
             "describes 1 as a visit synced from another iCloud device, but no primary source was "

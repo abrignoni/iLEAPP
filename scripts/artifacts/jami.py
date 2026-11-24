@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-17",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Jami",
+        "category": "Messaging",
         "notes": "Jami keeps each conversation as a git repository at "
                  "Documents/<account>/conversations/<conversation id>/ in the app group container "
                  "group.com.savoirfairelinux.ring, which is recognised by the identifier its "
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-17",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Jami",
+        "category": "Messaging",
         "notes": "One row per file under Documents/<account>/conversation_data/ in the Jami app "
                  "group container whose name, before its extension, is not the file id (<commit "
                  "id>_<tid>) of a transfer commit of the conversation whose folder it sits in, "

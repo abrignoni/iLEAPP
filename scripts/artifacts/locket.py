@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Locket",
+        "category": "Social Media",
         "notes": ("Read from the Firestore cache (LevelDB, read with Alex Caithness's ccl_leveldb) under "
                   "Library/Application Support/firestore in the Locket app container. The account is the "
                   "users/<uid> document whose uid also owns the cached conversations, history and friend "
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Locket",
+        "category": "Social Media",
         "notes": ("One row per uid in light_friends_cache (a JSON list in the group.com.locket.Locket-Shared "
                   "container). Friend is the file's friend key as stored; Temp is its temp key as stored. "
                   "In Friends Collection is Yes when the Firestore cache holds a users/<uid>/friends/<friend uid> "
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Locket",
+        "category": "Social Media",
         "notes": ("Documents under users/<uid>/incoming_friend_requests and outgoing_friend_requests. A Firestore no-document entry records "
                   "an observation of absence. Observed Absent holds its read time and Created is blank. "
                   "Event Time is the observation time for those rows and the creation time for live requests. "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Locket",
+        "category": "Social Media",
         "notes": ("Documents under conversations/<conversation id>/messages. Members are taken from the "
                   "matching users/<uid>/conversations/<conversation id> document. Sender is the sender uid, "
                   "with the name resolved from light_friends_cache and the account document. Reply Moment and "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Locket",
+        "category": "Social Media",
         "notes": ("Documents under history/<uid>/entries. Direction is Sent when the entry's user is the account "
                   "uid, Received when both uids are known and differ, and Unknown when either is unresolved. This reading matched known activity on one tested image and is not sourced from app documentation. Sent To All "
                   "and Sent To Self Only are stored only on some entries and are blank where absent. On the "

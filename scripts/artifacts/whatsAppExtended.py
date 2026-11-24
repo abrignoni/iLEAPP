@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "Reactions are stored inside ZWAMESSAGEINFO.ZRECEIPTINFO, a protobuf blob. Two "
                  "record shapes were observed under field 7 across the tested images. No source "
                  "that documents this blob was found, so the fields are reported as stored and "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "Field 7.3 of the ZWAMESSAGEINFO.ZRECEIPTINFO protobuf holds repeated (emoji, "
                  "count) pairs. Every such pair is reported, whatever the chat. Only one tested "
                  "image held any (iOS 17.5.1); there these were observed on messages in "
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "Rows in ZWAMESSAGE whose ZGROUPEVENTTYPE is set and non-zero. The value "
                  "is an integer with no lookup table in the database and is reported as "
                  "stored. ZTEXT on these rows is reported verbatim where present.",
@@ -139,7 +139,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "One row per entry in ZWAGROUPMEMBERSCHANGE: change timestamp, an integer change "
                  "type (no lookup table in the database; reported as stored), the group JID and "
                  "the affected member JIDs as stored. Of the 13 tested images only one (iOS "

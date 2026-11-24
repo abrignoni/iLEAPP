@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-09-30",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "The first array value is reported as Last Connected, the second as Last "
                  "Disconnected and the third as Type. On abe_ios16 (LastVehicleConnection, 4 "
                  "values) and on dexter_ios18, hc_ios18_7 and iphone11_ios17 "

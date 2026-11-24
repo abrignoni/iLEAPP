@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Media Remote",
+        "category": "Music, Video & News",
         "notes": "Date is the date stored in the entry. Time Since is the stored timesince "
                  "number, as stored; its unit is not established. Date Plus Time Since is "
                  "computed by this module as Date plus Time Since read as seconds: on the 20 "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Media Remote",
+        "category": "Music, Video & News",
         "notes": "Every date value in the file outside SystemEndpoint, which Media Remote System "
                  "Endpoint reports. Key is the top-level key the date sits under and Sub Key is "
                  "the rest of its key path; Sub Key has no value for a date stored directly "

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-23",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "KeepSafe",
+        "category": "Photos & Media",
         "notes": (
             "RocksDB *.sst tables are not read. A row is produced for each item file, with "
             "its matching resolved WAL fields when present; an item found only in the resolved "
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-23",
         "last_update_date": "2026-08-23",
         "requirements": "none",
-        "category": "KeepSafe",
+        "category": "Photos & Media",
         "notes": "Cover Image Bytes is the length of the album's cover_data value. The bytes are "
                  "not exported here and their format was not checked.",
         "paths": (
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-23",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "KeepSafe",
+        "category": "Photos & Media",
         "notes": (
             "In group.com.keepsafe.KeepSafe.plist the shared-pin and shared-pin-type values are "
             "read directly. The invalid-PIN count and the timeout are read from "
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "KeepSafe",
+        "category": "Photos & Media",
         "notes": (
             "One row per document whose modelType is 'file', plus any document whose body could "
             "not be decoded and any tombstone in kv_del_default (Document State says which). "
@@ -214,7 +214,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "KeepSafe",
+        "category": "Photos & Media",
         "notes": (
             "One row per document whose modelType is 'album'. Booleans are shown as Yes or No and "
             "lists joined with commas. File Documents Naming This Album "

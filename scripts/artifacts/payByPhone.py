@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-20",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Parking",
+        "category": "Travel & Vehicles",
         "notes": "The picture filename is the vehicle ID with .png added. That naming was not "
                  "checked against files in any extraction, and a row with no vehicle shows "
                  "'None.png', which names no file.",
@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-20",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Parking",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/PayByPhone.sqlite*',),
         "output_types": "all",

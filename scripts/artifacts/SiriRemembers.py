@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-29",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Siri Remembers",
+        "category": "Device Activity",
         "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
                  "the first file whose name ends in siriremembers.sqlite3 is read. Direction is "
                  "Sent where intents.direction is 1 and Received where it is 2, per the cited "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-29",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Siri Remembers",
+        "category": "Device Activity",
         "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
                  "the first file whose name ends in siriremembers.sqlite3 is read. Duration is "
                  "duration_seconds shown as HH:MM:SS, so a stored 0 reads 00:00:00; what a "
@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-29",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Siri Remembers",
+        "category": "Device Activity",
         "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
                  "the first file whose name ends in siriremembers.sqlite3 is read. One row per "
                  "intent and entity in the intent's group, so an intent whose group holds "

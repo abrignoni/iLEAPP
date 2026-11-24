@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "FaceTime",
+        "category": "Calls & Contacts",
         "notes": ("One row per ZSTOREDMESSAGE row in FaceTimeMessageStore-local.sqlitedb under "
                   "mobile/Library/Application Support/com.apple.FaceTime. Date Created and Date Modified are "
                   "ZDATECREATED and ZDATEMODIFIED, Core Data timestamps shown in UTC; Date Modified was at or "

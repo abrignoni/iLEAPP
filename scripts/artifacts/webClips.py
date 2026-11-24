@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-04-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Home Screen",
+        "category": "Device Activity",
         "notes": "",
         "paths": ('*WebClips/*.webclip/*',),
         "output_types": ["html","lava","tsv"],

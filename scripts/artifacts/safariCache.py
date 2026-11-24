@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-07-29',
         'requirements': 'none',
-        'category': 'Safari Browser',
+        'category': 'Browsers',
         'notes': ('An entry records that Safari fetched and cached a URL, not that the user '
                   'navigated to it. HTTP Status, MIME Type and Request Method are picked out of the '
                   'archived response and request arrays by the form of the value, not by a fixed '

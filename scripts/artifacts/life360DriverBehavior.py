@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-21',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': 'Reads com.life360.safetymap*.log files, including those in the shared app group; other files '
                  'the wildcard matches, such as Crashlytics sdk.log, are skipped and logged. One row per crash, '
                  'collision, detector or accelerometer-anomaly record from the DriverBehavior component, plus '

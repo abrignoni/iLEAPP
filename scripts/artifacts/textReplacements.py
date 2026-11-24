@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Keyboard",
+        "category": "Device Activity",
         "notes": "Reads ZTEXTREPLACEMENTENTRY in mobile/Library/KeyboardServices/TextReplacements.db and "
         "its -wal. Timestamp is ZTIMESTAMP, which the store's own Core Data model (Z_MODELCACHE) "
         "declares as a date attribute (attribute type 900), read as seconds since 2001-01-01 "

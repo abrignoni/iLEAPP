@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         'last_update_date': '2026-10-07',
         "requirements": "none",
-        "category": "Zoom",
+        "category": "Calls & Contacts",
         'notes': "One row per row of each per conversation message table in the account's own store that has "
                  'all the columns the module reads (a table missing one is skipped and named in the run log). '
                  'The store is Documents/data/<account>@xmpp.zoom.us/<account>@xmpp.zoom.us.asyn.db. The '
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Zoom",
+        "category": "Calls & Contacts",
         "notes": "One row per row of the call history table in the account's own store. Timestamp "
                  "is the time column read as Unix seconds and reported in UTC. No source for the "
                  "unit is cited here. The one tested image that holds the store has a single row, "
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         'last_update_date': '2026-10-07',
         "requirements": "none",
-        "category": "Zoom",
+        "category": "Calls & Contacts",
         'notes': "One row per row of the file table in the account's own store, joined to the web file and "
                  'file share tables on the identifier they share for the recorded size, the owner and the time'
                  ' the file was shared. Shared is a millisecond time, reported in UTC, taken from the share '
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Zoom",
+        "category": "Calls & Contacts",
         "notes": "One row per row of the giphy table in the account's own store. A row records an "
                  "animation held in the giphy table, with the page address, the mobile and full "
                  "size addresses, and two recorded paths for a copy on the device, which are not "

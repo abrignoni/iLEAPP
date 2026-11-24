@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-21",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "WiFi Connections",
+        "category": "Network & Connectivity",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank. "
                  "Security Type is the SupportedSecurityTypes value of a com.apple.wifi.known-networks.plist entry, written as text; on every tested image the stored value is a string. "
                  "Also reads these plists inside a sysdiagnose archive (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz), matched by file name anywhere in the archive; Source File then names the archive and the member. BSSID is shown with every octet as two hexadecimal digits (an octet can be stored without its leading zero), in the case stored.",
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-21",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "WiFi Connections",
+        "category": "Network & Connectivity",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank. "
                  "System Joined and User Joined are the stored JoinedBySystemAt and JoinedByUserAt "
                  "values; what sets each is not established here. "
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-24",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "WiFi Connections",
+        "category": "Network & Connectivity",
         "notes": "The MAC Used For Network column holds the PRIVATE_MAC_ADDRESS_IN_USE value and "
                  "the Private MAC Computed For Network column holds the PRIVATE_MAC_ADDRESS_VALUE "
                  "value, both stored under PRIVATE_MAC_ADDRESS. The two header names are this "
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-25",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "WiFi Connections",
+        "category": "Network & Connectivity",
         "notes": "Extracts BSS entries from the com.apple.wifi.known-networks.plist file, and from the 'List of known networks' entries of a com.apple.wifi.plist read inside a sysdiagnose archive. "
                  "Latitude, Longitude, Location Accuracy and Location Timestamp are the "
                  "LocationLatitude, LocationLongitude, LocationAccuracy and LocationTimestamp "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "version": "0.2",
         "date": "2023-09-30",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": (
             "Every distinct value is added, so more than one can appear. Only the first "
             "consolidated.db found is read. That a value is the device's serial number is not "

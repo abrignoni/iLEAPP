@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per row of PilgrimLocationVisit in Library/pilgrim-database.sqlite. "
                  "Arrival and Departure are stored as JSON holding a single location fix each: "
                  "latitude, longitude, altitude, speed, heading, floor, horizontal and vertical "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per row of PilgrimDebugLog whose data field carries a coordinate pair. "
                  "That field holds text in the form of a Swift object description rather than JSON, "
                  "so the coordinates, accuracy, speed, course, movement state and the app's own "
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per row of PilgrimLastVisit and PilgrimBackFillVisit, which share a "
                  "schema and are told apart by the Source Table column. Departure Time was blank on "
                  "every row of both tested images: the embedded visit carries an arrival and a null "
@@ -131,7 +131,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per row of PilgrimRegion and of PilgrimStopRegion, told apart by the "
                  "Source Table column. PilgrimRegion rows carry a centre coordinate and a "
                  "probability; PilgrimStopRegion rows carry a centre, a radius and an identifier. "
@@ -157,7 +157,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per row of PilgrimLocationTrail, whose columns the store itself declares "
                  "as latitude, longitude, altitude, horizontal accuracy, timestamp, speed, heading, "
                  "a used flag and two authorisation strings. Timestamp there is a number rather "
@@ -184,7 +184,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per row of PilgrimCLVisit, whose columns the store declares as an arrival "
                  "date, a departure date, a latitude, a longitude, a horizontal accuracy and a "
                  "visit identifier. The artifact is named after the table. The table name and "

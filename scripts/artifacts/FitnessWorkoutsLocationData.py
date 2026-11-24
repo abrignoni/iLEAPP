@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-22",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Fitness",
+        "category": "Health & Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
                  "Fitness Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
                  "(https://drive.google.com/file/d/1BGY8kLUyMQaosn-eb3Di98CAZSc8ywBg/view, reached "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-22",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Fitness",
+        "category": "Health & Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
                  "Fitness Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
                  "(https://drive.google.com/file/d/1BGY8kLUyMQaosn-eb3Di98CAZSc8ywBg/view, reached "

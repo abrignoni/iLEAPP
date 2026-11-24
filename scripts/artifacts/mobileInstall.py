@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": "Timestamps are reported as written in the log, which carries no timezone "
                  "marker; in tested corpora the values were consistent with device-local time. "
                  "State is set only by an installer-reported outcome: an 'Install successful' "
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": "Timestamps are reported as written in the log, which carries no timezone "
                  "marker; in tested corpora the values were consistent with device-local time. "
                  "State is set only by an installer-reported outcome: an 'Install successful' "
@@ -99,7 +99,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz) are read as well, and they can hold copies of the same log lines. A line found in more than one log file is reported as many times as the one file holding it most often: a copy adds no row, and a line repeated within one file is reported each time. On tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5) rows would otherwise have been reported twice; the counts are not recorded here. Every log file read is listed as a source, whether or not it added a row.",
         "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
@@ -130,7 +130,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz) are read as well. A line found in more than one log file is reported as many times as the one file holding it most often, so a copy adds no row; on the three tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5), 5, 4 and 4 reboots would otherwise have been reported twice.",
         "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
@@ -162,7 +162,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-25",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": "Timestamps are reported as written in the log, which carries no timezone "
                  "marker; in tested corpora the values were consistent with device-local time. "
                  "These bundle IDs appear in the log but never in an 'Install successful', "

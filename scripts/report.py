@@ -97,6 +97,14 @@ def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, i
                         matches = [(len(art_name), art_icon)
                                    for art_name, art_icon in icons.get(section_header, {}).items()
                                    if filename.endswith(art_name) or filename.startswith(art_name)]
+                        if not matches and ' - ' in filename:
+                            # A module that names its reports per app ("Edge - Web History")
+                            # under an artifact named for the family ("Chromium - Web History")
+                            # shares the part after the app name.
+                            tail = filename.split(' - ', 1)[1]
+                            matches = [(len(art_name), art_icon)
+                                       for art_name, art_icon in icons.get(section_header, {}).items()
+                                       if ' - ' in art_name and art_name.split(' - ', 1)[1] == tail]
                         if matches:
                             icon_name = max(matches)[1]
                     if icon_name in tabler_icon_names:

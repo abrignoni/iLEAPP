@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-10-24',
         'requirements': 'none',
-        'category': 'Accounts',
+        'category': 'Accounts & Credentials',
         'notes': ("The list is read from the akd database; when it was last refreshed and "
                   "whether it matches the account state at extraction time are not established. "
                   "Trusted shows a stored 1 as Yes and 0 as No, and any other value as stored. "
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-10-24',
         'requirements': 'none',
-        'category': 'Accounts',
+        'category': 'Accounts & Credentials',
         'notes': ('The reason column is an integer; no source for its values was found, so it is '
                   'reported as stored. The table was empty on the recorded image (hc_ios18_7), so '
                   'the Unix seconds reading of the two dates is not exercised on real data. '

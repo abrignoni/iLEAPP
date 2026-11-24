@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Configuration Profiles",
+        "category": "Device Information",
         "notes": "One row per top-level key of CloudConfigurationDetails.plist and "
                  "CloudConfigurationSetAsideDetails.plist under Library/ConfigurationProfiles in the "
                  "systemgroup.com.apple.configurationprofiles Shared/SystemGroup container (iTunes backups"

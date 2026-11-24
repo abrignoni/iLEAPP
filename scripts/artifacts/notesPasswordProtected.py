@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Notes",
+        "category": "Productivity",
         "notes": "The main Notes artifact reports that a note is locked and its password hint, but not "
                  "how it is locked. "
                  "This surfaces ZPASSWORDHINT and labels each row from the stored length of "
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-20",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Notes",
+        "category": "Productivity",
         "notes": "Each ZICCLOUDSYNCINGOBJECT row whose key material passes the checks below "
                  "becomes one hash string in the field order John the Ripper's "
                  "run/applenotes2john.py writes: "

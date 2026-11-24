@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-03",
         "last_update_date": "2026-10-09",
         "requirements": "pathlib",
-        "category": "Chats",
+        "category": "Messaging",
         "notes": "Message type labels are a reading of rows from app version 5.6.7 and are not "
                  "vendor-documented. Which of the eleven mapped codes the tested data held is not "
                  "recorded here. On the newer layout the Message Type label for an unmapped code is "
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-01",
         "last_update_date": "2026-10-04",
         "requirements": "",
-        "category": "Contacts",
+        "category": "Calls & Contacts",
         "notes": "Number Type holds ZNAME of the ZCONTACTNUMBERTYPE row that the number's own "
                  "ZCONTACTNUMBER.ZTYPE column points at. The Core Data model shipped with the "
                  "app on iphone14plus_ios18 (zangidb 7.7, whose version hashes equal the "
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-01",
         "last_update_date": "2026-09-22",
         "requirements": "",
-        "category": "Accounts",
+        "category": "Accounts & Credentials",
         "notes": "The ZUSER columns are selected per database from the columns present, so a "
                  "column absent on a given app version (ZSTATUS is missing on the layout seen in "
                  "a private sample) is reported blank rather than failing the query.",

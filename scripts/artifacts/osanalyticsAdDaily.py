@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Network Usage",
+        "category": "Network & Connectivity",
         "notes": "Reads the netUsageBaseline dictionary of com.apple.osanalytics.addaily.plist in "
                  "mobile/Library/Preferences: one row per key, each key holding a date and four numbers. The numbers "
                  "are stored as reals; all 18,580 on the 24 images were whole and are shown without a decimal part. "

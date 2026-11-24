@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "AnyDesk",
+        "category": "Network & Connectivity",
         "notes": "Reads Library/Application Support/.anydesk/connection_trace.txt in the app's Data "
                  "container. Each line is split with a pattern. A non-blank line that does not fit the "
                  "pattern is kept in Raw Line with its surrounding spaces removed, and the other columns except "
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "AnyDesk",
+        "category": "Network & Connectivity",
         "notes": "system.conf and user.conf are 'key=value' text files in Library/Application Support/.anydesk; "
                  "their values are shown as stored. The preferences plist is read with plistlib; dates are "
                  "shown in UTC (top-level dates cut to whole seconds), lists and dictionaries as JSON. "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "AnyDesk",
+        "category": "Network & Connectivity",
         "notes": "anydesk.trace (Library/Application Support) is a text log. A new block starts at each "
                  "'AnyDesk iOS Startup' banner line; entries before the first banner, if any, form one extra row "
                  "(Starts With Startup Banner = No). Times are the log's own and carry no time zone, so they are "

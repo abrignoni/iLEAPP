@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "alarms": {
-        "name": "Alarms",
+        "name": "Clock - Alarms",
         "description": "Alarms in com.apple.mobiletimerd.plist, disabled and sleep alarms included",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
         "last_update_date": "2026-10-15",
         "requirements": "none",
-        "category": "Clock",
+        "category": "Device Activity",
         "notes": "Rows come from the MTAlarms list and, for sleep alarms, the MTSleepAlarms list. "
                  "Alarm Title is blank when no MTAlarmTitle is stored; no sleep alarm in the "
                  "checked images stored one. Alarm Time and Bedtime are HH:MM text built from "

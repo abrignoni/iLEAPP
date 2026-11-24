@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "version": "1.0",
         "date": "2024-10-29",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "paths": ('*/root/Library/Lockdown/data_ark.plist',),
         "output_types": "none",
         "artifact_icon": "device-mobile"

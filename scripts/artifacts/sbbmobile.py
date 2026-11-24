@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-18",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Travel",
+        "category": "Travel & Vehicles",
         "notes": (
             "ZTIMESTAMP, ZLAT and ZLON are reported as stored without unit or epoch conversion. "
             "Neither unit is sourced or measured here, and no tested image is recorded for this "
@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-23",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Travel",
+        "category": "Travel & Vehicles",
         "notes": (
             "Rows are built by this artifact, not stored. A ZLOGENTRY message containing "
             "'EasyRide slider on the right, starting check-in process' or 'Fairtiq state update: "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-24",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "Travel",
+        "category": "Travel & Vehicles",
         "notes": (
             (
             'refundState is reported directly as stored; its values do not establish whether a ticket was '

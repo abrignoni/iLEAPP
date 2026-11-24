@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
-        "category": "Facebook Messenger",
+        "category": "Messaging",
         "notes": "A row is a thread_messages record whose attachment title_text contains the text "
         "'call'; a call whose title is worded otherwise, or in another language, is not reported "
         "here. Call Type and Call Duration/Subtitle are that attachment's title_text and "
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
-        "category": "Facebook Messenger",
+        "category": "Messaging",
         "notes": "A message with more than one attachment or attachment item gives one row per "
         "combination; rows whose attachment item title contains 'call' are left out. "
         "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-09-17",
         "requirements": "none",
-        "category": "Facebook Messenger",
+        "category": "Messaging",
         "notes": "All 114 client_messages rows across the 9 msys stores measured sit on a thread whose "
         "client_threads.transport_key is AdvancedCrypto, and all 18 of those threads carry Messenger's "
         "own end-to-end encryption notice as a message; where a row carries text, that text is held in "
@@ -272,7 +272,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
-        "category": "Facebook Messenger",
+        "category": "Messaging",
         "notes": "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
         "shared app group group.com.facebook.Messenger, and cask/<account "
         "id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app group "
@@ -328,7 +328,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
-        "category": "Facebook Messenger",
+        "category": "Messaging",
         "notes": "Read from both containers that hold Messenger's msys mailbox: lightspeed-userDatabases in the "
         "shared app group group.com.facebook.Messenger, and cask/<account "
         "id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app group "
@@ -385,7 +385,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-03-03",
         "last_update_date": "2026-09-17",
         "requirements": "none",
-        "category": "Facebook Messenger",
+        "category": "Messaging",
         "notes": "Username is the name column. Is App User reads Yes where is_messenger_user is 1 "
         "and is blank where it is 0. Read from both containers that hold Messenger's msys mailbox: "
         "lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "

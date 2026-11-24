@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                        'NetworkCache stores, including SafariViewService.',
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-12', 'last_update_date': '2026-10-12',
-        'requirements': 'none', 'category': 'Browser',
+        'requirements': 'none', 'category': 'Browsers',
         'notes': 'Complements the original webkit.py artifact without changing it. Records '
                  'under Library/Caches/WebKit/NetworkCache are left to that artifact. '
                  'Builds on NetworkCache research by @JamesHabben. '

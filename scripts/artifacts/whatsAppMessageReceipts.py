@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "One row per receipt_device row in MessagingInfraDB_v2/MessagingInfraDatabase.sqlite, read read-only."
                  " The column names in the table are the source for Send, Delivered, Read and Played; what each moment"
                  " means to WhatsApp is not established beyond those names. User JID is the table's user_jid. Measured"

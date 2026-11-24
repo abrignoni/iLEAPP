@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Music",
+        "category": "Music, Video & News",
         "notes": "Each key under RecentlySearched (Source) holds a JSON array, and each row is "
                  "one item of it, with Position its 1-based place in that array. Date Added "
                  "Number is the item's dateAdded as stored. Date Added is that number read as "
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Music",
+        "category": "Music, Video & News",
         "notes": "Position is the 1-based place of the string in the recentSearchTerms list, as "
                  "stored; whether the first string is the newest, and what puts a string in the "
                  "list, is not established. The list holds strings only, with no date beside "

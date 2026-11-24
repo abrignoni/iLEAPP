@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         'creation_date': '2022-03-09',
         'last_update_date': '2026-10-17',
         'requirements': '',
-        'category': 'Viber',
+        'category': 'Messaging',
         'notes': 'The _autoBackupLastRunTime value is converted from Unix time to UTC unless it '
                  'is negative, in which case it is shown as stored. _lastBackupStartDate is '
                  'reported as stored without an asserted epoch. The two backup attempt counters '
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         'creation_date': '2022-03-09',
         'last_update_date': '2025-10-11',
         'requirements': '',
-        'category': 'Viber',
+        'category': 'Messaging',
         'notes': '',
         'paths': ('**/com.viber/database/Contacts.data*',),
         'output_types': ['html', 'tsv', 'lava'],
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         'creation_date': '2022-03-09',
         'last_update_date': '2026-07-31',
         'requirements': '',
-        'category': 'Viber',
+        'category': 'Messaging',
         'notes': '',
         'paths': ('**/com.viber/database/Contacts.data*',),
         'output_types': "standard",
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
         'creation_date': '2022-03-09',
         'last_update_date': '2026-07-31',
         'requirements': '',
-        'category': 'Viber',
+        'category': 'Messaging',
         'notes': 'Column-to-meaning alignment for ZDATE/ZSTATEDATE follows the '
                  "column names; the app's exact semantics are not vendor-documented. State is "
                  "derived by this module: ZSTATE send or delivered is shown as Outgoing and "

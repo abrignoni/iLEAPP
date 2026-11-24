@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-08-01",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Core Accessories",
+        "category": "Smart Home & Connected Devices",
         "notes": "This module appends a label to six lightningDigitalID values. The cited page "
                  "lists two of them: 0BF000000000 as Haywire (HDMI) and 04F100000000 as Lightning "
                  "to 3.5 mm or EarPods with Lightning, labelled here Official to HDMI Cable and "

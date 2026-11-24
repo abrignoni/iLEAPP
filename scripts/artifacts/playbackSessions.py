@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Media Playback",
+        "category": "Music, Video & News",
         "notes": (
             "Reads contentItem.protobuf.gz in each <id>.playbackSessionArchive folder. Field "
             "numbers and types come from pyatv's reverse-engineered MediaRemote protos, not "

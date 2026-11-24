@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "First Use comes from the General.First use key of the user file. On the row read from "
                  "cached_data it is field 10 of the profile message, whose meaning is not established. "
                  "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Reads the key and value lines of the Waze Documents/session file. Only the keys this "
                  "module lists are reported, and lines with an empty value are skipped. Field is the key "
                  "as stored. Friendly Name is a label added by this module; no Waze source for the labels "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Read from GPS_QUALITY entries in the spdlog.*logdata files under the Waze Documents "
                  "folder. Two log layouts are read. When an older single-line entry is followed by a newer "
                  "block whose timestamp is within 250 ms, only the newer block is reported; that pairing "
@@ -99,7 +99,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": '2026-11-17',
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Every row of the PLACES table in user.db is reported with no filter. The module's own "
                  "documentation says the table includes searched and referenced places, so a row is not by "
                  "itself a record of a search. Reference: Django Faiola, 'Comprehensive Waze Forensic "
@@ -124,7 +124,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Type shows a label this module assigns to the stored RECENTS.type integer (0 User "
                  "Search, 1 Advertising, 2 Map Interaction, 3 Shared, 4 Navigation History); -1 is shown "
                  "as N/A and any other value is shown as stored. The labels follow Django Faiola, "
@@ -150,7 +150,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Type shows a label this module assigns to the stored type integer, which is "
                  "FAVORITES.type in user.db (0 Custom, 1 Home, 2 Work, 3 Events, 4 Saved POI); -1 is shown "
                  "as N/A. On rows read from cached_data the integer is field 3 of the saved place "
@@ -178,7 +178,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Reference: Django Faiola, 'Comprehensive Waze Forensic Parsing for iOS', "
                  "https://djangofaiola.blogspot.com/2026/06/comprehensive-waze-forensic-parsing-for.html "
                  "(in Italian).",
@@ -199,7 +199,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-13",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Type shows a label this module assigns to the stored EVENTS_PLACES.type integer "
                  "(1 Calendar, 2 Partner, 6 Reservation); any other value is shown as stored and "
                  "a missing value as N/A. The labels follow Django Faiola, 'Comprehensive Waze "
@@ -226,7 +226,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-02",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Waze",
+        "category": "Locations & Maps",
         "notes": "Reads the text, type and update time of each row in the tables whose name "
                  "passes this module's name check in the Waze text-to-speech cache "
                  "(Library/Caches/tts/tts.db). Text Type shows a label this module assigns to the "

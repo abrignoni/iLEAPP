@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Nest",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the ZNLTRANSPORTOBJECT row whose ZOBJECT_KEY begins 'structure.'. "
                  "ZOBJECTVALUE is an NSKeyedArchiver archive of a binary plist and is resolved by "
                  "walking $objects from the $top root. Two epochs appear in the same file and are "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Nest",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the ZNLTRANSPORTOBJECT row whose ZOBJECT_KEY begins 'geofence_info.'. "
                  "Each fence contributes one row carrying its identifier, centre coordinates, "
                  "radius and direction as stored. Presence and Raw Presence are the presence and "
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Nest",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the ZNLTRANSPORTOBJECT rows whose ZOBJECT_KEY begins 'quartz.', whose "
                  "ZOBJECTVALUE is an NSKeyedArchiver archive. activation_time, last_connect_time and "
                  "last_disconnect_time are read as Unix milliseconds; no cross-check of that unit "
@@ -112,7 +112,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Nest",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZCAMERA in Dropcam.sqlite, joined to ZCAMERASETTINGS on the camera's "
                  "primary key. ZLASTCONNECTEDTIME is read as Core Data seconds since 2001-01-01, a "
                  "different epoch from the Unix milliseconds read from the transport store in "
@@ -143,7 +143,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Nest",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the ZNLTRANSPORTOBJECT rows whose ZOBJECT_KEY begins 'topaz.', whose "
                  "ZOBJECTVALUE is an NSKeyedArchiver archive. The sibling 'delayed_topaz.' row was "
                  "examined and is deliberately not reported: it resolves to a single entry keyed by "
@@ -176,7 +176,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-10-07",
         "requirements": "none",
-        "category": "Nest",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the ZNLTRANSPORTOBJECT rows whose ZOBJECT_KEY begins 'user.', whose "
                  "ZOBJECTVALUE is an NSKeyedArchiver archive. The email and name are the values held in "
                  "the user object; that the object is the signed-in account is not established here, "
@@ -204,7 +204,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Nest",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZPCDUSERPINCODESSETTINGSTRAITUSERPINCODE, with the per-user schedule "
                  "count taken from ZPCDBASICUSERSCHEDULESSETTINGSTRAITBASICUSERSCHEDULE on the "
                  "user identifier. The PIN itself is NOT recovered and this artifact does not "

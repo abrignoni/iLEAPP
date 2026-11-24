@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-11-03",
         "requirements": "none",
-        "category": "Finance",
+        "category": "Finance & Payments",
         "notes": "The four As Stored columns use their SQLite column names and retain the "
                  "selected values without interpretation. Their names do not establish "
                  "attachment presence, transaction status, transaction type or transaction "

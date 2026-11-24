@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-06-01",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Audi Trips",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": ("*/Library/Caches/de.audi.myaudimobileassistant/fsCachedData/**",),
         "output_types": "standard",

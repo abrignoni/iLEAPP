@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Line",
+        "category": "Messaging",
         "notes": "Rows come from two places and the Row Source column says which. One kind is one "
                  "row per row of ZMESSAGEATTACHMENTINFO in the app's per account private store, "
                  "Library/Application Support/PrivateStore/P_<account "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Line",
+        "category": "Messaging",
         "notes": "One row per row of ZMANAGEDCNCONTACT in the per account private store's "
                  "Contacts Syncing/Contacts.sqlite. The table and folder names (ZMANAGEDCNCONTACT, "
                  "Contacts Syncing) point to the device address book as the origin of these "
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Line",
+        "category": "Messaging",
         "notes": "One row per row of ZBROWSERHISTORYPAGEEVENT in the per account private store's "
                  "Browser History/BrowserHistory.sqlite, joined to the page record the event "
                  "names for the address, title and icon. The store's name and its place in the "
@@ -140,7 +140,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Line",
+        "category": "Messaging",
         "notes": "One row per row of ZE2EECHAT and of ZE2EEKEY in the per account private store's "
                  "Messages/E2EEData.sqlite, told apart by the Source Table column. A row records "
                  "that the app held encryption state for a chat. No key material is reported. The "

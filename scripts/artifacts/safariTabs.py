@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Safari Browser - Tabs (BrowserState)",
         "description": "Rows of the tabs table in Safari's BrowserState.db (title, URL, last viewed time and the stored opened-from-link and private-browsing values)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
-        "category": "Safari Browser", "notes": "",
+        "category": "Browsers", "notes": "",
         "paths": ('**/Safari/BrowserState.db*',),
         "output_types": "standard", "artifact_icon": "layout",
         "sample_data": {
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "name": "Safari Browser - iCloud Tabs",
         "description": "Rows of cloud_tabs in Safari's CloudTabs.db with the device name stored for each, and the record creation time, modification time and modifying device from the row's CloudKit system fields",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
-        "category": "Safari Browser", "notes": "",
+        "category": "Browsers", "notes": "",
         "paths": ('**/Safari/CloudTabs.db*',),
         "output_types": "standard", "artifact_icon": "cloud",
         "sample_data": {
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Safari Browser",
+        "category": "Browsers",
         "notes": "Parent titles such as Public, LocalProfile and private are reported as stored in "
                  "Parent / Tab Group; rows with an ancestor row titled private or privatepinned, or "
                  "whose parent value reads private, are marked Private and the others Normal, a "

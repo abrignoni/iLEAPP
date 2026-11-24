@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-17",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": "Core Data table: ZUACDUSER.",
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*",
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Core Data: ZUACDUSER.ZSAVEDTRAVELERSJSON (simplifiedTravelers). "
             "Per-traveler MileagePlus and KTN values, where present, are reported by the Trip "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Core Data tables: ZUACDWALLETRESERVATION, ZUACDWALLETRESERVATIONSEGMENT, "
             "ZUACDWALLETPASTRESERVATION, ZUACDWALLETPASTRESERVATIONSEGMENT."
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-17",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Core Data: ZUACDWALLETRESERVATION.ZJSON / ZUACDWALLETPASTRESERVATION.ZJSON "
             "(pnr.passengers); also reports each distinct passenger on ZUACDWALLETMBP rows with "
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Core Data table: ZUACDWALLETMBP."
         ),
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-17",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Core Data tables: ZUACDPNRDOCUMENT (ZJSONRESPONSE) and "
             "ZUACDRESERVATIONRESPONSEJSON (ZRESPONSEJSON)."
@@ -125,7 +125,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-17",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": "Core Data table: ZUACDBOOKINGRECENTSEARCH.",
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -140,7 +140,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-17",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": "Core Data table: ZUACDFLIFORECENTSEARCH.",
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -158,7 +158,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Source: Documents/logFile.txt (concatenated JSON travel-mode status history). "
             "The path patterns match the file only where the folder above Documents is named with "
@@ -184,7 +184,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "sample_data": {'abe_ios16': 'iOS 16.5 | 0 rows'},
         "notes": (
             'Core Data table: ZUACDINFLIGHTMEDIA; also app prefs '
@@ -211,7 +211,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-13",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Source: group.com.united.UnitedCustomerFacingIPhone.plist key "
             "WatchComplicationsData.WatchData (complicationData / reservations JSON). "
@@ -236,7 +236,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "United Airlines",
+        "category": "Travel & Vehicles",
         "notes": (
             "Source: MobileSMS PluginMetaDataCache plist for "
             "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension. "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Notifications",
+        "category": "Device Activity",
         "notes": ("Attachments are shown as media, both the images stored under the Attachments folder and the "
                   "ones carried inline in the payload. Five payload keys are shown in their own columns: Sender"
                   " is CommunicationContextDisplayName, Thread is SBSPushStoreNotificationThreadKey, Category "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Notifications",
+        "category": "Device Activity",
         "notes": ("Read from PendingNotifications.plist in each app's folder under "
                   "mobile/Library/UserNotifications, beside the DeliveredNotifications.plist the Notifications "
                   "artifact reads. The file name matches the pending notification requests of Apple's "

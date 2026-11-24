@@ -657,7 +657,8 @@ def crunch_artifacts(
             if os.path.exists(info_plist_path):
                 # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.output_folder_base)
                 #plugin.method([info_plist_path], out_params.output_folder_base, seeker, wrap_text)
-                report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'iTunes Backup')
+                report_folder = os.path.join(out_params.output_folder_base, '_HTML',
+                                             sanitize_report_name(loader["itunes_backup_info"].category, 'category'))
                 if not os.path.exists(report_folder):
                     try:
                         os.makedirs(report_folder)
@@ -665,7 +666,8 @@ def crunch_artifacts(
                         logfunc('Error creating report directory at path {}'.format(report_folder))
                         logfunc('Error was {}'.format(str(ex)))
                 loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
-                report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'Installed Apps')
+                report_folder = os.path.join(out_params.output_folder_base, '_HTML',
+                                             sanitize_report_name(loader["itunes_backup_installed_applications"].category, 'category'))
                 if not os.path.exists(report_folder):
                     try:
                         os.makedirs(report_folder)

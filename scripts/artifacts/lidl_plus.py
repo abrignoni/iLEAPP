@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Is Checked reports ListItemEntity.isChecked: NULL is shown as N/A, empty text as N/D, 1 "
                  "as Yes, 0 as No, and other stored values as Unknown (value). A list with no items also "
                  "shows N/A. A checked list item does not by itself establish a purchase. Item Last "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Card Number (Derived) is the first 17 characters of the cached paymentQR value, "
                  "filled when that value is at least 17 characters long. The research cited below "
                  "reports that the app screen shows those 17 digits as the card number; that was "
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Cache Time is when the response was cached. Valid From and Valid To are "
                  "the promotion validity bounds, not device event times. Activated and Redeemed are the "
                  "isActivated and isRedeemed values. When isActivated is absent, Activated is Yes "
@@ -148,7 +148,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -166,7 +166,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Sequence ID, Sequence Position and Sequence Final are computed by this parser "
                  "and are not stored by the app: requests for the same store no more than 6 "
                  "seconds apart, where the term extends the previous term or shortens it by up to "
@@ -188,7 +188,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": '2026-11-17',
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Latitude and Longitude are the latitude and longitude parameters of the request URL, "
                  "URL-decoded. The research cited below describes them as the centre of the search area or "
                  "map sent to the server, so they are not reported as the device's location. distance (as "
@@ -210,7 +210,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -227,7 +227,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -244,7 +244,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -260,7 +260,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -278,7 +278,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -296,7 +296,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -314,7 +314,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
@@ -336,7 +336,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
-        "category": "Lidl Plus",
+        "category": "Shopping & Marketplaces",
         "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
                  "Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",

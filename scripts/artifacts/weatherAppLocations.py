@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-01-29",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "The Type values Saved City and Local are labels added by this module. On "
                  "PrefsVersion 2.1 plists Update Time is the plist's single LastUpdated value "
                  "repeated on each row.",

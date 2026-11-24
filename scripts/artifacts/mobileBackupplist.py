@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-06-11",
         "last_update_date": "2026-10-06",
         "requirements": "Acquisition that contains com.apple.MobileBackup.plist",
-        "category": "Mobile Backup Plist",
+        "category": "Device Information",
         "notes": "Only a fixed list of keys from the four sections is read. The Key column "
                  "names the stored key; Section identifies its selected parent block. Date values are written as UTC text, "
                  "binary values as hexadecimal and dictionary or list values as JSON text. Only "

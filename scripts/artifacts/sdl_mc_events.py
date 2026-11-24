@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "MCSettingsEvents.plist sits under logs/MCState/Shared in the sysdiagnose; the sysdiagnose does not record where on the device it was copied from. Its top-level "
             "keys in the tested files are EffectiveSettings, Restrictions, SystemClientRestrictions, "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "One row per entry of the ProfileEvents list: the profile identifier (the key of the entry), "
             "and its Operation, Process and Timestamp as stored. Timestamp is a property list date, "

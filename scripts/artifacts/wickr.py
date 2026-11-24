@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": "Read from ZWICKR_MESSAGE in wickrLocal.sqlite, the Core Data store in the Wickr "
                  "app group container. ZBODY is stored as an encrypted blob and is not decoded, "
                  "so this artifact reports message metadata only and no message content is "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": '2026-10-09',
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": 'Read from ZSECEX_CONVO in wickrLocal.sqlite. The Kind column is the Core Data entity '
                  'name looked up from the Z_PRIMARYKEY table in the same file, which maps each Z_ENT '
                  'number to an entity name such as Secex_Convo or Secex_Secure_Room. Entity numbers depend'
@@ -98,7 +98,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": "Read from ZSECEX_USER in wickrLocal.sqlite. ZUSERNAME, ZUSERALIAS, ZUSERID and "
                  "ZUSERIMAGE are stored as encrypted blobs and are not decoded; the ZUSERIDHASH "
                  "and ZUSERALIASHASH columns are stored in the clear and are reported as stored. "
@@ -124,7 +124,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": "Read from ZWICKR_FILE in wickrLocal.sqlite, linked to messages through the Core "
                  "Data join table for the file and message entities. That table is named after "
                  "the entity numbers, so it is Z_13MSG on both images tested, and Z_11MSG in Josh "
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": "Read from ZSECEX_ACCOUNT in wickrLocal.sqlite. The account user name, keys and "
                  "configuration are stored as encrypted blobs and are not decoded; this artifact "
                  "reports the columns held in the clear, as stored. ZAFENABLE and ZAFSPEED are "
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": "Read from ZSECEX_APP in wickrLocal.sqlite. The previously examined model names this entity Secex_App in Z_PRIMARYKEY; Kind continues to use the current file's entity-name lookup or the parser's Z_ENT fallback. Rows are LEFT JOINed to ZSECEX_USER through a.ZUSER = u.Z_PK. ZAPPIDHASH is reported through the existing projection; ZSAPPID, ZPUBS and ZPUBSIG are not decoded. The record name does not establish a physical device or ownership. A matching user key can yield multiple joined rows when it is not unique; unmatched app rows are retained. The recorded sample counts of 49 and 2 are historical metadata, not revalidated by this naming correction. Original contribution credited to Claude.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
@@ -199,7 +199,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": "Read from ZRECENT_SEARCH in wickrLocal.sqlite. ZSEARCHQUERY is one of the few "
                  "columns in this database held in the clear rather than as an encrypted blob, so "
                  "the query text is reported as stored. The timestamp is Cocoa Core Data epoch. "
@@ -221,7 +221,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": "Read from the keychain items in Wickr's access group, which on the tested image "
                  "is the team identifier W8RC3R952A. These are the only Wickr account strings "
                  "recovered in the clear on the tested image: the database stores the user name "
@@ -247,7 +247,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "Wickr",
+        "category": "Messaging",
         "notes": 'Read from the plaintext application logs the app writes under its Logs directories. The parsed lines are the notification payloads logged as \'Payload: {"messageId"...}\' and the \'Download Message with Type\' lines, both of which carry identifiers in the clear. The events present are bounded by the log files held in the extraction. Log line timestamps are recorded by the app without a zone and are reported as written.\nOn the tested image, where an identifier here also appears in ZWICKR_MESSAGE, the logged time and the database timestamp read as UTC agree to within a second. The number of identifiers compared was not recorded.\nMost of them do not appear there. On the tested image the logs name 69 distinct message identifiers and 48 of those have no row in ZWICKR_MESSAGE, so this artifact reports logged message events that have no row in the message store, together with the conversation, the payload\'s userId value and the logged type for each. Those 48 include the only occurrences of type values 4006 and 9000 anywhere in the data. Why a logged message has no row is not established here. A log that covers a longer period than the store retains, removal of the rows, or a message type the app does not write to the table would each produce this, and the records do not distinguish them. Payload userId is the JSON-decoded field value; it is not compared with ZUSERIDHASH and does not establish a sender or owner. Missing userId yields an empty string; explicit JSON null remains None in native rows. Download Message lines keep an empty value. Per-row log filenames are not retained; successfully read log paths are returned together, including logs that emit no rows. The 69/48 and time-comparison observations above are previously recorded, not revalidated by this header correction. Original contribution credited to Claude.',
         "paths": ('*/Logs/com.wickr*.log', '*/Logs/com.mywickr*.log'),
         "output_types": "standard",

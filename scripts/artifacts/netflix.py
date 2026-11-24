@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Read from the app's GraphQL record cache under Library/gqlData, where a record "
                  "keyed on the video id and ending in '.bookmark' carries position and "
                  "lastModified. Two key spellings were seen across the app versions tested, "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Read from QUERY_ROOT.account.profiles.<n> records under Library/gqlData. "
                  "Created At is an ISO 8601 string carrying its own UTC designator; it is "
                  "converted to a UTC date and time with any fraction of a second dropped. The Lock "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Values are drawn from QUERY_ROOT.account records under Library/gqlData and from "
                  "the app preference file com.netflix.Netflix.plist. Member Since and the other "
                  "ISO 8601 values carry their own UTC designator; each is converted to a UTC date "
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment under Library/gqlData. The record's displayString is reported as stored under the heading displayString (as stored); that the app displayed it is not established. These rows are cached records, so an entry records what the cache held rather than an individual playback event; the Netflix - Playback Bookmarks artifact carries the stored positions and their times. No timestamp is stored on the row itself. The same entry is cached by more than one section and more than one file, so rows identical across every reported field are collapsed to one and the Cache Entries Holding This Row column gives the number that held it. No sample_data is recorded for this artifact; the samples it was tested on are not named here, so figures in these notes cannot be tied to a corpus key. This header correction preserves the existing _blank rendering: missing or JSON null displayString becomes an empty string; other decoded native values are not changed. Existing grouping uses the first five native fields, excludes the source path, counts matching occurrences and keeps the first source path; native equality can group zero and False together. No per-occurrence or cross-container source association repair is included. Original artifact contribution/research attribution: @mattiaepi (Mattia Epifani), Claude. Historical sample statements above remain recorded and were not revalidated by this header correction.",
         "paths": ('*/Library/gqlData/*gql*.db*',),
         "output_types": "standard",
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "The GraphQL cache holds title records the app fetched; a cached title record is "
                  "not by itself evidence of a choice by a person, so the raw catalogue is not "
                  "reported. A title appears here only when the same extraction also carries a "
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Rows of logblobs_table in Documents/brl-dedicated/brl.sqlite. The entry_data "
                  "blob is encrypted; on the samples tested the blob is a 16 byte IV, one byte "
                  "giving the count of trailing zero pad bytes, then AES-128-CBC ciphertext, and "
@@ -180,7 +180,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Rows of the store table in Documents/sqlstore/store.sqlite3. The value blob is "
                  "encrypted with the same envelope and derivation keys that the Netflix - Log "
                  "Events notes describe. The domain and value_key columns are stored in the same "
@@ -234,7 +234,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Summarised from the last_observed table in Documents/sqlstore/store.sqlite3, "
                  "which is stored unencrypted. Keys take the form <metric>-<interface>[-<index>], "
                  "and the interface segment is reported as stored; values seen in the samples "
@@ -262,7 +262,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Files under Library/Caches/br/ch/<videoId>/. The directory name is read as the "
                  "video id; how many directory names equalled a video id held under "
                  "Library/gqlData was not counted here. Each video id is given the title of the "
@@ -306,7 +306,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "WebVTT files under Library/Caches/br/ch/<videoId>/, identified by their "
                  "leading bytes because the file names carry no extension. The directory name "
                  "is read as the video id; how many directory names equalled a video id held under "
@@ -338,7 +338,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Netflix",
+        "category": "Music, Video & News",
         "notes": "Read from Library/Preferences/com.netflix.Netflix.plist. Keys are reported "
                  "with their stored names so a reader can go back to the file. Date valued keys "
                  "are written as date and time text. Keys named Message-myProfile-<guid>, "

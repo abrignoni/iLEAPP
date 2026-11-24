@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Each row is one entry of change type 0 in history.plist. On the sample_data "
                  "images that entry held 81 to 95 properties of one device. The file holds a "
                  "protobuf value. This module follows no published schema; the field layout it "
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Each row is one property of one entry in history.plist. The file holds a "
                  "protobuf value. This module follows no published schema; the field layout it "
                  "reads is written at the top of the module and was taken from the 4 sample_data "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-15",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": (
             "The dates column may contain multiple comma-separated Unix timestamps in "
             "milliseconds. Parsed Dates (UTC) keeps every value of Dates (Raw) that converts. A "

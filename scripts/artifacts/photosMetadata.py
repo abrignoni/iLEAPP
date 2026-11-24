@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Photos",
+        "category": "Photos & Media",
         "notes": 'Supported schemas: iOS 12-14 queries; on iOS 14 and later the iOS 14 query is run, '
                  'with columns the database lacks read as empty. The query is selected from '
                  'the iOS version read for the input; when none has been read, nothing is queried. A row is one combination of asset, detected face and album, so an '

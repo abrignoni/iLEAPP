@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'creation_date': '2023-08-01',
         'last_update_date': '2026-10-07',
         "requirements": "none",
-        "category": "OS Updates",
+        "category": "Device Information",
         'notes': ('Parses migration records found in the Photos.sqlite database. The query is adapted from Scott '
                   "Koenig's migration history query "
                   '(https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS14/Previous_Queries/iOS14_LPL_Phsql_MigrationHistory.txt).'

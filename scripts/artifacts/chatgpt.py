@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-07-14",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "ChatGPT",
+        "category": "AI Assistants",
         "notes": "Conversation files are read from four folders under Library/Application "
                  "Support in the app container: conversations-<id> (ChatGPT 1.2023.347 to "
                  "1.2024.233 on the tested images), conversations-v3-<id> (1.2026.013), "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-07-14",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "ChatGPT",
+        "category": "AI Assistants",
         "notes": "One row per node of the conversation's message tree, read from the same "
                  "folders and with the same container check as ChatGPT - Conversations Metadata. "
                  "Older files store the tree as a dictionary and Message ID is the dictionary key. "
@@ -173,7 +173,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-07-14",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "ChatGPT",
+        "category": "AI Assistants",
         "notes": "",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.json',),
         "output_types": "standard",
@@ -186,7 +186,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-07-14",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "ChatGPT",
+        "category": "AI Assistants",
         "notes": "",
         "paths": ('**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist',
                   '**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist'),
@@ -208,7 +208,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-07-14",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "ChatGPT",
+        "category": "AI Assistants",
         "notes": "The tmp patterns match every app container. A container is taken as ChatGPT's "
                  "only when Library/Preferences/com.openai.chat.plist or "
                  "com.openai.chat.StatsigService.plist sits in it, and rows come only from that "
@@ -246,7 +246,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-07-14",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "ChatGPT",
+        "category": "AI Assistants",
         "notes": "The tmp patterns match every app container. A container is taken as ChatGPT's "
                  "only when Library/Preferences/com.openai.chat.plist or "
                  "com.openai.chat.StatsigService.plist sits in it, and rows come only from that "

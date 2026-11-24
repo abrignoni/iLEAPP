@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-04-16",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Bumble",
+        "category": "Dating",
         "notes": "One row per database2 entry that decodes to a plist with a self.dateCreated value "
                  "and has a row in secondaryIndex_isReadIndex; entries without either are not "
                  "listed. Only the first Chat.sqlite matched is read. Created Timestamp and "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-04-16",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Bumble",
+        "category": "Dating",
         "notes": "The Timestamp row is the lastLocation key's stored time read as "
                  "Cocoa/Mac absolute time, cut to whole seconds and converted to UTC. "
                  "What position the app stores under that key, and when it is refreshed, "

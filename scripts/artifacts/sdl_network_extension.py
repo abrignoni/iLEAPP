@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "com.apple.networkextension.plist is an NSKeyedArchiver archive holding a list of "
             "dictionaries: one dictionary per configuration, keyed by the configuration's identifier "
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "Each configuration's PathController holds a list of rules, one per signing identifier "
             "(an app or process). One row per configuration and combination of Cellular Behavior, "

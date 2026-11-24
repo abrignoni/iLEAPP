@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "One row per restrictedBool entry, value as stored (True, False, or empty when unset). "
             "The sysdiagnose copy sits under MCState/Shared; both copies hold restrictedBool and "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "One row per restrictedValue entry: value, rangeMinimum and rangeMaximum as stored, "
             "rangeMaximum empty when the entry carries none (11 "

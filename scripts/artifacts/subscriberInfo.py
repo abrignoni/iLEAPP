@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "date": "2024-11-19",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "The cited post reports that CellularUsage.db keeps SIM card ICCIDs and "
                  "sometimes the phone number (MSISDN), and warns that the number may be absent "
                  "and is editable on the SIM. It does not name the columns, so subscriber_id and "

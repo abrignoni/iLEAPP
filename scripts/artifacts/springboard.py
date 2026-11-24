@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "iOS Screens",
+        "category": "Device Activity",
         "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in the order the plist "
                  "stores them; that this is the order on screen was not checked against a device. Only "
                  "the first IconState.plist found is read, and the run log gives the count of any "
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "iOS Screens",
+        "category": "Device Activity",
         "notes": "A PNG is rendered per screen page from SpringBoard/IconState.plist as a visual "
                  "reference. It is not a picture of the screen: items are laid out four to a row, at "
                  "most four items of a folder or stack are shown and long names are cut. The 'iOS Home "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "iOS Screens",
+        "category": "Device Activity",
         "notes": "Wallpaper files in the cpbitmap format are converted to PNG when possible. A "
                  "cpbitmap file is converted with the first row alignment that fits its size; the "
                  "Status column names the alignment used. Variant is derived by this module from "
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "iOS Screens",
+        "category": "Device Activity",
         "notes": "Image files in folders named output.layerStack are reported. The paths match "
                  "any folder of that name and do not check that it sits in a PosterBoard "
                  "container. HEIC/HEIF image layers "

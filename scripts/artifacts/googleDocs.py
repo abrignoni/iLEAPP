@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
                  "Sheets container on the tested images carries the same paths, so a store is "
                  "only reported when the same container also holds the Google Docs preferences "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
                  "Sheets container on the tested images carries the same paths, so a store is only "
                  "reported when the same container also holds the Google Docs preferences file, and "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
                  "Sheets container on the tested images carries the same paths, so a store is only "
                  "reported when the same container also holds the Google Docs preferences file, "
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
                  "Sheets container on the tested images carries the same paths, so a store is only "
                  "reported when the same container also holds the Google Docs preferences file, "
@@ -212,7 +212,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "The localStore and fileStore layouts are not specific to Google Docs: a Google "
                  "Sheets container on the tested images carries the same paths, so a store is only "
                  "reported when the same container also holds the Google Docs preferences file, and "
@@ -259,7 +259,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "One row per account identifier named by a key in the app's preferences property "
                  "list. The Signed In column reads Yes on the row whose identifier equals the "
                  "value of signed_in_user_id. That value is not listed when no account key names "
@@ -291,7 +291,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "One row per key read from Library/Preferences/com.google.Docs.plist. Date typed "
                  "values are property list dates and are reported in UTC. The three orphan file "
                  "cleanup keys and the crash state tracker boot time are converted as Unix seconds "
@@ -317,7 +317,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Docs",
+        "category": "Productivity",
         "notes": "One row per contacts row in Contacts_<number>_<account id>.db under "
                  "Library/Caches/. The file name does not identify the app that wrote the cache, "
                  "so a cache is only reported when the same container also "

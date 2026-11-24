@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Shortcuts",
+        "category": "Device Activity",
         "notes": "Reads ZSHORTCUT in Shortcuts.sqlite, read-only with its -wal. Dates are Core Data timestamps "
                  "(seconds since 2001-01-01, UTC). Known data from an iOS 27.2 simulator (2026-11-16): one shortcut "
                  "was created, run twice, given a time-of-day automation and then deleted in the app. Modified "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Shortcuts",
+        "category": "Device Activity",
         "notes": "One row per entry of the property list in ZSHORTCUTACTIONS.ZDATA, per shortcut, in stored order. A "
                  "shortcut with no actions gives no row. Action Identifier is the entry's WFWorkflowActionIdentifier "
                  "and Action Parameters its WFWorkflowActionParameters as JSON, with any byte string replaced by its "
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Shortcuts",
+        "category": "Device Activity",
         "notes": "One row per ZSHORTCUTRUNEVENT row; Run Date is ZDATE (Core Data timestamp, UTC). In the iOS 27.2 "
                  "simulator known data the taps on the editor's play button were logged at 21:59:49.237Z and "
                  "22:00:24.068Z. Run Date held 21:59:52.04Z and 22:00:27.39Z, about 3 seconds after each logged tap "
@@ -158,7 +158,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Shortcuts",
+        "category": "Device Activity",
         "notes": "One row per ZUNIFIEDTRIGGER row. The table was present only in the iOS 27.2 simulator known data; "
                  "none of the 18 corpus images (iOS 13.3.1 to 26.5.2) has it, so on those this artifact reads "
                  "nothing. ZDATA is a property list: Trigger Identifier is its WFTriggerIdentifier and Trigger "

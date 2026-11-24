@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Private Photo Vault",
+        "category": "Photos & Media",
         "notes": "One row per row of ZALBUM in Library/Application Support/PPVCoreData.sqlite. "
                  "Created and Last Modified are Core Data times, seconds since 2001, reported in "
                  "UTC, and read that way they fall in the period each image covers. Two "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Private Photo Vault",
+        "category": "Photos & Media",
         "notes": "One row per row of ZMEDIAITEM in Library/Application "
                  "Support/PPVCoreData.sqlite, joined to ZALBUM for the album title. Created, Last "
                  "Modified and Trashed are Core Data times, seconds since 2001, reported in UTC. "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Private Photo Vault",
+        "category": "Photos & Media",
         "notes": "One row per row of ZTRESSPASSRECORD in Library/Application "
                  "Support/PPVCoreData.sqlite. The artifact is named for the table. The table's columns are a date, a login type, a "
                  "device name, a latitude, a longitude and two file names; what event causes the "

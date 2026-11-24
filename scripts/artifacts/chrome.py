@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "chromeWebHistory": {
-        "name": "Web History",
+        "name": "Chromium - Web History",
         "description": "Parses web history from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -51,13 +51,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeWebVisits": {
-        "name": "Web Visits",
+        "name": "Chromium - Web Visits",
         "description": "Parses web visits from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "Transition Type and Qualifier(s) are decoded from visits.transition with the names in "
                  "Chromium's page_transition_types.h. Value 6 is shown as START_PAGE; the header names it "
                  "PAGE_TRANSITION_AUTO_TOPLEVEL. IS_REDIRECT_MASK is shown when either redirect bit is set. "
@@ -107,14 +107,14 @@ __artifacts_v2__ = {
         },
     },
     "chromeWebSearch": {
-        "name": "Web Searches",
+        "name": "Chromium - Web Searches",
         "description": "Lists History URLs that contain 'search?q=' and shows the q value as the "
                        "search term. Search URLs of any other shape are not reported.",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -159,13 +159,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeDownloads": {
-        "name": "Downloads",
+        "name": "Chromium - Downloads",
         "description": "Parses downloads from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "State, Danger Type and Interrupt Reason are labels this module assigns to the stored "
                  "integers, following Chromium's download_danger_type.h and "
                  "download_interrupt_reason_values.h. A stored value the module has no label for is shown "
@@ -218,13 +218,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeKeywordSearchTerms": {
-        "name": "Keyword Search Terms",
+        "name": "Chromium - Keyword Search Terms",
         "description": "Parses keyword search terms from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -269,13 +269,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeAutofillEntries": {
-        "name": "Autofill Entries",
+        "name": "Chromium - Autofill Entries",
         "description": "Parses autofill entries from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -320,13 +320,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeAutofillProfiles": {
-        "name": "Autofill Profiles",
+        "name": "Chromium - Autofill Profiles",
         "description": "Addresses Chrome and other Chromium-based browsers hold for autofill: name, company, street, city, state, zip code, country, email and phone, with the modified and last used times and the use count",
         "author": "@stark4n6, @AlexisBrignoni, Claude",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "Chromium has kept saved addresses in three table layouts, and every layout a database holds is read, one row per address. Up to schema version 112 an address is a row of autofill_profiles, with its names, emails and phones in autofill_profile_names, autofill_profile_emails and autofill_profile_phones under the same guid. Version 113 moved addresses saved on the device to local_addresses, and account addresses sat in contact_info from version 107; both keep their values in a type token table (local_addresses_type_tokens, contact_info_type_tokens) of field type and value (Reference: Chromium, 'address_autofill_table.cc', https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L975 and https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1009-L1050). Version 134 merged the two into addresses and address_type_tokens and added a record_type column (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1094-L1105). A layout is read when its tables exist, and a column an older schema lacks is read as empty. Date Modified and Date Last Used are date_modified and use_date, seconds since 1970-01-01 UTC: Chromium writes them with base::Time::ToTimeT (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L379-L396) and reads the autofill_profiles columns with FromTimeT (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L166-L181). A zero is shown blank. Use Count is use_count as stored. Field values are mapped by Chromium's FieldType numbers: First Name is NAME_FIRST (3), Middle Name NAME_MIDDLE (4), Last Name NAME_LAST (5), Email EMAIL_ADDRESS (9), Phone Number PHONE_HOME_WHOLE_NUMBER (14), Company Name COMPANY_NAME (60), Address ADDRESS_HOME_STREET_ADDRESS (77), City ADDRESS_HOME_CITY (33), State ADDRESS_HOME_STATE (34), Zip Code ADDRESS_HOME_ZIP (35), Full Name NAME_FULL (7) and Country ADDRESS_HOME_COUNTRY (36), which holds the stored country code (Reference: Chromium, 'field_types.h', https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L141-L231 and https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L171-L175). field_types.h says the list is kept in step with the Autofill server and lists retired numbers as deprecated (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L22-L26, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L159-L161), so the same map is used for every schema version. autofill_profiles keeps the same values in named columns, mapped to the field types Chromium reads them as (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L166-L181, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L190-L206, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L304-L307, https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L321-L324); honorific_prefix and full_name_with_honorific_prefix are named NAME_HONORIFIC_PREFIX and NAME_FULL_WITH_HONORIFIC_PREFIX from their column names, the second shown as 'NAME_FULL_WITH_HONORIFIC_PREFIX (deprecated)', since the current source no longer reads them, and field_types.h marks 117 deprecated (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L327). Other Values lists every other non-empty stored field value with its field type name, or 'type <n>' for a number this artifact does not name, so each stored name, email, phone and address value is reported once. Where a table holds more than one value for a guid and field type, the values are joined with '; '; that case was exercised on a constructed database only. A value stored as a BLOB is reported by its length and not decoded; no tested value was a BLOB. Record Type is record_type of addresses, named from AutofillProfile::RecordType (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/data_model/addresses/autofill_profile.h#L57-L100); local_addresses rows are reported as kLocalOrSyncable (0) and contact_info rows as one of the account types, the tables Chromium keeps those record types in (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L340-L352). Record Type is blank for autofill_profiles rows, which have no record type. Table names the table each row came from. Measured 2026-11-04 on every 'Web Data' file in the 35 registered iOS corpora, 21 copies on 12 of them: autofill_profiles was present in 8 copies on 4 corpora at schema versions 104 to 113 and held rows on hickman_ios15; addresses was present in 6 copies on 4 corpora at versions 141 to 151 and held a row on dexter_ios18, whose Record Type is kAccount (1); local_addresses (8 copies on 5 corpora, versions 113 to 128) and contact_info (14 copies on 7 corpora, versions 107 to 128) held no rows on any, so neither branch is exercised on an iOS image. Six of those copies, on abe_ios16, dexter_ios18, hc_ios17_2, hc_ios26, hexordia_ios1651 and iphone12_ios18, are the Google app's (com.google.GoogleMobile) Library/Application Support/Web Data, which these paths do not match; none held an address row. The local_addresses branch was run on the desktop Web Data files of windows11_arm_chromium_autofill_known_20261103 (fictional addresses saved in Chromium 110, Chromium 120, Google Chrome 157 and Microsoft Edge 156 on Windows 11) staged under iOS app container paths: 7 rows, 2 from autofill_profiles, 2 from local_addresses and 3 from addresses, and the 19 report columns this artifact shares with ALEAPP's Chrome Autofill - Profiles agreed with ALEAPP on the same files, Date Last Used as the same instant in a different stored form. The contact_info branch was exercised on a constructed database only. Other Values held NAME_LAST_SECOND on the dexter_ios18 and hickman_ios15 rows, and NAME_FULL_WITH_HONORIFIC_PREFIX on the hickman_ios15 rows. Middle Name held no value on dexter_ios18 and Company Name none on either image; Use Count held 1 and Date Modified equalled Date Last Used on all 7 known-data rows, where no address was filled into a form. Not read: server_addresses and server_address_metadata, which version 121 dropped (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1072-L1077); autofill_profile_addresses and autofill_profile_birthdates; the *_status columns of autofill_profile_names, which Chromium reads as a verification status (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L203), and the origin and disallow_settings_visible_updates columns of autofill_profiles; label, language_code and the verification_status and observations columns of the token tables; and the payment card, IBAN and bank account tables."
                  " A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
@@ -374,7 +374,7 @@ __artifacts_v2__ = {
         },
     },
     "chromeBookmarks": {
-        "name": "Bookmarks",
+        "name": "Chromium - Bookmarks",
         "description": "Parses the Bookmarks, Bookmarks.bak and AccountBookmarks files of Chromium based browsers. Only entries "
                        "directly under each root folder are reported; entries inside sub-folders "
                        "are not.",
@@ -382,7 +382,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "Browser Name comes from the app container's bundle identifier: com.google.chrome.ios is "
                  "reported as Chrome, com.brave.ios.browser as Brave, com.microsoft.msedge as Edge and "
                  "com.google.GoogleMobile (the Google app) as Google. In "
@@ -432,13 +432,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeCookies": {
-        "name": "Cookies",
+        "name": "Chromium - Cookies",
         "description": "Parses Cookies from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -473,7 +473,7 @@ __artifacts_v2__ = {
         "artifact_icon": "cookie",
     },
     "chromeLoginData": {
-        "name": "Login Data",
+        "name": "Chromium - Login Data",
         "description": "Parses the logins table of Login Data and of Login Data For Account from "
                        "Chromium based browsers and from the Google app. Each browser and file name pair is reported as its "
                        "own table, so two profile folders of one browser that share a file name share "
@@ -488,7 +488,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -577,13 +577,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeTopSites": {
-        "name": "Top Sites",
+        "name": "Chromium - Top Sites",
         "description": "Parses Top Sites from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "The redirects column is absent from the version-5 Top Sites schema observed "
                  "on every corpus store checked (iOS 16.1.1-26.5.2); it is reported blank there."
                  " "
@@ -623,13 +623,13 @@ __artifacts_v2__ = {
         },
     },
     "chromeOfflinePages": {
-        "name": "Offline Pages",
+        "name": "Chromium - Offline Pages",
         "description": "Parses Offline Pages from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -666,13 +666,13 @@ __artifacts_v2__ = {
         "artifact_icon": "wifi-off",
     },
     "chromeMediaHistorySessions": {
-        "name": "Media History Sessions",
+        "name": "Chromium - Media History Sessions",
         "description": "Parses Media History Sessions from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -708,13 +708,13 @@ __artifacts_v2__ = {
         "artifact_icon": "movie",
     },
     "chromeMediaHistoryPlaybacks": {
-        "name": "Media History Playbacks",
+        "name": "Chromium - Media History Playbacks",
         "description": "Parses Media History Playbacks from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -750,13 +750,13 @@ __artifacts_v2__ = {
         "artifact_icon": "player-play",
     },
     "chromeMediaHistoryOrigins": {
-        "name": "Media History Origins",
+        "name": "Chromium - Media History Origins",
         "description": "Parses Media History Origins from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -792,13 +792,13 @@ __artifacts_v2__ = {
         "artifact_icon": "world",
     },
     "chromeNetworkActionPredictor": {
-        "name": "Network Action Predictor",
+        "name": "Chromium - Network Action Predictor",
         "description": "Parses Network Action Predictor records from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
                  "are still reported. The case this covers is a file left beside a hot rollback journal, "
                  "which a read-only connection cannot roll back (Reference: SQLite, 'Result and Error "
@@ -1053,8 +1053,8 @@ def chromeWebHistory(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeWebHistory"
+            category = __artifacts_v2__[module_name]["category"]
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
                                                                            artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
@@ -1155,8 +1155,8 @@ def chromeWebVisits(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeWebVisits"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -1232,8 +1232,8 @@ def chromeWebSearch(context):
             
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeWebSearch"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -1389,8 +1389,8 @@ def chromeDownloads(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeDownloads"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -1463,8 +1463,8 @@ def chromeKeywordSearchTerms(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeKeywordSearchTerms"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -1496,8 +1496,8 @@ def chromeAutofillEntries(context):
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
-    category = "Chromium"
     module_name = "chromeAutofillEntries"
+    category = __artifacts_v2__[module_name]["category"]
     
     report_files = []
 
@@ -1868,8 +1868,8 @@ def chromeAutofillProfiles(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeAutofillProfiles"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -1955,8 +1955,8 @@ def chromeBookmarks(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeBookmarks"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2059,8 +2059,8 @@ def chromeCookies(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeCookies"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2142,8 +2142,8 @@ def chromeLoginData(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeLoginData"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2225,8 +2225,8 @@ def chromeTopSites(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeTopSites"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2304,8 +2304,8 @@ def chromeOfflinePages(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeOfflinePages"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2383,8 +2383,8 @@ def chromeMediaHistorySessions(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeMediaHistorySessions"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2464,8 +2464,8 @@ def chromeMediaHistoryPlaybacks(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeMediaHistoryPlaybacks"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2536,8 +2536,8 @@ def chromeMediaHistoryOrigins(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeMediaHistoryOrigins"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -2609,8 +2609,8 @@ def chromeNetworkActionPredictor(context):
 
             # Generate LAVA output
 
-            category = "Chromium"
             module_name = "chromeNetworkActionPredictor"
+            category = __artifacts_v2__[module_name]["category"]
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),

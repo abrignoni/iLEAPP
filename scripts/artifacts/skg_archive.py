@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "version": "0.2",
         "date": "2025-04-11",
         "requirements": "mdplistlib",
-        "category": "Spotlight",
+        "category": "Device Activity",
         "notes": "Every matched skg_archive file is read. A record whose reported fields and Raw Data "
                  "all equal those of a record already read, from the same file or another, is "
                  "reported once, so the table does not show how many times or in which file a "

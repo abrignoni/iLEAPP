@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-02-25",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": "",
         "paths": ('*/Documents/search_history/history_words/AWESearchHistory*',),
         "output_types": "standard",

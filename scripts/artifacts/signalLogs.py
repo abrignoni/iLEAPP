@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "Signal",
+        "category": "Messaging",
         "notes": "Read from the CocoaLumberjack debug logs Signal keeps in Library/Caches/Logs (main app) and in "
                  "the shared app group's NSELogs and ShareExtensionLogs folders, named "
                  "org.whispersystems.signal[.SignalNSE|.shareextension] <UTC creation time>.log. The main app "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "Signal",
+        "category": "Messaging",
         "notes": "Read from the same logs as the App Launches artifact, with the same UTC handling: Timestamp "
                  "subtracts the log's measured clock offset and Time (as stored) is the line text; Log Clock "
                  "Offset (s) was -14400 on one image's 2020 logs and 0 on the other tested logs. Event names the "

@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-25",
         "last_update_date": "2026-08-21",
         "requirements": "astc_decomp_faster, liblzfse",
-        "category": "Images",
+        "category": "Photos & Media",
         "notes": "ATX files are decoded as texture containers wrapping ASTC image data; that "
                  "layout was derived from observed files and is not vendor-documented. Where each "
                  "file was found is given per row in the Source Path column. Decoding uses "

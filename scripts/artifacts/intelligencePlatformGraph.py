@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Knowledge Graph",
+        "category": "Device Activity",
         "notes": "Reads graph.db in Library/IntelligencePlatform. On the tested images "
                  "graph.db was present on iOS 16 with no entities and held entities on iOS "
                  "17 and later; earlier versions were not checked. graph.db holds a "
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Knowledge Graph",
+        "category": "Device Activity",
         "notes": "Reads the event graph inside IntelligencePlatform/graph.db. On the "
                  "tested images the file was present on iOS 16 with no events and held "
                  "events on iOS 17 and later; earlier versions were not checked. Each "
@@ -132,7 +132,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
         "requirements": "none",
-        "category": "Knowledge Graph",
+        "category": "Device Activity",
         "notes": "Reads the interactions table of "
                  "IntelligencePlatform/Artifacts/siri/remembers/view.db (it held rows on "
                  "tested images from iOS 17.5.1 to iOS 26). Each row is an entry of the "

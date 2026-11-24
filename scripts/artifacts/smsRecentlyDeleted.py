@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per row of chat_recoverable_message_join (chat_id, message_id, delete_date, "
                  "ck_sync_state), joined to the message row with that ROWID. Deleted Timestamp is "
                  "delete_date, nanoseconds since 2001-01-01 converted to UTC. The message row stays in the message table with its text in message.text or attributedBody, and in the 204 rows found none of "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per row of recoverable_message_part (chat_id, message_id, part_index, "
                  "delete_date, part_text, ck_sync_state). Part Text is the text of the "
                  "NSAttributedString (typedstream) in part_text. Deleted Timestamp is delete_date, "

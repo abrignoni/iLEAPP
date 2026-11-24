@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "iOS Diagnostic Reports",
+        "category": "Logs & Diagnostics",
         "notes": "Read from the .ips files under Library/Logs/CrashReporter and its Retired "
                  "subfolder. A diagnostic report in an .ips file opens with one line of JSON metadata; "
                  "the rest of "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "iOS Diagnostic Reports",
+        "category": "Logs & Diagnostics",
         "notes": "Read from the .ips reports whose metadata bug_type is 309 (JSON body) or 109 "
                  "(text body). The JSON form is documented by Apple in 'Interpreting the JSON "
                  "format of a crash report' "
@@ -143,7 +143,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "iOS Diagnostic Reports",
+        "category": "Logs & Diagnostics",
         "notes": "Read from the .ips reports whose metadata bug_type is 225, named "
                  "xp_amp_app_usage_dnu on the tested images. The body is a JSON array; each entry "
                  "carries bundleId, eventType, count, rangeStartTime and rangeEndTime in Unix "
@@ -198,7 +198,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "iOS Diagnostic Reports",
+        "category": "Logs & Diagnostics",
         "notes": "Read from the .ips reports named <process>.cpu_resource, .wakeups_resource, "
                  ".diskwrites_resource and .cpu_resource_fatal, whose bodies are text with "
                  "labelled lines. Start and End are the Date/Time and End time lines, which carry "
@@ -248,7 +248,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "iOS Diagnostic Reports",
+        "category": "Logs & Diagnostics",
         "notes": "Read from the .ips reports whose metadata bug_type is 298 (JetsamEvent) or 288 "
                  "(stackshot, named stacks or stacks+<app> on the tested images). Both bodies are "
                  "JSON; Kind says which, and OS Build is the report's build value, one value per "
@@ -311,7 +311,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "iOS Diagnostic Reports",
+        "category": "Logs & Diagnostics",
         "notes": "Read from the processes array of each bug_type 298 JetsamEvent report. "
                  "Reference: Apple, 'Identifying high-memory use with jetsam event reports', "
                  "https://developer.apple.com/documentation/xcode/identifying-high-memory-use-with-jetsam-event-reports, "

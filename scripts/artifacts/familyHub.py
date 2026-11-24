@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-02",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Samsung Family Hub",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from Library/Preferences/com.samsung.familyhub.plist, including the "
                  "NSKeyedArchiver dictionary under its SessionData key, with Samsung Auth Device "
                  "ID and Last Token Authorization taken from the newest authorizeToken response "

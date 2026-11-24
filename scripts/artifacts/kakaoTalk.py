@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "KakaoTalk",
+        "category": "Messaging",
         "notes": "Read from the Message table of Message.sqlite in the app's PrivateDocuments "
                  "folder. On the two devices tested most of the message rows were in the write ahead "
                  "log and not yet in the "
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "KakaoTalk",
+        "category": "Messaging",
         "notes": "Read from the ZCHAT table of Talk.sqlite, a Core Data store, with the folder name "
                  "taken from ZCHATFOLDER where the chat's id appears in that folder's id list. "
                  "Updated is ZUPDATEDAT, Cocoa seconds from 2001. Room Name is the ZROOMNAME column "
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "KakaoTalk",
+        "category": "Messaging",
         "notes": "Read from the ZUSER table of Talk.sqlite. A row is a user record the client holds. "
                  "What brings a user into this table is not established, "
                  "so a row is not by itself evidence that the account communicated with that user. "
@@ -122,7 +122,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "KakaoTalk",
+        "category": "Messaging",
         "notes": "Read from the ZCONTACT table of Talk.sqlite. A row records a name and number, not a "
                  "KakaoTalk account. Where the client took the entries from is not established here. "
                  "ZUSER (as stored) is the row's ZUSER value and is blank where none is "
@@ -150,7 +150,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "KakaoTalk",
+        "category": "Messaging",
         "notes": "One row per file under the client's chat, chatVideo and chatAudio folders, with "
                  "the file rendered where its bytes are a type the report can show. The folder a "
                  "file sits in is named with a chat id, which is the link the store records, so each "

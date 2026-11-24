@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-23",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Connected Devices",
+        "category": "Smart Home & Connected Devices",
         "notes": "Reference: Jack Farley, 'Forensic Analysis of iTunes Backups', "
                  "https://web.archive.org/web/20231205234911/https://farleyforensics.com/2019/04/14/forensic-analysis-of-itunes-backups/ "
                  "(the post describes iTunesPrefs as holding the last computers and computer users "

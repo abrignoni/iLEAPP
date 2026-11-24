@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-22",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Cellular",
+        "category": "Device Information",
         "notes": "",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.plist', 
                   '*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist'),

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-04-16",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Chats",
+        "category": "Messaging",
         "notes": "Only a file named zangidb.sqlite is read. ZFROM First Name, ZFROM Last Name and "
                  "ZFROM Number come from the ZZNUMBER row whose ZCONTACTNUMBEROBJECT equals the "
                  "message's ZFROM value, and from the ZCONTACT row holding the same ZIDENTIFIRE "

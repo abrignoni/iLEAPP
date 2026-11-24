@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'Safari Browser',
+        'category': 'Browsers',
         'notes': ('On the three images in sample_data the Downloads.plist has an empty '
                   'DownloadHistory '
                   'array, so the columns are mapped from the expected DownloadEntry* key names; no '

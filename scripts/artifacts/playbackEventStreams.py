@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Media Playback",
+        "category": "Music, Video & News",
         "notes": "One row per row of the events table in each Database file inside a .sqlpkg "
                  "folder under com.apple.MediaPlaybackCore.PlaybackEventStreams "
                  "(Library/Application Support of an app's data container) or "
