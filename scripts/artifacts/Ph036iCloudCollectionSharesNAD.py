@@ -31,8 +31,9 @@ __artifacts_v2__ = {
 'artifact_icon': 'cloud',
 'sample_data': {
 'abe_ios16': 'iOS 16.5 | 0 rows',
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-'falken_ios26': 'iOS 26 | 0 rows',
+'falken_ios26': 'iOS 26.2.1 | 0 rows',
 'hc_ios27': 'iOS 27.2 | 0 rows',
 'iphone11_ios17': 'iOS 17.3 | 0 rows',
 }
@@ -60,11 +61,13 @@ __artifacts_v2__ = {
 ' stem, inside the same PhotoData folder as the database, and the first one whose bytes are an image is'
 ' shown. Resource Files lists every matched file with the format read from its first bytes and its size.'
 ' In the tested extraction each album asset had a JPEG and a QuickTime file in derivatives and a small JPEG'
-' in masters; their sizes equal ZINTERNALRESOURCE.ZDATALENGTH for that asset. The original HEIC was not in'
-' the extraction, and its ZINTERNALRESOURCE rows carry ZLOCALAVAILABILITY -1.'
+' in masters; their sizes equal ZINTERNALRESOURCE.ZDATALENGTH for that asset. The original photo'
+' (ZUNIFORMTYPEIDENTIFIER public.heic) and its original video were not in the extraction; their'
+' ZINTERNALRESOURCE rows with ZRECIPEID 0 carry ZLOCALAVAILABILITY -1.'
 ' Evidence: data-proven on one private iOS 27.2.1 full file system extraction (field mapped from a private'
 ' sample) with one post of three photos by the device account. Post Creation Date agreed with the time'
-' the album was made, within five seconds, and each Asset Date Created with the time its photo was taken.'
+' the album was made, and each Asset Date Created with the time its photo was taken, each within five'
+' seconds.'
 ' With one album, one post and one contributor, Post Creation Date, Album Title, Post Cloud GUID,'
 ' zSharePost-zPK, zShare-zPK, Contributor Email, Contributor User ID and Contributor Is Current User'
 ' (1) held one value on all three rows; Asset Saved Asset Type held 16 and Asset Trashed State 0 on all'
@@ -78,8 +81,9 @@ __artifacts_v2__ = {
 'artifact_icon': 'image',
 'sample_data': {
 'abe_ios16': 'iOS 16.5 | 0 rows',
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-'falken_ios26': 'iOS 26 | 0 rows',
+'falken_ios26': 'iOS 26.2.1 | 0 rows',
 'hc_ios27': 'iOS 27.2 | 0 rows',
 'iphone11_ios17': 'iOS 17.3 | 0 rows',
 }
@@ -120,8 +124,9 @@ __artifacts_v2__ = {
 'artifact_icon': 'message-square',
 'sample_data': {
 'abe_ios16': 'iOS 16.5 | 0 rows',
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-'falken_ios26': 'iOS 26 | 0 rows',
+'falken_ios26': 'iOS 26.2.1 | 0 rows',
 'hc_ios27': 'iOS 27.2 | 0 rows',
 'iphone11_ios17': 'iOS 17.3 | 0 rows',
 }
