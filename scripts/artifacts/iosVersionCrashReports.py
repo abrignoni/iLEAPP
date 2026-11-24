@@ -45,7 +45,6 @@ __artifacts_v2__ = {
     }
 }
 
-import os
 import re
 
 from scripts.ilapfuncs import artifact_processor, device_info, iOS, logfunc

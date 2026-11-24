@@ -1,4 +1,5 @@
 """The iOS version fallback read from .ips crash reports."""
+# pylint: disable=protected-access
 import json
 import tempfile
 import unittest
