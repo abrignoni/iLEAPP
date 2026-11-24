@@ -62,10 +62,10 @@ CASES = (
      ((1593835523, 333320277), (1593835521, 111106759), (1593835522, 222213518),
       (1593835520, 444427036)), 1593835523),
     # 0xf0000000:0 0x80000000:0 0x00000000:0 0xffffffff:3. The change time is stored
-    # as 0. The listing reads the mtime base unsigned (4026531840, in 2097), and the
+    # as 0. The listing reads the mtime base signed (from qnxprobe 1.88), and the
     # staged copy keeps that.
     ('ext4-times', 'pre1970.txt',
-     ((-268435456, 0), (-2147483648, 0), None, (12884901887, 0)), 4026531840),
+     ((-268435456, 0), (-2147483648, 0), None, (12884901887, 0)), -268435456),
     # 0x83000000:15 0x10000000:1 0x90000000:2 0x7fffffff:0
     ('ext4-times', 'y2040.txt',
      ((2197815296, 5), (4563402752, 0), (6710886400, 0), (2147483647, 0)), 2197815296),
@@ -190,8 +190,9 @@ class HfsExpandedTimesTests(VolumeTimesTestCase):
         created, modified, changed, accessed = (value + HFS_EPOCH_DELTA for value in dates)
         self.assertTimes(info.times[:4], ((modified, 0), (accessed, 0), (changed, 0),
                                           (created, 0)))
-        # the listing ignores the flag, and the staged copy keeps its reading
-        self.assertEqual(os.stat(path).st_mtime, 1593835523)
+        # the listing reads the flag too (from qnxprobe 1.88), and the staged copy
+        # keeps that reading
+        self.assertEqual(os.stat(path).st_mtime, modified)
 
 
 class ListingFallbackTests(unittest.TestCase):
