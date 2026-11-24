@@ -99,6 +99,19 @@ class BadDateTest(unittest.TestCase):
                     self.assertEqual(sum(value is None for value in rows[1]) - sum(value is None for value in rows[0]),
                                      1, 'exactly one more empty value on the bad record')
 
+    def test_repeated_date_field_keeps_the_row_and_its_other_fields(self):
+        # blackboxprotobuf returns a list when a field repeats, which the conversion rejects with TypeError
+        for name in MODULES:
+            with self.subTest(module=name):
+                rows, logged, _ = self.run_module(name, [GOOD, GOOD + 1])
+                self.assertEqual(len(rows), 2, 'both records are reported')
+                self.assertIn(rows[1][1], (None, ''), 'the repeated Start Date is empty')
+                self.assertIn('TypeError', logged)
+                self.assertIn('offset 64', logged)
+                kept = [value for value in rows[1] if value not in (None, '')]
+                expected = [value for value in rows[0] if value not in (None, '')]
+                self.assertEqual(len(kept), len(expected) - 1, 'only the Start Date is lost')
+
 
 if __name__ == '__main__':
     unittest.main()
