@@ -489,13 +489,13 @@ def main():
 # the iTunes backup Info.plist are handled in crunch_artifacts.
 VERSION_READERS = ('system_version_plist', 'Ph087UFEDdevcievaluesplist')
 
-# The iOS version from the .ips crash reports. crunch_artifacts adds it after the version readers,
+# The iOS version from the .ips diagnostic reports. crunch_artifacts adds it after the version readers,
 # like last_build, and runs it only when none of them gave a version.
-CRASH_REPORT_VERSION = 'ios_version_crash_reports'
+CRASH_REPORT_VERSION = 'ios_version_diagnostic_reports'
 
 
 def add_crash_report_version(plugins, fallback):
-    """Return the plugins with the crash report version fallback placed after the version readers.
+    """Return the plugins with the diagnostic report version fallback placed after the version readers.
 
     last_build, when present, is first; the readers chosen follow it, then the fallback."""
     index = 0
@@ -620,7 +620,7 @@ def crunch_artifacts(
             plugins.insert(0, loader["last_build"])
         plugins[:] = add_crash_report_version(plugins, loader[CRASH_REPORT_VERSION])
 
-        # excluding last_build, iTunesBackupInfo and the crash report version fallback
+        # excluding last_build, iTunesBackupInfo and the diagnostic report version fallback
         logfunc(f'Info: {len(loader) - 3} modules loaded.')
         if profile_filename:
             logfunc(f'Loaded profile: {profile_filename}')
@@ -680,8 +680,8 @@ def crunch_artifacts(
         lava_only = False
         artifact_search_pattern_id = 0
         file_path_ids = set()
-        # last_build and the crash report version fallback are added to the artifacts chosen, which
-        # alone are numbered, as in the window
+        # last_build and the diagnostic report version fallback are added to the artifacts chosen, which
+        # alone are numbered; both are hidden from the window's list
         position = 0
 
         for plugin_number, plugin in enumerate(plugins, start=1):
@@ -702,7 +702,7 @@ def crunch_artifacts(
             if plugin.name == CRASH_REPORT_VERSION and iOS.get_version():
                 logfunc()
                 logfunc(f'[-] {plugin.name}: the iOS version was already read ({iOS.get_version()}), '
-                        'so the crash reports were not read for it')
+                        'so the diagnostic reports were not read for it')
                 continue
             numbered = plugin.name not in ('last_build', CRASH_REPORT_VERSION)
             position += 1 if numbered else 0

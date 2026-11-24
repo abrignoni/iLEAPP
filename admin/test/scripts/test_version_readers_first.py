@@ -9,7 +9,7 @@ from scripts import plugin_loader
 ARTIFACTS = Path(__file__).resolve().parents[3] / 'scripts' / 'artifacts'
 
 # Version setters that crunch_artifacts places itself.
-PLACED_BY_CRUNCH = {'lastBuild', 'iTunesBackupInfo', 'iosVersionCrashReports'}
+PLACED_BY_CRUNCH = {'lastBuild', 'iTunesBackupInfo', 'iosVersionDiagnosticReports'}
 
 
 def specs(*plugin_names):
