@@ -111,6 +111,9 @@ def ios_version_diagnostic_reports(context):
     used_key, used = max(groups.items(), key=rank)
     version, build = used_key
     source = used['newest_path']
+    if not iOS.get_version():
+        # A reader that found an empty version stored '', and set_version replaces only None.
+        iOS._version = None  # pylint: disable=protected-access
     iOS.set_version(version)
     context.set_installed_os_version(version)
     which = ('the newest diagnostic report' if used['newest'] is not None
@@ -119,8 +122,10 @@ def ios_version_diagnostic_reports(context):
             f'of {which}, {context.get_relative_path(source)}')
     if len(groups) > 1:
         seen = '; '.join(f'{v} ({b}): {g["count"]}' for (v, b), g in sorted(groups.items()))
+        reason = ('The newest report decides.' if used['newest'] is not None
+                  else 'No report has a readable timestamp, so the pair with the most reports decides.')
         logfunc(f'Diagnostic reports name {len(groups)} iOS version and build pairs, with report counts: '
-                f'{seen}. The newest report decides.')
+                f'{seen}. {reason}')
     device_info('Device Information', 'iOS version', version, source)
     if build:
         device_info('Device Information', 'ProductBuildVersion', build, source)

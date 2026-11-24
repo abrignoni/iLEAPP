@@ -44,6 +44,11 @@ class TestVersionReadersFirst(unittest.TestCase):
         self.assertEqual(names(ileapp.add_crash_report_version(specs('last_build', 'a'), fallback)),
                          ['last_build', ileapp.CRASH_REPORT_VERSION, 'a'])
 
+    def test_stopped_count_leaves_out_the_added_steps(self):
+        self.assertEqual(ileapp.chosen_count(specs(ileapp.CRASH_REPORT_VERSION, 'a')), 1)
+        self.assertEqual(ileapp.chosen_count(specs('last_build', 'system_version_plist',
+                                                   ileapp.CRASH_REPORT_VERSION, 'a')), 2)
+
     def test_every_version_setter_is_placed(self):
         loader = plugin_loader.PluginLoader()
         reader_modules = {loader[name].module_name for name in ileapp.VERSION_READERS}

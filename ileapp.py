@@ -505,6 +505,11 @@ def add_crash_report_version(plugins, fallback):
     return plugins[:index] + [fallback] + plugins[index:]
 
 
+def chosen_count(plugins):
+    """How many of the plugins were chosen to run, leaving out the two crunch_artifacts adds."""
+    return sum(1 for plugin in plugins if plugin.name not in ('last_build', CRASH_REPORT_VERSION))
+
+
 def version_readers_first(plugins):
     """Return the plugins with the version readers among them moved to the front.
 
@@ -689,7 +694,7 @@ def crunch_artifacts(
             if GuiWindow.stop_requested:
                 GuiWindow.stopped = True
                 not_run = plugins[plugin_number - 1:]
-                stopped_note = (f'Stopped by the user: {min(len(not_run), selected_count)} of '
+                stopped_note = (f'Stopped by the user: {chosen_count(not_run)} of '
                                 f'{selected_count} artifacts were not run.')
                 logfunc(f'\n{stopped_note}')
                 for left in not_run:
