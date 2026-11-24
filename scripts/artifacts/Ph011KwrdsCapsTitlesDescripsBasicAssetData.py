@@ -26,7 +26,7 @@ __artifacts_v2__ = {
 " module author's working interpretations from testing. The module cites no source for them. Each"
 ' label carries the stored value. Labels marked StillTesting or STILLTESTING are unconfirmed. The'
 ' Syndication State labels for values 2, 8 and 10 are interpretations with no cited source. The'
-' store records the state value. It does not record who changed it.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. An iOS 27 shared album reaction is stored in ZCLOUDSHAREDCOMMENT.ZREACTTEXT with no comment text, a NULL comment type and ZISLIKE 0, so it meets none of the tests in the description and is not listed here. Ph036.3 reports shared album comments and reactions.',
+' store records the state value. It does not record who changed it.' ' iOS 27.2 is read with the same query as iOS 26; field mapped from a private sample. In the tested iOS 27.2.1 store a shared album reaction was a ZCLOUDSHAREDCOMMENT row with ZREACTTEXT set, no comment text, a NULL comment type and ZISLIKE 0. It meets none of the tests in the description and is not listed here. Ph036.3 reports shared album comments and reactions.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "info-circle",

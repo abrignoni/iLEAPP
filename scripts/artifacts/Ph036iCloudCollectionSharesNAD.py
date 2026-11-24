@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
 'Ph036_1iCloudCollectionShareAlbumsPhDaPsql': {
 'name': 'Ph036.1-iCloud Collection Share Albums-PhDaPsql',
-'description': 'Shared albums stored as CollectionShare records in PhotoData/Photos.sqlite ZSHARE, one row'
-' per album, with its post, participant and asset counts.',
+'description': 'CollectionShare records in PhotoData/Photos.sqlite ZSHARE, one row per record, with its post,'
+' participant and asset counts. The records seen in testing were shared albums.',
 'author': '@AlexisBrignoni, Claude',
 'creation_date': '2026-11-24',
 'last_update_date': '2026-11-24',
@@ -10,22 +10,22 @@ __artifacts_v2__ = {
 'category': 'Photos.sqlite',
 'notes': 'Built on the Photos.sqlite research of Scott Koenig,'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
-' On iOS 27 a shared album is a ZSHARE row whose entity is CollectionShare. It is not a ZGENERICALBUM row'
-' with ZKIND 1505, so Ph023 and Ph024 do not show it. The CollectionShare entity number is read by name'
-' from the Z_PRIMARYKEY table of the store, and the artifact runs whenever that entity exists, whatever iOS'
-' version was read, so it also runs on an extraction with no iOS version file. Post Count counts the'
-' ZSHAREPOST rows that name the album, and is empty when the store has no ZSHAREPOST table. Participant'
-' Count counts the ZSHAREPARTICIPANT rows that name the album; the participants themselves are in Ph030.'
-' The ZSCOPETYPE, ZCOLLECTIONSHAREKIND, ZPUBLICPERMISSION, ZCURRENTPARTICIPANTROLE and ZTRASHEDSTATE'
-' columns are reported as stored; no meaning is assigned to their values. Start Date and End Date are'
-' ZSTARTDATE and ZENDDATE as stored; what they mark for an album is not established.'
-' Evidence: data-proven on one private iOS 27.2.1 full file system extraction (field mapped from a private'
-' sample) holding one album its owner made with three photos and no one invited. Creation Date agreed with'
-' the time recorded when the album was made, and Last Modified Date with the time of the last comment'
-' posted to it, each within five seconds. Expiry Date and Trashed Date were empty on that album, which was'
-' not made temporary and was not deleted. Participant Count was 1 with no one invited. The'
-' CollectionShare entity also exists on the tested iOS 26 image, which holds no such record, so the iOS 26'
-' output has not been seen.',
+' In the tested iOS 27.2.1 extraction the shared album was a ZSHARE row whose entity is CollectionShare.'
+' That store held no ZGENERICALBUM row with ZKIND 1505, and Ph023 and Ph024, which read only those rows,'
+' returned nothing for it. The CollectionShare entity number is read by name from the Z_PRIMARYKEY table'
+' of the store, and the artifact runs whenever that entity exists, whatever iOS version was read, so it'
+' also runs on an extraction with no iOS version file. Post Count counts the ZSHAREPOST rows that name the'
+' record, and is empty when the store has no ZSHAREPOST table. Participant Count counts the'
+' ZSHAREPARTICIPANT rows that name the record; the participants themselves are in Ph030. The ZSCOPETYPE,'
+' ZCOLLECTIONSHAREKIND, ZPUBLICPERMISSION, ZCURRENTPARTICIPANTROLE and ZTRASHEDSTATE columns are reported'
+' as stored; no meaning is assigned to their values. Start Date and End Date are ZSTARTDATE and ZENDDATE'
+' converted from Cocoa time to UTC; what they mark for an album is not established.'
+' Evidence: data-proven on a private iOS 27.2.1 full file system extraction (field mapped from a private'
+' sample) holding an album its owner made with no one invited. Creation Date agreed with the time'
+' recorded when the album was made, and Last Modified Date with the time of the last comment posted to it,'
+' each within five seconds. Expiry Date and Trashed Date were empty on that album, which was not made'
+' temporary and was not deleted. The CollectionShare entity also exists on the tested iOS 26 image, which'
+' holds no such record, so the iOS 26 output has not been seen.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 'output_types': 'standard',
 'artifact_icon': 'cloud',
@@ -34,13 +34,12 @@ __artifacts_v2__ = {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
 'falken_ios26': 'iOS 26.2.1 | 0 rows',
-'hc_ios27': 'iOS 27.2 | 0 rows',
 'iphone11_ios17': 'iOS 17.3 | 0 rows',
 }
 },
 'Ph036_2iCloudCollectionSharePostsPhDaPsql': {
 'name': 'Ph036.2-iCloud Collection Share Posts and Assets-PhDaPsql',
-'description': 'Posts to CollectionShare shared albums from PhotoData/Photos.sqlite ZSHAREPOST, one row per'
+'description': 'Posts to CollectionShare records from PhotoData/Photos.sqlite ZSHAREPOST, one row per'
 ' post and asset, with the contributor and the asset media found in the extraction.',
 'author': '@AlexisBrignoni, Claude',
 'creation_date': '2026-11-24',
@@ -49,33 +48,34 @@ __artifacts_v2__ = {
 'category': 'Photos.sqlite',
 'notes': 'Built on the Photos.sqlite research of Scott Koenig,'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
-' A post is a ZSHAREPOST row whose ZSHARE names a CollectionShare album; its assets are the ZASSET rows'
+' A post is a ZSHAREPOST row whose ZSHARE names a CollectionShare record; its assets are the ZASSET rows'
 ' whose ZSHAREPOST names it, so a post with several assets gives several rows and a post with none gives'
 ' one row with the asset columns empty. The contributor is the ZSHAREPARTICIPANT row named by'
 ' ZSHAREPOST.ZCONTRIBUTOR. Contributor Is Current User, Asset Trashed State and Asset Saved Asset Type are'
-' reported as stored. The album asset is a separate ZASSET row from the library copy of the same photo.'
+' reported as stored. In the tested extraction each album asset was a separate ZASSET row from the library'
+' copy of the same photo.'
 ' Media: the asset row records ZDIRECTORY and ZFILENAME. The files were found under'
 ' PhotoData/UBF/scopes/collectionshare/resources/derivatives/<ZDIRECTORY>/ and under'
 ' derivatives/masters/<ZDIRECTORY>/, named for the ZFILENAME stem followed by an underscore and a suffix.'
 ' That layout is observed in the data, not sourced. A file is matched only by that recorded directory and'
-' stem, inside the same PhotoData folder as the database, and the first one whose bytes are an image is'
-' shown. Resource Files lists every matched file with the format read from its first bytes and its size.'
-' In the tested extraction each album asset had a JPEG and a QuickTime file in derivatives and a small JPEG'
-' in masters; their sizes equal ZINTERNALRESOURCE.ZDATALENGTH for that asset. The original photo'
-' (ZUNIFORMTYPEIDENTIFIER public.heic) and its original video were not in the extraction; their'
-' ZINTERNALRESOURCE rows with ZRECIPEID 0 carry ZLOCALAVAILABILITY -1.'
-' Evidence: data-proven on one private iOS 27.2.1 full file system extraction (field mapped from a private'
-' sample) with one post of three photos by the device account. Post Creation Date agreed with the time'
-' the album was made, and each Asset Date Created with the time its photo was taken, each within five'
-' seconds.'
-' With one album, one post and one contributor, Post Creation Date, Album Title, Post Cloud GUID,'
-' zSharePost-zPK, zShare-zPK, Contributor Email, Contributor User ID and Contributor Is Current User'
-' (1) held one value on all three rows; Asset Saved Asset Type held 16 and Asset Trashed State 0 on all'
-' three. Contributor Phone was empty. Post Caption and Post Last Edited Date were empty and Post Comments'
-' Count and Post Reactions Count held 0, although the photos had comments and reactions: those rows name'
-' the asset, not the post (see Ph036.3). Posts by another'
-' participant, captions and post-level comments are unexercised. Needs the ZSHAREPOST table, which the'
-' tested iOS 26 image does not have.',
+' stem, inside the same PhotoData folder as the database, and the first one whose first bytes read as'
+' JPEG, HEIF or PNG is shown, derivatives before masters. Resource Files lists every matched file with the'
+' format read from its first bytes and its size. In the tested extraction each album asset had a JPEG and'
+' a QuickTime file in derivatives and a smaller JPEG in masters, and their sizes equal'
+' ZINTERNALRESOURCE.ZDATALENGTH for that asset. No file named for the asset stem was found anywhere else'
+' in that extraction, so the original photo (ZUNIFORMTYPEIDENTIFIER public.heic) and its original video'
+' were not in it. ZINTERNALRESOURCE.ZLOCALAVAILABILITY is not used: it held the same value on the missing'
+' originals and on the masters JPEG that was present.'
+' Evidence: data-proven on a private iOS 27.2.1 full file system extraction (field mapped from a private'
+' sample) with a post by the device account. Post Creation Date agreed with the time the album was made,'
+' and each Asset Date Created with the time its photo was taken, each within five seconds. Post Creation'
+' Date, Album Title, Post Cloud GUID, zSharePost-zPK,'
+' zShare-zPK, Contributor Email, Contributor User ID, Contributor Is Current User, Asset Saved Asset Type'
+' and Asset Trashed State each held one value on every row. Contributor Phone was empty. Post Caption and'
+' Post Last Edited Date were empty and Post Comments Count and Post Reactions Count held zero, although the'
+' photos had comments and reactions: those rows name the asset, not the post (see Ph036.3). Posts by'
+' another participant, captions and post-level comments are unexercised. Needs the ZSHAREPOST table, which'
+' the tested iOS 26 image does not have.',
 'paths': ('*/PhotoData/Photos.sqlite*', '*/PhotoData/UBF/scopes/collectionshare/resources/derivatives/*'),
 'output_types': 'standard',
 'artifact_icon': 'image',
@@ -84,13 +84,12 @@ __artifacts_v2__ = {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
 'falken_ios26': 'iOS 26.2.1 | 0 rows',
-'hc_ios27': 'iOS 27.2 | 0 rows',
 'iphone11_ios17': 'iOS 17.3 | 0 rows',
 }
 },
 'Ph036_3iCloudCollectionShareCommentsReactionsPhDaPsql': {
 'name': 'Ph036.3-iCloud Collection Share Comments and Reactions-PhDaPsql',
-'description': 'Comments, reactions and likes on CollectionShare shared album assets and posts from'
+'description': 'Comments, reactions and likes on CollectionShare assets and posts from'
 ' PhotoData/Photos.sqlite ZCLOUDSHAREDCOMMENT, one row per record, with the participant and the asset'
 ' media.',
 'author': '@AlexisBrignoni, Claude',
@@ -101,24 +100,24 @@ __artifacts_v2__ = {
 'notes': 'Built on the Photos.sqlite research of Scott Koenig,'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
 ' A ZCLOUDSHAREDCOMMENT row is reported when the asset it names (ZREACTEDASSET, ZCOMMENTEDASSET or'
-' ZLIKEDASSET, in that order) belongs to a CollectionShare album through ZASSET.ZCOLLECTIONSHARE, or when'
-' the post it names (ZREACTEDPOST or ZCOMMENTEDPOST) belongs to one. Linked By names the column that made'
-' the link. Kind is named for the column that holds a value: Reaction for ZREACTTEXT, Comment for'
-' ZCOMMENTTEXT, Like for ZISLIKE equal to 1, and None of the three when all are empty. A reaction row has'
-' no comment text, a NULL ZCOMMENTTYPE and ZISLIKE 0, which is why Ph011 does not list reactions. The'
-' participant is the ZSHAREPARTICIPANT row named by ZSHAREPARTICIPANT on the comment row. Is My Comment'
-' and Participant Is Current User are reported as stored.'
-' Evidence: data-proven on one private iOS 27.2.1 full file system extraction (field mapped from a private'
-' sample) with two reactions and two comments on two photos, all made by the device account. Kind, the'
-' reaction, the comment text, the photo each one names and the Comment Date agreed with what was recorded'
-' when each was made, Comment Date within five seconds. Is My Comment and Participant Is Current User held'
-' 1 on all four rows, and Album Title, zShare-zPK, zSharePost-zPK, Participant Email and Contributor User'
-' ID held one value each, as the device account made all four in one album. Participant Phone and'
-' Commenter Hashed Person ID were empty. Linked By was ZREACTEDASSET or ZCOMMENTEDASSET on every row;'
-' ZCOMMENTEDPOST, ZREACTEDPOST and ZCOMMENTTYPE (ZCOMMENTTYPE Raw Value) were empty, and so were Comment'
-' Client Date and Last Edited Date. zSharePost-zPK comes from the asset when the row names no post.'
-' Comments'
-' and reactions by another participant, likes and post-level comments are unexercised.',
+' ZLIKEDASSET, in that order) belongs to a CollectionShare record through ZASSET.ZCOLLECTIONSHARE, or when'
+' the post it names (ZREACTEDPOST or ZCOMMENTEDPOST) belongs to one. Linked By names the first link column'
+' that holds a value, in the order ZREACTEDASSET, ZCOMMENTEDASSET, ZLIKEDASSET, ZREACTEDPOST,'
+' ZCOMMENTEDPOST. Kind is named for the first of these that holds a value: Reaction for ZREACTTEXT, Comment'
+' for ZCOMMENTTEXT, Like for ZISLIKE equal to 1. It is None of the three when none does. The reaction rows'
+' in the tested extraction had no comment text, a NULL ZCOMMENTTYPE and ZISLIKE 0, so Ph011 did not list'
+' them. The participant is the ZSHAREPARTICIPANT row named by ZSHAREPARTICIPANT on the comment row. Is My'
+' Comment and Participant Is Current User are reported as stored.'
+' Evidence: data-proven on a private iOS 27.2.1 full file system extraction (field mapped from a private'
+' sample) with reactions and comments on photos, all made by the device account. Kind, the reaction, the'
+' comment text, the photo each one names and the Comment Date agreed with what was recorded when each was'
+' made, Comment Date within five seconds. Is My Comment, Participant Is Current User, Album Title,'
+' zShare-zPK, zSharePost-zPK, Participant Email and Contributor User ID each held one value on every row.'
+' Participant Phone and Commenter Hashed Person ID were'
+' empty. Linked By was ZREACTEDASSET or ZCOMMENTEDASSET on every row; ZCOMMENTEDPOST, ZREACTEDPOST and'
+' ZCOMMENTTYPE (ZCOMMENTTYPE Raw Value) were empty, and so were Comment Client Date and Last Edited Date.'
+' zSharePost-zPK comes from the asset when the row names no post. Comments and reactions by another'
+' participant, likes and post-level comments are unexercised.',
 'paths': ('*/PhotoData/Photos.sqlite*', '*/PhotoData/UBF/scopes/collectionshare/resources/derivatives/*'),
 'output_types': 'standard',
 'artifact_icon': 'message-square',
@@ -127,7 +126,6 @@ __artifacts_v2__ = {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
 'falken_ios26': 'iOS 26.2.1 | 0 rows',
-'hc_ios27': 'iOS 27.2 | 0 rows',
 'iphone11_ios17': 'iOS 17.3 | 0 rows',
 }
 },
