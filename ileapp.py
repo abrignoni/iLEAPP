@@ -308,6 +308,7 @@ def main():
     for plugin in sorted(loader.plugins, key=lambda p: p.category):
         if (plugin.module_name == 'iTunesBackupInfo'
                 or plugin.name == 'last_build'
+                or plugin.name == CRASH_REPORT_VERSION
                 or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
             continue
         else:
@@ -488,6 +489,21 @@ def main():
 # the iTunes backup Info.plist are handled in crunch_artifacts.
 VERSION_READERS = ('system_version_plist', 'Ph087UFEDdevcievaluesplist')
 
+# The iOS version from the .ips crash reports. crunch_artifacts adds it after the version readers,
+# like last_build, and runs it only when none of them gave a version.
+CRASH_REPORT_VERSION = 'ios_version_crash_reports'
+
+
+def add_crash_report_version(plugins, fallback):
+    """Return the plugins with the crash report version fallback placed after the version readers.
+
+    last_build, when present, is first; the readers chosen follow it, then the fallback."""
+    index = 0
+    while index < len(plugins) and (plugins[index].name == 'last_build'
+                                    or plugins[index].name in VERSION_READERS):
+        index += 1
+    return plugins[:index] + [fallback] + plugins[index:]
+
 
 def version_readers_first(plugins):
     """Return the plugins with the version readers among them moved to the front.
@@ -602,8 +618,10 @@ def crunch_artifacts(
         # add last_build at the start except for iTunes backups
         if extracttype != 'itunes':
             plugins.insert(0, loader["last_build"])
+        plugins[:] = add_crash_report_version(plugins, loader[CRASH_REPORT_VERSION])
 
-        logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding last_build and iTunesBackupInfo
+        # excluding last_build, iTunesBackupInfo and the crash report version fallback
+        logfunc(f'Info: {len(loader) - 3} modules loaded.')
         if profile_filename:
             logfunc(f'Loaded profile: {profile_filename}')
         logfunc(f'Artifact to parse: {selected_count}')
@@ -662,8 +680,9 @@ def crunch_artifacts(
         lava_only = False
         artifact_search_pattern_id = 0
         file_path_ids = set()
-        # last_build is added before the artifacts chosen, which alone are numbered, as in the window
-        added_first = len(plugins) - selected_count
+        # last_build and the crash report version fallback are added to the artifacts chosen, which
+        # alone are numbered, as in the window
+        position = 0
 
         for plugin_number, plugin in enumerate(plugins, start=1):
             GuiWindow.SetProgressBar(plugin_number - 1, len(plugins))
@@ -680,8 +699,14 @@ def crunch_artifacts(
             # "artifact started" line is printed and is itself a place a run can sit.
             plugin_start = perf_counter()
             logfunc()
-            position = plugin_number - added_first
-            counter = f'[{position}/{selected_count}]' if position > 0 else '[-]'
+            if plugin.name == CRASH_REPORT_VERSION and iOS.get_version():
+                logfunc()
+                logfunc(f'[-] {plugin.name}: the iOS version was already read ({iOS.get_version()}), '
+                        'so the crash reports were not read for it')
+                continue
+            numbered = plugin.name not in ('last_build', CRASH_REPORT_VERSION)
+            position += 1 if numbered else 0
+            counter = f'[{position}/{selected_count}]' if numbered else '[-]'
             logfunc(f'{counter} {plugin.name} [{plugin.module_name}] artifact started at '
                     f'{strftime("%H:%M:%S", gmtime())} UTC')
             output_types = plugin.artifact_info.get('output_types', '')

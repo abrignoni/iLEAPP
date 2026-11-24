@@ -1,0 +1,89 @@
+"""The iOS version fallback read from .ips crash reports."""
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from scripts.artifacts import iosVersionCrashReports as module
+from scripts.ilapfuncs import iOS
+
+
+class Context:
+    files = []
+    installed = None
+
+    @classmethod
+    def get_files_found(cls):
+        return cls.files
+
+    @staticmethod
+    def get_relative_path(path):
+        return Path(path).name
+
+    @classmethod
+    def set_installed_os_version(cls, value):
+        cls.installed = value
+
+
+def ips(folder, name, meta, body=''):
+    path = Path(folder) / name
+    path.write_text(json.dumps(meta) + '\n' + body, encoding='utf-8')
+    return str(path)
+
+
+def run(files):
+    Context.files = files
+    Context.installed = None
+    with patch.object(iOS, '_version', None), patch.object(module, 'device_info'), \
+            patch.object(module, 'logfunc') as log:
+        headers, rows, source = module.ios_version_crash_reports.__wrapped__(Context)
+        version = iOS.get_version()
+    names = [h[0] if isinstance(h, tuple) else h for h in headers]
+    return [dict(zip(names, row)) for row in rows], source, version, [c.args[0] for c in log.call_args_list]
+
+
+class TestIosVersionCrashReports(unittest.TestCase):
+    def test_newest_report_decides_and_both_versions_are_listed(self):
+        with tempfile.TemporaryDirectory() as folder:
+            old = ips(folder, 'a.ips', {'bug_type': '313', 'timestamp': '2026-01-02 10:00:00.00 -0500',
+                                        'os_version': 'iPhone OS 26.6 (23G71)'})
+            new = ips(folder, 'b.ips', {'bug_type': '221', 'timestamp': '2026-03-02 10:00:00.00 -0500',
+                                        'os_version': 'iPhone OS 27.2.1 (24B156)'})
+            also_old = ips(folder, 'c.ips', {'bug_type': '313', 'timestamp': '2026-01-03 10:00:00.00 -0500',
+                                             'os_version': 'iPhone OS 26.6 (23G71)'})
+            bad = ips(folder, 'd.ips', {'bug_type': '313', 'os_version': 'garbled'})
+            rows, source, version, log = run([old, new, also_old, bad])
+        self.assertEqual(version, '27.2.1')
+        self.assertEqual(Context.installed, '27.2.1')
+        self.assertEqual([(r['iOS Version'], r['Build'], r['Report Count'], r['Used']) for r in rows],
+                         [('27.2.1', '24B156', 1, 'Yes'), ('26.6', '23G71', 2, 'No')])
+        self.assertEqual(source.split('\n'), [new, also_old])
+        self.assertTrue(any('1 crash report(s) gave no readable' in line for line in log))
+        self.assertTrue(any('name 2 iOS versions' in line for line in log))
+        self.assertTrue(any('b.ips' in line and 'os_version (metadata)' in line for line in log))
+
+    def test_crash_report_body_version_is_used_for_bug_type_309(self):
+        with tempfile.TemporaryDirectory() as folder:
+            crash = ips(folder, 'App-2026.ips', {'bug_type': '309', 'timestamp': '2026-03-02 10:00:00.00 +0000',
+                                                 'os_version': 'iPhone OS 27.2 (24B119)'},
+                        json.dumps({'osVersion': {'train': 'iPhone OS 27.2', 'build': '24B119'}}))
+            rows, _, version, _ = run([crash])
+        self.assertEqual(version, '27.2')
+        self.assertEqual(rows[0]['Field'], 'osVersion (body)')
+        self.assertEqual(rows[0]['Build'], '24B119')
+
+    def test_no_readable_report_leaves_the_version_unknown(self):
+        with tempfile.TemporaryDirectory() as folder:
+            bad = ips(folder, 'x.ips', {'bug_type': '313'})
+            rows, source, version, _ = run([bad])
+        self.assertEqual((rows, source, version), ([], '', None))
+
+    def test_parse(self):
+        self.assertEqual(module._parse('iPhone OS 27.2.1 (24B156)'), ('27.2.1', '24B156'))
+        self.assertEqual(module._parse('iPhone OS 18.3.2'), ('18.3.2', ''))
+        self.assertIsNone(module._parse('iPhone OS'))
+
+
+if __name__ == '__main__':
+    unittest.main()
