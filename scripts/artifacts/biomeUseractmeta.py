@@ -130,9 +130,15 @@ def _lines(value, path, out):
 # seconds since 2001-01-01 UTC, and type 0 is followed by a MessagePack string read as a URL.
 
 _PAYLOAD_MAGIC = b'MP\x03\x05'
+# Nesting deeper than this, or an array that points back at itself, is refused as damaged.
+_MAX_DEPTH = 64
+# Container values one record may decode; array entries can point at shared or earlier values.
+_MAX_VALUES = 100_000
 
 
-def _mp_value(data, pos):
+def _mp_value(data, pos, depth=0):
+    if depth > _MAX_DEPTH:
+        raise _Undecoded(f'nesting deeper than {_MAX_DEPTH} at offset {pos}')
     tag = data[pos]
     pos += 1
     if tag <= 0x7f:
@@ -140,9 +146,9 @@ def _mp_value(data, pos):
     if tag >= 0xe0:
         return tag - 0x100, pos
     if 0x80 <= tag <= 0x8f:
-        return _mp_map(data, pos, tag & 0x0f)
+        return _mp_map(data, pos, tag & 0x0f, depth)
     if 0x90 <= tag <= 0x9f:
-        return _mp_array(data, pos, tag & 0x0f)
+        return _mp_array(data, pos, tag & 0x0f, depth)
     if 0xa0 <= tag <= 0xbf:
         return _mp_take(data, pos, tag & 0x1f).decode('utf-8'), pos + (tag & 0x1f)
     if tag == 0xc0:
@@ -166,7 +172,7 @@ def _mp_value(data, pos):
         width = 2 if tag in (0xdc, 0xde) else 4
         count = int.from_bytes(_mp_take(data, pos, width), 'big')
         reader = _mp_array if tag in (0xdc, 0xdd) else _mp_map
-        return reader(data, pos + width, count)
+        return reader(data, pos + width, count, depth)
     if tag in (0xc7, 0xc8, 0xc9, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8):
         if tag in (0xc7, 0xc8, 0xc9):
             width = {0xc7: 1, 0xc8: 2, 0xc9: 4}[tag]
@@ -177,7 +183,7 @@ def _mp_value(data, pos):
         code = struct.unpack_from('b', data, pos)[0]
         pos += 1
         if code == 0:
-            url, pos = _mp_value(data, pos)
+            url, pos = _mp_value(data, pos, depth + 1)
             if not isinstance(url, str):
                 raise _Undecoded('extension type 0 not followed by a string')
             return url, pos
@@ -196,18 +202,18 @@ def _mp_take(data, pos, size):
     return data[pos:pos + size]
 
 
-def _mp_map(data, pos, count):
+def _mp_map(data, pos, count, depth):
     result = {}
     for _ in range(count):
-        key, pos = _mp_value(data, pos)
-        result[str(key)], pos = _mp_value(data, pos)
+        key, pos = _mp_value(data, pos, depth + 1)
+        result[str(key)], pos = _mp_value(data, pos, depth + 1)
     return result, pos
 
 
-def _mp_array(data, pos, count):
+def _mp_array(data, pos, count, depth):
     result = []
     for _ in range(count):
-        item, pos = _mp_value(data, pos)
+        item, pos = _mp_value(data, pos, depth + 1)
         result.append(item)
     return result, pos
 
@@ -234,7 +240,12 @@ def _payload_text(payload, where):
 _CONTAINER_MAGIC = b'\xde\xba\x00\x01'
 
 
-def _cs_value(data, offset, tag):
+def _cs_value(data, offset, tag, budget, depth=0):
+    if depth > _MAX_DEPTH:
+        raise _Undecoded(f'nesting deeper than {_MAX_DEPTH} at {offset}')
+    budget[0] -= 1
+    if budget[0] < 0:
+        raise _Undecoded(f'more than {_MAX_VALUES} values')
     if tag == 0xf4:
         size, = struct.unpack_from('<I', data, offset)
         if size < 1 or data[offset + 3 + size] != 0:
@@ -242,6 +253,8 @@ def _cs_value(data, offset, tag):
         return data[offset + 4:offset + 3 + size].decode('utf-8')
     if tag == 0xf5:
         size, = struct.unpack_from('<I', data, offset)
+        if offset + 4 + size > len(data):
+            raise _Undecoded(f'string at {offset} runs past the end')
         return data[offset + 4:offset + 4 + size].decode('utf-16')
     if tag == 0x13:
         return _mac_time_text(struct.unpack_from('<d', data, offset)[0])
@@ -254,7 +267,7 @@ def _cs_value(data, offset, tag):
     if tag == 0xf0:
         size, count = struct.unpack_from('<IH', data, offset)
         end = offset + 4 + size
-        return [_cs_value(data, *struct.unpack_from('<IB', data, end - 5 * count + 5 * index))
+        return [_cs_value(data, *struct.unpack_from('<IB', data, end - 5 * count + 5 * index), budget, depth + 1)
                 for index in range(count)]
     return f'<tag 0x{tag:02x}, value {offset}, not decoded>'
 
@@ -275,6 +288,7 @@ def _cs_decode(data):
         pos += size + 3
     count, = struct.unpack_from('<H', data, 0x21)
     result = {}
+    budget = [_MAX_VALUES]
     for index in range(count):
         offset, tag = struct.unpack_from('<IB', data, key_table - 5 * count + 5 * index)
         if tag != 0xf1:
@@ -283,7 +297,7 @@ def _cs_decode(data):
         end = offset + 4 + size
         for entry in range(entries):
             key_offset, value_offset, value_tag = struct.unpack_from('<IIB', data, end - 9 * entries + 9 * entry)
-            result[keys[key_offset]] = _cs_value(data, value_offset, value_tag)
+            result[keys[key_offset]] = _cs_value(data, value_offset, value_tag, budget)
     return dict(sorted(result.items()))
 
 

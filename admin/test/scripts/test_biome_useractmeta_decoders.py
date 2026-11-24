@@ -5,6 +5,7 @@ The real fixtures are records from the public Cellebrite CTF 2023 (Abe) image. T
 values agree with macOS's decode of the same records (NSUserActivity on macOS 27.2.1); the
 text layout is the reader's.
 """
+import struct
 import unittest
 from unittest.mock import patch
 
@@ -80,6 +81,12 @@ class PayloadTests(unittest.TestCase):
             self.assertEqual(parser._payload_text(PAYLOAD_DATE[:-5], 'test'), PAYLOAD_DATE[:-5])
         log.assert_called_once()
 
+    def test_deep_nesting_keeps_the_raw_bytes_and_logs(self):
+        payload = b'MP\x03\x05' + b'\x91' * 5000 + b'\x00'
+        with patch.object(parser, 'logfunc') as log:
+            self.assertEqual(parser._payload_text(payload, 'test'), payload)
+        log.assert_called_once()
+
     def test_trailing_bytes_keep_the_raw_bytes_and_log(self):
         with patch.object(parser, 'logfunc') as log:
             self.assertEqual(parser._payload_text(PAYLOAD_URL + b'\x00', 'test'), PAYLOAD_URL + b'\x00')
@@ -119,6 +126,24 @@ class ContainerTests(unittest.TestCase):
         with patch.object(parser, 'logfunc') as log:
             self.assertEqual(parser._container_text(field, 'test'), field['NS.data'])
         log.assert_called_once()
+
+    def test_self_referencing_array_is_refused(self):
+        # An array (tag 0xF0) of one entry pointing back at the array itself.
+        looped = struct.pack('<IHIB', 7, 1, 0, 0xf0)
+        with self.assertRaises(parser._Undecoded):
+            parser._cs_value(looped, 0, 0xf0, [parser._MAX_VALUES])
+
+    def test_shared_array_entries_hit_the_value_budget(self):
+        # 2,000 entries all pointing at the array itself: refused by the budget, not by time.
+        count = 2000
+        looped = struct.pack('<IH', 2 + 5 * count, count) + struct.pack('<IB', 0, 0xf0) * count
+        with self.assertRaises(parser._Undecoded):
+            parser._cs_value(looped, 0, 0xf0, [parser._MAX_VALUES])
+
+    def test_utf16_string_past_the_end_is_refused(self):
+        short = struct.pack('<I', 16) + b'\xff\xfe' + 'ab'.encode('utf-16-le')
+        with self.assertRaises(parser._Undecoded):
+            parser._cs_value(short, 0, 0xf5, [parser._MAX_VALUES])
 
     def test_absent_field_is_empty(self):
         self.assertEqual(parser._container_text('', 'test'), '')
