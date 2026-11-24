@@ -41,6 +41,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Ph033AssetsIniCldSPLfromOtherContrib |
 | Ph034iCloudSharedLinksNAD |
 | Ph035iCloudSharedLinkAssets |
+| Ph036iCloudCollectionSharesNAD |
 | Ph050AssetIntResouData |
 | Ph051PossOptimizedAssetsIntResouData |
 | Ph094Ios14REFforAssetAnalysis |
