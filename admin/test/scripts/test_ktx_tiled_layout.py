@@ -89,9 +89,10 @@ class UntileTests(unittest.TestCase):
         data = _raster(828, 1792)
         self.assertIs(_reader(828, 1792, (0,) * 21, image_scale=2).untile_astc_4x4(data), data)
 
-    def test_short_data_is_left_alone(self):
+    def test_short_data_is_refused(self):
         data = _raster(1170, 2532)[:-ASTC_BLOCK_BYTES]
-        self.assertIs(_reader(1170, 2532).untile_astc_4x4(data), data)
+        with self.assertRaises(ValueError):
+            _reader(1170, 2532).untile_astc_4x4(data)
 
 
 class ScaleFromNameTests(unittest.TestCase):
