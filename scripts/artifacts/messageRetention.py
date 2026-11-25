@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "date": "2023-10-04",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "Setting names the file and the stored key the row was read from "
                  "(KeepMessageForDays or SSKeepMessages). A file can hold both keys and then "
                  "yields a row for each; which iOS releases write which key is not established "

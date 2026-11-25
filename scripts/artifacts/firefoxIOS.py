@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Firefox",
+        "category": "Browsers",
         "notes": "One row per recorded visit. Firefox for iOS keeps its history in places.db, a "
                  "store with the Mozilla schema. The visit time is read as Unix milliseconds here, "
                  "not the microseconds desktop Firefox uses; that reading comes from the private "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Firefox",
+        "category": "Browsers",
         "notes": "One row per bookmark that names an address. The store also holds the folders that "
                  "organise bookmarks, which carry no address and are not reported as bookmarks; the "
                  "folder a bookmark sits in is reported beside it. Date Added and Last Modified are "

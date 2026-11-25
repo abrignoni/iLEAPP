@@ -7,14 +7,19 @@ __artifacts_v2__ = {
                        "KTX files that do not decode are left out.",
         "author": "@ydkhatri - @AlexisBrignoni",
         "creation_date": "2020-07-23",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-25",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "Apple explains that UIKit takes a snapshot of the app's user interface after it enters the "
                  "background, for display in the app switcher. Apps may deliberately hide or replace sensitive content before capture, so an "
                  "image can be a launch/default screen or privacy overlay and should not by itself be treated as proof "
                  "that the user viewed the depicted content. File Modified Date is source-file metadata; Manifest "
-                 "Creation Date and Manifest Last Used Date are separate fields stored by SplashBoard. Reference: "
+                 "Creation Date and Manifest Last Used Date are separate fields stored by SplashBoard. "
+                 "On iOS 26 and 27 the KTX blocks can be stored in tiles; they are put back in order before "
+                 "conversion, in one of two bit orders. A file name ending in @2x selects the second order; every "
+                 "other name uses the first. The @2x order "
+                 "comes from a single 2x device, so a 2x snapshot that still looks scrambled may be a "
+                 "decoding limit rather than what the file holds. Reference: "
                  "https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background ; "
                  "foundational research: https://gforce4n6.blogspot.com/2019/09/a-quick-look-into-ios-snapshots.html "
                  "and https://abrignoni.blogspot.com/2019/09/ios-snapshots-triage-parser-working.html",
@@ -42,12 +47,16 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 342 rows",
             "jess_ios15": "iOS 15.0.2 | 84 rows",
             "magnet_ios16": "iOS 16.1.1 | 219 rows",
+            "falken_ios26": "iOS 26.2.1 | 271 rows",
+            "hc_ios26": "iOS 26.5.2 | 283 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 655 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 430 rows",
         }
     },
 }
 
 from collections import defaultdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import sqlite3
 
@@ -57,11 +66,32 @@ from scripts.ktx.ios_ktx2png import KTX_reader
 from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
 
 
-def save_ktx_to_png_if_valid(ktx_path, save_to_path):
+_SCALE_IN_NAME = re.compile(r'@(\d+)x\.ktx$', re.IGNORECASE)
+
+
+def _image_scale_from_name(ktx_path):
+    '''The image scale in the file name (<id>@2x.ktx), or None. It matched the manifest
+    imageScale on every snapshot record in the images run. Read from the file name
+    alone, never from the folders above it.'''
+    match = _SCALE_IN_NAME.search(PurePosixPath(str(ktx_path).replace('\\', '/')).name)
+    return int(match.group(1)) if match else None
+
+
+def _image_scale_for(file_found, seeker):
+    '''The scale from the evidence file name. The seeker can stage a file under
+    another name (name~case-<tag>.ktx when two evidence paths differ only in
+    case), so the name it recorded for the source is read first.'''
+    infos = getattr(seeker, 'file_infos', None)
+    info = infos.get(file_found) if isinstance(infos, dict) else None
+    source = getattr(info, 'source_path', None)
+    return _image_scale_from_name(source if isinstance(source, str) and source else file_found)
+
+
+def save_ktx_to_png_if_valid(ktx_path, save_to_path, image_scale=None):
     '''Convert a valid iOS KTX image to PNG.'''
 
     with open(ktx_path, 'rb') as f:
-        ktx = KTX_reader()
+        ktx = KTX_reader(image_scale=image_scale)
         try:
             if ktx.validate_header(f):
                 data = ktx.get_uncompressed_texture_data(f)
@@ -77,7 +107,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
 
                 return True
         except (OSError, ValueError) as ex:
-            logfunc(f'Had an exception - {str(ex)}')
+            logfunc(f'Left out {Path(ktx_path).name}, it was not converted: {ex}')
     return False
 
 
@@ -159,6 +189,7 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
     source_dirs = set()
 
     files_found = context.get_files_found()
+    seeker = context.get_seeker()
     manifest_index = _manifest_index(files_found)
 
     for file_found in files_found:
@@ -180,7 +211,7 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
             if media_path.stat().st_size < 2500:
                 continue
             png_path = media_path.with_suffix((".png"))
-            if save_ktx_to_png_if_valid(media_path, png_path):
+            if save_ktx_to_png_if_valid(media_path, png_path, _image_scale_for(file_found, seeker)):
                 media_item = check_in_media(
                     file_found,
                     bundle_id,

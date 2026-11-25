@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*'),
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*'),
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*'),
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsFriendsListManager/*',
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*'),
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-pinnedMemories-key/*',
@@ -140,7 +140,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Direction is relative to the account on this device, whose id is read from "
                  "group.BeReal.plist. For posts read from PersonRepository and the post feed it is "
                  "Outgoing when the RealMoji author is that account, Incoming when it is another "
@@ -177,7 +177,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Direction is relative to the account on this device, whose id is read from "
                  "group.BeReal.plist. For posts read from PersonRepository and the post feed it is "
                  "Outgoing when the comment author is that account, Incoming when it is another "
@@ -213,7 +213,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
@@ -241,7 +241,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-20",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "BeReal",
+        "category": "Social Media",
         "notes": "Reference: Django Faiola, 'iOS BeReal - Photos & Friends Daily', "
                  "https://djangofaiola.blogspot.com/2025/03/ios-bereal-photos-friends-daily.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',

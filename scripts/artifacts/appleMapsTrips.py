@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-04",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "The text in the Google Maps Link column labels ZPREDOMINANTMOTIONACTIVITYTYPE 1 "
                  "as walking and 4 as driving, following Ian Whiffin, 'Locations, Locations, "
                  "Locations', https://doubleblak.com/blogPost.php?k=Locations, which says '4 "
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-04",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite*',
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-04",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "On abe_ios16 and otto_ios17 the named rows came from Cloud-V2.sqlite (145 of 211 "
                  "and 101 of 161 learned places) and the unnamed rows from Local.sqlite (191 and "
                  "140).",

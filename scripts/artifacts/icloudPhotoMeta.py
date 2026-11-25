@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "iCloud",
+        "category": "Cloud & Files",
         "notes": 'Each successfully base64-decoded mediaMetaDataEnc value is exported as its original decoded '
                  "bytes under the report's bplists subfolder. The export filename identifies this "
                  "invocation's input occurrence, physical text-line number and record ordinal; it is "

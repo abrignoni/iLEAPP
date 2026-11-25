@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "GPS Tracks",
+        "category": "Locations & Maps",
         "notes": "One row per row of ZTRACK and of ZCURRENTTRACK in Library/GPS_Tracks.sqlite, "
                  "told apart by the Source Table column. ZCURRENTTRACK is a separate table; on "
                  "the tested image its row carried a later date than any saved track and no "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "GPS Tracks",
+        "category": "Locations & Maps",
         "notes": "One row per row of ZCOURSEPOINT. Every one of the 170,418 points on the tested "
                  "image carried a latitude and a longitude, and they fell between 2024-05-12 and "
                  "2024-07-06. Track Name is joined from the track the point names, so a point "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "GPS Tracks",
+        "category": "Locations & Maps",
         "notes": "One row per row of ZWAYPOINT and of ZTRACKPOINT, told apart by the Source Table "
                  "column. ZWAYPOINT rows stand on their own and ZTRACKPOINT rows name a track, and "
                  "what the app uses the second kind for is not established. Both carry a name, a "

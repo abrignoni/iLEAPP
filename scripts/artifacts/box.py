@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-12-05",
         "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Box",
+        "category": "Cloud & Files",
         "notes": "One row from the lastUserJSON value of group.net.box.BoxNet.plist, which the "
                  "cited research describes as the last user signed in to the app. Reference: Django "
                  "Faiola, 'Deep-Dive Forense in Box per iOS', "
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-12-05",
         "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Box",
+        "category": "Cloud & Files",
         "notes": "One row per item of the items table of Item.db that can be reached from a top "
                  "level item through parentID; an item whose parent row is missing is not listed. "
                  "Is Offline is set by this module, not stored: Yes when the item id is in "
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-12-05",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Box",
+        "category": "Cloud & Files",
         "notes": "One row per representation entry of each previewItems row in PreviewItem.db that "
                  "carries a file id, name, representation type, dimensions and SHA1; entries "
                  "missing any of those are not listed. Last Accessed At is lastAccessedDate read as "
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-12-05",
         "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Box",
+        "category": "Cloud & Files",
         "notes": "One row per row of the recents table of Recents.db. Interaction Timestamp is "
                  "interactionTimeStamp read as Unix seconds in UTC and Interaction Type is reported "
                  "as stored. Name, Extension and File/Folder Size come from the matching item in "
@@ -98,7 +98,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-12-05",
         "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Box",
+        "category": "Cloud & Files",
         "notes": "One row per row of the fileActivity table of annotations.db, with the message and "
                  "people fields taken from the matching comments or annotations row. The file name "
                  "comes from Item.db and is blank when the item is not there. The reply flag is "

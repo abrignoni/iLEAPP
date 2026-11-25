@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-08",
         "last_update_date": "2026-11-19",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": (
             "Messages are extracted from TIMMessageORM. Message is the content JSON's text "
             "field when content is valid JSON; non-JSON content is reported verbatim. "
@@ -103,7 +103,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-08",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": (
             "Timestamp is the latestchattimestamp column, read as a Unix epoch and shown in "
             "UTC. What event it marks is not established here. An iOS app container is a "
@@ -153,7 +153,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": (
             "The record is an NSKeyedArchiver payload inside "
             "Library/Preferences/com.zhiliaoapp.musically.plist; its string, number and "
@@ -188,7 +188,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": (
             "Files are named publish_video_local_<aid>.mp4. "
             "A file is reported only when the metadata plist of its container records "
@@ -233,7 +233,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-29",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": (
             "The databases live at Library/Pitaya/FE/<module id>/DB/"
             "feature_engineering.db and not every one carries the session table; files "
@@ -282,7 +282,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": (
             "The store is Documents/WatchHistory/<account id>_history_WCDB.sqlite inside the "
             "TikTok app container; WatchHistory is the app's own directory name. Its single "

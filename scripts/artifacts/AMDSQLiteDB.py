@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-07-21",
         "last_update_date": "2026-08-04",
         "requirements": "none",
-        "category": "App Usage",
+        "category": "Device Activity",
         "notes": "The App Action labels (0 Install/Update, 1 Uninstall, 2 Open) follow the "
                  "reference below, which lists 3 as not determined; other values are reported as "
                  "stored. App names, bundle IDs and vendors are resolved from the extraction "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "DuetExpertCenter",
+        "category": "Device Activity",
         "notes": "No notification body text was present in tested databases; only metadata such as "
                  "body length. The numeric urgency, "
                  "delivery-method, delivery-reason and outcome codes are Apple-internal and are "
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "DuetExpertCenter",
+        "category": "Device Activity",
         "notes": "Suggestion, scope and outcome codes are Apple-internal and are reported verbatim. "
                  "The Trigger Notification UUID is the suggestions.triggerNotificationUUID value; "
                  "it can be compared with the UUID column of the DuetExpertCenter - Notifications "

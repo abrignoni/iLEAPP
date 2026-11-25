@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         'name': 'WebKit - Observed Domains',
         'description': 'Observed domain statistics from each acquired observations.db.',
         'author': '@ForensikITGmbH', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
-        'requirements': 'none', 'category': 'Browser',
+        'requirements': 'none', 'category': 'Browsers',
         'notes': 'These are WebKit tracking-prevention statistics, not a complete browsing history. '
                  'A domain may be observed as a subresource. Interaction flags do not establish a '
                  'particular link click. Zero, negative and invalid time values remain in Stored Values '
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         'name': 'WebKit - Operating Dates',
         'description': 'Calendar dates retained by the WebKit statistics store.',
         'author': '@ForensikITGmbH', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
-        'requirements': 'none', 'category': 'Browser',
+        'requirements': 'none', 'category': 'Browsers',
         'notes': 'These are WebKit tracking-prevention statistics, not a complete browsing history. '
                  'A domain may be observed as a subresource. Interaction flags do not establish a '
                  'particular link click. Zero, negative and invalid time values remain in Stored Values '
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         'description': 'Domain references in statistics tables, resolved using declared '
                        'foreign keys to ObservedDomains while retaining original fields.',
         'author': '@ForensikITGmbH', 'creation_date': '2026-10-11', 'last_update_date': '2026-10-11',
-        'requirements': 'none', 'category': 'Browser',
+        'requirements': 'none', 'category': 'Browsers',
         'notes': 'These are WebKit tracking-prevention statistics, not a complete browsing history. '
                  'A domain may be observed as a subresource. Interaction flags do not establish a '
                  'particular link click. Zero, negative and invalid time values remain in Stored Values '

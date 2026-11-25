@@ -15,7 +15,7 @@ __artifacts_v2__ = {
                        "created_on_device flag where the database has that column.",
         "author": "@AlexisBrignoni, Claude, @segumarc",
         "creation_date": "2026-08-16", "last_update_date": "2026-10-26",
-        "requirements": "blackboxprotobuf, nska_deserialize", "category": "Snapchat",
+        "requirements": "blackboxprotobuf, nska_deserialize", "category": "Messaging",
         "notes": "iOS Snapchat keeps conversations in Documents/user_scoped/<account "
                  "hash>/arroyo/arroyo.db; the schema ships the developers' own column comments, and the "
                  "ones relied on are paraphrased where they are used.\n"
@@ -169,7 +169,7 @@ __artifacts_v2__ = {
                        "evidence it did not exist.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-10-26",
-        "requirements": "blackboxprotobuf", "category": "Snapchat",
+        "requirements": "blackboxprotobuf", "category": "Messaging",
         "notes": "Record Origin. Live rows come back from a normal read. Recovered rows are "
                  "conversations whose client_conversation_id another state in the write-ahead log (the "
                  "database file without its log, the log through an earlier commit, the previous "
@@ -228,7 +228,7 @@ __artifacts_v2__ = {
                        "list is found, whether it names the user. The table is not a friends list.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-10-09",
-        "requirements": "none", "category": "Snapchat",
+        "requirements": "none", "category": "Messaging",
         "notes": "primary.docobjects (Documents/user_scoped/<account hash>/DocObjects/) is a "
                  "SQLite store whose snapchatter table keeps one FlatBuffers document per user "
                  "in column p, keyed by userId. The table is not a friends list. On the 12 "
@@ -317,7 +317,7 @@ __artifacts_v2__ = {
                        "concept labels with their stored confidence values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-09-21",
-        "requirements": "none", "category": "Snapchat",
+        "requirements": "none", "category": "Messaging",
         "notes": "search.sqlite3 (Documents/gallery_search/<n>/<account hash>/) is a search "
                  "index kept under the app's gallery_search folder. All "
                  "values are app-generated tags reported as stored, not observations about "
@@ -356,7 +356,7 @@ __artifacts_v2__ = {
                        "laguna id, and client encryption values, reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-09-21",
-        "requirements": "none", "category": "Snapchat",
+        "requirements": "none", "category": "Messaging",
         "notes": "user.plist is not a property list despite its name: it begins with the "
                  "magic TSAF and holds strings written as a 0x08 byte, the text and a 0x00 "
                  "terminator, which is how this artifact reads it. The format is otherwise "
@@ -406,7 +406,7 @@ __artifacts_v2__ = {
                        "shown when it is a recognised media format.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-19", "last_update_date": "2026-09-19",
-        "requirements": "nska_deserialize", "category": "Snapchat",
+        "requirements": "nska_deserialize", "category": "Messaging",
         "notes": "cache_controller.db (Documents/global_scoped/cachecontroller/) indexes the files the "
                  "app caches. This artifact reports the entries that name a conversation. On the tested "
                  "images their EXTERNAL_KEY had the form [<kind>~]1:<conversation id>:<message "
@@ -477,7 +477,7 @@ __artifacts_v2__ = {
                        "caches and stored thumbnails when the keys are available.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-19", "last_update_date": "2026-10-26",
-        "requirements": "nska_deserialize, pycryptodome", "category": "Snapchat",
+        "requirements": "nska_deserialize, pycryptodome", "category": "Messaging",
         "notes": "Sources. Documents/gallery_data_object/<n>/<profile>/scdb-27.sqlite3 is a Core Data "
                  "store with one ZGALLERYSNAP row per Memory. The profile folder name equalled the "
                  "SHA-256 of user_id in Documents/user.plist on 14 of the 15 tested images carrying this "
@@ -594,7 +594,7 @@ __artifacts_v2__ = {
                        "how it was linked, plus cache files no available key opened.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-19", "last_update_date": "2026-10-31",
-        "requirements": "nska_deserialize, pycryptodome", "category": "Snapchat",
+        "requirements": "nska_deserialize, pycryptodome", "category": "Messaging",
         "notes": "One row per file. SCContent files are located through their cache_controller.db entry "
                  "(snap-media-, snap-overlay- or snap-rendered-lowres-, or g-media- as the reference "
                  "describes, plus a snap id or the Memory's ZMEDIAID) in the SCContent folder named for "

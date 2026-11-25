@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Mobile Container Manager",
+        "category": "Installed Apps",
         "notes": "Two log phrasings are matched. 'Removing group container [id]' from "
                  "MCMGroupManager _cleanupUnreferencedGroupContainers... is observed on the iOS 15 "
                  "test image. 'Last reference to group container' from MCMGroupManager "

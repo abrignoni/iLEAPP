@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-09-22",
         "last_update_date": "2026-10-04",
         "requirements": "json",
-        "category": "Withings Health Mate",
+        "category": "Health & Fitness",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-09-23",
         "last_update_date": "2025-11-12",
         "requirements": "none",
-        "category": "Withings Health Mate",
+        "category": "Health & Fitness",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. Rows "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-09-24",
         "last_update_date": "2025-11-12",
         "requirements": "none",
-        "category": "Withings Health Mate",
+        "category": "Health & Fitness",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. Rows "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-09-24",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "Withings Health Mate",
+        "category": "Health & Fitness",
         "notes": "Original parser and cited research credit: Marco Neumann {kalinko@be-binary.de}. Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one test device, iOS 17.5.1). No sample data is recorded for this artifact. Tracks lacking an activity subcategory, a track extension record or a step value are not reported. The cited post reads Is Removed 1 as a track removed in the app whose row remains in the database. The columns headed ZMIN (as stored), ZMAX (as stored) and ZAVG (as stored) retain the selected te.ZMIN, te.ZMAX and te.ZAVG values without unit or physiological interpretation; the cited post does not establish these values as heart rate. End Latitude and End Longitude hold the selected ZENDCOORDINATELATITUDE and ZENDCOORDINATELONGITUDE values; Region Center Latitude and Region Center Longitude hold ZREGIONCENTERLATITUDE and ZREGIONCENTERLONGITUDE. These labels follow the stored field names; coordinate units, device ownership and collection circumstances are not established here. Manual End Date is handled as a date column in the LAVA output. Only the first matched store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
         "output_types": "standard",
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-09-23",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Withings Health Mate",
+        "category": "Health & Fitness",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. Only "
@@ -110,7 +110,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-09-23",
         "last_update_date": "2025-11-12",
         "requirements": "none",
-        "category": "Withings Health Mate",
+        "category": "Health & Fitness",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. "
@@ -130,7 +130,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-09-16",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Withings Health Mate",
+        "category": "Health & Fitness",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. "

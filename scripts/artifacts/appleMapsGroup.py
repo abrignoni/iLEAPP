@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-08-03",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing. In tested images a row is recovered only on iOS 12.4; the group plist yields no row on the 14 other recorded images (iOS 13.3.1-18.7.8) and on the 21 extractions in Mattia Epifani's 2026-08 comparison (iOS 16.1.1-26.5.2), so an empty result on current extractions is common.",
         "paths": ('*/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist',),
         "output_types": ["html", "tsv", "lava", "kml"],

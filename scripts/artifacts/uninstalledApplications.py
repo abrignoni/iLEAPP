@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-25",
         "last_update_date": "2026-08-25",
         "requirements": "none",
-        "category": "Mobile Installation Logs",
+        "category": "Installed Apps",
         "notes": (
             "The file holds one date per bundle identifier, so a bundle that was installed and "
             "removed more than once carries only the date recorded against it here. The dates are "

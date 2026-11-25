@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per stored version of one edited part of a message whose date_edited is set "
                  "and whose message_summary_info holds an ec (edit history) entry. Version is the "
                  "position in the stored list (1 is the first stored version) and Versions in Part is "
@@ -59,7 +59,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per part listed in the rp (retracted parts) list of message_summary_info, and "
                  "one per message whose date_retracted column is set. When a part is unsent Messages "
                  "keeps the row but not the text: in 7 of 9 databases checked (iOS 18.1.1 and iOS 26.2.1 "

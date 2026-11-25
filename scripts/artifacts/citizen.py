@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Citizen",
+        "category": "Music, Video & News",
         "notes": ("The key holds a JSON list in Library/Preferences/com.sp0n.vigilante.plist. Stored At is storedAt "
                   "and Location Timestamp is location.timestamp, both read as seconds since 2001-01-01 UTC: on one tested image that reading put a storedAt value within a second of a cached request time in the app's Cache.db. The other columns are the location's coordinate.latitude, "
                   "coordinate.longitude, horizontalAccuracy, altitude, verticalAccuracy, speed, speedAccuracy, "
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Citizen",
+        "category": "Music, Video & News",
         "notes": ("Both keys hold a JSON list in Library/Preferences/com.sp0n.vigilante.plist. List is the key the "
                   "row came from. Time is viewedAt or seenAt, read as seconds since 2001-01-01 UTC, the same "
                   "reading as Citizen - Cold Launch Locations. Incident ID is id or incidentId as stored. Title is "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Citizen",
+        "category": "Music, Video & News",
         "notes": ("One row per cfurl_cache_response row of Library/Caches/com.sp0n.vigilante/Cache.db whose request "
                   "URL is on data.sp0n.io. Cached At is the row's time_stamp, stored as UTC text. Latitude and "
                   "Longitude are the request's lat and long parameters; the four map bound columns are "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Citizen",
+        "category": "Music, Video & News",
         "notes": ("One row per cached profile with an id from data.sp0n.io/v1/user/<id>. Column names are the response's keys "
                   "as stored. A cached profile alone does not identify the signed-in user. Requested User ID is the "
                   "ID in the URL and matched id on each tested profile. plus.active, protect.active and protect.status are taken from the nested objects. "
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Citizen",
+        "category": "Music, Video & News",
         "notes": ("One row per incident per cached response of data.sp0n.io/v3/homescreen/mapIncidents. List is the "
                   "response key the incident was under (incidents or inactiveIncidents). The other columns are the "
                   "incident's keys as stored; createdAt and updatedAt are shown as stored text. Cached At is the "
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Citizen",
+        "category": "Music, Video & News",
         "notes": ("One row per cfurl_cache_response row of Library/Caches/com.sp0n.vigilante.notificationServices/"
                   "Cache.db in the com.sp0n.vigilante.notificationServices extension container. Cached At is the "
                   "row's time_stamp (UTC). Image is the cached body, read from the database or from fsCachedData, "

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": '2026-10-09',
         "requirements": "nska_deserialize",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Account data is parsed from three sources when present: USER_INFO_KEY in the first matched file named com.thehomedepot.homedepot.plist, SharedUserInfoKey in the first matched file named group.com.thehomedepot.homedepot.plist, and userInfo.txt in the App Group container. Contains PII. In emitted rows, missing or null logonId values, or a non-dictionary parent, remain empty under existing parsing. Other values retain the parser's current representation. The stored field name does not establish an email address, active account or ownership. Original contribution credited to @jameshabben."
         ),
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-10-09",
         "requirements": "nska_deserialize",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Store data is parsed from the same three user-info sources as the account artifact. "
             "Preferred Store IDs are filled only on the row read from the file named "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",
         "requirements": "none",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "standard",
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",
         "requirements": "nska_deserialize",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Documents/THDConsumer.sqlite*',),
         "output_types": "standard",
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": '2026-10-07',
         "requirements": "nska_deserialize",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "The specialPriceKey (as decoded) column reports the existing _product_field result from the decoded product object. A missing key becomes an empty string; an explicit null remains None. Zero, False, empty strings and other native values are retained. A dictionary containing NS.string yields that key's value without recursive conversion; other dictionaries and lists remain native containers until existing report rendering. These values do not establish a monetary amount, currency, purchase or user view. Only the first matched THDConsumer.sqlite is queried, and repeated records remain separate. The artifact has no event timestamp; no timestamp is introduced by this header correction. Original contribution credited to @jameshabben. Historical sample or research statements are not revalidated here.",
         "paths": ('*/Containers/Data/Application/*/Documents/THDConsumer.sqlite*',),
         "output_types": "standard",
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",
         "requirements": "nska_deserialize",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Documents/THDConsumer.sqlite*',),
         "output_types": "standard",
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-07-31",
         "requirements": "nska_deserialize",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "Parsed from currentLocationKey CLLocation blob. Latitude and Longitude use the "
                  "archive's raw coordinate keys when its coordinate keys are missing or empty.",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
@@ -118,7 +118,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "standard",
@@ -131,7 +131,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "standard",
@@ -144,7 +144,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",
         "requirements": "none",
-        "category": "Home Depot",
+        "category": "Shopping & Marketplaces",
         "notes": "Leaves out the keys the other Home Depot artifacts read, every key that starts "
                  "with https://, and keys starting with Adobe., AppsFlyer, com.akamai., "
                  "clearingCoTheVeryFirstTime or hasAlreadyRegisteredForRemoteNotifications. Some "

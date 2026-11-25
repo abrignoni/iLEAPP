@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-02-05",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Apple Wallet",
+        "category": "Finance & Payments",
         "notes": "Card values are pattern-matched from cached API responses and the type heuristic "
                  "uses the first one or two digits and the number length; values require "
                  "verification. Cache timestamps reflect response caching, not card enrollment. In "

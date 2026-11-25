@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Slack - Messages (ModelDatabase)",
         "description": "Slack chat messages from the newer ModelDatabase (ZCOREDATA*) schema",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from. "
+        "category": "Messaging", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from. "
                                       "Direction is Sent where the message's user row has ZISME 1 "
                                       "and Received where it has 0; that reading comes from the "
                                       "column name and has no published source. Any other ZISME "
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "name": "Slack - User Data (ModelDatabase)",
         "description": "Slack users from the newer ModelDatabase (ZCOREDATAUSER) schema",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from.",
+        "category": "Messaging", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "name": "Slack - Channel Data (ModelDatabase)",
         "description": "Slack channels/DMs from the newer ModelDatabase schema",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from. "
+        "category": "Messaging", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from. "
                                       "Channel Type shows Channel where ZTYPE is 0 and Direct "
                                       "Message where it is 2. Those two readings come from "
                                       "values seen on tested data and have no published source; "
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "name": "Slack - Messages",
         "description": "Slack chat messages from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from. A message is "
+        "category": "Messaging", "notes": "Every main_db the paths match is read, and Source File names the one a row came from. A message is "
                                       "reported only where its user and channel both have rows in "
                                       "the store. Shared File is the first identifier in the "
                                       "message's ZFILEIDS list.",
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "name": "Slack - User Data",
         "description": "Slack users from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
+        "category": "Messaging", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "name": "Slack - Attachments",
         "description": "Slack messages joined to the first file listed in each message's ZFILEIDS (main_db)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
+        "category": "Messaging", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "paperclip",
         "sample_data": {
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "name": "Slack - Channel Data",
         "description": "Slack channels from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni, @AlexisBrignoni, Codex", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from. Channel SID (as stored) "
+        "category": "Messaging", "notes": "Every main_db the paths match is read, and Source File names the one a row came from. Channel SID (as stored) "
                                       "is the channel row's ZTSID and Channel SID1 (as stored) is "
                                       "its ZTSID1. What separates these identifiers is not established. "
                                       "Latest is ZLATEST read as Unix seconds.",
@@ -110,7 +110,7 @@ __artifacts_v2__ = {
         "name": "Slack - Team Data",
         "description": "Slack workspaces/teams from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
+        "category": "Messaging", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "briefcase",
         "sample_data": {

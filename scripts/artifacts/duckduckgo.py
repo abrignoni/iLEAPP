@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-29",
         "requirements": "none",
-        "category": "DuckDuckGo",
+        "category": "Browsers",
         "notes": "Read from the Core Data store History.sqlite. "
                  "ZBROWSINGHISTORYENTRYMANAGEDOBJECT holds one row per history entry with an "
                  "aggregate visit count and blocked-tracker count; the timestamps are Core Data "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-09",
         "requirements": "none",
-        "category": "DuckDuckGo",
+        "category": "Browsers",
         "notes": "ZPAGEVISITMANAGEDOBJECT records one row per visit and links to a history entry and "
                  "to a tab history row, so a single page can appear several times with different "
                  "visit times. Timestamps are Core Data (Cocoa) seconds.",

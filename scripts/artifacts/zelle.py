@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Zelle",
+        "category": "Finance & Payments",
         "notes": (
             "Risk SDK in the artifact name is a label this module assigns. It is not read from the log. "
             "Reads Documents/log1.txt in a container whose metadata plist names com.zellepay.zelle, or in an "
@@ -59,7 +59,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Zelle",
+        "category": "Finance & Payments",
         "notes": (
             "Risk SDK in the artifact name is a label this module assigns. It is not read from the log. "
             "Built from the same Documents/log1.txt as Zelle - Risk SDK Events and read the same way (Event Time "
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Zelle",
+        "category": "Finance & Payments",
         "notes": (
             "Reads Library/Caches/file.log in a Zelle container. The file holds the app's console lines, one "
             "per line, as 'YYYY-MM-DD HH:MM:SS.mmm Zelle[pid:thread] message'; PID is the number before the colon in "
@@ -134,7 +134,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Zelle",
+        "category": "Finance & Payments",
         "notes": (
             "One row per key of Library/Preferences/com.zellepay.zelle.plist, Library/Preferences/Mixpanel.plist "
             "(the two archived blobs are expanded: super properties here, timed events in Zelle - Mixpanel Timed "
@@ -175,7 +175,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "Zelle",
+        "category": "Finance & Payments",
         "notes": (
             "Reads the mixpanel-<name>-timedEvents key of Library/Preferences/Mixpanel.plist, an "
             "NSKeyedArchiver NSDictionary of event name to a number, with the core's plist helper. Start Time is "

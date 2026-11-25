@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "SIM - UUID",
         "description": "SIM personal wallet entries from com.apple.commcenter.data.plist",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "SIM Info", "notes": "Timestamp is the entry's ts value, read as Unix epoch "
+        "category": "Device Information", "notes": "Timestamp is the entry's ts value, read as Unix epoch "
                                          "time and shown in UTC. The tool picks the unit "
                                          "(seconds or a finer one) from the size of the value; "
                                          "no source for the unit was located. What the time "
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "name": "SIM - Unique Label Store",
         "description": "SIM unique label store from com.apple.commcenter.data.plist",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "SIM Info", "notes": "Timestamp is the entry's ts value, read as Unix epoch "
+        "category": "Device Information", "notes": "Timestamp is the entry's ts value, read as Unix epoch "
                                          "time and shown in UTC. The tool picks the unit "
                                          "(seconds or a finer one) from the size of the value; "
                                          "no source for the unit was located. What the time "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-09-30",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "",
         "paths": ('*/preferences/SystemConfiguration/NetworkInterfaces.plist',),
         "output_types": ["html","lava","tsv"],

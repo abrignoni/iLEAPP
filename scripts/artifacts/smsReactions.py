@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per message row whose associated_message_type is 1000 (sticker) or in the range "
                  "2000 to 3007. The SMS artifact lists the same rows as ordinary messages whose text is "
                  "the system-written phrase; this artifact reads them as reactions and resolves the "

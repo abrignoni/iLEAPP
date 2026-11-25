@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
                  "CheekyForensicsMonkey "
                  "(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). "
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": (
                  "Source is the ZFAVORITEITEM table of the Apple Maps store MapsSync_0.0.1 (in the Maps "
                  "folder of a shared app group container). Created and Modified are ZCREATETIME and "
@@ -128,7 +128,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-13",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": (
                  "Source is the ZCOLLECTIONITEM table of MapsSync_0.0.1, one output row per table row. All "
                  "15 rows tested are the CollectionPlaceItem entity and none is linked to a ZCOLLECTION row; "

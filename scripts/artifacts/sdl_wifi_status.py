@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Sysdiagnose - Network",
+        "category": "Sysdiagnose",
         "notes": (
             "Diagnostic text file generated inside an iOS sysdiagnose dump. It holds key and value "
             "lines about the device's Wi-Fi state. "

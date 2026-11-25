@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-18",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
                  "100). Measured on 275 rows across BDC_SBC version 2.9 and 3.0 files from "
                  "two test images: dividing by 100 yields 21.7-37.2 C, consistent with an "
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-17",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "One row per BDC_Once file. BatterySerialNumber is not reported by this "
                  "artifact. When the file is written is not sourced here. "
                  "GasGaugeFirmwareVersion is present in the files whose header carries it. "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-17",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "NominalChargeCapacity and "
                  "DesignCapacity (from BDC_Once) are reported as stored; that their ratio is the "
                  "Maximum Capacity percentage shown in Settings is not sourced here. "
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-17",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "Row cadence in tested files was one per seven days. RaTableRaw0 is left as its "
                  "raw hex token here; its encoding and meaning are not established.",
         "paths": ('*/Battery/BDC/BDC_Weekly_*.csv', '*/BatteryBDC/BDC_Weekly_*.csv'),
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-17",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "One row per logged event. FamilyCode is reported as stored and as a hex value; "
                  "its correspondence to IOKit adapter family codes is not sourced here. "
                  "NotChargingReason is reported as stored; the meaning of its values is not "
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-17",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "One row per logged event. ChargeLimit and ChargingState are reported as "
                  "stored; their meaning is not sourced here. DecisionMaker was first seen in "
                  "tested files at schema "
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-17",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "Series resistance plus four RC branch columns, reported as stored. The CSV is "
                  "read as UTF-8. No tested image carries this file, so the cadence and column "
                  "meanings are not exercised. Parsing is header-driven; the source of the column "
@@ -176,7 +176,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-17",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "Each row pairs a system time with an RTC tick value as stored; what event "
                  "writes a row is not sourced here. The zone of the stored times is not "
                  "established here; they are passed as stored.",

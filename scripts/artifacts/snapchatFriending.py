@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-25",
         "last_update_date": "2026-11-25",
         "requirements": "none",
-        "category": "Snapchat",
+        "category": "Messaging",
         "notes": "Reads friending_badge_data in Documents/friending_badge_data.db, with its -wal, in each app "
                  "container that holds one, and names each badge's user from two stores in the same container: "
                  "Documents/friending_notification_snapchatter.db and the snapchatter table of "

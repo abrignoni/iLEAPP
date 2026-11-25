@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "IMO HD Chat - Messages",
         "description": "IMO HD chat messages and attachments",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "IMO HD Chat",
+        "category": "Messaging",
         "notes": "URLs are built by the parser from object IDs with a fixed prefix; they are not "
                  "stored in the data and were not checked against the service. On a row whose ZISSENT "
                  "is 1, Sender Name and Sender ID are the imo_account_alias and imo_account_uid values "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "name": "IMO HD Chat - Contacts",
         "description": "IMO HD chat contacts",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "IMO HD Chat", "notes": "The URL is built by the parser from ZICON_ID with a fixed "
+        "category": "Messaging", "notes": "The URL is built by the parser from ZICON_ID with a fixed "
                                             "prefix; it is not stored in the data and was not checked "
                                             "against the service.",
         "paths": ('*/IMODb2.sqlite*',),
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "name": "IMO HD Chat - Key Values",
         "description": "IMO HD account and application key/value records",
         "author": "@stark4n6", "creation_date": "2026-08-11", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "IMO HD Chat", "notes": "Includes local account identifiers and other IMO key/value settings stored in ZIMOKEYVAL.",
+        "category": "Messaging", "notes": "Includes local account identifiers and other IMO key/value settings stored in ZIMOKEYVAL.",
         "paths": ('*/IMODb2.sqlite*',),
         "output_types": "standard", "artifact_icon": "key",
         "sample_data": {

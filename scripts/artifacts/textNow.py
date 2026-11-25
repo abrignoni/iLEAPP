@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "TextNow",
+        "category": "Messaging",
         "notes": "One row per row of ZTMOINTERACTION that carries no call "
                  "identifier, in the Core Data store the app keeps for the "
                  "account. On the two older tested images (TextNow 20.10.0 and "
@@ -188,7 +188,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "TextNow",
+        "category": "Messaging",
         "notes": "One row per row of ZTMOINTERACTION that carries a call "
                  "identifier, in the same account store the messages are read "
                  "from, in the app's Documents or in its app group container. "
@@ -251,7 +251,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "TextNow",
+        "category": "Messaging",
         "notes": "One row per row of ZTMOCONTACTVALUE, in the same account "
                  "store the messages are read from, in the app's Documents or "
                  "in its app group container. Contact Value is the address as "
@@ -303,7 +303,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-07",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "TextNow",
+        "category": "Messaging",
         "notes": "Original contribution credited to Claude. One row per "
                  "ZTMOACCOUNTINFO row, in the same account store the messages "
                  "are read from, in the app's Documents or in its app group "

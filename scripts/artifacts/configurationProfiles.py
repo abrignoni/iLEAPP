@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Configuration Profiles",
+        "category": "Device Information",
         "notes": "Reads Library/ConfigurationProfiles in the systemgroup.com.apple.configurationprofiles "
                  "Shared/SystemGroup container (iTunes backups map SysSharedContainerDomain- to the same "
                  "path, scripts/search_files.py; not exercised on a backup here). One row per "
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Configuration Profiles",
+        "category": "Device Information",
         "notes": "One row per phone/profile-*.pdata under Library/ConfigurationProfiles in the "
                  "systemgroup.com.apple.configurationprofiles container (backup mapping as in "
                  "Configuration Profiles). Holding Tank Time is the date phone/HoldingTankManifest.plist "

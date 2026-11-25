@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Pinterest",
+        "category": "Social Media",
         "notes": "Read from the activeUser file in the app's Documents directory, an "
                  "NSKeyedArchiver archive of the account record. In both tested samples the "
                  "record was present twice, once as activeUser and once as activeUser "
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Pinterest",
+        "category": "Social Media",
         "notes": "Read from the app's PINRemoteModelCache, where each file is an "
                  "NSKeyedArchiver archive of one cached API response and the file name is the "
                  "percent encoded request path. Files whose decoded path begins with "
@@ -112,7 +112,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Pinterest",
+        "category": "Social Media",
         "notes": "One row per file in the app's PINRemoteModelCache. The file name is the "
                  "percent encoded path and query of the API request whose response it holds, "
                  "so the decoded name states what the app asked the server for; any run of 16 to "
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Pinterest",
+        "category": "Social Media",
         "notes": "In the tested samples each file in this cache was named for the URL it was "
                  "fetched from, percent encoded. The Cache File Name (decoded) column is the "
                  "file name with the percent encoding removed, and Host is the host part of "
@@ -191,7 +191,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Pinterest",
+        "category": "Social Media",
         "notes": "This store holds suggestions the app downloaded, not terms the user "
                  "searched for, and the suggestion text is therefore not reported. A list of "
                  "server supplied phrases printed beside a Pinterest account reads as a search "
@@ -236,7 +236,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Pinterest",
+        "category": "Social Media",
         "notes": "One row per preference key, with the value as stored. The preference file "
                  "holds more keys than are reported: only keys whose names start with one of "
                  "a fixed list of prefixes set in this module are reported, and every other "

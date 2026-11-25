@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-15",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The Fahrenheit assumption for HKWeatherTemperature is inherited "
                  "from community queries and unverified. Activity type labels are the "
                  "member names of the HKWorkoutActivityType enumeration and Location Type "
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-15",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The field meanings (except the model and OS version names looked up from stored "
                  "product types and builds) and method below were derived independently, using the "
                  "store's schema, measured data and Apple's code. One row per data_provenances row, with"
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-24",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. One row per sample of type 173, the code of "
                  "HKQuantityTypeIdentifierHeadphoneAudioExposure in the _HKDataTypeDefinitions tables of"
@@ -187,7 +187,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-03-06",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The field meanings (except the model names looked up from stored hardware identifiers)"
                  " and method below were derived independently, using the store's schema, measured data "
                  "and Apple's code. One row per sample of type 5, the code of "
@@ -263,7 +263,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-03-06",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The field meanings (except the model names looked up from stored product types) and "
                  "method below were derived independently, using the store's schema, measured data and "
                  "Apple's code. One row per sample of type 118, the code of "
@@ -324,7 +324,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-24",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. One row per earned instance, joined to "
                  "ACHAchievementsPlugin_templates on the template's unique name. Earned Date is a "
@@ -377,7 +377,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-06",
         "last_update_date": "2025-10-13",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
@@ -409,7 +409,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The type code, unit and joins were derived independently from the store's schema, "
                  "measured data and Apple's HealthKit and HealthDaemon code, and agree with this "
                  "query, which follows this module's Health - Steps query with data_type 12. Reads "
@@ -463,7 +463,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The type code, unit and joins were derived independently from the store's schema, "
                  "measured data and Apple's HealthKit and HealthDaemon code, and agree with this "
                  "query. Reads samples whose data_type is 8 and that have a row in quantity_samples "
@@ -534,7 +534,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-04-04",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
@@ -569,7 +569,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-04-04",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "Weight (in Kilograms) is quantity_samples.quantity as stored, with no rounding "
                  "or cutting of digits; earlier versions of this artifact showed its first five "
                  "characters. The kilogram unit is the one the original artifact assigned and is "
@@ -611,7 +611,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-20",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
@@ -641,7 +641,7 @@ __artifacts_v2__ = {
         'creation_date': '2024-08-01',
         'last_update_date': '2026-10-09',
         'requirements': 'none',
-        'category': 'Health',
+        'category': 'Health & Fitness',
         'notes': "One row per sleep sample (data type 63) whose provenance names a Watch and whose "
                  "category value is not 0 or 1. Values 2, 3, 4 and 5 are labelled AWAKE, CORE, "
                  "DEEP and REM, the names the cited article gives them; any other value is "
@@ -685,7 +685,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-08-01",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The samples read are sleep samples (data type 63) whose provenance names a Watch "
                  "and whose category value is not 0 or 1. Category values 2, 3, 4 and 5 are "
                  "counted as awake, core, deep and REM, the names the cited article gives them. A "
@@ -723,7 +723,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-03-03",
         "last_update_date": "2026-10-07",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "The model (as stored) column retains source_devices.model without conversion "
                  "beside Model (existing mapping), which retains the existing Bluetooth PID "
                  "lookup and fallback. A mapped product name does not establish physical device "
@@ -770,7 +770,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-06-20",
         "last_update_date": "2025-10-13",
         "requirements": "none",
-        "category": "Health",
+        "category": "Health & Fitness",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",

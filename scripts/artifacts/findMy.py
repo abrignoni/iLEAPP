@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "The addTime value is shown under the key name 'Find My iPhone Add Time', read as "
                  "Unix seconds in UTC; what the time marks is not established. Other keys are "
                  "shown as stored.",

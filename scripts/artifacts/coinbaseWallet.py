@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Coinbase Wallet",
+        "category": "Finance & Payments",
         "notes": "One row per row of the account table in Documents/default/wallet-rn-v2.sqlite, "
                  "joined to a wallet_group row that names the same account (where several do, "
                  "the last one read is shown). This is the Coinbase Wallet app, which is a "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Coinbase Wallet",
+        "category": "Finance & Payments",
         "notes": "One row per row of the address table. The derivation index ran from 0 to 19 on "
                  "both tested images and the paths are reported as stored in Derivation Path; "
                  "their shape was not checked here against a cited specification. The presence of "
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Coinbase Wallet",
+        "category": "Finance & Payments",
         "notes": "One row per row of the wallet table, which the app keeps per asset rather than "
                  "per holding: 207 and 203 rows on the two tested images against 26 and 23 "
                  "distinct primary addresses. Balance held a value other than zero on exactly one "
@@ -125,7 +125,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Coinbase Wallet",
+        "category": "Finance & Payments",
         "notes": "One row per row of tx_history_v2 and of the older tx_history table, told apart "
                  "by the Source Table column; tx_history is present only on the older of the two "
                  "tested stores and held no rows there. Transaction Hash is a value an examiner "
@@ -163,7 +163,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Coinbase Wallet",
+        "category": "Finance & Payments",
         "notes": "One row per BIP44XpubKey entry in the app's MMKV store at "
                  "Documents/mmkv/CBStore.plaintext, read with the reader vendored at "
                  "scripts/mmkv_parser.py. Under BIP-32 an extended public key allows derivation "
@@ -198,7 +198,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Coinbase Wallet",
+        "category": "Finance & Payments",
         "notes": "One row per row of ethereum_signed_tx, solana_signed_tx, utxo_signed_tx, "
                  "xlm_signed_tx and xrp_signed_tx, told apart by the Source Table column. What a "
                  "row in these tables records beyond what the table names say is not "

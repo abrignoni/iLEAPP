@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-15',
         'requirements': 'none',
-        'category': 'Anonymous Chat & Fun',
+        'category': 'Messaging',
         'notes': 'One row per container that names com.anonimchat.app: a bundle or data '
                  'container whose .com.apple.mobile_container_manager.metadata.plist holds '
                  'the bundle ID in MCMMetadataIdentifier, a data container holding '
@@ -43,7 +43,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-14',
         'requirements': 'none',
-        'category': 'Anonymous Chat & Fun',
+        'category': 'Messaging',
         'notes': 'Rows are built from the from_username and to_username of each message\'s '
                  'conversation in anonimchat.db. A username is marked as the signed-in account '
                  'only when the same data container\'s React Native AsyncStorage manifest.json '
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-14',
         'requirements': 'none',
-        'category': 'Anonymous Chat & Fun',
+        'category': 'Messaging',
         'notes': 'Rows come from the conversations table of anonimchat.db. Message, outgoing '
                  'and incoming counts and the observed last message time are computed from '
                  'the messages table. Columns marked (raw) are reported as stored because '
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-14',
         'requirements': 'none',
-        'category': 'Anonymous Chat & Fun',
+        'category': 'Messaging',
         'notes': 'Rows come from the messages table of anonimchat.db, joined to conversations '
                  'for the participants. Direction is Outgoing when the sender flag is 0 and the '
                  'sender name is the signed-in username from the Accounts artifact, Incoming '
@@ -162,7 +162,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-14',
         'requirements': 'none',
-        'category': 'Anonymous Chat & Fun',
+        'category': 'Messaging',
         'notes': 'Rows come from the blocked table of anonimchat.db and are reported as '
                  'stored. Which of the two usernames did the blocking is not established.',
         'paths': (
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-09-11',
         'last_update_date': '2026-10-14',
         'requirements': 'none',
-        'category': 'Anonymous Chat & Fun',
+        'category': 'Messaging',
         'notes': 'Three kinds of row. Message Media: a message with a stored media URL, type, '
                  'size or duration, with its cached image when one is linked (the Messages '
                  'artifact notes give the SDWebImage naming rule that makes the link). Media '

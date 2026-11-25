@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Reminders",
+        "category": "Productivity",
         "notes": ("Two store generations are read. On the iOS 16 and later test images reminders "
                   "are rows of a ZREMCDREMINDER table and each property is read from its "
                   "unnumbered column (ZCREATIONDATE, ZTITLE and so on), which on every tested "

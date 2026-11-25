@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "SimpleX",
+        "category": "Messaging",
         "notes": "SimpleX Chat keeps its data in a SQLCipher-encrypted database, "
                  "simplex_v1_chat.db, in the group.chat.simplex.app app group. The database "
                  "passphrase is stored in the iOS keychain (generic-password account "
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "SimpleX",
+        "category": "Messaging",
         "notes": "Read from the contacts table joined to contact_profiles in the decrypted "
                  "simplex_v1_chat.db (see the Messages artifact for how the database is decrypted "
                  "from the keychain passphrase). Display Name is the profile name, Local Alias is "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "SimpleX",
+        "category": "Messaging",
         "notes": "Read from group_members joined to groups, group_profiles and contact_profiles in "
                  "the decrypted simplex_v1_chat.db (see the Messages artifact for how the database "
                  "is decrypted from the keychain passphrase). One row per group member. Group is "

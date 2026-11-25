@@ -258,7 +258,11 @@ def _decode_image(header: AtxHeader, payload: TexturePayload, warnings: list[str
 def _linear_lzfs_payload(header: AtxHeader, payload: TexturePayload) -> tuple[bytes, int, int]:
     import liblzfse
 
-    astc_data = liblzfse.decompress(payload.data)
+    try:
+        astc_data = liblzfse.decompress(payload.data)
+    except getattr(liblzfse, 'error', ValueError) as ex:
+        # liblzfse.error is neither an OSError nor a ValueError, so it got past the handlers in decode_atx and its callers.
+        raise ValueError('LZFS payload did not decompress') from ex
     padded_width = _round_up(header.width, ASTC_BLOCK_WIDTH)
     padded_height = _round_up(header.height, ASTC_BLOCK_HEIGHT)
     expected = _astc_byte_count(padded_width, padded_height)

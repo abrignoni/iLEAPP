@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'Clubhouse',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Preferences/co.alphaexploration.clubhouse.plist',),
         'output_types': 'standard',
@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'Clubhouse',
+        'category': 'Social Media',
         'notes': "Sourced from the contact-upload-store-suggested-invites key, which holds JSON "
                  "with a list named suggestedInvites and a lastUpdated value. What the app uses "
                  "the list for is not established here. The cnContactIdentifier value is "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'Clubhouse',
+        'category': 'Social Media',
         'notes': 'Only participant names/IDs were present in the examined widget cache; message bodies were not observed in this store.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.alphaexploration.clubhouse.plist',),
         'output_types': 'standard',
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
         'requirements': 'none',
-        'category': 'Clubhouse',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.alphaexploration.clubhouse.plist',),
         'output_types': 'standard',

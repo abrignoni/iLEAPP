@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-03",
         "last_update_date": "2025-10-08",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.sharingd.plist'),
         "output_types": "none",

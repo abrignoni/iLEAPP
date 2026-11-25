@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZENTRY in com.life360.DeviceLocationTopic.sqlite. One row per element of the '
                  'bufferedSamples array of each entry, falling back to its location object when the array is '
                  'empty. Sample Time is the sample timestamp (Cocoa seconds); Logged Time is ZTIMESTAMP (Unix '
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZENTRY in com.life360.AwarenessEngine.Topics.FailedLocationTopic.sqlite. What the '
                  'app means by a failed location is not established; the topic name is the only label. Location '
                  'Time is location.timestamp (Cocoa seconds); Logged Time is ZTIMESTAMP (Unix seconds). Values '
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from the drive_session, DriveEvent, trip_session, DriveCancellationTopic and '
                  'TripCancellationTopic stores and the DriveEventPublishingComponent.tripStartTimes dictionary '
                  'in com.life360.safetymap.plist. Kind is drive or trip, from the source store. Event Type is '
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from the drive waypoints in the drive_session and DriveEvent stores and the route points '
                  'in trip_session. Waypoint Time is Unix seconds for drive waypoints and Cocoa seconds for trip '
                  'route points. Values are as stored, without units. An identical point within one container and '
@@ -149,7 +149,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from drive.drivingIncidents in the drive_session and DriveEvent stores. Incident Time is '
                  'Unix seconds. Type is as stored (distractedDriving was the only value on the tested image); '
                  'what the driving SDK counts as an incident is not established. An identical incident within '
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from the dwell_session and DwellTopic stores. Event Type (start, update and end seen) and '
                  'State (dwelling and moving seen) are as stored. Event Time is dwell.timestamp (Cocoa seconds); '
                  'Dwell Start and Dwell End are location.startTime and endTime (Unix seconds); Logged Time is '
@@ -213,7 +213,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZENTRY in com.life360.AwarenessEngine.Topics.BreachTopic.sqlite. One row per stored '
                  'place; an entry with no places gives one row so its location is kept. Event Time is the entry '
                  'timestamp, or ZTIMESTAMP when the entry has none (Unix seconds); Location Time is '
@@ -244,7 +244,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZENTRY in com.life360.activity_recognition.topics.active_modality.sqlite. Modality, '
                  'Confidence and Raw Event Type are as stored (driving and unknown; low, medium and high; '
                  'modalityLocation and driveEvent seen). Event Time is rawEvent.timestamp, or the entry '

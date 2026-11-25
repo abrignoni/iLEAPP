@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-10",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Network Usage",
+        "category": "Network & Connectivity",
         "notes": "ZKIND is reported as stored; rows with ZKIND 257 are excluded by the query, and "
                  "the meaning of these values is not documented. Process Name is the part of "
                  "ZPROCNAME before the first '/'; the rest of the stored value is not reported. "

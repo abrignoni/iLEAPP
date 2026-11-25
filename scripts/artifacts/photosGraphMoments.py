@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "Photos",
+        "category": "Photos & Media",
         "notes": "The graph is a generic store of nodes (things such as a moment or an address), "
                  "edges (links between two nodes) and named attributes on either (Attribute, "
                  "NodeValue, EdgeValue). Each row is an edge that carries a lat attribute (every such "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-31',
         'requirements': 'none',
-        'category': 'Truth Social',
+        'category': 'Social Media',
         'notes': 'Message bodies are stored as HTML fragments; the text is extracted alongside '
                  'the raw content. From Me is computed by this module: 1 when the event\'s '
                  'account id equals the chat\'s ZOWNEDBYACCOUNTID, 0 when it differs, blank when '
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'Truth Social',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/chat/v1/*/ChatModel.sqlite*',),
         'output_types': 'standard',
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-07',
         'requirements': 'none',
-        'category': 'Truth Social',
+        'category': 'Social Media',
         'notes': "Owner-only Query Row is Yes on rows returned by this parser's SELECT DISTINCT "
                  'ZOWNEDBYACCOUNTID query and blank on ZMANAGEDACCOUNT rows. The query requires a '
                  'non-NULL chat value and applies NOT IN (SELECT ZSERVERID FROM ZMANAGEDACCOUNT); '

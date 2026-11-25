@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "FaceTime",
+        "category": "Calls & Contacts",
         "notes": "One row per row of ZCONVERSATIONLINK in FaceTime.sqlite3, the Core Data store "
                  "under Library/FaceTime. The column names are the only labels used here. Values "
                  "other than the dates, Link URL and Invited Handles are reported as stored, with "

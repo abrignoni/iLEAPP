@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-09-03",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Google Chats",
+        "category": "Messaging",
         "notes": "Only the first dynamite.db matched is read, so a second account's database is "
                  "not reported. A message with no users row or no Groups row is not reported. "
                  "Timestamp reads create_time as Unix microseconds; the basis for that unit is not "

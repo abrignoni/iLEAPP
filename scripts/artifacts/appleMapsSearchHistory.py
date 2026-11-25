@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-01-29",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "GeoHistory.mapsdata was found on the iOS 12.4 and 13.3.1 test images and on none "
                  "of the newer registered corpus images checked (abe_ios16, hickman_ios15, "
                  "iphone11_ios17, hc_ios18_7), so a no-file result on current extractions is "

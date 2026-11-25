@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-03",
         "last_update_date": "2025-10-03",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "",
         "paths": ('*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist',),
         "output_types": "none",

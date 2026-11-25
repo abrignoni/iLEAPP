@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "One row per ZSCREENTIMESETTINGS row of each store file. Screen Time Enabled, Cloud "
                  "Sync Enabled and Family Setup Complete are the stored 0/1 flags shown as No and "
                  "Yes; a NULL is left blank, which says the store holds no value, not that the "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "One row per ZCOREORGANIZATIONSETTINGS row of each store file. Zero and one in the "
                  "flag columns are shown as No and Yes; a NULL is left blank, which says the store "
                  "holds no value, not that the setting is off. Communication Policy, Communication "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "One row per ZUSERDEVICESTATE row, joined to its user (ZCOREUSER, on ZUSER) and "
                  "device (ZCOREDEVICE, on ZDEVICE); a row whose user or device is missing is still "
                  "reported with those columns blank. Apple Account, DSID, Alt DSID, Given Name and "
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "One row per ZBLUEPRINTCONFIGURATION row, with the blueprint (ZBLUEPRINT) that owns "
                  "it; a blueprint with no configuration is reported on one row with the "
                  "configuration columns blank. Blueprint Identifier and Blueprint Type are the "
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "One row per ZINSTALLEDAPP row. Bundle Identifier, Display Name and Distributor ID "
                  "are the stored values; Installed Locally and Distributor Is Third Party are "
                  "stored flags; Adam ID, Version Identifier and Beta Version Identifier are shown "
@@ -193,7 +193,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "Evidence tier: row counts data-proven on the corpus (see the last sentence); the reading of each column rests on the table schema. The usage tables (ZUSAGE, ZUSAGEBLOCK, ZUSAGECATEGORY, "
                  "ZUSAGETIMEDITEM, ZUSAGECOUNTEDITEM) exist in every tested store and their "
                  "columns were read from those schemas, but all five tested full file systems "
@@ -230,7 +230,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "One row per ATRANSACTION row. Timestamp is ZTIMESTAMP as a Core Data date. Author, "
                  "Bundle ID, Context Name and Process (as stored) are the strings that the "
                  "transaction's ZAUTHORTS, ZBUNDLEIDTS, ZCONTEXTNAMETS and ZPROCESSIDTS point at "
@@ -273,7 +273,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Screen Time",
+        "category": "Device Activity",
         "notes": "One row per ACHANGE row with ZCHANGETYPE 2 (delete in NSPersistentHistoryChangeType), "
                  "dated by its transaction. Entity is the model entity name (Z_PRIMARYKEY.Z_NAME, "
                  "on ZENTITY) and Entity Row ID is ZENTITYPK, the key the row had. Value 1 to "

@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-05-29",
         "last_updated": "2026-05-29",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Orphaned Payload is True for a file in fsCachedData that no Cache.db row read in "
                  "this run names; that is a statement about the two stores as extracted, not about "
                  "deletion. Payload Type is worked out by this artifact from the payload's bytes "

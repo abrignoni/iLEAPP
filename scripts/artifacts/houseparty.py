@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-04",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Houseparty",
+        "category": "Calls & Contacts",
         "notes": "Read from class_RealmNote in Documents/houseparty.rocky.realm with the vendored "
                  "realm_parser. Houseparty was a group video chat app; its publisher announced on 9 "
                  "September 2021 that the app was being pulled from the app stores that day and would "
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-04",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Houseparty",
+        "category": "Calls & Contacts",
         "notes": "Read from class_RealmRoom in the app's Realm store, with the session joined from "
                  "class_RealmRoomSession through the row's own latestSession link and the server host joined "
                  "from class_RealmMediaServerEndpoint through the session's mediaServer link. A room row records "
@@ -161,7 +161,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-04",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Houseparty",
+        "category": "Calls & Contacts",
         "notes": "Read from class_RealmUser in the app's Realm store, with the public profile "
                  "joined from class_RealmPublicUser through the row's own publicUser link, the "
                  "settings from class_RealmUserSettings through its settings link, and the "
@@ -231,7 +231,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-04",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Houseparty",
+        "category": "Calls & Contacts",
         "notes": "Read from class_RealmPublicUser in the app's Realm store, with presence joined "
                  "from class_RealmUserPresence, the relationship from "
                  "class_RealmRelationshipInfo, the address book name from "
@@ -298,7 +298,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-04",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Houseparty",
+        "category": "Calls & Contacts",
         "notes": "Read from class_RealmContact in the app's Realm store, one row per phone number, with the "
                  "matched account joined from class_RealmPublicUser through the row's own user link and the "
                  "contact record joined from class_RealmLocalContact through its contacts link list. "

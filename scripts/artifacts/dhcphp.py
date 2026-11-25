@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-29",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "DHCP",
+        "category": "Network & Connectivity",
         "notes": "",
         "paths": ('*/db/dhcpd_leases*',),
         "output_types": "standard",

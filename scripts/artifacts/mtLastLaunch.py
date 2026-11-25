@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "App Usage",
+        "category": "Device Activity",
         "notes": ('Read from com.apple.mt.lastLaunch.plist (its launches dictionary, bundle ID to date) and '
                   'com.apple.mt.killed.plist (its killed array of bundle IDs) in Library/Preferences. One row per '
                   'bundle ID in either file; In Last Launch List and In Killed List say which. Date is the launches '

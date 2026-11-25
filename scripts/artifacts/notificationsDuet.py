@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Notifications",
+        "category": "Device Activity",
         "notes": "Column names other than the SEGB fields are this artifact's labels for numbered "
                  "protobuf fields and are not taken from a published schema: Notification Time is "
                  "field 1.1, GUID 1.2, Title 1.3, Subtitle 1.4, Body 1.5, Bundle ID 1.8, Optional "

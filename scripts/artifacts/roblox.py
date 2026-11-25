@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Roblox",
+        "category": "Music, Video & News",
         "notes": "Read from the client's LocalStorage key value store, appStorage.json, paired with "
                  "com.roblox.robloxmobile.plist from the same app container. Both stores name an "
                  "account, so each is reported and a disagreement between them stays "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Roblox",
+        "category": "Music, Video & News",
         "notes": "One row per client log file in Library/Logs/Roblox. The client names each file with "
                  "the client version, a UTC timestamp, the log type and a short identifier, and Log "
                  "Start is read from that name. The first timestamped line inside the file carries "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Roblox",
+        "category": "Music, Video & News",
         "notes": "Read from the client logs in Library/Logs/Roblox. A join is assembled from two "
                  "lines the client writes together: the join line, which carries the game job id, the "
                  "place id and the server address, and the game_join_loadtime report line, which "
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Roblox",
+        "category": "Music, Video & News",
         "notes": "One row per entry in the files table of rbx-storage.db, the client's content cache "
                  "index. Last Access is the atime column read as Unix milliseconds. Expires is the "
                  "ttl column read as Unix seconds; that the value is an expiry time is taken from "

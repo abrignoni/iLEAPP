@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-04-29",
         "last_update_date": "2026-05-18",
         "requirements": "Path, re",
-        "category": "Airbnb",
+        "category": "Travel & Vehicles",
         "notes": "Sent is set by this module: it is 1 when the sender user id equals the number in "
                  "the database file name and 0 otherwise. It is not a stored value. For multipart "
                  "messages only the first part's body is reported, message types other than text "

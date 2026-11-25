@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-15",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": "Read from the X-UserContext header set lines of the com.life360.safetymap logs, whose value "
                  "is JSON with flags, device, geolocation and geolocation_meta objects. Timestamp is "
                  "geolocation.timestamp, Unix seconds, rendered in UTC; Latitude, Longitude, Altitude, "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-15",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from the same X-UserContext header set lines as the Locations artifact: Timestamp is geolocation.timestamp rendered in UTC. device.battery (as stored) and device.charge (as stored) report the parsed JSON values without a percent unit or charging-state mapping. Missing battery or charge keys retain the existing empty-string default; this does not distinguish a missing key from a stored empty string. The key names alone do not establish units or device charging state. Original artifact contribution: @KevinPagano3.',
         "paths": ('*/com.life360.safetymap *.log',),
         "output_types": "standard",
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": "Read from the lines of the logs matching com.life360.safetymap*.log that end in "
                  "four comma-separated values, a time of day, a number, a latitude and a "
                  "longitude, sometimes followed by a fifth word (Strategy). The app writes these "
@@ -178,7 +178,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": "Read from the log lines that print a CMMotionActivity object (ActivityQueryProvider latest "
                  "activity), which Apple's CoreMotion framework describes with its own property names: "
                  "startDate, confidence, unknown, stationary, walking, running, automotive and cycling. "
@@ -234,7 +234,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-15",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": "Direction is derived: Outgoing when the sender's member row has ZISLOGGEDINUSER "
                  "set to 1 and Incoming when it is set to 0. Direction is blank when ZSENDER "
                  "matches no ZCHATMEMBER row or that row holds neither value, so a blank does not "
@@ -309,7 +309,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-15",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": "",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
         "output_types": "standard",

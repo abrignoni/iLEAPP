@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-17",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Spotlight Searches",
+        "category": "Device Activity",
         "notes": "When more than one Cache.db is matched all are read, and the report names only "
                  "the last one as the source.",
         "paths": ("**/EngagedCompletions/Cache.db*"),

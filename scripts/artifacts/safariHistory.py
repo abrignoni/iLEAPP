@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-02-14",
         "last_update_date": "2026-10-07",
         "requirements": "none",
-        "category": "Safari Browser",
+        "category": "Browsers",
         "notes": (
             "Origin (as stored) reports history_visits.origin without the former Local Device and "
             "iCloud Synced Device labels. Its native SQLite value and type are retained, including "
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari Browser",
+        "category": "Browsers",
         "notes": (
             "One row per history_items_to_tags row, which links a history_tags row to a "
             "history_items row, and one row for each history_tags row that no link names. "

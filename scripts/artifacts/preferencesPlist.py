@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "version": "0.2",
         "date": "2023-09-30",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "",
         "paths": ('*preferences/SystemConfiguration/preferences.plist', ),
         "output_types": ["html", "tsv", "lava"],

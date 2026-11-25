@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-04-30",
         "last_update_date": "2026-09-07",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "A message with more than one attachment is reported once per attachment, so rows can "
                  "outnumber messages. Message is message.text, or the text decoded from attributedBody "
                  "where text is empty. Sender is the handle joined to a received row through "

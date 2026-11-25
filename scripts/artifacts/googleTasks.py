@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-25",
         "last_update_date": "2026-11-25",
         "requirements": "none",
-        "category": "Google Tasks",
+        "category": "Productivity",
         "notes": "The store was seen under five container identifiers: com.google.Keep and com.google.Gmail at"
                  " Library/Application Support/Tasks/<account folder>/tasks.db in the app container, "
                  "group.com.google.Gmail and group.com.google.Dynamite at tasks/<account folder>/tasks.db in "

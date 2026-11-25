@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": (
             "A location record is not proof that the device was at that place. The cited "
             "research describes this database as aggregating data from many sources and says "

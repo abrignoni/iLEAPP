@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-06",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": (
             "No sample data is recorded for this artifact, and its query has not been run against "
             "a real query_predictions.db. creationTimestamp is read as Unix seconds; this reading "

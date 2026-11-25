@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "System Activity",
+        "category": "Device Activity",
         "notes": (
             "Timestamps are stored without a UTC offset and are reported as stored text "
             "in a column headed Timestamp (as stored, no offset); the zone is not established. "

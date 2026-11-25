@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-21",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Bluetooth",
+        "category": "Smart Home & Connected Devices",
         "notes": "LastSeenTime is reported as stored without an assumed unit, epoch or timezone. "
                  "A record in OtherDevices does not by itself establish a Bluetooth connection "
                  "or a precisely timed encounter. Plain-text exports may serialize native SQLite "

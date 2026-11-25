@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-04-10",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "lastUsedTimeMillis is also reported as stored text without imposing a time zone or epoch.",
         "paths": ('*/Documents/database.db*',), # shorter path for itunes backups also
         "output_types": "all",

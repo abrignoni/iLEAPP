@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-11-17',
         'requirements': 'none',
-        'category': 'Twitter X',
+        'category': 'Social Media',
         'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it '
                  'holds the trusted, untrusted and low quality timelines, and the Timeline column '
                  'names which of those three archive keys a conversation came from. From Me is '
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-11-17',
         'requirements': 'none',
-        'category': 'Twitter X',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.atebits.tweetie.direct-message.cache/*',),
         'output_types': 'standard',
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-11-17',
         'requirements': 'none',
-        'category': 'Twitter X',
+        'category': 'Social Media',
         'notes': ('Cached objects are gzip compressed JSON stored in the Items table. A key with '
                   'no stored object, or one that does not decode, gives no row and is counted in '
                   'the run log, which names the cache. '
@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-11-18',
         'requirements': 'none',
-        'category': 'Twitter X',
+        'category': 'Social Media',
         'notes': ('Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
                   'folder under TFSModelCache.1/. On both images that hold the store one folder '
                   'is named <username>-<number>, where the username is the signed-in account\'s; '
@@ -128,7 +128,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-11-17',
         'requirements': 'none',
-        'category': 'Twitter X',
+        'category': 'Social Media',
         'notes': ('From Users holds the user IDs a notification names, as stored in its fromUsers list; usernames are not looked up. On the josh_ios17_ffs test case 116 of 119 notifications name one user and 3 name none. '
                   'Every modelCache.sqlite3 is read. On the sample images each one sits in its own '
                   'folder under TFSModelCache.1/. On both images that hold the store one folder '

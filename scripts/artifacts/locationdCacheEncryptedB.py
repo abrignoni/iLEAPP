@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ("Each row pairs a BSSID with coordinates in the WifiLocation table; the table "
                   "and column names are the only labels used here. Apple states that Location "
                   "Services uses crowd-sourced Wi-Fi hotspot locations (Reference: Apple, "
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ('The source table is named WifiAssociatedApWifiHarvestTable. The name points to '
                   'access points the device associated with, but what causes a row to be written '
                   'is not established here, so a row is not by itself proof of a connection. '
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-10-09',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ("As with the Wi-Fi table, a row pairs cell identifiers with coordinates as the "
                   "cache stores them; the table and column names are the only labels used here. "
                   "Apple states that Location Services uses crowd-sourced cell tower locations "
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ("Each row is a row of the WifiTileHeader table; the column names are the only "
                   "labels used here. Access Timestamp and Generation Timestamp are the "
                   "AccessTimestamp and GenerationTimestamp columns read as seconds since 2001 in "

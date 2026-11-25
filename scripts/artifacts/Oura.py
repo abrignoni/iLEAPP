@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-02",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "Identifiers are reported as stored, except the Zendesk account-id, which is "
                  "base64 decoded and split into its leading text and trailing hex string. The "
                  "labels given to those two parts (Help Center URL and Application ID) and to the "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-02",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "The Ring ID is a twelve-hex-digit value formatted as a MAC address; that it "
                  "is the ring's Bluetooth address is not established by a source, and the "
                  "column header Ring (BLE MAC) is this module's wording. ringTime values are "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-02",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "From the 'findMyRingLastKnownLocation' value. The timestamp is read as seconds "
                  "since 2001 (UTC). What device's position the value holds, and the units of the "
                  "altitude, speed and accuracy fields, are not established here; values are "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "Profile values held under the app's preference keys (for example "
                  "currentSleep, sleepDetractors, metabolic/hasGlp1Tag and the cycle keys) "
                  "plus profile traits held under the Segment/Braze keys; whether a value came "
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-04",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "Snapshot from the 'widgetInfo' value; it is a single cached state, not "
                  "a history. Series without their own timestamps are reported in stored "
                  "order; which end of a series is the most recent day is not established, "
@@ -144,7 +144,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "appConnections entries are listed one per row; the value 'connected' is "
                  "supplied by this module. The HealthKit prompted lists are listed the same way "
                  "with the value 'prompted', also supplied by this module. A HealthKit import "
@@ -176,7 +176,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-02",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "ISO, Unix and Cocoa timestamps are reported in one column. A "
                  "number is read as seconds since 2001 when it is between "
                  "500,000,000 and 1,000,000,000 and as Unix time when larger, "
@@ -205,7 +205,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "The suite and com.ouraring.oura.plist copies of version keys can carry "
                  "different values; both are reported so a difference "
                  "is visible instead of silently resolved.",
@@ -227,7 +227,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "Article cache entries are reported as stored. Cache presence alone is not "
                  "proof the user read the content, and the engagement keys "
                  "(dismissed/played/interacted) are reported as stored without a source for what "
@@ -250,7 +250,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-04",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "From the 'integrations' block of 'segment.settings', plus one row each for "
                  "the consentSettings.allCategories and metrics.sampleRate values of the "
                  "same settings and for the 'segment.events' value; values are reported as "
@@ -274,7 +274,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-04",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "From the 'plan' block of 'segment.settings'; bulk, so TSV + LAVA only.",
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.ouraring.oura.plist',
@@ -294,7 +294,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "Flag values are reported as stored; whether a flag was active for this account "
                  "is not established. Bulk, so TSV + LAVA only.",
         "paths": (
@@ -315,7 +315,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Oura Ring",
+        "category": "Health & Fitness",
         "notes": "Keys of the suite plist and of com.ouraring.oura.plist that are "
                  "not on the module's claimed-key lists and are not shown on the "
                  "App Activity Timeline are listed here, as are the keys of any "

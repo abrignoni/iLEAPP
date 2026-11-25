@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-05-07",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Apple Mail",
+        "category": "Email",
         "notes": ("Reads the Envelope Index and Protected Index layouts found on the tested iOS "
                   "13.3.1 through 18.7.8 images listed in sample_data; later releases were not "
                   "tested. Rows with recipients.type = 1 are reported as To "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-24",
         "requirements": "none",
-        "category": "Apple Mail",
+        "category": "Email",
         "notes": ("In the examined corpora no CC/BCC recipients appeared in the Envelope Index recipients table. "
                   "The CC/BCC columns are parsed per RFC 822 but no message in the available test "
                   "corpora carries either header, so those two columns are unexercised. "

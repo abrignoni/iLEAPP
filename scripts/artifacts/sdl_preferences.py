@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "ComputerName and HostName are read from System/System, and Model and __VERSION__ from "
             "the top level, all as stored. Model "
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Sysdiagnose - Settings & Preferences",
+        "category": "Sysdiagnose",
         "notes": (
             "One row per NetworkServices entry carrying an Interface dictionary: the service GUID "
             "and the interface's UserDefinedName, Type, Hardware and DeviceName, as stored, sorted "

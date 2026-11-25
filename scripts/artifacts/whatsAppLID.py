@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "Reads LID.sqlite in WhatsApp's shared app group container (group.net.whatsapp.WhatsApp.shared on "
                  "all 11 images with LID.sqlite, read from each container's metadata plist), read-only, together "
                  "with the ContactsV2.sqlite in the same folder. One row per ZWAPHONENUMBERLIDPAIR row and per "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "One row per ZWAGROUPMEMBER row in ChatStorage.sqlite, read-only, with LID.sqlite and "
                  "ContactsV2.sqlite from the same folder. Chat Name and Chat JID are the member's chat ZPARTNERNAME "
                  "and ZCONTACTJID, and Member JID is ZMEMBERJID as stored. For a member JID ending in "

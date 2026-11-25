@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "An identifier key holds a keyboard language; a <key>_SETTIME key holds a time "
         "for it where one was written, and an identifier without that key is reported "
         "with an empty Recorded value rather than dropped. Identifiers are reported as "

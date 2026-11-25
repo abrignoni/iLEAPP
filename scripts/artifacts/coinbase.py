@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Coinbase",
+        "category": "Finance & Payments",
         "notes": "One row per Account record in the cache whose totalBalance reference resolves "
                  "to an amount. That such a record is a wallet the account holds is the reading "
                  "used here and is not established from the store alone. The rows come from the "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
-        "category": "Coinbase",
+        "category": "Finance & Payments",
         "notes": "One row per app data directory. The values are top level keys of the "
                  "app's MMKV store. Wallet Link User ID is the @walletlink.user_id key, "
                  "reported as stored; what it identifies is not established beyond the key "

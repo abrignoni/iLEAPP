@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Media Library",
+        "category": "Music, Video & News",
         "notes": (
             "Media Kind is item_extra.media_kind as stored; no published source for its values was "
             "found. On six tested images (abe_ios16, dexter_ios18, hickman_ios13, hickman_ios14, "
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-13",
         "requirements": "none",
-        "category": "Media Library",
+        "category": "Music, Video & News",
         "notes": (
             "Every key/value row in the table is reported as stored; the meaning of the "
             "individual keys is not documented by a published source. In the 20 tested images "

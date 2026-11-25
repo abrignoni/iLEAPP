@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-19",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Apple Intelligence",
+        "category": "AI Assistants",
         "notes": (
             "Parses the report exported from Settings > Privacy & Security > Apple Intelligence "
             "Report; no such file was found on any registered corpus image, so the examiner "

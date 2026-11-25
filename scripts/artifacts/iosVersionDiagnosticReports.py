@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-24",
         "last_update_date": "2026-11-24",
         "requirements": "none",
-        "category": "IOS Build",
+        "category": "Device Information",
         "notes": "A fallback for a run in which last_build and the selected version readers gave no iOS "
                  "version. It runs after them, and only when none of them gave a version; otherwise it "
                  "is not run and the log says so. It reads the .ips files under "

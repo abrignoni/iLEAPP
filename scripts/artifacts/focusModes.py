@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Focus",
+        "category": "Device Activity",
         "notes": "One row per entry in data[0].modeConfigurations of ModeConfigurations.json. Created and "
                  "Last Modified are the entry's created and lastModified values, read as Unix (1970 epoch) "
                  "seconds. Source: the DNDSModeConfigurationRecord decoder in Apple's DoNotDisturbServer "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Focus",
+        "category": "Device Activity",
         "notes": "One row per record in the storeAssertionRecords, storeInvalidationRecords and "
                  "storeInvalidationRequestRecords lists of Assertions.json; Record names the list. The "
                  "file held 0 to 5 records on the six of the eight sample_data images that carried it (5 on abe_ios16, 0 on "

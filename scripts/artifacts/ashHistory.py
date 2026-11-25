@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-24",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Linux",
+        "category": "Logs & Diagnostics",
         "notes": "",
         "paths": ('*/.ash_history',),
         "output_types": "standard",

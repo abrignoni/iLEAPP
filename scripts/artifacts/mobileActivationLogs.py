@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Mobile Activation Logs",
+        "category": "Device Information",
         "notes": "Timestamps are read from the log line, which carries no time zone marker; the "
                  "artifact reports them as text, and whether the log writes UTC or device-local time "
                  "is not established here. A log present both in the file system and inside a "

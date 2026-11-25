@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Dahua Technology (DMSS)",
+        "category": "Smart Home & Connected Devices",
         "notes": "'No Pass' in the PIN column means the values the code looks for at indexes 3 and "
                  "4 of the objects list were not found, not that no PIN was set. That index 5 "
                  "holds the app PIN is the module author's reading; no source for it is cited "
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Dahua Technology (DMSS)",
+        "category": "Smart Home & Connected Devices",
         "notes": "",
         "paths": ('*/Library/Support/Devices.sqlite3*'),
         "output_types": "standard",
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Dahua Technology (DMSS)",
+        "category": "Smart Home & Connected Devices",
         "notes": "Only DEVICES rows with a DDNSCONFIG row whose DEVICEID equals the device's IP "
                  "value are reported. Stored password values are reported as stored; the column "
                  "headers call them encrypted, and that is not established here. The path pattern "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Dahua Technology (DMSS)",
+        "category": "Smart Home & Connected Devices",
         "notes": "alarmState, onLineState and fullDayAlarm values 0 and 1 are shown as off and on; "
                  "any other value is shown blank. Owner is taken from the name of the folder "
                  "holding the database: a folder named 0 is shown as '(without DMSS account)' and "
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Dahua Technology (DMSS)",
+        "category": "Smart Home & Connected Devices",
         "notes": "Receive Share From and Send Share To are the ReceiveShare and SendShareStr "
                  "columns as stored; what the app records in them is not established here. Owner "
                  "is taken from the name of the folder holding the database: a folder named 0 is "
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Dahua Technology (DMSS)",
+        "category": "Smart Home & Connected Devices",
         "notes": "Ten stored alarm type codes are shown as a sentence written for this report, not "
                  "text the app stored; other codes are shown as stored. Timestamp (Local) is the "
                  "TIME column as stored; its zone is not established. Checked reads Yes for "
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Dahua Technology (DMSS)",
+        "category": "Smart Home & Connected Devices",
         "notes": "The folder names are not unique to the Dahua DMSS app and nothing in the code "
                  "ties a file to that app or to how the file came to exist, so check the Source "
                  "File path. Files ending .jpg whose path contains Videos are not reported. No "

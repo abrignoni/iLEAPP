@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-20",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "A sysdiagnose can carry logs/BatteryUIPlist/BatteryUISysdiagnose.plist (on iOS 13.3.1, "
                  "hickman_ios13_sysdiag, the folder held only BatteryUI.plist) and one or more "
                  "BatteryUIUpgrade_<old build>_<new build>.plist files, named for two builds. Both hold a "
@@ -116,7 +116,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-20",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "A row is one bucket of one range entry (see 'Battery UI - Per-App Runtime' for the range "
                  "entries and for how Bucket Start, Bucket End and Bucket Seconds are read; they are blank on iOS "
                  "14.3). Foreground Time and Background Time are the PLBatteryUIForegroundTimeKey and "
@@ -169,7 +169,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-20",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Battery",
+        "category": "Device Information",
         "notes": "A row is one property list: BatteryUISysdiagnose.plist, BatteryUI.plist or a "
                  "BatteryUIUpgrade_<old>_<new>.plist. Old Build and New Build are the two build names in the file "
                  "name of an upgrade file; the file name is the only place they were found in the files read, and "

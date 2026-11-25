@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Secret Calculator Photo Album",
+        "category": "Photos & Media",
         "notes": (
             "Photo and album dates are read as Unix epoch seconds and shown in UTC. Path is the "
             "Photos row's path value as stored. Filename is the file found under the app "

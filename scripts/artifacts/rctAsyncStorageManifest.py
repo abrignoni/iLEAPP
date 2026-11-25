@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-19",
         "last_updated": "2026-08-06",
         "requirements": "none",
-        "category": "React Native",
+        "category": "App Data Stores",
         "notes": "Manifest files may belong to any React Native app. Use Source File to identify the app container.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json",

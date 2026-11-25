@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-02-23",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Clock",
+        "category": "Device Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimer.plist',),
         "output_types": "all",

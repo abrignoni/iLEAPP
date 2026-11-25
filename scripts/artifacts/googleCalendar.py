@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Rows come from the Events table of unifiedsync.db. Most event content is held in a "
                  "protobuf in the Proto column; field positions were established from the tested samples "
                  "and cross-checked against the columns beside them (the event id in the protobuf matched "
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "One row per attendee entry in the repeated attendee field of the event protobuf. "
                  "Three attendee integers, fields 6, 9 and 10, are reported as stored: the app binary is not "
                  "present in an application data container and no mapping for them was sourced. "
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Coordinates are stored as two 64 bit values in the event protobuf and are read back as "
                  "IEEE 754 doubles. In the tested samples the decoded pairs fell in the region matching "
                  "the timezone the same events carried, which is a consistency check and not a statement "
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Rows come from the Calendars table of unifiedsync.db. Calendar Name, Calendar Time "
                  "Zone, Owner Address and Domain are read from the Proto column by field position; how "
                  "those positions were established is not stated here. The calendar timezone is the "
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Rows come from the CalendarSyncInfo table of unifiedsync.db. IsSelected and "
                  "IsSyncEnabled are the values stored by the app. An integer in the protobuf (field 3.3) "
                  "is read as a count of days from 1970-01-01 UTC and reported as a date. What the date "
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "One row per entry of the repeated field 2 in the protobuf of an AccessData row of "
                  "unifiedsync.db. The role integer is "
                  "reported as stored; no mapping for it was sourced. Each entry holds an address in one "
@@ -136,7 +136,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Rows come from the Accounts table of unifiedsync.db, joined to the sync state recorded "
                  "for the same account where present. In the tested samples the account identifier was a "
                  "numeric Google account identifier rather than an address; addresses appear on the "
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Rows come from the Settings table of unifiedsync.db. The setting identifier is a "
                  "readable key stored by the app. A setting value may be a string or a nested structure; "
                  "where it is a structure the decoded content is reported rather than the row being "
@@ -171,7 +171,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Rows come from the AppointmentSlot table of unifiedsync.db. This table was empty in one "
                  "of the two tested samples, so an empty result does not establish that the feature was "
                  "unused. The timezone reported is the one stored on the schedule.",
@@ -186,7 +186,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "Rows come from the contacts table of the per account Contacts cache database. Display "
                  "Name is read from the contact's protobuf and, where that holds none, from the first "
                  "name nested in the contact's address entries. Account ID is taken from the cache file "
@@ -213,7 +213,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "One row per preference key in the per account cached preferences property list under "
                  "CALFileStorage. The account identifier is taken from the file name. Values are reported "
                  "as stored, including the app's own string spellings of true and false. A nested value is "
@@ -229,7 +229,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Calendar",
+        "category": "Productivity",
         "notes": "One row per key in the app's preferences property list. Values are reported as stored. "
                  "The first launch value is an ISO 8601 string that carries its own UTC offset, so it is "
                  "read from the string rather than converted from an epoch. Permission status integers "

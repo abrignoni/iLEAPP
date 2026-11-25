@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per message whose payload_data is an NSKeyedArchiver archive holding rich link "
                  "metadata, under the key richLinkMetadata or metadata. In the tested databases these "
                  "rows have the balloon_bundle_id com.apple.messages.URLBalloonProvider, and some have "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per message that has a balloon_bundle_id other than the link preview balloon "
                  "and a payload_data value. App Bundle is balloon_bundle_id as stored: for an app "
                  "extension it has the form com.apple.messages.MSMessageExtensionBalloonPlugin:"

@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Logged Time is ZTIMESTAMP (Unix seconds). Payload is ZDATA as UTF-8 '
             'text, or hex when it does not decode (Payload Format). Covers the eleven'
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Location Time is the sample timestamp (Cocoa seconds); Logged Time is '
             'the parent ZTIMESTAMP (Unix seconds). Buffered samples are used when '
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Drive and trip times are Cocoa seconds; cancellation Event Time and '
             'Logged Time are Unix seconds. Event Type is as stored, or the single key'
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Waypoint Time is Unix seconds for drive waypoints and Cocoa seconds for '
             'trip route points. A point found in several recovered parents of one '
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Incident Time is Unix seconds. Types are as stored. An incident record '
             'is not by itself evidence of a crash. Row Key is made by the report to '
@@ -196,7 +196,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'From DriveModelStore.sqlite. Start Time, End Time, Created At, Updated '
             'At and Last Retrieved are Cocoa seconds. Other numbers are as stored. '
@@ -229,7 +229,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Event Time is the breach timestamp (Unix seconds) and stays blank when '
             'missing. Location Time is Cocoa seconds. Distance is as stored; Unit is '
@@ -261,7 +261,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Event Time is the dwell timestamp (Cocoa seconds); Dwell Start and Dwell'
             ' End are Unix seconds; Logged Time is ZTIMESTAMP (Unix seconds). Event '

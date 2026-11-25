@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-04-30",
         "last_update_date": "2025-03-28",
         "requirements": "none",
-        "category": "IOS Build",
+        "category": "Device Information",
         "notes": "",
         "paths": (
             '*/installd/Library/MobileInstallation/LastBuildInfo.plist',

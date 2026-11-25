@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-04-08",
         "last_update_date": "2026-08-21",
         "requirements": "",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "Records are read with Alex Caithness's ccl_leveldb library. Every record whose "
                  "value is JSON is reported, whether or not it holds a location.",
         "paths": (

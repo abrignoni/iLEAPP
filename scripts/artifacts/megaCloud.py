@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-11",
         "last_update_date": '2026-10-07',
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": 'Read from the nodes table of megaclient_statecache<version>_<account>.db, the local node'
                  ' cache the MEGA SDK keeps for a signed in account. The nodes table appears from cache '
                  "version 13: the SDK's LAST_DB_VERSION_WITHOUT_NOD is 12 "
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-11",
         "last_update_date": "2026-09-11",
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": 'One row per file found directly in thumbnailsV3 or previewsV3, or inside a '
                  'handle folder under originalV3. thumbnailsV3 and previewsV3 name the file after '
                  'the handle; '
@@ -147,7 +147,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-11",
         "last_update_date": "2026-09-11",
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": 'Read from the ZQUICKACCESSWIDGETRECENTITEM and '
                  'ZQUICKACCESSWIDGETFAVOURITEITEM tables of the app\'s own Core Data file, '
                  'MEGACD.sqlite. The List column says which table a row came from. 20 rows '
@@ -189,7 +189,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-11",
         "last_update_date": "2026-09-11",
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": 'Read from the ZOFFLINENODE table of MEGACD.sqlite. The reported columns are '
                  'ZDOWNLOADEDDATE, ZLOCALPATH, ZBASE64HANDLE, ZPARENTBASE64HANDLE and '
                  'ZFINGERPRINT, reported under those readings of their names; no source for '
@@ -220,7 +220,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-11",
         "last_update_date": "2026-09-11",
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": 'Read from the ZUSER table of MEGACD.sqlite, which is the app\'s own store '
                  'and separate from the contacts table in the karere chat database that the '
                  'MEGA - Contacts artifact reports. 12 rows across the tested images, with an '

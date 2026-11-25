@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-10-07",
         "requirements": "none",
-        "category": "WeChat",
+        "category": "Messaging",
         "notes": "On the two devices tested, messages were held in tables named Chat_ followed by "
                  "32 hex characters, spread across MM.sqlite and message_N.sqlite in the "
                  "account's DB folder. Every such table in those databases is read. On the two "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "WeChat",
+        "category": "Messaging",
         "notes": "Read from the Friend table of WCDB_Contact.sqlite. A row is a contact record "
                  "the client holds. On the two devices tested the table also held WeChat's own "
                  "official accounts (WeChat-Team, File Transfer, New Friends and the like), so a "

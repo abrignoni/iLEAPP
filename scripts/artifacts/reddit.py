@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-16",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": (
             "The store is a Core Data key-value cache under "
             "Library/Caches/MatrixChat/roomsAccount/<account>/MatrixUsers-*/. Each row is "
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-16",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": (
             "A Core Data key-value cache under "
             "Library/Caches/MatrixChat/redditAccount/<account>/RedditUsers-*/, keyed by "
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-16",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": (
             "Documents/release02/accountData/<reddit id>/SubredditSubscriptions is an "
             "NSKeyedArchiver property list holding one entry per community, deserialised "
@@ -126,7 +126,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-28",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": (
             "An m.room.message event whose content carries no msgtype is labelled No msgtype "
             "stored in Message Type. The Matrix redaction algorithm strips the content keys of a "
@@ -172,7 +172,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": "One row per row of ChatMessage, whatever its channel, in "
                  "Documents/release02/accountData/<account "
                  "id>/chat/<version>/chat.sqlite, which is the app's own chat store. It is a "
@@ -220,7 +220,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": "One row per row of Contact in the app's own chat store, "
                  "Documents/release02/accountData/<account id>/chat/<version>/chat.sqlite. A row "
                  "records an account the chat store holds a contact record for. On the one tested "
@@ -252,7 +252,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": (
             "Documents/release02/accountData/<account>/PostHistory is an NSKeyedArchiver "
             "property list, deserialised before reading. Its kPostIDDictionaryKey value is an "
@@ -303,7 +303,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": (
             "Documents/release02/accountData/<account>/RecentPostCache.json is a JSON list of "
             "post IDs. Position is the zero-based position in that list. On the tested images "
@@ -340,7 +340,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Reddit",
+        "category": "Social Media",
         "notes": (
             "Documents/release02/accountData/<account>/SubredditHistory is an NSKeyedArchiver "
             "property list holding an ordered list of subreddit IDs, deserialised before "

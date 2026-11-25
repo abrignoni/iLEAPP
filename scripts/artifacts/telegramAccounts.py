@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Key IDs and record layouts are those of the open-source Telegram-iOS "
                  "client (Postbox metadata table t0 key 2; accounts-metadata JSON). The "
                  "metadata table is tableSpec(0) "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Peer record field names (fn, ln, un, p, ph) follow the open-source "
                  "Telegram-iOS Postbox serialization. Contact-list membership is read "
                  "from the Postbox ContactTable (table t16; "
@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-04",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "The chat list is table t9, the Postbox ChatListTable (tableSpec(9) in "
                  "Postbox.swift). Its key carries the whole entry, big-endian: a group id, "
                  "a pinning value, the timestamp, namespace and id of the top message, the "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-05",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Table t54 is the Postbox DeviceContactImportInfoTable (tableSpec(54) in "
                  "Postbox.swift). The key is a one-byte prefix of 0 followed by the "
                  "normalised phone number, per TelegramDeviceContactImportIdentifier. The "
@@ -176,7 +176,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-05",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Table t20 is the Postbox PeerPresenceTable (tableSpec(20) in Postbox.swift). "
                  "The record is a TelegramUserPresence: 'v' selects the status, where 0 is "
                  "none, 1 is present with the time in 't', which the client fills with either "
@@ -219,7 +219,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-05",
         "last_update_date": "2026-08-09",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Table t12 is the Postbox MessageHistoryTagsTable (tableSpec(12) in "
                  "Postbox.swift). The whole entry is in the key, big-endian: peer id, tag "
                  "value, namespace, timestamp and message id, per the key function in "
@@ -258,7 +258,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Table t18 is the Postbox CachedPeerDataTable (tableSpec(18) in "
                  "Postbox.swift), keyed by peer id. Field names are taken from the "
                  "open-source Telegram-iOS client: CachedUserData encodes 'a' as about, "
@@ -299,7 +299,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Setting key IDs are taken from the open-source Telegram-iOS client "
                  "(SyncCore_Namespaces.swift PreferencesKeyValues/SharedDataKeyValues and "
                  "TelegramUIPreferences PostboxKeys.swift; application-specific keys are "

@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-08-01",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Core Accessories",
+        "category": "Smart Home & Connected Devices",
         "notes": "",
         "paths": ('*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*',),
         "output_types": "standard",

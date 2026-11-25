@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Telekom Mail",
+        "category": "Email",
         "notes": "Read from the Messages-<address>.sqlite Core Data store the Telekom Mail client keeps "
                  "in Application Support; on the two samples each store was named for one mail "
                  "address. On the devices tested the mail was in the clear. A row is a message "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Telekom Mail",
+        "category": "Email",
         "notes": "Read from the ZATTACHMENT table of the Messages-<address>.sqlite store, joined to "
                  "its message's subject and date through the shared ZMESSAGE row. File Name, MIME "
                  "Type and Size are the client's own columns. Inline is ZISINLINEATTACHMENT as "

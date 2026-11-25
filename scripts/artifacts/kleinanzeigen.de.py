@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-02-19",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Kleinanzeigen.de",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.ebaykleinanzeigen.ebc.plist', ),
         "output_types": "standard",
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-02-18",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Kleinanzeigen.de",
+        "category": "Shopping & Marketplaces",
         "notes": "sender=0 is read as the local account; no source for that mapping is given here and it was "
                  "not measured on a counted sample. The OUTBOUND boundness value is read as the store spells "
                  "it. A conversation with no cached messages is reported as one row built from its preview: "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-02-19",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Kleinanzeigen.de",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.ebaykleinanzeigen.ebc.plist', ),
         "output_types": "standard",
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-02-19",
         "last_update_date": "2025-02-19",
         "requirements": "none",
-        "category": "Kleinanzeigen.de",
+        "category": "Shopping & Marketplaces",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Private Documents/.last_search_query', ),
         "output_types": "all",

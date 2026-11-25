@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2022-06-22',
         'last_update_date': '2025-11-21',
         'requirements': 'none',
-        'category': 'Vipps',
+        'category': 'Finance & Payments',
         'notes': '',
         'paths': ('*/Vipps.sqlite*',),
         'output_types': 'standard',

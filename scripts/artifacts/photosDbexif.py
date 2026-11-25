@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-11-07",
         "requirements": "none",
-        "category": "Photos",
+        "category": "Photos & Media",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
                  "Scott Koenig's query, "
                  "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS15/Previous_Queries/iOS15_LPL_Phsql_Locations.txt#L257-L260) "

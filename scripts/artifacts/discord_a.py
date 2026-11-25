@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-03-31",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Direction reads Outgoing when the message sender id equals the "
                  "account id in the kv-storage/@account.<id>/ path and Incoming when "
                  "it differs; it is blank when the path gives no account id or the "

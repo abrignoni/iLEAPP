@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Network Usage",
+        "category": "Network & Connectivity",
         "notes": "Reads the netUsageBaseline dictionary of com.apple.osanalytics.addaily.plist in "
                  "mobile/Library/Preferences: one row per key, each key holding a date and four numbers. The numbers "
                  "are stored as reals; all 18,580 on the 24 images were whole and are shown without a decimal part. "
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                  "netusage total of 0. What this file records and when it is written is not established. Date was "
                  "within 2 minutes of netusage's ZPROCESS.ZFIRSTTIMESTAMP on the nearest matching row for 3,475 of "
                  "3,476 matched keys; what moment either marks is not established, so rows are not written to the "
-                 "timeline. Much of this repeats the netusage artifacts in the Network Usage category. It is kept "
+                 "timeline. Much of this repeats the netusage artifacts in the Network & Connectivity category. It is kept "
                  "because this file can hold rows where netusage.sqlite is not readable: on otto_ios17 the "
                  "netusage.sqlite under networkd was a 4,096-byte file with no tables, and the archive holds no -wal "
                  "for it, while this file held 235 processes. On belkactf6_tar Cellular In and Cellular Out held one "

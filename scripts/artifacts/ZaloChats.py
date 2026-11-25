@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-01",
         "last_update_date": "2026-10-09",
         "requirements": "pillow",
-        "category": "Zalo",
+        "category": "Messaging",
         "notes": "Message type mappings are not vendor-documented and no published source for "
                  "them is cited. They were derived from test data that is not recorded here, so "
                  "each label is a reading of the stored type code and not an established meaning. "
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-01",
         "last_update_date": "2026-10-06",
         "requirements": "none",
-        "category": "Zalo",
+        "category": "Messaging",
         "notes": "Profile inclusion and relationship to a device user are not established. Rows are stored "
                  "profile/join observations, not verified contacts or known relationships. LEFT JOINs "
                  "retain missing joined values and may return multiple rows per profile when matching "

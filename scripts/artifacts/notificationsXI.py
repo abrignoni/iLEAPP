@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Notifications",
+        "category": "Device Activity",
         "notes": "Reads every dictionary in a PushStore file that has a key beginning "
                  "AppNotification and reports its creation date, title, subtitle and message, with "
                  "the remaining keys in Other Details. Bundle is the PushStore file's name without "

@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-04-11",
         "last_update_date": "2026-07-22",
         "requirements": "none",
-        "category": "CloudKit",
+        "category": "Cloud & Files",
         "notes": "",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-04-11",
         "last_update_date": "2026-11-05",
         "requirements": "none",
-        "category": "CloudKit",
+        "category": "Cloud & Files",
         "notes": "The File Type labels File and Folder are assigned to stored fileType values 0 "
                  "and 1 without a vendor source; unrecognized values are reported as stored. A "
                  "manifest with no file rows is reported as one row with empty file columns. "

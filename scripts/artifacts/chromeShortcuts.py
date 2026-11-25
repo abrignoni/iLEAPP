@@ -2,7 +2,7 @@
 
 __artifacts_v2__ = {
     "chromeShortcuts": {
-        "name": "Omnibox Shortcuts",
+        "name": "Chromium - Omnibox Shortcuts",
         "description": "Rows of the omni_box_shortcuts table from the Shortcuts database of Chromium based browsers: "
                        "the stored input text, the URL and the text stored with it, the match type and transition, "
                        "the hit count and the last access time.",
@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "Reads the omni_box_shortcuts table of each Shortcuts database directly inside a profile folder under"
                  " Google/Chrome, Microsoft/Edge or Chromium in Library/Application Support; one row per table row. "
                  "Measured on the nine images listed in sample_data: 10 databases, 4 of them with rows, 46 rows in "

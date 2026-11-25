@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2023-09-30',
         'last_update_date': '2026-10-30',
         'requirements': "none",
-        'category': 'Call History',
+        'category': 'Calls & Contacts',
         'notes': "date and trashed_date are reported as raw text in separate columns because "
                  "their epochs are not sourced here. flags is reported as stored without a "
                  "derived Deleted label. A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' "

@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Maps",
+        "category": "Locations & Maps",
         "notes": (
             "Coordinates are stored as E7 fixed-point integers inside the protobuf at "
             "field path 3 > 1 > 4 > 5, the same position ALEAPP's googleOdlh module reads "
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Maps",
+        "category": "Locations & Maps",
         "notes": (
             "Same table and columns as the Android copy read by ALEAPP's googleOdlh "
             "module. All four timestamp columns are named as seconds and are converted by a "
@@ -131,7 +131,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Maps",
+        "category": "Locations & Maps",
         "notes": (
             "s2_cell_id is reported as stored. Whether each value is a valid S2 cell identifier "
             "was not checked here. This module does not convert it to latitude and longitude and "
@@ -174,7 +174,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Maps",
+        "category": "Locations & Maps",
         "notes": (
             "ZUPDATEDDATE is a Core Data timestamp counted from the 2001 Cocoa epoch. The "
             "unit was established by decoding stored values against both candidate epochs "

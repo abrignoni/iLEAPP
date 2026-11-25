@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "stopwatch": {
-        "name": "Stopwatch",
+        "name": "Clock - Stopwatch",
         "description": "Stopwatch state and lap intervals from com.apple.mobiletimerd.plist",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2024-12-22",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Clock",
+        "category": "Device Activity",
         "notes": "Stopwatch Time is the sum of the stored laps (MTStopwatchLaps) and the current "
                  "interval (MTStopwatchCurrentInterval), computed by this module. The highest "
                  "numbered lap is the stored current interval, not an entry in the stored lap "

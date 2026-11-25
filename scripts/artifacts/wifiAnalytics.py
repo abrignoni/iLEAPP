@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Wi-Fi",
+        "category": "Network & Connectivity",
         "notes": "Date is ZGEOTAG.ZDATE and Last Seen is ZLASTSEEN of the ZBSS record the geotag "
                  "links to, both read as seconds since 2001-01-01 UTC. What event either value "
                  "marks is not established here. BSSID and SSID come from the ZBSS and ZNETWORK "

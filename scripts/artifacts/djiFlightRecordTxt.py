@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-23',
         'last_update_date': '2026-11-17',
         'requirements': 'none',
-        'category': 'DJI Drone',
+        'category': 'Smart Home & Connected Devices',
         'notes': 'Versions 1-6 are read as stored and 7-12 use local XOR decoding. Version 13+ '
                  'telemetry is encrypted and is not decrypted; see TXT Flight Log Summary. '
                  'Record types, layouts, units and enum names follow dji-log-parser v0.5.7 '
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-23',
         'last_update_date': '2026-11-17',
         'requirements': 'none',
-        'category': 'DJI Drone',
+        'category': 'Smart Home & Connected Devices',
         'notes': 'Metadata is from Details, locally XOR-decoded from Auxiliary Info on version 13+. '
                  'No network requests, API keys, external executable or CSV import. '
                  'Offsets, units and enum names follow dji-log-parser v0.5.7 layout/details.rs '

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-06-26",
         "last_update_date": "2026-08-15",
         "requirements": "none",
-        "category": "Oops",
+        "category": "Messaging",
         "notes": "Only RCT_MESSAGE rows whose content carries an 'extra' value that is valid JSON "
                  "are reported. Direction (as stored) is the message_direction value. RongCloud's "
                  "SDK defines MessageDirection SEND=1, RECEIVE=2; the previous Incoming/Outgoing "

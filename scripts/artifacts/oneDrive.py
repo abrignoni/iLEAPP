@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "OneDrive",
+        "category": "Cloud & Files",
         "notes": "Timestamp columns hold Unix milliseconds and are reported in UTC; zero and "
                  "negative stored values are shown blank. Item Type, Deleted State, Sharing "
                  "Level, Vault Type and File Hash Type are undocumented codes reported as "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "OneDrive",
+        "category": "Cloud & Files",
         "notes": "Rows come from the drives table, joined to web_app on accountId and to "
                  "sync_root on the drive id; a drive is repeated when either table holds "
                  "more than one matching row. Drive Type and Server Type are undocumented "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "OneDrive",
+        "category": "Cloud & Files",
         "notes": "Rows from permission_entity, joined through permission to the items row "
                  "the permission belongs to. Expiration is read as Unix milliseconds and "
                  "reported in UTC; zero and negative stored values are shown blank. Role, "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "OneDrive",
+        "category": "Cloud & Files",
         "notes": "Stream Location is the stream_location value, reported as stored. The "
                  "folder it is relative to is not established here, and the cached content "
                  "files themselves are not collected by this artifact. Stream Type, Sync "
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "OneDrive",
+        "category": "Cloud & Files",
         "notes": "Item Name is resolved by matching resource_id to items.resourceId across "
                  "every QTMetadata.db the pattern matches, keeping the first name found; "
                  "the match is not limited to the database beside the OfflineSelection.db "

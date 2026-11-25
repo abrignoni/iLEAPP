@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-22",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Kik",
+        "category": "Messaging",
         "notes": "The Type labels follow the ZTYPE values given in K. Ovens & G. Morison, "
                  "'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, "
                  "2016), "
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-22",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Kik",
+        "category": "Messaging",
         "notes": "",
         "paths": ('**/kik.sqlite*',),
         "output_types": "standard",

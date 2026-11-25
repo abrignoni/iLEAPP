@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         'creation_date': '2020-12-15',
         'last_update_date': '2026-10-07',
         'requirements': 'none',
-        'category': 'App Permissions',
+        'category': 'Installed Apps',
         'notes': 'Access is the stored auth_value (0 shown as Not allowed, 2 as Allowed, 3 as Limited) or, on schemas without it, the allowed column (0 Not allowed, 1 Allowed). No source for these meanings is cited here; unrecognized values are reported as stored. Prompt Count is reported empty on schemas where the column is absent, and Last Modified is blank on schemas without a last_modified column. Client (as stored) reports the selected client value without classifying it as a bundle identifier or interpreting client_type. Original contribution and research credit: @KevinPagano3 and @johannplw.',
         'paths': (
             '*/mobile/Library/TCC/TCC.db*',

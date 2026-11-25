@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "LG ThinQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the class_Product table of the app's Realm store using the vendored "
                  "realm_parser, with the sales model and serial number joined from "
                  "class_ProductModel on the product identifier and the room name joined from "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "LG ThinQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the class_Room table of the app's Realm store. The created_at column "
                  "holds two different shapes in the same column on the tested sample, an 8 digit "
                  "YYYYMMDD date on one row and a 14 digit YYYYMMDDHHMMSS value on another, so it "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "LG ThinQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the class_FavoritesItem table of the app's Realm store. Unlike the "
                  "other date columns in this store these two carry an explicit UTC marker in the "
                  "value itself, so they are reported as datetimes. Item Type is reported as "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "LG ThinQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the class_UserIdInfo table of the app's Realm store. Identifier Type "
                  "is the row's idType value and is reported as stored; what each value denotes is "
                  "not established. The access token the same store holds in class_Token is "
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "LG ThinQ",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the class_Service table of the app's Realm store. Join Date is stored "
                  "as a text date whose field order is not stated by the store; the original text "
                  "is retained without reordering it. No time of day or zone is recorded. Service Code is reported as stored. "

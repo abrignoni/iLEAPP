@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-12-08",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Contacts",
+        "category": "Calls & Contacts",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist',),
         "output_types": ["html", "tsv", "lava"],

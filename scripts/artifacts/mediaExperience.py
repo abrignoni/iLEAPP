@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Media Experience",
+        "category": "Music, Video & News",
         "notes": "Endpoint is the key as stored under volumes or endpointTypeInfo, and Endpoint "
                  "Type is the endpointTypeInfo value stored for it. The 18 sample_data images "
                  "that hold the file gave 51 rows. 16 of them, on 7 images, are named "
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Media Experience",
+        "category": "Music, Video & News",
         "notes": "Every key of the file other than volumes and endpointTypeInfo, which Media "
                  "Experience Endpoints reports, and six boolean flags that are not reported: "
                  "AirPlayLowLatencyEntriesDeleted, AirTunesEntriesDeleted, "

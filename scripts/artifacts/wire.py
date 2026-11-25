@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-13",
         "requirements": "",
-        "category": "Wire Messenger",
+        "category": "Messaging",
         "notes": "Each file under AppGroup/<group>/Accounts named by a UUID is Wire's JSON encoding of its "
                  "Account class, written by AccountStore under the account's user identifier as an "
                  "uppercase uuidString "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-21",
         "last_update_date": "2026-11-11",
         "requirements": "",
-        "category": "Wire Messenger",
+        "category": "Messaging",
         "notes": "Each result of ZUSER LEFT JOIN ZUSERCLIENT is reported without DISTINCT: a user with several "
                  "clients gives one row per client, and a user with no client gives one row with the client "
                  "columns blank. Clients with no matching ZUSER are not selected. Every "
@@ -167,7 +167,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-01-21",
         "last_update_date": '2026-11-13',
         "requirements": "",
-        "category": "Wire Messenger",
+        "category": "Messaging",
         "notes": "Rows with category 1 (undefined per the Wire source) are excluded; rows with "
                  "no stored category are retained. Handle, User ID and Display Name come from the ZUSER row that "
                  "ZMESSAGE.ZSENDER points to (LEFT JOIN), so they are blank when no such row exists. Handle "
@@ -356,7 +356,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-13",
         "requirements": "",
-        "category": "Wire Messenger",
+        "category": "Messaging",
         "notes": "Every ZUSER row of every AccountData/<account>/store/store.wiredatabase found is "
                  "reported, the same rows as Wire Secure Messenger Users and Clients without the "
                  "per-client fan-out, with Account naming the account folder and pictures taken only from "
@@ -411,7 +411,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-13",
         "requirements": "",
-        "category": "Wire Messenger",
+        "category": "Messaging",
         "notes": "Every file directly under AppGroup/<group>/Library/Caches/wire-account-<account> whose name "
                  "is 64 hex digits is listed. A file is matched to a message of that account's "
                  "store.wiredatabase when its name is Wire's cache key for the message, the hex SHA-256 of "

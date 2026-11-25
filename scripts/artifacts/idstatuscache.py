@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-07-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Identity Lookup Service",
+        "category": "Accounts & Credentials",
         "notes": "The Application column's identifier-to-name labels are best-effort: "
                  "where the extraction contains Apple's IdentityServices "
                  "ServiceDefinitions plists their DisplayName is used; hardcoded "
