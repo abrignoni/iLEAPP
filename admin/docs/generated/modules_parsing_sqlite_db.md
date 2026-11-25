@@ -283,6 +283,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleAppTabs |
 | googleChat |
 | googleHome |
+| googleKeep |
 | health |
 | intelligencePlatformBehaviors |
 | intelligencePlatformGraph |
