@@ -260,6 +260,76 @@ class TestNullAbsentColumns(unittest.TestCase):
             'SELECT s.X FROM (SELECT COALESCE(NULL, t.B) AS X FROM T t) s')
         self.assertEqual(row['X'], 'present')
 
+    def test_references_past_the_select_list_stay_plain_null(self):
+        cases = [
+            ('SELECT t.B FROM T t ORDER BY t.ZMISSING, t.B',
+             'SELECT t.B FROM T t ORDER BY NULL, t.B'),
+            ('SELECT t.B FROM T t ORDER BY t.ZMISSING',
+             'SELECT t.B FROM T t ORDER BY NULL'),
+            ('SELECT t.B FROM T t GROUP BY t.ZMISSING, t.B',
+             'SELECT t.B FROM T t GROUP BY NULL, t.B'),
+            ('SELECT t.B FROM T t LEFT JOIN T u ON u.B = t.ZMISSING',
+             'SELECT t.B FROM T t LEFT JOIN T u ON u.B = NULL'),
+            ('SELECT t.B FROM T t WHERE t.B IS NOT t.ZMISSING',
+             'SELECT t.B FROM T t WHERE t.B IS NOT NULL'),
+            ('select t.B from T t order by t.ZMISSING',
+             'select t.B from T t order by NULL'),
+        ]
+        for query, expected in cases:
+            with self.subTest(query=query):
+                rewritten, row = self._rewrite_and_fetch(query)
+                self.assertEqual(rewritten, expected)
+                self.assertEqual(row['B'], 'present')
+
+    def test_select_list_alias_kept_alongside_later_clauses(self):
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.ZMISSING, t.B FROM T t ORDER BY t.ZMISSING, t.B')
+        self.assertEqual(
+            rewritten, 'SELECT NULL AS ZMISSING, t.B FROM T t ORDER BY NULL, t.B')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B FROM T t UNION SELECT t.ZMISSING FROM T t ORDER BY 1 DESC')
+        self.assertEqual(
+            rewritten,
+            'SELECT t.B FROM T t UNION SELECT NULL AS ZMISSING FROM T t ORDER BY 1 DESC')
+        self.assertEqual(row['B'], 'present')
+
+    def test_subquery_clauses_tracked_per_depth(self):
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.ZMISSING FROM (SELECT t.ZMISSING FROM T t ORDER BY t.ZMISSING) s '
+            'ORDER BY 1')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.ZMISSING FROM (SELECT NULL AS ZMISSING FROM T t ORDER BY NULL) s '
+            'ORDER BY 1')
+        self.assertIsNone(row['ZMISSING'])
+
+        # A subquery in WHERE has its own select list; the outer WHERE does not
+        # carry into it.
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B FROM T t WHERE EXISTS (SELECT t.ZMISSING, 1 FROM T u)')
+        self.assertEqual(
+            rewritten,
+            'SELECT t.B FROM T t WHERE EXISTS (SELECT NULL AS ZMISSING, 1 FROM T u)')
+        self.assertEqual(row['B'], 'present')
+
+    def test_clause_words_in_names_and_comments_do_not_end_the_select_list(self):
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B AS "order", /* FROM */ t.ZMISSING, t.B AS ORDERED FROM T t')
+        self.assertEqual(
+            rewritten,
+            'SELECT t.B AS "order", /* FROM */ NULL AS ZMISSING, t.B AS ORDERED FROM T t')
+        self.assertIsNone(row['ZMISSING'])
+
+        # WINDOW is not reserved in SQLite, so it can be a name.
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B AS window, t.ZMISSING FROM T t')
+        self.assertEqual(
+            rewritten, 'SELECT t.B AS window, NULL AS ZMISSING FROM T t')
+        self.assertEqual(row['window'], 'present')
+        self.assertIsNone(row['ZMISSING'])
+
     def test_wide_query_many_select_items(self):
         pairs = 1000
         select_items = []
