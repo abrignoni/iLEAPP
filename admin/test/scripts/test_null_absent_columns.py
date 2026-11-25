@@ -1,10 +1,12 @@
-"""null_absent_columns rewriting inside function calls and top-level select items.
+"""null_absent_columns rewriting inside function calls, subqueries, and top-level select items.
 
 When a missing column appears as a non-final argument to a function call such
 as COALESCE(t.ZMISSING, t.B), the trailing comma must not trigger a
 "NULL AS <name>" alias inside parentheses, which SQLite rejects as a syntax
-error. Bare top-level select items at parenthesis depth zero still receive
-"NULL AS <name>" so callers reading sqlite3.Row by column name keep working.
+error. Bare select items at parenthesis depth zero or directly inside a
+subquery (such as a derived table or CTE body whose innermost unclosed "("
+begins with SELECT) still receive "NULL AS <name>" so callers reading
+sqlite3.Row by column name keep working.
 """
 import contextlib
 import os
@@ -22,7 +24,7 @@ from scripts import ilapfuncs  # pylint: disable=wrong-import-position
 
 
 class TestNullAbsentColumns(unittest.TestCase):
-    """null_absent_columns emits NULL AS only at parenthesis depth zero."""
+    """null_absent_columns emits NULL AS for top-level and subquery select items."""
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
@@ -143,6 +145,49 @@ class TestNullAbsentColumns(unittest.TestCase):
             'SELECT COALESCE(NULL, t.ZMISSING_EXTRA) AS X, t.ZMISSING_EXTRA FROM T2 t')
         self.assertEqual(row['X'], 'kept')
         self.assertEqual(row['ZMISSING_EXTRA'], 'kept')
+
+    def test_subquery_and_cte_select_items_keep_alias(self):
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.* FROM (SELECT t.ZMISSING FROM T t) s')
+        self.assertEqual(
+            rewritten, 'SELECT s.* FROM (SELECT NULL AS ZMISSING FROM T t) s')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.* FROM (SELECT t.ZMISSING, t.B FROM T t) s')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.* FROM (SELECT NULL AS ZMISSING, t.B FROM T t) s')
+        self.assertIsNone(row['ZMISSING'])
+        self.assertEqual(row['B'], 'present')
+
+        rewritten, row = self._rewrite_and_fetch(
+            'WITH c AS (SELECT t.ZMISSING FROM T t) SELECT * FROM c')
+        self.assertEqual(
+            rewritten,
+            'WITH c AS (SELECT NULL AS ZMISSING FROM T t) SELECT * FROM c')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.* FROM (select t.ZMISSING FROM T t) s')
+        self.assertEqual(
+            rewritten, 'SELECT s.* FROM (select NULL AS ZMISSING FROM T t) s')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.* FROM (/* sub */ -- note\n SELECT t.ZMISSING FROM T t) s')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.* FROM (/* sub */ -- note\n SELECT NULL AS ZMISSING FROM T t) s')
+        self.assertIsNone(row['ZMISSING'])
+
+    def test_function_inside_subquery_stays_plain_null(self):
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.X FROM (SELECT COALESCE(t.ZMISSING, t.B) AS X FROM T t) s')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.X FROM (SELECT COALESCE(NULL, t.B) AS X FROM T t) s')
+        self.assertEqual(row['X'], 'present')
 
     def test_error_paths_return_query_unchanged(self):
         missing = os.path.join(self.tmpdir, 'unreadable.sqlite')
