@@ -1525,6 +1525,8 @@ def _null_out_column(query, reference):
         i = scan_pos
         while i < end:
             ch = query[i]
+            if ch in ("'", '"', '`', '[', '(', ')'):
+                prev_word[0] = None
             if ch in ("'", '"', '`'):
                 i += 1
                 while i < query_len:

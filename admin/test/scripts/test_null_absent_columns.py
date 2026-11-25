@@ -349,6 +349,18 @@ class TestNullAbsentColumns(unittest.TestCase):
                 self.assertEqual(rewritten, expected)
                 self.assertIsNone(row['ZMISSING'])
 
+        # A value between DISTINCT and FROM means the FROM is the clause.
+        rewritten, row = self._rewrite_and_fetch(
+            "SELECT DISTINCT 'x' FROM T t LEFT JOIN T u ON t.B = t.ZMISSING")
+        self.assertEqual(
+            rewritten, "SELECT DISTINCT 'x' FROM T t LEFT JOIN T u ON t.B = NULL")
+        self.assertEqual(row[0], 'x')
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT DISTINCT (t.B) FROM T t LEFT JOIN T u ON t.B = t.ZMISSING')
+        self.assertEqual(
+            rewritten, 'SELECT DISTINCT (t.B) FROM T t LEFT JOIN T u ON t.B = NULL')
+        self.assertEqual(row[0], 'present')
+
         # A plain SELECT DISTINCT still reaches its FROM clause.
         rewritten, row = self._rewrite_and_fetch(
             'SELECT DISTINCT t.B FROM T t ORDER BY t.ZMISSING')
