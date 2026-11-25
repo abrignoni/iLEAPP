@@ -102,6 +102,18 @@ class ScaleFromNameTests(unittest.TestCase):
         self.assertEqual(_image_scale_from_name('/a/Snapshots/x/downscaled/ABC@3x.KTX'), 3)
         self.assertIsNone(_image_scale_from_name('/case@2x.ktx/Snapshots/x/ABC.ktx'))
         self.assertIsNone(_image_scale_from_name('/a/Snapshots/x/ABC.jpeg'))
+        self.assertEqual(_image_scale_from_name('C:\\case\\Snapshots\\x\\ABC@2x.ktx'), 2)
+
+    def test_renamed_staged_copy_takes_the_scale_from_the_source_name(self):
+        # Two evidence paths differing only in case are staged as name~case-<tag>.ktx.
+        from types import SimpleNamespace
+        from scripts.artifacts.appSnapshots import _image_scale_for
+        staged = '/report/data/var/Snapshots/x/ABC@2x~case-1a2b3c4d.ktx'
+        seeker = SimpleNamespace(file_infos={
+            staged: SimpleNamespace(source_path='var/Snapshots/x/ABC@2x.ktx')})
+        self.assertEqual(_image_scale_for(staged, seeker), 2)
+        self.assertIsNone(_image_scale_for(staged, None))
+        self.assertEqual(_image_scale_for('/report/data/x/DEF@3x.ktx', seeker), 3)
 
 
 if __name__ == '__main__':

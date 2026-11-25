@@ -56,7 +56,7 @@ __artifacts_v2__ = {
 }
 
 from collections import defaultdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import sqlite3
 
@@ -73,15 +73,25 @@ def _image_scale_from_name(ktx_path):
     '''The image scale in the file name (<id>@2x.ktx), or None. It matched the manifest
     imageScale on every snapshot record in the images run. Read from the file name
     alone, never from the folders above it.'''
-    match = _SCALE_IN_NAME.search(Path(ktx_path).name)
+    match = _SCALE_IN_NAME.search(PurePosixPath(str(ktx_path).replace('\\', '/')).name)
     return int(match.group(1)) if match else None
 
 
-def save_ktx_to_png_if_valid(ktx_path, save_to_path):
+def _image_scale_for(file_found, seeker):
+    '''The scale from the evidence file name. The seeker can stage a file under
+    another name (name~case-<tag>.ktx when two evidence paths differ only in
+    case), so the name it recorded for the source is read first.'''
+    infos = getattr(seeker, 'file_infos', None)
+    info = infos.get(file_found) if isinstance(infos, dict) else None
+    source = getattr(info, 'source_path', None)
+    return _image_scale_from_name(source if isinstance(source, str) and source else file_found)
+
+
+def save_ktx_to_png_if_valid(ktx_path, save_to_path, image_scale=None):
     '''Convert a valid iOS KTX image to PNG.'''
 
     with open(ktx_path, 'rb') as f:
-        ktx = KTX_reader(image_scale=_image_scale_from_name(ktx_path))
+        ktx = KTX_reader(image_scale=image_scale)
         try:
             if ktx.validate_header(f):
                 data = ktx.get_uncompressed_texture_data(f)
@@ -179,6 +189,7 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
     source_dirs = set()
 
     files_found = context.get_files_found()
+    seeker = context.get_seeker()
     manifest_index = _manifest_index(files_found)
 
     for file_found in files_found:
@@ -200,7 +211,7 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
             if media_path.stat().st_size < 2500:
                 continue
             png_path = media_path.with_suffix((".png"))
-            if save_ktx_to_png_if_valid(media_path, png_path):
+            if save_ktx_to_png_if_valid(media_path, png_path, _image_scale_for(file_found, seeker)):
                 media_item = check_in_media(
                     file_found,
                     bundle_id,
