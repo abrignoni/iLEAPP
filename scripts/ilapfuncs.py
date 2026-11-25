@@ -1504,6 +1504,8 @@ def _null_out_column(query, reference):
     depth (in FROM, WHERE, GROUP BY, HAVING, ORDER BY or LIMIT), where SQLite
     does not allow an alias. WINDOW is left out: SQLite also accepts it as a
     name, and a window definition is always inside parentheses.
+    Names may hold "$", and the FROM of IS [NOT] DISTINCT FROM is part of a
+    comparison, so neither ends the select list.
     '''
     name = reference.split('.')[-1].strip('"[]`')
     pattern = re.compile(r'(?<![\w.])' + re.escape(reference) + r'\b'
@@ -1515,6 +1517,7 @@ def _null_out_column(query, reference):
     # Each open "(" is [position, has seen SELECT, last clause keyword at its depth].
     open_parens = []
     top_clause = [None]
+    prev_word = [None]
     scan_pos = 0
 
     def in_select_list(end):
@@ -1522,6 +1525,8 @@ def _null_out_column(query, reference):
         i = scan_pos
         while i < end:
             ch = query[i]
+            if ch in ("'", '"', '`', '[', '(', ')'):
+                prev_word[0] = None
             if ch in ("'", '"', '`'):
                 i += 1
                 while i < query_len:
@@ -1556,10 +1561,13 @@ def _null_out_column(query, reference):
                 i += 1
             elif ch.isalnum() or ch == '_':
                 start = i
-                while i < query_len and (query[i].isalnum() or query[i] == '_'):
+                while i < query_len and (query[i].isalnum() or query[i] in '_$'):
                     i += 1
                 word = query[start:i].upper() if query[start:i].isascii() else ''
+                after_distinct = prev_word[0] == 'DISTINCT'
+                prev_word[0] = word
                 if (i <= end and word in clause_keywords
+                        and not (word == 'FROM' and after_distinct)
                         and (start == 0 or query[start - 1] != '.')):
                     frame = open_parens[-1] if open_parens else None
                     if frame is None:
@@ -1569,6 +1577,8 @@ def _null_out_column(query, reference):
                         if word == 'SELECT':
                             frame[1] = True
             else:
+                if not ch.isspace():
+                    prev_word[0] = None
                 i += 1
         scan_pos = i
         if not open_parens:
@@ -1606,6 +1616,7 @@ def _null_out_column(query, reference):
         return f'NULL AS {name}{tail}'
 
     return pattern.sub(replace, query)
+
 
 def does_view_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''

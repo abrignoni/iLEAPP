@@ -330,6 +330,43 @@ class TestNullAbsentColumns(unittest.TestCase):
         self.assertEqual(row['window'], 'present')
         self.assertIsNone(row['ZMISSING'])
 
+    def test_distinct_from_and_dollar_names_do_not_end_the_select_list(self):
+        cases = [
+            ('SELECT t.B IS DISTINCT FROM 1 AS X, t.ZMISSING FROM T t',
+             'SELECT t.B IS DISTINCT FROM 1 AS X, NULL AS ZMISSING FROM T t'),
+            ('SELECT t.B IS NOT DISTINCT FROM 1 AS X, t.ZMISSING FROM T t',
+             'SELECT t.B IS NOT DISTINCT FROM 1 AS X, NULL AS ZMISSING FROM T t'),
+            ('SELECT t.B IS DISTINCT /* c */ FROM 1 AS X, t.ZMISSING FROM T t',
+             'SELECT t.B IS DISTINCT /* c */ FROM 1 AS X, NULL AS ZMISSING FROM T t'),
+            ('SELECT t.B AS x$limit, t.ZMISSING FROM T t',
+             'SELECT t.B AS x$limit, NULL AS ZMISSING FROM T t'),
+            ('SELECT t.B AS b$order, t.ZMISSING FROM T t',
+             'SELECT t.B AS b$order, NULL AS ZMISSING FROM T t'),
+        ]
+        for query, expected in cases:
+            with self.subTest(query=query):
+                rewritten, row = self._rewrite_and_fetch(query)
+                self.assertEqual(rewritten, expected)
+                self.assertIsNone(row['ZMISSING'])
+
+        # A value between DISTINCT and FROM means the FROM is the clause.
+        rewritten, row = self._rewrite_and_fetch(
+            "SELECT DISTINCT 'x' FROM T t LEFT JOIN T u ON t.B = t.ZMISSING")
+        self.assertEqual(
+            rewritten, "SELECT DISTINCT 'x' FROM T t LEFT JOIN T u ON t.B = NULL")
+        self.assertEqual(row[0], 'x')
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT DISTINCT (t.B) FROM T t LEFT JOIN T u ON t.B = t.ZMISSING')
+        self.assertEqual(
+            rewritten, 'SELECT DISTINCT (t.B) FROM T t LEFT JOIN T u ON t.B = NULL')
+        self.assertEqual(row[0], 'present')
+
+        # A plain SELECT DISTINCT still reaches its FROM clause.
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT DISTINCT t.B FROM T t ORDER BY t.ZMISSING')
+        self.assertEqual(rewritten, 'SELECT DISTINCT t.B FROM T t ORDER BY NULL')
+        self.assertEqual(row['B'], 'present')
+
     def test_wide_query_many_select_items(self):
         pairs = 1000
         select_items = []
