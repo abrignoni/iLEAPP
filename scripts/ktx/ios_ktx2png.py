@@ -58,7 +58,11 @@ _MORTON_Y = tuple(_spread_bits(v) << 1 for v in range(TILE_BLOCKS))
 
 class KTX_reader:
 
-    def __init__(self):
+    def __init__(self, image_scale=None):
+        '''image_scale: the snapshot's image scale when the caller knows it from
+        a recorded source, such as the @2x in a snapshot file name. It chooses
+        the bit order of tiled AAPL textures; see untile_astc_4x4.'''
+        self.image_scale = image_scale
         # KTX header fields
         self.identifier = b'' # b"«KTX 11»\r\n\x1A\x0A"
         self.endianness = ''
@@ -207,9 +211,15 @@ class KTX_reader:
         tiled file and 0 in every linear file observed. It is not documented by
         Apple.
 
-        Not handled: a variant with the x and y bits swapped inside each tile,
-        reported on an iOS 26.2.1 image, which nothing in the file was found to
-        distinguish. Its images still come out scrambled.
+        When image_scale is 2, the x and y bits are swapped inside each tile (y in
+        the even bits). That order was measured on one 2x device on iOS 26.2.1;
+        every tiled file with enough image detail to tell, from the 3x devices
+        checked, used the order above. No field with an established meaning was
+        found to tell the two apart. HEAD words 15 to 18 differ between the 2x
+        device and the 3x devices, and also between 3x devices; their meaning is
+        not established, so they are not used and the scale the caller passes
+        decides. Whether the order follows the image scale or the GPU is not
+        established. With any other scale, or none, the order above is used.
         '''
         blocks_x = -(-self.pixelWidth // 4)
         blocks_y = -(-self.pixelHeight // 4)
@@ -225,15 +235,19 @@ class KTX_reader:
             if padded != exact or len(words) <= 12 or words[12] != 1:
                 return data
         self.is_tiled = True
+        if self.image_scale == 2:
+            morton_x, morton_y = _MORTON_Y, _MORTON_X
+        else:
+            morton_x, morton_y = _MORTON_X, _MORTON_Y
         src = memoryview(data)
         out = bytearray(exact * ASTC_BLOCK_BYTES)
         pos = 0
         for y in range(blocks_y):
             row_base = (y // TILE_BLOCKS) * tiles_x
-            y_bits = _MORTON_Y[y % TILE_BLOCKS]
+            y_bits = morton_y[y % TILE_BLOCKS]
             for x in range(blocks_x):
                 index = (row_base + x // TILE_BLOCKS) * TILE_BLOCKS * TILE_BLOCKS \
-                    + (_MORTON_X[x % TILE_BLOCKS] | y_bits)
+                    + (morton_x[x % TILE_BLOCKS] | y_bits)
                 start = index * ASTC_BLOCK_BYTES
                 out[pos:pos + ASTC_BLOCK_BYTES] = src[start:start + ASTC_BLOCK_BYTES]
                 pos += ASTC_BLOCK_BYTES
