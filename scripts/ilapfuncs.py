@@ -1495,18 +1495,54 @@ def _null_out_column(query, reference):
     '''Replace one column reference with NULL, keeping the output column name.
 
     A bare NULL renames the output column, and artifacts read rows by name, so
-    where the reference is a select item in its own right it becomes
-    "NULL AS <name>". Inside an expression the enclosing alias already names the
-    column and a plain NULL is correct.
+    where the reference is a top-level select item (outside parentheses) it
+    becomes "NULL AS <name>". Inside a function call or expression the
+    enclosing alias already names the column and a plain NULL is correct.
     '''
     name = reference.split('.')[-1].strip('"[]`')
     pattern = re.compile(r'(?<![\w.])' + re.escape(reference) + r'\b'
                          r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
 
+    def paren_depth(end):
+        depth = 0
+        i = 0
+        while i < end:
+            ch = query[i]
+            if ch in ("'", '"'):
+                i += 1
+                while i < end:
+                    if query[i] == ch:
+                        i += 1
+                        if i < end and query[i] == ch:
+                            i += 1
+                            continue
+                        break
+                    i += 1
+            elif ch == '-' and i + 1 < end and query[i + 1] == '-':
+                i += 2
+                while i < end and query[i] != '\n':
+                    i += 1
+            elif ch == '/' and i + 1 < end and query[i + 1] == '*':
+                i += 2
+                while i + 1 < end and not (query[i] == '*' and query[i + 1] == '/'):
+                    i += 1
+                i += 2
+            elif ch == '(':
+                depth += 1
+                i += 1
+            elif ch == ')':
+                depth = max(0, depth - 1)
+                i += 1
+            else:
+                i += 1
+        return depth
+
     def replace(match):
         tail = match.group('tail')
         if tail is None:
             return 'NULL'
+        if paren_depth(match.start()) > 0:
+            return f'NULL{tail}'
         return f'NULL AS {name}{tail}'
 
     return pattern.sub(replace, query)
