@@ -41,6 +41,10 @@ class CategoriesInSource(unittest.TestCase):
         self.assertEqual(check.review({"copy": SUBSCRIPT}, ALLOWED),
                          {"copy": (["Lawn Mowers"], [])})
 
+    def test_a_category_assigned_from_a_name_is_reported_as_unreadable(self):
+        source = 'CAT = "Lawn Mowers"\ndef _copy(m):\n    m["category"] = CAT\n'
+        self.assertEqual(check.review({"copy": source}, ALLOWED), {"copy": ([], [3])})
+
     def test_a_data_row_with_a_category_field_is_not_an_artifact(self):
         self.assertEqual(check.review({"row": DATA_ROW}, ALLOWED), {})
 
@@ -55,6 +59,19 @@ class Comment(unittest.TestCase):
         self.assertIn("@" + check.MAINTAINER, body)
         self.assertIn('"Smart Fridges"', body)
 
+    def test_a_category_the_pr_adds_to_the_list_is_still_reported(self):
+        report = check.review({"new": NEW}, ALLOWED)
+        body = check.render_comment(report, frozenset({"Smart Fridges"}))
+        self.assertIn("@" + check.MAINTAINER, body)
+        self.assertIn('"Smart Fridges" (added to the list in this PR)', body)
+        self.assertNotIn("please use it", body)
+
+    def test_only_the_bots_own_comment_is_edited(self):
+        quoted = {"id": 1, "body": "quoting " + check.MARKER, "user": {"login": "someone"}}
+        own = {"id": 2, "body": check.MARKER + " alert", "user": {"login": check.BOT}}
+        self.assertIsNone(check.own_comment([quoted]))
+        self.assertEqual(check.own_comment([quoted, own])["id"], 2)
+
     def test_a_clean_result_mentions_no_one(self):
         body = check.render_comment({})
         self.assertIn(check.MARKER, body)
@@ -67,7 +84,7 @@ class AllowedList(unittest.TestCase):
         self.assertEqual(len(data), len(set(data)))
         self.assertTrue(data)
 
-    def test_strict_mode_fails_only_when_something_is_found(self):
+    def test_a_working_tree_is_read_from_disk(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "scripts" / "artifacts").mkdir(parents=True)

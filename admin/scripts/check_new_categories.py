@@ -70,10 +70,8 @@ def categories_in_source(text):
             # metadata["category"] = "..." in a helper that copies another entry
             for target in node.targets:
                 if (isinstance(target, ast.Subscript) and isinstance(target.slice, ast.Constant)
-                        and target.slice.value == "category"
-                        and isinstance(node.value, ast.Constant)
-                        and isinstance(node.value.value, str)):
-                    found.add(node.value.value)
+                        and target.slice.value == "category"):
+                    take(node.value)
     return found, unreadable
 
 
@@ -88,22 +86,30 @@ def review(sources, allowed):
     return report
 
 
-def render_comment(report):
-    """The sticky comment body for a review result."""
+def render_comment(report, added=frozenset()):
+    """The sticky comment body for a review result.
+
+    added: categories this PR itself adds to admin/data/artifact_categories.json. They are
+    still reported, so the maintainer sees each new category, but the PR is not asked to do
+    what it already did.
+    """
     if not report:
         return (f"{MARKER}\nEvery artifact category in this PR is in "
                 "`admin/data/artifact_categories.json`.")
     lines = [MARKER, f"@{MAINTAINER} this PR uses artifact categories that are not in "
-             "`admin/data/artifact_categories.json`:", ""]
+             "`admin/data/artifact_categories.json` on the base branch:", ""]
     for module, (new, unreadable) in report.items():
         for category in new:
-            lines.append(f"- `{module}`: new category \"{category}\"")
+            how = "added to the list in this PR" if category in added else "not in the list"
+            lines.append(f"- `{module}`: new category \"{category}\" ({how})")
         for line in unreadable:
             where = "the file does not parse" if line == 0 else f"line {line} is not a plain string"
             lines.append(f"- `{module}`: category could not be read ({where})")
-    lines += ["", "If one of the existing categories fits, please use it. If none does, "
-              "add the new category to `admin/data/artifact_categories.json` in this PR "
-              "so it can be reviewed with the artifact."]
+    missing = any(c not in added for new, _ in report.values() for c in new)
+    if missing or any(unreadable for _, unreadable in report.values()):
+        lines += ["", "If one of the existing categories fits, please use it. If none does, "
+                  "add the new category to `admin/data/artifact_categories.json` in this PR "
+                  "so it can be reviewed with the artifact."]
     return "\n".join(lines)
 
 
@@ -142,15 +148,27 @@ def paginate(token, url):
 
 
 def pr_sources(token, repo, pr_number):
-    """{module: source text} for the artifact modules the PR adds or changes."""
-    sources = {}
+    """({module: source text} for the artifact modules the PR adds or changes,
+    the categories the PR's own copy of the list holds, or None when it leaves the list alone).
+    The list is read as JSON data, never run."""
+    sources, proposed = {}, None
+    list_path = ALLOWED_PATH.relative_to(ROOT).as_posix()
     for f in paginate(token, f"{API}/repos/{repo}/pulls/{pr_number}/files"):
         path = f["filename"]
-        if f["status"] == "removed" or not path.startswith(ARTIFACTS) or not path.endswith(".py"):
+        if f["status"] == "removed":
+            continue
+        if path == list_path:
+            text = api_request(token, f["contents_url"], accept="application/vnd.github.raw+json")
+            try:
+                proposed = set(json.loads(text or "{}").get("categories", []))
+            except ValueError:
+                proposed = set()
+            continue
+        if not path.startswith(ARTIFACTS) or not path.endswith(".py"):
             continue
         text = api_request(token, f["contents_url"], accept="application/vnd.github.raw+json")
         sources[Path(path).stem] = text or ""
-    return sources
+    return sources, proposed
 
 
 def tree_sources(root=ROOT):
@@ -159,14 +177,22 @@ def tree_sources(root=ROOT):
             for p in sorted((root / ARTIFACTS).glob("*.py"))}
 
 
-def apply_state(token, repo, pr_number, report):
+BOT = "github-actions[bot]"
+
+
+def own_comment(comments):
+    """The workflow's own sticky comment: the marker in a comment the bot wrote. A person
+    who quotes the marker does not get their comment edited."""
+    for comment in comments:
+        if MARKER in comment.get("body", "") and (comment.get("user") or {}).get("login") == BOT:
+            return comment
+    return None
+
+
+def apply_state(token, repo, pr_number, report, added=frozenset()):
     """Upserts the sticky comment and the label."""
-    body = render_comment(report)
-    existing = None
-    for comment in paginate(token, f"{API}/repos/{repo}/issues/{pr_number}/comments"):
-        if MARKER in comment.get("body", ""):
-            existing = comment
-            break
+    body = render_comment(report, added)
+    existing = own_comment(paginate(token, f"{API}/repos/{repo}/issues/{pr_number}/comments"))
     if existing:
         if existing["body"] != body:
             api_request(token, f"{API}/repos/{repo}/issues/comments/{existing['id']}",
@@ -191,10 +217,16 @@ def main(argv=None):
     allowed = allowed_categories()
     token, pr_number = os.environ.get("GITHUB_TOKEN"), os.environ.get("PR_NUMBER")
     if token and pr_number:
-        repo = os.environ["GITHUB_REPOSITORY"]
-        report = review(pr_sources(token, repo, int(pr_number)), allowed)
-        print(render_comment(report))
-        apply_state(token, repo, int(pr_number), report)
+        # Advisory: an API failure is a warning in the log, never a failed check.
+        try:
+            repo = os.environ["GITHUB_REPOSITORY"]
+            sources, proposed = pr_sources(token, repo, int(pr_number))
+            report = review(sources, allowed)
+            added = frozenset((proposed or set()) - allowed)
+            print(render_comment(report, added))
+            apply_state(token, repo, int(pr_number), report, added)
+        except Exception as ex:  # pylint: disable=broad-except
+            print(f"::warning::New category check could not finish: {ex}")
         return 0
     report = review(tree_sources(), allowed)
     print(render_comment(report))

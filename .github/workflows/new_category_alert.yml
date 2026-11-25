@@ -20,6 +20,11 @@ permissions:
 jobs:
   new-category-alert:
     runs-on: ubuntu-latest
+    # A newer push supersedes a run still in progress, so an older result cannot
+    # overwrite a newer one.
+    concurrency:
+      group: new-category-alert-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v7
@@ -35,6 +40,7 @@ jobs:
           python-version: '3.14'
 
       - name: Check the PR's artifact categories
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
