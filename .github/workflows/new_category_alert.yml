@@ -1,0 +1,41 @@
+name: New Category Alert
+
+# Tells the maintainer when a PR uses an artifact category that is not in
+# admin/data/artifact_categories.json. It never fails the PR.
+# pull_request_target so the comment can be posted on fork PRs; safe here
+# because the job checks out and runs only the base branch's code. The PR's
+# files are fetched as text by the script and parsed, never executed.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'scripts/artifacts/**'
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  new-category-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            admin/scripts
+            admin/data/artifact_categories.json
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Check the PR's artifact categories
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python admin/scripts/check_new_categories.py
