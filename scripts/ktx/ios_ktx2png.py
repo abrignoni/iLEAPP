@@ -198,13 +198,18 @@ class KTX_reader:
     def untile_astc_4x4(self, data):
         '''Return ASTC 4x4 blocks in the raster order the decoder expects.
 
-        AAPL textures seen on iOS 27.2 hold their blocks in tiles of 32x32 blocks,
-        Morton (Z) ordered inside each tile, on a surface padded to whole tiles,
-        followed by one more block. Earlier files hold exactly one block per 4x4
-        pixels in raster order and are returned unchanged. The block count decides;
-        HEAD word 12 is read only when the padded and exact counts are equal, as it
-        was 1 in every tiled file and 0 in every linear file observed. It is not
-        documented by Apple.
+        Some AAPL textures, seen on iOS 26 and 27, hold their blocks in tiles of
+        32x32 blocks, Morton (Z) ordered inside each tile with x in the even bits
+        and y in the odd bits, on a surface padded to whole tiles, followed by one
+        more block. Linear files hold exactly one block per 4x4 pixels in raster
+        order and are returned unchanged. The block count decides; HEAD word 12 is
+        read only when the padded and exact counts are equal, as it was 1 in every
+        tiled file and 0 in every linear file observed. It is not documented by
+        Apple.
+
+        Not handled: a variant with the x and y bits swapped inside each tile,
+        reported on an iOS 26.2.1 image, which nothing in the file was found to
+        distinguish. Its images still come out scrambled.
         '''
         blocks_x = -(-self.pixelWidth // 4)
         blocks_y = -(-self.pixelHeight // 4)

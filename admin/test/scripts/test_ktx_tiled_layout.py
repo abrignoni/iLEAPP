@@ -1,4 +1,4 @@
-"""KTX_reader.untile_astc_4x4: the tiled block layout of AAPL textures seen on iOS 27.2."""
+"""KTX_reader.untile_astc_4x4: the tiled block layout of AAPL textures seen on iOS 26 and 27."""
 
 import unittest
 
@@ -25,7 +25,7 @@ def _reader(width, height, head_words=()):
 
 
 def _tile(width, height, trailing_blocks=1):
-    '''Lay raster blocks 0..n-1 out the way the iOS 27.2 files hold them.'''
+    '''Lay raster blocks 0..n-1 out the way the tiled iOS 26 and 27 files hold them.'''
     blocks_x, blocks_y = -(-width // 4), -(-height // 4)
     tiles_x = -(-blocks_x // TILE_BLOCKS)
     tiles_y = -(-blocks_y // TILE_BLOCKS)
@@ -46,7 +46,7 @@ def _raster(width, height):
 class UntileTests(unittest.TestCase):
 
     def test_padded_tiled_texture_is_returned_in_raster_order(self):
-        # 1170x2532 is the size of most snapshots in the iOS 27.2 extraction:
+        # 1170x2532 is the size of most snapshots in the iOS 27.2 extraction tested here:
         # 293x633 blocks on a 320x640 block surface, plus one block.
         reader = _reader(1170, 2532)
         self.assertEqual(reader.untile_astc_4x4(_tile(1170, 2532)), _raster(1170, 2532))
