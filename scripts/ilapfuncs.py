@@ -1511,7 +1511,7 @@ def _null_out_column(query, reference):
         i = 0
         while i < end:
             ch = query[i]
-            if ch in ("'", '"'):
+            if ch in ("'", '"', '`'):
                 i += 1
                 while i < end:
                     if query[i] == ch:
@@ -1520,6 +1520,12 @@ def _null_out_column(query, reference):
                             i += 1
                             continue
                         break
+                    i += 1
+            elif ch == '[':
+                i += 1
+                while i < end and query[i] != ']':
+                    i += 1
+                if i < end:
                     i += 1
             elif ch == '-' and i + 1 < end and query[i + 1] == '-':
                 i += 2

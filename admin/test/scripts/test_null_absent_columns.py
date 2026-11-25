@@ -132,6 +132,28 @@ class TestNullAbsentColumns(unittest.TestCase):
         self.assertIsNone(row['ZMISSING'])
         self.assertEqual(row['B'], 'present')
 
+    def test_bracket_and_backtick_identifiers_do_not_change_depth(self):
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B AS [col(], t.ZMISSING FROM T t')
+        self.assertEqual(
+            rewritten, 'SELECT t.B AS [col(], NULL AS ZMISSING FROM T t')
+        self.assertEqual(row['col('], 'present')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B AS `col(`, t.ZMISSING FROM T t')
+        self.assertEqual(
+            rewritten, 'SELECT t.B AS `col(`, NULL AS ZMISSING FROM T t')
+        self.assertEqual(row['col('], 'present')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B AS `a``(`, t.ZMISSING FROM T t')
+        self.assertEqual(
+            rewritten, 'SELECT t.B AS `a``(`, NULL AS ZMISSING FROM T t')
+        self.assertEqual(row['a`('], 'present')
+        self.assertIsNone(row['ZMISSING'])
+
     def test_longer_identifier_not_rewritten(self):
         with contextlib.closing(sqlite3.connect(self.db_path)) as con:
             con.execute('CREATE TABLE T2(B TEXT, ZMISSING_EXTRA TEXT)')
