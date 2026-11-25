@@ -15,6 +15,24 @@ from scripts.ktx.ios_ktx2png import ASTC_BLOCK_BYTES, TILE_BLOCKS, KTX_reader
 VOID = bytes.fromhex('fcfdffffffffffff') + b'\xff\xff\x00\x00\x00\x00\xff\xff'
 
 
+def _compress(data):
+    return liblzfse.compress(data)  # pylint: disable=c-extension-no-member
+
+
+def _ktx1(width, height, data, compressed=False):
+    '''A little-endian Khronos KTX 1.1 file holding ASTC 4x4 data. compressed adds the
+    Compression_APPLE key and an LZFSE payload, the layout the reader expects.'''
+    kv_text = b'Compression_APPLE\x00' if compressed else b''
+    key_values = b''
+    if kv_text:
+        entry = kv_text + b'\x00' * (-len(kv_text) % 4)
+        key_values = struct.pack('<I', len(entry)) + entry
+    fields = (0, 1, 0, 0x93B0, 0x1908, width, height, 0, 0, 1, 1, len(key_values))
+    header = b'\xabKTX 11\xbb\r\n\x1a\n' + struct.pack('<I', 0x04030201) + struct.pack('<12I', *fields)
+    payload = struct.pack('<I', len(data)) + (b'\x00' * 8 + _compress(data) if compressed else data)
+    return header + key_values + payload
+
+
 def _aapl(width, height, tag, payload, word12=0, declared=None):
     '''An AAPL file: HEAD (21 words) and one payload chunk. declared overrides the chunk size.'''
     head = [0] * 21
@@ -57,7 +75,7 @@ class AaplLengthTests(unittest.TestCase):
 
     def test_lzfs_linear_is_accepted(self):
         exact = _blocks(self.W, self.H)
-        data = _read(_aapl(self.W, self.H, b'LZFS', liblzfse.compress(VOID * exact)))
+        data = _read(_aapl(self.W, self.H, b'LZFS', _compress(VOID * exact)))
         self.assertEqual(len(data), exact * ASTC_BLOCK_BYTES)
 
     def test_short_linear_is_refused(self):
@@ -85,9 +103,25 @@ class AaplLengthTests(unittest.TestCase):
 
     def test_truncated_lzfs_raises_value_error(self):
         exact = _blocks(self.W, self.H)
-        cut = liblzfse.compress(VOID * exact)[:-20]
+        cut = _compress(VOID * exact)[:-20]
         with self.assertRaises(ValueError):
             _read(_aapl(self.W, self.H, b'LZFS', cut))
+
+
+class KhronosLengthTests(unittest.TestCase):
+    W, H = 64, 64
+
+    def test_whole_textures_are_accepted(self):
+        exact = _blocks(self.W, self.H)
+        for compressed in (False, True):
+            data = _read(_ktx1(self.W, self.H, VOID * exact, compressed))
+            self.assertGreaterEqual(len(data), exact * ASTC_BLOCK_BYTES)
+
+    def test_short_textures_are_refused(self):
+        exact = _blocks(self.W, self.H)
+        for compressed in (False, True):
+            with self.assertRaises(ValueError):
+                _read(_ktx1(self.W, self.H, VOID * (exact - 1), compressed))
 
 
 class CallerTests(unittest.TestCase):
@@ -105,8 +139,8 @@ class CallerTests(unittest.TestCase):
     def test_app_snapshots_and_widgets_skip_truncated_lzfs(self):
         from scripts.artifacts import appSnapshots, widgets
         exact = _blocks(64, 64)
-        good = _aapl(64, 64, b'LZFS', liblzfse.compress(VOID * exact))
-        cut = _aapl(64, 64, b'LZFS', liblzfse.compress(VOID * exact)[:-20])
+        good = _aapl(64, 64, b'LZFS', _compress(VOID * exact))
+        cut = _aapl(64, 64, b'LZFS', _compress(VOID * exact)[:-20])
         for module in (appSnapshots, widgets):
             path, png = self._write(good)
             self.assertTrue(module.save_ktx_to_png_if_valid(path, png))
@@ -116,7 +150,7 @@ class CallerTests(unittest.TestCase):
     def test_atx_parser_reports_truncated_lzfs_as_a_warning(self):
         from leapp_functions.parsers.apple_atx import decode_atx
         exact = _blocks(64, 64)
-        result = decode_atx(_aapl(64, 64, b'LZFS', liblzfse.compress(VOID * exact)[:-20]))
+        result = decode_atx(_aapl(64, 64, b'LZFS', _compress(VOID * exact)[:-20]))
         self.assertIsNone(result.image)
         self.assertTrue(any('did not decompress' in w for w in result.warnings), result.warnings)
 
