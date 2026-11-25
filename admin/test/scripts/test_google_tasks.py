@@ -79,6 +79,53 @@ class TestGoogleTasks(unittest.TestCase):
         names = [h[0] if isinstance(h, tuple) else h for h in headers]
         return names, rows, source
 
+    def _wal_only_store(self):
+        """A Gmail app group store whose tables and rows exist only in its -wal."""
+        db_path = pathlib.Path(self.tmpdir + VAR) / SHAPES['group'].format(c='WALGROUP', a='1234')
+        db_path.parent.mkdir(parents=True)
+        build = pathlib.Path(self.tmpdir) / 'build' / 'tasks.db'
+        build.parent.mkdir()
+        db = sqlite3.connect(build)
+        db.execute('PRAGMA journal_mode=WAL')
+        db.execute('PRAGMA wal_autocheckpoint=0')
+        db.execute('CREATE TABLE Tasks (TaskId TEXT, TaskListId TEXT, DueDate TEXT, Completed INTEGER, '
+                   'EffectiveTask BLOB, ShardId TEXT)')
+        db.execute('INSERT INTO Tasks VALUES ("u:T0", "L1", "", 0, ?, "u:")',
+                   (blackboxprotobuf.encode_message(TASK, _typedef(TASK)),))
+        db.commit()
+        # Copy while the connection is open: closing it would checkpoint the log into the file.
+        # The -shm is left behind; a reader rebuilds it from the -wal.
+        for suffix in ('', '-wal'):
+            shutil.copyfile(f'{build}{suffix}', f'{db_path}{suffix}')
+        db.close()
+        with open(db_path.parent.parent.parent / META, 'wb') as handle:
+            plistlib.dump({'MCMMetadataIdentifier': 'group.com.google.Gmail'}, handle)
+        globs = __artifacts_v2__['googleTasks']['paths']
+        selected = []
+        for found in sorted(pathlib.Path(self.tmpdir + VAR).rglob('*')):
+            if found.is_file() and any(fnmatch.fnmatch(str(found), g) for g in globs):
+                selected.append(str(found))
+        return db_path, selected
+
+    def test_wal_only_store_is_read_through_declared_paths(self):
+        db_path, selected = self._wal_only_store()
+        bare = sqlite3.connect(f'{db_path.as_uri()}?immutable=1', uri=True)
+        tables = bare.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        bare.close()
+        self.assertEqual(tables, [], 'fixture must keep its tables out of the main file')
+        self.assertIn(f'{db_path}-wal', selected)
+        names, rows, _source = self._run(selected)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][names.index('Text (field 2.3)')], 'Task title')
+
+    def test_wal_only_store_reads_empty_without_its_wal(self):
+        """Control: the store above yields nothing when its -wal is not collected."""
+        db_path, selected = self._wal_only_store()
+        selected = [f for f in selected if not f.endswith('-wal')]
+        pathlib.Path(f'{db_path}-wal').unlink()
+        _names, rows, _source = self._run(selected)
+        self.assertEqual(rows, [])
+
     def test_paths_match_every_shape_and_not_the_decoy(self):
         globs = __artifacts_v2__['googleTasks']['paths']
         for shape in SHAPES.values():
