@@ -1,14 +1,19 @@
 """
-What the source is, named as the -t option of the command line names it.
+What the source is, named as the -t option of the command line names it, and the keys of an
+encrypted iTunes backup.
 """
 
+import hashlib
 import os
 import plistlib
 from collections import namedtuple
 from xml.parsers.expat import ExpatError
 
+from Crypto.Cipher import AES
+
 from leapp_functions import leapp
 from scripts.filetype import guess_mime
+from scripts.ilapfuncs import logfunc
 from scripts.raw_image import (RAW_IMAGE_SUFFIXES, logical_among, logical_refusal,
                                names_an_image_folder, names_raw_images)
 from scripts.vendor import qnxprobe
@@ -129,6 +134,91 @@ def is_encrypted(path, kind):
     if encrypted and kind == "db":
         return guess_mime(os.path.join(path, "Manifest.db")) != "application/x-sqlite3"
     return encrypted
+
+
+def keybag_classes(keybag):
+    """ The protection classes of a backup keybag, and the salts and iteration counts of the
+    backup password, which the keybag holds before its first class.
+    Args:
+        keybag (bytes): BackupKeyBag of Manifest.plist, a run of 4-byte tag, 4-byte big-endian
+            length, value.
+    Returns:
+        tuple: ({class number: {tag: value}}, {"SALT", "ITER", "DPSL", "DPIC": value}).
+    """
+    classes, current, password = {}, {}, {}
+    first_uuid = True
+    index = 0
+    while index < len(keybag):
+        tag = keybag[index:index + 4]
+        length = int.from_bytes(keybag[index + 4:index + 8], byteorder="big")
+        value = keybag[index + 8:index + 8 + length]
+        index += 8 + length
+        if tag == b"UUID":
+            # The first one names the keybag, each later one starts a class
+            if not first_uuid:
+                if current:
+                    classes[current["CLAS"]] = current
+                current = {}
+            first_uuid = False
+        elif tag in (b"CLAS", b"KTYP"):
+            current[tag.decode()] = int.from_bytes(value, byteorder="big")
+        elif tag in (b"ITER", b"DPIC"):
+            password[tag.decode()] = int.from_bytes(value, byteorder="big")
+        elif tag in (b"SALT", b"DPSL"):
+            password[tag.decode()] = value
+        elif tag == b"WPKY" or (tag == b"WRAP" and current):
+            current[tag.decode()] = value
+    classes[current["CLAS"]] = current
+    return classes, password
+
+
+def unwrap(key, wrapped):
+    """ AES key unwrap (RFC 3394). Raises ValueError when key is not the one that wrapped it. """
+    return AES.new(key, AES.MODE_KW).unseal(wrapped)
+
+
+def decrypt_itunes_backup(directory, passcode):
+    """
+    Decrypt the keys of an encrypted iTunes backup with its password.
+    Manifest.plist holds the keybag, whose protection class keys are wrapped with a key derived
+    from the password (PBKDF2), and the key of Manifest.db, wrapped with one of those classes.
+    Args:
+        directory (str): the backup folder, holding Manifest.plist.
+        passcode (str): the password set when the backup was encrypted.
+    Returns:
+        tuple: ((protection classes with their "Unwrapped" key, Manifest.db key),
+            "Decryption successful"), or (None, "No password provided"), (None, "Incorrect
+            password"), (None, "Could not find protection class for Manifest.db").
+    """
+    with open(os.path.join(directory, "Manifest.plist"), "rb") as manifest_file:
+        manifest = plistlib.load(manifest_file)
+    manifest_key = manifest.get("ManifestKey")
+    manifest_key_class = int.from_bytes(manifest_key[0:4], byteorder="little")
+    classes, password = keybag_classes(manifest.get("BackupKeyBag"))
+
+    try:
+        initial_key = hashlib.pbkdf2_hmac("sha256", str.encode(passcode),
+                                          password.get("DPSL", ""), password.get("DPIC", 0))
+        key = hashlib.pbkdf2_hmac("sha1", initial_key, password.get("SALT", ""),
+                                  password.get("ITER", 0), dklen=32)
+    except TypeError:
+        return None, "No password provided"
+
+    for protection_class in classes.values():
+        try:
+            protection_class["Unwrapped"] = unwrap(key, protection_class["WPKY"])
+        except ValueError:
+            logfunc("Could not unwrap a protection class key, likely due to an incorrect passcode. "
+                    "Exiting.")
+            return None, "Incorrect password"
+
+    if manifest_key_class not in classes:
+        logfunc("Did not find the right protection class to decrypt Manifest.db. Exiting.")
+        return None, "Could not find protection class for Manifest.db"
+
+    manifest_db_key = unwrap(classes[manifest_key_class]["Unwrapped"], manifest_key[4:])
+    logfunc(f"Manifest.db was successfully decrypted with passcode {passcode}")
+    return (classes, manifest_db_key), "Decryption successful"
 
 
 def kind_by_name(path):

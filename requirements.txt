@@ -69,7 +69,7 @@ heicreader @ https://github.com/abrignoni/heicreader/releases/download/v0.1.0/he
 # PyPI 'blackboxprotobuf' back: it pins protobuf==3.10.0, reintroducing patched
 # CVEs. 5.29.6 is the minimum that clears CVE-2022-1941/2025-4565/2026-0994.
 protobuf==5.29.6
-pycryptodome
+pycryptodome>=3.23.0  # AES.MODE_KW (RFC 3394 key unwrap), for encrypted iTunes backups, came in 3.23.0
 
 pyliblzfse
 

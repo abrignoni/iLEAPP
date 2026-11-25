@@ -27,6 +27,8 @@ on:
       - 'packaging/**'
       - 'requirements.txt'
       - 'LICENSES/**'
+      # data/ ships in the bundle and gives the build its version
+      - 'data/**'
       - 'admin/scripts/fetch_unifiedlog_iterator.py'
       - '.github/workflows/test_builds.yml'
 

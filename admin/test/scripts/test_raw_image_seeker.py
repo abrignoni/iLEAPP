@@ -1941,26 +1941,31 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         self.assertEqual(keys.apfs_secrets, [])
 
     def test_another_window_asks_its_own_way_from_a_worker_thread(self):
+        """unlock_raw_input asks its questions through any object with DialogAsker's methods."""
         class Recorder:
+            """An asker that answers from a list and records the prompts it was shown."""
             def __init__(self):
                 self.answers = iter(['not it', APFS_PASSWORD])
                 self.prompts = []
 
             def ask_secret(self, title, prompt):
+                """The next answer of the list."""
                 self.prompts.append((title, prompt))
                 return next(self.answers)
 
             def ask_file(self, _title, _filetypes):
+                """No key file is chosen."""
                 return None
 
             def confirm_members(self, _search):
+                """The members found are used."""
                 return 'use'
 
             def show_info(self, _title, _message):
-                pass
+                """Nothing to show."""
 
             def show_error(self, _title, _message):
-                pass
+                """Nothing to show."""
 
         asker, result = Recorder(), []
         worker = threading.Thread(

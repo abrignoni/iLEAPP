@@ -22,6 +22,7 @@ from scripts.search_files import *  # pylint: disable=wildcard-import,unused-wil
 from scripts.raw_image import FileSeekerRaw, cli_raw_input, input_text, logical_among, logical_refusal
 from scripts.ilapfuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from scripts.html_safe import esc
+from leapp_functions.app.input_type import decrypt_itunes_backup
 from leapp_functions.app.output import validate_output_folder_available
 from scripts.version_info import check_runtime_dependencies
 from leapp_functions import leapp
