@@ -114,8 +114,12 @@ def _entries(path):
     root = _res(objects, top.get('kRecentSearches')) if isinstance(top, dict) else None
     if not isinstance(root, dict):
         return None
+    members = root.get('NS.objects', [])
+    if not isinstance(members, list):
+        logfunc(f'Google Maps - Recent Searches: {os.path.basename(path)} holds no kRecentSearches list; skipped')
+        return None
     items = []
-    for ref in root.get('NS.objects') or []:
+    for ref in members:
         item = _res(objects, ref)
         if _class_name(objects, item) == 'AZClientSideSuggestionItem':
             items.append((objects, item))
@@ -151,6 +155,6 @@ def googleMapsRecentSearches(context):
                 position,
             ))
 
-    data_headers = (('Timestamp', 'datetime'), 'Query', 'Secondary Info', 'Address', 'Latitude', 'Longitude',
-                    'List Position')
+    data_headers = (('Timestamp', 'datetime'), 'Query', 'Secondary Info', 'Address', ('Latitude', 'latitude'),
+                    ('Longitude', 'longitude'), ('List Position', 'number'))
     return data_headers, data_list, '\n'.join(sources)

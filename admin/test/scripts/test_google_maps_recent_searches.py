@@ -90,6 +90,16 @@ class RecentSearchesTest(unittest.TestCase):
         self.assertEqual([row[1] for row in rows], ['kept'])
         self.assertEqual(source, good[1])
 
+    def test_an_archive_whose_list_is_not_a_list_does_not_lose_the_other_container(self):
+        data = plistlib.loads(archive([('x', MS, None, None)]))
+        root = data['$top']['kRecentSearches'].data
+        data['$objects'][root] = dict(data['$objects'][root], **{'NS.objects': 7})
+        bad = self.container('D', 'com.google.Maps', plistlib.dumps(data, fmt=plistlib.PlistFormat.FMT_BINARY))
+        good = self.container('A', 'com.google.Maps', archive([('kept', MS, None, None)]))
+        _, rows, source = self.run_module(bad + good)
+        self.assertEqual([row[1] for row in rows], ['kept'])
+        self.assertEqual(source, good[1])
+
 
 if __name__ == '__main__':
     unittest.main()
