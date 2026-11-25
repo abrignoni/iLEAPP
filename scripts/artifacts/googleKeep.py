@@ -193,6 +193,7 @@ import os
 import plistlib
 import re
 import sqlite3
+import struct
 
 from google.protobuf.message import DecodeError
 
@@ -208,7 +209,7 @@ _CONTAINER_RE = re.compile(r'^(.*/Containers/(?:Data/Application|Shared/AppGroup
 # Core Data time of the Unix epoch. The store writes it, or a value a millisecond past it,
 # into time columns that carry no event, so anything within a second of it is left blank.
 _UNIX_EPOCH_IN_COCOA = -978307200
-_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError, IndexError)
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
 # The decoder guesses a field's type from its bytes, and short UTF-8 text can also parse as a
 # nested message. The text fields the artifact reports are pinned to bytes; the rest are guessed.
 _BYTES = {'type': 'bytes', 'name': ''}
