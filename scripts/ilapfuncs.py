@@ -1507,37 +1507,40 @@ def _null_out_column(query, reference):
                          r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
     select_keyword = re.compile(r'SELECT\b', re.IGNORECASE)
     with_keyword = re.compile(r'WITH\b', re.IGNORECASE)
+    query_len = len(query)
+    open_parens = []
+    scan_pos = 0
 
     def in_select_list(end):
-        open_parens = []
-        i = 0
+        nonlocal scan_pos
+        i = scan_pos
         while i < end:
             ch = query[i]
             if ch in ("'", '"', '`'):
                 i += 1
-                while i < end:
+                while i < query_len:
                     if query[i] == ch:
                         i += 1
-                        if i < end and query[i] == ch:
+                        if i < query_len and query[i] == ch:
                             i += 1
                             continue
                         break
                     i += 1
             elif ch == '[':
                 i += 1
-                while i < end and query[i] != ']':
+                while i < query_len and query[i] != ']':
                     i += 1
-                if i < end:
+                if i < query_len:
                     i += 1
-            elif ch == '-' and i + 1 < end and query[i + 1] == '-':
+            elif ch == '-' and i + 1 < query_len and query[i + 1] == '-':
                 i += 2
-                while i < end and query[i] != '\n':
+                while i < query_len and query[i] != '\n':
                     i += 1
-            elif ch == '/' and i + 1 < end and query[i + 1] == '*':
+            elif ch == '/' and i + 1 < query_len and query[i + 1] == '*':
                 i += 2
-                while i + 1 < end and not (query[i] == '*' and query[i + 1] == '/'):
+                while i + 1 < query_len and not (query[i] == '*' and query[i + 1] == '/'):
                     i += 1
-                i += 2
+                i = min(query_len, i + 2)
             elif ch == '(':
                 open_parens.append([i, False])
                 i += 1
@@ -1547,7 +1550,7 @@ def _null_out_column(query, reference):
                 i += 1
             elif ch.isalnum() or ch == '_':
                 start = i
-                while i < len(query) and (query[i].isalnum() or query[i] == '_'):
+                while i < query_len and (query[i].isalnum() or query[i] == '_'):
                     i += 1
                 if (i <= end and open_parens
                         and query[start:i].isascii()
@@ -1555,6 +1558,7 @@ def _null_out_column(query, reference):
                     open_parens[-1][1] = True
             else:
                 i += 1
+        scan_pos = i
         if not open_parens:
             return True
         open_pos, has_select = open_parens[-1]

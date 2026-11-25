@@ -260,6 +260,28 @@ class TestNullAbsentColumns(unittest.TestCase):
             'SELECT s.X FROM (SELECT COALESCE(NULL, t.B) AS X FROM T t) s')
         self.assertEqual(row['X'], 'present')
 
+    def test_wide_query_many_select_items(self):
+        pairs = 1000
+        select_items = []
+        expected_items = []
+        for idx in range(pairs):
+            select_items.append('t.ZMISSING')
+            select_items.append(f'COALESCE(t.ZMISSING, t.B) AS C{idx}')
+            expected_items.append('NULL AS ZMISSING')
+            expected_items.append(f'COALESCE(NULL, t.B) AS C{idx}')
+
+        query = f'SELECT {", ".join(select_items)} FROM T t'
+        expected = f'SELECT {", ".join(expected_items)} FROM T t'
+        rewritten, row = self._rewrite_and_fetch(query)
+        self.assertEqual(rewritten, expected)
+        self.assertEqual(len(row), pairs * 2)
+        keys = row.keys()
+        for idx in range(pairs):
+            self.assertEqual(keys[idx * 2], 'ZMISSING')
+            self.assertIsNone(row[idx * 2])
+            self.assertEqual(keys[idx * 2 + 1], f'C{idx}')
+            self.assertEqual(row[idx * 2 + 1], 'present')
+
     def test_error_paths_return_query_unchanged(self):
         missing = os.path.join(self.tmpdir, 'unreadable.sqlite')
         query = 'SELECT t.ZMISSING FROM T t'
