@@ -41,6 +41,21 @@ from PIL import Image
 
 version = 1.0
 
+ASTC_BLOCK_BYTES = 16
+TILE_BLOCKS = 32
+
+
+def _spread_bits(value):
+    '''Interleave a 5-bit value with zeros: abcde -> 0a0b0c0d0e.'''
+    result = 0
+    for bit in range(5):
+        result |= ((value >> bit) & 1) << (2 * bit)
+    return result
+
+
+_MORTON_X = tuple(_spread_bits(v) for v in range(TILE_BLOCKS))
+_MORTON_Y = tuple(_spread_bits(v) << 1 for v in range(TILE_BLOCKS))
+
 class KTX_reader:
 
     def __init__(self):
@@ -65,7 +80,9 @@ class KTX_reader:
         self.aapl_data_pos = 0
         self.aapl_data_size = 0
         self.aapl_is_compressed = False
-    
+        self.aapl_head_words = ()
+        self.is_tiled = False
+
     def validate_header(self, f):
         '''Reads header and validates version
 
@@ -124,6 +141,8 @@ class KTX_reader:
             item_identifier = data[4:8]
             if item_identifier == b'HEAD':
                 item_data = f.read(item_size)
+                self.aapl_head_words = struct.unpack(f'<{len(item_data) // 4}I',
+                                                     item_data[:len(item_data) // 4 * 4])
                 # read metadata here...
                 _, _, _, _, \
                 self.glInternalFormat, \
@@ -156,10 +175,8 @@ class KTX_reader:
                 f.seek(self.aapl_data_pos)
                 data = f.read(self.aapl_data_size)
                 if self.aapl_is_compressed:
-                    decompressed = liblzfse.decompress(data)
-                    return decompressed
-                else:
-                    return data
+                    data = liblzfse.decompress(data)
+                return self.untile_astc_4x4(data)
             else:
                 f.seek(0x40)
                 k_v_data = f.read(self.bytesOfKeyValueData)
@@ -177,6 +194,50 @@ class KTX_reader:
         else:
             raise ValueError('Unsupported Format')
         return b''
+
+    def untile_astc_4x4(self, data):
+        '''Return ASTC 4x4 blocks in the raster order the decoder expects.
+
+        Some AAPL textures, seen on iOS 26 and 27, hold their blocks in tiles of
+        32x32 blocks, Morton (Z) ordered inside each tile with x in the even bits
+        and y in the odd bits, on a surface padded to whole tiles, followed by one
+        more block. Linear files hold exactly one block per 4x4 pixels in raster
+        order and are returned unchanged. The block count decides; HEAD word 12 is
+        read only when the padded and exact counts are equal, as it was 1 in every
+        tiled file and 0 in every linear file observed. It is not documented by
+        Apple.
+
+        Not handled: a variant with the x and y bits swapped inside each tile,
+        reported on an iOS 26.2.1 image, which nothing in the file was found to
+        distinguish. Its images still come out scrambled.
+        '''
+        blocks_x = -(-self.pixelWidth // 4)
+        blocks_y = -(-self.pixelHeight // 4)
+        exact = blocks_x * blocks_y
+        tiles_x = -(-blocks_x // TILE_BLOCKS)
+        tiles_y = -(-blocks_y // TILE_BLOCKS)
+        padded = tiles_x * tiles_y * TILE_BLOCKS * TILE_BLOCKS
+        count = len(data) // ASTC_BLOCK_BYTES
+        if count < padded:
+            return data
+        if count == exact:
+            words = self.aapl_head_words
+            if padded != exact or len(words) <= 12 or words[12] != 1:
+                return data
+        self.is_tiled = True
+        src = memoryview(data)
+        out = bytearray(exact * ASTC_BLOCK_BYTES)
+        pos = 0
+        for y in range(blocks_y):
+            row_base = (y // TILE_BLOCKS) * tiles_x
+            y_bits = _MORTON_Y[y % TILE_BLOCKS]
+            for x in range(blocks_x):
+                index = (row_base + x // TILE_BLOCKS) * TILE_BLOCKS * TILE_BLOCKS \
+                    + (_MORTON_X[x % TILE_BLOCKS] | y_bits)
+                start = index * ASTC_BLOCK_BYTES
+                out[pos:pos + ASTC_BLOCK_BYTES] = src[start:start + ASTC_BLOCK_BYTES]
+                pos += ASTC_BLOCK_BYTES
+        return bytes(out)
 
     def convert_to_png(self, f, save_to_path):
         # using astc_decomp
