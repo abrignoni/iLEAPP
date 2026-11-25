@@ -18,23 +18,27 @@ __artifacts_v2__ = {
                  " Type, Color and the Sharees role are reported as stored; what each role letter means"
                  " is not established. Archived and Pinned are ZISARCHIVED and ZISPINNED. Every NOTE "
                  "row in the known data had exactly one ZLISTITEM row under it, and ZTOPLEVELNODE.ZTEXT"
-                 " was empty on every row, so ZTEXT is not reported. Children are joined by client id "
-                 "and account id, which both store generations seen carry; the newer one also has Z_PK "
-                 "foreign keys, and the two joins matched the same rows there. Account is "
+                 " was empty on every row, so ZTEXT is not reported. List items are joined to their "
+                 "note by client id and account id, which all three store versions seen carry. The iOS "
+                 "27 store also has a ZPARENT key on ZLISTITEM, and the two joins matched the same rows"
+                 " there. Labels and sharees are joined by ZNODE. A label link with a ZTIMEDELETED is "
+                 "left out of Labels; the known data held no such link. Account is "
                  "ZACCOUNT.ZACCOUNTNAME for the row's account id; Account held one value on every row "
-                 "in the known data, whose ZACCOUNT table held one row. Not reported: ZQUILLTEXT, "
-                 "ZQUILLTHUMBNAIL, ZTASKREFERENCE and ZERRORSTATUS (no rows in any store seen), "
-                 "ZREMINDERSMIGRATION and the ZACCOUNT sync settings (app state). Rows already removed "
-                 "from the tables are not recovered. The store is read when its container's metadata "
-                 "plist names group.com.google.Keep, or when the container has no metadata plist. Built"
-                 " from a private iPhone known-data image on iOS 27, which cannot be cited.",
+                 "in the known data, whose ZACCOUNT table held one row. Not reported, among other "
+                 "columns: ZQUILLTEXT, ZQUILLTHUMBNAIL, ZTASKREFERENCE and ZERRORSTATUS (no rows in any"
+                 " store seen), ZREMINDERSMIGRATION (migration counters), the ZACCOUNT sync flags, and "
+                 "the ZACCOUNT creation and last-sync times. Rows already removed from the tables are "
+                 "not recovered. The store is read when its container's metadata plist names "
+                 "group.com.google.Keep, or when no identifier could be read from a metadata plist in "
+                 "that container. Built from a private iPhone known-data image on iOS 27, which cannot "
+                 "be cited.",
         "paths": ('*/Containers/Shared/AppGroup/*/KeepStore.sqlite*',
                   '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
         "artifact_icon": "notebook",
         "sample_data": {
             "magnet_ios16": "iOS 16.1.1 | 2 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every table empty)",
+            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every entity table empty)",
         },
     },
     "googleKeepListItems": {
@@ -52,20 +56,21 @@ __artifacts_v2__ = {
                  "known-data store every ZLISTITEM time column held such a value on every row, so Time "
                  "Created, Time Updated, Time Trashed and Time Deleted were blank on every row there; "
                  "on the iOS 16.1.1 store Time Created and Time Updated held times. Checked is ZCHECKED"
-                 "; on the iOS 27 store it was NULL, reported blank, on every item of a NOTE row. Parent Item ID is ZPARENTLISTITEMID; Parent "
+                 " and was set only on items of LIST rows. Parent Item ID is ZPARENTLISTITEMID; Parent "
                  "Item ID was empty on every row seen, so nested items were not exercised. Sort Value "
                  "is ZSORTVALUE as stored. Account is ZACCOUNT.ZACCOUNTNAME for the row's account id; "
                  "Account held one value on every row in the known data, whose ZACCOUNT table held one "
                  "row. The store is read when its container's metadata plist names "
-                 "group.com.google.Keep, or when the container has no metadata plist. Built from a "
-                 "private iPhone known-data image on iOS 27, which cannot be cited.",
+                 "group.com.google.Keep, or when no identifier could be read from a metadata plist in "
+                 "that container. Built from a private iPhone known-data image on iOS 27, which cannot "
+                 "be cited.",
         "paths": ('*/Containers/Shared/AppGroup/*/KeepStore.sqlite*',
                   '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
         "artifact_icon": "list-check",
         "sample_data": {
             "magnet_ios16": "iOS 16.1.1 | 2 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every table empty)",
+            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every entity table empty)",
         },
     },
     "googleKeepAnnotations": {
@@ -79,23 +84,23 @@ __artifacts_v2__ = {
         "category": "Google Keep",
         "notes": "Time Deleted is ZTIMEDELETED converted from Core Data time to UTC, blank within one "
                  "second of 1970-01-01 00:00:00 UTC. In the known data some rows carried a Time Deleted"
-                 " while their note was still in the store, so a row with a Time Deleted is a record "
-                 "the store kept after that time, not an annotation the note still shows. Topic "
-                 "Category is reported as stored. Is Context Source is ZISCONTEXTSOURCE; its meaning is"
-                 " not established. Not reported: ZSUGGESTTYPE and ZWEBLINKIMAGEURL (the second only in"
-                 " the older store generation), both empty on every row seen. Account is "
-                 "ZACCOUNT.ZACCOUNTNAME for the row's account id; Account held one value on every row "
-                 "in the known data, whose ZACCOUNT table held one row. The store is read when its "
-                 "container's metadata plist names group.com.google.Keep, or when the container has no "
-                 "metadata plist. Built from a private iPhone known-data image on iOS 27, which cannot "
-                 "be cited.",
+                 " while their note was still in the store and was not trashed or deleted. Whether the "
+                 "app still shows such an annotation was not checked. Topic Category is reported as "
+                 "stored. Is Context Source is ZISCONTEXTSOURCE; its meaning is not established. Not "
+                 "reported: ZSUGGESTTYPE (empty on every row seen) and ZWEBLINKIMAGEURL (a column only "
+                 "in the iOS 16.1.1 store, which held no annotations). Account is ZACCOUNT.ZACCOUNTNAME"
+                 " for the account id of the annotation's note; Account held one value on every row in "
+                 "the known data, whose ZACCOUNT table held one row. The store is read when its "
+                 "container's metadata plist names group.com.google.Keep, or when no identifier could "
+                 "be read from a metadata plist in that container. Built from a private iPhone "
+                 "known-data image on iOS 27, which cannot be cited.",
         "paths": ('*/Containers/Shared/AppGroup/*/KeepStore.sqlite*',
                   '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
         "artifact_icon": "link",
         "sample_data": {
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every table empty)",
+            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every entity table empty)",
         },
     },
     "googleKeepMedia": {
@@ -112,20 +117,21 @@ __artifacts_v2__ = {
         "notes": "ZLOCALPATH is resolved against the app group folder that holds the same "
                  "KeepStore.sqlite. In the known data the same relative path under that folder's "
                  "compressed/ subfolder held a smaller JPEG for every image, shown as Compressed Copy; "
-                 "that the app made it from the original is not established. Items with no ZBLOBNODE "
-                 "are kept, with the blob, note and Account columns blank. Several items named the same"
-                 " file, so a file can appear on more than one row. Times are Core Data timestamps "
-                 "(seconds since 2001-01-01 UTC) converted to UTC. A value within one second of "
-                 "1970-01-01 00:00:00 UTC is reported blank. Time Trashed and Time Deleted were blank "
-                 "on every row seen. Media Type, Blob Type, Extraction Status and Data Transfer State "
-                 "are reported as stored; what the Data Transfer State numbers mean is not established."
-                 " Media Type held IMAGE_MEDIA and MIME Type image/png on every row seen, and File "
-                 "Present was Yes on every row: the unreferenced-file row is code present and was not "
-                 "exercised. Not reported: ZLENGTH (0 on every row seen) and ZSOURCEURI (empty). "
-                 "Account is ZACCOUNT.ZACCOUNTNAME for the blob node's account id. The store is read "
-                 "when its container's metadata plist names group.com.google.Keep, or when the "
-                 "container has no metadata plist. Built from a private iPhone known-data image on iOS "
-                 "27, which cannot be cited.",
+                 "that the app made it from the original is not established. The four time columns are "
+                 "ZBLOBNODE times. Items with no ZBLOBNODE are kept, with the time, blob, note and "
+                 "Account columns blank. Several items named the same file, so a file can appear on "
+                 "more than one row. Times are Core Data timestamps (seconds since 2001-01-01 UTC) "
+                 "converted to UTC. A value within one second of 1970-01-01 00:00:00 UTC is reported "
+                 "blank. Time Trashed and Time Deleted were blank on every row seen. Media Type, Blob "
+                 "Type, Extraction Status and Data Transfer State are reported as stored; what the Data"
+                 " Transfer State numbers mean is not established. Media Type held IMAGE_MEDIA and MIME"
+                 " Type image/png on every row seen, and File Present was Yes on every row: the "
+                 "unreferenced-file row is code present and was not exercised. Not reported: ZLENGTH (0"
+                 " on every row seen) and ZSOURCEURI (NULL on every row seen). Account is "
+                 "ZACCOUNT.ZACCOUNTNAME for the blob node's account id. The store is read when its "
+                 "container's metadata plist names group.com.google.Keep, or when no identifier could "
+                 "be read from a metadata plist in that container. Built from a private iPhone "
+                 "known-data image on iOS 27, which cannot be cited.",
         "paths": ('*/Containers/Shared/AppGroup/*/KeepStore.sqlite*',
                   '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist',
                   '*/Containers/Shared/AppGroup/*_MEDIA'),
@@ -133,7 +139,7 @@ __artifacts_v2__ = {
         "artifact_icon": "photo",
         "sample_data": {
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every table empty)",
+            "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every entity table empty)",
         },
     },
     "googleKeepTasks": {
@@ -148,26 +154,31 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Keep",
         "notes": "A Gmail container was seen holding a tasks.db at the same relative path, so a "
-                 "tasks.db is read only when its container's metadata plist names com.google.Keep. "
-                 "Completed, Due Date and the ids are Tasks table columns as stored. The protobuf has "
-                 "no published definition and the Android Keep app's protobuf classes carry obfuscated "
+                 "tasks.db is read only when its container's metadata plist names com.google.Keep. Due "
+                 "Date and the ids are Tasks table columns as stored. Completed is the Tasks.Completed "
+                 "column, stored as 0 or 1 and shown as No or Yes. No published definition of the "
+                 "protobuf was found, and the Android Keep app's protobuf classes carry obfuscated "
                  "field names, so the columns are named by field position and what each field records "
-                 "is not established. Fields 11, 3 and 2.5 hold seconds in field 1 and nanoseconds in "
-                 "field 2, the shape of google.protobuf.Timestamp, and are converted to UTC on that "
-                 "basis. In the known data field 11 was never later than field 3, and field 2.5 was "
+                 "is not established. Fields 1, 2.1, 4, 8, 9 and 13, and the Task and OriginalTask "
+                 "blobs, are not reported. Fields 11, 3 and 2.5 hold seconds in field 1 and nanoseconds"
+                 " in field 2, the shape of google.protobuf.Timestamp, and are converted to UTC on that"
+                 " basis. In the known data field 11 was never later than field 3, and field 2.5 was "
                  "present on every row whose Completed column was set and on no other row. Fields 2.2 "
-                 "and 2.3 and the task list's field 2.1 are decoded as UTF-8 text. The task list is "
-                 "joined by Tasks.TaskListId to TaskLists.TaskListIdWithoutShard within the same "
-                 "ShardId. Due Date was empty on every row seen. Account Folder is the name of the "
-                 "folder holding tasks.db and held one value on every row seen. Not reported: "
-                 "TaskRecurrenceId and TaskRecurrences (empty), HasDirtyState (sync state), Operations,"
-                 " UserActions, Rooms, RoomsTable, DocumentsTable and GlobalMetadata (no rows seen), "
-                 "and ClientSyncState, UserMetadata, UserPrefs, UserExperimental and "
-                 "GlobalMetadataTable (sync and settings state). Older Keep builds keep "
-                 "Library/Application Support/reminders.db instead; its reminders table had no rows on "
-                 "any image seen and it is not read. In the known data the tasks.db tables were only in"
-                 " its -wal, so the -wal must be present. Built from a private iPhone known-data image "
-                 "on iOS 27, which cannot be cited.",
+                 "and 2.3 and the task list's field 2.1 are decoded as UTF-8 text; a value the decoder "
+                 "reads as anything other than text is left blank and logged, which did not occur in "
+                 "the known data. The task list is joined by Tasks.TaskListId to "
+                 "TaskLists.TaskListIdWithoutShard within the same ShardId. Due Date was empty on every"
+                 " row seen. Account Folder is the name of the folder holding tasks.db and held one "
+                 "value on every row seen. Not reported: TaskRecurrenceId and TaskRecurrences (empty), "
+                 "HasDirtyState (sync state), Operations, UserActions, Rooms, RoomsTable, "
+                 "DocumentsTable and GlobalMetadata (no rows seen), and ClientSyncState, UserMetadata, "
+                 "UserPrefs, UserExperimental and GlobalMetadataTable (one row each, not decoded; "
+                 "GlobalMetadataTable has an ObfuscatedGaiaId column). The iOS 16.1.1 and iOS 18.7 "
+                 "images held Library/Application Support/reminders.db in the Keep container and no "
+                 "tasks.db; its reminders table had no rows on either and it is not read. In the known "
+                 "data the tasks.db tables were only in its -wal; without the -wal that store reads as "
+                 "having no tables. Built from a private iPhone known-data image on iOS 27, which "
+                 "cannot be cited.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Tasks/*/tasks.db*',
                   '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
@@ -572,6 +583,9 @@ def _pb_text(message, *keys):
         return value.decode('utf-8', 'replace')
     if isinstance(value, str):
         return value
+    if value is not None:
+        field = '.'.join(keys)
+        logfunc(f'Google Keep: task protobuf field {field} did not decode as text; left blank')
     return ''
 
 
