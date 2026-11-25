@@ -33,7 +33,8 @@ from cryptography.hazmat.primitives.padding import PKCS7
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.search_files import FileSeekerItunes, decrypt_itunes_backup  # noqa: E402  pylint: disable=wrong-import-position
+from leapp_functions.app.input_type import decrypt_itunes_backup  # noqa: E402  pylint: disable=wrong-import-position
+from scripts.search_files import FileSeekerItunes  # noqa: E402  pylint: disable=wrong-import-position
 
 PASSCODE = 'constructed'
 CLASS_ID = 3

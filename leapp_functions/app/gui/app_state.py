@@ -49,6 +49,7 @@ def report_folder_problem(folder, name):
     return (unanswered(status, "output folder")
             or f"A folder named {name} is already in the output folder.")
 
+
 CASE_KEYS = {"Case Number": "number", "Agency": "agency", "Agency Logo Path": "logo_path",
              "Agency Logo mimetype": "logo_mimetype", "Agency Logo base64": "logo_base64",
              "Examiner": "examiner", "Notes": "notes"}

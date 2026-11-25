@@ -7,8 +7,8 @@ import threading
 from collections import namedtuple
 from types import SimpleNamespace
 
+from leapp_functions.app.input_type import decrypt_itunes_backup
 from scripts.raw_image import unlock_raw_input
-from scripts.search_files import decrypt_itunes_backup
 
 Question = namedtuple("Question", "kind title text extra", defaults=("", "", None))
 

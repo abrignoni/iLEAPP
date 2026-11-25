@@ -17,7 +17,6 @@ Functions:
     get_itunes_backup_type: Determines iTunes backup type (db/mbdb)
     get_itunes_backup_encryption: Checks if iTunes backup is encrypted
     check_itunes_backup_status: Validates iTunes backup status and encryption
-    decrypt_itunes_backup: Decrypts encrypted iTunes backups using provided passcode
 """
 
 import time as timex
@@ -170,127 +169,6 @@ def check_itunes_backup_status(directory, backup_type):
         logfunc('Detected encrypted iTunes backup')
         return True, True, "iTunes Encrypted Backup"
     return False, "Missing Manifest.db, Manifest.mbdb or Manifest.plist"
-
-
-def decrypt_itunes_backup(directory, passcode):
-    """
-    Decrypt an iTunes backup using the provided passcode.
-    This function parses the backup's Manifest.plist file to extract the encryption
-    keybag and manifest key, then uses the provided passcode to decrypt the protection
-    class keys and ultimately the Manifest.db encryption key.
-    Args:
-        directory (str): Path to the iTunes backup directory containing Manifest.plist
-        passcode (str): The backup password/passcode used to encrypt the backup
-    Returns:
-        tuple: A tuple containing:
-            - If successful: ((dict, bytes), str) where dict contains protection classes
-              with unwrapped keys, bytes is the unwrapped manifest key, and str is success message
-            - If failed: (None, str) where str contains the error message
-        Possible return messages:
-            - "Decryption successful": Backup was successfully decrypted
-            - "No password provided": Passcode was None or invalid type
-            - "Incorrect password": Passcode was incorrect, could not unwrap protection class keys
-            - "Could not find protection class for Manifest.db": Missing required protection class
-    Notes:
-        - The function uses PBKDF2 key derivation with the passcode and keybag salt/iterations
-        - Protection class keys are unwrapped using AES key unwrapping
-        - The manifest key class identifies which protection class is used for Manifest.db
-        - Logs decryption status and errors using logfunc()
-    """
-    protection_classes = {}
-    manifest_key_class = None
-    manifest_path = os.path.join(directory, "Manifest.plist")
-    manifest = get_plist_file_content(manifest_path)
-
-    manifest_key = manifest.get("ManifestKey")
-    manifest_key_class = int.from_bytes(manifest_key[0:4], byteorder="little")
-    manifest_wrapped_key = manifest_key[4:]
-    backup_keybag = manifest.get("BackupKeyBag")
-
-    # Initialize some values
-    tmp_backup_keybag_index = 0
-    tmp_protection_class = {}
-    tmp_salt = ''
-    tmp_iter = 0
-    tmp_double_protection_salt = ''
-    tmp_double_protection_iter = 0
-    keybag_uuid = None
-
-    # Iterate across the entire Keybag contents
-    while tmp_backup_keybag_index < len(backup_keybag):
-        # Grab the type of value we're looking at
-        tmp_string_type = backup_keybag[
-            tmp_backup_keybag_index:tmp_backup_keybag_index + 4]
-        tmp_backup_keybag_index += 4
-
-        # Figure out the length we need to pull
-        tmp_length = int.from_bytes(backup_keybag[
-            tmp_backup_keybag_index:tmp_backup_keybag_index + 4], byteorder="big")
-        tmp_backup_keybag_index += 4
-
-        # Store the actual value itself
-        tmp_value = backup_keybag[
-            tmp_backup_keybag_index:tmp_backup_keybag_index + tmp_length]
-        tmp_backup_keybag_index += tmp_length
-
-        match tmp_string_type:
-            case b'CLAS':
-                tmp_protection_class['CLAS'] = int.from_bytes(tmp_value, byteorder="big")
-            case b'DPIC':
-                tmp_double_protection_iter = int.from_bytes(tmp_value, byteorder="big")
-            case b'DPSL':
-                tmp_double_protection_salt = tmp_value
-            case b'ITER':
-                tmp_iter = int.from_bytes(tmp_value, byteorder="big")
-            case b'KTYP':
-                tmp_protection_class['KTYP'] = int.from_bytes(tmp_value, byteorder="big")
-            case b'UUID':
-                if keybag_uuid is None:
-                    keybag_uuid = tmp_value
-                else:
-                    if tmp_protection_class:
-                        protection_classes[tmp_protection_class['CLAS']] = tmp_protection_class
-                    tmp_protection_class = {}
-            case b'SALT':
-                tmp_salt = tmp_value
-            case b'WPKY':
-                tmp_protection_class['WPKY'] = tmp_value
-            case b'WRAP':
-                if tmp_protection_class:
-                    tmp_protection_class['WRAP'] = tmp_value
-
-    # Clean up the open protection class
-    protection_classes[tmp_protection_class['CLAS']] = tmp_protection_class
-
-    # Decrypt the Manifest password
-    try:
-        initial_unwrapped_key = hashlib.pbkdf2_hmac(
-            'sha256', str.encode(passcode), tmp_double_protection_salt,
-            tmp_double_protection_iter)
-        unwrapped_key = hashlib.pbkdf2_hmac('sha1', initial_unwrapped_key,
-                                            tmp_salt, tmp_iter, dklen=32)
-    except TypeError:
-        return None, "No password provided"
-    # Unwrap all of the protection class keys
-    for _, protection_class_value in protection_classes.items():
-        protection_class = protection_class_value
-        try:
-            protection_class['Unwrapped'] = crypt.aes_key_unwrap(
-                unwrapped_key, protection_class['WPKY'])
-        except crypt.InvalidUnwrap:
-            logfunc("Could not unwrap a protection class key, likely due to an incorrect passcode. Exiting.")
-            return None, "Incorrect password"
-
-    # Find the right one for the Manifest.db
-    if manifest_key_class not in protection_classes:
-        logfunc("Did not find the right protection class to decrypt Manifest.db. Exiting.")
-        return None, "Could not find protection class for Manifest.db"
-
-    manifest_protection_class = protection_classes[manifest_key_class]
-    unwrapped_manifest_key = crypt.aes_key_unwrap(manifest_protection_class["Unwrapped"], manifest_wrapped_key)
-
-    logfunc(f"Manifest.db was successfully decrypted with passcode {passcode}")
-    return (protection_classes, unwrapped_manifest_key), "Decryption successful"
 
 
 def _without_cbc_padding(decrypted_contents):
