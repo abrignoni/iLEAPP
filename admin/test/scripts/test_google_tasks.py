@@ -30,11 +30,11 @@ SHAPES = {
 }
 TASK = {
     '2': {'3': b'Task title'},
-    '3': {'1': 1713978873, '2': 0},
-    '9': {'1': {'4': b'America/Chicago', '6': {'1': 1713979800}}},
-    '11': {'1': 1713978872, '2': 0},
+    '3': {'1': 1700000001, '2': 0},
+    '9': {'1': {'4': b'Europe/Lisbon', '6': {'1': 1700003600}}},
+    '11': {'1': 1700000000, '2': 0},
 }
-TASK_LIST = {'2': {'1': b'My Tasks'}}
+TASK_LIST = {'2': {'1': b'List A'}}
 
 
 class TestGoogleTasks(unittest.TestCase):
@@ -59,7 +59,7 @@ class TestGoogleTasks(unittest.TestCase):
         task_blob = blackboxprotobuf.encode_message(TASK, _typedef(TASK))
         list_blob = blackboxprotobuf.encode_message(TASK_LIST, _typedef(TASK_LIST))
         for number in range(tasks):
-            db.execute('INSERT INTO Tasks VALUES (?, "L1", "2024-04-24", 0, ?, "u:")',
+            db.execute('INSERT INTO Tasks VALUES (?, "L1", "2023-11-14", 0, ?, "u:")',
                        (f'u:T{number}', task_blob))
         db.execute('INSERT INTO TaskLists VALUES ("u:", "L1", ?)', (list_blob,))
         db.commit()
@@ -109,13 +109,13 @@ class TestGoogleTasks(unittest.TestCase):
     def test_columns(self):
         names, rows, _source = self._run(self._store('group', 'GMAIL', 'group.com.google.Gmail'))
         row = dict(zip(names, rows[0]))
-        self.assertEqual(str(row['Time (field 9.1.6.1)']), '2024-04-24 17:30:00+00:00')
-        self.assertEqual(row['Zone (field 9.1.4)'], 'America/Chicago')
+        self.assertEqual(str(row['Time (field 9.1.6.1)']), '2023-11-14 23:13:20+00:00')
+        self.assertEqual(row['Zone (field 9.1.4)'], 'Europe/Lisbon')
         self.assertEqual(row['Text (field 2.3)'], 'Task title')
-        self.assertEqual(row['Task List Text (field 2.1)'], 'My Tasks')
+        self.assertEqual(row['Task List Text (field 2.1)'], 'List A')
         self.assertEqual(row['Account Folder'], '1234_tdl')
         self.assertEqual(row['Completed'], 'No')
-        self.assertEqual(row['Due Date (as stored)'], '2024-04-24')
+        self.assertEqual(row['Due Date (as stored)'], '2023-11-14')
 
 
 def _typedef(message):
