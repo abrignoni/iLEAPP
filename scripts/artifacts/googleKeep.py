@@ -24,14 +24,13 @@ __artifacts_v2__ = {
                  " there. Labels and sharees are joined by ZNODE. A label link with a ZTIMEDELETED is "
                  "left out of Labels; the known data held no such link. Account is "
                  "ZACCOUNT.ZACCOUNTNAME for the row's account id; Account held one value on every row "
-                 "in the known data, whose ZACCOUNT table held one row. Not reported, among other "
-                 "columns: ZQUILLTEXT, ZQUILLTHUMBNAIL, ZTASKREFERENCE and ZERRORSTATUS (no rows in any"
-                 " store seen), ZREMINDERSMIGRATION (migration counters), the ZACCOUNT sync flags, and "
-                 "the ZACCOUNT creation and last-sync times. Rows already removed from the tables are "
-                 "not recovered. The store is read when its container's metadata plist names "
-                 "group.com.google.Keep, or when no identifier could be read from a metadata plist in "
-                 "that container. Built from a private iPhone known-data image on iOS 27, which cannot "
-                 "be cited.",
+                 "in the known data. Not reported, among other columns: ZQUILLTEXT, ZQUILLTHUMBNAIL, "
+                 "ZTASKREFERENCE and ZERRORSTATUS (no rows in any store seen), ZREMINDERSMIGRATION "
+                 "(migration counters), the ZACCOUNT sync flags, and the ZACCOUNT creation and "
+                 "last-sync times. Rows already removed from the tables are not recovered. The store is"
+                 " read when its container's metadata plist names group.com.google.Keep, or when no "
+                 "identifier could be read from a metadata plist in that container. Built from a "
+                 "private iPhone known-data image on iOS 27, which cannot be cited.",
         "paths": ('*/Containers/Shared/AppGroup/*/KeepStore.sqlite*',
                   '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
@@ -59,11 +58,10 @@ __artifacts_v2__ = {
                  " and was set only on items of LIST rows. Parent Item ID is ZPARENTLISTITEMID; Parent "
                  "Item ID was empty on every row seen, so nested items were not exercised. Sort Value "
                  "is ZSORTVALUE as stored. Account is ZACCOUNT.ZACCOUNTNAME for the row's account id; "
-                 "Account held one value on every row in the known data, whose ZACCOUNT table held one "
-                 "row. The store is read when its container's metadata plist names "
-                 "group.com.google.Keep, or when no identifier could be read from a metadata plist in "
-                 "that container. Built from a private iPhone known-data image on iOS 27, which cannot "
-                 "be cited.",
+                 "Account held one value on every row in the known data. The store is read when its "
+                 "container's metadata plist names group.com.google.Keep, or when no identifier could "
+                 "be read from a metadata plist in that container. Built from a private iPhone "
+                 "known-data image on iOS 27, which cannot be cited.",
         "paths": ('*/Containers/Shared/AppGroup/*/KeepStore.sqlite*',
                   '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
@@ -90,10 +88,10 @@ __artifacts_v2__ = {
                  "reported: ZSUGGESTTYPE (empty on every row seen) and ZWEBLINKIMAGEURL (a column only "
                  "in the iOS 16.1.1 store, which held no annotations). Account is ZACCOUNT.ZACCOUNTNAME"
                  " for the account id of the annotation's note; Account held one value on every row in "
-                 "the known data, whose ZACCOUNT table held one row. The store is read when its "
-                 "container's metadata plist names group.com.google.Keep, or when no identifier could "
-                 "be read from a metadata plist in that container. Built from a private iPhone "
-                 "known-data image on iOS 27, which cannot be cited.",
+                 "the known data. The store is read when its container's metadata plist names "
+                 "group.com.google.Keep, or when no identifier could be read from a metadata plist in "
+                 "that container. Built from a private iPhone known-data image on iOS 27, which cannot "
+                 "be cited.",
         "paths": ('*/Containers/Shared/AppGroup/*/KeepStore.sqlite*',
                   '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
@@ -172,13 +170,13 @@ __artifacts_v2__ = {
                  "value on every row seen. Not reported: TaskRecurrenceId and TaskRecurrences (empty), "
                  "HasDirtyState (sync state), Operations, UserActions, Rooms, RoomsTable, "
                  "DocumentsTable and GlobalMetadata (no rows seen), and ClientSyncState, UserMetadata, "
-                 "UserPrefs, UserExperimental and GlobalMetadataTable (one row each, not decoded; "
-                 "GlobalMetadataTable has an ObfuscatedGaiaId column). The iOS 16.1.1 and iOS 18.7 "
-                 "images held Library/Application Support/reminders.db in the Keep container and no "
-                 "tasks.db; its reminders table had no rows on either and it is not read. In the known "
-                 "data the tasks.db tables were only in its -wal; without the -wal that store reads as "
-                 "having no tables. Built from a private iPhone known-data image on iOS 27, which "
-                 "cannot be cited.",
+                 "UserPrefs, UserExperimental and GlobalMetadataTable (not decoded; GlobalMetadataTable"
+                 " has an ObfuscatedGaiaId column). The iOS 16.1.1 and iOS 18.7 images held "
+                 "Library/Application Support/reminders.db in the Keep container and no tasks.db; its "
+                 "reminders table had no rows on either and it is not read. In the known data the "
+                 "tasks.db tables were only in its -wal; without the -wal that store reads as having no"
+                 " tables. Built from a private iPhone known-data image on iOS 27, which cannot be "
+                 "cited.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Tasks/*/tasks.db*',
                   '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
