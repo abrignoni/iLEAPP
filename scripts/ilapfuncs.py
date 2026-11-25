@@ -1497,14 +1497,16 @@ def _null_out_column(query, reference):
     A bare NULL renames the output column, and artifacts read rows by name, so
     where the reference is a bare select item at depth zero or directly inside
     a subquery (such as a derived table or CTE body whose innermost enclosing
-    "(" begins with SELECT) it becomes "NULL AS <name>". Inside a function call
-    or other parenthesized expression the enclosing alias already names the
-    column and a plain NULL is correct.
+    "(" begins with SELECT, or begins with WITH and has seen a SELECT at that
+    depth) it becomes "NULL AS <name>". Inside a function call or other
+    parenthesized expression the enclosing alias already names the column and
+    a plain NULL is correct.
     '''
     name = reference.split('.')[-1].strip('"[]`')
     pattern = re.compile(r'(?<![\w.])' + re.escape(reference) + r'\b'
                          r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
     select_keyword = re.compile(r'SELECT\b', re.IGNORECASE)
+    with_keyword = re.compile(r'WITH\b', re.IGNORECASE)
 
     def in_select_list(end):
         open_parens = []
@@ -1537,17 +1539,26 @@ def _null_out_column(query, reference):
                     i += 1
                 i += 2
             elif ch == '(':
-                open_parens.append(i)
+                open_parens.append([i, False])
                 i += 1
             elif ch == ')':
                 if open_parens:
                     open_parens.pop()
                 i += 1
+            elif ch.isalnum() or ch == '_':
+                start = i
+                while i < len(query) and (query[i].isalnum() or query[i] == '_'):
+                    i += 1
+                if (i <= end and open_parens
+                        and query[start:i].isascii()
+                        and query[start:i].upper() == 'SELECT'):
+                    open_parens[-1][1] = True
             else:
                 i += 1
         if not open_parens:
             return True
-        pos = open_parens[-1] + 1
+        open_pos, has_select = open_parens[-1]
+        pos = open_pos + 1
         while pos < end:
             if query[pos].isspace():
                 pos += 1
@@ -1563,7 +1574,10 @@ def _null_out_column(query, reference):
             else:
                 break
         keyword = select_keyword.match(query, pos)
-        return keyword is not None and keyword.end() <= end
+        if keyword is not None and keyword.end() <= end:
+            return True
+        keyword = with_keyword.match(query, pos)
+        return keyword is not None and keyword.end() <= end and has_select
 
     def replace(match):
         tail = match.group('tail')

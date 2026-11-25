@@ -5,8 +5,9 @@ as COALESCE(t.ZMISSING, t.B), the trailing comma must not trigger a
 "NULL AS <name>" alias inside parentheses, which SQLite rejects as a syntax
 error. Bare select items at parenthesis depth zero or directly inside a
 subquery (such as a derived table or CTE body whose innermost unclosed "("
-begins with SELECT) still receive "NULL AS <name>" so callers reading
-sqlite3.Row by column name keep working.
+begins with SELECT, or begins with WITH and has reached SELECT at that depth)
+still receive "NULL AS <name>" so callers reading sqlite3.Row by column name
+keep working.
 """
 import contextlib
 import os
@@ -202,6 +203,54 @@ class TestNullAbsentColumns(unittest.TestCase):
             rewritten,
             'SELECT s.* FROM (/* sub */ -- note\n SELECT NULL AS ZMISSING FROM T t) s')
         self.assertIsNone(row['ZMISSING'])
+
+    def test_with_prefixed_subquery_select_items_keep_alias(self):
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.* FROM (WITH c AS (SELECT 1) SELECT t.ZMISSING FROM T t) s')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.* FROM (WITH c AS (SELECT 1) SELECT NULL AS ZMISSING FROM T t) s')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.* FROM (/* sub */ -- note\n'
+            ' with c AS (SELECT 1) -- main\n'
+            ' select t.ZMISSING, t.B FROM T t) s')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.* FROM (/* sub */ -- note\n'
+            ' with c AS (SELECT 1) -- main\n'
+            ' select NULL AS ZMISSING, t.B FROM T t) s')
+        self.assertIsNone(row['ZMISSING'])
+        self.assertEqual(row['B'], 'present')
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.* FROM (WITH c AS (SELECT t.ZMISSING FROM T t) SELECT * FROM c) s')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.* FROM (WITH c AS (SELECT NULL AS ZMISSING FROM T t) SELECT * FROM c) s')
+        self.assertIsNone(row['ZMISSING'])
+
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT s.X FROM (WITH c AS (SELECT 1) '
+            'SELECT COALESCE(t.ZMISSING, t.B) AS X FROM T t) s')
+        self.assertEqual(
+            rewritten,
+            'SELECT s.X FROM (WITH c AS (SELECT 1) '
+            'SELECT COALESCE(NULL, t.B) AS X FROM T t) s')
+        self.assertEqual(row['X'], 'present')
+
+        # SELECT inside nested parens, quotes, brackets, comments, or longer words
+        # does not count as a SELECT keyword at the WITH paren depth.
+        no_outer_select = (
+            'SELECT (WITH c AS (SELECT 1) /* SELECT */ -- SELECT\n'
+            " 'SELECT' \"SELECT\" `SELECT` [SELECT] SELECT_1 t.ZMISSING, 1)"
+        )
+        self.assertEqual(
+            ilapfuncs._null_out_column(no_outer_select, 't.ZMISSING'),  # pylint: disable=protected-access
+            'SELECT (WITH c AS (SELECT 1) /* SELECT */ -- SELECT\n'
+            " 'SELECT' \"SELECT\" `SELECT` [SELECT] SELECT_1 NULL, 1)",
+        )
 
     def test_function_inside_subquery_stays_plain_null(self):
         rewritten, row = self._rewrite_and_fetch(
