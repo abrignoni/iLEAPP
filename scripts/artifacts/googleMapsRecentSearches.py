@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-24",
         "last_update_date": "2026-11-24",
         "requirements": "none",
-        "category": "Google Maps",
+        "category": "Locations & Maps",
         "notes": "Reads the LocalSuggestions file in the Library/Application Support folder of a container whose own "
                  ".com.apple.mobile_container_manager.metadata.plist names com.google.Maps; a LocalSuggestions file in"
                  " any other container is not read. The file is an NSKeyedArchiver archive, and one row is reported "

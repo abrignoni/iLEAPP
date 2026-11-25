@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-24",
         "last_update_date": "2026-11-24",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": "Reads every table named playedItemIds_<account> in record.db, with its -wal, in TikTok's "
                  "Library/Caches/com.friends.feed.deduplicate folder, in a container owned by com.zhiliaoapp.musically"
                  " according to its own .com.apple.mobile_container_manager.metadata.plist; a store in a container "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-24",
         "last_update_date": "2026-11-24",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": "Reads every table named playedItemIds_<account> in played_videos_recorder.db, with its -wal, in "
                  "TikTok's Documents/follow_feed folder, in a container owned by com.zhiliaoapp.musically according to"
                  " its own .com.apple.mobile_container_manager.metadata.plist; a store in a container owned by another"
