@@ -141,80 +141,23 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows (KeepStore.sqlite present, every entity table empty)",
         },
     },
-    "googleKeepTasks": {
-        "name": "Google Keep - Tasks",
-        "description": "One row per task in the tasks.db that Google Keep keeps under "
-                       "Library/Application Support/Tasks/<account folder>/ in its app container, read "
-                       "from the Tasks table and its EffectiveTask protobuf, with the task list's "
-                       "EffectiveTaskList text.",
-        "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-11-25",
-        "last_update_date": "2026-11-25",
-        "requirements": "none",
-        "category": "Google Keep",
-        "notes": "A Gmail container was seen holding a tasks.db at the same relative path, so a "
-                 "tasks.db is read only when its container's metadata plist names com.google.Keep. Due "
-                 "Date and the ids are Tasks table columns as stored. Completed is the Tasks.Completed "
-                 "column, stored as 0 or 1 and shown as No or Yes. No published definition of the "
-                 "protobuf was found, and the Android Keep app's protobuf classes carry obfuscated "
-                 "field names, so the columns are named by field position and what each field records "
-                 "is not established. Fields 1, 2.1, 4, 8, 9 and 13, and the Task and OriginalTask "
-                 "blobs, are not reported. Fields 11, 3 and 2.5 hold seconds in field 1 and nanoseconds"
-                 " in field 2, the shape of google.protobuf.Timestamp, and are converted to UTC on that"
-                 " basis. In the known data field 11 was never later than field 3, and field 2.5 was "
-                 "present on every row whose Completed column was set and on no other row. Fields 2.2 "
-                 "and 2.3 and the task list's field 2.1 are read as bytes and decoded as UTF-8 text. "
-                 "The task list is joined by Tasks.TaskListId to TaskLists.TaskListIdWithoutShard "
-                 "within the same ShardId. Due Date was empty on every row seen. Account Folder is the "
-                 "name of the folder holding tasks.db and held one value on every row seen. Not "
-                 "reported: TaskRecurrenceId and TaskRecurrences (empty), HasDirtyState (sync state), "
-                 "Operations, UserActions, Rooms, RoomsTable, DocumentsTable and GlobalMetadata (no "
-                 "rows seen), and ClientSyncState, UserMetadata, UserPrefs, UserExperimental and "
-                 "GlobalMetadataTable (not decoded; GlobalMetadataTable has an ObfuscatedGaiaId "
-                 "column). The iOS 16.1.1 and iOS 18.7 images held Library/Application "
-                 "Support/reminders.db in the Keep container and no tasks.db; its reminders table had "
-                 "no rows on either and it is not read. In the known data the tasks.db tables were only"
-                 " in its -wal; without the -wal that store reads as having no tables. Built from a "
-                 "private iPhone known-data image on iOS 27, which cannot be cited.",
-        "paths": ('*/Containers/Data/Application/*/Library/Application Support/Tasks/*/tasks.db*',
-                  '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
-        "output_types": "standard",
-        "artifact_icon": "checklist",
-        "sample_data": {
-            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows (a tasks.db in the Gmail container only, not"
-                                      " read)",
-        },
-    },
 }
 
 
-import copy
 import os
 import plistlib
 import re
 import sqlite3
-import struct
 
-from google.protobuf.message import DecodeError
-
-from scripts import blackboxprotobuf
 from scripts.ilapfuncs import (artifact_processor, check_in_media, convert_cocoa_core_data_ts_to_utc,
-                               convert_unix_ts_to_utc, logfunc,
-                               open_sqlite_db_readonly)
+                               logfunc, open_sqlite_db_readonly)
 
 _METADATA_NAME = '.com.apple.mobile_container_manager.metadata.plist'
 _APP_GROUP = 'group.com.google.Keep'
-_APP = 'com.google.Keep'
 _CONTAINER_RE = re.compile(r'^(.*/Containers/(?:Data/Application|Shared/AppGroup)/[^/]+)/')
 # Core Data time of the Unix epoch. The store writes it, or a value a millisecond past it,
 # into time columns that carry no event, so anything within a second of it is left blank.
 _UNIX_EPOCH_IN_COCOA = -978307200
-_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError)
-# The decoder guesses a field's type from its bytes, and short UTF-8 text can also parse as a
-# nested message. The text fields the artifact reports are pinned to bytes; the rest are guessed.
-_BYTES = {'type': 'bytes', 'name': ''}
-_TASK_TYPES = {'2': {'type': 'message', 'name': '', 'message_typedef': {'2': _BYTES, '3': _BYTES}}}
-_TASK_LIST_TYPES = {'2': {'type': 'message', 'name': '', 'message_typedef': {'1': _BYTES}}}
 
 
 def _norm(path):
@@ -263,27 +206,6 @@ def _keep_stores(files_found):
             continue
         stores.append((found, root))
     return sorted(stores)
-
-
-def _tasks_dbs(files_found):
-    '''tasks.db files in a container whose metadata plist names the Keep app.
-
-    Gmail keeps a tasks.db at the same relative path, so a container without a metadata
-    plist, or one naming another app, is not read.
-    '''
-    apps = _container_apps(files_found)
-    dbs = []
-    for found in files_found:
-        found = str(found)
-        if os.path.basename(found) != 'tasks.db' or os.path.isdir(found):
-            continue
-        bundle_id = apps.get(_container_root(found))
-        if bundle_id != _APP:
-            owner = bundle_id or 'an unidentified app'
-            logfunc(f'Google Keep: skipping a tasks.db in a container of {owner}')
-            continue
-        dbs.append(found)
-    return sorted(dbs)
 
 
 def _when(value):
@@ -584,84 +506,4 @@ def googleKeepMedia(context):
         'Note Type', 'Extracted Text', 'Extraction Status', 'Media Type', 'Blob Type', 'MIME Type',
         'Width', 'Height', 'Byte Size', 'Data Transfer State', 'Local Path', 'File Present',
         'Media ID', 'Account', 'Blob Server ID')
-    return data_headers, data_list, '\n'.join(sources)
-
-
-def _pb(message, *keys):
-    value = message
-    for key in keys:
-        if not isinstance(value, dict):
-            return None
-        value = value.get(key)
-    return value
-
-
-def _pb_text(message, *keys):
-    value = _pb(message, *keys)
-    if isinstance(value, bytes):
-        return value.decode('utf-8', 'replace')
-    if isinstance(value, str):
-        return value
-    if value is not None:
-        field = '.'.join(keys)
-        logfunc(f'Google Keep: task protobuf field {field} did not decode as text; left blank')
-    return ''
-
-
-def _pb_time(message, *keys):
-    '''A seconds/nanoseconds pair (google.protobuf.Timestamp shape) to UTC.'''
-    value = _pb(message, *keys)
-    if not isinstance(value, dict) or not isinstance(value.get('1'), int):
-        return ''
-    nanos = value.get('2') if isinstance(value.get('2'), int) else 0
-    return convert_unix_ts_to_utc(value['1'] + nanos / 1e9)
-
-
-def _decode(blob, label, typedef):
-    if not isinstance(blob, (bytes, bytearray)) or not blob or blob.startswith(b'\xfe\xff'):
-        return {}
-    try:
-        message, _types = blackboxprotobuf.decode_message(bytes(blob), copy.deepcopy(typedef))
-        return message
-    except _DECODE_ERRORS as error:
-        logfunc(f'Google Keep: could not decode a {label} protobuf: {error}')
-        return {}
-
-
-@artifact_processor
-def googleKeepTasks(context):
-    data_list = []
-    sources = []
-    for store in _tasks_dbs(context.get_files_found()):
-        db = open_sqlite_db_readonly(store)
-        if db is None:
-            continue
-        cursor = db.cursor()
-        if not _has_tables(cursor, 'Tasks'):
-            logfunc('Google Keep: no Tasks table in a Keep tasks.db')
-            db.close()
-            continue
-        sources.append(store)
-        account_folder = os.path.basename(os.path.dirname(_norm(store)))
-        lists = {}
-        if _has_tables(cursor, 'TaskLists'):
-            for shard, list_id, blob in _fetch(
-                    cursor, 'SELECT ShardId, TaskListIdWithoutShard, EffectiveTaskList FROM TaskLists',
-                    store):
-                lists[(shard, list_id)] = _pb_text(_decode(blob, 'task list', _TASK_LIST_TYPES), '2', '1')
-        rows = _fetch(cursor, '''
-            SELECT TaskId, TaskListId, DueDate, Completed, EffectiveTask, ShardId
-            FROM Tasks ORDER BY rowid''', store)
-        db.close()
-        for task_id, list_id, due, completed, blob, shard in rows:
-            message = _decode(blob, 'task', _TASK_TYPES)
-            data_list.append((
-                _pb_time(message, '11'), _pb_time(message, '3'), _pb_time(message, '2', '5'),
-                due or '', _yes_no(completed), _pb_text(message, '2', '2'), _pb_text(message, '2', '3'),
-                lists.get((shard, list_id), ''), task_id or '', list_id or '', account_folder))
-
-    data_headers = (
-        ('Time (field 11)', 'datetime'), ('Time (field 3)', 'datetime'), ('Time (field 2.5)', 'datetime'),
-        'Due Date (as stored)', 'Completed', 'Text (field 2.2)', 'Text (field 2.3)',
-        'Task List Text (field 2.1)', 'Task ID', 'Task List ID', 'Account Folder')
     return data_headers, data_list, '\n'.join(sources)
