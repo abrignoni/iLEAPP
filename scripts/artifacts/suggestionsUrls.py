@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Suggestions",
+        "category": "Device Activity",
         "notes": "Reads the urls table of mobile/Library/Suggestions/entities.db, with its -wal, one row "
                  "per table row; the table was absent from the iOS 12 image ctf2020_ios12. Time is "
                  "seconds_from_1970 and Document Time is document_seconds_from_1970, both read as Unix "

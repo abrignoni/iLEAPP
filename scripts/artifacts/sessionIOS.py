@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-10",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Session",
+        "category": "Messaging",
         "notes": "Session for iOS keeps its database key in the iOS keychain, which is captured "
                  "separately from the file system extraction, so supply it with --keychain or "
                  "the keychain field in the GUI. The database is SQLCipher with a 32 byte "
@@ -126,7 +126,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-10",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Session",
+        "category": "Messaging",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
                  "GUI. Session ID is the contact table's id value as stored. Session-iOS 2.14.2 "
                  "describes it as 'The id for the contact (Note: This could be a sessionId, a "

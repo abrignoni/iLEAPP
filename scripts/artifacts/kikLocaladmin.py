@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-22",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Kik",
+        "category": "Messaging",
         "notes": "Reference: K. Ovens & G. Morison, 'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, 2016), https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf "
                  "The name-field comparison uses the stored SQLite values without trimming, "
                  "casting or decoding them. Numeric zero and BLOB values, including a zero-length "

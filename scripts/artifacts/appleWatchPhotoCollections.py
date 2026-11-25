@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Each row is one collection listed under one target type in "
                  "collectionTargetMap. Target Type is the number the collection is filed under, "
                  "as stored; 1, 3, 4 and 6 were seen, and what they mean is not established. "
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Each row is one item of a collection's assetUUIDs or keyAssetUUIDs list in "
                  "collectionTargetMap. List says which list, Position is the item's 1-based "
                  "place in it, and Asset ID is the item's UUID, stored as 16 bytes and shown as "

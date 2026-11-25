@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-12",
         "last_update_date": "2026-10-27",
         "requirements": "none",
-        "category": "AI Provenance",
+        "category": "Photos & Media",
         "notes": "Read by c2pareader (github.com/abrignoni/c2pareader), vendored as "
                  "scripts/vendor/c2pareader.py: standard library only, a JUMBF/CBOR reader for the "
                  "manifest store, an XML reader for XMP, and a COSE_Sign1, X.509 and RFC 3161 reader "

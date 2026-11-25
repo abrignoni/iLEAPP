@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'Location Time is lastObserved; First Observed and Updated are separate '
             'fields of the same object. Speed, accuracy and battery values are as '
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             "Modified is the device object's modified field. Owner IDs come from its "
             'owners array. Read from Library/Caches/com.life360.safetymap/Cache.db. '
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             "Issue Start is the issue's startTime. Issue names and values are as "
             'stored. Read from Library/Caches/com.life360.safetymap/Cache.db. Cached '
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             "Created is the circle's createdAt (Unix seconds). The list shows circles"
             ' when the response was cached, not membership history. Read from '
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'From the cached /v3/users/me or /v5/users/me response. Profile Created '
             'and Date of Birth are as stored because the response gives no time zone.'
@@ -153,7 +153,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-22',
         'requirements': 'none',
-        'category': 'Life360',
+        'category': 'Locations & Maps',
         'notes': (
             'One row per cached Life360 API response, including bodies that are '
             'missing or unreadable (Body Status). Request Path drops query strings '

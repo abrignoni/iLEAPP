@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Craigslist",
+        "category": "Shopping & Marketplaces",
         "notes": "Each entry timestamp is read as Unix milliseconds and shown in UTC. The value is stored by "
                  "the app as one JSON object, kept "
                  "in a file named with the MD5 of the key when it is large and inline in manifest.json when it "
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Craigslist",
+        "category": "Shopping & Marketplaces",
         "notes": "Times are Unix milliseconds shown in UTC. The map is read as the app's own record of when a "
                  "posting id was opened. No vendor documentation of it was found. Of 28 viewed ids that also had a "
                  "cached detail request across the three research containers, 14 had a Cache.db time within 60 seconds of "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Craigslist",
+        "category": "Shopping & Marketplaces",
         "notes": "Favorites were seen as one entry in one of the three research containers and none in the others, so "
                  "the favorite fields (posting id, title, posted date in Unix seconds, location description) are "
                  "read as stored from a single observed entry. The hidden and saved-search lists were empty in "
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Craigslist",
+        "category": "Shopping & Marketplaces",
         "notes": "The login value is exported as stored; it was empty and isLoggedIn false in all three "
                  "research containers, so how it is filled after sign-in was not observed. Access, push and cookie tokens "
                  "are NOT exported: only whether a value is present is shown. Device UID is the identifier "
@@ -105,7 +105,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Craigslist",
+        "category": "Shopping & Marketplaces",
         "notes": "Times in the app's ISO format are parsed and shown as UTC datetimes; a value in another shape is passed on unparsed. The log held one start sequence (init, onboarding, tab, "
                  "startup complete) in each of the three research containers, so it is read as a short log of "
                  "the most recent start(s); it is not evidence of every launch. The rows come from the startupLog value in manifest.json; a value kept in an MD5-named file is not read by this artifact. The source path line lists each manifest that supplied a row, so there is no Source File column. Evidence base: the author's own testing on 3 research containers (installed app versions 1.27.0, 1.27.0 and 1.29.1) and on synthetic fixtures; what is said here about what was seen rests on those three containers, and other app versions are untested.",
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Craigslist",
+        "category": "Shopping & Marketplaces",
         "notes": "Cache Time is the cfurl_cache_response time_stamp (UTC). In our testing, suggestion requests were "
                  "seen while text was being entered, so a query on a suggestion row can be a partial entry. Entries exist only "
                  "while the system cache keeps them. Search Distance is shown as a number when it parses as one (unit not "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-06",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Craigslist",
+        "category": "Shopping & Marketplaces",
         "notes": "Cache Time is the cfurl_cache_response time_stamp (UTC). Posted and Updated are Unix seconds "
                  "shown in UTC. Record Created is read as Unix seconds and shown in UTC; its meaning was not "
                  "established. Location fields are the posting's published location; Location Type is shown as stored. Only responses stored inside the database are read; responses kept in "

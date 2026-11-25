@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-01-22",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Calculator#",
+        "category": "Photos & Media",
         "notes": "App identity is inferred from the FolderLockAdvanced.sqlite filename observed in testing; the path glob is not bundle-specific."
                  " On hexordia_ios1651 the database sits in the data container of net.newsoftwares.NSVault, the app named 'Calculator #'"
                  " (version 3.3.6), and its ZVIDEO table holds no rows."

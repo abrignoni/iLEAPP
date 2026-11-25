@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-09",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "CloudKit",
+        "category": "Cloud & Files",
         "notes": "A row is created for each ZICCLOUDSYNCINGOBJECT record whose ZSERVERRECORDDATA "
                  "holds a RecordID item, whether or not the record has share data. Root Record ID, "
                  "Container Identifier, Displayed Hostname, Public Permission, Participant "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-09",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "CloudKit",
+        "category": "Cloud & Files",
         "notes": "Share Record ID and Root Record ID are read from the same ZSERVERSHAREDATA "
                  "record as the participants; it decodes as a list of one-key dicts, which are "
                  "merged before reading. Before that merge both were empty on every row.",

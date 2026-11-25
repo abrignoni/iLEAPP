@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Skout",
+        "category": "Dating",
         "notes": "One row per row of ZSKCACHEDCHATMESSAGE in Library/Application "
                  "Support/SKOUT/SKCache.sqlite. Each row carries an NSKeyedArchiver blob as well "
                  "as its columns, and the blob is where the sender, the recipient, the message "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Skout",
+        "category": "Dating",
         "notes": "One row per row of ZSKCACHEDUSER in Library/Application "
                  "Support/SKOUT/SKCache.sqlite. The row carries an NSKeyedArchiver blob and "
                  "almost everything reported here comes out of it, under the key names the "

@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-12-21",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Audio",
+        "category": "Photos & Media",
         "notes": "",
         "paths": ('*/Library/VoiceTrigger/SAT/*/td/audio/*.json', '*/Library/VoiceTrigger/SAT/*/td/audio/*.wav'),
         "output_types": "standard",

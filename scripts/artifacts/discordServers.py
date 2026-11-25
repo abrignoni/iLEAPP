@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Read from the kv_cache0 table of Library/Caches/kv-storage/@account.<id>/a, "
                  "one row per server id among the records of kind guilds. For records of kind "
                  "guilds and guild_channels, data is one byte followed by JSON, as messages0 "

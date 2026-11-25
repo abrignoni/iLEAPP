@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "iOS Screens",
+        "category": "Device Activity",
         "notes": "Reads the widgetEngagements table of mobile/Library/DuetExpertCenter/_ATXInfoSuggestionStore.db "
                  "and its -wal. Each row is one engagement. Timestamp is the date column (mostRecentTap or "
                  "mostRecentDwell on the older layout below) read as seconds since "

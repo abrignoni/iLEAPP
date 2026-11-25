@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-25",
         "last_update_date": "2026-11-25",
         "requirements": "none",
-        "category": "Google Keep",
+        "category": "Productivity",
         "notes": "Times are Core Data timestamps (seconds since 2001-01-01 UTC) converted to UTC. A "
                  "value within one second of 1970-01-01 00:00:00 UTC is reported blank. Every note in "
                  "the known data held that value in ZTIMETRASHED and ZTIMEDELETED, so Time Trashed and "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-25",
         "last_update_date": "2026-11-25",
         "requirements": "none",
-        "category": "Google Keep",
+        "category": "Productivity",
         "notes": "Times are Core Data timestamps (seconds since 2001-01-01 UTC) converted to UTC. A "
                  "value within one second of 1970-01-01 00:00:00 UTC is reported blank. On the iOS 27 "
                  "known-data store every ZLISTITEM time column held such a value on every row, so Time "
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-25",
         "last_update_date": "2026-11-25",
         "requirements": "none",
-        "category": "Google Keep",
+        "category": "Productivity",
         "notes": "Time Deleted is ZTIMEDELETED converted from Core Data time to UTC, blank within one "
                  "second of 1970-01-01 00:00:00 UTC. In the known data some rows carried a Time Deleted"
                  " while their note was still in the store and was not trashed or deleted. Whether the "
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-25",
         "last_update_date": "2026-11-25",
         "requirements": "none",
-        "category": "Google Keep",
+        "category": "Productivity",
         "notes": "ZLOCALPATH is resolved against the app group folder that holds the same "
                  "KeepStore.sqlite. In the known data the same relative path under that folder's "
                  "compressed/ subfolder held a smaller JPEG for every image, shown as Compressed Copy; "

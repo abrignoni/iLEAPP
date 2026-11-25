@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "CoverMe",
+        "category": "Messaging",
         "notes": "One row per row of VirtualNumberTable in Documents/miliao.db. The app names "
                  "every column in this database fieldN, so a column's meaning is taken from the "
                  "values it holds rather than from its name, and any column whose meaning the "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "CoverMe",
+        "category": "Messaging",
         "notes": "One row per row of KVirtualNumberCallHistoryTable in Documents/miliao.db. The "
                  "app names every column in this database fieldN, so a column's meaning is taken "
                  "from the values it holds rather than from its name, and any column whose "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "CoverMe",
+        "category": "Messaging",
         "notes": "One row per row of the sms table in Documents/miliao.db. The app names every "
                  "column in this database fieldN, so a column's meaning is taken from the values "
                  "it holds rather than from its name, and any column whose meaning the values did "
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "CoverMe",
+        "category": "Messaging",
         "notes": "One row per row of loginTimesTable in Documents/miliao.db. The app names every "
                  "column in this database fieldN, so a column's meaning is taken from the values "
                  "it holds rather than from its name, and any column whose meaning the values did "

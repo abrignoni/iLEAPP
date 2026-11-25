@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Weather",
+        "category": "Locations & Maps",
         "notes": "No Apple documentation of the Weather app's stores was found, so the table and "
                  "key names are the only labels used here. Text and coordinate values are reported "
                  "as stored; time columns are converted as described below, and a missing or "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Weather",
+        "category": "Locations & Maps",
         "notes": "No Apple documentation of the Weather app's stores was found, so the table and "
                  "key names are the only labels used here. Text and coordinate values are reported "
                  "as stored; time columns are converted as described below, and a missing or "
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Weather",
+        "category": "Locations & Maps",
         "notes": "No Apple documentation of the Weather app's stores was found, so the table and "
                  "key names are the only labels used here. Text and coordinate values are reported "
                  "as stored; time columns are converted as described below, and a missing or "

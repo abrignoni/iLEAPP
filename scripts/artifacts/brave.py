@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Brave",
+        "category": "Browsers",
         "notes": "One row per row of ZSESSIONTAB in Library/Application Support/Brave.sqlite, and "
                  "one per row of ZTABMO where a store carries that older table. A store that "
                  "carries both tables gets rows from both. The Source Table column says which a "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Brave",
+        "category": "Browsers",
         "notes": "One row per row of ZRECENTLYCLOSED in Library/Application Support/Brave.sqlite. "
                  "The table is named for closed tabs and each row carries a title, an address, a "
                  "date and a history index. Date Added is a Core Data time, seconds since 2001, "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Brave",
+        "category": "Browsers",
         "notes": "One row per row of ZRECENTSEARCH in Library/Application Support/Brave.sqlite, "
                  "which is the list the browser keeps of recent searches. Each row carries the "
                  "text, a type, an optional website address and a date. In Brave's published "
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Brave",
+        "category": "Browsers",
         "notes": "One row per row of ZBOOKMARK in Library/Application Support/Brave.sqlite, which "
                  "carries a favourite flag and a folder flag beside the title and the address. "
                  "Created and Last Visit are Core Data times, seconds since 2001, reported in "
@@ -166,7 +166,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Brave",
+        "category": "Browsers",
         "notes": "One row per row of ZBLOCKEDRESOURCE in Library/Application "
                  "Support/Brave.sqlite. Site Domain is the site the page belonged to, Blocked "
                  "Host is the host that was blocked, and Page URL is read from the ZFAVICONURL "
@@ -214,7 +214,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Brave",
+        "category": "Browsers",
         "notes": "One row per row of ZWALLETUSERASSET in Library/Application "
                  "Support/Brave.sqlite, joined to ZWALLETUSERASSETGROUP for the group identifier "
                  "the asset belongs to. The store carries no balance, amount or address column, "

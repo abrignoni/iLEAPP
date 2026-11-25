@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "System Activity",
+        "category": "Device Activity",
         "notes": (
             "The report converts the offset-bearing log timestamp to UTC and preserves the "
             "recorded offset. A time-zone-change line does not identify the destination time "

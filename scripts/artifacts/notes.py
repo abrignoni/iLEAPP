@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Notes",
+        "category": "Productivity",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
                  "Password-protected note contents are not decoded. One row per note and "
                  "attachment, so a note with several attachments is repeated. An attachment is "
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-25",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Notes",
+        "category": "Productivity",
         "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in "
                  "ZICINVITATION.ZSERVERSHAREDATA. Role, Permission and Acceptance Status are "
                  "mapped from the integers in the share record's Type, Permission and "

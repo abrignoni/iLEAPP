@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-01", # Placeholder, original date unknown
         "last_update_date": "2026-11-20",
         "requirements": "Python packages: mmh3",
-        "category": "Telegram",
+        "category": "Messaging",
         "notes": "Original Gist: "
                  "https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713/"
                  "9cb766ed4f977d55ccd0187024be92eac11b65ba (the newest revision on 3 October "

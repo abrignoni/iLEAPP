@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Hashtag Images",
+        "category": "Social Media",
         "notes": "Position is the 1-based place of the string in STSRecentQueries, as stored; "
                  "whether the first string is the newest, and what puts a string in the list, is "
                  "not established. No value in the plist was a date on the 3 images that have "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Hashtag Images",
+        "category": "Social Media",
         "notes": "Position is the 1-based place of the entry in STSRecentResults1, as stored. An "
                  "entry that is not a dictionary is logged and skipped, and its position is "
                  "still counted; all 8 entries seen were dictionaries. Whether the first entry "
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Hashtag Images",
+        "category": "Social Media",
         "notes": "Every key of the plist other than localID, with the value stored under it; "
                  "Local ID is the file's localID and is the same on every row from one file. "
                  "Keys are shown as stored and are not validated. On the 3 sample_data images "

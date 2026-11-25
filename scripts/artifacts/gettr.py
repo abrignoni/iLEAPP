@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "GETTR",
+        "category": "Social Media",
         "notes": "The chat database is Documents/db_u<account id>.sqlite, one per account; its "
                  "table names match the Stream Chat client schema, which is not sourced here. "
                  "Message Direction is derived by comparing each message's user id against the "
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "GETTR",
+        "category": "Social Media",
         "notes": "Built from the members table of Documents/db_u<account id>.sqlite, joined to "
                  "the users table for the account details and to the reads table for that "
                  "account's last read position in the conversation. A row records that the "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "GETTR",
+        "category": "Social Media",
         "notes": "One row per row of the notification, notification_v, notification_ls, "
                  "notification_poll, mentions and mentions_v tables in "
                  "Documents/private_<account name>.db, told apart by the Source Table column. "
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "GETTR",
+        "category": "Social Media",
         "notes": "One row per row of the kv table in Documents/g.db and in "
                  "Documents/private_<account name>.db, told apart by the Store column. The "
                  "second file's name carries the account it belongs to and that name is reported "
@@ -145,7 +145,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "GETTR",
+        "category": "Social Media",
         "notes": "One row per row of the cacheObject table in "
                  "Library/Application Support/libCachedImageData.db. Each row names the address "
                  "the app requested and the file it wrote under Library/Caches/"

@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "netusage_appdata": {
-        "name": "App Data",
+        "name": "Network Usage - App Data",
         "description": "Parses app data from netusage.sqlite",
         "author": "@stark4n6, @snoop168",
         "creation_date": "2023-02-13",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Network Usage",
+        "category": "Network & Connectivity",
         "notes": "ZKIND is reported as stored; its values are not documented. The three timestamps "
                  "are ZLIVEUSAGE.ZTIMESTAMP, ZPROCESS.ZFIRSTTIMESTAMP and ZPROCESS.ZTIMESTAMP read "
                  "as seconds from 2001-01-01 UTC; what each marks is not sourced. On iOS 18.7 (22H20) "
@@ -35,13 +35,13 @@ __artifacts_v2__ = {
         },
     },
     "netusage_connections": {
-        "name": "Connections",
+        "name": "Network Usage - Connections",
         "description": "Network attachments and their route performance counters from netusage.sqlite",
         "author": "@stark4n6, @snoop168, @AlexisBrignoni, Claude",
         "creation_date": "2023-02-13",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Network Usage",
+        "category": "Network & Connectivity",
         "notes": "The field meanings and joins below were derived independently from each store's Core"
                  " Data model, measured data and Apple's code. Code statements were read in "
                  "SymptomEvaluator on iOS 18.7 (22H20); other builds were not read. Measured on 12 iOS"

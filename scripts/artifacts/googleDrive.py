@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-15",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "notes": "The cello.db store sits under a Documents/drivekit directory that several Google "
                  "apps carry, so a store can sit in a container belonging to an app other than "
                  "Google Drive. Across the tested images these stores were found in Google Drive, "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-15",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "notes": "The cello.db store sits under a Documents/drivekit directory that several Google "
                  "apps carry, so a store can sit in a container belonging to an app other than "
                  "Google Drive. Across the tested images these stores were found in Google Drive, "
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-15",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "notes": "The cello.db store sits under a Documents/drivekit directory that several Google "
                  "apps carry, so a store can sit in a container belonging to an app other than "
                  "Google Drive. Across the tested images these stores were found in Google Drive, "
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-15",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "notes": "The cello.db store sits under a Documents/drivekit directory that several Google "
                  "apps carry, so a store can sit in a container belonging to an app other than "
                  "Google Drive. Across the tested images these stores were found in Google Drive, "
@@ -210,7 +210,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-15",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "notes": "This store sits under Documents/<account id>/ and a cello.db can sit under "
                  "Documents/drivekit/ in the same container. Neither path is specific to the Google "
                  "Drive app, so a store can sit in a container belonging to an app other than "

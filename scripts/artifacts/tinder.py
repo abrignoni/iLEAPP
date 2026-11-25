@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Tinder",
+        "category": "Dating",
         "notes": "Timestamps are Core Data (Cocoa) seconds and are converted to UTC. ZCREATED "
                  "is reported as the message time and ZCLIENTCREATED alongside it; the two "
                  "differ, and nothing in the extraction documents what each records.\n"
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Tinder",
+        "category": "Dating",
         "notes": "One row per ZMATCH entry. Timestamps are Core Data (Cocoa) seconds. The "
                  "boolean-shaped columns (ZISSUPERLIKEMATCH, ZISFASTMATCH, ZISBOOSTMATCH, "
                  "ZISEXPIRED, ZMATCHSEEN and the rest) are reported as stored; a blank in those "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Tinder",
+        "category": "Dating",
         "notes": "Each row is a profile the app had stored as a recommendation, with that "
                  "person's name, user id, bio, city, distance and school where stored. "
                  "Presence of a row records that the app held the profile locally. It does not "
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-16",
         "requirements": "none",
-        "category": "Tinder",
+        "category": "Dating",
         "notes": "The email address, account creation time and login times come from the "
                  "preferences plist keys Profile.email, Profile.accountCreated, "
                  "Session.firstConsecutiveLoginDate and Session.lastConsecutiveLoginDate. The "
@@ -153,7 +153,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Tinder",
+        "category": "Dating",
         "notes": "The cache file name is the cache key, percent-encoded; where the name decodes "
                  "to a URL, that URL is reported in the Source URL column. PINCache's "
                  "PINDiskCache.m encodes the '.', ':', '/' and '%' characters "

@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Values are read from the preference plist the app names for its own bundle identifier "
             "under Library/Preferences; com.amazon.Amazon and com.amazon.AmazonUK are the "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Profile rows come from the pandaStore sub-store of persist:root in "
             "Documents/RCTAsyncLocalStorage_V1/manifest.json, read for accountId, fullName, "
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Rows are parsed from the JSON body cached in the app's NSURLCache for any request "
             "whose URL contains /api/orders/v1. This module does not test the host. This is a "
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Rows come from NSURLCache entries whose URL matches */api/marketplaces/*/products/*. "
             "This module does not test the host. The ASIN and marketplace identifier are taken "
@@ -190,7 +190,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Rows are parsed from JSON bodies cached in the app's NSURLCache for requests to "
             "*/portal-migration/hz/glow/get-location-label. The customerIntent object carries "
@@ -226,7 +226,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Reads the standard NSURLCache tables in the Cache.db the app keeps under "
             "Library/Caches in a folder named for its own bundle identifier; com.amazon.Amazon and "
@@ -275,7 +275,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Library/LocalDatabase/ssnapImageCacheRegistry.db records url, featureName, size, "
             "filePath, lastAccessed, expiryDate, lastModified and numHits per cached image. "
@@ -308,7 +308,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "Batches under Library/METRICS_CRITICAL, METRICS_HIGH and METRICS_NORMAL are protocol "
             "buffers with no shipped descriptor, so the module walks the wire format directly. "
@@ -349,7 +349,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Amazon Shopping",
+        "category": "Shopping & Marketplaces",
         "notes": (
             "One row per metric batch file that yields a batch id or a context pair. Eight of the "
             "key/value pairs the batch carries in field 4 are reported: CustomerId, Session, "

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "what3words",
+        "category": "Locations & Maps",
         "notes": "Read from the class_DataPlace table of the app's Realm store "
                  "(Documents/default.realm) using the vendored realm_parser. Every matched "
                  "default.realm that carries a what3words class is read. Saved Time is the "
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "what3words",
+        "category": "Locations & Maps",
         "notes": "Read from the class_DataSearchItem table of the app's Realm store. Every "
                  "matched default.realm that carries a what3words class is read. Search Time is the "
                  "created attribute. Three Word Address is threeWordAddress, or the result "
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "what3words",
+        "category": "Locations & Maps",
         "notes": "Read from the class_DataProfile table of the app's Realm store. Every matched "
                  "default.realm that carries a what3words class is read. Verified, Suspended and "
                  "Search History Opt-out show Yes or No for a stored value and are blank when the "

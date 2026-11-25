@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Calculator",
+        "category": "Device Activity",
         "notes": "One row per row of ZHISTORYRECORD in default.store, the Core Data store in the "
                  "Calculator app's data container. A default.store is read only when the "
                  "container's metadata plist names com.apple.calculator and the store has a "

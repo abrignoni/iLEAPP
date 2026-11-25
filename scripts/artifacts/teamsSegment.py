@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Microsoft Teams",
+        "category": "Messaging",
         "notes": "Rows come only from an app container whose "
                  ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
                  "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Microsoft Teams",
+        "category": "Messaging",
         "notes": "Rows come only from an app container whose "
                  ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
                  "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Microsoft Teams",
+        "category": "Messaging",
         "notes": "Rows come only from an app container whose "
                  ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
                  "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Microsoft Teams",
+        "category": "Messaging",
         "notes": "Rows come only from an app container whose "
                  ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
                  "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Microsoft Teams",
+        "category": "Messaging",
         "notes": "Rows come only from an app container whose "
                  ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
                  "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "

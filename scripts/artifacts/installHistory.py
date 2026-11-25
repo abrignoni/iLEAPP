@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Software Updates",
+        "category": "Device Information",
         "notes": (
             "The database stores date as text without a UTC offset; it is reported without "
             "conversion in the 'Timestamp (as stored, no offset)' column. The cited "

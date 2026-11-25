@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-24",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Text Input Messages",
+        "category": "Device Activity",
         "notes": "No com.apple.TextInput.TypingDESPlugin records were found under DES/Records in the corpus images and public path listings checked; the number of images and the date of that check are not recorded here. The system plugin binary ships under System/Library/DistributedEvaluation on the images checked, but no image carries recorded .desdata for it, so none of the images checked returns rows. All alignedEntries items are read. Pending entries retain their timestamp as raw text because the epoch and unit are not established. A documentState contextBeforeInput value gets a separate row in its named column. Behavior is verified on constructed input only.",
         "paths": ('*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata',),
         "output_types": "standard",

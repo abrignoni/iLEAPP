@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Google Duo - Contacts",
         "description": "Rows of the contact table in the Google Duo or Google Meet DataStore database",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Google Duo", "notes": "Only the first matched file whose path ends in "
+        "category": "Calls & Contacts", "notes": "Only the first matched file whose path ends in "
                                            "DataStore is read. The path pattern is not tied to one "
                                            "app and the container is not checked. Registration Date "
                                            "and Sync Date are converted as Unix microseconds; no "
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "name": "Google Duo - Call History",
         "description": "Rows of the call_history table in the Google Duo or Google Meet DataStore database, joined to the contact table for the name",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Google Duo", "notes": "Only the first matched file whose path ends in "
+        "category": "Calls & Contacts", "notes": "Only the first matched file whose path ends in "
                                            "DataStore is read. The path pattern is not tied to one "
                                            "app and the container is not checked. Timestamp is "
                                            "converted as Unix seconds. Call Duration is the stored "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "name": "Google Duo - Clips",
         "description": "Rows of the media_clip_v2 table in the Google Duo or Google Meet DataStore database, with the ClipsCache PNG named for the message id where one is found",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Google Duo",
+        "category": "Calls & Contacts",
         "notes": "The media_clip_source value's direction semantics are not established; the value "
                  "is reported as stored. The Clip column shows the first matched file whose path "
                  "contains <message id>.png. Creation Date, Message Date and Viewed Date are "

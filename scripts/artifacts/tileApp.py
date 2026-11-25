@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "The date and time text the module's pattern takes from each log line is read as "
                  "UTC; the pattern reads no zone. The only registered corpus in sample_data "
                  "produced no row, so the zone of these timestamps is not established.",

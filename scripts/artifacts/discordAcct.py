@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-09-15",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Read from the app's MMKV store (Documents/mmkv/mmkv.default) with the vendored "
                  "mmkv_parser, replacing a printable-strings scrape that reported two keys. The "
                  "path pattern matches every app's mmkv.default because an iOS data container is "
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Read from the app's MMKV store. One row per store. First Run is the "
                  "first_run_date_key value and First Use the firstUse value of "
                  "RequestReviewStore, both Unix milliseconds. Last Sync is lastSyncTime. Session "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Read from the UsageStatisticsStore JSON in the app's MMKV store, whose _state "
                  "holds a sessions map from a calendar day to a list of startTimestamp values in "
                  "Unix milliseconds. One row per start. The day string is the app's own bucket "
@@ -151,7 +151,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-04",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Read from every write of the DraftStore key still present in the app's MMKV "
                  "store, not only the current one. MMKV appends each write and does a full "
                  "rewrite from its current keys when a write does not fit, so each save still in "
@@ -198,7 +198,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-03",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Read from every write of SelectedGuildStore and SelectedChannelStore still "
                  "present in the app's MMKV store. MMKV appends each write and does a full "
                  "rewrite from its current keys when a write does not fit, so earlier writes "

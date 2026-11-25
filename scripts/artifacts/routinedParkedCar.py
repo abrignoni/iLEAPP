@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "Times are Cocoa (Core Data) seconds converted to UTC. Both tables are reported "
                  "as stored and named in the Table column; rows are not merged. On hc_ios18_7 "
                  "ZRTVEHICLEEVENTHISTORYMO has no vehicle identifier, notes, user-set, "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "Times are Cocoa (Core Data) seconds converted to UTC; zero or negative "
                  "times are left empty. The columns follow the RTVehicleMO entity (startDate, "
                  "endDate, vehicleName, vehicleModelName, bluetoothAddress) of the CoreRoutine 8 "

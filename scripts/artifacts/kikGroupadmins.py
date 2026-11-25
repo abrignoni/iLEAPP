@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-22",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Kik",
+        "category": "Messaging",
         "notes": "The Blob and Additional Info columns are decoded from the ZENTITYUSERDATA and "
                  "ZROSTERENTRYDATA protobufs by field position. The positions and the column "
                  "labels are not sourced from Kik, and what each field holds is not established. "

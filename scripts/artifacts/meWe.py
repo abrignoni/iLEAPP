@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'MeWe',
+        'category': 'Social Media',
         'notes': 'In examined data shared locations appeared as OpenStreetMap links; coordinates '
                  'are parsed out of any message text that carries mlat and mlon values. '
                  'Conversation is built by this module from the names of the thread\'s senders '
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
         'requirements': 'none',
-        'category': 'MeWe',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'standard',
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
         'requirements': 'none',
-        'category': 'MeWe',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'standard',
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
         'requirements': 'none',
-        'category': 'MeWe',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'standard',
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-04',
         'requirements': 'none',
-        'category': 'MeWe',
+        'category': 'Social Media',
         'notes': 'Options, votes and the option flagged ZISSELECTED are read from ZPOLLOPTION '
                  'through its Z<number>OPTIONS column, which holds the Z_PK of the ZPOLL row. '
                  'The number in that column name differs between stores: Z29OPTIONS on '
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
         'requirements': 'none',
-        'category': 'MeWe',
+        'category': 'Social Media',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'standard',

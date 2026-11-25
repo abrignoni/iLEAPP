@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Burner",
+        "category": "Messaging",
         "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
                  "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
                  "17.3 images. Number of burners is shown as burners found over the stored total. "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Burner",
+        "category": "Messaging",
         "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
                  "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
                  "17.3 images. Sent is ZDATECREATED read as a Core Data time in UTC. Direction, "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Burner",
+        "category": "Messaging",
         "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
                  "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
                  "17.3 images. Verified, Blocked and Muted read Yes only when the stored flag is 1 "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Burner",
+        "category": "Messaging",
         "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
                  "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
                  "17.3 images. Notifications, Inbound caller ID, In-App calling (VoIP) and "

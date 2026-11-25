@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-11-01',
         'requirements': 'none',
-        'category': 'GroupMe',
+        'category': 'Messaging',
         'notes': 'Deletion Status Recorded, System Deleted and Deletion Actor (as stored) '
                  'come from ZGMMESSAGE.ZMESSAGEDELETIONSTATUS, an NSKeyedArchiver archive '
                  'of a GMMessageDeletionStatus object whose keys are isSystemDeleted and '
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-19',
         'requirements': 'none',
-        'category': 'GroupMe',
+        'category': 'Messaging',
         'notes': 'Chat Type (as stored) is ZGMCHAT.ZCHATTYPE reported as stored, blank when the '
                  'stored value is NULL. The meaning of values other than group is not '
                  'established here. ' 'Every GroupMe.sqlite found is read, under Library/Application Support and under '
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-19',
         'requirements': 'none',
-        'category': 'GroupMe',
+        'category': 'Messaging',
         'notes': 'Every GroupMe.sqlite found is read, under Library/Application Support and under '
                  'Documents, and Source File names the store each row came from. On the iOS 17.3 '
                  'image both exist and the Documents copy holds the same tables with no rows in any '
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-10-19',
         'requirements': 'none',
-        'category': 'GroupMe',
+        'category': 'Messaging',
         'notes': 'Every GroupMe.sqlite found is read, under Library/Application Support and under '
                  'Documents, and Source File names the store each row came from. On the iOS 17.3 '
                  'image both exist and the Documents copy holds the same tables with no rows in any '
@@ -144,7 +144,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-18',
         'requirements': 'none',
-        'category': 'GroupMe',
+        'category': 'Messaging',
         'notes': '',
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.groupme.iphone-app.plist',),
         'output_types': 'standard',

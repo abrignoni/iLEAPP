@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'creation_date': '2021-10-18',
         'last_update_date': '2026-10-06',
         'requirements': 'none',
-        'category': 'OS Updates',
+        'category': 'Device Information',
         'notes': (
             'Only lines containing "data = " are read. Dictionary entries of each line\'s events '
             'array are read in stored order, including repeats, when they contain originalOSVersion. Original '

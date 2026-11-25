@@ -242,7 +242,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-09-13",
         "last_update_date": "2025-09-13",
         "requirements": "none",
-        "category": "App Usage",
+        "category": "Device Activity",
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
@@ -271,7 +271,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-09-13",
         "last_update_date": "2025-09-13",
         "requirements": "none",
-        "category": "App Usage",
+        "category": "Device Activity",
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "timeline",
@@ -301,7 +301,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-09-13",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Device Usage",
+        "category": "Device Activity",
         "notes": "The field meanings, value labels and time handling below were derived independently, using "
                  "the store's schema, measured data and Apple's code. The artifact's choice of stream and "
                  "columns predates that work. Screen Locked shows Yes for a stored 1 and No for 0, the two "
@@ -362,7 +362,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-09-13",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Device Usage",
+        "category": "Device Activity",
         "notes": "The field meanings, value labels and time handling below were derived independently, using "
                  "the store's schema, measured data and Apple's code. The artifact's choice of stream and "
                  "columns predates that work. Backlit shows Yes for a stored 1 and No for 0, the two boolean "

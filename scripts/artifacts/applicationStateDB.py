@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-08-04",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Device Usage",
+        "category": "Device Activity",
         "notes": "SplashBoard runtime headers expose creationDate and lastUsedDate properties on "
                  "XBApplicationSnapshot. Apple documents that UIKit creates app-switcher snapshots after a scene "
                  "enters the background and that applications may hide sensitive content before capture. Sources: "
@@ -118,7 +118,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-08-04",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Device Usage",
+        "category": "Device Activity",
         "notes": "The property name is sourced from the runtime-derived SplashBoard header. Its forensic meaning is "
                  "not documented by Apple. Corroborate with independent device-usage artifacts and report the field "
                  "as stored. Source: https://github.com/nst/iOS-Runtime-Headers/blob/fbb634c78269b0169efdead80955ba64eaaa2f21/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h",

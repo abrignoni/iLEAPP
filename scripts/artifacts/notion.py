@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Notion",
+        "category": "Productivity",
         "notes": "One row per row of the block table in Library/LocalDatabase/notion.db. In the "
                  "block table a page and each paragraph, heading, list item or image inside it "
                  "are separate rows joined by Parent ID, and Type says which kind a row is. Text "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Notion",
+        "category": "Productivity",
         "notes": "One row per row of the records table whose record_table field is page_visit or "
                  "page_exit. Timestamp is the row's own timestamp in Unix milliseconds and Event "
                  "Time is a second time the record's JSON carries, present on the page_visit "
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Notion",
+        "category": "Productivity",
         "notes": "One row per row of the notion_user table. Every one of the 16 rows on the "
                  "tested image carried an email address and a display name; the separate given "
                  "name and family name fields were empty on all of them, and 9 carried a profile "
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Notion",
+        "category": "Productivity",
         "notes": "One row per row of the collection table. Name and Description hold rich text "
                  "in the same nested JSON arrays the blocks use and are joined into plain text "
                  "here. 15 of the 17 rows on the tested image carried a name. Column Names is "

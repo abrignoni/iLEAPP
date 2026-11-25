@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZDRIVEMODEL in DriveModelStore.sqlite, with circle IDs from ZCIRCLEDRIVEMODEL. All '
                  'times are Cocoa seconds. Duration, distance and speed are as stored, without units. User ID is '
                  'ZUSERID as stored; the tested store held four distinct values. On the tested image Drive Type, '
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZPLACEMODEL in L360CoreDataStore.sqlite. Coordinates and Radius are as stored; the '
                  'radius unit is not recorded. Type, Source and Selection Type are as stored and undocumented. '
                  'Has Alerts shows 1 as Yes and 0 as No. Category is blank where the table has no ZCATEGORY '
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZPLACEALERTMODEL in L360CoreDataStore.sqlite, with the place name and coordinates '
                  'from ZPLACEMODEL. Arrival Alerts and Departure Alerts show 1 as Yes and 0 as No. A row is a '
                  'setting the app retrieved, not an alert that was sent. Arrival Alerts and Departure Alerts '
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from ZDRIVERREPORTITEMMODEL in L360CoreDataStore.sqlite, joined to its daily or weekly '
                  'ZDRIVERREPORTMODEL row; Granularity says which. Start Day, End Day, Coverage Start, Coverage '
                  'End and Last Retrieved are Cocoa seconds; the day values can fall on local midnight, so read '
@@ -133,7 +133,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Key and value pairs from com.life360.safetymap.plist: the CurrentUser object, '
                  'deviceRegistrationInfo, lpseRegistrationInfo, loggedInUserData, memberInfo, '
                  'L360LocationHealthStorage and selected scalar keys (user, circle, locale, device IDs, first '
@@ -172,7 +172,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from the com.life360.datakit.Circle.Type array in com.life360.safetymap.plist, joined on '
                  'circle ID to CircleCode.Type (invite code, deeplink and expiration) and memberRoles (role). '
                  'Created At, Invite Expiration and Last Retrieved are Cocoa seconds; Created At matched '
@@ -203,7 +203,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from the MemberCircleSettings.Type, CircleSettings.Type and UserSettings.Type arrays in '
                  'com.life360.safetymap.plist. Each holds alternating setting names and base64 JSON values; '
                  'Value is the decoded JSON, or the stored text when it does not decode. Scope says which array. '
@@ -230,7 +230,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from AwarenessEngineGate.BreachRule.breachStateCache in com.life360.safetymap.plist: '
                  'name, coordinates, radius, circle and direction per place. No timestamp key was present in the '
                  'cache on the tested image, so its age is not known. On the tested image Direction held egress '
@@ -256,7 +256,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-21",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": 'Read from the pop-dwell_seen array in com.life360.safetymap.plist. Date is the stored plist '
                  'date. What a pop dwell is in the app is not established; the key name is the only label. A row '
                  'does not show who was at the coordinates. Circle ID held one value on every row of the tested '
@@ -283,7 +283,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Life360",
+        "category": "Locations & Maps",
         "notes": ('Read from location_state.data in Library/Application Support, an NSKeyedArchiver archive of an '
                   'L360LocationPersistentState, decoded with nska_deserialize. One row per L360CLLocation in its '
                   'location array (20 on each tested image) and one for unsentFilteredSample when it holds a sample '

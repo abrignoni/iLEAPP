@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "SMS & iMessage",
+        "category": "Messaging",
         "notes": "One row per message row whose thread_originator_guid is set (the iOS 14 inline "
                  "reply feature). Reply Text is message.text, or the text decoded from attributedBody "
                  "where text is empty. Originator is the message row whose guid equals "

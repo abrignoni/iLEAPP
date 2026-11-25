@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-11-17',
         'last_update_date': '2026-11-17',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ("One row per row of the MotionStateHistory table in locationd's "
                  "cache_encryptedC.db; the table and column names are the only labels used here, "
                  "and no Apple documentation of this table was found. Start Time is startTime read "

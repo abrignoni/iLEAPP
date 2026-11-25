@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Geolocation",
+        "category": "Locations & Maps",
         "notes": "One row per record that decodes to a plist holding a latitude and a longitude; "
                  "other records are skipped. Timestamp is the record's "
                  "kCLLocationCodingKeyTimestamp read as seconds since 2001-01-01 UTC. The SEGB "

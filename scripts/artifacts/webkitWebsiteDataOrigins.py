@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Browser",
+        "category": "Browsers",
         "notes": "Lists the origins in WebKit website data stores inside app data containers, app extension "
                  "containers and other paths. Three locations are read. In two of them (iOS 16.1.1 to 26.5.2 on the "
                  "tested images) each origin has a folder two levels under WebsiteData/Default, or under "

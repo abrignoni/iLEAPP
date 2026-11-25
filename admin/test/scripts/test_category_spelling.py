@@ -31,10 +31,12 @@ class CategorySpellingTest(unittest.TestCase):
 
     def test_no_two_categories_differ_only_by_case_or_spaces(self):
         spellings = collections.defaultdict(set)
+        read = 0
         for category in declared_categories():
             spellings[category.strip().casefold()].add(category)
+            read += 1
 
-        self.assertGreater(len(spellings), 100)
+        self.assertGreater(read, 1000)
         self.assertEqual(sorted(sorted(s) for s in spellings.values() if len(s) > 1), [])
 
 

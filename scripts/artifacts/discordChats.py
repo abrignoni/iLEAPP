@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-06-23",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Discord",
+        "category": "Messaging",
         "notes": "Direction is Sent when the message author id equals the account id taken from "
                  "the kv-storage/@account.<id> path in the same app container, and Received "
                  "otherwise. Where the container holds no such path the account id is unknown, the "

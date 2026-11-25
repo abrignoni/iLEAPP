@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-18",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Control Center",
+        "category": "Device Activity",
         "notes": "",
         "paths": ('*/mobile/Library/ControlCenter/ModuleConfiguration.plist',),
         "output_types": ["html","lava","tsv"],

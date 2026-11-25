@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_chromePaymentsCustomerData": {
-        "name": "Payments Customer Data",
+        "name": "Chromium - Payments Customer Data",
         "description": "Parses the payments customer data record from Chromium based browsers",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "notes": "Reads the payments_customer_data table in Web Data and in Account Web Data. The table is created with a "
                  "single VARCHAR column, customer_id, and the browser writes it by deleting every "
                  "row and then inserting at most one, so each file stores at most one value here. "

@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Kijiji Conversations",
+        "category": "Shopping & Marketplaces",
         "notes": "Kijiji.ca is a Canadian online classified advertising site. Message timestamps "
                  "are read as Cocoa/Mac absolute time (seconds since 2001-01-01 UTC) and rendered "
                  "in UTC. A message whose sender value is 0 is shown as sent by 'Local User' and "

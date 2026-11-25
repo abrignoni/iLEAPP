@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Rows come from ServerPhotos joined to ExtendedPhotos in each "
                  "store/photos-<name>.db the pattern matches, other than photos-shared.db; the "
                  "container is not checked against the app's bundle id, so read Source File to "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Read from the Collections table, whose mcCollection blob is protobuf. The "
                  "title, item count, three timestamps, an actor key and the cover image URL are "
                  "taken from that blob by field position. The blob is undocumented and how each "
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Read from SharedCollections, with the recipient count taken from "
                  "SharedRecipients on envelopeMediaKey. The mcCollection blob here is zlib "
                  "compressed protobuf, unlike the uncompressed blob in the Collections table of "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Read from SharedServerPhotos joined to SharedExtendedPhotos, whose "
                  "mcMediaItem blob is zlib compressed protobuf and supplies the file name. "
                  "actorMediaKey is reported as stored; the store records a key, not a name, and "
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Read from OnDeviceSearchClusters. A label is the text the store holds for the "
                  "cluster; the store does not record whether a given label was entered by "
                  "the account holder or produced by the app, so no such distinction is "
@@ -135,7 +135,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Read from the content table of the OnDeviceRecentSearchesFullTextSearch full "
                  "text index. The label is reported as stored. Each row also carries a "
                  "serialised search entry blob and a blob of local dedup keys, whose byte "
@@ -153,7 +153,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Files under Library/Caches/com.google.photos/ImageFetcherCache_file_<ext>, for "
                  "the MP4, MOV, M4A and MP3 caches only; caches for other extensions are not "
                  "reported here. Each tested file is a complete standalone file: the MP4 and MOV "
@@ -182,7 +182,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Under Library/Caches/Media/CacheV0/<account>/<media key>/ the directory name "
                  "is the item's media key: every one of the 9 directories in the first tested "
                  "sample matched a ServerPhotos mediaKey exactly, so the link is recorded "
@@ -212,7 +212,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Each store's states are read through scripts/sqlite_wal.py, as described for "
                  "Snapchat - Messages (arroyo.db): every earlier committed state of the log's "
                  "current generation, the previous generation's left-over frames where every "
@@ -258,7 +258,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
-        "category": "Google Photos",
+        "category": "Photos & Media",
         "notes": "Read from Library/Preferences/com.google.photos.plist. Only keys whose "
                  "values are plain strings, numbers, booleans or dates are reported; the file "
                  "also holds serialised binary values that are not decoded here. Key names are "

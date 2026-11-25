@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Burner Cache",
+        "category": "Messaging",
         "notes": "Rows are read from server responses the app cached in Cache.db "
                  "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
                  "folder. Each cached response that matches adds its entries, with no "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Burner Cache",
+        "category": "Messaging",
         "notes": "Rows are read from server responses the app cached in Cache.db "
                  "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
                  "folder. Each cached response that matches adds its entries, with no "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Burner Cache",
+        "category": "Messaging",
         "notes": "Rows are read from server responses the app cached in Cache.db "
                  "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
                  "folder. Each cached response that matches adds its entries, with no "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-03-05",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Burner Cache",
+        "category": "Messaging",
         "notes": "Rows are read from server responses the app cached in Cache.db "
                  "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
                  "folder. Each cached response that matches adds its entries, with no "

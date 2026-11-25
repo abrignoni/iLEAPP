@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "VK",
+        "category": "Social Media",
         "notes": "Read from the message table of messages-store.sqlite in the client's "
                  "VKM_<account id> folder under Application Support. "
                  "Each message row carries a data column holding the message as JSON in the clear, and "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "VK",
+        "category": "Social Media",
         "notes": "Read from the user table of content-store.sqlite in the client's VKM_<account id> "
                  "folder. Each row is a user the client cached, and why the client cached a given "
                  "user is not established, so a row is not by itself evidence of a "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-04",
         "last_update_date": "2026-07-21",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "",
         "paths": ('*/db/timed/Library/Preferences/com.apple.preferences.datetime.plist',),
         "output_types": ["html","lava","tsv"],

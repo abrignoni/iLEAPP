@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2025-08-21',
         'last_update_date': '2026-11-01',
         'requirements': 'none',
-        'category': 'Potato Chat',
+        'category': 'Messaging',
         'notes': 'Timestamp is the date column read as Unix seconds in UTC. From Me is the stored '
                  'outgoing value. Message Type, the call kind and duration, coordinates and the '
                  '(Secret Chat) chat label are derived by this parser from byte patterns in the '
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         'creation_date': '2025-08-21',
         'last_update_date': '2026-11-01',
         'requirements': 'none',
-        'category': 'Potato Chat',
+        'category': 'Messaging',
         'notes': 'Each row is decoded from the data blob of one channel_messages row. Timestamp is '
                  'the blob field d read as Unix seconds in UTC. From Me is the blob field out, Message '
                  'the field t, From ID the field fi, and Group-ID the absolute value of the first four '
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         'creation_date': '2025-08-21',
         'last_update_date': '2026-11-01',
         'requirements': 'none',
-        'category': 'Potato Chat',
+        'category': 'Messaging',
         'notes': 'Rows are the users table of tgdata.db, as stored. Contact is yes when the same uid '
                  'is also in the contacts table and no otherwise. Last Seen is the last_seen column '
                  'read as Unix seconds in UTC and is blank when the stored value is 1 or lower; what '

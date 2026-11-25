@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-27",
         "last_update_date": "2026-10-27",
         "requirements": "none",
-        "category": "Hive",
+        "category": "App Data Stores",
         "notes": "Hive is a key-value store used by Flutter applications through the hive and "
                  "hive_ce packages. A box is an append-only log of frames: a write appends a new "
                  "frame for the key rather than replacing the old one, and a delete appends a "

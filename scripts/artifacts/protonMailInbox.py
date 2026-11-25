@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-11-22",
         "requirements": "BeautifulSoup",
-        "category": "Proton Mail",
+        "category": "Email",
         "notes": "Reads the group.me.proton.mail cache (Proton Mail Inbox); the tested image ran "
                  "Proton Mail 7.9.2. In the tested "
                  "image the cached subject, body, sender and recipient values are stored in clear "
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
         "requirements": "none",
-        "category": "Proton Mail",
+        "category": "Email",
         "notes": "Attachment metadata from the Inbox cache joined to the files the app wrote under "
                  "cache/mail-cache/attachments/. The media column shows a file only when it is "
                  "present in the extraction.",
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
         "requirements": "none",
-        "category": "Proton Mail",
+        "category": "Email",
         "notes": "Contact email rows from the Inbox cache. A uid beginning proton-autosave is "
                  "reported as stored; what distinguishes those rows from other contact rows is "
                  "not established here.",
@@ -124,7 +124,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
         "requirements": "none",
-        "category": "Proton Mail",
+        "category": "Email",
         "notes": "Account and user rows from support/account.db and the mail cache. Used Space and "
                  "Max Space are the stored integers. The unit is not established here.",
         "paths": ('*/Shared/AppGroup/*/support/*.db*',),

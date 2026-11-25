@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "WiFi Connections",
+        "category": "Network & Connectivity",
         "notes": "The plist read is Library/SyncedPreferences/com.apple.wifid.plist; "
                  "on the tested images it is present only on the iOS 12.4, 13.3.1 and 14.3 "
                  "images, holding an empty values dictionary on the first and two and three "

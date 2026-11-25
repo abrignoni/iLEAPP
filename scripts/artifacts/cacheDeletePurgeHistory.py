@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "System",
+        "category": "Logs & Diagnostics",
         "notes": (
             "File location: /private/var/mobile/Library/Caches/com.apple.cache_delete/"
             "CacheDeletePurgeHistory.txt, or /logs/CacheDelete/CacheDeletePurgeHistory.txt inside "

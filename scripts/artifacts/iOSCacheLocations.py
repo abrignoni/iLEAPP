@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-05-12',
         'last_update_date': '2026-10-14',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': 'Parses latitude, longitude, accuracy, and speeds from Cache.sqlite. '
                  'The accuracy and speed columns are ZHORIZONTALACCURACY and ZSPEED as stored; the '
                  'units in the headers are those Apple documents for CLLocation.horizontalAccuracy '

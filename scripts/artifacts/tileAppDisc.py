@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2020-09-03',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'Tile App',
+        'category': 'Locations & Maps',
         'notes': '',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*', ),

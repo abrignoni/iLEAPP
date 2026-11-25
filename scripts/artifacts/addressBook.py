@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2020-04-30',
         "last_update_date": "2026-11-01",
         'requirements': 'none',
-        'category': 'Contacts',
+        'category': 'Calls & Contacts',
         'notes': "ABMultiValue property numeric IDs follow the observed AddressBook.sqlitedb "
                  "schema; No published Apple source for the numeric values of these constants was "
                  "found. This module reads property 3 as phone numbers, 4 as email addresses, 5 as "

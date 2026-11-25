@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per GPX file matched under an app's Documents folder, at any depth. A "
                  "file that is not complete XML is still listed with the counts read before the "
                  "error; Read Error then holds the parser's message, which is also recorded in "
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per trkpt element across the GPX files in an app's Documents folder. "
                  "Latitude and longitude are the element's own attributes and elevation and time "
                  "are its child elements, all read from the file. Every timestamp on the tested "
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-06",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "One row per wpt element across the GPX files in an app's Documents folder. A "
                  "wpt is a point marked in its own right rather than one of a track's samples. "
                  "Name, description, symbol and type are the element's own children and are "

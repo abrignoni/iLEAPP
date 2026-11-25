@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-10",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "Numeric createtime values are read as Mac absolute time (Cocoa, seconds since "
                  "2001-01-01 UTC); the basis for that epoch is not given here. A 'YYYY-MM-DD "
                  "HH:MM:SS' text value carries no zone and is read as UTC. Only the first AP.db "

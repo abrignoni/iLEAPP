@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Dubox",
+        "category": "Cloud & Files",
         "notes": "Read from mbox_main.sqlite. Direction is derived from the is_receive column, "
                  "reading 0 as Sent and any other value, a null included, as Received, on the "
                  "column name alone with no documented source. Partner is the uname "
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Dubox",
+        "category": "Cloud & Files",
         "notes": "Read from mbox_conversations in mbox_main.sqlite."
                  " Last Message Time is the mtime column and Created is the time column, both read "
                  "as Unix seconds and shown in UTC; what the app records in each is not "
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Dubox",
+        "category": "Cloud & Files",
         "notes": "Read from mbox_friendlist in mbox_main.sqlite.",
         "paths": ('*/mbox_main.sqlite*',),
         "output_types": "standard",
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Dubox",
+        "category": "Cloud & Files",
         "notes": "Read from the cachefilelist table of netdisk.sqlite; this is the cloud file "
                  "listing the app had cached, not necessarily the full account contents."
                  " Created and Modified are the ctime and mtime columns read as Unix seconds; "
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
-        "category": "Dubox",
+        "category": "Cloud & Files",
         "notes": "Read from the image_filelist table of imageDB.sqlite. Latitude and Longitude "
                  "are blank where the store holds no value or holds 0.",
         "paths": ('*/imageDB.sqlite*',),

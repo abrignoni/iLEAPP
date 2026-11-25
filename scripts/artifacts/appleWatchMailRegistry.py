@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Date Received is DATE_RECEIVED read as Unix seconds, shown in UTC in the HTML "
                  "and TSV reports. The shared converter would rescale a value of ten billion or "
                  "more as a sub-second unit; none of the 153 values was. The epoch is not "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Display Name, Email Addresses, Username, Account ID, Local ID, Type "
                  "Identifier, Source Type and Should Archive are DISPLAY_NAME, EMAIL_ADDRESSES, "
                  "USERNAME, ID, LOCAL_ID, TYPE_IDENTIFIER, SOURCE_TYPE and SHOULD_ARCHIVE as "
@@ -134,7 +134,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Apple Watch",
+        "category": "Smart Home & Connected Devices",
         "notes": "Custom Name, URL, Type, Filter Type, Sync Active, Sync Enabled, Mailbox ID and "
                  "Account ID are CUSTOM_NAME, URL, TYPE, FILTER_TYPE, SYNC_ACTIVE, SYNC_ENABLED, "
                  "ID and ACCOUNT_ID as stored. The 4 sample_data images that hold the store gave "

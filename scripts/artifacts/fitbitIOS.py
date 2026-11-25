@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-10-07",
         "requirements": "none",
-        "category": "Fitbit",
+        "category": "Health & Fitness",
         "notes": "One row per recorded point. Each point is joined to its session through the location "
                  "group the record names, so a point linked to a session carries the name and start time "
                  "of that session, and both are blank for a point that is not. The timestamp is stored as "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Fitbit",
+        "category": "Health & Fitness",
         "notes": "One row per logged session. Start Time uses the same eight byte big endian double "
                  "of seconds since the 2001 Apple epoch as the location points. Last Modified is "
                  "read as a plain number of seconds since the same epoch; these notes record no "
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Fitbit",
+        "category": "Health & Fitness",
         "notes": "One row per sample. Unlike the location and session times in the same database, "
                  "these are stored as ISO text and are reported verbatim in a text column, "
                  "without assigning UTC to a reading with no zone. Resolution is the "
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-20",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Fitbit",
+        "category": "Health & Fitness",
         "notes": "One row per row of ZFBACTIVITYSTAT2. Day is read as the eight byte form the "
                  "session start times use, or as a plain number of seconds since the 2001 Apple "
                  "epoch when it is not in that form, and is shown as UTC; whether the stored value "

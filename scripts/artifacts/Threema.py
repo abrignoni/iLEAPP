@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-01-03',
         'last_update_date': '2026-10-09',
         'requirements': 'none',
-        'category': 'Threema',
+        'category': 'Messaging',
         'notes': "The text 'local user' in Sender Name (ZISOWN 1) and in Receiver (ZISOWN 0) is a label "
                  "this parser supplies; it is not a name stored in the database, and the stored ZISOWN "
                  "value is reported in From Me. The media type given to an attachment is set by this "
@@ -43,7 +43,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-01-03',
         'last_update_date': '2026-10-09',
         'requirements': 'none',
-        'category': 'Threema',
+        'category': 'Messaging',
         'notes': '',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ThreemaData.sqlite*',

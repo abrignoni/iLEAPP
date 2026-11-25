@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-03-27",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Hikvision",
+        "category": "Smart Home & Connected Devices",
         "notes": "nEnable (as stored) is the ChannelInfo.nEnable value reported as stored. What "
                  "each value means is not established here; earlier versions of this artifact "
                  "labelled 0 as Disabled and 1 as Enabled without a stated source and left any "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-03-27",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Hikvision",
+        "category": "Smart Home & Connected Devices",
         "notes": "",
         "paths": ('*/Documents/database.hik*',),
         "output_types": "standard",
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-03-27",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Hikvision",
+        "category": "Smart Home & Connected Devices",
         "notes": "",
         "paths": ('*/Documents/DCLOG/YSDCLogItem.sqlite*',),
         "output_types": "standard",
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-03-27",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Hikvision",
+        "category": "Smart Home & Connected Devices",
         "notes": "A file is reported when its path has the shape Documents/YYYY/MM/DD/<file>, with "
                  "digits in the three folder names. No other test ties the file to the Hikvision "
                  "app.",

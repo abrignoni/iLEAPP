@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Photos",
+        "category": "Photos & Media",
         "notes": "A row is one file in PhotoData/Caches/PhotosPickerLogs. In the 54 files read, each file is a "
                  "property list named with the bundle identifier it holds, so there is one file and one row per "
                  "app, and a file holds one "

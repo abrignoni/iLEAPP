@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-22",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Kik",
+        "category": "Messaging",
         "notes": "The join table is named Z_<n>MEMBERS, where <n> is the Core Data entity number "
                  "of the store's model, and the name is read from the store. It was Z_9MEMBERS on "
                  "the seven tested images, and the table held no rows on any of them, so the "

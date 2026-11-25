@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-10-22',
         'last_update_date': '2026-10-23',
         'requirements': 'none',
-        'category': 'Mixpanel',
+        'category': 'App Data Stores',
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'activity',
         'paths': ('*/Library/*_MPDB.sqlite*',

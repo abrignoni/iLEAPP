@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Signal",
+        "category": "Messaging",
         "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain "
                  "is captured separately from the file system extraction, so supply it with "
                  "--keychain or the keychain field in the GUI. Read, Voice Message, View Once and "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Signal",
+        "category": "Messaging",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
                  "GUI. Unregistered is Yes where unregisteredAtTimestamp holds a value other "
                  "than 0, No where it is NULL or 0, and blank where the column is absent from "
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Signal",
+        "category": "Messaging",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
                  "GUI. Type is Group where the thread's groupModel column holds a value, One "
                  "to one where that column is present and empty, and blank where this database "

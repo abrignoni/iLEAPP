@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-24",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Claude",
+        "category": "AI Assistants",
         "notes": "Timestamps are stored as ISO 8601 text ending in Z and are reported as UTC; a "
                  "time in another form is left blank and written to the run log. "
                  "Each bootstrap JSON the paths match that holds an account object gives one row, "
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Claude",
+        "category": "AI Assistants",
         "notes": "The Is Temporary column is the conversations.isTemporary value: 0 is shown as False "
                  "and 1 as True. What the app sets it for is not established here. On hc_ios26 the one"
                  " row with isTemporary set to 1 carried no conversation name, so that column is blank"
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-21",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Claude",
+        "category": "AI Assistants",
         "notes": "The Message column joins the text of the blocks of type 'text' in the "
                  "message's content array; blocks of any other type are not reported. "
                  "On the test data the response was stored as a message whose sender is "
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Claude",
+        "category": "AI Assistants",
         "notes": "One row is reported per project document, with the document's file name; a project "
                  "with no row in projectDocuments is listed once with that column blank. On hc_ios26 "
                  "the one project holds one document; hc_ios18_7 holds no project. The blank-document "

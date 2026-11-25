@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "One row per record in the Devices.data list. The list held 3 records on abe_ios16, 1 on "
                  "hc_ios17_2 and hexordia_ios1651, 3 on hickman_ios13 and hickman_ios14, 23 on hickman_ios15 "
                  "and 28 on iphone11_ios17, and it is not limited to the examined device: thisDevice was True "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "One row per Owner.data file; 1 row on each image whose file was read. The hickman_ios13 (iOS"
                  " 13.3.1) file holds neither a phoneNumber nor an identifier key, so Phone Number and "
                  "Identifier are empty there. The hickman_ios14 (iOS 14.3) file holds no phoneNumber key, so "
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "One row per record in the FamilyMembers.data list, with the same keys as "
                  "Owner.data. Of the images run, the file was found only on hickman_ios15 and "
                  "iphone11_ios17, with 5 records each; Phone Number held no value, isHSA held True and "
@@ -131,7 +131,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "One row per record in the safeLocations list of SafeLocations.data. Mapped To IDs lists the "
                  "ids that safeLocationsMapping pairs with the record's identifier, and Mapped To the name of "
                  "the Devices.data record whose baUUID, or the Items.data record whose identifier, equals that"
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "One row per record in the following, followers, pendingFollowers, futureFollowing and "
                  "futureFollowers lists of FriendCacheData.data; List names the list. Only following and "
                  "followers held records on the images run (2 rows on abe_ios16, hickman_ios15, "
@@ -237,7 +237,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "One row per record in the labelledLocations list of FriendCacheData.data; 1 row on abe_ios16"
                  " and none on the other images run. User ID held no value on that row. A 13-digit updateTs "
                  "value is read as Unix milliseconds and a 10-digit one as Unix seconds "
@@ -275,7 +275,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "One row per entry in value.syncDevices of com.apple.siri.findmy.syncdevicedata.json. "
                  "Eviction Time is the file's single evictionTime value, so it repeats on every row of a file;"
                  " it is a file-level value, not a per-device time, and is placed last for that reason. "

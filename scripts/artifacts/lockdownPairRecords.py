@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": ("One row per host ID found in root/Library/Lockdown/pair_records, pair_records.movedaside or "
                   "escrow_records, each a plist named by that host ID. Pair Record Folder names the folder that"
                   " held the pair record (blank when only an escrow record exists; 4 hosts on 4 tested images) "

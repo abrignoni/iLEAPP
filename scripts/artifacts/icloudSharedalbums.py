@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "iCloud Shared Albums - Owner Info",
         "description": "iCloud shared album owner info (Info.plist)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "iCloud Shared Albums", "notes": "",
+        "category": "Photos & Media", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "name": "iCloud Shared Albums - Album Data",
         "description": "iCloud shared album DCIM counters (DCIM_CLOUD.plist)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "iCloud Shared Albums", "notes": "",
+        "category": "Photos & Media", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "photo",
         "sample_data": {
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "name": "iCloud Shared Albums - Person Info",
         "description": "Person records held in cloudSharedPersonInfos.plist of the iCloud shared album data (first email address display and stored email fields)",
         "author": "@abrignoni, @AlexisBrignoni, Codex", "creation_date": "2026-06-23", "last_update_date": "2026-10-06", "requirements": "none",
-        "category": "iCloud Shared Albums", "notes": "Email keeps the existing first-entry display: a truthy emails field supplies its "
+        "category": "Photos & Media", "notes": "Email keeps the existing first-entry display: a truthy emails field supplies its "
                  "first indexed value; otherwise the scalar email field is used. Emails Field "
                  "and Email Field contain compact typed JSON of the corresponding plistlib-decoded "
                  "fields, including key presence, value types, array order and repeated values. "
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "name": "iCloud Shared Albums - Emails",
         "description": "iCloud shared album emails (cloudSharedEmails.plist)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "iCloud Shared Albums", "notes": "",
+        "category": "Photos & Media", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "mail",
         "sample_data": {

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-07",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Firebase Analytics",
+        "category": "App Data Stores",
         "notes": (
             "Reads the events and user_attributes tables of Library/Application Support/Google/Measurement/"
             "google-app-measurement.sql and selected keys of com.google.gmp.measurement.plist in the same "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-02",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "IFTTT",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from class_UserRecord in the app's Realm store (Documents/default.realm) "
                  "with the vendored realm_parser. On the tested extraction the store is Realm "
                  "file format 9, which the "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-02",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "IFTTT",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from class_LiveConnectionRecord in the app's Realm store, which is where "
                  "the connected applets are held on the tested extraction; class_AppletRecord "
                  "held no rows there. The service name is "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-02",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "IFTTT",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from class_LiveServiceRecord in the app's Realm store. Connected is the "
                  "store's own isConnected value; on the tested extraction it was true on every "
                  "row, so the column is uniform there, and what a false value marks was not "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-02",
         "last_update_date": "2026-10-06",
         "requirements": "none",
-        "category": "IFTTT",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the app-detector.my-apps key of "
                  "Library/Preferences/com.ifttt.ifttt.plist. Each entry is an IFTTT service "
                  "identifier and the numeric identifier the service carries, reported as "

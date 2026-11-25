@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-23",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Network",
+        "category": "Network & Connectivity",
         "notes": (
             "One row per ZNETWORK record in each WiFiNetworkStoreModel.sqlite the declared paths "
             "match, read with its write-ahead log when one is present; a database the query "
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-12",
         "last_update_date": "2026-09-12",
         "requirements": "none",
-        "category": "Network",
+        "category": "Network & Connectivity",
         "notes": (
             "One row per ZGEOTAG record in each WiFiNetworkStoreModel.sqlite the declared paths "
             "match, read with its write-ahead log when one is present; a database the query "

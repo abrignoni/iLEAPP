@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-31',
         'last_update_date': '2026-08-20',
         'requirements': 'none',
-        'category': 'App Permissions',
+        'category': 'Installed Apps',
         'notes': ('Biome-format SEGB v2 streams stored under PrivacyAccounting/Biome rather than '
                   'the main Biome folder; location reported and sample data provided by Mattia '
                   'Epifani. privacyaccountingd contains the log string "Logging disabled, '
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-31',
         'last_update_date': '2026-08-20',
         'requirements': 'none',
-        'category': 'App Permissions',
+        'category': 'Installed Apps',
         'notes': ("privacyaccountingd holds a com.apple.PrivacyAccounting.prune activity string "
                   "and is the process named in every sample entry; whether tombstone entries are "
                   "written by that pruning activity is not established here. Referenced segment "

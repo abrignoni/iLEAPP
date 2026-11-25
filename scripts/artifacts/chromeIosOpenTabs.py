@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Chromium Sessions",
+        "category": "Browsers",
         "notes": (
             'Two storage formats are read. (1) SessionStorage/<session>/session_metadata.pb, the tab list '
             '(WebStateListStorage), and <tab>/data.pb for each tab (WebStateStorage), file names from '
@@ -132,7 +132,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Chromium Sessions",
+        "category": "Browsers",
         "notes": (
             'Two storage formats are read. (1) SessionStorage/<session>/session_metadata.pb, the tab list '
             '(WebStateListStorage), and <tab>/data.pb for each tab (WebStateStorage), file names from '

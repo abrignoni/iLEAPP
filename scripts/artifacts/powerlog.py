@@ -919,7 +919,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Power Telemetry",
+        "category": "PowerLog",
         "notes": (
             "CycleCount, MaxCapacityPercent, NominalChargeCapacity, and "
             "ChargingVoltage are reported as stored under the database field names; no units "
@@ -968,7 +968,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Power Telemetry",
+        "category": "PowerLog",
         "notes": (
             "ChargeLimit, ChargingState, CheckPoint, DecisionMaker, InflowState, "
             "and ModeOfOperation are integer codes reported as stored; their "
@@ -1017,7 +1017,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Power Telemetry",
+        "category": "PowerLog",
         "notes": (
             "DesignCapacity, ChemID, AlgoChemID, EEEE, YWW, and "
             "GasGaugeFirmwareVersion are reported as stored; no interpretation "
@@ -1068,7 +1068,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Power Telemetry",
+        "category": "PowerLog",
         "notes": (
             "TrustedCycleCount, TrustedMaximumCapacity, and TrustedLifeTimeMaxWRdc "
             "are reported as stored. TrustedDateOfFirstUse decodes as a standard "
@@ -1122,7 +1122,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Power Telemetry",
+        "category": "PowerLog",
         "notes": (
             "StartDate and EndDate hold standard Unix timestamps as stored; the "
             "row timestamp runs on the internal clock and is offset-corrected "
@@ -1171,7 +1171,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-03",
         "last_update_date": "2026-09-18",
         "requirements": "none",
-        "category": "Power Telemetry",
+        "category": "PowerLog",
         "notes": (
             "BundleID, Name, ServiceName, GroupName, and LaunchReason are "
             "reported as recorded. Observed only in iOS 26 test data; iOS 18 "

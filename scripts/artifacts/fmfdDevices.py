@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "date": "2026-03-31",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Find My",
+        "category": "Locations & Maps",
         "notes": "The file is com.apple.icloud.fmfd.notbackedup.plist in Library/Preferences. The device list is "
                  "stored under kFMFDDevicesListKey inside the keyed archive held in kFMFDStoredDataKey. "
                  "idsDeviceId (as stored) and deviceId (as stored) identify the entry keys without establishing "

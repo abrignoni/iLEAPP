@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Odnoklassniki",
+        "category": "Social Media",
         "notes": (
             "Source is the app's YapDatabase (Library/Application "
             "Support/ru.ok.tt/database_N.db/app.db), a SQLite database whose 'database2' "
@@ -110,7 +110,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Odnoklassniki",
+        "category": "Social Media",
         "notes": (
             "One row per object in the chats collection of the app's YapDatabase (database2 "
             "table, MessagePack blobs), read from the first app.db the pattern matches. Last "
@@ -139,7 +139,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
-        "category": "Odnoklassniki",
+        "category": "Social Media",
         "notes": (
             "One row per user id found in the contacts collection of the app's "
             "YapDatabase (database2 table, MessagePack blobs) in the first app.db the "

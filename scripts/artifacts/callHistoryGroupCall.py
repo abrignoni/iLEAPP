@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-02-05",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Call History",
+        "category": "Calls & Contacts",
         "notes": "Read only when the store has a Z_2REMOTEPARTICIPANTHANDLES table with a "
                  "Z_3REMOTEPARTICIPANTHANDLES or Z_4REMOTEPARTICIPANTHANDLES column; a store that "
                  "numbers that table differently gives no rows. Calls with no participant row are "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-02-05",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Call History",
+        "category": "Calls & Contacts",
         "notes": "Only those three bundle ids are read, so calls made through other apps are not "
                  "listed. Interactions with no recipient row are grouped into one row. Call "
                  "Direction shows Outgoing for a stored 1 and Incoming for 0, and Call Description "

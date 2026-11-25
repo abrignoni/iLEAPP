@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Contacts",
+        "category": "Calls & Contacts",
         "notes": ('Read from the donations array in Library/Contacts/Donations/donations.plist, one row per '
                   'donation. Value Type is the key that held the value and Value is that value. The value keys on '
                   'the tested images were email-address, phone-number, postal-address and name-components; a '

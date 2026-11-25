@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2020-04-30',
         "last_update_date": "2025-10-03",
         'requirements': 'none',
-        'category': 'Accounts',
+        'category': 'Accounts & Credentials',
         'notes': '',
         'paths': ('*/mobile/Library/Accounts/Accounts3.sqlite*',),
         'output_types': 'standard',

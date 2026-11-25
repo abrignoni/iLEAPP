@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-11-22",
         "last_update_date": "2026-09-06",
         "requirements": "none",
-        "category": "Line",
+        "category": "Messaging",
         "notes": "Direction is inferred: rows without a sender reference (ZSENDER null) are "
                  "reported as Outgoing and every other row as Incoming. The store holds no user "
                  "row for the signed in account itself on any tested image, so a message that "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Line",
+        "category": "Messaging",
         "notes": ("One row per message of content type 6 (ZMESSAGE.ZCONTENTTYPE) in each Line.sqlite, the "
                   "content type that carried every call record on the four tested images. Call Ended is that "
                   "message's ZTIMESTAMP read as Unix milliseconds; Duration is DURATION from the keyed archive "

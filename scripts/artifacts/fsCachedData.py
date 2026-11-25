@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-02-02",
         "last_update_date": "2026-11-23",
         "requirements": "none",
-        "category": "Cache Data",
+        "category": "App Data Stores",
         "notes": "Source location in the extraction is provided for each item. File Modified is "
                  "the modification time the tool reads from the input for the file as a UTC time,"
                  " to the whole second, such as from a tar header or a zip entry's NTFS or "

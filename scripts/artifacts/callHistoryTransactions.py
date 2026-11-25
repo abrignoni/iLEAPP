@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-11",
         "last_update_date": "2026-11-03",
         "requirements": "none",
-        "category": "Call History",
+        "category": "Calls & Contacts",
         "notes": "The pattern without var/ finds the file where the extraction holds the Data "
                  "volume under a folder of its own: abe_ios16, felix23_ios16 and hickman_ios15 "
                  "store it as filesystem2/mobile/, and the var/ pattern matched nothing there. It "

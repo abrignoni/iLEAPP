@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-08",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "TikTok",
+        "category": "Social Media",
         "notes": (
             "This artifact reads TIMMessageKVORM joined to TIMMessageORM where a database holds "
             "both of those tables, and TIMMessageNewPropertyORM only where it does not. Nothing "

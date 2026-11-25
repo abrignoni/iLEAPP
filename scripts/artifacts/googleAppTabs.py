@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Google App",
+        "category": "Browsers",
         "notes": (
             'Reads GMO.SkylinerTabsPersistence/tabs.sqlite3 (table tabs) under Library/Application '
             'Support/Google/Users/<folder>. On the six tested images holding it, the metadata plist of the '
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Google App",
+        "category": "Browsers",
         "notes": (
             "One row per GMOPaneItem in each tab's archived_backward_stack (Stack Backward), then its "
             "archived_forward_stack (Forward), read with the core's plist helper from tabs.sqlite3. Position "
@@ -112,7 +112,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Google App",
+        "category": "Browsers",
         "notes": (
             'Reads GMO.PaneSerializationPersistence/pane_archives.sqlite3 (table record: paneIdentifier, '
             "archivedPaneData), an NSKeyedArchiver archive of the pane's controller, read with the core's "

@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-02",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Identifiers",
+        "category": "Device Information",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.AppStore.plist',),
         "output_types": "standard",

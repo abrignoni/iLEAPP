@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-16",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -143,7 +143,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -173,7 +173,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -198,7 +198,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -226,7 +226,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -250,7 +250,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-18",
         "last_update_date": "2026-05-25",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -276,7 +276,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-18",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -303,7 +303,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-18",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -331,7 +331,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-20",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -359,7 +359,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-04-20",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -385,7 +385,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-10",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
@@ -409,7 +409,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-05-16",
         "last_update_date": "2026-06-01",
         "requirements": "none",
-        "category": "Foursquare Swarm",
+        "category": "Social Media",
         "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
                  "Deeper: New Artifacts Unearthed', "
                  "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "

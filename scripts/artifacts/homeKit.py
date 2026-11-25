@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "HomeKit",
+        "category": "Smart Home & Connected Devices",
         "notes": "Reads the record table of mobile/Library/homed/datastore.sqlite, with its -wal when the "
                  "extraction holds one (hc_ios26 and otto_ios17 held none, so the database file alone was read "
                  "there). Each record row's data blob (encoding 1 on every tested row) is an NSKeyedArchiver "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "HomeKit",
+        "category": "Smart Home & Connected Devices",
         "notes": "Reads the record table of mobile/Library/homed/datastore.sqlite, with its -wal when the "
                  "extraction holds one (hc_ios26 and otto_ios17 held none, so the database file alone was read "
                  "there). Each record row's data blob (encoding 1 on every tested row) is an NSKeyedArchiver "
@@ -166,7 +166,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "HomeKit",
+        "category": "Smart Home & Connected Devices",
         "notes": "Reads the record table of mobile/Library/homed/datastore.sqlite, with its -wal when the "
                  "extraction holds one (hc_ios26 and otto_ios17 held none, so the database file alone was read "
                  "there). Each record row's data blob (encoding 1 on every tested row) is an NSKeyedArchiver "

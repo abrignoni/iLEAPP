@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-21",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Bluetooth",
+        "category": "Smart Home & Connected Devices",
         "notes": "",
         "paths": ('*/com.apple.MobileBluetooth.devices.plist'),
         "output_types": "standard",

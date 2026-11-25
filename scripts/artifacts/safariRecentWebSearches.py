@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Safari Browser",
+        "category": "Browsers",
         "notes": "Search dates are stored as UTC in the plist.",
         "paths": ('**/Library/Preferences/com.apple.mobilesafari.plist',),
         "output_types": "standard",

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
-        "category": "WhatsApp",
+        "category": "Messaging",
         "notes": "Read from the whatsapp-<date>-<time>-<process>-<n>[-launch].log files under the shared "
                  "app group's Logs folder (WhatsApp_2, MainApp_2, ServiceExtension_2, ShareExtension_2 and Intents_2 on the "
                  "tested images) and, on the iOS 12, 13 and 14 images, under the app's own Library/Logs, including the "

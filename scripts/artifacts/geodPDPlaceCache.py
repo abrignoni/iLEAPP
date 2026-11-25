@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "lastaccesstime and expiretime are read as Mac absolute time (Cocoa, seconds "
                  "since 2001-01-01 UTC); the basis for that epoch is not given here. PD Place is "
                  "the set of printable ASCII strings of four characters or more found in the "

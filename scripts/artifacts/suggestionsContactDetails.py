@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Suggestions",
+        "category": "Device Activity",
         "notes": "Reads the contactDetails table of mobile/Library/Suggestions/entities.db, with its "
                  "-wal, one row per table row, joined to the entity table by entityId and to "
                  "entityReferences for the bundle IDs that entity's references name; the contactDetails "

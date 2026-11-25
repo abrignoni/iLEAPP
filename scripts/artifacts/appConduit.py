@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'creation_date': '2020-08-05',
         "last_update_date": "2025-10-08",
         'requirements': 'none',
-        'category': 'App Conduit',
+        'category': 'Installed Apps',
         'notes': 'The log lines record no time zone. The Timestamp column shows the logged time '
                  'labelled UTC; whether the log is written in UTC or device local time is not '
                  'established here. A Disconnected row takes its device type, model, OS build and '

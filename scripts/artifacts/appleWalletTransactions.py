@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'creation_date': '2021-02-05',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
-        'category': 'Apple Wallet',
+        'category': 'Finance & Payments',
         'notes': "The amount divisor of 10000 is not vendor-documented; the comparison it was "
                  "derived from is not recorded here, so check a reported amount against a known "
                  "transaction before relying on it.",

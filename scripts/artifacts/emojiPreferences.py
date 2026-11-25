@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "None of the 23 sample_data files holds a timestamp value. EMFRecentsKey is a "
                  "list of emoji strings and "
                  "Recents Rank is the 1-based position in it, as stored. The list is not ordered "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "The recents list and usage history are reported by Emoji Recents and Usage and "
                  "left out here. Nested dictionaries are flattened as parent.key and lists as "
                  "parent[index], so each emoji under EMFSkinToneBaseKeyPreferences is one row. "

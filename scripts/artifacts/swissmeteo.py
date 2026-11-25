@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-11",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Meteo",
+        "category": "Locations & Maps",
         "notes": "What the app records as an interaction is not established. Interaction "
                  "Timestamp is the timestamp column read as Unix milliseconds. Postal Code (plz) "
                  "is the row's plz value as stored. Coordinates (lat/lon) holds the row's own lat "
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-03-11",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Meteo",
+        "category": "Locations & Maps",
         "notes": "What the app records in this table, and what position the coordinates describe, "
                  "is not established. app_open.timestamp is the timestamp column read as Unix "
                  "milliseconds. No run against a registered image is recorded for this artifact.",

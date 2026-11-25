@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Browser",
+        "category": "Browsers",
         "notes": "The cache record layout (timestamp, hash, response-code positions) was "
                  "established through reverse engineering and is unverified against WebKit "
                  "source. Timestamp is an 8-byte double read as Unix seconds in UTC and is blank "

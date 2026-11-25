@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the app's NSURLCache at Library/Caches/com.august.yale.app/nscache, which "
                  "holds the JSON the August service returned. On the tested sample each request "
                  "carried a different clientSerial query value, so the same endpoint appeared once "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the users object inside each cached lock body, one row per lock and "
                  "user. User Type is the role string the service returned and is reported as "
                  "stored. Identifiers is the joined list of contact identifiers the service "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the OfflineKeys object inside each cached lock body. That object groups "
                  "keys under created, loaded, deleted and loadedhk, and the group name is reported in "
                  "its own column as stored; on the tested sample keys appeared in the created, deleted "
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached users/houses/mine and houses responses. User Count is "
                  "the number of entries in the users object where the service returned one, and "
                  "is blank where the response carried no users object rather than zero. The "
@@ -131,7 +131,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached users/me response. The authentication tokens the same response "
                  "carries are deliberately not reported. Where several cached responses describe the "
                  "account, the newest is used and the observation count and cache window are given. "
@@ -154,7 +154,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached subscriptions response, one row per subscription identifier "
                  "from the newest body that carried it. Plan Code, Status and Type are reported as "
                  "stored. Timestamps are ISO 8601 carrying an explicit UTC offset. Created At and "
@@ -178,7 +178,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached per-lock battery responses and from the batteryInfo "
                  "object inside the cached lock bodies, one row per lock from the newest body. "
                  "Last Change Date and Projected Death Date are the lastChangeDate and "
@@ -204,7 +204,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "August",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from the cached apps/mine response. A row records that the service "
                  "listed the named integration for this account. The partners catalogue the app "
                  "also caches is deliberately not reported here; on the tested sample it listed "

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-17",
         "last_update_date": "2026-11-06",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations & Maps",
         "notes": "Only the first MapTiles.sqlitedb matched is read. Timestamp is the tile's "
                  "access_times.timestamp, or the image table's retrieved value where the database "
                  "has no data table, read as Unix seconds; the basis for that unit is not given "

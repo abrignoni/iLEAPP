@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-15",
         "requirements": "none",
-        "category": "OrNET Browser",
+        "category": "Browsers",
         "notes": "The open_tabs and privateTabs preference values are NSKeyedArchiver plists holding "
                  "NSURL objects; each is decoded to its URL. Private tab URLs come from the "
                  "privateTabs value and are labelled as such. The app with bundle id "
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-29",
         "requirements": "none",
-        "category": "OrNET Browser",
+        "category": "Browsers",
         "notes": "Values are read from the app preferences plist and shown under labels this "
                  "module assigns to the keys; booleans are shown as Yes or No. The labels are "
                  "readings of the key names and no source for what each setting does is cited. "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-15",
         "requirements": "none",
-        "category": "OrNET Browser",
+        "category": "Browsers",
         "notes": "Read from the class_BookmarkItem table of the first Documents/default.realm "
                  "found that carries a BookmarkItem, FavouriteModel or BrowsingHistoryItem "
                  "class, using the vendored realm_parser. The container's bundle id is not "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-15",
         "requirements": "none",
-        "category": "OrNET Browser",
+        "category": "Browsers",
         "notes": "Read from the class_FavouriteModel table of the app's Realm store. Whether a "
                  "row was added by a person or placed by the app is not established, so a row "
                  "does not on its own show the user added it. The app with bundle id ch.b-eng.tor "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-15",
         "requirements": "none",
-        "category": "OrNET Browser",
+        "category": "Browsers",
         "notes": "Read from the class_BrowsingHistoryItem table of the app's Realm store. The "
                  "date and time are the display strings the app stored and are reported as "
                  "stored; their zone is not established. The column headers read 'Date (device "

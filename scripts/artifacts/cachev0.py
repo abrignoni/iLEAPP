@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-02-06",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Image cacheV0",
+        "category": "App Data Stores",
         "notes": "",
         "paths": ('*/cacheV0.db*',),
         "output_types": "standard",

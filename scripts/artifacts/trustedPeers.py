@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-12-13",
         "last_update_date": "2026-08-10",
         "requirements": "none",
-        "category": "Trusted Peers",
+        "category": "Accounts & Credentials",
         "notes": "",
         "paths": ('**/*TrustedPeersHelper.db*',),
         "output_types": "standard",

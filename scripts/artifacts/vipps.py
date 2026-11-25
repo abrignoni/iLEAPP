@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         'creation_date': '2022-06-22',
         'last_update_date': '2026-10-09',
         'requirements': 'none',
-        'category': 'Vipps',
+        'category': 'Finance & Payments',
         'notes': 'The telephone value is extracted from the feed model key using an '
                  'observed key format. Name lists the distinct ZNAME values of every ZCONTACTMODEL '
                  'row whose phone column contains that value as a substring, separated by a '

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-09-01",
         "requirements": "none",
-        "category": "Realm",
+        "category": "App Data Stores",
         "notes": "This artifact reports nothing about the contents of any database. It exists so "
                  "that a store the bundled parser cannot read is visible as unread rather than "
                  "indistinguishable from an empty one. The parser reads both the Cluster table "

@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2020-12-21",
         "last_update_date": "2026-07-31",
         "requirements": "none",
-        "category": "Audio",
+        "category": "Photos & Media",
         "notes": "Rows are read from the ZCLOUDRECORDING table of CloudRecordings.db where that "
                  "file is present, otherwise from the ZRECORDING table of Recordings.db. Date and "
                  "time is ZDATE read as Cocoa time. Local Path Status says whether the row stores "

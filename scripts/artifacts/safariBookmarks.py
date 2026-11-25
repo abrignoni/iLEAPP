@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-21",
         "requirements": "none",
-        "category": "Safari Browser",
+        "category": "Browsers",
         "notes": "",
         "paths": ('**/Safari/Bookmarks.db*',),
         "output_types": ["html","lava","tsv"],

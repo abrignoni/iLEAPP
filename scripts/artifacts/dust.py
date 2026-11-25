@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "pycryptodome",
-        "category": "Dust",
+        "category": "Messaging",
         "notes": ("Read from dust/messages-<store id>.sqlite3 in the group.com.mentionmobile.cyberdust "
                   "container, table messages (conversation_id, message_id, sent_at, sealed). App Group comes from "
                   "the container metadata or a named iTunes backup domain. App Group held one value on every tested row. An unidentified container is labeled Unverified, and a known unrelated group is skipped. "
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Dust",
+        "category": "Messaging",
         "notes": ("One row per object of the Realm class Account in Documents/default.realm of the Dust app "
                   "container, read with iLEAPP's Realm parser (live objects only). Column names are the stored "
                   "property names and values are shown as stored; no meaning is assigned to them. On one tested image firstName, lastName, email, bio and website had no value. Across "
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Dust",
+        "category": "Messaging",
         "notes": ("One row per object of the Realm class DSTContact in Documents/default.realm of the Dust app "
                   "container, read with iLEAPP's Realm parser (live objects only). Column names are the stored "
                   "property names and values are shown as stored; createdDate and updatedDate are stored as "
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-19",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Dust",
+        "category": "Messaging",
         "notes": ("One row per object of the Realm class ProfilePictureMetadata in Documents/default.realm of the "
                   "Dust app container, read with iLEAPP's Realm parser (live objects only). Column names are the "
                   "stored property names and values are shown as stored: updated and syncTimeStamp are stored "

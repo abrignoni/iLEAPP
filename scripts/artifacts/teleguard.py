@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "TeleGuard chat messages, with the shared media file where the extraction "
                        "holds it",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "Timestamps are UTC (epoch milliseconds). Direction is derived by comparing the "
                  "row's sender with the local account's serverId from the service table; it is "
                  "blank when either is missing. Every teleguard_database.db matched is read, "
@@ -43,7 +43,7 @@ __artifacts_v2__ = {
         "name": "Teleguard Posts",
         "description": "TeleGuard channel posts",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Teleguard", "notes": "createDate is read as epoch milliseconds, as on the "
+        "category": "Messaging", "notes": "createDate is read as epoch milliseconds, as on the "
                                           "messages table. The posts table held no rows on the "
                                           "tested extraction, so this artifact has not been run "
                                           "against data.",
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "name": "Teleguard Contacts",
         "description": "TeleGuard contacts (with avatar thumbnails)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "Timestamps are UTC (epoch milliseconds). Personal ID is the personalId column, "
                  "reported as stored; it is a separate column from Server ID. The app's own "
                  "binary labels it 'Personal TeleGuard ID', carries a 'Change personal ID' action "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "description": "Rows of the channels table of the TeleGuard database, with "
                        "the table's own column names as headers.",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "Headers are the column names the channels table itself declares, in table "
                  "order, and values are reported as stored. No meaning is assigned to a "
                  "column here. Each teleguard_database.db matched is read. The table held no "
@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         "description": "TeleGuard audio and video call events",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-21", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "Call events are stored as rows of the messages table with type 'CALL', not in a "
                  "separate call log. Each row carries a JSON metadata object with the keys "
                  "isSuccessfull, subtext, membersText and callType; all call rows in the tested "
@@ -122,7 +122,7 @@ __artifacts_v2__ = {
         "description": "TeleGuard invitation and group membership events",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-21", "last_update_date": "2026-08-21", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "This artifact reports the rows of the messages table with type 'SERVICE'. On "
                  "the tested extraction those five rows were membership and invitation events. "
                  "The event text is the app's own localised display string and is "
@@ -140,7 +140,7 @@ __artifacts_v2__ = {
         "description": "TeleGuard local account identity",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-21", "last_update_date": "2026-08-21", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "The local account is stored as the 'user' row of the service table, whose data "
                  "column is JSON. Server ID is the account identifier that appears in the sender, "
                  "receiver and chatId columns of the messages table. The module reads publicKey "
@@ -167,7 +167,7 @@ __artifacts_v2__ = {
                        "recipient's alias where the contacts table holds it",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-21", "last_update_date": "2026-08-21", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "Drafts live in a second database, teleguard_temp.db, in the same directory as "
                  "teleguard_database.db. The draft table is keyed on the recipient's serverId, which "
                  "is resolved to a contact alias from the contacts table of the main database in the "
@@ -189,7 +189,7 @@ __artifacts_v2__ = {
         "description": "TeleGuard notification and cache settings",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-21", "last_update_date": "2026-10-09", "requirements": "none",
-        "category": "Teleguard",
+        "category": "Messaging",
         "notes": "Hide Push Content, Hide Push Author, Channel Notifications Enabled and Unread Count "
                  "are read from the app group's own preferences plist, "
                  "group.ch.swisscows.messenger.teleguardapp.plist. The two hide settings are "

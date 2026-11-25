@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-01",
         "last_update_date": '2026-10-09',
         "requirements": "ccl_bplist",
-        "category": "LinkedIn",
+        "category": "Social Media",
         "notes": 'Row retention tests presence of the two top-level keys, not truthiness or presence of every nested field. A present empty, null or partial profile value retains the existing projection and can still produce blank cells. A decoded root that is not a dictionary produces no row. A row does not establish an account, authentication or ownership. Original contribution: Marco Neumann (kalinko@be-binary.de).',
         "paths": ('*/Library/Preferences/com.linkedin.LinkedIn.plist'),
         "output_types": "html",
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-01",
         "last_update_date": "2026-06-15",
         "requirements": "none",
-        "category": "LinkedIn",
+        "category": "Social Media",
         "notes": "",
         "paths": ('*/Documents/msg_database.sqlite*'),
         "output_types": "standard",
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-10-01",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "LinkedIn",
+        "category": "Social Media",
         "notes": "Messages with their conversation record where one exists. Sent is 1 when the "
                  "sender's distance value in the message record is SELF and 0 otherwise; no other "
                  "field was used to confirm direction. A message whose conversationUrn has no row "

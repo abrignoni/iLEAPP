@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Google Home",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZSTRUCTURE in the home graph store, whose file name carries a prefix "
                  "before _HomeGraphModel. What the prefix identifies was not established; every "
                  "matching file that carries a ZDEVICE table is read. Address is taken from the "
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Google Home",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZDEVICE, with the device type resolved through ZDEVICETYPE and the "
                  "assigned room through the Z_3SPACES join table to ZSPACE. That table and its "
                  "columns carry entity numbers from the tested store. On a store that names them "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Google Home",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZSPACE, with the room type resolved through ZSPACETYPE to its localized "
                  "name. These are the rooms recorded for this home, which is distinct from the "
                  "ZSPACETYPE table itself: that table lists room types rather than rooms and is "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Google Home",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZAUTOMATION. Starter Description and Action Description are the summary "
                  "strings the app stores for the automation rather than its full definition, and "
                  "no table in the tested store records an automation having run, so a row is "
@@ -122,7 +122,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Google Home",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZGCKDBDEVICEINFO in every Library/Caches/CastFrameworkDB.sqlite the "
                  "extraction holds. The store was found in the containers of several apps and its "
                  "tables carry the GCK prefix; which library writes it was not sourced. Container "
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
-        "category": "Google Home",
+        "category": "Smart Home & Connected Devices",
         "notes": "Read from ZGCKDBNETWORKINFO in every Library/Caches/CastFrameworkDB.sqlite the "
                  "extraction holds. The store was found in the containers of several apps; which "
                  "library writes it was not sourced. Container App names the app whose container "

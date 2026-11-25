@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "Times are Cocoa (Core Data) seconds converted to UTC. ZTYPE, ZSOURCE and "
                  "ZCONFIDENCE are reported as stored; no meaning is assigned to their values. "
                  "Latitude and longitude are reported as stored. Observed on the eight images in "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-14",
         "requirements": "none",
-        "category": "Locations",
+        "category": "Locations & Maps",
         "notes": "Times are Cocoa (Core Data) seconds converted to UTC. The place, map item, "
                  "address and device are left-joined, so a visit with no matching row still "
                  "appears with those columns empty. The Device columns report the ZRTDEVICEMO row "

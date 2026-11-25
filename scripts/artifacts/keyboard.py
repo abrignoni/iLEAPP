@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat',),
         "output_types": ["html","lava","tsv"],
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "Field units and semantics for app_usage_database.plist are not "
                  "documented; values are reported as stored.",
         "paths": ('*/mobile/Library/Keyboard/app_usage_database.plist',),
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-05-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/user_model_database.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "The last-use timestamp is interpreted as Apple Cocoa epoch; "
                  "no populated sample was available to verify.",
         "paths": ("*/mobile/Library/Keyboard/VulgarWordUsage.db*",),
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-13",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "Column meanings are quoted from the CREATE TABLE comments stored in "
                  "the database itself: 'typed' is 'originally typed by the user', "
                  "'correction' is the 'autocorrection performed or rejected', and "
@@ -166,7 +166,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-13",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "User Activity",
+        "category": "Device Activity",
         "notes": "A second table in the same database as the Keyboard Autocorrection "
                  "Rejections artifact, carrying the same columns. Its stored CREATE "
                  "TABLE comments document 'typed' as 'originally typed by the user' "

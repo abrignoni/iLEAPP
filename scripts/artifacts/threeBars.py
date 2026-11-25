@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ("ThreeBars holds Wi-Fi network records with coordinates stored against each "
                   "network. A row does not establish that this device connected to or observed "
                   "the network, and the coordinates are stored against the network rather than "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ("Same caveat as the networks artifact: a row does not establish that this "
                   "device connected to the access point, and how the cache is populated is not "
                   "sourced here. "
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
-        'category': 'Locations',
+        'category': 'Locations & Maps',
         'notes': ("A tile row carries a key and a ZCREATED time. The key, Network Count and "
                   "ETag are reported as stored and the time is read as a Core Data time and "
                   "shown in UTC; what event "

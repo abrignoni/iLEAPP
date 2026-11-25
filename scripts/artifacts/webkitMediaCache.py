@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        'repository entry.',
         'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
         'creation_date': '2026-10-15', 'last_update_date': '2026-10-16',
-        'requirements': 'none', 'category': 'Media Cache',
+        'requirements': 'none', 'category': 'Browsers',
         'notes': 'The repository and block-table strings (diskcacherepository.plist, lastmodtime, '
                  "checkedinlist, checkedoutlist, crab) are in Apple's MediaToolbox framework, and "
                  'WebCore holds the CachedMedia- file name (checked on macOS 27.0.1); no writer code '

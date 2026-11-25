@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": (
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/client',
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": (
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/eyeball',
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": (
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/eyeball',
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": (
             '*/Library/Application Support/PersistentStorage/Store/PaymentFoundation.PaymentStreamModelKey/profiles',
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": ('*/Documents/database.db*',),
         "output_types": "all",
@@ -105,7 +105,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": '2026-10-04',
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "timestamp_ms is place.timestamp_ms reported as raw text, Type is "
                  "payload.personalPayload.labelType, Name is location.addressLine1 and Address is "
                  "location.fullAddress from the place_result JSON. What event timestamp_ms "
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": ('*/Documents/ur_message.db*',),
         "output_types": "all",
@@ -149,7 +149,7 @@ __artifacts_v2__ = {
         "creation_date": "2024-05-30",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Uber",
+        "category": "Travel & Vehicles",
         "notes": "",
         "paths": ('*/Library/Application Support/com.ubercab.UberClient/__METADATA/*',),
         "output_types": "all",

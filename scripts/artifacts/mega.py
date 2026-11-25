@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": "Read from the history table of every karere-*.db file matched; the Source File "
                  "column names the file each row came from. Sender and Direction are resolved "
                  "inside that file only. The app, its app group and its extensions can each hold a karere "
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": "Read from the chats table of every karere-*.db file matched; the Source File "
                  "column names the file each row came from, and the contact lookup uses that "
                  "file's own contacts table. Peer Display Value uses a lookup "
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-07",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "MEGA",
+        "category": "Cloud & Files",
         "notes": "Read from the contacts table of every karere-*.db file matched; the Source "
                  "File column names the file each row came from.",
         "paths": ('*/karere-*.db*',),

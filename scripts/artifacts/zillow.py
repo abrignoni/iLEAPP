@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-18",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Zillow",
+        "category": "Shopping & Marketplaces",
         "notes": "One row per row of ZRECENTSEARCH in the Zillow app's Core Data store, "
                  "Zillow.sqlite, in an app group container; a file of that name is read only when "
                  "it holds that table. The column meanings are not sourced from Zillow "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-06-23",
         "last_update_date": "2026-10-09",
         "requirements": "none",
-        "category": "Safari Browser",
+        "category": "Browsers",
         "notes": (
             "Every Favicons.db the path pattern matches is read, and Source Path names the file "
             "each row came from. The path pattern matches any app container, so a row is not "
