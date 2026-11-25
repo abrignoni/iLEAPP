@@ -322,6 +322,14 @@ class TestNullAbsentColumns(unittest.TestCase):
             'SELECT t.B AS "order", /* FROM */ NULL AS ZMISSING, t.B AS ORDERED FROM T t')
         self.assertIsNone(row['ZMISSING'])
 
+        # WINDOW is not reserved in SQLite, so it can be a name.
+        rewritten, row = self._rewrite_and_fetch(
+            'SELECT t.B AS window, t.ZMISSING FROM T t')
+        self.assertEqual(
+            rewritten, 'SELECT t.B AS window, NULL AS ZMISSING FROM T t')
+        self.assertEqual(row['window'], 'present')
+        self.assertIsNone(row['ZMISSING'])
+
     def test_wide_query_many_select_items(self):
         pairs = 1000
         select_items = []

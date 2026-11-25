@@ -1501,15 +1501,16 @@ def _null_out_column(query, reference):
     depth) it becomes "NULL AS <name>". Inside a function call or other
     parenthesized expression the enclosing alias already names the column and
     a plain NULL is correct. So is any reference past the select list at its
-    depth (in FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT or WINDOW), where
-    SQLite does not allow an alias.
+    depth (in FROM, WHERE, GROUP BY, HAVING, ORDER BY or LIMIT), where SQLite
+    does not allow an alias. WINDOW is left out: SQLite also accepts it as a
+    name, and a window definition is always inside parentheses.
     '''
     name = reference.split('.')[-1].strip('"[]`')
     pattern = re.compile(r'(?<![\w.])' + re.escape(reference) + r'\b'
                          r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
     select_keyword = re.compile(r'SELECT\b', re.IGNORECASE)
     with_keyword = re.compile(r'WITH\b', re.IGNORECASE)
-    clause_keywords = {'SELECT', 'FROM', 'WHERE', 'GROUP', 'HAVING', 'ORDER', 'LIMIT', 'WINDOW'}
+    clause_keywords = {'SELECT', 'FROM', 'WHERE', 'GROUP', 'HAVING', 'ORDER', 'LIMIT'}
     query_len = len(query)
     # Each open "(" is [position, has seen SELECT, last clause keyword at its depth].
     open_parens = []
