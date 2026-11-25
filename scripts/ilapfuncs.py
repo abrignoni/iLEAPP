@@ -1495,18 +1495,100 @@ def _null_out_column(query, reference):
     '''Replace one column reference with NULL, keeping the output column name.
 
     A bare NULL renames the output column, and artifacts read rows by name, so
-    where the reference is a select item in its own right it becomes
-    "NULL AS <name>". Inside an expression the enclosing alias already names the
-    column and a plain NULL is correct.
+    where the reference is a bare select item at depth zero or directly inside
+    a subquery (such as a derived table or CTE body whose innermost enclosing
+    "(" begins with SELECT, or begins with WITH and has seen a SELECT at that
+    depth) it becomes "NULL AS <name>". Inside a function call or other
+    parenthesized expression the enclosing alias already names the column and
+    a plain NULL is correct.
     '''
     name = reference.split('.')[-1].strip('"[]`')
     pattern = re.compile(r'(?<![\w.])' + re.escape(reference) + r'\b'
                          r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
+    select_keyword = re.compile(r'SELECT\b', re.IGNORECASE)
+    with_keyword = re.compile(r'WITH\b', re.IGNORECASE)
+    query_len = len(query)
+    open_parens = []
+    scan_pos = 0
+
+    def in_select_list(end):
+        nonlocal scan_pos
+        i = scan_pos
+        while i < end:
+            ch = query[i]
+            if ch in ("'", '"', '`'):
+                i += 1
+                while i < query_len:
+                    if query[i] == ch:
+                        i += 1
+                        if i < query_len and query[i] == ch:
+                            i += 1
+                            continue
+                        break
+                    i += 1
+            elif ch == '[':
+                i += 1
+                while i < query_len and query[i] != ']':
+                    i += 1
+                if i < query_len:
+                    i += 1
+            elif ch == '-' and i + 1 < query_len and query[i + 1] == '-':
+                i += 2
+                while i < query_len and query[i] != '\n':
+                    i += 1
+            elif ch == '/' and i + 1 < query_len and query[i + 1] == '*':
+                i += 2
+                while i + 1 < query_len and not (query[i] == '*' and query[i + 1] == '/'):
+                    i += 1
+                i = min(query_len, i + 2)
+            elif ch == '(':
+                open_parens.append([i, False])
+                i += 1
+            elif ch == ')':
+                if open_parens:
+                    open_parens.pop()
+                i += 1
+            elif ch.isalnum() or ch == '_':
+                start = i
+                while i < query_len and (query[i].isalnum() or query[i] == '_'):
+                    i += 1
+                if (i <= end and open_parens
+                        and query[start:i].isascii()
+                        and query[start:i].upper() == 'SELECT'):
+                    open_parens[-1][1] = True
+            else:
+                i += 1
+        scan_pos = i
+        if not open_parens:
+            return True
+        open_pos, has_select = open_parens[-1]
+        pos = open_pos + 1
+        while pos < end:
+            if query[pos].isspace():
+                pos += 1
+            elif query[pos] == '-' and pos + 1 < end and query[pos + 1] == '-':
+                pos += 2
+                while pos < end and query[pos] != '\n':
+                    pos += 1
+            elif query[pos] == '/' and pos + 1 < end and query[pos + 1] == '*':
+                pos += 2
+                while pos + 1 < end and not (query[pos] == '*' and query[pos + 1] == '/'):
+                    pos += 1
+                pos = min(end, pos + 2)
+            else:
+                break
+        keyword = select_keyword.match(query, pos)
+        if keyword is not None and keyword.end() <= end:
+            return True
+        keyword = with_keyword.match(query, pos)
+        return keyword is not None and keyword.end() <= end and has_select
 
     def replace(match):
         tail = match.group('tail')
         if tail is None:
             return 'NULL'
+        if not in_select_list(match.start()):
+            return f'NULL{tail}'
         return f'NULL AS {name}{tail}'
 
     return pattern.sub(replace, query)
