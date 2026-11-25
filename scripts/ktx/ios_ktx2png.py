@@ -53,6 +53,18 @@ def _spread_bits(value):
     return result
 
 
+_LZFSE_ERROR = getattr(liblzfse, 'error', ValueError)
+
+
+def _lzfse_decompress(data):
+    '''liblzfse.decompress, raising ValueError instead of liblzfse.error, which is
+    neither an OSError nor a ValueError and so got past the callers' handlers.'''
+    try:
+        return liblzfse.decompress(data)  # pylint: disable=c-extension-no-member
+    except _LZFSE_ERROR as ex:
+        raise ValueError('LZFSE data did not decompress') from ex
+
+
 _MORTON_X = tuple(_spread_bits(v) for v in range(TILE_BLOCKS))
 _MORTON_Y = tuple(_spread_bits(v) << 1 for v in range(TILE_BLOCKS))
 
@@ -172,14 +184,20 @@ class KTX_reader:
 
     def get_uncompressed_texture_data(self, f):
         '''Just read the texture data which is lzfse compressed, uncompress and return it.
-            Exceptions raised are ValueError or liblzfse.error
+            Exceptions raised are ValueError, including for LZFSE data that does not
+            decompress. The ASTC decoder returned a full-size image with no error
+            for short data in the cases tried, so data too short for the image raises
+            ValueError here and does not reach it.
         '''
         if self.glInternalFormat == 0x93B0:
             if self.is_aapl_file:
                 f.seek(self.aapl_data_pos)
                 data = f.read(self.aapl_data_size)
+                if len(data) != self.aapl_data_size:
+                    raise ValueError(f'AAPL texture chunk holds {len(data)} of the '
+                                     f'{self.aapl_data_size} bytes it declares')
                 if self.aapl_is_compressed:
-                    data = liblzfse.decompress(data)
+                    data = _lzfse_decompress(data)
                 return self.untile_astc_4x4(data)
             else:
                 f.seek(0x40)
@@ -189,15 +207,23 @@ class KTX_reader:
                 data = f.read()
                 if compressed:
                     if data[12:15] == b'bvx':
-                        decompressed = liblzfse.decompress(data[12:])
-                        return decompressed
+                        return self._require_whole_image(_lzfse_decompress(data[12:]))
                     else:
                         raise ValueError('Unsupported compression, not lzfse!')
                 else:
-                    return data[4:] # first 4 bytes is size (which is practically rest of file)
+                    # first 4 bytes is size (which is practically rest of file)
+                    return self._require_whole_image(data[4:])
         else:
             raise ValueError('Unsupported Format')
         return b''
+
+    def _require_whole_image(self, data):
+        '''Raise ValueError when data holds fewer ASTC 4x4 blocks than the image needs.'''
+        needed = -(-self.pixelWidth // 4) * -(-self.pixelHeight // 4) * ASTC_BLOCK_BYTES
+        if len(data) < needed:
+            raise ValueError(f'KTX texture holds {len(data)} of the {needed} bytes '
+                             f'a {self.pixelWidth}x{self.pixelHeight} image needs')
+        return data
 
     def untile_astc_4x4(self, data):
         '''Return ASTC 4x4 blocks in the raster order the decoder expects.
@@ -206,10 +232,17 @@ class KTX_reader:
         32x32 blocks, Morton (Z) ordered inside each tile with x in the even bits
         and y in the odd bits, on a surface padded to whole tiles, followed by one
         more block. Linear files hold exactly one block per 4x4 pixels in raster
-        order and are returned unchanged. The block count decides; HEAD word 12 is
-        read only when the padded and exact counts are equal, as it was 1 in every
-        tiled file and 0 in every linear file observed. It is not documented by
-        Apple.
+        order and are returned unchanged. The block count decides. HEAD word 12 is
+        read when the count equals the padded surface. It was 1 in every tiled file
+        and 0 in every linear file observed. It is not documented by Apple.
+
+        Only those lengths are accepted: linear at exactly one block per 4x4
+        pixels, tiled at exactly the padded surface plus one block, or exactly the
+        padded surface with HEAD word 12 set to 1. Every AAPL file measured (10,628
+        in 24 images, iOS 15 to 27) had one of the first two; the third was not seen
+        in any file. Anything else, such as a cut-short file,
+        raises ValueError, because the decoder would turn it into a full-size
+        picture with no error.
 
         When image_scale is 2, the x and y bits are swapped inside each tile (y in
         the even bits). That order was measured on one 2x device on iOS 26.2.1;
@@ -227,13 +260,16 @@ class KTX_reader:
         tiles_x = -(-blocks_x // TILE_BLOCKS)
         tiles_y = -(-blocks_y // TILE_BLOCKS)
         padded = tiles_x * tiles_y * TILE_BLOCKS * TILE_BLOCKS
-        count = len(data) // ASTC_BLOCK_BYTES
-        if count < padded:
+        count, remainder = divmod(len(data), ASTC_BLOCK_BYTES)
+        words = self.aapl_head_words
+        flagged = len(words) > 12 and words[12] == 1
+        if remainder == 0 and count == exact and not (padded == exact and flagged):
             return data
-        if count == exact:
-            words = self.aapl_head_words
-            if padded != exact or len(words) <= 12 or words[12] != 1:
-                return data
+        if remainder != 0 or not (count == padded + 1 or (count == padded and flagged)):
+            raise ValueError(
+                f'AAPL texture holds {len(data)} bytes, which is not an accepted linear '
+                f'({exact * ASTC_BLOCK_BYTES}) or tiled ({(padded + 1) * ASTC_BLOCK_BYTES}) '
+                f'size for {self.pixelWidth}x{self.pixelHeight}')
         self.is_tiled = True
         if self.image_scale == 2:
             morton_x, morton_y = _MORTON_Y, _MORTON_X
@@ -269,7 +305,7 @@ class KTX_reader:
         
             Raises
             ----------
-            OSError, ValueError, liblzfse.error
+            OSError, ValueError
         '''
         if self.validate_header(f):
             data = self.get_uncompressed_texture_data(f)

@@ -107,7 +107,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path, image_scale=None):
 
                 return True
         except (OSError, ValueError) as ex:
-            logfunc(f'Had an exception - {str(ex)}')
+            logfunc(f'Left out {Path(ktx_path).name}, it was not converted: {ex}')
     return False
 
 
