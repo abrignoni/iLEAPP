@@ -124,8 +124,9 @@ __artifacts_v2__ = {
                  "Type, Extraction Status and Data Transfer State are reported as stored; what the Data"
                  " Transfer State numbers mean is not established. Media Type held IMAGE_MEDIA and MIME"
                  " Type image/png on every row seen, and File Present was Yes on every row: the "
-                 "unreferenced-file row is code present and was not exercised. Not reported: ZLENGTH (0"
-                 " on every row seen) and ZSOURCEURI (NULL on every row seen). Account is "
+                 "unreferenced-file row, given for every Keep app group folder whether or not its store"
+                 " could be read, was exercised only on a constructed folder. Not reported: ZLENGTH (0 "
+                 "on every row seen) and ZSOURCEURI (NULL on every row seen). Account is "
                  "ZACCOUNT.ZACCOUNTNAME for the blob node's account id. The store is read when its "
                  "container's metadata plist names group.com.google.Keep, or when no identifier could "
                  "be read from a metadata plist in that container. Built from a private iPhone "
@@ -162,21 +163,19 @@ __artifacts_v2__ = {
                  " in field 2, the shape of google.protobuf.Timestamp, and are converted to UTC on that"
                  " basis. In the known data field 11 was never later than field 3, and field 2.5 was "
                  "present on every row whose Completed column was set and on no other row. Fields 2.2 "
-                 "and 2.3 and the task list's field 2.1 are decoded as UTF-8 text; a value the decoder "
-                 "reads as anything other than text is left blank and logged, which did not occur in "
-                 "the known data. The task list is joined by Tasks.TaskListId to "
-                 "TaskLists.TaskListIdWithoutShard within the same ShardId. Due Date was empty on every"
-                 " row seen. Account Folder is the name of the folder holding tasks.db and held one "
-                 "value on every row seen. Not reported: TaskRecurrenceId and TaskRecurrences (empty), "
-                 "HasDirtyState (sync state), Operations, UserActions, Rooms, RoomsTable, "
-                 "DocumentsTable and GlobalMetadata (no rows seen), and ClientSyncState, UserMetadata, "
-                 "UserPrefs, UserExperimental and GlobalMetadataTable (not decoded; GlobalMetadataTable"
-                 " has an ObfuscatedGaiaId column). The iOS 16.1.1 and iOS 18.7 images held "
-                 "Library/Application Support/reminders.db in the Keep container and no tasks.db; its "
-                 "reminders table had no rows on either and it is not read. In the known data the "
-                 "tasks.db tables were only in its -wal; without the -wal that store reads as having no"
-                 " tables. Built from a private iPhone known-data image on iOS 27, which cannot be "
-                 "cited.",
+                 "and 2.3 and the task list's field 2.1 are read as bytes and decoded as UTF-8 text. "
+                 "The task list is joined by Tasks.TaskListId to TaskLists.TaskListIdWithoutShard "
+                 "within the same ShardId. Due Date was empty on every row seen. Account Folder is the "
+                 "name of the folder holding tasks.db and held one value on every row seen. Not "
+                 "reported: TaskRecurrenceId and TaskRecurrences (empty), HasDirtyState (sync state), "
+                 "Operations, UserActions, Rooms, RoomsTable, DocumentsTable and GlobalMetadata (no "
+                 "rows seen), and ClientSyncState, UserMetadata, UserPrefs, UserExperimental and "
+                 "GlobalMetadataTable (not decoded; GlobalMetadataTable has an ObfuscatedGaiaId "
+                 "column). The iOS 16.1.1 and iOS 18.7 images held Library/Application "
+                 "Support/reminders.db in the Keep container and no tasks.db; its reminders table had "
+                 "no rows on either and it is not read. In the known data the tasks.db tables were only"
+                 " in its -wal; without the -wal that store reads as having no tables. Built from a "
+                 "private iPhone known-data image on iOS 27, which cannot be cited.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Tasks/*/tasks.db*',
                   '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
@@ -188,10 +187,14 @@ __artifacts_v2__ = {
     },
 }
 
+
+import copy
 import os
 import plistlib
 import re
 import sqlite3
+
+from google.protobuf.message import DecodeError
 
 from scripts import blackboxprotobuf
 from scripts.ilapfuncs import (artifact_processor, check_in_media, convert_cocoa_core_data_ts_to_utc,
@@ -205,6 +208,12 @@ _CONTAINER_RE = re.compile(r'^(.*/Containers/(?:Data/Application|Shared/AppGroup
 # Core Data time of the Unix epoch. The store writes it, or a value a millisecond past it,
 # into time columns that carry no event, so anything within a second of it is left blank.
 _UNIX_EPOCH_IN_COCOA = -978307200
+_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError, IndexError)
+# The decoder guesses a field's type from its bytes, and short UTF-8 text can also parse as a
+# nested message. The text fields the artifact reports are pinned to bytes; the rest are guessed.
+_BYTES = {'type': 'bytes', 'name': ''}
+_TASK_TYPES = {'2': {'type': 'message', 'name': '', 'message_typedef': {'2': _BYTES, '3': _BYTES}}}
+_TASK_LIST_TYPES = {'2': {'type': 'message', 'name': '', 'message_typedef': {'1': _BYTES}}}
 
 
 def _norm(path):
@@ -318,8 +327,12 @@ def _fetch(cursor, query, store):
 
 
 def _has_tables(cursor, *tables):
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    present = {row[0] for row in cursor.fetchall()}
+    try:
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        present = {row[0] for row in cursor.fetchall()}
+    except sqlite3.Error as error:
+        logfunc(f'Google Keep: could not read the schema of a store: {error}')
+        return False
     return all(table in present for table in tables)
 
 
@@ -496,7 +509,13 @@ def googleKeepMedia(context):
     index = _media_index(files_found)
     data_list = []
     sources = []
-    for store, root in _keep_stores(files_found):
+    named = set()
+    stores = _keep_stores(files_found)
+    # Media is listed for every Keep app group folder, whether or not its store could be read.
+    roots = {root for _store, root in stores}
+    roots.update(folder for folder, bundle_id in _container_apps(files_found).items()
+                 if bundle_id == _APP_GROUP)
+    for store, root in stores:
         db = open_sqlite_db_readonly(store)
         if db is None:
             continue
@@ -527,7 +546,6 @@ def googleKeepMedia(context):
                               'ORDER BY m.Z_PK', store)
         db.close()
 
-        named = set()
         for (created, updated, trashed, deleted, blob_type, extracted, extraction, account_id, blob_server_id,
              local_path, media_type, mime, width, height, byte_size, transfer, media_id, note_title,
              note_type) in rows:
@@ -547,6 +565,7 @@ def googleKeepMedia(context):
                 local_path or '', 'Yes' if media else 'No', media_id or '',
                 accounts.get(account_id, ''), blob_server_id or ''))
 
+    for root in sorted(roots):
         root_prefix = _norm(root) + '/'
         for path in sorted(index):
             if not path.startswith(root_prefix) or path in named:
@@ -556,6 +575,7 @@ def googleKeepMedia(context):
                 '', '', '', '', _media_ref(index, path, os.path.basename(path)), '', '', '',
                 '', '', '', '', '', '', '', '', '', relative,
                 'Yes (named by no media item)', '', '', ''))
+            sources.append(index[path])
 
     data_headers = (
         ('Time Created', 'datetime'), ('Time Updated', 'datetime'), ('Time Trashed', 'datetime'),
@@ -596,13 +616,13 @@ def _pb_time(message, *keys):
     return convert_unix_ts_to_utc(value['1'] + nanos / 1e9)
 
 
-def _decode(blob, label):
+def _decode(blob, label, typedef):
     if not isinstance(blob, (bytes, bytearray)) or not blob or blob.startswith(b'\xfe\xff'):
         return {}
     try:
-        message, _types = blackboxprotobuf.decode_message(bytes(blob))
+        message, _types = blackboxprotobuf.decode_message(bytes(blob), copy.deepcopy(typedef))
         return message
-    except Exception as error:  # pylint: disable=broad-except
+    except _DECODE_ERRORS as error:
         logfunc(f'Google Keep: could not decode a {label} protobuf: {error}')
         return {}
 
@@ -627,13 +647,13 @@ def googleKeepTasks(context):
             for shard, list_id, blob in _fetch(
                     cursor, 'SELECT ShardId, TaskListIdWithoutShard, EffectiveTaskList FROM TaskLists',
                     store):
-                lists[(shard, list_id)] = _pb_text(_decode(blob, 'task list'), '2', '1')
+                lists[(shard, list_id)] = _pb_text(_decode(blob, 'task list', _TASK_LIST_TYPES), '2', '1')
         rows = _fetch(cursor, '''
             SELECT TaskId, TaskListId, DueDate, Completed, EffectiveTask, ShardId
             FROM Tasks ORDER BY rowid''', store)
         db.close()
         for task_id, list_id, due, completed, blob, shard in rows:
-            message = _decode(blob, 'task')
+            message = _decode(blob, 'task', _TASK_TYPES)
             data_list.append((
                 _pb_time(message, '11'), _pb_time(message, '3'), _pb_time(message, '2', '5'),
                 due or '', _yes_no(completed), _pb_text(message, '2', '2'), _pb_text(message, '2', '3'),
