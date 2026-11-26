@@ -50,7 +50,8 @@ class FriendingTest(unittest.TestCase):
 
     def run_module(self, paths, snapchatters):
         context = SimpleNamespace(get_files_found=lambda: paths, get_relative_path=os.path.basename)
-        lookup = lambda path: snapchatters.get(path.split('/Application/')[1].split('/')[0], {})
+        lookup = lambda path: snapchatters.get(
+            path.replace('\\', '/').split('/Application/')[1].split('/')[0], {})
         with mock.patch.object(module, '_friend_records', side_effect=lookup), mock.patch.object(module, 'logfunc'):
             return module.snapchatFriendingBadges.__wrapped__(context)
 
