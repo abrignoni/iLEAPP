@@ -6,10 +6,12 @@ changes anything under `scripts/`.
 
 Read this before writing a helper of your own: a reader, a timestamp conversion, a path
 shortener or a storage-view collapse may already be here. "Used by" is the number of artifact
-modules that import the name. A class's public methods are listed under it, since artifacts
-call them on an object (`context.get_files_found()`). The first line of each docstring is
-shown; open the module for the rest. `admin/docs/helper_functions.md` explains where the five
-cores' helpers differ.
+modules that import the name. A class row shows its constructor, and its public methods and
+properties are listed under it, since artifacts call them on an object
+(`context.get_files_found()`). `scripts.context` is listed even where no artifact imports it,
+because artifacts are handed a Context. A name a module imports from another one is listed
+with the module it is defined in. The first line of each docstring is shown; open the module
+for the rest. `admin/docs/helper_functions.md` explains where the five cores' helpers differ.
 
 ## `scripts.ilapfuncs`
 
@@ -45,6 +47,7 @@ cores' helpers differ.
 | 4 | `convert_human_ts_to_utc` | `convert_human_ts_to_utc(ts)` | (no docstring) |
 | 4 | `convert_time_obj_to_utc` | `convert_time_obj_to_utc(ts)` | (no docstring) |
 | 4 | `convert_ts_int_to_utc` | `convert_ts_int_to_utc(ts)` | (no docstring) |
+| 4 | `lava_get_full_media_info` | `lava_get_full_media_info(media_ref_id)` | Defined in `scripts.lavafuncs`. Retrieves complete media information for a given media reference ID from the LAVA database. |
 | 3 | `convert_bytes_to_unit` | `convert_bytes_to_unit(size)` | (no docstring) |
 | 3 | `get_birthdate` | `get_birthdate(date)` | (no docstring) |
 | 3 | `get_txt_file_content` | `get_txt_file_content(file_path)` | (no docstring) |
@@ -56,6 +59,8 @@ cores' helpers differ.
 | 1 | `get_resolution_for_model_id` | `get_resolution_for_model_id(model_id: str)` | (no docstring) |
 | 1 | `is_platform_windows` | `is_platform_windows()` | Returns True if running on Windows |
 | 1 | `is_sysdiagnose_archive` | `is_sysdiagnose_archive(path)` | True for the name of a finished sysdiagnose tar archive. |
+| 1 | `lava_insert_sqlite_data` | `lava_insert_sqlite_data(table_name, data, object_columns, headers, column_map, batch_size=10000, async_write=False, queue_size=5000, label=None)` | Defined in `scripts.lavafuncs`. Insert data into a SQLite database table with automatic column sanitization and type conversion. |
+| 1 | `lava_process_artifact` | `lava_process_artifact(category, module_name, artifact_name, data, record_count=None, func_name=None, data_views=None, artifact_icon=None, source_path=None)` | Defined in `scripts.lavafuncs`. Process an artifact and add it to the LAVA data. |
 | 1 | `strings` | `strings(data)` | (no docstring) |
 | 1 | `timeline` | `timeline(report_folder, tlactivity, data_list, data_headers)` | (no docstring) |
 | 1 | `utf8_in_extended_ascii` | `utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False)` | Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string) |
@@ -84,16 +89,16 @@ cores' helpers differ.
 | 0 | `iter_data_list_with_media` | `iter_data_list_with_media(media_header_info, data_list, html_output=False)` | Stream rows with media reference columns converted for the requested output. |
 | 0 | `kmlgen` | `kmlgen(report_folder, kmlactivity, data_list, data_headers)` | (no docstring) |
 | 0 | `lava_only_info` | `lava_only_info(category, artifact_name, table_name, records)` | Stores artifact information in the lava_only_artifacts dictionary |
-| 0 | class `MediaItem` | | (no docstring) |
+| 0 | class `MediaItem` | `MediaItem(id)` | (no docstring) |
 | | `MediaItem.set_values` | `set_values(self, media_info)` | (no docstring) |
-| 0 | class `MediaReferences` | | (no docstring) |
+| 0 | class `MediaReferences` | `MediaReferences(id)` | (no docstring) |
 | | `MediaReferences.set_values` | `set_values(self, media_ref_info)` | (no docstring) |
-| 0 | class `OutputParameters` | | Defines the parameters that are common for |
+| 0 | class `OutputParameters` | `OutputParameters(output_folder, custom_folder_name=None)` | Defines the parameters that are common for |
 | 0 | `record_html_table_held_back` | `record_html_table_held_back(category, artifact_name, safe_artifact_name, rows)` | Remember a table the HTML report held back, for the index page and the run log. |
 | 0 | `sanitize_report_name` | `sanitize_report_name(name, kind='name')` | Replaces path separators in an artifact name or category so it is usable as a file |
 | 0 | `screen_log_session` | `screen_log_session(func)` | Keep the HTML log open during processing and close it on every exit. |
 | 0 | `set_media_references` | `set_media_references(media_ref_id, media_id, module_name, artifact_name, name)` | Set the media references in the LAVA database. |
-| 0 | class `SqliteRecords` | | The rows of one query, read as the caller iterates. |
+| 0 | class `SqliteRecords` | `SqliteRecords(db, cursor)` | The rows of one query, read as the caller iterates. |
 | | `SqliteRecords.close` | `close(self)` | Release the cursor and the connection. Safe to call more than once. |
 | 0 | `strings_raw` | `strings_raw(data)` | (no docstring) |
 | 0 | `strip_tuple_from_headers` | `strip_tuple_from_headers(data_headers)` | (no docstring) |
@@ -121,7 +126,7 @@ cores' helpers differ.
 | 2 | `safe_source` | `safe_source(text)` | Escape an evidence text/document body for display as source on the HTML page. |
 | 2 | `safe_url` | `safe_url(url, text=None, target=None)` | Render an evidence URL as escaped text. **Never returns a link.** |
 | 1 | `safe_local_path` | `safe_local_path(path)` | Percent-encode a report-relative path for use in an ``href``/``src`` attribute. |
-| 0 | `safe_local_link` | `safe_local_link(path, text=None)` | Build an ``<a href>`` to a file inside the report folder. |
+| 0 | `safe_local_link` | `safe_local_link(path, text=None)` | Build an ``&lt;a href&gt;`` to a file inside the report folder. |
 
 ## `scripts.realm_parser`
 
@@ -132,7 +137,7 @@ cores' helpers differ.
 | 7 | `parse_realm_file` | `parse_realm_file(path)` | Parse an unencrypted Realm file at ``path``. |
 | 5 | `realm_rows` | `realm_rows(path, class_name, section='active')` | Yield each row of ``class_name`` as a {column_name: value} dict. |
 | 0 | class `AbstractParser` | | (no docstring) |
-| 0 | class `ParseResult` | | (no docstring) |
+| 0 | class `ParseResult` | `ParseResult(**kwargs)` | (no docstring) |
 | 0 | class `RealmParser` | | (no docstring) |
 | | `RealmParser.can_parse` | `can_parse(self, path: str, peek_bytes: bytes)` | (no docstring) |
 | | `RealmParser.parse` | `parse(self, node: VFSNode, vfs: VFS, password: str \| None=None)` | (no docstring) |
@@ -199,13 +204,13 @@ cores' helpers differ.
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 5 | `rows_not_in_current` | `rows_not_in_current(db_path, query, params=(), key_columns=None, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Rows the query returns in another state but not in the current one. |
-| 2 | class `WalStates` | | Open each readable state of a WAL-mode database read-only. |
+| 2 | class `WalStates` | `WalStates(db_path, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Open each readable state of a WAL-mode database read-only. |
 | | `WalStates.summary` | `summary(self)` | One line describing what was read and what was not, for the log. |
 | | `WalStates.close` | `close(self)` | (no docstring) |
 | | `WalStates.states` | `states(self)` | Yield a State for each readable state, current first, as the class says. |
-| 0 | class `EarlierRow` | | A row read from another state that the current state does not hold. |
-| 0 | class `EarlierRun` | | The contiguous frames the previous log generation left after the current one. |
-| 0 | class `WalLog` | | The frame layout of one write-ahead log, as SQLite would validate it. |
+| 0 | class `EarlierRow` | `EarlierRow(values, status, first_state, last_state, first_frame, last_frame, earlier_generation=None, uncommitted=False)` | A row read from another state that the current state does not hold. |
+| 0 | class `EarlierRun` | `EarlierRun()` | The contiguous frames the previous log generation left after the current one. |
+| 0 | class `WalLog` | `WalLog(wal_path, fallback_page_size=0)` | The frame layout of one write-ahead log, as SQLite would validate it. |
 | | `WalLog.image` | `image(self, offset)` | (no docstring) |
 | | `WalLog.frame_header` | `frame_header(self, index)` | (no docstring) |
 
@@ -290,7 +295,7 @@ cores' helpers differ.
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 4 | `evidence_path` | `evidence_path(context, path)` | (no docstring) |
-| 4 | class `WebKitOwnerResolver` | | Resolve owners from acquired metadata without guessing a host application. |
+| 4 | class `WebKitOwnerResolver` | `WebKitOwnerResolver(context, files)` | Resolve owners from acquired metadata without guessing a host application. |
 | | `WebKitOwnerResolver.resolve` | `resolve(self, path)` | (no docstring) |
 | 2 | `unix_timestamp` | `unix_timestamp(value)` | Return UTC for positive, finite Unix seconds; retain sentinels separately. |
 | 0 | `web_data_store` | `web_data_store(path)` | (no docstring) |
@@ -301,7 +306,7 @@ cores' helpers differ.
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 3 | class `KTX_reader` | | (no docstring) |
+| 3 | class `KTX_reader` | `KTX_reader(image_scale=None)` | (no docstring) |
 | | `KTX_reader.validate_header` | `validate_header(self, f)` | Reads header and validates version |
 | | `KTX_reader.parse_aapl_file` | `parse_aapl_file(self, f)` | Returns True if HEAD was found and header items could be read |
 | | `KTX_reader.get_uncompressed_texture_data` | `get_uncompressed_texture_data(self, f)` | Just read the texture data which is lzfse compressed, uncompress and return it. |
@@ -317,7 +322,7 @@ cores' helpers differ.
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 2 | class `ArtifactHtmlReport` | | (no docstring) |
+| 2 | class `ArtifactHtmlReport` | `ArtifactHtmlReport(artifact_name, artifact_category='')` | (no docstring) |
 | | `ArtifactHtmlReport.start_artifact_report` | `start_artifact_report(self, report_folder, artifact_file_name, artifact_description='')` | Creates the report HTML file and writes the artifact name as a heading |
 | | `ArtifactHtmlReport.add_script` | `add_script(self, script='')` | Adds a default script or the script supplied |
 | | `ArtifactHtmlReport.write_artifact_data_table` | `write_artifact_data_table(self, data_headers, data_list, source_path, write_total=True, write_location=True, html_escape=True, cols_repeated_at_bottom=True, table_responsive=True, table_style='', table_id='dtBasicExample', html_no_escape=[], row_count=None, row_limit=None, full_data_locations=None, html_multiline=())` | Writes info about data, then writes the table to html file |
@@ -366,7 +371,7 @@ cores' helpers differ.
 | 1 | `decode` | `decode(data, message)` | Decode `data` as `message`, a name in SCHEMAS. Returns a dict by field name. |
 | 1 | `enum_label` | `enum_label(names, value)` | 'NAME (n)' for a stored enum value, 'unknown (n)' when the value is not in `names`. |
 | 1 | class `ProtoError` | | A value that does not decode as the message it is read as. |
-| 1 | class `SyncStore` | | The live records of one Sync Data/LevelDB folder. |
+| 1 | class `SyncStore` | `SyncStore(folder)` | The live records of one Sync Data/LevelDB folder. |
 | | `SyncStore.records_of` | `records_of(self, root_tag)` | (account storage, storage key, value) for the live data records of one type. |
 | | `SyncStore.local_cache_guid` | `local_cache_guid(self, root_tag, account=False)` | The cache GUID the type's DataTypeState records for this client, or ''. |
 | 0 | `webkit_time` | `webkit_time(value)` | A Chromium time, microseconds since 1601-01-01 UTC, as a datetime. |
@@ -384,9 +389,9 @@ cores' helpers differ.
 | 1 | `read_frames` | `read_frames(source, carve=False, key_crc=0)` | Every frame in file order, superseded values and deletions included. |
 | 0 | `hive_entries` | `hive_entries(path, carve=False)` | ``(live entries, superseded frame counts per key)`` for one box. |
 | 0 | class `HiveDateTime` | | Milliseconds since the Unix epoch, as the box stores them. |
-| 0 | class `HiveListRef` | | A reference into another box: a box name and the keys it points at. |
-| 0 | class `HiveObject` | | A value written by a developer-defined TypeAdapter. |
-| 0 | class `HiveRaw` | | A developer type whose payload does not describe itself. |
+| 0 | class `HiveListRef` | `HiveListRef(box_name, keys)` | A reference into another box: a box name and the keys it points at. |
+| 0 | class `HiveObject` | `HiveObject(type_id, fields)` | A value written by a developer-defined TypeAdapter. |
+| 0 | class `HiveRaw` | `HiveRaw(type_id, payload)` | A developer type whose payload does not describe itself. |
 | 0 | class `HiveSet` | | A Dart ``Set``, kept in the order the box stores it. |
 | 0 | `read_value` | `read_value(buf, index)` | One value at ``index``, returning it and the index after it. |
 | 0 | `superseded_counts` | `superseded_counts(frames)` | ``{key: how many of its frames were later replaced}``. |
@@ -408,30 +413,30 @@ cores' helpers differ.
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 1 | class `FileSeekerZip` | | This is a class that extends FileSeekerBase to facilitate searching and extracting files from a ZIP archive. |
+| 1 | class `FileSeekerZip` | `FileSeekerZip(zip_file_path, data_folder)` | This is a class that extends FileSeekerBase to facilitate searching and extracting files from a ZIP archive. |
 | | `FileSeekerZip.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | Each file member filepattern matches, as search() matches it, read only as far |
 | | `FileSeekerZip.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
 | | `FileSeekerZip.cleanup` | `cleanup(self)` | (no docstring) |
 | 0 | `check_itunes_backup_status` | `check_itunes_backup_status(directory, backup_type)` | This function determines whether an iTunes backup is supported based on its |
-| 0 | `clbx_metadata_members` | `clbx_metadata_members(zip_file)` | {filesystem<suffix>/: metadata<suffix>/metadata.msgpack} for a CLBX zip, else None. |
-| 0 | class `FileInfo` | | A class to store file metadata information. |
-| 0 | class `FileSeekerBase` | | Abstract base class for file seeking operations. |
+| 0 | `clbx_metadata_members` | `clbx_metadata_members(zip_file)` | {filesystem&lt;suffix&gt;/: metadata&lt;suffix&gt;/metadata.msgpack} for a CLBX zip, else None. |
+| 0 | class `FileInfo` | `FileInfo(source_path, creation_date, modification_date, kind='file', times=None)` | A class to store file metadata information. |
+| 0 | class `FileSeekerBase` | `FileSeekerBase()` | Abstract base class for file seeking operations. |
 | | `FileSeekerBase.search` | `search(self, filepattern, return_on_first_hit=False)` | Returns a list of paths for files/folders that matched |
 | | `FileSeekerBase.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | A PeekedFile for each file filepattern matches, holding its first size bytes, |
 | | `FileSeekerBase.cleanup` | `cleanup(self)` | close any open handles |
-| 0 | class `FileSeekerDir` | | This class extends FileSeekerBase to provide functionality for searching files |
+| 0 | class `FileSeekerDir` | `FileSeekerDir(directory, data_folder)` | This class extends FileSeekerBase to provide functionality for searching files |
 | | `FileSeekerDir.build_files_list` | `build_files_list(self, directory)` | Populates all paths in directory into _all_files |
 | | `FileSeekerDir.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | Each file filepattern matches, as search() matches it, read from the input |
 | | `FileSeekerDir.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
-| 0 | class `FileSeekerFile` | | This is a class that extends FileSeekerBase to facilitate searching for and copying a specific file |
+| 0 | class `FileSeekerFile` | `FileSeekerFile(file_path, data_folder)` | This is a class that extends FileSeekerBase to facilitate searching for and copying a specific file |
 | | `FileSeekerFile.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
 | | `FileSeekerFile.cleanup` | `cleanup(self)` | (no docstring) |
-| 0 | class `FileSeekerItunes` | | This is a subclass of FileSeekerBase that provides functionality to |
+| 0 | class `FileSeekerItunes` | `FileSeekerItunes(directory, data_folder, backup_type, decryption_keys)` | This is a subclass of FileSeekerBase that provides functionality to |
 | | `FileSeekerItunes.get_root_path_from_domain` | `get_root_path_from_domain(self, domain)` | Retrieve the root path associated with a given domain. |
 | | `FileSeekerItunes.build_files_list_from_manifest_db` | `build_files_list_from_manifest_db(self, manifest_path)` | Populates paths from Manifest.db files into _all_files |
 | | `FileSeekerItunes.build_files_list_from_manifest_mbdb` | `build_files_list_from_manifest_mbdb(self, manifest_path)` | Populates paths from Manifest.mbdb files into _all_files |
 | | `FileSeekerItunes.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
-| 0 | class `FileSeekerTar` | | This is a class that extends FileSeekerBase to facilitate searching and extracting files |
+| 0 | class `FileSeekerTar` | `FileSeekerTar(tar_file_path, data_folder)` | This is a class that extends FileSeekerBase to facilitate searching and extracting files |
 | | `FileSeekerTar.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | Each file member filepattern matches, as search() matches it, read only as far |
 | | `FileSeekerTar.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
 | | `FileSeekerTar.cleanup` | `cleanup(self)` | (no docstring) |
@@ -474,7 +479,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 0 | `filtered_records` | `filtered_records(source_path, query, batch_size=10000, interval=20.0, clock=time.monotonic, log=logfunc)` | Filter the imported logarchive in bounded rowid ranges, reporting progress. |
 | 0 | `find_archive_roots` | `find_archive_roots(files_found)` | Work out what to hand the parser from the paths the seeker returned. |
 | 0 | `find_iterator` | `find_iterator()` | Locate the unifiedlog_iterator binary, or return None when it is unavailable. |
-| 0 | class `ImportProgress` | | Throttled progress lines for a long import, through logfunc. |
+| 0 | class `ImportProgress` | `ImportProgress(total_bytes, label='Unified Logs', interval=20.0, clock=time.monotonic, log=logfunc)` | Throttled progress lines for a long import, through logfunc. |
 | | `ImportProgress.add_record` | `add_record(self)` | (no docstring) |
 | | `ImportProgress.set_bytes_done` | `set_bytes_done(self, done)` | (no docstring) |
 | | `ImportProgress.maybe_report` | `maybe_report(self)` | (no docstring) |
@@ -503,12 +508,11 @@ artifact modules importing any one name from it, or the module itself.
 
 | Used by | Module | Kind |
 | ---: | --- | --- |
-| 95 | `scripts.blackboxprotobuf` | package |
 | 74 | `scripts.ccl_segb.ccl_segb_common` | vendored or generated |
 | 72 | `scripts.ccl_segb.ccl_segb` | vendored or generated |
 | 10 | `scripts.artifacts.Ph126iOS26REFforAssetAnalysis` | artifact module |
 | 4 | `scripts.artifacts.chrome` | artifact module |
-| 3 | `scripts.vendor.ccl.ccl_leveldb` | vendored or generated |
+| 4 | `scripts.vendor.ccl.ccl_leveldb` | vendored or generated |
 | 2 | `scripts.artifacts.discordServers` | artifact module |
 | 1 | `scripts.artifacts.applicationStateDB` | artifact module |
 | 1 | `scripts.artifacts.googleMaps` | artifact module |
@@ -517,7 +521,5 @@ artifact modules importing any one name from it, or the module itself.
 | 1 | `scripts.artifacts.snapchat` | artifact module |
 | 1 | `scripts.artifacts.tikTok` | artifact module |
 | 1 | `scripts.artifacts.whatsAppLID` | artifact module |
-| 1 | `scripts.ccl` | package |
-| 1 | `scripts.vendor` | package |
+| 1 | `scripts.ccl.ccl_bplist` | vendored or generated |
 | 1 | `scripts.vendor.c2pareader` | vendored or generated |
-| 1 | `scripts.vendor.ccl` | package |

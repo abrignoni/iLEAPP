@@ -31,12 +31,42 @@ class TestHelperIndex(unittest.TestCase):
                 pass
             def _private():
                 pass
+            from scripts.lavafuncs import media_info
             class Context:
                 """The run's state."""
                 def get_files_found(self):
                     """Files the artifact matched."""
                 def _hidden(self):
                     pass
+            class Reader:
+                """Reads a <table> of rows."""
+                def __init__(self, path, limit=5):
+                    pass
+                @property
+                def known(self):
+                    """Whether it is known."""
+                @known.setter
+                def known(self, value):
+                    pass
+            ''')
+        self.write('scripts/lavafuncs.py', '''
+            def media_info(item):
+                """Media details for an item."""
+            ''')
+        self.write('scripts/context.py', '''
+            class Context:
+                """Handed to every artifact."""
+                def get_relative_path(self, path):
+                    """The evidence-relative path."""
+            ''')
+        self.write('scripts/pkg/__init__.py', '')
+        self.write('scripts/pkg/child.py', '''
+            def child_helper():
+                """In a module imported from its package."""
+            ''')
+        self.write('scripts/starred.py', '''
+            def starred_helper():
+                pass
             ''')
         self.write('scripts/whole.py', '''
             def thing():
@@ -53,7 +83,9 @@ class TestHelperIndex(unittest.TestCase):
             ''')
         self.write('scripts/artifacts/one.py', '''
             __artifacts_v2__ = {"a": {"name": "A"}}
-            from scripts.ilapfuncs import used, Context
+            from scripts.ilapfuncs import used, Context, media_info, Reader
+            from scripts.pkg import child
+            from scripts.starred import *
             from scripts.artifacts.helpers import shared
             from scripts import whole
             from scripts.vendor.reader import read
@@ -92,17 +124,38 @@ class TestHelperIndex(unittest.TestCase):
         self.assertIn('## `scripts.own.tool`', text)
         self.assertIn('| 1 | `typed` | `typed(x: str \\| None=None)` |', text)
 
+    def test_constructors_properties_and_escaping(self):
+        text = load(self.root).build()
+        self.assertIn('| 1 | class `Reader` | `Reader(path, limit=5)` | Reads a &lt;table&gt; of rows. |', text)
+        self.assertIn('| | `Reader.known` | property | Whether it is known. |', text)
+        self.assertEqual(text.count('`Reader.known`'), 1)
+
+    def test_reexports_context_child_modules_and_star_imports(self):
+        text = load(self.root).build()
+        self.assertIn('| 1 | `media_info` | `media_info(item)` | Defined in `scripts.lavafuncs`. Media details '
+                      'for an item. |', text)
+        self.assertIn('## `scripts.context`', text)
+        self.assertIn('| | `Context.get_relative_path` | `get_relative_path(self, path)` |', text)
+        self.assertIn('## `scripts.pkg.child`', text)
+        self.assertIn('## `scripts.starred`', text)
+        self.assertIn('Imported with `*` by 1 artifact module(s)', text)
+        section = text.split('## `scripts.starred`')[1].split('## ')[0]
+        self.assertNotIn('Imported as a module', section)
+
+    def test_check_exit_codes_and_leaves_the_file_alone(self):
+        module = load(self.root)
+        self.assertEqual(module.main(['--check']), 1)
+        self.assertFalse(module.OUTPUT.exists())
+        self.assertEqual(module.main([]), 0)
+        self.assertEqual(module.main(['--check']), 0)
+        written = module.OUTPUT.read_text(encoding='utf-8')
+        self.write('scripts/artifacts/three.py', '__artifacts_v2__ = {}\nfrom scripts.ilapfuncs import unused\n')
+        self.assertEqual(module.main(['--check']), 1)
+        self.assertEqual(module.OUTPUT.read_text(encoding='utf-8'), written)
+
     def test_most_used_module_comes_first(self):
         text = load(self.root).build()
         self.assertLess(text.index('## `scripts.ilapfuncs`'), text.index('## `scripts.artifacts.helpers`'))
-
-    def test_check_reports_a_stale_index(self):
-        module = load(self.root)
-        module.OUTPUT.parent.mkdir(parents=True)
-        module.OUTPUT.write_text(module.build(), encoding='utf-8')
-        self.assertEqual(module.OUTPUT.read_text(encoding='utf-8'), module.build())
-        self.write('scripts/artifacts/three.py', '__artifacts_v2__ = {}\nfrom scripts.ilapfuncs import unused\n')
-        self.assertNotEqual(module.OUTPUT.read_text(encoding='utf-8'), module.build())
 
 
 if __name__ == '__main__':
