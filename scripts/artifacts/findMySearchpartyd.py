@@ -1153,11 +1153,18 @@ def _wal_recovered(copy_path, current_ids, label):
                         span[slot] = (state.number, state.number) if old is None else \
                             (min(old[0], state.number), max(old[1], state.number))
                 wanted = sorted(adv_id for adv_id in missing if adv_id not in best or best[adv_id][0] < rank)
-                for start in range(0, len(wanted), _FETCH_CHUNK):
-                    chunk = wanted[start:start + _FETCH_CHUNK]
-                    query = OBSERVATIONS_QUERY + BY_ID.format(', '.join('?' * len(chunk)))
-                    for row in state.connection.execute(query, chunk):
-                        best[row[-1]] = (rank, tuple(row))
+                fetched = {}
+                try:
+                    for start in range(0, len(wanted), _FETCH_CHUNK):
+                        chunk = wanted[start:start + _FETCH_CHUNK]
+                        query = OBSERVATIONS_QUERY + BY_ID.format(', '.join('?' * len(chunk)))
+                        for row in state.connection.execute(query, chunk):
+                            fetched[row[-1]] = (rank, tuple(row))
+                except sqlite3.Error as ex:
+                    # Only this state is skipped; what earlier states gave is kept.
+                    logfunc(f'{label}: advertisements not read from one state of the log: {ex}')
+                    continue
+                best.update(fetched)
             if wal.log:
                 logfunc(f'{label}: {wal.summary()}')
     except (sqlite3.Error, OSError) as ex:

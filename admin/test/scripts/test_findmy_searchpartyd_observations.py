@@ -457,5 +457,46 @@ class DaySummary(unittest.TestCase):
         self.assertEqual(len(every), 5)
 
 
+class FailingState(unittest.TestCase):
+    """A state whose full-row query fails is skipped; what other states gave is kept."""
+
+    def test_recoveries_from_other_states_survive(self):
+        def state_db(ids, beacon_table=True):
+            connection = sqlite3.connect(':memory:')
+            statements = [s for s in SCHEMA.strip().split(';') if s.strip()]
+            for statement in statements if beacon_table else statements[:2]:
+                connection.execute(statement)
+            for adv_id in ids:
+                connection.execute('INSERT INTO ObservedAdvertisement VALUES (?, 1, ?, ?, -50, ?)',
+                                   (adv_id, bytes(6), bytes(28), '2026-01-01T08:00:00.000'))
+            return connection
+
+        class State:  # pylint: disable=too-few-public-methods
+            def __init__(self, number, connection):
+                self.number, self.connection, self.kind = number, connection, sqlite_wal.KIND_COMMITTED
+
+        class FakeStates:
+            log = None
+
+            def __init__(self, *_args, **_kwargs):
+                self.connections = [state_db([1]), state_db([1, 2]), state_db([1, 3], beacon_table=False)]
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                for connection in self.connections:
+                    connection.close()
+
+            def states(self):
+                for number, connection in zip((2, 1, 0), self.connections):
+                    yield State(number, connection)
+
+        with mock.patch.object(spd, 'WalStates', FakeStates), mock.patch.object(spd, 'logfunc') as log:
+            recovered, _located = spd._wal_recovered('Observations.db', {1}, 'test')
+        self.assertEqual(sorted(recovered), [2])
+        self.assertIn('not read from one state', log.call_args[0][0])
+
+
 if __name__ == '__main__':
     unittest.main()
