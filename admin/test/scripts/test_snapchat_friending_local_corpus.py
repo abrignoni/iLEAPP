@@ -11,6 +11,7 @@ import shutil
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 from admin.test.scripts.test_local_corpus_artifacts import LOCAL_IMAGE, LocalCorpusTestCase
 from scripts.artifacts import snapchatFriending as module
@@ -33,6 +34,11 @@ class _Context:
 
 @unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
 class SnapchatFriendingLocalTest(LocalCorpusTestCase):
+    def inside(self, root, relative):
+        """The staging path for an evidence path, or None when it would land outside the staging folder."""
+        target = (root / relative).resolve()
+        return target if target.is_relative_to(root.resolve()) else None
+
     def stage(self):
         """Copy the three stores and their -wal files, keeping each app container's own folder."""
         staged = []
@@ -42,7 +48,9 @@ class SnapchatFriendingLocalTest(LocalCorpusTestCase):
             for path in source.rglob('*'):
                 text = str(path).replace('\\', '/')
                 if path.is_file() and text.endswith(_STORES) and '/Data/Application/' in text:
-                    target = root / text[text.index('/Data/Application/') + 1:]
+                    target = self.inside(root, text[text.index('/Data/Application/') + 1:])
+                    if target is None:
+                        continue
                     target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(path, target)
                     wal = path.with_name(path.name + '-wal')
@@ -55,7 +63,9 @@ class SnapchatFriendingLocalTest(LocalCorpusTestCase):
             for name in sorted(names):
                 if not name.endswith(_STORES) or '/Data/Application/' not in name:
                     continue
-                target = root / name[name.index('/Data/Application/') + 1:]
+                target = self.inside(root, name[name.index('/Data/Application/') + 1:])
+                if target is None:
+                    continue
                 target.parent.mkdir(parents=True, exist_ok=True)
                 for suffix in ('', '-wal'):
                     if name + suffix in names:
@@ -69,10 +79,11 @@ class SnapchatFriendingLocalTest(LocalCorpusTestCase):
         friending = [s for s in stores if s.name != 'primary.docobjects']
         if not friending:
             self.skipTest('no Snapchat friending store in the local image')
-        headers, rows, source = module.snapchatFriendingBadges.__wrapped__(_Context(stores))
+        with mock.patch.object(module, 'logfunc'), mock.patch('scripts.ilapfuncs.logfunc'):
+            headers, rows, source = module.snapchatFriendingBadges.__wrapped__(_Context(stores))
         read = set(source.split('\n')) if source else set()
-        for store in friending:
-            self.assertIn(str(store), read, 'every staged friending store was read')
+        unread = sum(str(store) not in read for store in friending)
+        self.assertTrue(unread == 0, f'{unread} of {len(friending)} staged friending stores were not read')
         self.assert_row_shape(headers, rows)
         for row in rows:
             if row[0]:

@@ -131,7 +131,8 @@ class WalOnlyRowsTest(unittest.TestCase):
         main_only.close()
         self.assertEqual(tables, 0, 'the fixture keeps the table and rows in the -wal only')
         (_headers, result, _source), found = self.run_artifact(artifact)
-        self.assertIn(store + '-wal', found, 'the declared paths collect the -wal')
+        wal = store.replace('\\', '/') + '-wal'
+        self.assertTrue(wal in found, 'the declared paths collect the -wal')
         self.assertEqual(len(result), len(rows))
         return result
 
