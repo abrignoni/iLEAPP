@@ -871,7 +871,7 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
 
     ANCHOR = 'mobile/Library/com.apple.icloud.searchpartyd/'
     TYPES = ('BeaconEstimatedLocation', 'OwnedBeacons', 'SharedBeacons', 'BeaconNamingRecord',
-             'LeashRecords')
+             'LeashRecords', 'WildModeAssociationRecord')
     KEYCHAIN = 'extra/KeychainDump/backup_keychain_v2.plist'
     UUID = r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
 
@@ -942,7 +942,9 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         for func, record_type in ((findMySearchpartyd.findMyBeaconEstimatedLocations,
                                    'BeaconEstimatedLocation'),
                                   (findMySearchpartyd.findMyOwnedBeacons, 'OwnedBeacons'),
-                                  (findMySearchpartyd.findMySharedBeacons, 'SharedBeacons')):
+                                  (findMySearchpartyd.findMySharedBeacons, 'SharedBeacons'),
+                                  (findMySearchpartyd.findMyUnwantedTrackerAlerts,
+                                   'WildModeAssociationRecord')):
             rows = self.run_artifact(func)
             self.assertEqual(len(rows), self.count(record_type),
                              f'{record_type}: fewer rows than record files')
@@ -968,6 +970,19 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         for row in self.run_artifact(findMySearchpartyd.findMySharedBeacons):
             self.assert_plausible_timestamp(row['Share Date'])
             self.assert_matches(row['Identifier'], self.UUID, 'Identifier')
+
+    def test_unwanted_tracker_structure(self):
+        alerts = self.run_artifact(findMySearchpartyd.findMyUnwantedTrackerAlerts)
+        for row in alerts:
+            self.assert_plausible_timestamp(row['Trigger Date'])
+            self.assert_matches(row['Identifier'], self.UUID, 'Identifier')
+        locations = self.run_artifact(findMySearchpartyd.findMyUnwantedTrackerLocations)
+        self.assertEqual(len(locations), sum(row['Locations'] for row in alerts),
+                         'location rows differ from the alerts\' location counts')
+        for row in locations:
+            self.assert_plausible_timestamp(row['Timestamp'])
+            self.assertTrue(-90 <= row['Latitude'] <= 90 and -180 <= row['Longitude'] <= 180,
+                            'coordinate out of range')
 
 
 if __name__ == '__main__':
