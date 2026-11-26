@@ -11,6 +11,7 @@
   "hidden_artifacts": ["itunes_backup_*", "last_build", "ios_version_diagnostic_reports", "logarchive_*"],
   "secrets": {
     "title": "KEYCHAIN FILE",
+    "subtitle": "The keychain is optional",
     "fields": [
       {"name": "keychain", "label": "Optional. Captured from the device apart from the extraction.",
        "if_absent": "No keychain file: apps that keep their key there stay encrypted, unless the extraction holds one.",
